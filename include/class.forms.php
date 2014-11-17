@@ -609,7 +609,7 @@ class FormField {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
             $clazz = $type[1];
-            $T = new $clazz(array('type'=>$this->get('type')));
+            $T = new $clazz($this->ht);
             $config = $this->getConfiguration();
             $this->_cform = new Form($T->getConfigurationOptions(), $source);
             if (!$source) {
@@ -646,6 +646,15 @@ class FormField {
             $name .= '_id';
 
         return $name;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('field.%s.%s', $subtag, $this->get('id')));
+    }
+    function getLocal($subtag, $default=false) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : ($default ?: $this->get($subtag));
     }
 }
 
@@ -689,12 +698,16 @@ class TextboxField extends FormField {
                 })),
             'validator-error' => new TextboxField(array(
                 'id'=>4, 'label'=>__('Validation Error'), 'default'=>'',
-                'configuration'=>array('size'=>40, 'length'=>60),
+                'configuration'=>array('size'=>40, 'length'=>60,
+                    'translatable'=>$this->getTranslateTag('validator-error')
+                ),
                 'hint'=>__('Message shown to user if the input does not match the validator'))),
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('placeholder')
+                ),
             )),
         );
     }
@@ -732,7 +745,7 @@ class TextboxField extends FormField {
         $func = $validators[$valid];
         $error = $func[1];
         if ($config['validator-error'])
-            $error = $config['validator-error'];
+            $error = $this->getLocal('validator-error', $config['validator-error']);
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
@@ -768,7 +781,8 @@ class TextareaField extends FormField {
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('placeholder')),
             )),
         );
     }
@@ -918,7 +932,9 @@ class ChoiceField extends FormField {
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
-                'configuration'=>array('size'=>40, 'length'=>40),
+                'configuration'=>array('size'=>40, 'length'=>40,
+                    'translatable'=>$this->getTranslateTag('prompt'),
+                ),
             )),
             'multiselect' => new BooleanField(array(
                 'id'=>1, 'label'=>'Multiselect', 'required'=>false, 'default'=>false,
@@ -1031,32 +1047,23 @@ class DatetimeField extends FormField {
             return (int) $value;
     }
 
-    function parse($value) {
-        if (!$value) return null;
-        $config = $this->getConfiguration();
-        return ($config['gmt']) ? Misc::db2gmtime($value) : $value;
-    }
-
     function toString($value) {
         global $cfg;
         $config = $this->getConfiguration();
-        $format = ($config['time'])
-            ? $cfg->getDateTimeFormat() : $cfg->getDateFormat();
-        if ($config['gmt'])
-            // Return time local to user's timezone
-            return Format::userdate($format, $value);
+        // If GMT is set, convert to local time zone. Otherwise, leave
+        // unchanged (default TZ is UTC)
+        if ($config['time'])
+            return Format::datetime($value, false, !$config['gmt'] ? 'UTC' : false);
         else
-            return Format::date($format, $value);
+            return Format::date($value, false, false, !$config['gmt'] ? 'UTC' : false);
     }
 
     function export($value) {
         $config = $this->getConfiguration();
         if (!$value)
             return '';
-        elseif ($config['gmt'])
-            return Format::userdate('Y-m-d H:i:s', $value);
         else
-            return Format::date('Y-m-d H:i:s', $value);
+            return Format::date($value, false, 'y-MM-dd HH:mm:ss', !$config['gmt'] ? 'UTC' : false);
     }
 
     function getConfigurationOptions() {
@@ -1709,13 +1716,17 @@ class TextboxWidget extends Widget {
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
         if (isset($config['disabled']))
             $disabled = 'disabled="disabled"';
+        if (isset($config['translatable']) && $config['translatable'])
+            $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
+            $config['placeholder']));
         ?>
         <span style="display:inline-block">
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
-                $size, $maxlength, $classes, $autocomplete, $disabled)))
-                .' placeholder="'.$config['placeholder'].'"'; ?>
+                $size, $maxlength, $classes, $autocomplete, $disabled,
+                $translatable, $placeholder))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         </span>
@@ -1818,7 +1829,10 @@ class ChoicesWidget extends Widget {
         // Determine the value for the default (the one listed if nothing is
         // selected)
         $choices = $this->field->getChoices(true);
-        $prompt = $config['prompt'] ?: __('Select');
+        $prompt = ($config['prompt'])
+            ? $this->field->getLocal('prompt', $config['prompt'])
+            : __('Select'
+            /* Used as a default prompt for a custom drop-down list */);
 
         $have_def = false;
         // We don't consider the 'default' when rendering in 'search' mode
@@ -1937,12 +1951,15 @@ class DatetimePickerWidget extends Widget {
         if ($this->value) {
             $this->value = is_int($this->value) ? $this->value :
                 strtotime($this->value);
-            if ($config['gmt'])
-                $this->value += 3600 *
-                    $_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$this->value):0);
 
+            if ($config['gmt']) {
+                // Convert to GMT time
+                $tz = new DateTimeZone($cfg->getTimezone());
+                $D = DateTime::createFromFormat('U', $this->value);
+                $this->value += $tz->getOffset($D);
+            }
             list($hr, $min) = explode(':', date('H:i', $this->value));
-            $this->value = Format::date($cfg->getDateFormat(), $this->value);
+            $this->value = Format::date($this->value, false, false, 'UTC');
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
@@ -1964,7 +1981,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(); ?>')
+                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
                 });
             });
         </script>
@@ -1992,9 +2009,12 @@ class DatetimePickerWidget extends Widget {
                 list($hr, $min) = explode(':', $data[$this->name . ':time']);
                 $datetime += $hr * 3600 + $min * 60;
             }
-            if ($datetime && $config['gmt'])
-                $datetime -= (int) (3600 * $_SESSION['TZ_OFFSET'] +
-                    ($_SESSION['TZ_DST'] ? date('I',$datetime) : 0));
+            if ($datetime && $config['gmt']) {
+                // Convert to GMT time
+                $tz = new DateTimeZone($cfg->getTimezone());
+                $D = DateTime::createFromFormat('U', $datetime);
+                $datetime -= $tz->getOffset($D);
+            }
         }
         return $datetime;
     }
@@ -2003,8 +2023,8 @@ class DatetimePickerWidget extends Widget {
 class SectionBreakWidget extends Widget {
     function render($mode=false) {
         ?><div class="form-header section-break"><h3><?php
-        echo Format::htmlchars($this->field->get('label'));
-        ?></h3><em><?php echo Format::htmlchars($this->field->get('hint'));
+        echo Format::htmlchars($this->field->getLocal('label'));
+        ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
         ?></em></div>
         <?php
     }
@@ -2014,20 +2034,25 @@ class ThreadEntryWidget extends Widget {
     function render($client=null) {
         global $cfg;
 
-        ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
-        echo Format::htmlchars($this->field->get('label'));
-        ?></strong>:</div>
+        $object_id = false;
+        if (!$client) {
+            $namespace = 'ticket.staff';
+        }
+        else {
+            $namespace = 'ticket.client';
+            $object_id = substr(session_id(), -12);
+        }
+        list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
+        ?>
+        <span class="required"><?php
+            echo Format::htmlchars($this->field->getLocal('label'));
+        ?>: <span class="error">*</span></span><br/>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
-            <?php if (!$client) { ?>
-                data-draft-namespace="ticket.staff"
-            <?php } else { ?>
-                data-draft-namespace="ticket.client"
-                data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
-            <?php } ?>
-            class="richtext draft draft-delete ifhtml"
+            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
-            Format::htmlchars($this->value); ?></textarea>
+            $draft ?: Format::htmlchars($this->value); ?></textarea>
     <?php
         $config = $this->field->getConfiguration();
         if (!$config['attachments'])
@@ -2167,9 +2192,9 @@ class FreeTextWidget extends Widget {
     function render($mode=false) {
         $config = $this->field->getConfiguration();
         ?><div class=""><h3><?php
-            echo Format::htmlchars($this->field->get('label'));
+            echo Format::htmlchars($this->field->getLocal('label'));
         ?></h3><em><?php
-            echo Format::htmlchars($this->field->get('hint'));
+            echo Format::htmlchars($this->field->getLocal('hint'));
         ?></em><div><?php
             echo Format::viewableImages($config['content']); ?></div>
         </div>
@@ -2305,43 +2330,6 @@ class VisibilityConstraint {
         if ($Q->isNegated)
             $expression = '!'.$expression;
         return $expression;
-    }
-}
-
-class Q {
-    const NEGATED = 0x0001;
-    const ANY =     0x0002;
-
-    var $constraints;
-    var $flags;
-    var $negated = false;
-    var $ored = false;
-
-    function __construct($filter, $flags=0) {
-        $this->constraints = $filter;
-        $this->negated = $flags & self::NEGATED;
-        $this->ored = $flags & self::ANY;
-    }
-
-    function isNegated() {
-        return $this->negated;
-    }
-
-    function isOred() {
-        return $this->ored;
-    }
-
-    function negate() {
-        $this->negated = !$this->negated;
-        return $this;
-    }
-
-    static function not(array $constraints) {
-        return new static($constraints, self::NEGATED);
-    }
-
-    static function any(array $constraints) {
-        return new static($constraints, self::ORED);
     }
 }
 

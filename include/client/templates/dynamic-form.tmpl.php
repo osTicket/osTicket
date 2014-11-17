@@ -20,26 +20,26 @@
             continue;
         ?>
         <tr>
-            <?php if ($field->isBlockLevel()) { ?>
-                <td colspan="2">
-            <?php
-            }
-            else { ?>
-                <td><label for="<?php echo $field->getFormName(); ?>" class="<?php
+            <td colspan="2" style="padding-top:8px;">
+            <?php if (!$field->isBlockLevel()) { ?>
+                <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
                     if ($field->get('required')) echo 'required'; ?>">
-                <?php echo Format::htmlchars($field->get('label')); ?>:</label></td><td>
-            <?php
-            }
-            $field->render('client'); ?>
+                <?php echo Format::htmlchars($field->getLocal('label')); ?>
             <?php if ($field->get('required')) { ?>
-                <font class="error">*</font>
+                <span class="error">*</span>
+            <?php
+                }
+            ?></span><?php
+                if ($field->get('hint')) { ?>
+                    <br /><em style="color:gray;display:inline-block"><?php
+                        echo Format::htmlchars($field->getLocal('hint')); ?></em>
+                <?php
+                } ?>
+            <br/>
             <?php
             }
-            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($field->get('hint')); ?></em>
-            <?php
-            }
+            $field->render('client');
+            ?></label><?php
             foreach ($field->errors() as $e) { ?>
                 <br />
                 <font class="error"><?php echo $e; ?></font>

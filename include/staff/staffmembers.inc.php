@@ -150,8 +150,8 @@ else
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php echo $row['onvacation']?'<small>(<i>'.__('vacation').'</i>)</small>':''; ?></td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo Format::htmlchars($row['group_name']); ?></a></td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo Format::htmlchars($row['dept']); ?></a></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['lastlogin']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?></td>
+                <td><?php echo Format::datetime($row['lastlogin']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

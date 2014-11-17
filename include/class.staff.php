@@ -67,16 +67,10 @@ class Staff extends AuthenticatedUser {
         $this->teams = $this->ht['teams'] = array();
         $this->group = $this->dept = null;
         $this->departments = $this->stats = array();
-        $this->config = new Config('staff.'.$this->id);
 
         //WE have to patch info here to support upgrading from old versions.
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
             $this->ht['passwd_change'] = time()-$time; //XXX: check timezone issues.
-
-        if($this->ht['timezone_id'])
-            $this->ht['tz_offset'] = Timezone::getOffsetById($this->ht['timezone_id']);
-        elseif($this->ht['timezone_offset'])
-            $this->ht['tz_offset'] = $this->ht['timezone_offset'];
 
         return ($this->id);
     }
@@ -98,7 +92,7 @@ class Staff extends AuthenticatedUser {
     }
 
     function getInfo() {
-        return $this->config->getInfo() + $this->getHashtable();
+        return $this->getHashtable();
     }
 
     // AuthenticatedUser implementation...
@@ -154,10 +148,6 @@ class Staff extends AuthenticatedUser {
 
     function isPasswdChangeDue() {
         return $this->isPasswdResetDue();
-    }
-
-    function getTZoffset() {
-        return $this->ht['tz_offset'];
     }
 
     function observeDaylight() {
@@ -278,15 +268,15 @@ class Staff extends AuthenticatedUser {
     }
 
     function getLanguage() {
-        static $cached = false;
-        if (!$cached) $cached = &$_SESSION['staff:lang'];
+        return $this->ht['lang'];
+    }
 
-        if (!$cached) {
-            $cached = $this->config->get('lang');
-            if (!$cached)
-                $cached = Internationalization::getDefaultLanguage();
-        }
-        return $cached;
+    function getTimezone() {
+        return $this->ht['timezone'];
+    }
+
+    function getLocale() {
+        return $this->ht['locale'];
     }
 
     function isManager() {
@@ -434,6 +424,39 @@ class Staff extends AuthenticatedUser {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }
 
+    function getExtraAttr($attr=false, $default=null) {
+        if (!isset($this->_extra))
+            $this->_extra = JsonDataParser::decode($this->ht['extra']);
+
+        return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
+    }
+
+    function setExtraAttr($attr, $value, $commit=true) {
+        $this->getExtraAttr();
+        $this->extra[$attr] = $value;
+
+        if ($commit) {
+            $sql='UPDATE '.STAFF_TABLE.' SET '
+                .'`extra`='.db_input(JsonDataEncoder::encode($this->extra))
+                .' WHERE staff_id='.db_input($this->getId());
+            db_query($sql);
+        }
+    }
+
+    function onLogin($bk) {
+        // Update last apparent language preference
+        $this->setExtraAttr('browser_lang',
+            Internationalization::getCurrentLanguage(),
+            false);
+
+        $sql='UPDATE '.STAFF_TABLE.' SET '
+            // Update time of last login
+            .'  `lastlogin`=NOW() '
+            .', `extra`='.db_input(JsonDataEncoder::encode($this->extra))
+            .' WHERE staff_id='.db_input($this->getId());
+         db_query($sql);
+    }
+
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
         global $cfg;
@@ -490,15 +513,11 @@ class Staff extends AuthenticatedUser {
                 $errors['passwd1']=__('New password MUST be different from the current password!');
         }
 
-        if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
-
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
 
         if($errors) return false;
 
-        $this->config->set('lang', $vars['lang']);
         $_SESSION['staff:lang'] = null;
         TextDomain::configureForUser($this);
 
@@ -510,14 +529,14 @@ class Staff extends AuthenticatedUser {
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
             .' ,signature='.db_input(Format::sanitize($vars['signature']))
-            .' ,timezone_id='.db_input($vars['timezone_id'])
-            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
+            .' ,timezone='.db_input($vars['timezone'])
+            .' ,locale='.db_input($vars['locale'])
             .' ,show_assigned_tickets='.db_input(isset($vars['show_assigned_tickets'])?1:0)
             .' ,max_page_size='.db_input($vars['max_page_size'])
             .' ,auto_refresh_rate='.db_input($vars['auto_refresh_rate'])
             .' ,default_signature_type='.db_input($vars['default_signature_type'])
-            .' ,default_paper_size='.db_input($vars['default_paper_size']);
-
+            .' ,default_paper_size='.db_input($vars['default_paper_size'])
+            .' ,lang='.db_input($vars['lang']);
 
         if($vars['passwd1']) {
             $sql.=' ,change_passwd=0, passwdreset=NOW(), passwd='.db_input(Passwd::hash($vars['passwd1']));
@@ -586,9 +605,6 @@ class Staff extends AuthenticatedUser {
 
             //Cleanup Team membership table.
             db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId()));
-
-            // Destrory config settings
-            $this->config->destroy();
         }
 
         Signal::send('model.deleted', $this);
@@ -667,7 +683,7 @@ class Staff extends AuthenticatedUser {
     function sendResetEmail($template='pwreset-staff') {
         global $ost, $cfg;
 
-        $content = Page::lookup(Page::getIdByType($template));
+        $content = Page::lookupByType($template);
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
@@ -705,9 +721,10 @@ class Staff extends AuthenticatedUser {
                 $email->getEmail()
             ), false);
 
+        $lang = $this->ht['lang'] ?: $this->getExtraAttr('browser_lang');
         $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
         ), $vars);
 
         $_config = new Config('pwreset');
@@ -771,9 +788,6 @@ class Staff extends AuthenticatedUser {
         if(!$vars['group_id'])
             $errors['group_id']=__('Group is required');
 
-        if(!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
-
         if($errors) return false;
 
 
@@ -785,8 +799,7 @@ class Staff extends AuthenticatedUser {
             .' ,assigned_only='.db_input(isset($vars['assigned_only'])?1:0)
             .' ,dept_id='.db_input($vars['dept_id'])
             .' ,group_id='.db_input($vars['group_id'])
-            .' ,timezone_id='.db_input($vars['timezone_id'])
-            .' ,daylight_saving='.db_input(isset($vars['daylight_saving'])?1:0)
+            .' ,timezone='.db_input($vars['timezone'])
             .' ,username='.db_input($vars['username'])
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])

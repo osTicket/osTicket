@@ -29,8 +29,6 @@ if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the f
         $msg=__('Profile updated successfully');
         $thisstaff->reload();
         $staff->reload();
-        $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
-        $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
     }elseif(!$errors['err'])
         $errors['err']=__('Profile update error. Try correcting the errors below and try again!');
 }

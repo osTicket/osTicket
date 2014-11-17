@@ -315,6 +315,15 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return JsonDataParser::parse($this->_config->get('configuration'));
     }
 
+    function getTranslateTag($subtag) {
+        return _H(sprintf('list.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
+    }
+
     function update($vars, &$errors) {
 
         $required = array();
@@ -520,7 +529,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function getValue() {
-        return $this->get('value');
+        return $this->getLocal('value');
     }
 
     function getAbbrev() {
@@ -585,6 +594,15 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
             if (mb_strtolower($field->get('name')) == $name)
                 return $config[$field->get('id')];
         }
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('listitem.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function toString() {
@@ -1008,6 +1026,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         }
 
         return $this->_properties;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('status.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function getConfiguration() {

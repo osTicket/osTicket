@@ -28,7 +28,7 @@ class ContentAjaxAPI extends AjaxController {
                     $log->getTitle(),
                     Format::display(str_replace(',',', ',$log->getText())),
                     __('Log Date'),
-                    Format::db_daydatetime($log->getCreateDate()),
+                    Format::daydatetime($log->getCreateDate()),
                     __('IP Address'),
                     $log->getIP());
         }else {
@@ -130,22 +130,35 @@ class ContentAjaxAPI extends AjaxController {
     }
 
     function manageContent($id, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
+
+        $langs = Internationalization::getConfiguredSystemLanguages();
+        $translations = $content->getAllTranslations();
+        $info = array();
+        foreach ($translations as $t) {
+            if (!($data = $t->getComplex()))
+                continue;
+            $info['title'][$t->lang] = $data['name'];
+            $info['body'][$t->lang] = $data['body'];
+        }
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
     function manageNamedContent($type, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
-        $content = Page::lookup(Page::getIdByType($type, $lang));
+        $langs = $cfg->getSecondaryLanguages();
+
+        $content = Page::lookupByType($type, $lang);
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 

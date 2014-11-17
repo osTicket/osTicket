@@ -9,6 +9,7 @@ if($group && $_REQUEST['a']!='add'){
     $info=$group->getInfo();
     $info['id']=$group->getId();
     $info['depts']=$group->getDepartments();
+    $trans['name'] = $group->getTranslateTag('name');
     $qstr.='&id='.$group->getId();
 }else {
     $title=__('Add New Group');
@@ -41,7 +42,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Name');?>:
             </td>
             <td>
-                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
@@ -160,13 +162,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <?php
-         $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' ORDER BY dept_name';
-         if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id,$name) = db_fetch_row($res)){
-                $ck=($info['depts'] && in_array($id,$info['depts']))?'checked="checked"':'';
-                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" class="deptckb" name="depts[]" value="%d" %s>%s</td></tr>',$id,$ck,$name);
-            }
-         }
+        foreach (Dept::getDepartments() as $id=>$name) {
+            $ck=($info['depts'] && in_array($id,$info['depts']))?'checked="checked"':'';
+            echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" class="deptckb" name="depts[]" value="%d" %s> %s</td></tr>',$id,$ck,$name);
+        }
         ?>
         <tr>
             <th colspan="2">

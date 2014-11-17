@@ -40,7 +40,7 @@ if ($info['error']) {
     </table>
     <div class="clear"></div>
     <hr>
-    <div class="faded">Last updated <b><?php echo Format::db_datetime($org->getUpdateDate()); ?> </b></div>
+    <div class="faded">Last updated <b><?php echo Format::datetime($org->getUpdateDate()); ?> </b></div>
 </div>
 <div id="org-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(
