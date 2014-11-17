@@ -299,6 +299,10 @@ class VerySimpleModel {
      * Parameters:
      * $criteria - (mixed) primary key for the sought model either as
      *      arguments or key/value array as the function's first argument
+     *
+     * Returns:
+     * (Object<Model>|null) a single instance of the sought model or null if
+     * no such instance exists.
      */
     static function lookup($criteria) {
         // Model::lookup(1), where >1< is the pk value
@@ -310,7 +314,12 @@ class VerySimpleModel {
         if ($cached = ModelInstanceManager::checkCache(get_called_class(),
                 $criteria))
             return $cached;
-        return static::objects()->filter($criteria)->one();
+        try {
+            return static::objects()->filter($criteria)->one();
+        }
+        catch (DoesNotExist $e) {
+            return null;
+        }
     }
 
     function delete($pk=false) {
@@ -593,6 +602,20 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $list[0];
     }
 
+    /**
+     * one
+     *
+     * Finds and returns a single model instance based on the criteria in
+     * this QuerySet instance.
+     *
+     * Throws:
+     * DoesNotExist - if no such model exists with the given criteria
+     * ObjectNotUnique - if more than one model matches the given criteria
+     *
+     * Returns:
+     * (Object<Model>) a single instance of the sought model is guarenteed.
+     * If no such model or multiple models exist, an exception is thrown.
+     */
     function one() {
         $list = $this->all();
         if (count($list) == 0)
