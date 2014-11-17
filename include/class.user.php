@@ -995,8 +995,8 @@ class UserAccount extends UserAccountModel {
 
         // TODO: Make sure the username is unique
 
-        if (!$vars['timezone_id'])
-            $errors['timezone_id'] = __('Time zone selection is required');
+        if (!$vars['timezone'])
+            $errors['timezone'] = __('Time zone selection is required');
 
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {
@@ -1015,8 +1015,7 @@ class UserAccount extends UserAccountModel {
 
         if ($errors) return false;
 
-        $this->set('timezone_id', $vars['timezone_id']);
-        $this->set('dst', isset($vars['dst']) ? 1 : 0);
+        $this->set('timezone', $vars['timezone']);
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
@@ -1079,8 +1078,7 @@ class UserAccount extends UserAccountModel {
         if (!$account)
             return false;
 
-        $account->set('dst', isset($vars['dst'])?1:0);
-        $account->set('timezone_id', $vars['timezone_id']);
+        $account->set('timezone', $vars['timezone']);
         $account->set('backend', $vars['backend']);
 
         if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))

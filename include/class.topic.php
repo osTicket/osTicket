@@ -344,7 +344,7 @@ class Topic extends VerySimpleModel {
         $list = self::objects()->filter(array(
             'topic'=>$name,
             'topic_pid'=>$pid,
-        ))->values_flat('topic_id')->one();
+        ))->values_flat('topic_id')->first();
 
         if ($list)
             return $list[0];
@@ -363,7 +363,7 @@ class Topic extends VerySimpleModel {
         elseif (strlen($vars['topic'])<5)
             $errors['topic']=__('Topic is too short. Five characters minimum');
         elseif (($tid=self::getIdByName($vars['topic'], $vars['topic_pid']))
-                && $tid!=$this->getId())
+                && (!isset($this->topic_id) || $tid!=$this->getId()))
             $errors['topic']=__('Topic already exists');
 
         if (!is_numeric($vars['dept_id']))

@@ -273,13 +273,13 @@ $info['id']=$staff->getId();
     <input type="button" name="cancel" value="<?php echo __('Cancel Changes');?>" onclick='window.location.href="index.php"'>
 </p>
 </form>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.filter.css"/>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
 (function() {
 var I = setInterval(function() {
-    if (!$.fn.multiselect)
+    if (!$.fn.multiselect || !$.ech.multiselectfilter)
         return;
     clearInterval(I);
     $('#timezone-dropdown').multiselect({

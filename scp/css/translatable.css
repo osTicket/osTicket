@@ -77,8 +77,8 @@ ul.translations li input {
   padding: 2px 4px;
   border-radius: 3px;
   border: 1px solid #bbb;
+  font-family: sans-serif;
   font-size: 12px;
-  font-weight: 300;
   margin-top: 4px;
 }
 .language-commit {
@@ -134,6 +134,7 @@ input.translatable {
   padding: 0 !important;
   margin: 0 !important;
   background: none;
+  font-family: sans-serif;
 }
 textarea.translatable,
 input.translatable:focus {
@@ -142,7 +143,7 @@ input.translatable:focus {
 
 button.translatable {
   margin: 0;
-  padding: 4px 5px;
+  padding: 3px 5px 4px;
   background-color: #444;
   background:linear-gradient(0deg, #444 0, #888 100%);
   color: white;

@@ -271,7 +271,7 @@ $(function() {
                 options['lang'] = c.short_lang;
             if (c.has_rtl)
                 options['plugins'].push('textdirection');
-            if ($('html.rtl').length)
+            if (el.find('rtl').length)
                 options['direction'] = 'rtl';
             el.redactor(options);
         });

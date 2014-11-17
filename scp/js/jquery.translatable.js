@@ -44,7 +44,7 @@
       this.$container = $('<div class="translatable"></div>')
           .prependTo(this.$element.parent())
           .append(this.$element);
-      this.$container.wrap('<div style="display:inline-block;position:relative;width:inherit"></div>');
+      this.$container.wrap('<div style="display:inline-block;position:relative;width:auto"></div>');
       this.$button = $(this.options.button).insertAfter(this.$container);
       this.$menu.append($('<span class="close"><i class="icon-remove"></i></span>')
           .on('click', $.proxy(this.hide, this)));

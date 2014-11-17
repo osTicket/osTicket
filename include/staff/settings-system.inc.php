@@ -283,20 +283,27 @@ $gmtime = Misc::gmtime();
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
+<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.filter.css"/>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
+(function() {
+var I = setInterval(function() {
+    if (!$.fn.multiselect || !$.ech.multiselectfilter)
+        return;
+    clearInterval(I);
+    $('#timezone-dropdown').multiselect({
+        multiple: false,
+        header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+        noneSelectedText: <?php echo JsonDataEncoder::encode(__('Select Default Time Zone')); ?>,
+        selectedList: 1,
+        minWidth: 400
+    }).multiselectfilter({
+        placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
+    });
+}, 25);
+})();
 $('#secondary_langs').sortable({
     cursor: 'move'
-});
-$('#timezone-dropdown').multiselect({
-    multiple: false,
-    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    noneSelectedText: <?php echo JsonDataEncoder::encode(__('Select Default Time Zone')); ?>,
-    selectedList: 1,
-    minWidth: 400
-}).multiselectfilter({
-    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
 });
 </script>
