@@ -2164,7 +2164,8 @@ class Ticket {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    function create($vars, &$errors, $origin, $autorespond=true, $alertstaff=true) {
+    static function create(&$vars, &$errors, $origin, $autorespond=true,
+            $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
         // Don't enforce form validation for email
@@ -2530,10 +2531,16 @@ class Ticket {
         }
 
         $ticket->reload();
+        $dept = $ticket->getDept();
 
-        if(!$cfg->notifyONNewStaffTicket()
+        // See if we need to skip auto-response.
+        $autorespond = isset($vars['autorespond'])
+            ? $vars['autorespond'] : true;
+
+        if (!$autorespond
                 || !isset($vars['alertuser'])
-                || !($dept=$ticket->getDept()))
+                || !$dept->autoRespONNewTicket()
+                || !$cfg->notifyONNewStaffTicket())
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
