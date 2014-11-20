@@ -50,6 +50,21 @@ ALTER TABLE  `%TABLE_PREFIX%ticket_thread`
 ALTER TABLE  `%TABLE_PREFIX%note`
     ADD INDEX (`ext_id`);
 
+-- Detect inline images not recorded as inline
+CREATE TABLE `%TABLE_PREFIX%_unknown_inlines` AS
+  SELECT A2.`attach_id`
+  FROM `%TABLE_PREFIX%file` A1
+  JOIN `%TABLE_PREFIX%ticket_attachment` A2 ON (A1.id = A2.file_id)
+  JOIN `%TABLE_PREFIX%ticket_thread` A3 ON (A3.ticket_id = A2.ticket_id)
+  WHERE A1.`type` LIKE 'image/%' AND A2.inline = 0
+    AND A3.body LIKE CONCAT('%"cid:', A1.key, '"%');
+
+UPDATE `%TABLE_PREFIX%ticket_attachment` A1
+  JOIN %TABLE_PREFIX%_unknown_inlines A2 ON (A1.attach_id = A2.attach_id)
+  SET A1.inline = 1;
+
+DROP TABLE `%TABLE_PREFIX%_unknown_inlines`;
+
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'b26f29a6bb5dbb3510b057632182d138'
