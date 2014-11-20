@@ -331,7 +331,7 @@ class AttachmentFile {
             return false;
         }
 
-        if (!$file['type']) {
+        if (!$file['type'] && extension_loaded('fileinfo')) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             if ($file['data'])
                 $type = $finfo->buffer($file['data']);
@@ -340,9 +340,9 @@ class AttachmentFile {
 
             if ($type)
                 $file['type'] = $type;
-            else
-                $file['type'] = 'application/octet-stream';
         }
+        if (!$file['type'])
+            $file['type'] = 'application/octet-stream';
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))
