@@ -217,6 +217,8 @@ class Staff extends AuthenticatedUser {
     }
 
     function getDepartments() {
+        // TODO: Cache this in the agent's session as it is unlikely to
+        //       change while logged in
 
         if($this->departments)
             return $this->departments;
@@ -224,8 +226,8 @@ class Staff extends AuthenticatedUser {
         //Departments the staff is "allowed" to access...
         // based on the group they belong to + user's primary dept + user's managed depts.
         $sql='SELECT DISTINCT d.dept_id FROM '.STAFF_TABLE.' s '
-            .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
-            .' INNER JOIN '.DEPT_TABLE.' d ON(d.dept_id=s.dept_id OR d.manager_id=s.staff_id OR d.dept_id=g.dept_id) '
+            .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON (s.group_id=g.group_id) '
+            .' INNER JOIN '.DEPT_TABLE.' d ON (LOCATE(CONCAT("/", s.dept_id, "/"), d.path) OR d.manager_id=s.staff_id OR LOCATE(CONCAT("/", g.dept_id, "/"), d.path)) '
             .' WHERE s.staff_id='.db_input($this->getId());
 
         $depts = array();

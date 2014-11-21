@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $qstr='';
-$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name, grp.group_name, dept.dept_name as dept,count(m.team_id) as teams ';
+$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name, grp.group_name,count(m.team_id) as teams ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.GROUP_TABLE.' grp ON(staff.group_id=grp.group_id) '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) '.
@@ -61,14 +61,15 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
         <select name="did" id="did">
              <option value="0">&mdash; <?php echo __('All Department');?> &mdash;</option>
              <?php
-             $sql='SELECT dept.dept_id, dept.dept_name,count(staff.staff_id) as users  '.
+             $sql='SELECT dept.dept_id, count(staff.staff_id) as users  '.
                   'FROM '.DEPT_TABLE.' dept '.
                   'INNER JOIN '.STAFF_TABLE.' staff ON(staff.dept_id=dept.dept_id) '.
                   'GROUP By dept.dept_id HAVING users>0 ORDER BY dept_name';
              if(($res=db_query($sql)) && db_num_rows($res)){
-                 while(list($id,$name, $users)=db_fetch_row($res)){
+                 while(list($id, $users)=db_fetch_row($res)){
                      $sel=($_REQUEST['did'] && $_REQUEST['did']==$id)?'selected="selected"':'';
-                     echo sprintf('<option value="%d" %s>%s (%s)</option>',$id,$sel,$name,$users);
+                     echo sprintf('<option value="%d" %s>%s (%s)</option>',$id,$sel,
+                         Dept::getNameById($id), $users);
                  }
              }
              ?>
@@ -149,7 +150,7 @@ else
                 <td><?php echo $row['username']; ?></td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php echo $row['onvacation']?'<small>(<i>'.__('vacation').'</i>)</small>':''; ?></td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo Format::htmlchars($row['group_name']); ?></a></td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo Format::htmlchars($row['dept']); ?></a></td>
+                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo Format::htmlchars(Dept::getNameById($row['dept_id'])); ?></a></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
                 <td><?php echo Format::db_datetime($row['lastlogin']); ?>&nbsp;</td>
                </tr>

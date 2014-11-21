@@ -160,12 +160,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </th>
         </tr>
         <?php
-         $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' ORDER BY dept_name';
-         if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id,$name) = db_fetch_row($res)){
-                $ck=($info['depts'] && in_array($id,$info['depts']))?'checked="checked"':'';
-                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" class="deptckb" name="depts[]" value="%d" %s>%s</td></tr>',$id,$ck,$name);
-            }
+        foreach (Dept::getDepartments() as $id=>$name) {
+            $ck=($info['depts'] && in_array($id,$info['depts']))?'checked="checked"':'';
+            echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<input type="checkbox" class="deptckb" name="depts[]" value="%d" %s> %s</td></tr>',$id,$ck,$name);
          }
         ?>
         <tr>

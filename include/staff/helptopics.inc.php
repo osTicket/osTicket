@@ -2,10 +2,8 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $sql='SELECT topic.* '
-    .', dept.dept_name as department '
     .', priority_desc as priority '
     .' FROM '.TOPIC_TABLE.' topic '
-    .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
     .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
 $sql.=' WHERE 1';
 $order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
@@ -89,6 +87,9 @@ if ($cfg->getTopicSortMode() == 'a')
 
                 if (!$row['priority'] && $defaultPriority)
                     $row['priority'] = (string) $defaultPriority;
+
+                if (!$row['department'])
+                    $row['department'] = Dept::getNameById($row['dept_id']);
 
                 ?>
             <tr id="<?php echo $row['topic_id']; ?>">

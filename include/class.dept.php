@@ -77,6 +77,10 @@ class Dept {
         return $this->ht['name'];
     }
 
+    function getFullName() {
+        return self::getNameById($this->getId());
+    }
+
 
     function getEmailId() {
         return $this->ht['email_id'];
@@ -347,6 +351,34 @@ class Dept {
         return $this->getName();
     }
 
+    function getParent() {
+        return static::lookup($this->ht['dept_pid']);
+    }
+
+    /**
+     * getFullPath
+     *
+     * Utility function to retrieve a '/' separated list of department IDs
+     * in the ancestry of this department. This is used to populate the
+     * `path` field in the database and is used for access control rather
+     * than the ID field since nesting of departments is necessary and
+     * department access can be cascaded.
+     *
+     * Returns:
+     * Slash-separated string of ID ancestry of this department. The string
+     * always starts and ends with a slash, and will always contain the ID
+     * of this department last.
+     */
+    function getFullPath() {
+        $path = '';
+        if ($p = $this->getParent())
+            $path .= $p->getFullPath();
+        else
+            $path .= '/';
+        $path .= $this->getId() . '/';
+        return $path;
+    }
+
     /*----Static functions-------*/
 	function getIdByName($name) {
         $id=0;
@@ -362,11 +394,8 @@ class Dept {
     }
 
     function getNameById($id) {
-
-        if($id && ($dept=Dept::lookup($id)))
-            $name= $dept->getName();
-
-        return $name;
+        $names = static::getDepartments();
+        return $names[$id];
     }
 
     function getDefaultDeptName() {
@@ -374,24 +403,53 @@ class Dept {
         return ($cfg && $cfg->getDefaultDeptId() && ($name=Dept::getNameById($cfg->getDefaultDeptId())))?$name:null;
     }
 
-    function getDepartments( $criteria=null) {
+    static function getDepartments($criteria=false) {
+        global $cfg;
+        static $depts, $names = array();
 
-        $depts=array();
-        $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' WHERE 1';
-        if($criteria['publiconly'])
-            $sql.=' AND  ispublic=1';
+        if (!$names) {
+            $sql = 'SELECT dept_id, dept_pid, ispublic, manager_id, dept_name FROM '
+                .DEPT_TABLE;
+            $res = db_query($sql);
 
-        if(($manager=$criteria['manager']))
-            $sql.=' AND manager_id='.db_input(is_object($manager)?$manager->getId():$manager);
+            // Fetch information for all depts, in declared sort order
+            $depts = array();
+            while (list($id, $pid, $pub, $manager, $name) = db_fetch_row($res))
+                $depts[$id] = array('pid'=>$pid, 'public'=>$pub,
+                    'manager'=>$manager, 'name'=>$name);
 
-        $sql.=' ORDER BY dept_name';
-
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $depts[$id] = $name;
+            // Resolve parent names
+            foreach ($depts as $id=>$info) {
+                $name = $info['name'];
+                $loop = array($id=>true);
+                $parent = false;
+                while ($info['pid'] && ($info = $depts[$info['pid']])) {
+                    $name = sprintf('%s / %s', $info['name'], $name);
+                    if (isset($loop[$info['pid']]))
+                        break;
+                    $loop[$info['pid']] = true;
+                    $parent = $info;
+                }
+                $names[$id] = $name;
+            }
+            asort($names);
         }
 
-        return $depts;
+        if (is_object(@$criteria['manager']))
+            $criteria['manager'] = $criteria['manager']->getId();
+
+        // Apply requested filters
+        $requested_names = array();
+        foreach ($names as $id=>$n) {
+            $info = $depts[$id];
+            if ($criteria['publiconly'] && !$info['public'])
+                continue;
+            if ($criteria['manager'] && $info['manager'] != $criteria['manager'])
+                continue;
+            $requested_names[$id] = $n;
+        }
+
+        return $requested_names;
     }
 
     function getPublicDepartments() {
@@ -426,8 +484,13 @@ class Dept {
         if(!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
             $errors['ispublic']=__('System default department cannot be private');
 
+        if ($vars['dept_pid'] && !($p = static::lookup($vars['dept_pid'])))
+            $errors['dept_pid'] = __('Department selection is required');
+
         if($errors) return false;
 
+        // Set PID for path creation below
+        $this->ht['dept_pid'] = $vars['dept_pid'];
 
         $sql='SET updated=NOW() '
             .' ,ispublic='.db_input(isset($vars['ispublic'])?$vars['ispublic']:0)
@@ -436,8 +499,10 @@ class Dept {
             .' ,sla_id='.db_input(isset($vars['sla_id'])?$vars['sla_id']:0)
             .' ,autoresp_email_id='.db_input(isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0)
             .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
+            .' ,dept_pid='.db_input($vars['dept_pid'])
             .' ,dept_name='.db_input(Format::striptags($vars['name']))
             .' ,dept_signature='.db_input(Format::sanitize($vars['signature']))
+            .' ,path='.db_input($this->getFullPath())
             .' ,group_membership='.db_input($vars['group_membership'])
             .' ,ticket_auto_response='.db_input(isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1)
             .' ,message_auto_response='.db_input(isset($vars['message_auto_response'])?$vars['message_auto_response']:1);
