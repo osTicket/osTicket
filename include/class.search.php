@@ -630,6 +630,187 @@ Signal::connect('system.install',
 
 MysqlSearchBackend::register();
 
+// Saved search system
+
+/**
+ *
+ * Fields:
+ * id - (int:unsigned:auto:pk) unique identifier
+ * flags - (int:unsigned) flags for this queue
+ * staff_id - (int:unsigned) Agent to whom this queue belongs (can be null
+ *      for public saved searches)
+ * title - (text:60) name of the queue
+ * config - (text) JSON encoded search configuration for the queue
+ * created - (date) date initially created
+ * updated - (date:auto_update) time of last update
+ */
+class SavedSearch extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => 'ost_queue', # QUEUE_TABLE
+        'pk' => array('id'),
+        'ordering' => array('sort'),
+    );
+
+    const FLAG_PUBLIC =     0x0001;
+    const FLAG_QUEUE =      0x0002;
+
+    static function forStaff(Staff $agent) {
+        return static::objects()->filter(Q::any(array(
+            'staff_id' => $agent->getId(),
+            'flags__hasbit' => self::FLAG_PUBLIC,
+        )));
+    }
+
+    function getForm($source=false) {
+        // XXX: Ensure that the UIDs generated for these fields are
+        //      consistent between requests
+        FormField::$uid = 1000;
+
+        $searchable = $this->getCurrentSearchFields($source);
+        $fields = array(
+            'keywords' => new TextboxField(array(
+                'configuration' => array(
+                    'size' => 40,
+                    'length' => 400,
+                    'classes' => 'full-width headline',
+                    'placeholder' => __('Keywords — Optional'),
+                ),
+            )),
+        );
+        foreach ($searchable as $name=>$field) {
+            $fields = array_merge($fields, $this->getSearchField($field, $name));
+        }
+        $form = new Form($fields, $source);
+        $form->addValidator(function($form) {
+            $selected = 0;
+            foreach ($form->getFields() as $F) {
+                if (substr($F->get('name'), -7) == '+search' && $F->getClean())
+                    $selected += 1;
+            }
+            if (!$selected)
+                $form->addError('No fields selected for searching');
+        });
+        return $form;
+    }
+
+    function getCurrentSearchFields($source=false) {
+        $core = array(
+            'state' =>      new TicketStateChoiceField(array(
+                'label' => __('State'),
+            )),
+            'status_id' =>  new TicketStatusChoiceField(array(
+                'label' => __('Status'),
+            )),
+            'flags' =>      new TicketFlagChoiceField(array(
+                'label' => __('Flags'),
+            )),
+            'dept_id'   =>  new DepartmentChoiceField(array(
+                'label' => __('Department'),
+            )),
+            'assignee'  =>  new AssigneeChoiceField(array(
+                'label' => __('Assignee'),
+            )),
+            'topic_id'  =>  new HelpTopicChoiceField(array(
+                'label' => __('Help Topic'),
+            )),
+            'created'   =>  new DateTimeField(array(
+                'label' => __('Created'),
+            )),
+            'duedate'   =>  new DateTimeField(array(
+                'label' => __('Due Date'),
+            )),
+        );
+
+        // TODO: Add "other" fields to the basic set
+
+        return $core;
+    }
+
+    function getSearchField($field, $name) {
+        $pieces = array();
+        $pieces["{$name}+search"] = new BooleanField(array(
+            'configuration' => array('desc' => $field->get('label'))
+        ));
+        $methods = $field->getSearchMethods();
+        $pieces["{$name}+method"] = new ChoiceField(array(
+            'choices' => $methods,
+            'default' => key($methods),
+            'visibility' => new VisibilityConstraint(new Q(array(
+                "{$name}+search__eq" => true,
+            )), VisibilityConstraint::HIDDEN),
+        ));
+        foreach ($field->getSearchMethodWidgets() as $m=>$w) {
+            if (!$w)
+                continue;
+            list($class, $args) = $w;
+            $args['required'] = true;
+            $args['visibility'] = new VisibilityConstraint(new Q(array(
+                    "{$name}+method__eq" => $m,
+                )), VisibilityConstraint::HIDDEN);
+            $pieces["{$name}+{$m}"] = new $class($args);
+        }
+        return $pieces;
+    }
+
+    function mangleQuerySet(QuerySet $qs, $form=false) {
+        $form = $form ?: $this->getForm();
+        $searchable = $this->getCurrentSearchFields($form->getSource());
+
+        // Figure out fields to search on
+        foreach ($form->getFields() as $f) {
+            if (substr($f->get('name'), -7) == '+search' && $f->getClean()) {
+                $name = substr($f->get('name'), 0, -7);
+                // Determine the search method and fetch the original field
+                if (($M = $form->getField("{$name}+method"))
+                    && ($method = $M->getClean())
+                    && ($field = $searchable[$name])
+                ) {
+                    // Request the field to generate a search Q for the
+                    // search method and given value
+                    $value = null;
+                    if ($value = $form->getField("{$name}+{$method}"))
+                        $value = $value->getClean();
+
+                    // Add the criteria to the QuerySet
+                    if ($Q = $field->getSearchQ($method, $value, $name))
+                        $qs = $qs->filter($Q);
+                }
+            }
+        }
+        return $qs;
+    }
+
+    function checkAccess(Staff $agent) {
+        return $agent->getId() == $this->staff_id
+            || $this->hasFlag(self::FLAG_PUBLIC);
+    }
+
+    protected function hasFlag($flag) {
+        return $this->get('flag') & $flag !== 0;
+    }
+
+    protected function clearFlag($flag) {
+        return $this->set('flag', $this->get('flag') & ~$flag);
+    }
+
+    protected function setFlag($flag) {
+        return $this->set('flag', $this->get('flag') | $flag);
+    }
+
+    static function create($vars=array()) {
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+}
+
 // Advanced search special fields
 
 class HelpTopicChoiceField extends ChoiceField {
@@ -650,21 +831,8 @@ class DepartmentChoiceField extends ChoiceField {
 
     function getSearchMethods() {
         return array(
-            'is' =>   __('is'),
-            'isnot' =>   __('is not'),
-        );
-    }
-
-    function getSearchMethodWidgets() {
-        return array(
-            'is' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
-                'configuration' => array('multiselect' => true),
-            )),
-            'isnot' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
-                'configuration' => array('multiselect' => true),
-            )),
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
         );
     }
 }
@@ -672,8 +840,8 @@ class DepartmentChoiceField extends ChoiceField {
 class AssigneeChoiceField extends ChoiceField {
     function getChoices() {
         $items = array(
-            'me' => __('Me'),
-            'myteam' => __('One of my teams'),
+            'M' => __('Me'),
+            'T' => __('One of my teams'),
         );
         foreach (Staff::getStaffMembers() as $id=>$name) {
             $items['s' . $id] = $name;
@@ -686,26 +854,117 @@ class AssigneeChoiceField extends ChoiceField {
 
     function getSearchMethods() {
         return array(
-            'assigned' => __('assigned'),
-            'assigned.not' => __('unassigned'),
-            'is' =>     __('is'),
-            'isnot' => __('is not'),
+            'assigned' =>   __('assigned'),
+            '!assigned' =>  __('unassigned'),
+            'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
         );
     }
 
     function getSearchMethodWidgets() {
         return array(
             'assigned' => null,
-            'assigned.not' => null,
-            'is' => array('ChoiceField', array(
+            '!assigned' => null,
+            'includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
             )),
-            'isnot' => array('ChoiceField', array(
+            '!includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
             )),
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case '!assigned':
+            $Q->negate();
+        case 'assigned':
+            $Q->add(array('team_id__gt' => 0,
+                'staff_id__gt' => 0));
+            break;
+        case '!includes':
+            $Q->negate();
+        case 'includes':
+            $teams = $agents = array();
+            foreach ($value as $id => $ST) {
+                switch ($id[0]) {
+                case 'M':
+                    $agents[] = $thisstaff->getId();
+                    break;
+                case 's':
+                    $agents[] = (int) substr($id, 1);
+                    break;
+                case 'T':
+                    $teams = array_merge($thisstaff->getTeams());
+                    break;
+                case 't':
+                    $teams[] = (int) substr($id, 1);
+                    break;
+                }
+            }
+            $constraints = array();
+            if ($teams)
+                $constraints['team_id__in'] = $teams;
+            if ($agents)
+                $constraints['staff_id__in'] = $agents;
+            $Q->add(Q::any($constraints));
+        }
+        return $Q;
+    }
+}
+
+class TicketStateChoiceField extends ChoiceField {
+    function getChoices() {
+        return array(
+            'open' => __('Open'),
+            'closed' => __('Closed'),
+            'archived' => __('Archived'),
+            'deleted' => __('Deleted'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'status__state');
+    }
+}
+
+class TicketFlagChoiceField extends ChoiceField {
+    function getChoices() {
+        return array(
+            'isanswered' =>   __('Answered'),
+            'isoverdue' =>    __('Overdue'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $Q = new Q();
+        if (isset($value['isanswered']))
+            $Q->add(array('isanswered' => 1));
+        if (isset($value['isoverdue']))
+            $Q->add(array('isoverdue' => 1));
+        if ($method == '!includes')
+            $Q->negate();
+        if ($Q->constraints)
+            return $Q;
     }
 }
 
@@ -721,21 +980,8 @@ class TicketStatusChoiceField extends SelectionField {
 
     function getSearchMethods() {
         return array(
-            'is' =>     __('is'),
-            'isnot' => __('is not'),
-        );
-    }
-
-    function getSearchMethodWidgets() {
-        return array(
-            'is' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
-                'configuration' => array('multiselect' => true),
-            )),
-            'isnot' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
-                'configuration' => array('multiselect' => true),
-            )),
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
         );
     }
 }

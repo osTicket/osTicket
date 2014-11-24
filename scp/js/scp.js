@@ -573,6 +573,11 @@ $.dialog = function (url, codes, cb, options) {
                         $('div.body', $popup).empty();
                         if(cb) cb(xhr);
                     } else {
+                        try {
+                            var json = $.parseJSON(resp);
+                            if (json.redirect) return window.location.href = json.redirect;
+                        }
+                        catch (e) { }
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();

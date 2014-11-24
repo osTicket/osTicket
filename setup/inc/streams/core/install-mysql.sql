@@ -774,6 +774,20 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;
+CREATE TABLE `%TABLE_PREFIX%queue` (
+  `id` int(11) unsigned not null auto_increment,
+  `parent_id` int(11) unsigned not null default 0,
+  `flags` int(11) unsigned not null default 0,
+  `staff_id` int(11) unsigned not null default 0,
+  `sort` int(11) unsigned not null default 0,
+  `title` varchar(60),
+  `config` text,
+  `created` datetime not null,
+  `updated` datetime not null,
+  primary key (`id`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;
 CREATE TABLE `%TABLE_PREFIX%translation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

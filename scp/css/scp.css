@@ -39,6 +39,9 @@ div#header a {
 .full-width {
     width: 100%;
 }
+.headline {
+    margin-bottom: 15px;
+}
 
 .search-input {
     height: 20px;
@@ -553,7 +556,7 @@ a.print {
     color:#000;
 }
 
-#actions button, .button { padding:2px 5px 3px; margin-right:10px;  color:#777;}
+#actions button, .button { padding:2px 5px 3px; margin-right:10px;  color:#333;}
 
 .btn_sm {
     padding:2px 5px;
@@ -1504,6 +1507,7 @@ time {
 .dialog fieldset input {
     border:1px solid #ccc;
     background:#fff;
+    padding: 3px;
 }
 
 .dialog fieldset span.between {
@@ -1524,18 +1528,15 @@ time {
     cursor: move;
 }
 
-#advanced-search fieldset.span6 {
-    display: inline-block;
-    width: 49%;
-    margin-bottom: 5px;
+.row {
+    display: table-row;
 }
-#advanced-search fieldset label {
-    display: block;
-}
-#advanced-search fieldset.span6 select,
-#advanced-search fieldset.span6 input {
-    max-width: 100%;
-    min-width: 75%;
+
+.row .span6 {
+    display: table-cell;
+    width: 48%;
+    padding: 5px 10px;
+    vertical-align: top;
 }
 
 #advanced-search .query input {
@@ -1570,9 +1571,14 @@ time {
     text-align:center;
 }
 
+.search-dropdown {
+    padding-left: 19px;
+}
+
 .dialog input[type="submit"],
 .dialog input[type="reset"],
-.dialog input[type="button"] {
+.dialog input[type="button"],
+.dialog button.button {
     display:inline-block;
     margin:0;
     height:24px;
@@ -2071,4 +2077,58 @@ button a:hover {
 }
 td.indented {
     padding-left: 20px;
+}
+.secondary_lang {
+    padding:3px 0;
+    margin: 3px 0;
+    border-bottom: 1px dotted #ccc;
+}
+.saved-search {
+    padding: 5px;
+}
+
+.saved-search + .saved-search {
+    border-top: 1px dotted #ccc;
+}
+
+.accordian {
+  margin-bottom: 10px;
+}
+.accordian dt {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+.accordian dt.active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.accordian dt, dd {
+  padding: 5px;
+}
+.accordian dt a {
+  color: black;
+  font-weight: bold;
+  display: block;
+}
+.accordian dt.active a {
+  color: #184E81;
+}
+.accordian dt:not(.active) a i {
+  display: none;
+}
+.accordian dd {
+  border-top: 0;
+  font-size: 12px;
+  margin-left: 0;
+  border: 1px solid #ccc;
+  border-top: none;
+  box-shadow: inset 0px 10px 5px -10px rgba(0,0,0,0.1);
+  background-color:rgba(42,103,172,0.1);
+}
+.accordian dt ~ dt {
+  margin-top: 5px;
+}
+.accordian dd:last-of-type {
+   position: relative;
+   top: -1px;
 }

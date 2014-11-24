@@ -2006,10 +2006,10 @@ class InlineFormField extends FormField {
         return ob_get_clean();
     }
 
-    function getInlineForm() {
+    function getInlineForm($data=false) {
         $form = $this->get('form');
         if (is_array($form)) {
-            $form = new Form($form);
+            $form = new Form($form, $data ?: $this->value ?: $this->getSource());
         }
         return $form;
     }
