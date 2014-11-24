@@ -23,6 +23,8 @@ class Form {
     var $title = '';
     var $instructions = '';
 
+    var $validators = array();
+
     var $_errors = null;
     var $_source = false;
 
@@ -75,6 +77,11 @@ class Form {
         if (!isset($this->_errors)) {
             $this->_errors = array();
             $this->getClean();
+            // Validate the whole form so that errors can be added to the
+            // individual fields and collected below.
+            foreach ($this->validators as $V) {
+                $V($this);
+            }
             foreach ($this->getFields() as $field)
                 if ($field->errors() && (!$include || $include($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
@@ -96,8 +103,18 @@ class Form {
         return $this->_clean;
     }
 
-    function errors() {
-        return $this->_errors;
+    function errors($formOnly=false) {
+        return ($formOnly) ? $this->_errors['form'] : $this->_errors;
+    }
+
+    function addError($message) {
+        $this->_errors['form'][] = $message;
+    }
+
+    function addValidator($function) {
+        if (!is_callable($function))
+            throw new Exception('Form validator must be callable');
+        $this->validators[] = $function;
     }
 
     function render($staff=true, $title=false, $options=array()) {
