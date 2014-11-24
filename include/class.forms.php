@@ -504,7 +504,7 @@ class FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'set.not' =>    __('does not have a value'),
+            'notset' =>    __('does not have a value'),
             'equal' =>      __('is'),
             'equal.not' =>  __('is not'),
             'contains' =>   __('contains'),
@@ -515,7 +515,7 @@ class FormField {
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'set.not' => null,
+            'notset' => null,
             'equal' => array('TextboxField', array()),
             'equal.not' => array('TextboxField', array()),
             'contains' => array('TextboxField', array()),
@@ -527,6 +527,39 @@ class FormField {
         );
     }
 
+    /**
+     * This is used by the searching system to build a query for the search
+     * engine. The function should return a criteria listing to match
+     * content saved by the field by the `::to_database()` function.
+     */
+    function getSearchQ($method, $value, $name=false) {
+        $criteria = array();
+        $Q = new Q();
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+            case 'notset':
+                $Q->negate();
+            case 'set':
+                $criteria[$name . '__isnull'] = false;
+                break;
+
+            case 'equal.not':
+                $Q->negate();
+            case 'equal':
+                $criteria[$name . '__eq'] = $value;
+                break;
+
+            case 'contains':
+                $criteria[$name . '__contains'] = $value;
+                break;
+
+            case 'match':
+                $criteria[$name . '__regex'] = $value;
+                break;
+        }
+        return $Q->add($criteria);
+    }
+
     function getSearchWidget($method) {
         $methods = $this->getSearchMethodWidgets();
         $info = $methods[$method];
@@ -535,24 +568,6 @@ class FormField {
             return new $class($info[1]);
         }
         return $info;
-    }
-
-    /**
-     * This is used by the searching system to build a query for the search
-     * engine. The function should return a criteria listing to match
-     * content saved by the field by the `::to_database()` function.
-     */
-    function getSearchCriteria($method, $name, $value) {
-        switch ($method) {
-        case 'search':
-            return array($name => $value);
-        case 'search.set':
-            return array("{$name}__isnull" => false);
-        case 'search.notset':
-            return array("{$name}__isnull" => true);
-        default:
-            throw new Exception('Search method not supported by this field');
-        }
     }
 
     function getLabel() { return $this->get('label'); }
@@ -1179,20 +1194,37 @@ class ChoiceField extends FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'set.not' =>    __('does not have a value'),
+            'notset' =>     __('does not have a value'),
             'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
         );
     }
 
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'set.not' => null,
+            'notset' => null,
             'includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
             )),
+            '!includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case '!includes':
+            return Q::not(array("{$name}__in" => array_keys($value)));
+        case 'includes':
+            return new Q(array("{$name}__in" => array_keys($value)));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }
 
@@ -1265,6 +1297,96 @@ class DatetimeField extends FormField {
         // strtotime returns -1 on error for PHP < 5.1.0 and false thereafter
         elseif ($value === -1 or $value === false)
             $this->_errors[] = __('Enter a valid date');
+    }
+
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('has a value'),
+            'notset' =>     __('does not have a value'),
+            'equal' =>      __('on'),
+            'notequal' =>   __('not on'),
+            'before' =>     __('before'),
+            'after' =>      __('after'),
+            'between' =>    __('between'),
+            'ndaysago' =>   __('in the last n days'),
+            'ndays' =>      __('in the next n days'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        $config = $this->getConfiguration();
+        return array(
+            'set' => null,
+            'notset' => null,
+            'equal' => array('DatetimeField', array(
+                'configuration' => $config,
+            )),
+            'notequal' => array('DatetimeField', array(
+                'configuration' => $config,
+            )),
+            'before' => array('DatetimeField', array(
+                'configuration' => $config,
+            )),
+            'after' => array('DatetimeField', array(
+                'configuration' => $config,
+            )),
+            'between' => array('InlineformField', array(
+                'form' => array(
+                    'left' => new DatetimeField(),
+                    'text' => new FreeTextField(array(
+                        'configuration' => array('content' => 'and'))
+                    ),
+                    'right' => new DatetimeField(),
+                ),
+            )),
+            'ndaysago' => array('InlineformField', array(
+                'form' => array(
+                    'until' => new TextboxField(array(
+                        'configuration' => array('validator'=>'number', 'size'=>4))
+                    ),
+                    'text' => new FreeTextField(array(
+                        'configuration' => array('content' => 'days'))
+                    ),
+                ),
+            )),
+            'ndays' => array('InlineformField', array(
+                'form' => array(
+                    'until' => new TextboxField(array(
+                        'configuration' => array('validator'=>'number', 'size'=>4))
+                    ),
+                    'text' => new FreeTextField(array(
+                        'configuration' => array('content' => 'days'))
+                    ),
+                ),
+            )),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case 'after':
+            return new Q(array("{$name}__gte" => $value));
+        case 'before':
+            return new Q(array("{$name}__lt" => $value));
+        case 'between':
+            return new Q(array(
+                "{$name}__gte" => $value['left'],
+                "{$name}__lte" => $value['right'],
+            ));
+        case 'ndaysago':
+            return new Q(array(
+                "{$name}__lt" => SqlFunction::NOW(),
+                "{$name}__gte" => SqlExpression::minus(SqlFunction::NOW(), SqlInterval::DAY($value['until'])),
+            ));
+        case 'ndays':
+            return new Q(array(
+                "{$name}__gt" => SqlFunction::NOW(),
+                "{$name}__lte" => SqlExpression::plus(SqlFunction::NOW(), SqlInterval::DAY($value['until'])),
+            ));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }
 
@@ -1849,7 +1971,7 @@ class InlineFormField extends FormField {
 
     function validateEntry($value) {
         if (!$this->getInlineForm()->isValid()) {
-            $this->_errors[] = 'Correct errors in the inline form';
+            $this->_errors[] = __('Correct errors in the inline form');
         }
     }
 
@@ -2006,7 +2128,6 @@ class TextboxWidget extends Widget {
         $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
             $config['placeholder']));
         ?>
-        <span style="display:inline-block">
         <input type="<?php echo static::$input_type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
@@ -2014,7 +2135,6 @@ class TextboxWidget extends Widget {
                 $translatable, $placeholder))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
-        </span>
         <?php
     }
 }
