@@ -162,6 +162,51 @@ class Form {
             break;
         }
     }
+
+    /**
+     * getState
+     *
+     * Retrieves an array of information which can be passed to the
+     * ::loadState method later to recreate the current state of the form
+     * fields and values.
+     */
+    function getState() {
+        $info = array();
+        foreach ($this->getFields() as $f) {
+            // Skip invisible fields
+            if (!$f->isVisible())
+                continue;
+
+            // Skip fields set to default values
+            $v = $f->getClean();
+            $d = $f->get('default');
+            if ($v == $d)
+                continue;
+
+            // Skip empty values
+            if (!$v)
+                continue;
+
+            $info[$f->get('name')] = $f->to_database($v);
+        }
+        return $info;
+    }
+
+    /**
+     * loadState
+     *
+     * Reset this form to the state previously recorded by the ::getState()
+     * method
+     */
+    function loadState($state) {
+        foreach ($this->getFields() as $f) {
+            $name = $f->get('name');
+            $f->reset();
+            if (isset($state[$name])) {
+                $f->value = $f->to_php($state[$name]);
+            }
+        }
+    }
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -269,6 +314,9 @@ class FormField {
 
             if ($this->isVisible())
                 $this->validateEntry($this->_clean);
+
+            if (!isset($this->_clean) && ($d = $this->get('default')))
+                $this->_clean = $d;
         }
         return $this->_clean;
     }
