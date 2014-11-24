@@ -166,7 +166,7 @@ class Ticket {
     }
 
     function isLocked() {
-        return ($this->getLockId());
+        return null !== $this->getLock();
     }
 
     function checkStaffAccess($staff) {
@@ -393,15 +393,7 @@ class Ticket {
         return $info;
     }
 
-    function getLockId() {
-        return $this->ht['lock_id'];
-    }
-
     function getLock() {
-
-        if(!$this->tlock && $this->getLockId())
-            $this->tlock= TicketLock::lookup($this->getLockId(), $this->getId());
-
         return $this->tlock;
     }
 
@@ -421,10 +413,9 @@ class Ticket {
             return $lock;
         }
         //No lock on the ticket or it is expired
-        $this->tlock = null; //clear crap
-        $this->ht['lock_id'] = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
+        $this->tlock = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
         //load and return the newly created lock if any!
-        return $this->getLock();
+        return $this->tlock;
     }
 
     function getDept() {
