@@ -44,7 +44,7 @@ class Group extends VerySimpleModel {
     }
 
     function getNumUsers(){
-        return StaffModel::objects()->filter(array('group_id'=>$this->getId()))->count();
+        return Staff::objects()->filter(array('group_id'=>$this->getId()))->count();
     }
 
     function isEnabled(){
@@ -73,7 +73,7 @@ class Group extends VerySimpleModel {
     function getMembers() {
 
         if (!$this->members) {
-            $this->members = StaffModel::objects()
+            $this->members = Staff::objects()
                 ->filter(array('group_id'=>$this->getId()))
                 ->order_by('lastname', 'firstname')
                 ->all();

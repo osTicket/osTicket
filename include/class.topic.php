@@ -15,6 +15,7 @@
 **********************************************************************/
 
 require_once INCLUDE_DIR . 'class.sequence.php';
+require_once INCLUDE_DIR . 'class.filter.php';
 
 class Topic extends VerySimpleModel {
 

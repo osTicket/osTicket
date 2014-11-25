@@ -182,7 +182,7 @@ class TicketOwner extends  TicketUser {
  *
  */
 
-class  EndUser extends AuthenticatedUser {
+class  EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;

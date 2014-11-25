@@ -25,7 +25,7 @@ class Dept extends VerySimpleModel {
                 'null' => true,
             ),
             'manager' => array(
-                'constraint' => array('manager_id' => 'StaffModel.staff_id'),
+                'constraint' => array('manager_id' => 'Staff.staff_id'),
             ),
             'groups' => array(
                 'reverse' => 'GroupDeptAccess.dept'
@@ -89,7 +89,7 @@ class Dept extends VerySimpleModel {
 
     function getMembers($criteria=null) {
         if (!$this->members || $criteria) {
-            $members = StaffModel::objects()
+            $members = Staff::objects()
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
@@ -273,7 +273,7 @@ class Dept extends VerySimpleModel {
             // Default department cannot be deleted
             || $this->getId()==$cfg->getDefaultDeptId()
             // Department  with users cannot be deleted
-            || StaffModel::objects()
+            || Staff::objects()
                 ->filter(array('dept_id'=>$this->getId()))
                 ->count()
         ) {
