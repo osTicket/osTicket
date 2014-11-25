@@ -465,9 +465,7 @@ if($ticket) {
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
-        if (!($token=$_REQUEST['h']))
-            $errors['err'] = __('Query token required');
-        elseif (!($query=$_SESSION['search_'.$token]))
+        if (!($query=$_SESSION[':Q:tickets']))
             $errors['err'] = __('Query token not found');
         elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
             $errors['err'] = __('Internal error: Unable to dump query results');

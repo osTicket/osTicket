@@ -42,48 +42,40 @@ class Export {
     #      attachments associated with each, ...
     static function dumpTickets($sql, $how='csv') {
         // Add custom fields to the $sql statement
-        $cdata = $fields = $select = array();
+        $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
             // Ignore core fields
-            if (in_array($f->get('name'), array('subject','priority')))
+            if (in_array($f->get('name'), array('priority')))
                 continue;
             // Ignore non-data fields
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
 
-            $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
-            $key = '__field_'.$f->get('id');
-            // Fetch ID values for ID-based data
-            if ($f->hasIdValue()) {
-                $name .= '_id';
-            }
-            $cdata[$key] = $f->get('label');
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
             $fields[$key] = $f;
-            $select[] = "cdata.`$name` AS __field_".$f->get('id');
+            $cdata[$key] = $f->getLocal('label');
         }
-        if ($select)
-            $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
         return self::dumpQuery($sql,
             array(
                 'number' =>         __('Ticket Number'),
-                'ticket_created' => __('Date'),
-                'subject' =>        __('Subject'),
-                'name' =>           __('From'),
-                'email' =>          __('From Email'),
-                'priority_desc' =>  __('Priority'),
-                'dept_name' =>      __('Department'),
-                'helptopic' =>      __('Help Topic'),
+                'created' =>        __('Date'),
+                'cdata.subject' =>  __('Subject'),
+                'user.name' =>      __('From'),
+                'user.default_email.address' => __('From Email'),
+                'cdata.:priority.priority_desc' => __('Priority'),
+                'dept::getLocalName' => __('Department'),
+                'topic::getName' => __('Help Topic'),
                 'source' =>         __('Source'),
-                'status' =>         __('Current Status'),
-                'effective_date' => __('Last Updated'),
+                'status::getName' =>__('Current Status'),
+                '::getEffectiveDate' => __('Last Updated'),
                 'duedate' =>        __('Due Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
-                'assigned' =>       __('Assigned To'),
-                'staff' =>          __('Agent Assigned'),
-                'team' =>           __('Team Assigned'),
-                'thread_count' =>   __('Thread Count'),
-                'attachments' =>    __('Attachment Count'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
+                #'thread_count' =>   __('Thread Count'),
+                #'attachments' =>    __('Attachment Count'),
             ) + $cdata,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
@@ -213,32 +205,22 @@ class Export {
 class ResultSetExporter {
     var $output;
 
-    function ResultSetExporter($sql, $headers, $options=array()) {
+    function __construct($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
-        if ($s = strpos(strtoupper($sql), ' LIMIT '))
-            $sql = substr($sql, 0, $s);
+        // Remove limit and offset
+        $sql->limit(null)->offset(null);
         # TODO: If $filter, add different LIMIT clause to query
         $this->options = $options;
         $this->output = $options['output'] ?: fopen('php://output', 'w');
 
-        $this->_res = db_query($sql, true, true);
-        if ($row = db_fetch_array($this->_res)) {
-            $query_fields = array_keys($row);
-            $this->headers = array();
-            $this->keys = array();
-            $this->lookups = array();
-            foreach ($headers as $field=>$name) {
-                if (array_key_exists($field, $row)) {
-                    $this->headers[] = $name;
-                    $this->keys[] = $field;
-                    # Remember the location of this header in the query results
-                    # (column-wise) so we don't have to do hashtable lookups for every
-                    # column of every row.
-                    $this->lookups[] = array_search($field, $query_fields);
-                }
-            }
-            db_data_reset($this->_res);
+        $this->headers = array();
+        $this->keys = array();
+        foreach ($headers as $field=>$name) {
+            $this->headers[] = $name;
+            $this->keys[] = $field;
         }
+        $this->_res = $sql->getIterator();
+        $this->_res->rewind();
     }
 
     function getHeaders() {
@@ -246,12 +228,30 @@ class ResultSetExporter {
     }
 
     function next() {
-        if (!($row = db_fetch_row($this->_res)))
+        if (!$this->_res->valid())
             return false;
 
+        $object = $this->_res->current();
+        $this->_res->next();
+
         $record = array();
-        foreach ($this->lookups as $idx)
-            $record[] = $row[$idx];
+
+        foreach ($this->keys as $field) {
+            list($field, $func) = explode('::', $field);
+            $path = explode('.', $field);
+            $current = $object;
+            // Evaluate dotted ORM path
+            if ($field) {
+                foreach ($path as $P) {
+                    $current = $current->{$P};
+                }
+            }
+            // Evalutate :: function call on target current
+            if ($func && method_exists($current, $func)) {
+                $current = $current->{$func}();
+            }
+            $record[] = (string) $current;
+        }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
             $record = $this->options['modify']($record, $this->keys);

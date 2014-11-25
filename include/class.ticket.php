@@ -77,12 +77,12 @@ class TicketModel extends VerySimpleModel {
     }
 
     function getEffectiveDate() {
-         return max(
+         return Format::datetime(max(
              strtotime($this->lastmessage),
              strtotime($this->closed),
              strtotime($this->reopened),
              strtotime($this->created)
-         );
+         ));
     }
 
     function delete() {

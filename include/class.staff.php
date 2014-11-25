@@ -32,6 +32,10 @@ class StaffModel extends VerySimpleModel {
             ),
         ),
     );
+
+    function getName() {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 }
 
 class Staff extends AuthenticatedUser {
