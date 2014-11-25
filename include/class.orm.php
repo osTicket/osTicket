@@ -361,6 +361,7 @@ class VerySimpleModel {
         }
 
         $pk = static::$meta['pk'];
+        $wasnew = $this->__new__;
 
         if ($this->__new__) {
             if (count($pk) == 1)
@@ -368,7 +369,6 @@ class VerySimpleModel {
                 $this->ht[$pk[0]] = $ex->insert_id();
             $this->__new__ = false;
             Signal::send('model.created', $this);
-            $this->__onload();
         }
         else {
             $data = array('dirty' => $this->dirty);
@@ -383,6 +383,8 @@ class VerySimpleModel {
             $self = static::lookup($this->get('pk'));
             $this->ht = $self->ht;
         }
+        if ($wasnew)
+            $this->__onload();
         $this->dirty = array();
         return $this->get($pk[0]);
     }
