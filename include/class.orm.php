@@ -77,7 +77,8 @@ class ModelMeta implements ArrayAccess {
                 $j['constraint'] = $constraint;
                 if (!isset($j['list']))
                     $j['list'] = true;
-                $j['null'] = $info['null'] ?: false;
+                if (!isset($j['null']))
+                    $j['null'] = $info['null'] ?: false;
             }
             // XXX: Make this better (ie. composite keys)
             $keys = array_keys($j['constraint']);
@@ -218,6 +219,11 @@ class VerySimpleModel {
                 return;
             }
             if ($value === null) {
+                if (in_array($j['local'], static::$meta['pk'])) {
+                    // Reverse relationship — don't null out local PK
+                    $this->ht[$field] = $value;
+                    return;
+                }
                 // Pass. Set local field to NULL in logic below
             }
             elseif ($value instanceof $j['fkey'][0]) {
@@ -857,6 +863,13 @@ class ModelInstanceManager extends ResultSet {
      * database-backed fields are managed by the Model instance.
      */
     function getOrBuild($modelClass, $fields) {
+        // Check for NULL primary key, used with related model fetching. If
+        // the PK is NULL, then consider the object to also be NULL
+        foreach ($modelClass::$meta['pk'] as $pkf) {
+            if (!isset($fields[$pkf])) {
+                return null;
+            }
+        }
         $annotations = $this->queryset->annotations;
         $extras = array();
         // For annotations, drop them from the $fields list and add them to
@@ -922,7 +935,7 @@ class ModelInstanceManager extends ResultSet {
                     // Build the root model
                     $model = $this->getOrBuild($this->model, $record);
                 }
-                else {
+                elseif ($model) {
                     $i = 0;
                     // Traverse the declared path and link the related model
                     $tail = array_pop($path);
