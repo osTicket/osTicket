@@ -1463,6 +1463,8 @@ class MySqlCompiler extends SqlCompiler {
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
+        'startwith' => array('self', '__startswith'),
+        'endswith' => array('self', '__endswith'),
         'gt' => '%1$s > %2$s',
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
@@ -1473,10 +1475,24 @@ class MySqlCompiler extends SqlCompiler {
         'in' => array('self', '__in'),
     );
 
+    // Thanks, http://stackoverflow.com/a/3683868
+    function like_escape($what, $e='\\') {
+        return str_replace(array($e, '%', '_'), array($e.$e, $e.'%', $e.'_'), $what);
+    }
+
     function __contains($a, $b) {
         # {%a} like %{$b}%
-        # XXX: Escape $b
-        return sprintf('%s LIKE %s', $a, $this->input($b = "%$b%"));
+        # Escape $b
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+    }
+    function __startswith($a, $b) {
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("%$b"));
+    }
+    function __endswith($a, $b) {
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("$b%"));
     }
 
     function __in($a, $b) {
