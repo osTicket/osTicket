@@ -554,7 +554,7 @@ class Aggregate extends SqlFunction {
     }
 }
 
-class QuerySet implements IteratorAggregate, ArrayAccess {
+class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
     var $model;
 
     var $constraints = array();
@@ -776,18 +776,35 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
         // Load defaults from model
         $model = $this->model;
-        if (!$this->ordering && isset($model::$meta['ordering']))
-            $this->ordering = $model::$meta['ordering'];
-        if (!$this->related && $model::$meta['select_related'])
-            $this->related = $model::$meta['select_related'];
-        if (!$this->defer && $model::$meta['defer'])
-            $this->defer = $model::$meta['defer'];
+        $query = clone $this;
+        if (!$query->ordering && isset($model::$meta['ordering']))
+            $query->ordering = $model::$meta['ordering'];
+        if (!$query->related && $model::$meta['select_related'])
+            $query->related = $model::$meta['select_related'];
+        if (!$query->defer && $model::$meta['defer'])
+            $query->defer = $model::$meta['defer'];
 
         $class = $this->compiler;
         $compiler = new $class($options);
-        $this->query = $compiler->compileSelect($this);
+        $this->query = $compiler->compileSelect($query);
 
         return $this->query;
+    }
+
+    function serialize() {
+        $info = get_object_vars($this);
+        unset($info['query']);
+        unset($info['limit']);
+        unset($info['offset']);
+        unset($info['_iterator']);
+        return serialize($info);
+    }
+
+    function unserialize($data) {
+        $data = unserialize($data);
+        foreach ($data as $name => $val) {
+            $this->{$name} = $val;
+        }
     }
 }
 
@@ -1952,7 +1969,7 @@ class MysqlExecutor {
     }
 }
 
-class Q {
+class Q implements Serializable {
     const NEGATED = 0x0001;
     const ANY =     0x0002;
 
@@ -1961,7 +1978,7 @@ class Q {
     var $negated = false;
     var $ored = false;
 
-    function __construct($filter, $flags=0) {
+    function __construct($filter=array(), $flags=0) {
         if (!is_array($filter))
             $filter = array($filter);
         $this->constraints = $filter;
@@ -1982,12 +1999,42 @@ class Q {
         return $this;
     }
 
+    function union() {
+        $this->ored = true;
+    }
+
+    function add($constraints) {
+        if (is_array($constraints))
+            $this->constraints = array_merge($this->constraints, $constraints);
+        elseif ($constraints instanceof static)
+            $this->constraints[] = $constraints;
+        else
+            throw new InvalidArgumentException('Expected an instance of Q or an array thereof');
+        return $this;
+    }
+
     static function not(array $constraints) {
         return new static($constraints, self::NEGATED);
     }
 
     static function any(array $constraints) {
         return new static($constraints, self::ANY);
+    }
+
+    function serialize() {
+        return serialize(array(
+            'f' =>
+                ($this->negated ? self::NEGATED : 0)
+              | ($this->ored ? self::ANY : 0),
+            'c' => $this->constraints
+        ));
+    }
+
+    function unserialize($data) {
+        $data = unserialize($data);
+        $this->constraints = $data['c'];
+        $this->ored = $data['f'] & self::ANY;
+        $this->negated = $data['f'] & self::NEGATED;
     }
 }
 ?>
