@@ -22,6 +22,18 @@ include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
+class StaffModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => STAFF_TABLE,
+        'pk' => array('staff_id'),
+        'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.dept_id'),
+            ),
+        ),
+    );
+}
+
 class Staff extends AuthenticatedUser {
 
     var $ht;

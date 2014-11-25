@@ -34,6 +34,82 @@ require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'User.id')
+            ),
+            'status' => array(
+                'constraint' => array('status_id' => 'TicketStatus.id')
+            ),
+            'lock' => array(
+                'reverse' => 'TicketLock.ticket',
+                'list' => false,
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.dept_id'),
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'StaffModel.staff_id'),
+                'null' => true,
+            ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+                'null' => true,
+            ),
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+                'null' => true,
+            ),
+            'cdata' => array(
+                'reverse' => 'TicketCData.ticket',
+                'list' => false,
+            ),
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function getEffectiveDate() {
+         return max(
+             strtotime($this->lastmessage),
+             strtotime($this->closed),
+             strtotime($this->reopened),
+             strtotime($this->created)
+         );
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+}
+
+class TicketCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+            ':priority' => array(
+                'constraint' => array('priority' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+        ),
+    );
+}
+TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
+
 
 class Ticket {
 

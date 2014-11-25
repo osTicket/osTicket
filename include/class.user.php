@@ -33,33 +33,6 @@ class UserEmailModel extends VerySimpleModel {
     }
 }
 
-class TicketModel extends VerySimpleModel {
-    static $meta = array(
-        'table' => TICKET_TABLE,
-        'pk' => array('ticket_id'),
-        'joins' => array(
-            'user' => array(
-                'constraint' => array('user_id' => 'UserModel.id')
-            ),
-            'status' => array(
-                'constraint' => array('status_id' => 'TicketStatus.id')
-            )
-        )
-    );
-
-    function getId() {
-        return $this->ticket_id;
-    }
-
-    function delete() {
-
-        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
-            return true;
-
-        return false;
-    }
-}
-
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
@@ -1163,8 +1136,4 @@ class UserList extends ListObject {
         return $list ? implode(', ', $list) : '';
     }
 }
-
-require_once(INCLUDE_DIR . 'class.organization.php');
-User::_inspect();
-UserAccount::_inspect();
 ?>
