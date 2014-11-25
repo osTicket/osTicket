@@ -431,6 +431,9 @@ class GroupDeptAccess extends VerySimpleModel {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.dept_id'),
             ),
+            'group' => array(
+                'constraint' => array('group_id' => 'Group.group_id'),
+            ),
         ),
     );
 }
