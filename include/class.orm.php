@@ -478,6 +478,47 @@ class SqlFunction {
     }
 }
 
+class SqlExpression extends SqlFunction {
+    var $operator;
+    var $operands;
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $O = array();
+        foreach ($this->args as $operand)
+            $O[] = $compiler->input($operand);
+        return implode(' '.$this->func.' ', $O);
+    }
+
+    static function __callStatic($operator, $operands) {
+        switch ($operator) {
+            case 'minus':
+                $operator = '-'; break;
+            case 'plus':
+                $operator = '+'; break;
+            default:
+                throw new InvalidArgumentException('Invalid operator specified');
+        }
+        return parent::__callStatic($operator, $operands);
+    }
+}
+
+class SqlInterval extends SqlFunction {
+    var $type;
+
+    function toSql($compiler, $model=false, $alias=false) {
+        return sprintf('INTERVAL %s %s',
+            $compiler->input($this->args[0]),
+            $this->func);
+    }
+
+    static function __callStatic($interval, $args) {
+        if (count($args) != 1) {
+            throw new InvalidArgumentException("Interval expects a single interval value");
+        }
+        return parent::__callStatic($interval, $args);
+    }
+}
+
 class Aggregate extends SqlFunction {
 
     var $func;
