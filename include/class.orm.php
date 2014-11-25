@@ -1668,7 +1668,7 @@ class MySqlCompiler extends SqlCompiler {
                 // Handle deferreds
                 if (isset($defer[$f]))
                     continue;
-                $fields[] = $rootAlias . '.' . $this->quote($f);
+                $fields[$rootAlias . '.' . $this->quote($f)] = true;
                 $theseFields[] = $f;
             }
             $fieldMap[] = array($theseFields, $model);
@@ -1691,10 +1691,14 @@ class MySqlCompiler extends SqlCompiler {
                         // Handle deferreds
                         if (isset($defer[$sr . '__' . $f]))
                             continue;
-                        $fields[] = $alias . '.' . $this->quote($f);
+                        elseif (isset($fields[$alias.'.'.$this->quote($f)]))
+                            continue;
+                        $fields[$alias . '.' . $this->quote($f)] = true;
                         $theseFields[] = $f;
                     }
-                    $fieldMap[] = array($theseFields, $fmodel, $parts);
+                    if ($theseFields) {
+                        $fieldMap[] = array($theseFields, $fmodel, $parts);
+                    }
                     $full_path .= '__';
                 }
             }
@@ -1704,9 +1708,9 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->values as $v) {
                 list($f) = $this->getField($v, $model);
                 if ($f instanceof SqlFunction)
-                    $fields[] = $f->toSql($this, $model);
+                    $fields[$f->toSql($this, $model)] = true;
                 else
-                    $fields[] = $f;
+                    $fields[$f] = true;
             }
         }
         // Simple selection from one table
@@ -1716,13 +1720,14 @@ class MySqlCompiler extends SqlCompiler {
                 foreach ($model::$meta['fields'] as $f) {
                     if (isset($queryset->defer[$f]))
                         continue;
-                    $fields[] = $rootAlias .'.'. $this->quote($f);
+                    $fields[$rootAlias .'.'. $this->quote($f)] = true;
                 }
             }
             else {
-                $fields[] = $rootAlias.'.*';
+                $fields[$rootAlias.'.*'] = true;
             }
         }
+        $fields = array_keys($fields);
         // Add in annotations
         if ($queryset->annotations) {
             foreach ($queryset->annotations as $A) {
