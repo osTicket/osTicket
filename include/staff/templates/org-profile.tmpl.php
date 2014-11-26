@@ -4,8 +4,6 @@ $info=($_POST && $errors)?Format::input($_POST):@Format::htmlchars($org->getInfo
 if (!$info['title'])
     $info['title'] = Format::htmlchars($org->getName());
 ?>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
 <h3><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
@@ -89,7 +87,9 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     <?php echo __('Primary Contacts'); ?>:
                 </td>
                 <td>
-                    <select name="contacts[]" id="primary_contacts" multiple="multiple">
+                    <select name="contacts[]" id="primary_contacts" multiple="multiple"
+                        data-placeholder="<?php echo __('Select Contacts'); ?>">
+                        <option value=""></option>
 <?php               foreach ($org->allMembers() as $u) { ?>
                         <option value="<?php echo $u->id; ?>" <?php
                             if ($u->isPrimaryContact())
@@ -170,6 +170,6 @@ $(function() {
         $('div#org-profile').fadeIn();
         return false;
     });
-    $("#primary_contacts").multiselect({'noneSelectedText':'<?php echo __('Select Contacts'); ?>'});
+    $("#primary_contacts").chosen({width: '300px'});
 });
 </script>

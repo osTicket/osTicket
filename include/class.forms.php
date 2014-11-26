@@ -2210,12 +2210,6 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
-    static $media = array(
-        'css' => array(
-            '/css/jquery.multiselect.css',
-        ),
-    );
-
     function render($mode=false) {
 
         if ($mode == 'view') {
@@ -2264,9 +2258,9 @@ class ChoicesWidget extends Widget {
         ?>
         <select name="<?php echo $this->name; ?>[]"
             id="<?php echo $this->id; ?>"
-            data-prompt="<?php echo $prompt; ?>"
+            data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
-                echo ' multiple="multiple" class="multiselect"'; ?>>
+                echo ' multiple="multiple" class="chosen-select"'; ?>>
             <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
@@ -2285,7 +2279,7 @@ class ChoicesWidget extends Widget {
         <script type="text/javascript">
         $(function() {
             $("#<?php echo $this->id; ?>")
-            .multiselect({'noneSelectedText':'<?php echo $prompt; ?>'});
+            .chosen({'disable_search_threshold':10, 'width': '250px'});
         });
         </script>
        <?php

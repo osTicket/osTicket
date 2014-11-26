@@ -1107,7 +1107,7 @@ class SelectionField extends FormField {
     function getWidget() {
         $config = $this->getConfiguration();
         $widgetClass = false;
-        if ($config['widget'] == 'typeahead')
+        if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
         return parent::getWidget($widgetClass);
     }
@@ -1191,6 +1191,13 @@ class SelectionField extends FormField {
 
     function getConfigurationOptions() {
         return array(
+            'multiselect' => new BooleanField(array(
+                'id'=>2,
+                'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
+                'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc'=>__('Allow multiple selections')),
+            )),
             'widget' => new ChoiceField(array(
                 'id'=>1,
                 'label'=>__('Widget'),
@@ -1202,18 +1209,11 @@ class SelectionField extends FormField {
                 'configuration'=>array(
                     'multiselect' => false,
                 ),
-                'hint'=>__('Typeahead will work better for large lists')
-            )),
-            'multiselect' => new BooleanField(array(
-                'id'=>2,
-                'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
-                'required'=>false, 'default'=>false,
-                'configuration'=>array(
-                    'desc'=>__('Allow multiple selections')),
                 'visibility' => new VisibilityConstraint(
-                    new Q(array('widget__eq'=>'dropdown')),
+                    new Q(array('multiselect__eq'=>false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'hint'=>__('Typeahead will work better for large lists')
             )),
             'prompt' => new TextboxField(array(
                 'id'=>3,
@@ -1237,7 +1237,7 @@ class SelectionField extends FormField {
         if ($config['widget'])
             $config['typeahead'] = $config['widget'] == 'typeahead';
 
-        //Typeahed doesn't support multiselect for now  TODO: Add!
+        // Drop down list does not support multiple selections
         if ($config['typeahead'])
             $config['multiselect'] = false;
 

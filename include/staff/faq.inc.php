@@ -77,6 +77,7 @@ if ($topics = Topic::getAllHelpTopics()) {
         <div class="faded"><?php echo __('Check all help topics related to this FAQ.');?></div>
     </div>
     <select multiple="multiple" name="topics[]" class="multiselect"
+        data-placeholder="<?php echo __('Help Topics'); ?>"
         id="help-topic-selection" style="width:350px;">
     <?php while (list($topicId,$topic) = each($topics)) { ?>
         <option value="<?php echo $topicId; ?>" <?php
@@ -85,9 +86,7 @@ if ($topics = Topic::getAllHelpTopics()) {
     <?php } ?>
     </select>
     <script type="text/javascript">
-        $(function() { $("#help-topic-selection").multiselect({
-            noneSelectedText: '<?php echo __('Help Topics'); ?>'});
-         });
+        $(function() { $("#help-topic-selection").chosen(); });
     </script>
 <?php } ?>
     </div>

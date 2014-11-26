@@ -141,8 +141,6 @@ return false;
 
 </form>
 
-<link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
-
 <script type="text/javascript">
 $(function() {
   $('#advanced-search [data-dropdown]').dropdown();

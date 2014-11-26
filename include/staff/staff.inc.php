@@ -266,13 +266,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <select name="timezone" multiple="multiple" id="timezone-dropdown">
-                    <option value=""><?php echo __('System Default'); ?></option>
+                <select name="timezone" class="chosen-select" id="timezone-dropdown"
+                    data-placeholder="<?php echo __('System Default'); ?>">
+                    <option value=""></option>
 <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
                     <option value="<?php echo $zone; ?>" <?php
                     if ($info['timezone'] == $zone)
                         echo 'selected="selected"';
-                    ?>><?php echo $zone; ?></option>
+                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
 <?php } ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone']; ?></span>
@@ -343,17 +344,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="staff.php"'>
 </p>
 </form>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.css"/>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>/css/jquery.multiselect.filter.css"/>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
-$('#timezone-dropdown').multiselect({
-    multiple: false,
-    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    noneSelectedText: <?php echo JsonDataEncoder::encode(__('System Default')); ?>,
-    selectedList: 1,
-    minWidth: 400
-}).multiselectfilter({
-    placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
-});
+!(function() {
+    $('#timezone-dropdown').chosen({
+        allow_single_deselect: true,
+        width: '350px'
+    });
+})();
 </script>

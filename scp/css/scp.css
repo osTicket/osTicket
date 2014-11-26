@@ -424,7 +424,7 @@ a.Icon:hover {
     background:#fff;
 }
 
-#content a:not(.re-icon) {
+a:not(.re-icon) {
     color:#184E81;
 }
 
@@ -1487,7 +1487,6 @@ time {
     margin:0;
     padding:0 0;
     border:none;
-    overflow:hidden;
 }
 
 .dialog .custom-field .field-label {
