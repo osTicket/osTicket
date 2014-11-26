@@ -31,7 +31,7 @@ abstract class SearchBackend {
     const SORT_OLDEST = 3;
 
     abstract function update($model, $id, $content, $new=false, $attrs=array());
-    abstract function find($query, $criteria, $model=false, $sort=array());
+    abstract function find($query, QuerySet $criteria);
 
     static function register($backend=false) {
         $backend = $backend ?: get_called_class();
@@ -61,9 +61,9 @@ class SearchInterface {
         $this->bootstrap();
     }
 
-    function find($query, $criteria, $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria) {
         $query = Format::searchable($query);
-        return $this->backend->find($query, $criteria, $model, $sort);
+        return $this->backend->find($query, $criteria);
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
@@ -278,7 +278,7 @@ class MysqlSearchBackend extends SearchBackend {
         return implode(' ', $results);
     }
 
-    function find($query, $criteria=array(), $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria) {
         global $thisstaff;
 
         $mode = ' IN BOOLEAN MODE';
@@ -292,63 +292,32 @@ class MysqlSearchBackend extends SearchBackend {
         $P = TABLE_PREFIX;
         $sort = '';
 
-        if ($query) {
-            $tables[] = "(
-                SELECT object_type, object_id, $search AS `relevance`
-                FROM `{$P}_search` `search`
-                WHERE $search
-            ) `search`";
-            $sort = 'ORDER BY `search`.`relevance`';
-        }
-
-        switch ($model) {
+        switch ($criteria->model) {
         case false:
-        case 'Ticket':
-            $tables[] = "(select ticket_id as ticket_id from {$P}ticket
-            ) B1 ON (B1.ticket_id = search.object_id and search.object_type = 'T')";
-            $tables[] = "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
-                join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
-            ) B2 ON (B2.thread_id = search.object_id and search.object_type = 'H')";
-            $tables[] = "(select A3.id as user_id, A1.ticket_id from {$P}user A3
-                join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B3 ON (B3.user_id = search.object_id and search.object_type = 'U')";
-            $tables[] = "(select A4.id as org_id, A1.ticket_id from {$P}organization A4
-                join {$P}user A3 on (A3.org_id = A4.id) join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B4 ON (B4.org_id = search.object_id and search.object_type = 'O')";
-            $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
-            $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
-            $tables[] = "{$P}ticket_status A2 ON (A1.status_id = A2.id)";
-            $cdata_search = false;
-            $where = array();
-
-            if ($criteria) {
-                foreach ($criteria as $name=>$value) {
-                    switch ($name) {
-                    case 'status_id':
-                        $where[] = 'A2.id = '.db_input($value);
-                        break;
-                    case 'state':
-                        $where[] = 'A2.state = '.db_input($value);
-                        break;
-                    case 'state__in':
-                        $where[] = 'A2.state IN ('.implode(',',db_input($value)).')';
-                        break;
-                    case 'topic_id':
-                    case 'staff_id':
-                    case 'team_id':
-                    case 'dept_id':
-                    case 'user_id':
-                    case 'isanswered':
-                    case 'isoverdue':
-                    case 'number':
-                        $where[] = sprintf('A1.%s = %s', $name, db_input($value));
-                        break;
-                    case 'created__gte':
-                        $where[] = sprintf('A1.created >= %s', db_input($value));
-                        break;
-                    case 'created__lte':
-                        $where[] = sprintf('A1.created <= %s', db_input($value));
-                        break;
+        case 'TicketModel':
+            if ($query) {
+            $key = 'COALESCE(Z1.ticket_id, Z2.ticket_id)';
+            $criteria->extra(array(
+                'select' => array(
+                    'key' => $key,
+                    'relevance'=>'`search`.`relevance`',
+                ),
+                'order_by' => array('relevance'),
+                'tables' => array(
+                    "(SELECT object_type, object_id, $search AS `relevance`
+                        FROM `{$P}_search` `search` WHERE $search) `search`",
+                    "(select ticket_id as ticket_id from {$P}ticket
+                ) Z1 ON (Z1.ticket_id = search.object_id and search.object_type = 'T')",
+                    "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
+                    join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
+                ) Z2 ON (Z2.thread_id = search.object_id and search.object_type = 'H')",
+                )
+            ));
+            // XXX: This is extremely ugly
+            $criteria->filter(array('ticket_id'=>new SqlCode($key)));
+            $criteria->distinct('ticket_id');
+            }
+            /*
                     case 'email':
                     case 'org_id':
                     case 'form_id':
@@ -371,57 +340,17 @@ class MysqlSearchBackend extends SearchBackend {
                         }
                     }
                 }
-            }
-            if ($cdata_search)
-                $tables[] = TABLE_PREFIX.'ticket__cdata cdata'
-                    .' ON (cdata.ticket_id = A1.ticket_id)';
-
-            // Always consider the current staff's access
-            $thisstaff->getDepts();
-            $access = array();
-            $access[] = '(A1.staff_id=' . db_input($thisstaff->getId())
-                .' AND A2.state="open")';
-
-            if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-                $access[] = 'A1.dept_id IN ('
-                    . ($depts ? implode(',', db_input($depts)) : 0)
-                    . ')';
-
-            if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-                $access[] = 'A1.team_id IN ('
-                    .implode(',', db_input(array_filter($teams)))
-                    .') AND A2.state="open"';
-
-            $where[] = '(' . implode(' OR ', $access) . ')';
+             */
 
             // TODO: Consider sorting preferences
-
-            $sql = 'SELECT DISTINCT '
-                . $key
-                . ' FROM '
-                . implode(' LEFT JOIN ', $tables)
-                . ' WHERE ' . implode(' AND ', $where)
-                . $sort
-                . ' LIMIT 500';
         }
 
-        $class = get_class();
-        $auto_create = function($db_error) use ($class) {
-
-            if ($db_error != 1146)
-                // Perform the standard error handling
-                return true;
-
+        // TODO: Ensure search table exists;
+        if (false) {
             // Create the search table automatically
             $class::createSearchTable();
-        };
-        $res = db_query($sql, $auto_create);
-        $object_ids = array();
-
-        while ($row = db_fetch_row($res))
-            $object_ids[] = $row[0];
-
-        return $object_ids;
+        }
+        return $criteria;
     }
 
     static function createSearchTable() {
@@ -687,6 +616,9 @@ class SavedSearch extends VerySimpleModel {
             foreach ($form->getFields() as $F) {
                 if (substr($F->get('name'), -7) == '+search' && $F->getClean())
                     $selected += 1;
+                // Consider keyword searches
+                elseif ($F->get('name') == 'keywords' && $F->getClean())
+                    $selected += 1;
             }
             if (!$selected)
                 $form->addError('No fields selected for searching');
@@ -778,6 +710,14 @@ class SavedSearch extends VerySimpleModel {
                 }
             }
         }
+
+        // Consider keyword searching
+        if ($keywords = $form->getField('keywords')->getClean()) {
+            global $ost;
+
+            $qs = $ost->searcher->find($keywords, $qs);
+        }
+
         return $qs;
     }
 
