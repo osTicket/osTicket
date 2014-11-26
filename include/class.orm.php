@@ -519,6 +519,28 @@ class SqlInterval extends SqlFunction {
     }
 }
 
+class SqlField extends SqlFunction {
+    function __construct($table, $column=false) {
+        $this->column = $column ?: $table;
+        if ($column)
+            $this->table = $table;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        return $compiler->quote($this->column);
+    }
+}
+
+class SqlCode extends SqlFunction {
+    function __construct($code) {
+        $this->code = $code;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        return $this->code;
+    }
+}
+
 class Aggregate extends SqlFunction {
 
     var $func;
@@ -565,6 +587,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
     var $values = array();
     var $defer = array();
     var $annotations = array();
+    var $extra = array();
+    var $distinct = array();
     var $lock = false;
 
     const LOCK_EXCLUSIVE = 1;
@@ -623,6 +647,19 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
 
     function select_related() {
         $this->related = array_merge($this->related, func_get_args());
+        return $this;
+    }
+
+    function extra(array $extra) {
+        foreach ($extra as $section=>$info) {
+            $this->extra[$section] = array_merge($this->extra[$section] ?: array(), $info);
+        }
+        return $this;
+    }
+
+    function distinct() {
+        foreach (func_get_args() as $D)
+            $this->distinct[] = $D;
         return $this;
     }
 
@@ -1390,10 +1427,22 @@ class SqlCompiler {
         return $this->params;
     }
 
-    function getJoins() {
+    function getJoins($queryset) {
         $sql = '';
         foreach ($this->joins as $j)
             $sql .= $j['sql'];
+        // Add extra items from QuerySet
+        if (isset($queryset->extra['tables'])) {
+            foreach ($queryset->extra['tables'] as $S) {
+                $join = ' JOIN ';
+                // Left joins require an ON () clause
+                if ($lastparen = strrpos($S, '(')) {
+                    if (preg_match('/\bon\b/i', substr($S, $lastparen - 4, 4)))
+                        $join = ' LEFT' . $join;
+                }
+                $sql .= $join.$S;
+            }
+        }
         return $sql;
     }
 
@@ -1609,6 +1658,11 @@ class MySqlCompiler extends SqlCompiler {
             else
                 $having[] = $C;
         }
+        if (isset($queryset->extra['where'])) {
+            foreach ($queryset->extra['where'] as $S) {
+                $where[] = '('.$S.')';
+            }
+        }
         if ($where)
             $where = ' WHERE '.implode(' AND ', $where);
         if ($having)
@@ -1620,7 +1674,7 @@ class MySqlCompiler extends SqlCompiler {
         $model = $queryset->model;
         $table = $model::$meta['table'];
         list($where, $having) = $this->getWhereHavingClause($queryset);
-        $joins = $this->getJoins();
+        $joins = $this->getJoins($queryset);
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
         $exec = new MysqlExecutor($sql, $this->params);
         $row = $exec->getArray();
@@ -1736,14 +1790,17 @@ class MySqlCompiler extends SqlCompiler {
                 if ($fieldMap)
                     $fieldMap[0][0][] = $A->getAlias();
             }
-            $group_by = array();
             foreach ($model::$meta['pk'] as $pk)
                 $group_by[] = $rootAlias .'.'. $pk;
-            if ($group_by)
-                $group_by = ' GROUP BY '.implode(',', $group_by);
         }
+        if (isset($queryset->distinct)) {
+            foreach ($queryset->distinct as $d)
+                list($group_by[]) = $this->getField($d, $model);
+        }
+        $group_by = $group_by ? ' GROUP BY '.implode(',', $group_by) : '';
 
-        $joins = $this->getJoins();
+        $joins = $this->getJoins($queryset);
+
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
             .$table.$joins.$where.$group_by.$having.$sort;
         if ($queryset->limit)
@@ -1809,7 +1866,7 @@ class MySqlCompiler extends SqlCompiler {
         $model = $queryset->model;
         $table = $model::$meta['table'];
         list($where, $having) = $this->getWhereHavingClause($queryset);
-        $joins = $this->getJoins();
+        $joins = $this->getJoins($queryset);
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
             .$this->quote($table).$joins.$where;
         return new MysqlExecutor($sql, $this->params);
@@ -1823,7 +1880,7 @@ class MySqlCompiler extends SqlCompiler {
             $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
-        $joins = $this->getJoins();
+        $joins = $this->getJoins($queryset);
         $sql = 'UPDATE '.$this->quote($table).' SET '.$set.$joins.$where;
         return new MysqlExecutor($sql, $this->params);
     }
