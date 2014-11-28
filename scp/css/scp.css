@@ -1377,6 +1377,18 @@ time {
     overflow-y: auto;
 }
 
+.dialog#popup {
+    width:650px;
+}
+
+.dialog.size-normal {
+    width:650px !important;
+}
+
+.dialog.size-large {
+    width:750px !important;
+}
+
 .dialog #popup-loading {
     position:absolute;
     text-align:center;

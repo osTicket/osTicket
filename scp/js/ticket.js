@@ -339,9 +339,10 @@ var ticket_onload = function($) {
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
         var $redirect = $(this).data('href');
+        var $options = $(this).data('dialog');
         $.dialog(url, [201], function (xhr) {
             window.location.href = $redirect ? $redirect : window.location.href;
-        });
+        }, $options);
 
         return false;
     });

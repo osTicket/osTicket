@@ -321,7 +321,7 @@ var scp_prep = function() {
     });
 
     //Dialog
-    $('.dialog').each(function() {
+    $('.dialog').resize(function() {
         var w = $(window), $this=$(this);
         $this.css({
             top : (w.innerHeight() / 7),
@@ -330,9 +330,18 @@ var scp_prep = function() {
         $this.hasClass('draggable') && $this.draggable({handle:'h3'});
     });
 
+
+    $('.dialog').each(function() {
+        $this=$(this);
+        $this.resize();
+        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+    });
+
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
-        $(this).parents('div.dialog').hide()
+        $(this).parents('div.dialog')
+        .hide()
+        .removeAttr('style');
         $.toggleOverlay(false);
 
         return false;
@@ -542,11 +551,18 @@ $.dialog = function (url, codes, cb, options) {
 
     var $popup = $('.dialog#popup');
 
+    $popup.attr('class',
+        function(pos, classes) {
+            return classes.replace(/\bsize-\S+/g, '');
+    });
+
+    $popup.addClass(options.size ? ('size-'+options.size) : 'size-normal');
+
     $.toggleOverlay(true);
     $('div.body', $popup).empty().hide();
     $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
-    $popup.show();
+    $popup.resize().show();
     $('div.body', $popup).load(url, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({

@@ -19,7 +19,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
     <h1><?php echo __('Loading ...');?></h1>
 </div>
-<div class="dialog draggable" style="display:none;width:650px;" id="popup">
+<div class="dialog draggable" style="display:none;" id="popup">
     <div id="popup-loading">
         <h1 style="margin-bottom: 20px;"><i class="icon-spinner icon-spin icon-large"></i>
         <?php echo __('Loading ...');?></h1>
