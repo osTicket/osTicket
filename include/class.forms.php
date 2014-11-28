@@ -654,15 +654,15 @@ class FormField {
             return array();
     }
 
-    function render($mode=null) {
-        $rv = $this->getWidget()->render($mode);
+    function render($options=array()) {
+        $rv = $this->getWidget()->render($options);
         if ($v = $this->get('visibility')) {
             $v->emitJavascript($this);
         }
         return $rv;
     }
 
-    function renderExtras($mode=null) {
+    function renderExtras($options=array()) {
         return;
     }
 
@@ -2131,7 +2131,7 @@ class Widget {
 class TextboxWidget extends Widget {
     static $input_type = 'text';
 
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
@@ -2173,7 +2173,7 @@ class PasswordWidget extends TextboxWidget {
 }
 
 class TextareaWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
         if (isset($config['rows']))
@@ -2202,7 +2202,7 @@ class TextareaWidget extends Widget {
 }
 
 class PhoneNumberWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
@@ -2230,7 +2230,9 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
+
+        $mode = isset($options['mode']) ? $options['mode'] : null;
 
         if ($mode == 'view') {
             if (!($val = (string) $this->field))
@@ -2334,7 +2336,7 @@ class CheckboxWidget extends Widget {
         $this->name = '_field-checkboxes';
     }
 
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
@@ -2363,7 +2365,7 @@ class CheckboxWidget extends Widget {
 }
 
 class DatetimePickerWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         global $cfg;
 
         $config = $this->field->getConfiguration();
@@ -2440,7 +2442,7 @@ class DatetimePickerWidget extends Widget {
 }
 
 class SectionBreakWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->getLocal('label'));
         ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
@@ -2450,17 +2452,18 @@ class SectionBreakWidget extends Widget {
 }
 
 class ThreadEntryWidget extends Widget {
-    function render($client=null) {
+    function render($options=array()) {
         global $cfg;
 
         $object_id = false;
-        if (!$client) {
-            $namespace = 'ticket.staff';
+        if ($options['client']) {
+            $namespace = $options['draft-namespace']
+                ?: 'ticket.client';
+             $object_id = substr(session_id(), -12);
+        } else {
+            $namespace = $options['draft-namespace'] ?: 'ticket.staff';
         }
-        else {
-            $namespace = 'ticket.client';
-            $object_id = substr(session_id(), -12);
-        }
+
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
         <span class="required"><?php
@@ -2478,7 +2481,7 @@ class ThreadEntryWidget extends Widget {
             return;
 
         $attachments = $this->getAttachments($config);
-        print $attachments->render($client);
+        print $attachments->render($options);
         foreach ($attachments->getMedia() as $type=>$urls) {
             foreach ($urls as $url)
                 Form::emitMedia($url, $type);
@@ -2506,7 +2509,7 @@ class FileUploadWidget extends Widget {
         ),
     );
 
-    function render($how) {
+    function render($options) {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
@@ -2608,7 +2611,7 @@ class FreeTextField extends FormField {
 }
 
 class FreeTextWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         ?><div class=""><h3><?php
             echo Format::htmlchars($this->field->getLocal('label'));

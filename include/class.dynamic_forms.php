@@ -1392,9 +1392,10 @@ class SelectionField extends FormField {
 }
 
 class TypeaheadSelectionWidget extends ChoicesWidget {
-    function render($how) {
-        if ($how == 'search')
-            return parent::render($how);
+    function render($options=array()) {
+
+        if ($options['mode'] == 'search')
+            return parent::render($options);
 
         $name = $this->getEnteredValue();
         $config = $this->field->getConfiguration();

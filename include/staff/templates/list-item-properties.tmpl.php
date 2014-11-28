@@ -29,7 +29,7 @@
             </div><div>
             <?php
             if ($internal && !$f->isEditable())
-                $f->render('view');
+                $f->render(array('mode'=>'view'));
             else {
                 $f->render();
                 if ($f->get('required')) { ?>

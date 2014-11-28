@@ -37,12 +37,12 @@
             <br/>
             <?php
             }
-            $field->render('client');
+            $field->render(array('client'=>true));
             ?></label><?php
             foreach ($field->errors() as $e) { ?>
                 <div class="error"><?php echo $e; ?></div>
             <?php }
-            $field->renderExtras('client');
+            $field->renderExtras(array('client'=>true));
             ?>
             </td>
         </tr>
