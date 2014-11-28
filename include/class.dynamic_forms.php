@@ -689,10 +689,12 @@ class DynamicFormEntry extends VerySimpleModel {
                 return $ans;
         return null;
     }
+
     function setAnswer($name, $value, $id=false) {
         foreach ($this->getAnswers() as $ans) {
-            if ($ans->getField()->get('name') == $name) {
-                $ans->getField()->reset();
+            $f = $ans->getField();
+            if ($f->isStorable() && $f->get('name') == $name) {
+                $f->reset();
                 $ans->set('value', $value);
                 if ($id !== false)
                     $ans->set('value_id', $id);
@@ -907,18 +909,8 @@ class DynamicFormEntry extends VerySimpleModel {
                 $this->_fields[] = $fImpl;
                 $this->_form = null;
 
-                // Omit fields without data
-                // For user entries, the name and email fields should not be
-                // saved with the rest of the data
-                if ($this->object_type == 'U'
-                        && in_array($field->get('name'), array('name','email')))
-                    continue;
-
-                if ($this->object_type == 'O'
-                        && in_array($field->get('name'), array('name')))
-                    continue;
-
-                if (!$field->hasData())
+                // Omit fields without data and non-storable fields.
+                if (!$field->hasData() || !$field->isStorable())
                     continue;
 
                 $a->save();
@@ -937,15 +929,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $this->set('updated', new SqlFunction('NOW'));
         parent::save();
         foreach ($this->getFields() as $field) {
+            if (!$field->isStorable())
+                continue;
+
             $a = $field->getAnswer();
-            if ($this->object_type == 'U'
-                    && in_array($field->get('name'), array('name','email')))
-                continue;
-
-            if ($this->object_type == 'O'
-                    && in_array($field->get('name'), array('name')))
-                continue;
-
             // Set the entry ID here so that $field->getClean() can use the
             // entry-id if necessary
             $a->set('entry_id', $this->get('id'));

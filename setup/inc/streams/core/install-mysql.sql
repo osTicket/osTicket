@@ -127,6 +127,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%form_field`;
 CREATE TABLE `%TABLE_PREFIX%form_field` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `form_id` int(11) unsigned NOT NULL,
+    `flags` int(10) unsigned DEFAULT 1,
     `type` varchar(255) NOT NULL DEFAULT 'text',
     `label` varchar(255) NOT NULL,
     `required` tinyint(1) NOT NULL DEFAULT 0,

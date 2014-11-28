@@ -397,6 +397,18 @@ class FormField {
         return (($this->get('edit_mask') & 32) == 0);
     }
 
+    /**
+     * isStorable
+     *
+     * Indicate if this field data is storable locally (default).Some field's data
+     * might beed to be stored elsewhere for optimization reasons at the
+     * application level.
+     *
+     */
+
+    function isStorable() {
+        return (($this->get('flags') & 2) == 0);
+    }
 
     /**
      * parse

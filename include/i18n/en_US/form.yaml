@@ -15,6 +15,7 @@
 #               useful for page and email templates, where %{ ticket.<name> }
 #               will be used to retrieve the data from the field.
 #   hint:       Help text shown with the field
+#   flags:      Bit mask for settings & options
 #   edit_mask:  Mask out edits to the field (1=>delete, 2=>change name,
 #                   4=>privacy setting, 8=>requirement setting)
 #   private:    True if the field should be hidden from the client
@@ -36,6 +37,7 @@
       label: Email Address
       required: true
       sort: 1
+      flags: 3
       edit_mask: 15
       configuration:
         size: 40
@@ -46,6 +48,7 @@
       label: Full Name
       required: true
       sort: 2
+      flags: 3
       edit_mask: 15
       configuration:
         size: 40
@@ -55,6 +58,7 @@
       label: Phone Number
       required: false
       sort: 3
+      flags: 1
     - type: memo # notrans
       name: notes
       label: Internal Notes
@@ -81,6 +85,7 @@
       required: true
       edit_mask: 15
       sort: 1
+      flags: 1
       configuration:
         size: 40
         length: 50
@@ -92,6 +97,7 @@
       required: true
       edit_mask: 15
       sort: 2
+      flags: 3
     - id: 22
       type: priority # notrans
       name: priority # notrans
@@ -100,6 +106,7 @@
       private: true
       edit_mask: 3
       sort: 3
+      flags: 1
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates
@@ -110,6 +117,7 @@
       label: Company Name
       required: true
       sort: 1
+      flags: 1
       edit_mask: 3
       configuration:
         size: 40
@@ -118,6 +126,7 @@
       name: website # notrans
       label: Website
       sort: 2
+      flags: 1
       configuration:
         size: 40
         length: 64
@@ -126,6 +135,7 @@
       label: Phone Number
       required: false
       sort: 3
+      flags: 1
       configuration:
         ext: false
     - type: memo # notrans
@@ -133,6 +143,7 @@
       label: Address
       required: false
       sort: 4
+      flags: 1
       configuration:
         rows: 2
         cols: 40
@@ -148,6 +159,7 @@
       label: Name
       required: true
       sort: 1
+      flags: 3
       edit_mask: 15
       configuration:
         size: 40
@@ -157,6 +169,7 @@
       label: Address
       required: false
       sort: 2
+      flags: 1
       configuration:
         rows: 2
         cols: 40
@@ -167,11 +180,13 @@
       label: Phone
       required: false
       sort: 3
+      flags: 1
     - type: text
       name: website
       label: Website
       required: false
       sort: 4
+      flags: 1
       configuration:
         size: 40
         length: 0
@@ -180,6 +195,7 @@
       label: Internal Notes
       required: false
       sort: 5
+      flags: 1
       configuration:
         rows: 4
         cols: 40
