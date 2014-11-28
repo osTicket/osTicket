@@ -304,9 +304,12 @@ $_SESSION[':Q:tickets'] = $tickets;
                 </td>
                 <?php } ?>
                 <td title="<?php echo $T['user__default_email__address']; ?>" nowrap>
-                  <a class="Icon <?php echo strtolower($T['source']); ?>Ticket ticketPreview" title="Preview Ticket"
-                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']); ?></td>
+                  <a class="Icon <?php echo strtolower($row['source']); ?>Ticket preview"
+                    title="Preview Ticket"
+                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"
+                    data-preview="#tickets/<?php echo $row['ticket_id']; ?>/preview"
+                    ><?php echo $tid; ?></a></td>
+                <td align="center" nowrap><?php echo Format::db_datetime($T[$date_col ?: 'lastupdate']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                      <?php

@@ -748,7 +748,7 @@ $(document).on('pjax:click', function(options) {
     $(document).stop(false, true);
 
     // Remove tips and clear any pending timer
-    $('.tip, .help-tips, .userPreview, .ticketPreview, .previewfaq').each(function() {
+    $('.tip, .help-tips, .previewfaq, .preview').each(function() {
         if ($(this).data('timer'))
             clearTimeout($(this).data('timer'));
     });
