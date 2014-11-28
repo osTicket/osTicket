@@ -22,13 +22,13 @@ class Thread {
 
     var $ht;
 
-    function Thread($id) {
-        $this->load($id);
+    function Thread($criteria) {
+        $this->load($criteria);
     }
 
-    function load($id=0) {
+    function load($criteria=null) {
 
-        if (!$id && !($id=$this->getId()))
+        if (!$criteria && !($criteria=$this->getId()))
             return null;
 
         $sql='SELECT thread.* '
@@ -38,9 +38,17 @@ class Thread {
             .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
                 ON (entry.thread_id = thread.id) '
             .' LEFT JOIN '.ATTACHMENT_TABLE.' a
-                ON (a.object_id=entry.id AND a.`type` = "H") '
-            .' WHERE thread.id='.db_input($id)
-            .' GROUP BY thread.id';
+                ON (a.object_id=entry.id AND a.`type` = "H") ';
+
+        if (is_numeric($criteria))
+            $sql.= ' WHERE thread.id='.db_input($criteria);
+        else
+            $sql.= sprintf(' WHERE thread.object_id=%d AND
+                    thread.object_type=%s',
+                    $criteria['object_id'],
+                    db_input($criteria['object_type']));
+
+        $sql.= ' GROUP BY thread.id';
 
         $this->ht = array();
         if (($res=db_query($sql)) && db_num_rows($res))
@@ -180,7 +188,10 @@ class Thread {
               .', object_id='.db_input($vars['object_id'])
               .', object_type='.db_input($vars['object_type']);
 
-        return db_query($sql) ? db_insert_id() : 0;
+        if (db_query($sql))
+            return static::lookup(db_insert_id());
+
+        return null;
     }
 
     static function lookup($id) {
@@ -1374,8 +1385,8 @@ class NoteThreadEntry extends ThreadEntry {
     }
 }
 
-// Ticket specific thread utils.
-class TicketThread extends Thread {
+// Object specific thread utils.
+class ObjectThread extends Thread {
     private $_entries = array();
 
     function __construct($id) {
@@ -1494,19 +1505,24 @@ class TicketThread extends Thread {
         }
     }
 
+    static function lookup($criteria) {
+
+        return ($criteria
+                && ($t= new static($criteria))
+                && $t->getId()
+                ) ? $t : null;
+    }
+}
+
+// Ticket thread class
+class TicketThread extends ObjectThread {
+
     static function create($ticket) {
         $id = is_object($ticket) ? $ticket->getId() : $ticket;
         return parent::create(array(
                     'object_id' => $id,
-                    'object_type' => 'T'));
-    }
-
-    static function lookup($id) {
-
-        return ($id
-                && ($t= new TicketThread($id))
-                && $t->getId()
-                ) ? $t : null;
+                    'object_type' => ObjectModel::OBJECT_TYPE_TICKET
+                    ));
     }
 }
 ?>
