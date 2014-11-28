@@ -95,6 +95,7 @@ class Form {
             foreach ($this->getFields() as $key=>$field) {
                 if (!$field->hasData())
                     continue;
+
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
             }
