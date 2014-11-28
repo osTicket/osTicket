@@ -358,7 +358,7 @@ class DraftAjaxAPI extends AjaxController {
             }
         }
         $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
+             'message', 'issue', 'description');
         foreach ($field_list as $field) {
             if (isset($vars[$field])) {
                 return urldecode($vars[$field]);

@@ -181,3 +181,39 @@
       configuration:
         rows: 4
         cols: 40
+- type: A # notrans
+  title: Task Details
+  instructions: Please Describe The Issue
+  notes: |
+      This form is used to create tasks.
+  deletable: false
+  fields:
+    - type: text # notrans
+      name: title # notrans
+      label: Title
+      required: true
+      edit_mask: 15
+      flags: 1
+      sort: 1
+      configuration:
+        size: 40
+        length: 50
+    - type: thread # notrans
+      name: description # notrans
+      label: Description
+      hint: Details on the reason(s) for creating the task.
+      required: true
+      edit_mask: 15
+      flags: 3
+      sort: 2
+    - type: datetime # notrans
+      name: duedate # notrans
+      label: Due Date
+      required: false
+      edit_mask: 15
+      flags: 3
+      sort: 3
+      configuration:
+        time: true
+        gmt: true
+        future: true

@@ -32,6 +32,7 @@ include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
+require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
 class TicketModel extends VerySimpleModel {
@@ -188,11 +189,14 @@ class Ticket {
 
         $sql='SELECT  ticket.*, thread.id as thread_id, lock_id, dept.name as dept_name '
             .' ,count(distinct attach.attach_id) as attachments'
+            .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
                 ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.TASK_TABLE.' task
+                ON ( task.object_id = ticket.ticket_id AND task.object_type="T" ) '
             .' LEFT JOIN '.THREAD_TABLE.' thread
                 ON ( thread.object_id = ticket.ticket_id AND thread.object_type="T" ) '
             .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
@@ -716,6 +720,10 @@ class Ticket {
         }
 
         return $this->last_message;
+    }
+
+    function getNumTasks() {
+        return $this->ht['tasks'];
     }
 
     function getThreadId() {

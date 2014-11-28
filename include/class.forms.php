@@ -1459,7 +1459,7 @@ class ThreadEntryField extends FormField {
                 'label'=>__('Enable Attachments'),
                 'default'=>$cfg->allowAttachments(),
                 'configuration'=>array(
-                    'desc'=>__('Enables attachments on tickets, regardless of channel'),
+                    'desc'=>__('Enables attachments, regardless of channel'),
                 ),
                 'validators' => function($self, $value) {
                     if (!ini_get('file_uploads'))

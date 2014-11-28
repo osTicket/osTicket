@@ -768,6 +768,28 @@ CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   UNIQUE KEY `collab` (`ticket_id`,`user_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%task`;
+CREATE TABLE `%TABLE_PREFIX%task` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `object_id` int(11) NOT NULL DEFAULT '0',
+  `object_type` char(1) NOT NULL,
+  `number` varchar(20) DEFAULT NULL,
+  `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `team_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dept_id` (`dept_id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `team_id` (`team_id`),
+  KEY `created` (`created`),
+  KEY `sla_id` (`sla_id`),
+  KEY `object` (`object_id`,`object_type`)
+) DEFAULT CHARSET=utf8;
+
 -- pages
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
   `id` int(10) unsigned NOT NULL auto_increment,

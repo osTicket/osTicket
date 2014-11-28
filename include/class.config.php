@@ -673,6 +673,26 @@ class OsticketConfig extends Config {
             array('Ticket', 'isTicketNumberUnique'));
     }
 
+    // Task sequence
+    function getDefaultTaskSequence() {
+        if ($this->get('task_sequence_id'))
+            $sequence = Sequence::lookup($this->get('task_sequence_id'));
+        if (!$sequence)
+            $sequence = new RandomSequence();
+
+        return $sequence;
+    }
+
+    function getDefaultTaskNumberFormat() {
+        return $this->get('task_number_format');
+    }
+
+    function getNewTaskNumber() {
+        $s = $this->getDefaultTaskSequence();
+        return $s->next($this->getDefaultTaskNumberFormat(),
+            array('Task', 'isNumberUnique'));
+    }
+
     /* autoresponders  & Alerts */
     function autoRespONNewTicket() {
         return ($this->get('ticket_autoresponder'));

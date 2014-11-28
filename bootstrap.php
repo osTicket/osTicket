@@ -101,6 +101,8 @@ class Bootstrap {
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
 
+        define('TASK_TABLE',$prefix.'task');
+
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
 
