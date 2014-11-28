@@ -1,6 +1,10 @@
 jQuery(function() {
     var showtip = function (url, elem,xoffset) {
 
+            // If element is no longer visible
+            if (!elem.is(':visible'))
+                return;
+
             var pos = elem.offset();
             var y_pos = pos.top - 12;
             var x_pos = pos.left + (xoffset || (elem.width() + 16));
@@ -9,20 +13,25 @@ jQuery(function() {
             var tip_box = $('<div>').addClass('tip_box');
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
-                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
-            var width = $(window).width(),
-                rtl = $('html').hasClass('rtl'),
-                size = tip_content.outerWidth(),
-                left = the_tip.position().left,
-                left_room = left - size,
-                right_room = width - size - left,
-                flip = rtl
-                    ? (left_room > 0 && left_room > right_room)
-                    : (right_room < 0 && left_room > right_room);
-                if (flip) {
-                    the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
-                    tip_box.addClass('right');
-                    tip_arrow.addClass('flip-x');
+                if (elem.is(':visible')) {
+                    tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
+                    var width = $(window).width(),
+                    rtl = $('html').hasClass('rtl'),
+                    size = tip_content.outerWidth(),
+                    left = the_tip.position().left,
+                    left_room = left - size,
+                    right_room = width - size - left,
+                    flip = rtl
+                        ? (left_room > 0 && left_room > right_room)
+                        : (right_room < 0 && left_room > right_room);
+                    if (flip) {
+                        the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
+                        tip_box.addClass('right');
+                        tip_arrow.addClass('flip-x');
+                    }
+                } else {
+                    // Self close  if the element is gone
+                    $('.tip_box').remove();
                 }
             });
 
@@ -31,11 +40,16 @@ jQuery(function() {
                 "top":y_pos + "px",
                 "left":x_pos + "px"
             }).addClass(elem.data('id'));
+
+            // Close any open tips
             $('.tip_box').remove();
-            $('body').append(the_tip.hide().fadeIn());
-            $('.' + elem.data('id') + ' .tip_shadow').css({
-                "height":$('.' + elem.data('id')).height() + 5
-            });
+            // Only show the tip if the element is still visible.
+            if (elem.is(':visible')) {
+                $('body').append(the_tip.hide().fadeIn());
+                $('.' + elem.data('id') + ' .tip_shadow').css({
+                    "height":$('.' + elem.data('id')).height() + 5
+                });
+            }
     },
     getHelpTips = (function() {
         var dfd, cache = {};
