@@ -1069,7 +1069,11 @@ class Ticket {
         }
 
         // Reopen  if closed.
-        if($this->isClosed()) $this->reopen();
+        // We're also checking autorespond flag because we don't want to
+        // reopen closed tickets on auto-reply from end user. This is not to
+        // confused with autorespond on new message setting
+        if ($autorespond && $this->isClosed())
+            $this->reopen();
 
        /**********   double check auto-response  ************/
         if (!($user = $message->getUser()))
