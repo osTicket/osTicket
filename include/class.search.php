@@ -591,10 +591,27 @@ class SavedSearch extends VerySimpleModel {
         )));
     }
 
+    function getFormFromSession($key, $source=false) {
+        if (isset($_SESSION[$key])) {
+            $source = $source ?: array();
+            $state = $_SESSION[$key];
+            // Pull out 'other' fields from the state so the fields will be
+            // added to the form. The state will be loaded below
+            foreach ($state as $k=>$v) {
+                $info = array();
+                if (!preg_match('/^:(\w+)!(\d+)\+search/', $k, $info)) {
+                    continue;
+                }
+                list($k,) = explode('+', $k, 2);
+                $source['fields'][] = ":{$info[1]}!{$info[2]}";
+            }
+        }
+        return $this->getForm($source);
+    }
+
     function getForm($source=false) {
         // XXX: Ensure that the UIDs generated for these fields are
         //      consistent between requests
-        FormField::$uid = 1000;
 
         $searchable = $this->getCurrentSearchFields($source);
         $fields = array(
@@ -608,8 +625,9 @@ class SavedSearch extends VerySimpleModel {
             )),
         );
         foreach ($searchable as $name=>$field) {
-            $fields = array_merge($fields, $this->getSearchField($field, $name));
+            $fields = array_merge($fields, self::getSearchField($field, $name));
         }
+
         $form = new Form($fields, $source);
         $form->addValidator(function($form) {
             $selected = 0;
@@ -621,7 +639,7 @@ class SavedSearch extends VerySimpleModel {
                     $selected += 1;
             }
             if (!$selected)
-                $form->addError('No fields selected for searching');
+                $form->addError(__('No fields selected for searching'));
         });
         return $form;
     }
@@ -654,12 +672,24 @@ class SavedSearch extends VerySimpleModel {
             )),
         );
 
-        // TODO: Add "other" fields to the basic set
+        // Add 'other' fields added dynamically
+        if (is_array($source) && isset($source['fields'])) {
+            foreach ($source['fields'] as $f) {
+                $info = array();
+                if (!preg_match('/^:(\w+)!(\d+)/', $f, $info)) {
+                    continue;
+                }
+                $id = $info[2];
+                if (is_numeric($id) && ($field = DynamicFormField::lookup($id))) {
+                    $core[":{$info[1]}!{$info[2]}"] = $field->getImpl();
+                }
+            }
+        }
 
         return $core;
     }
 
-    function getSearchField($field, $name) {
+    static function getSearchField($field, $name) {
         $pieces = array();
         $pieces["{$name}+search"] = new BooleanField(array(
             'configuration' => array('desc' => $field->get('label'))
@@ -703,6 +733,35 @@ class SavedSearch extends VerySimpleModel {
                     $value = null;
                     if ($value = $form->getField("{$name}+{$method}"))
                         $value = $value->getClean();
+
+                    if ($name[0] == ':') {
+                        // This was an 'other' field, fetch a special "name"
+                        // for it which will be the ORM join path
+                        static $other_paths = array(
+                            ':ticket' => 'cdata__',
+                            ':user' => 'user__cdata__',
+                            ':organization' => 'user__org__cdata__',
+                        );
+                        $column = $field->get('name') ?: 'field_'.$field->get('id');
+                        foreach ($other_paths as $k => $OP) {
+                            if (substr($name, 0, strlen($k)) == $k) {
+                                // XXX: Last mile — find a better idea
+                                switch (array($k, $column)) {
+                                case array(':user', 'name'):
+                                    $name = 'user__name';
+                                    break;
+                                case array(':user', 'email'):
+                                    $name = 'user__emails__address';
+                                    break;
+                                case array(':organization', 'name'):
+                                    $name = 'user__org__name';
+                                    break;
+                                default:
+                                    $name = $OP . $column;
+                                }
+                            }
+                        }
+                    }
 
                     // Add the criteria to the QuerySet
                     if ($Q = $field->getSearchQ($method, $value, $name))

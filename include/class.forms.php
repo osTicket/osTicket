@@ -187,7 +187,7 @@ class Form {
             if (!$v)
                 continue;
 
-            $info[$f->get('name')] = $f->to_database($v);
+            $info[$f->get('name') ?: $f->get('id')] = $f->to_database($v);
         }
         return $info;
     }
@@ -245,7 +245,7 @@ class FormField {
         ),
     );
     static $more_types = array();
-    static $uid = 100;
+    static $uid = null;
 
     function __construct($options=array()) {
         $this->ht = array_merge($this->ht, $options);
@@ -280,8 +280,10 @@ class FormField {
                 return $types[$type];
     }
 
-    function get($what) {
-        return $this->ht[$what];
+    function get($what, $default=null) {
+        return array_key_exists($what, $this->ht)
+            ? $this->ht[$what]
+            : $default;
     }
     function set($field, $value) {
         $this->ht[$field] = $value;
@@ -504,7 +506,7 @@ class FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>    __('does not have a value'),
+            'notset' =>     __('does not have a value'),
             'equal' =>      __('is'),
             'equal.not' =>  __('is not'),
             'contains' =>   __('contains'),
@@ -520,6 +522,8 @@ class FormField {
             'equal.not' => array('TextboxField', array()),
             'contains' => array('TextboxField', array()),
             'match' => array('TextboxField', array(
+                'placeholder' => __('Valid regular expression'),
+                'configuration' => array('size'=>30),
                 'validators' => function($self, $v) {
                     if (false === @preg_match($v, ' '))
                         $self->addError(__('Cannot compile this regular expression'));
@@ -1314,15 +1318,16 @@ class DatetimeField extends FormField {
     }
 
     function getSearchMethodWidgets() {
-        $config = $this->getConfiguration();
+        $config_notime = $config = $this->getConfiguration();
+        $config_notime['time'] = false;
         return array(
             'set' => null,
             'notset' => null,
             'equal' => array('DatetimeField', array(
-                'configuration' => $config,
+                'configuration' => $config_notime,
             )),
             'notequal' => array('DatetimeField', array(
-                'configuration' => $config,
+                'configuration' => $config_notime,
             )),
             'before' => array('DatetimeField', array(
                 'configuration' => $config,
@@ -2660,7 +2665,9 @@ class VisibilityConstraint {
     }
 
     function compileQPhp(Q $Q, $field) {
-        $form = $field->getForm();
+        if (!($form = $field->getForm())) {
+            return $this->initial == self::VISIBLE;
+        }
         $expr = array();
         foreach ($Q->constraints as $c=>$value) {
             if ($value instanceof Q) {

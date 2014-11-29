@@ -22,17 +22,24 @@ require_once(INCLUDE_DIR.'class.ajax.php');
 
 class SearchAjaxAPI extends AjaxController {
 
+    static function ensureConsistentFormFieldIds($reset=false) {
+        // Maintain unique form field IDs over the life of the session
+        FormField::$uid = $reset ?: 1000;
+    }
+
     function getAdvancedSearchDialog() {
         global $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
+        self::ensureConsistentFormFieldIds();
         $search = SavedSearch::create();
-        $form = $search->getForm();
-        if (isset($_SESSION['advsearch']))
-            $form->loadState($_SESSION['advsearch']);
-        $matches = Filter::getSupportedMatches();
+        // Don't send the state as the souce because it is not in the
+        // ::parse format (it's in ::to_php format)
+        $form = $search->getFormFromSession('advsearch');
+        $form->loadState($_SESSION['advsearch']);
+        $matches = self::_getSupportedTicketMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
@@ -43,18 +50,49 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
+        list($type, $id) = explode('!', $name, 2);
+
+        switch (strtolower($type)) {
+        case ':ticket':
+        case ':user':
+        case ':organization':
+            // Support nested field ids for list properties and such
+            if (strpos($id, '.') !== false)
+                list(,$id) = explode('!', $id, 2);
+            if (!($field = DynamicFormField::lookup($id)))
+                Http::response(404, 'No such field: ', print_r($id, true));
+            break;
+        default:
+            Http::response(400, 'No such field type');
+        }
+
+        self::ensureConsistentFormFieldIds($_GET['ff_uid']);
+        $fields = SavedSearch::getSearchField($field->getImpl(), $name);
+        $form = new Form($fields);
+        // Check the box to search the field by default
+        if ($F = $form->getField("{$name}+search"))
+            $F->value = true;
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/advanced-search-field.tmpl.php';
+        $html = ob_get_clean();
+
+        return $this->encode(array(
+            'success' => true,
+            'html' => $html,
+            'ff_uid' => FormField::$uid,
+        ));
     }
 
     function doSearch() {
         global $thisstaff;
 
         $search = SavedSearch::create();
-
-        // Add "other" fields (via $_POST['other'][])
+        self::ensureConsistentFormFieldIds();
 
         $form = $search->getForm($_POST);
         if (!$form->isValid()) {
-            $matches = Filter::getSupportedMatches();
+            $matches = self::_getSupportedTicketMatches();
             include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
             return;
         }
@@ -103,6 +141,29 @@ class SearchAjaxAPI extends AjaxController {
         )));
     }
 
+    function _getSupportedTicketMatches() {
+        // User information
+        $matches = array();
+        foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
+            $form = $F::objects()->one();
+            $fields = &$matches[$form->getLocal('title')];
+            foreach ($form->getFields() as $f) {
+                if (!$f->hasData() || $f->isPresentationOnly())
+                    continue;
+                $fields[":$k!".$f->get('id')] = __(ucfirst($k)).' / '.$f->getLocal('label');
+                /* TODO: Support matches on list item properties
+                if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+                    foreach ($fi->getSubFields() as $p) {
+                        $fields[":$k.".$f->get('id').'.'.$p->get('id')]
+                            = __(ucfirst($k)).' / '.$f->getLocal('label').' / '.$p->getLocal('label');
+                    }
+                }
+                */
+            }
+        }
+        return $matches;
+    }
+
     function createSearch() {
         global $thisstaff;
 
@@ -124,11 +185,12 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(404, 'No such saved search');
         }
 
+        self::ensureConsistentFormFieldIds();
         $form = $search->getForm();
         if ($state = JsonDataParser::parse($search->config))
             $form->loadState($state);
 
-        $matches = Filter::getSupportedMatches();
+        $matches = self::_getSupportedTicketMatches();
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 

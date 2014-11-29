@@ -1319,9 +1319,9 @@ class SelectionField extends FormField {
         $name = $name ?: $this->get('name');
         switch ($method) {
         case '!includes':
-            return Q::not(array("{$name}__in" => array_keys($value)));
+            return Q::not(array("{$name}__intersect" => array_keys($value)));
         case 'includes':
-            return new Q(array("{$name}__in" => array_keys($value)));
+            return new Q(array("{$name}__intersect" => array_keys($value)));
         default:
             return parent::getSearchQ($method, $value, $name);
         }

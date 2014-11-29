@@ -31,8 +31,8 @@ default:
     if (isset($_GET['clear_filter']))
         unset($_SESSION['advsearch']);
     if (isset($_SESSION['advsearch'])) {
-        $form = $search->getForm();
-            $form->loadState($_SESSION['advsearch']);
+        $form = $search->getFormFromSession('advsearch');
+        $form->loadState($_SESSION['advsearch']);
         $tickets = $search->mangleQuerySet($tickets, $form);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';

@@ -153,7 +153,7 @@ $dispatcher = patterns('',
             url_post('^/(?P<id>\d+)$', 'saveSearch'),
             url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
             url_post('^/create$', 'createSearch'),
-            url_get('^/field/(?P<id>\d+)$', 'getField')
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
         ))
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',

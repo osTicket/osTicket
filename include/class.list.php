@@ -1176,6 +1176,4 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
     }
 }
-
-TicketStatus::_inspect();
 ?>

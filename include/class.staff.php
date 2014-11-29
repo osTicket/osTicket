@@ -608,7 +608,7 @@ implements AuthenticatedUser {
         return $users;
     }
 
-    function getAvailableStaffMembers() {
+    static function getAvailableStaffMembers() {
         return self::getStaffMembers(true);
     }
 

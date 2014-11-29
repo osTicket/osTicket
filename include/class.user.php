@@ -125,6 +125,20 @@ class UserModel extends VerySimpleModel {
     }
 }
 
+class UserCdata extends VerySimpleModel {
+    static $meta = array(
+        'table' => 'user__cdata',
+        'view' => true,
+        'pk' => array('user_id'),
+    );
+
+    static function getQuery($compiler) {
+        $form = UserForm::getUserForm();
+        $exclude = array('name', 'email');
+        return '('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).')';
+    }
+}
+
 class User extends UserModel {
 
     var $_entries;

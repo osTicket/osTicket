@@ -1,4 +1,5 @@
 <?php
+  $ff_uid = FormField::$uid;
 ?>
 <div id="advanced-search">
 <h3><?php echo __('Advanced Ticket Search');?></h3>
@@ -21,17 +22,23 @@ foreach ($form->getFields() as $name=>$field) { ?>
             ?><div class="error"><?php echo $E; ?></div><?php
         } ?>
     </fieldset>
-<?php }
+    <?php if ($name[0] == ':') { ?>
+    <input type="hidden" name="fields[]" value="<?php echo $name; ?>"/>
+    <?php }
+}
 ?>
+<div id="extra-fields"></div>
 <hr/>
-<select name="new-field" style="max-width: 100%;">
+<select id="search-add-new-field" name="new-field" style="max-width: 100%;">
     <option value="">— <?php echo __('Add Other Field'); ?> —</option>
 <?php
 foreach ($matches as $name => $fields) { ?>
     <optgroup label="<?php echo $name; ?>">
 <?php
     foreach ($fields as $id => $desc) { ?>
-        <option value="<?php echo $id; ?>"><?php echo $desc; ?></option>
+        <option value="<?php echo $id; ?>" <?php
+            if (isset($state[$id])) echo 'disabled="disabled"';
+        ?>><?php echo $desc; ?></option>
 <?php } ?>
     </optgroup>
 <?php } ?>
@@ -158,5 +165,23 @@ $(function() {
       return false;
     });
   }, 200);
+
+  var ff_uid = <?php echo $ff_uid; ?>;
+  $('#search-add-new-field').on('change', function() {
+    var that=this;
+    $.ajax({
+      url: 'ajax.php/tickets/search/field/'+$(this).val(),
+      type: 'get',
+      data: {ff_uid: ff_uid},
+      dataType: 'json',
+      success: function(json) {
+        if (!json.success)
+          return false;
+        ff_uid = json.ff_uid;
+        $(that).find(':selected').prop('disabled', true);
+        $('#extra-fields').append($(json.html));
+      }
+    });
+  });
 });
 </script>
