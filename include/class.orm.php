@@ -1522,6 +1522,7 @@ class MySqlCompiler extends SqlCompiler {
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
+        'intersect' => array('self', '__find_in_set'),
     );
 
     // Thanks, http://stackoverflow.com/a/3683868
@@ -1559,6 +1560,19 @@ class MySqlCompiler extends SqlCompiler {
         return $b
             ? sprintf('%s IS NULL', $a)
             : sprintf('%s IS NOT NULL', $a);
+    }
+
+    function __find_in_set($a, $b) {
+        if (is_array($b)) {
+            $sql = array();
+            foreach (array_map(array($this, 'input'), $b) as $b) {
+                $sql[] = sprintf('FIND_IN_SET(%s, %s)', $b, $a);
+            }
+            $parens = count($sql) > 1;
+            $sql = implode(' OR ', $sql);
+            return $parens ? ('('.$sql.')') : $sql;
+        }
+        return sprintf('FIND_IN_SET(%s, %s)', $b, $a);
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
