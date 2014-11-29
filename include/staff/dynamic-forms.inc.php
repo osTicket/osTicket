@@ -31,6 +31,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
     $forms = array(
         'U' => 'icon-user',
         'T' => 'icon-ticket',
+        'A' => 'icon-tasks',
         'C' => 'icon-building',
         'O' => 'icon-group',
     );

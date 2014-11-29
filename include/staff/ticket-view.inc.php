@@ -378,6 +378,12 @@ $tcount+= $ticket->getNumNotes();
 ?>
 <ul  class="tabs threads" id="ticket_tabs" >
     <li><a class="active" href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+    <li><a id="ticket_tasks" href="<?php
+        echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
+        echo __('Tasks');
+        if ($ticket->getNumTasks())
+            echo sprintf('&nbsp;(%d)', $ticket->getNumTasks());
+        ?></a></li>
 </ul>
 <div id="ticket_tabs_container">
     <div id="ticket_thread" class="tab_content">

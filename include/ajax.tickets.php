@@ -854,5 +854,47 @@ class TicketsAjaxAPI extends AjaxController {
 
         include(STAFFINC_DIR . 'templates/ticket-status.tmpl.php');
     }
+
+    function tasks($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+         include STAFFINC_DIR . 'ticket-tasks.inc.php';
+    }
+
+    function addTask($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffAccess($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+        $info = array();
+
+        if ($_POST) {
+            /*
+            Draft::deleteForNamespace(
+                    sprintf('ticket.%d.task', $ticket->getId()),
+                    $thisstaff->getId());
+            */
+            $form = TaskForm::getDefaultForm()->getForm($_POST);
+            if ($form && ($task = Task::create($form, $ticket)))
+                Http::response(201, $task->to_json());
+
+            $info['error'] = __('Error adding task - try again!');
+        }
+
+        $info['action'] = sprintf('#tickets/%d/add-task', $ticket->getId());
+        $info['title'] = sprintf(
+                __( 'Ticket #%1$s: %2$s'),
+                $ticket->getNumber(),
+                _('Add New Task')
+                );
+
+         include STAFFINC_DIR . 'templates/task.tmpl.php';
+    }
 }
 ?>
