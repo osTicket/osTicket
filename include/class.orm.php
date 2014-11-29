@@ -33,6 +33,7 @@ class ModelMeta implements ArrayAccess {
         'table' => false,
         'defer' => array(),
         'select_related' => array(),
+        'view' => false,
     );
     var $model;
 
@@ -1605,7 +1606,11 @@ class MySqlCompiler extends SqlCompiler {
         if ($extra instanceof Q) {
             $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
         }
-        return $join.$this->quote($rmodel::$meta['table'])
+        // Support inline views
+        $table = ($rmodel::$meta['view'])
+            ? $rmodel::getQuery($this)
+            : $this->quote($rmodel::$meta['table']);
+        return $join.$table
             .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
     }
 
