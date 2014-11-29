@@ -162,9 +162,10 @@ class StaffSession extends Staff {
     var $token;
 
     static function lookup($var) {
-        $staff = parent::lookup($var);
-        $staff->token = &$_SESSION[':token']['staff'];
-        $staff->session= new UserSession($staff->getId());
+        if ($staff = parent::lookup($var)) {
+            $staff->token = &$_SESSION[':token']['staff'];
+            $staff->session= new UserSession($staff->getId());
+        }
         return $staff;
     }
 

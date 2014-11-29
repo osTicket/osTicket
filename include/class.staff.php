@@ -61,7 +61,9 @@ implements AuthenticatedUser {
     }
 
     function getHashtable() {
-        return $this->ht;
+        $base = $this->ht;
+        $base['group'] = $base['group_id'];
+        return $base;
     }
 
     function getInfo() {

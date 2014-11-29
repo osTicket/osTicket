@@ -16,6 +16,7 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -37,6 +38,7 @@ class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
         'pk' => array('id'),
+        'select_related' => array('default_email'),
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
@@ -56,16 +58,14 @@ class UserModel extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
             ),
+            'cdata' => array(
+                'constraint' => array('id' => 'UserCdata.user_id'),
+                'null' => true,
+            ),
         )
     );
 
     const PRIMARY_ORG_CONTACT   = 0x0001;
-
-    static function objects() {
-        $qs = parent::objects();
-        #$qs->select_related('default_email');
-        return $qs;
-    }
 
     function getId() {
         return $this->id;

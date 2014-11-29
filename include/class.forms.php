@@ -799,7 +799,8 @@ class FormField {
     }
 
     function getTranslateTag($subtag) {
-        return _H(sprintf('field.%s.%s', $subtag, $this->get('id')));
+        return _H(sprintf('field.%s.%s.%s', $subtag, $this->get('id'),
+            $this->get('form_id', '*internal*')));
     }
     function getLocal($subtag, $default=false) {
         $tag = $this->getTranslateTag($subtag);
