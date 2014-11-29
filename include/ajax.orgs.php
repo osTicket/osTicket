@@ -255,7 +255,7 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function manageForms($org_id) {
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         $info = array('action' => '#orgs/'.Format::htmlchars($org_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -271,7 +271,7 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {

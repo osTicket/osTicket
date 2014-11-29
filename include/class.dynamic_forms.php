@@ -920,11 +920,6 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $ticket_id;
     }
 
-    function forClient($user_id) {
-        return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
-    }
-
     function setClientId($user_id) {
         $this->object_type = 'U';
         $this->object_id = $user_id;
@@ -934,14 +929,9 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $object_id;
     }
 
-    function forUser($user_id) {
+    function forObject($object_id, $object_type) {
         return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
-    }
-
-    function forOrganization($org_id) {
-        return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
+            ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }
 
     function render($staff=true, $title=false, $options=array()) {
