@@ -681,7 +681,11 @@ class SavedSearch extends VerySimpleModel {
                 }
                 $id = $info[2];
                 if (is_numeric($id) && ($field = DynamicFormField::lookup($id))) {
-                    $core[":{$info[1]}!{$info[2]}"] = $field->getImpl();
+                    $impl = $field->getImpl();
+                    $impl->set('label', sprintf('%s / %s',
+                        $field->form->getLocal('title'), $field->getLocal('label')
+                    ));
+                    $core[":{$info[1]}!{$info[2]}"] = $impl;
                 }
             }
         }
@@ -743,23 +747,26 @@ class SavedSearch extends VerySimpleModel {
                             ':organization' => 'user__org__cdata__',
                         );
                         $column = $field->get('name') ?: 'field_'.$field->get('id');
-                        foreach ($other_paths as $k => $OP) {
-                            if (substr($name, 0, strlen($k)) == $k) {
-                                // XXX: Last mile — find a better idea
-                                switch (array($k, $column)) {
-                                case array(':user', 'name'):
-                                    $name = 'user__name';
-                                    break;
-                                case array(':user', 'email'):
-                                    $name = 'user__emails__address';
-                                    break;
-                                case array(':organization', 'name'):
-                                    $name = 'user__org__name';
-                                    break;
-                                default:
-                                    $name = $OP . $column;
-                                }
-                            }
+                        list($type,$id) = explode('!', $name, 2);
+                        $OP = $other_paths[$type];
+                        if ($type == ':field') {
+                            $DF = DynamicFormField::lookup($id);
+                            TicketModel::registerCustomData($DF->form);
+                            $OP = 'cdata+'.$DF->form->id.'__';
+                        }
+                        // XXX: Last mile — find a better idea
+                        switch (array($type, $column)) {
+                        case array(':user', 'name'):
+                            $name = 'user__name';
+                            break;
+                        case array(':user', 'email'):
+                            $name = 'user__emails__address';
+                            break;
+                        case array(':organization', 'name'):
+                            $name = 'user__org__name';
+                            break;
+                        default:
+                            $name = $OP . $column;
                         }
                     }
 

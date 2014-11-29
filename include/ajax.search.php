@@ -56,6 +56,7 @@ class SearchAjaxAPI extends AjaxController {
         case ':ticket':
         case ':user':
         case ':organization':
+        case ':field':
             // Support nested field ids for list properties and such
             if (strpos($id, '.') !== false)
                 list(,$id) = explode('!', $id, 2);
@@ -67,7 +68,12 @@ class SearchAjaxAPI extends AjaxController {
         }
 
         self::ensureConsistentFormFieldIds($_GET['ff_uid']);
-        $fields = SavedSearch::getSearchField($field->getImpl(), $name);
+
+        $impl = $field->getImpl();
+        $impl->set('label', sprintf('%s / %s',
+            $field->form->getLocal('title'), $field->getLocal('label')
+        ));
+        $fields = SavedSearch::getSearchField($impl, $name);
         $form = new Form($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
@@ -80,6 +86,8 @@ class SearchAjaxAPI extends AjaxController {
         return $this->encode(array(
             'success' => true,
             'html' => $html,
+            // Send the current formfield UID to be resent with the next
+            // addField request and set above
             'ff_uid' => FormField::$uid,
         ));
     }
@@ -159,6 +167,15 @@ class SearchAjaxAPI extends AjaxController {
                     }
                 }
                 */
+            }
+        }
+        $fields = &$matches[__('Custom Forms')];
+        foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
+            foreach ($form->getFields() as $f) {
+                if (!$f->hasData() || $f->isPresentationOnly())
+                    continue;
+                $key = sprintf(':field!%d', $f->get('id'), $f->get('id'));
+                $fields[$key] = $form->getLocal('title').' / '.$f->getLocal('label');
             }
         }
         return $matches;

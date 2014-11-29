@@ -62,33 +62,37 @@ class ModelMeta implements ArrayAccess {
         if (!isset($meta['joins']))
             $meta['joins'] = array();
         foreach ($meta['joins'] as $field => &$j) {
-            if (isset($j['reverse'])) {
-                list($fmodel, $key) = explode('.', $j['reverse']);
-                $info = $fmodel::$meta['joins'][$key];
-                $constraint = array();
-                if (!is_array($info['constraint']))
-                    throw new OrmConfigurationException(sprintf(__(
-                        // `reverse` here is the reverse of an ORM relationship
-                        '%s: Reverse does not specify any constraints'),
-                        $j['reverse']));
-                foreach ($info['constraint'] as $foreign => $local) {
-                    list(,$field) = explode('.', $local);
-                    $constraint[$field] = "$fmodel.$foreign";
-                }
-                $j['constraint'] = $constraint;
-                if (!isset($j['list']))
-                    $j['list'] = true;
-                if (!isset($j['null']))
-                    $j['null'] = $info['null'] ?: false;
-            }
-            // XXX: Make this better (ie. composite keys)
-            $keys = array_keys($j['constraint']);
-            $foreign = $j['constraint'][$keys[0]];
-            $j['fkey'] = explode('.', $foreign);
-            $j['local'] = $keys[0];
+            $this->processJoin($j);
         }
         unset($j);
         $this->base = $meta;
+    }
+
+    function processJoin(&$j) {
+        if (isset($j['reverse'])) {
+            list($fmodel, $key) = explode('.', $j['reverse']);
+            $info = $fmodel::$meta['joins'][$key];
+            $constraint = array();
+            if (!is_array($info['constraint']))
+                throw new OrmConfigurationException(sprintf(__(
+                    // `reverse` here is the reverse of an ORM relationship
+                    '%s: Reverse does not specify any constraints'),
+                    $j['reverse']));
+            foreach ($info['constraint'] as $foreign => $local) {
+                list(,$field) = explode('.', $local);
+                $constraint[$field] = "$fmodel.$foreign";
+            }
+            $j['constraint'] = $constraint;
+            if (!isset($j['list']))
+                $j['list'] = true;
+            if (!isset($j['null']))
+                $j['null'] = $info['null'] ?: false;
+        }
+        // XXX: Make this better (ie. composite keys)
+        $keys = array_keys($j['constraint']);
+        $foreign = $j['constraint'][$keys[0]];
+        $j['fkey'] = explode('.', $foreign);
+        $j['local'] = $keys[0];
     }
 
     function offsetGet($field) {

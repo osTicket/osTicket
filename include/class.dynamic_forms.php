@@ -412,6 +412,7 @@ class DynamicFormField extends VerySimpleModel {
         'table' => FORM_FIELD_TABLE,
         'ordering' => array('sort'),
         'pk' => array('id'),
+        'select_related' => array('form'),
         'joins' => array(
             'form' => array(
                 'null' => true,
