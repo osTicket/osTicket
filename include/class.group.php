@@ -97,7 +97,7 @@ class Group extends VerySimpleModel {
 
 
     function updateDeptAccess($dept_ids) {
-        if ($dept_ids && is_array($dept_ids)) {
+        if (is_array($dept_ids)) {
             $groups = GroupDeptAccess::objects()
                 ->filter(array('group_id' => $this->getId()));
             foreach ($groups as $group) {
@@ -111,9 +111,8 @@ class Group extends VerySimpleModel {
                     'group_id'=>$this->getId(), 'dept_id'=>$id
                 ))->save();
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     function delete() {
@@ -204,7 +203,7 @@ class Group extends VerySimpleModel {
         $this->notes=Format::sanitize($vars['notes']);
 
         if ($this->save())
-            return $this->updateDeptAccess($vars['depts']);
+            return $this->updateDeptAccess($vars['depts'] ?: array());
 
         if (isset($this->group_id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this group'))
