@@ -42,7 +42,10 @@ default:
 case 'open':
     $status='open';
     $results_type=__('Open Tickets');
-    $tickets->filter(array('isanswered'=>0));
+    if (!$cfg->showAnsweredTickets())
+        $tickets->filter(array('isanswered'=>0));
+    if (!$cfg || !($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()))
+        $tickets->filter(array('staff_id'=>0));
     break;
 }
 
@@ -78,6 +81,7 @@ $tickets->select_related('lock', 'dept', 'staff', 'user', 'user__default_email',
 $pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($tickets->count(), $page,$pagelimit);
+$tickets = $pageNav->paginate($tickets);
 
 TicketForm::ensureDynamicDataView();
 

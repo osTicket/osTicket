@@ -1637,7 +1637,7 @@ class MySqlCompiler extends SqlCompiler {
      * (string) token to be placed into the compiled SQL statement. For
      * MySQL, this is always the string '?'.
      */
-    function input(&$what, $slot=false) {
+    function input($what, $slot=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($q->params);
@@ -2066,7 +2066,12 @@ class MysqlExecutor {
     }
 
     function __toString() {
-        return $this->sql;
+        $self = $this;
+        $x = 0;
+        return preg_replace_callback('/\?/', function($m) use ($self, &$x) {
+            $p = $self->params[$x++];
+            return db_real_escape($p, is_string($p));
+        }, $this->sql);
     }
 }
 

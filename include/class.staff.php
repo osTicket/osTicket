@@ -366,7 +366,7 @@ implements AuthenticatedUser {
     }
 
     function showAssignedTickets() {
-        return $this->group->show_assigned_tickets;
+        return $this->show_assigned_tickets;
     }
 
     function getTeams() {

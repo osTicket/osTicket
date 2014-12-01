@@ -127,5 +127,9 @@ class PageNate {
         return $html;
     }
 
+    function paginate(QuerySet $qs) {
+        return $qs->limit($this->getLimit())->offset($this->getStart());
+    }
+
 }
 ?>
