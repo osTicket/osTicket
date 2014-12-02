@@ -32,8 +32,8 @@
 # The very first group listed in this document will be the primary group of
 # the initial staff member -- the administrator.
 ---
-- isactive: 1
-  name: Lion Tamers
+- group_enabled: 1
+  group_name: Lion Tamers
   notes: |
     System overlords. These folks (initially) have full control to all the
     departments they have access to.
@@ -50,8 +50,8 @@
 
   depts: [1, 2, 3]
 
-- isactive: 1
-  name: Elephant Walkers
+- group_enabled: 1
+  group_name: Elephant Walkers
   notes: |
     Inhabitants of the ivory tower
   can_create_tickets: 1
@@ -67,8 +67,8 @@
 
   depts: [1, 2, 3]
 
-- isactive: 1
-  name: Flea Trainers
+- group_enabled: 1
+  group_name: Flea Trainers
   notes: |
     Lowly staff members
   can_create_tickets: 1

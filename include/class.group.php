@@ -164,6 +164,15 @@ class Group extends VerySimpleModel {
         return $group;
     }
 
+    static function __create($vars, &$errors) {
+        $g = self::create($vars);
+        $g->save();
+        if ($vars['depts'])
+            $g->updateDeptAccess($vars['depts']);
+
+        return $g;
+    }
+
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();

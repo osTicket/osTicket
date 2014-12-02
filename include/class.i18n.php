@@ -49,7 +49,7 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::create',
+            'department.yaml' =>    'Dept::__create',
             'sla.yaml' =>           'SLA::create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
@@ -63,7 +63,7 @@ class Internationalization {
             // Ticket
             'ticket_status.yaml' =>  'TicketStatus::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group::create',
+            'group.yaml' =>         'Group::__create',
             'file.yaml' =>          'AttachmentFile::create',
             'sequence.yaml' =>      'Sequence::__create',
         );

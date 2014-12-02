@@ -368,9 +368,15 @@ class Dept extends VerySimpleModel {
         return self::getDepartments(array('publiconly'=>true));
     }
 
-    static function create($vars, &$errors) {
+    static function create($vars, &$errors=array()) {
         $dept = parent::create($vars);
-        $dept->create = SqlFunction::NOW();
+        $dept->created = SqlFunction::NOW();
+        return $dept;
+    }
+
+    static function __create($vars, &$errors) {
+        $dept = self::create($vars);
+        $dept->save();
         return $dept;
     }
 
