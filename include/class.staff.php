@@ -608,7 +608,7 @@ implements AuthenticatedUser {
 
         $users=array();
         foreach ($members as $M) {
-            $users[$S->id] = $M->getName();
+            $users[$M->id] = $M->getName();
         }
 
         return $users;
@@ -741,14 +741,14 @@ implements AuthenticatedUser {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || !$id) {
+        if($vars['passwd1'] || $vars['passwd2'] || !$vars['id']) {
             if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
                 $errors['passwd2']=__('Passwords do not match');
             }
             elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
                 // Password can be omitted
             }
-            elseif(!$vars['passwd1'] && !$id) {
+            elseif(!$vars['passwd1'] && !$vars['id']) {
                 $errors['passwd1']=__('Temporary password is required');
                 $errors['temppasswd']=__('Required');
             } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {

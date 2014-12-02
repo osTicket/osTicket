@@ -82,6 +82,8 @@ class Dept extends VerySimpleModel {
     }
 
     function getEmail() {
+        global $cfg;
+
         if(!$this->email)
             if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
                 $this->email = $cfg->getDefaultEmail();
@@ -112,12 +114,12 @@ class Dept extends VerySimpleModel {
                     'onvacation' => 0,
                 ));
 
-            $qs->order_by('lastname', 'firstname');
+            $members->order_by('lastname', 'firstname');
 
             if ($criteria)
-                return $qs->all();
+                return $members->all();
 
-            $this->members = $qs->all();
+            $this->members = $members->all();
         }
         return $this->members;
     }
@@ -236,7 +238,7 @@ class Dept extends VerySimpleModel {
         if ($this->groups)
             return $this->groups;
 
-        $groups = GroupDept::object()
+        $groups = GroupDept::objects()
             ->filter(array('dept_id' => $this->getId()))
             ->values_flat('group_id');
 
@@ -247,28 +249,30 @@ class Dept extends VerySimpleModel {
         return $this->groups;
     }
 
-    function updateSettings($vars) {
+    function updateGroups($groups_ids) {
 
         // Groups allowes to access department
-        if($vars['groups'] && is_array($vars['groups'])) {
-            $groups = GroupDept::object()
+        if (is_array($groups_ids)) {
+            $groups = GroupDept::objects()
                 ->filter(array('dept_id' => $this->getId()));
             foreach ($groups as $group) {
-                if ($idx = array_search($group->group_id, $vars['groups']))
-                    unset($vars['groups'][$idx]);
+                if ($idx = array_search($group->group_id, $groups_ids))
+                    unset($groups_ids[$idx]);
                 else
                     $group->delete();
             }
-            foreach ($vars['groups'] as $id) {
+            foreach ($groups_ids as $id) {
                 GroupDept::create(array(
                     'dept_id'=>$this->getId(), 'group_id'=>$id
                 ))->save();
             }
         }
 
-        // Misc. config settings
-        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
+    }
 
+    function updateSettings($vars) {
+        $this->updateGroups($vars['groups'] ?: array());
+        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
         return true;
     }
 

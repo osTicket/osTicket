@@ -55,7 +55,7 @@ foreach (Topic::objects()
     ->filter(array('faqs__faq__category__category_id'=>$category->getId()))
     as $t) { ?>
         <a href="?topicId=<?php echo urlencode($t->getId()); ?>"
-            ><?php echo $t->getFullname(); ?></a>
+            ><?php echo $t->getFullName(); ?></a>
 <?php } ?>
         </section>
     </div>

@@ -513,7 +513,7 @@ class Format {
         $format = self::getStrftimeFormat($format);
         // TODO: Properly convert to local time
         $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
-        $time->setTimeZone(new DateTimeZone($cfg->getTimeZone()));
+        $time->setTimeZone(new DateTimeZone($cfg->getTimezone()));
         $timestamp = $time->getTimestamp();
         return strftime($format ?: $strftimeFallback, $timestamp);
     }
@@ -547,7 +547,7 @@ class Format {
         return self::__formatDate($timestamp,
             $format ?: $cfg->getTimeFormat(), $fromDb,
             IntlDateFormatter::NONE, IntlDateFormatter::SHORT,
-            '%x', $timezone ?: $cfg->getTimeZone());
+            '%x', $timezone ?: $cfg->getTimezone());
     }
 
     function date($timestamp, $fromDb=true, $format=false, $timezone=false) {
@@ -556,25 +556,25 @@ class Format {
         return self::__formatDate($timestamp,
             $format ?: $cfg->getDateFormat(), $fromDb,
             IntlDateFormatter::SHORT, IntlDateFormatter::NONE,
-            '%X', $timezone ?: $cfg->getTimeZone());
+            '%X', $timezone ?: $cfg->getTimezone());
     }
 
     function datetime($timestamp, $fromDb=true, $timezone=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-            $format ?: $cfg->getDateTimeFormat(), $fromDb,
-            IntlDateFormatter::SHORT, IntlDateFormatter::SHORT,
-            '%X %x', $timezone ?: $cfg->getTimeZone());
+                $cfg->getDateTimeFormat(), $fromDb,
+                IntlDateFormatter::SHORT, IntlDateFormatter::SHORT,
+                '%X %x', $timezone ?: $cfg->getTimezone());
     }
 
     function daydatetime($timestamp, $fromDb=true, $timezone=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-            $format ?: $cfg->getDayDateTimeFormat(), $fromDb,
-            IntlDateFormatter::FULL, IntlDateFormatter::SHORT,
-            '%X %x', $timezone ?: $cfg->getTimeZone());
+                $cfg->getDayDateTimeFormat(), $fromDb,
+                IntlDateFormatter::FULL, IntlDateFormatter::SHORT,
+                '%X %x', $timezone ?: $cfg->getTimezone());
     }
 
     function getStrftimeFormat($format) {
@@ -742,7 +742,7 @@ class Format {
         if (class_exists('IntlBreakIterator')) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
-                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+                    $lang ?: ($cfg ? $cfg->getPrimaryLanguage() : 'en_US'))
             ) {
                 $tokenizer->setText($text);
                 $tokens = array();

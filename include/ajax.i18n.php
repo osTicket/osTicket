@@ -67,11 +67,11 @@ class i18nAjaxAPI extends AjaxController {
         }
         foreach ($_POST as $lang => $phrase) {
             if (isset($phrases[$lang])) {
+                $p = $phrases[$lang];
                 if (!$phrase) {
                     $p->delete();
                 }
                 else {
-                    $p = $phrases[$lang];
                     // Avoid XSS injection
                     $p->text = trim(Format::striptags($phrase));
                     $p->agent_id = $thisstaff->getId();

@@ -991,7 +991,7 @@ class ModelInstanceManager extends ResultSet {
      * The annotated fields are in the AnnotatedModel instance and the
      * database-backed fields are managed by the Model instance.
      */
-    function getOrBuild($modelClass, $fields) {
+    function getOrBuild($modelClass, $fields, $cache=true) {
         // Check for NULL primary key, used with related model fetching. If
         // the PK is NULL, then consider the object to also be NULL
         foreach ($modelClass::$meta['pk'] as $pkf) {
@@ -1312,7 +1312,8 @@ class SqlCompiler {
 
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
-        $push = function($p, $path, $extra=false) use (&$model) {
+        $self = $this;
+        $push = function($p, $path, $extra=false) use (&$model, $self) {
             $model::_inspect();
             if (!($info = $model::$meta['joins'][$p])) {
                 throw new OrmException(sprintf(
@@ -1322,7 +1323,7 @@ class SqlCompiler {
             $crumb = implode('__', $path);
             $path[] = $p;
             $tip = implode('__', $path);
-            $alias = $this->pushJoin($crumb, $tip, $model, $info, $extra);
+            $alias = $self->pushJoin($crumb, $tip, $model, $info, $extra);
             // Roll to foreign model
             foreach ($info['constraint'] as $local => $foreign) {
                 list($model, $f) = explode('.', $foreign);
@@ -1857,6 +1858,7 @@ class MySqlCompiler extends SqlCompiler {
             }
         }
         $fields = array_keys($fields);
+        $group_by = array();
         // Add in annotations
         if ($queryset->annotations) {
             foreach ($queryset->annotations as $A) {

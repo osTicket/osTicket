@@ -384,10 +384,8 @@ class Internationalization {
             return $thisstaff->getLocale()
                 ?: self::getCurrentLanguage();
         }
-        if (!$locale)
-            $locale = $cfg->getDefaultLocale();
 
-        if (!$locale)
+        if (!($locale = $cfg->getDefaultLocale()))
             $locale = self::getCurrentLanguage();
 
         return $locale;
