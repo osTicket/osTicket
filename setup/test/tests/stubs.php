@@ -30,6 +30,7 @@ class mysqli_stmt {
 class mysqli_result {
     function free() {}
     function free_result() {}
+    function fetch_fields() {}
 }
 
 class ReflectionClass {
@@ -122,4 +123,32 @@ class IntlBreakIterator {
 class SqlFunction {
     static function NOW() {}
 }
+
+class SqlExpression {
+    static function plus() {}
+}
+
+class SqlInterval {
+    static function MINUTE() {}
+    static function DAY() {}
+}
+
+class SqlAggregate {
+    static function COUNT() {}
+}
+
+class Q {
+    static function ANY() {}
+}
+
+class IntlDateFormatter {
+    function setPattern() {}
+    function getPattern() {}
+    function parse() {}
+}
+
+class ResourceBundle {
+    function getLocales() {}
+}
+
 ?>
