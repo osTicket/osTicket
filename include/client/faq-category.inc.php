@@ -14,7 +14,7 @@ if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access
 $faqs = FAQ::objects()
     ->filter(array('category'=>$category))
     ->exclude(array('ispublished'=>false))
-    ->annotate(array('has_attachments'=>Aggregate::COUNT('attachments', false,
+    ->annotate(array('has_attachments'=>SqlAggregate::COUNT('attachments', false,
         array('attachments__inline'=>0))))
     ->order_by('-ispublished', 'question');
 

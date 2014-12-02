@@ -3,7 +3,7 @@
 <?php
     $categories = Category::objects()
         ->exclude(Q::any(array('ispublic'=>false, 'faqs__ispublished'=>false)))
-        ->annotate(array('faq_count'=>Aggregate::count('faqs')))
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
         ->filter(array('faq_count__gt'=>0));
     if ($categories->all()) { ?>
         <div><?php echo __('Click on the category to browse FAQs.'); ?></div>
@@ -45,7 +45,7 @@
             <option value="">— Browse by Topic —</option>
 <?php
 $topics = Topic::objects()
-    ->annotate(array('has_faqs'=>Aggregate::COUNT('faqs')))
+    ->annotate(array('has_faqs'=>SqlAggregate::COUNT('faqs')))
     ->filter(array('has_faqs__gt'=>0));
 foreach ($topics as $T) { ?>
         <option value="<?php echo $T->getId(); ?>"><?php echo $T->getFullName();

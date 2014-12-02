@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $pages = Page::objects()
     ->filter(array('type__in'=>array('other','landing','thank-you','offline')))
-    ->annotate(array('topics'=>Aggregate::count('topics')));
+    ->annotate(array('topics'=>SqlAggregate::COUNT('topics')));
 $qstr='';
 $sortOptions=array(
         'name'=>'name', 'status'=>'isactive',

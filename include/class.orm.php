@@ -566,7 +566,7 @@ class SqlCode extends SqlFunction {
     }
 }
 
-class Aggregate extends SqlFunction {
+class SqlAggregate extends SqlFunction {
 
     var $func;
     var $expr;
