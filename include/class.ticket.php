@@ -2365,7 +2365,7 @@ class Ticket {
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $where2 =' AND ticket.staff_id=0 ';
+            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';
 
@@ -2383,7 +2383,7 @@ class Ticket {
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
                 .'WHERE ticket.isanswered = 1 '
-                . $where
+                . $where . ($cfg->showAnsweredTickets() ? $where2 : '')
 
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '

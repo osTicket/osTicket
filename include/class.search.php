@@ -887,11 +887,11 @@ class AssigneeChoiceField extends ChoiceField {
 
         $Q = new Q();
         switch ($method) {
-        case '!assigned':
-            $Q->negate();
         case 'assigned':
-            $Q->add(array('team_id__gt' => 0,
-                'staff_id__gt' => 0));
+            $Q->negate();
+        case '!assigned':
+            $Q->add(array('team_id' => 0,
+                'staff_id' => 0));
             break;
         case '!includes':
             $Q->negate();

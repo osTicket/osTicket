@@ -49,7 +49,7 @@ case 'open':
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
     if (!$cfg || !($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()))
-        $tickets->filter(array('staff_id'=>0));
+        $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
     break;
 }
 
