@@ -11,6 +11,7 @@ case 'closed':
     $status='closed';
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
+    $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
     break;
 case 'overdue':
     $status='open';
@@ -75,7 +76,7 @@ $tickets->filter(Q::any($visibility));
 // Select pertinent columns
 // ------------------------------------------------------------
 #$tickets->select_related('lock', 'dept', 'staff', 'user', 'user__default_email', 'topic', 'status', 'cdata', 'cdata__:priority');
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept__dept_name', 'user__name', 'updated');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__dept_name', 'user__name', 'lastupdate');
 
 // Apply requested quick filter
 
@@ -232,50 +233,51 @@ $_SESSION[':Q:tickets'] = $tickets;
         $subject_field = TicketForm::objects()->one()->getField('subject');
         foreach ($tickets as $T) {
             $total += 1;
-                $tag=$T->staff_id?'assigned':'openticket';
+                $tag=$T['staff_id']?'assigned':'openticket';
                 $flag=null;
-                if($T->lock)
+                if($T['lock__lock_id'])
                     $flag='locked';
-                elseif($T->isoverdue)
+                elseif($T['isoverdue'])
                     $flag='overdue';
 
                 $lc='';
-                $dept = ($T->dept) ? $T->dept->getLocalName() : '';
+                $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__dept_name']);
                 if($showassigned) {
-                    if($T->staff_id)
-                        $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($T->staff->getName(),40));
-                    elseif($row['team_id'])
-                        $lc=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($T->team->getName(),40));
+                    if($T['staff_id'])
+                        $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate((string) new PersonsName($T['staff__firstname'], $T['staff__lastname']),40));
+                    elseif($T['team_id'])
+                        $lc=sprintf('<span class="Icon teamAssigned">%s</span>',
+                            Format::truncate(Team::getLocalById($T['team_id'], 'name', $T['team__name']),40));
                     else
                         $lc=' ';
                 }else{
                     $lc=Format::truncate($dept,40);
                 }
-                $tid=$T->number;
-                $subject = Format::truncate($subject_field->display($subject_field->to_php($T->cdata->subject)),40);
+                $tid=$T['number'];
+                $subject = Format::truncate($subject_field->display($subject_field->to_php($T['cdata__subject'])),40);
                 $threadcount=$row['thread_count'];
-                if(!strcasecmp($T->status->state,'open') && !$T->isanswered && !$T->lock) {
+                if(!strcasecmp($T['status__state'],'open') && !$T['isanswered'] && !$T['lock__lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
                 ?>
-            <tr id="<?php echo $T->ticket_id; ?>">
+            <tr id="<?php echo $T['ticket_id']; ?>">
                 <?php if($thisstaff->canManageTickets()) {
 
                     $sel=false;
-                    if($ids && in_array($T->ticket_id, $ids))
+                    if($ids && in_array($T['ticket_id'], $ids))
                         $sel=true;
                     ?>
                 <td align="center" class="nohover">
                     <input class="ckb" type="checkbox" name="tids[]"
-                        value="<?php echo $T->ticket_id; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                        value="<?php echo $T['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <?php } ?>
-                <td title="<?php echo $T->user->getDefaultEmailAddress(); ?>" nowrap>
-                  <a class="Icon <?php echo strtolower($T->source); ?>Ticket ticketPreview" title="Preview Ticket"
-                    href="tickets.php?id=<?php echo $T->ticket_id; ?>"><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo $T->getEffectiveDate(); ?></td>
+                <td title="<?php echo $T['user__default_email__address']; ?>" nowrap>
+                  <a class="Icon <?php echo strtolower($T['source']); ?>Ticket ticketPreview" title="Preview Ticket"
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $tid; ?></a></td>
+                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    href="tickets.php?id=<?php echo $T->ticket_id; ?>"><?php echo $subject; ?></a>
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                      <?php
                         if ($threadcount>1)
                             echo "<small>($threadcount)</small>&nbsp;".'<i
@@ -286,17 +288,17 @@ $_SESSION[':Q:tickets'] = $tickets;
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::htmlchars(
-                        Format::truncate($T->user->getName(), 22, strpos($T->user->getName(), '@'))); ?>&nbsp;</td>
+                <td nowrap>&nbsp;<?php $un = new PersonsName($T['user__name']); echo Format::htmlchars(
+                        Format::truncate($un, 22, strpos($un, '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
-                    $displaystatus=ucfirst($T->status);
-                    if(!strcasecmp($T->status->state,'open'))
+                    $displaystatus=ucfirst($T['status__name']);
+                    if(!strcasecmp($T['status__state'],'open'))
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $T->cdata->{':priority'}->priority_color; ?>;">
-                    <?php echo $T->cdata->{':priority'}->priority_desc; ?></td>
+                <td class="nohover" align="center" style="background-color:<?php echo $T['cdata__:priority__priority_color']; ?>;">
+                    <?php echo $T['cdata__:priority__priority_desc']; ?></td>
                 <?php
                 }
                 ?>

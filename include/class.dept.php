@@ -67,8 +67,14 @@ class Dept extends VerySimpleModel {
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $this->dept_name;
     }
-    function getTranslateTag() {
-        return _H('dept.name.' . $this->getId());
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('dept.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
+    function getTranslateTag($subtag='name') {
+        return _H(sprintf('dept.%s.%s', $subtag, $this->getId()));
     }
 
     function getEmailId() {
