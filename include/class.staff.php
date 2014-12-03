@@ -36,6 +36,9 @@ implements AuthenticatedUser {
             'group' => array(
                 'constraint' => array('group_id' => 'Group.group_id'),
             ),
+            'teams' => array(
+                'constraint' => array('staff_id' => 'StaffTeamMember.staff_id'),
+            ),
         ),
     );
 
@@ -45,6 +48,7 @@ implements AuthenticatedUser {
     var $timezone;
     var $stats = array();
     var $_extra;
+    var $passwd_change;
 
     function __onload() {
         // WE have to patch info here to support upgrading from old versions.
@@ -527,9 +531,9 @@ implements AuthenticatedUser {
 
     function updateTeams($team_ids) {
         if ($team_ids && is_array($team_ids)) {
-            $teams = TeamMember::object()
+            $teams = StaffTeamMember::objects()
                 ->filter(array('staff_id' => $this->getId()));
-            foreach ($team_ids as $member) {
+            foreach ($teams as $member) {
                 if ($idx = array_search($member->team_id, $team_ids)) {
                     // XXX: Do we really need to track the time of update?
                     $member->updated = SqlFunction::NOW();
@@ -541,7 +545,7 @@ implements AuthenticatedUser {
                 }
             }
             foreach ($team_ids as $id) {
-                TeamMember::create(array(
+                StaffTeamMember::create(array(
                     'updated'=>SqlFunction::NOW(),
                     'staff_id'=>$this->getId(), 'team_id'=>$id
                 ))->save();
@@ -813,6 +817,9 @@ class StaffTeamMember extends VerySimpleModel {
         'joins' => array(
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
+            ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
             ),
         ),
     );
