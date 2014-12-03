@@ -103,7 +103,7 @@ case 'due':
 
 default:
 case 'updated':
-    $tickets->order_by('cdata__:priority__priority_urgency', '-updated');
+    $tickets->order_by('cdata__:priority__priority_urgency', '-lastupdate');
     break;
 }
 

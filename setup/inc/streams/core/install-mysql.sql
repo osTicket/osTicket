@@ -614,6 +614,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `closed` datetime default NULL,
   `lastmessage` datetime default NULL,
   `lastresponse` datetime default NULL,
+  `lastupdate` datetime default NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`ticket_id`),

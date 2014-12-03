@@ -970,7 +970,7 @@ class Ticket {
         $ecb = null;
         switch($status->getState()) {
             case 'closed':
-                $sql.=', closed=NOW(), duedate=NULL ';
+                $sql.=', closed=NOW(), lastupdate=NOW(), duedate=NULL ';
                 if ($thisstaff)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
 
@@ -983,7 +983,7 @@ class Ticket {
             case 'open':
                 // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
-                    $sql .= ',closed=NULL, reopened=NOW() ';
+                    $sql .= ',closed=NULL, lastupdate=NOW(), reopened=NOW() ';
                     $ecb = function ($t) {
                         $t->logEvent('reopened', 'closed');
                     };
@@ -1261,7 +1261,7 @@ class Ticket {
     function onMessage($message, $autorespond=true) {
         global $cfg;
 
-        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
+        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastupdate=NOW(),lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
 
         // Auto-assign to closing staff or last respondent
         // If the ticket is closed and auto-claim is not enabled then put the
@@ -2748,6 +2748,7 @@ class Ticket {
         //We are ready son...hold on to the rails.
         $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
+            .' ,lastupdate= NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->getId())
             .' ,`number`='.db_input($number)

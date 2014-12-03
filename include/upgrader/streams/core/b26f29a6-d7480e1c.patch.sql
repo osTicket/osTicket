@@ -150,12 +150,15 @@ UPDATE `%TABLE_PREFIX%user_account` A1
 DROP TABLE %TABLE_PREFIX%_timezones;
 
 ALTER TABLE `%TABLE_PREFIX%ticket`
-    ADD `est_duedate` datetime default NULL AFTER `duedate`;
+    ADD `est_duedate` datetime default NULL AFTER `duedate`,
+    ADD `lastupdate` datetime default NULL AFTER `lastresponse`;
 
 UPDATE `%TABLE_PREFIX%ticket` A1
     JOIN `%TABLE_PREFIX%sla` A2 ON (A1.sla_id = A2.id)
     SET A1.`est_duedate` =
-        COALESCE(A1.`duedate`, A1.`created` + INTERVAL A2.`grace_period` HOUR);
+        COALESCE(A1.`duedate`, A1.`created` + INTERVAL A2.`grace_period` HOUR),
+      A1.`lastupdate` =
+        CAST(GREATEST(IFNULL(A1.lastmessage, 0), IFNULL(A1.closed, 0), IFNULL(A1.reopened, 0), A1.created) as DATETIME);
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
