@@ -132,6 +132,7 @@ class SearchAjaxAPI extends AjaxController {
             else
                 $data[$name] = $info['value'];
         }
+        self::ensureConsistentFormFieldIds();
         $form = $search->getForm($data);
         if (!$data || !$form->isValid()) {
             Http::response(422, 'Validation errors exist on form');
