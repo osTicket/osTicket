@@ -31,9 +31,9 @@ case 'answered':
     $tickets->filter(array('isanswered'=>1));
     break;
 default:
-    if (isset($_GET['clear_filter']))
-        unset($_SESSION['advsearch']);
+case 'search':
     if (isset($_SESSION['advsearch'])) {
+        // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
         $form->loadState($_SESSION['advsearch']);
         $tickets = $search->mangleQuerySet($tickets, $form);
@@ -75,7 +75,6 @@ $tickets->filter(Q::any($visibility));
 
 // Select pertinent columns
 // ------------------------------------------------------------
-#$tickets->select_related('lock', 'dept', 'staff', 'user', 'user__default_email', 'topic', 'status', 'cdata', 'cdata__:priority');
 $tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__dept_name', 'user__name', 'lastupdate');
 
 // Apply requested quick filter

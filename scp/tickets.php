@@ -368,6 +368,10 @@ endif;
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();
 
+// Clear advanced search upon request
+if (isset($_GET['clear_filter']))
+    unset($_SESSION['advsearch']);
+
 //Navigation
 $nav->setTabActive('tickets');
 $open_name = _P('queue-name',
@@ -376,18 +380,18 @@ $open_name = _P('queue-name',
 if($cfg->showAnsweredTickets()) {
     $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
                             'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php',
+                            'href'=>'tickets.php?status=open',
                             'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
+                        ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
 } else {
 
     if ($stats) {
 
         $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php',
+                               'href'=>'tickets.php?status=open',
                                'iconclass'=>'Ticket'),
-                            (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
+                            ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
     }
 
     if($stats['answered']) {
@@ -432,6 +436,21 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
+}
+
+if (isset($_SESSION['advsearch'])) {
+    // XXX: De-duplicate and simplify this code
+    $search = SavedSearch::create();
+    $form = $search->getFormFromSession('advsearch');
+    $form->loadState($_SESSION['advsearch']);
+    $tickets = TicketModel::objects();
+    $tickets = $search->mangleQuerySet($tickets, $form);
+    $count = $tickets->count();
+    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
+                           'title'=>__('Advanced Search Query'),
+                           'href'=>'tickets.php?status=search',
+                           'iconclass'=>'Ticket'),
+                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
 if($thisstaff->canCreateTickets()) {
