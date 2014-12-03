@@ -465,7 +465,15 @@ class SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        return sprintf('%s(%s)%s', $this->func, implode(',', $this->args),
+        $args = array();
+        foreach ($this->args as $A) {
+            if ($A instanceof SqlFunction)
+                $A = $A->toSql($compiler, $model);
+            else
+                $A = $compiler->input($A);
+            $args[] = $A;
+        }
+        return sprintf('%s(%s)%s', $this->func, implode(',', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 
@@ -489,9 +497,14 @@ class SqlExpression extends SqlFunction {
 
     function toSql($compiler, $model=false, $alias=false) {
         $O = array();
-        foreach ($this->args as $operand)
-            $O[] = $compiler->input($operand);
-        return implode(' '.$this->func.' ', $O);
+        foreach ($this->args as $operand) {
+            if ($operand instanceof SqlFunction)
+                $O[] = $operand->toSql($compiler, $model);
+            else
+                $O[] = $compiler->input($operand);
+        }
+        return implode(' '.$this->func.' ', $O)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '');
     }
 
     static function __callStatic($operator, $operands) {
@@ -500,6 +513,8 @@ class SqlExpression extends SqlFunction {
                 $operator = '-'; break;
             case 'plus':
                 $operator = '+'; break;
+            case 'times':
+                $operator = '*'; break;
             default:
                 throw new InvalidArgumentException('Invalid operator specified');
         }
@@ -511,9 +526,15 @@ class SqlInterval extends SqlFunction {
     var $type;
 
     function toSql($compiler, $model=false, $alias=false) {
+        $A = $this->args[0];
+        if ($A instanceof SqlFunction)
+            $A = $A->toSql($compiler, $model);
+        else
+            $A = $compiler->input($A);
         return sprintf('INTERVAL %s %s',
-            $compiler->input($this->args[0]),
-            $this->func);
+            $A,
+            $this->func)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '');
     }
 
     static function __callStatic($interval, $args) {
@@ -525,14 +546,13 @@ class SqlInterval extends SqlFunction {
 }
 
 class SqlField extends SqlFunction {
-    function __construct($table, $column=false) {
-        $this->column = $column ?: $table;
-        if ($column)
-            $this->table = $table;
+    function __construct($field) {
+        $this->field = $field;
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        return $compiler->quote($this->column);
+        list($field) = $compiler->getField($this->field, $model);
+        return $field;
     }
 }
 
@@ -634,6 +654,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
         $this->ordering = array_merge($this->ordering, func_get_args());
         return $this;
     }
+    function getSortFields() {
+        $ordering = $this->ordering;
+        if ($this->extra['order_by'])
+            $ordering = array_merge($ordering, $this->extra['order_by']);
+        return $ordering;
+    }
 
     function lock($how=false) {
         $this->lock = $how ?: self::LOCK_EXCLUSIVE;
@@ -669,7 +695,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
     }
 
     function values() {
-        $this->values = func_get_args();
+        foreach (func_get_args() as $A)
+            $this->values[$A] = $A;
         $this->iterator = 'HashArrayIterator';
         // This disables related models
         $this->related = false;
@@ -1077,6 +1104,23 @@ class FlatArrayIterator extends ResultSet {
     function fillTo($index) {
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->getRow()) {
+                $this->cache[] = $row;
+            } else {
+                $this->resource->close();
+                $this->resource = null;
+                break;
+            }
+        }
+    }
+}
+
+class HashArrayIterator extends ResultSet {
+    function __construct($queryset) {
+        $this->resource = $queryset->getQuery();
+    }
+    function fillTo($index) {
+        while ($this->resource && $index >= count($this->cache)) {
+            if ($row = $this->resource->getArray()) {
                 $this->cache[] = $row;
             } else {
                 $this->resource->close();
@@ -1715,15 +1759,20 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the ORDER BY clause
         $sort = '';
-        if ($queryset->ordering && !isset($this->options['nosort'])) {
+        if (($columns = $queryset->getSortFields()) && !isset($this->options['nosort'])) {
             $orders = array();
-            foreach ($queryset->ordering as $sort) {
+            foreach ($columns as $sort) {
                 $dir = 'ASC';
-                if ($sort[0] == '-') {
-                    $dir = 'DESC';
-                    $sort = substr($sort, 1);
+                if ($sort instanceof SqlFunction) {
+                    $field = $sort->toSql($this, $model);
                 }
-                list($field) = $this->getField($sort, $model);
+                else {
+                    if ($sort[0] == '-') {
+                        $dir = 'DESC';
+                        $sort = substr($sort, 1);
+                    }
+                    list($field) = $this->getField($sort, $model);
+                }
                 // TODO: Throw exception if $field can be indentified as
                 //       invalid
                 $orders[] = $field.' '.$dir;
@@ -1782,12 +1831,15 @@ class MySqlCompiler extends SqlCompiler {
         }
         // Support retrieving only a list of values rather than a model
         elseif ($queryset->values) {
-            foreach ($queryset->values as $v) {
+            foreach ($queryset->values as $alias=>$v) {
                 list($f) = $this->getField($v, $model);
                 if ($f instanceof SqlFunction)
-                    $fields[$f->toSql($this, $model)] = true;
-                else
+                    $fields[$f->toSql($this, $model, $alias)] = true;
+                else {
+                    if (!is_int($alias))
+                        $f .= ' AS '.$this->quote($alias);
                     $fields[$f] = true;
+                }
             }
         }
         // Simple selection from one table
@@ -1815,6 +1867,14 @@ class MySqlCompiler extends SqlCompiler {
             }
             foreach ($model::$meta['pk'] as $pk)
                 $group_by[] = $rootAlias .'.'. $pk;
+        }
+        // Add in SELECT extras
+        if (isset($queryset->extra['select'])) {
+            foreach ($queryset->extra['select'] as $name=>$expr) {
+                if ($expr instanceof SqlFunction)
+                    $expr = $expr->toSql($this, false, $name);
+                $fields[] = $expr;
+            }
         }
         if (isset($queryset->distinct)) {
             foreach ($queryset->distinct as $d)

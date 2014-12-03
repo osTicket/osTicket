@@ -609,6 +609,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
   `duedate` datetime default NULL,
+  `est_duedate` datetime default NULL,
   `reopened` datetime default NULL,
   `closed` datetime default NULL,
   `lastmessage` datetime default NULL,

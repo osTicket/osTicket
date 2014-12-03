@@ -2,6 +2,8 @@
 $search = SavedSearch::create();
 $tickets = TicketModel::objects();
 $clear_button = false;
+$date_header = $date_col = false;
+
 // Add "other" fields (via $_POST['other'][])
 
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
@@ -36,6 +38,7 @@ default:
         $tickets = $search->mangleQuerySet($tickets, $form);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
+        unset($_REQUEST['sort']);
         break;
     }
     // Fall-through and show open tickets
@@ -71,11 +74,38 @@ $tickets->filter(Q::any($visibility));
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->select_related('lock', 'dept', 'staff', 'user', 'user__default_email', 'topic', 'status', 'cdata', 'cdata__:priority');
+#$tickets->select_related('lock', 'dept', 'staff', 'user', 'user__default_email', 'topic', 'status', 'cdata', 'cdata__:priority');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept__dept_name', 'user__name', 'updated');
 
 // Apply requested quick filter
 
 // Apply requested sorting
+switch ($_REQUEST['sort']) {
+case 'number':
+    $tickets->extra(array(
+        'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
+    ));
+    break;
+case 'created':
+    $tickets->order_by('-created');
+    break;
+
+case 'priority,due':
+    $tickets->order_by('cdata__:priority__priority_urgency');
+    // Fall through to add in due date filter
+case 'due':
+    $date_header = __('Due Date');
+    $date_col = 'est_duedate';
+    $tickets->values('est_duedate');
+    $tickets->filter(array('est_duedate__isnull'=>false));
+    $tickets->order_by(new SqlField('est_duedate'));
+    break;
+
+default:
+case 'updated':
+    $tickets->order_by('cdata__:priority__priority_urgency', '-updated');
+    break;
+}
 
 // Apply requested pagination
 $pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
@@ -117,19 +147,30 @@ $_SESSION[':Q:tickets'] = $tickets;
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
-
-            <?php
-            if ($thisstaff->canDeleteTickets()) { ?>
-            <a id="tickets-delete" class="action-button pull-right tickets-action"
-                href="#tickets/status/delete"><i
-            class="icon-trash"></i> <?php echo __('Delete'); ?></a>
-            <?php
-            } ?>
+            <span style="display:inline-block">
+                <span style="vertical-align: baseline">Sort:</span>
+            <select name="sort" onchange="javascript:addSearchParam('sort', $(this).val());">
+<?php foreach (array(
+    'updated' =>    __('Most Recently Updated'),
+    'created' =>    __('Most Recently Created'),
+    'due' =>        __('Due Soon'),
+    'priority,due' => __('Priority + Due Soon'),
+    'number' =>     __('Ticket Number'),
+) as $mode => $desc) { ?>
+            <option value="<?php echo $mode; ?>" <?php if ($mode == $_REQUEST['sort']) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
+<?php } ?>
+            </select>
+            </span>
             <?php
             if ($thisstaff->canManageTickets()) {
                 echo TicketStatus::status_options();
             }
-            ?>
+            if ($thisstaff->canDeleteTickets()) { ?>
+            <a id="tickets-delete" class="action-button tickets-action"
+                href="#tickets/status/delete"><i
+            class="icon-trash"></i> <?php echo __('Delete'); ?></a>
+            <?php
+            } ?>
         </div>
 </div>
 <div class="clear" style="margin-bottom:10px;"></div>
@@ -145,27 +186,21 @@ $_SESSION[':Q:tickets'] = $tickets;
 	        <th width="8px">&nbsp;</th>
             <?php } ?>
 	        <th width="70">
-                <a <?php echo $id_sort; ?> href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="<?php echo sprintf(__('Sort by %s %s'), __('Ticket ID'), __($negorder)); ?>"><?php echo __('Ticket'); ?></a></th>
+                <?php echo __('Ticket'); ?></th>
 	        <th width="70">
-                <a  <?php echo $date_sort; ?> href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="<?php echo sprintf(__('Sort by %s %s'), __('Date'), __($negorder)); ?>"><?php echo __('Date'); ?></a></th>
+                <?php echo $date_header ?: __('Date'); ?></th>
 	        <th width="280">
-                 <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                    title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject'); ?></a></th>
+                <?php echo __('Subject'); ?></th>
             <th width="170">
-                <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                     title="<?php echo sprintf(__('Sort by %s %s'), __('Name'), __($negorder)); ?>"><?php echo __('From');?></a></th>
+                <?php echo __('From');?></th>
             <?php
             if($search && !$status) { ?>
                 <th width="60">
-                    <a <?php echo $status_sort; ?> href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Status'), __($negorder)); ?>"><?php echo __('Status');?></a></th>
+                    <?php echo __('Status');?></th>
             <?php
             } else { ?>
                 <th width="60" <?php echo $pri_sort;?>>
-                    <a <?php echo $pri_sort; ?> href="tickets.php?sort=pri&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Priority'), __($negorder)); ?>"><?php echo __('Priority');?></a></th>
+                    <?php echo __('Priority');?></th>
             <?php
             }
 
@@ -173,19 +208,16 @@ $_SESSION[':Q:tickets'] = $tickets;
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
                     <th width="150">
-                        <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                            title="<?php echo sprintf(__('Sort by %s %s'), __("Closing Agent's Name"), __($negorder)); ?>"><?php echo __('Closed By'); ?></a></th>
+                        <?php echo __('Closed By'); ?></th>
                 <?php
                 } else { //assigned to ?>
                     <th width="150">
-                        <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                            title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
+                        <?php echo __('Assigned To'); ?></th>
                 <?php
                 }
             } else { ?>
                 <th width="150">
-                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
+                    <?php echo __('Department');?></th>
             <?php
             } ?>
         </tr>

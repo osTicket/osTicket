@@ -105,6 +105,7 @@
   text-decoration: none !important;
   line-height:18px;
   margin-left:5px;
+  vertical-align: bottom;
 }
 .action-button span,
 .action-button a {

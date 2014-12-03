@@ -53,6 +53,10 @@ class TicketModel extends VerySimpleModel {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.dept_id'),
             ),
+            'sla' => array(
+                'constraint' => array('sla_id' => 'SlaModel.id'),
+                'null' => true,
+            ),
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
                 'null' => true,
@@ -179,8 +183,6 @@ class Ticket {
             return false;
 
         $sql='SELECT  ticket.*, lock_id, dept_name '
-            .' ,IF(sla.id IS NULL, NULL, '
-                .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
@@ -410,7 +412,22 @@ class Ticket {
     }
 
     function getSLADueDate() {
-        return $this->ht['sla_duedate'];
+        if ($sla = $this->getSLA()) {
+            $dt = new DateTime($this->getCreateDate());
+
+            return $dt
+                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
+                ->format('Y-m-d H:i:s');
+        }
+    }
+
+    function updateEstDueDate() {
+        $estimatedDueDate = $this->getEstDueDate();
+        if ($estimatedDueDate != $this->ht['est_duedate']) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `est_duedate`='.db_input($estimatedDueDate)
+                .' WHERE `ticket_id`='.db_input($this->getId());
+            db_query($sql);
+        }
     }
 
     function getEstDueDate() {
@@ -878,10 +895,15 @@ class Ticket {
 
     function setSLAId($slaId) {
         if ($slaId == $this->getSLAId()) return true;
-        return db_query(
+        $rv = db_query(
              'UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($slaId)
             .' WHERE ticket_id='.db_input($this->getId()))
             && db_affected_rows();
+        if ($rv) {
+            $this->ht['sla_id'] = $slaId;
+            $this->sla = null;
+        }
+        return $rv;
     }
     /**
      * Selects the appropriate service-level-agreement plan for this ticket.
@@ -2251,10 +2273,14 @@ class Ticket {
                 && (!$this->getSLA() || $this->getSLA()->isTransient()))
             $this->selectSLAId();
 
+        // Update estimated due date in database
+        $estimatedDueDate = $this->getEstDueDate();
+        $this->updateEstDueDate();
+
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-                && (!$this->getEstDueDate() //Duedate + SLA cleared
-                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                && (!$estimatedDueDate //Duedate + SLA cleared
+                    || Misc::db2gmtime($estimatedDueDate) > Misc::gmtime() //New due date in the future.
                     )) {
             $this->clearOverdue();
         }
@@ -2800,6 +2826,9 @@ class Ticket {
             if ($vars['teamId'])
                 $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'));
         }
+
+        // Update the estimated due date in the database
+        $this->updateEstDueDate();
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.

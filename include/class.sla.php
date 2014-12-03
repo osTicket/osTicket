@@ -14,6 +14,13 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+class SlaModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => SLA_TABLE,
+        'pk' => array('sla_id'),
+    );
+}
+
 class SLA {
 
     var $id;
