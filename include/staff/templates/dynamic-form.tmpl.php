@@ -38,7 +38,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     }
     foreach ($form->getFields() as $field) {
         try {
-            if (!$field->isVisibleToStaff())
+            if (!$field->isEditableToStaff())
                 continue;
         }
         catch (Exception $e) {
@@ -50,14 +50,14 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <?php
             }
             else { ?>
-                <td class="multi-line <?php if ($field->get('required')) echo 'required';
+                <td class="multi-line <?php if ($field->isRequiredForStaff()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
             $field->render(); ?>
-            <?php if (!$field->isBlockLevel() && $field->get('required')) { ?>
+            <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
                 <span class="error">*</span>
             <?php
             }

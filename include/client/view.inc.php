@@ -32,12 +32,12 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h1>
                 <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?> &nbsp;
-                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
-<?php if ($cfg->allowClientUpdates()
+                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><span class="Icon refresh">&nbsp;</span></a>
+<?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button pull-right" href="tickets.php?a=edit&id=<?php
-                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
+                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
 <?php } ?>
             </h1>
         </td>
@@ -88,7 +88,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
     <?php foreach ($answers as $answer) {
         if (in_array($answer->getField()->get('name'), array('name', 'email', 'subject')))
             continue;
-        elseif ($answer->getField()->get('private'))
+        elseif (!$answer->getField()->isVisibleToUsers())
             continue;
         ?>
         <tr>

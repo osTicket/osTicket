@@ -1448,6 +1448,11 @@ class ThreadEntryField extends FormField {
         if ($cfg->getAllowedFileTypes())
             $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
 
+        foreach ($fileupload_config as $C) {
+            $C->set('visibility', new VisibilityConstraint(new Q(array(
+                'attachments__eq'=>true,
+            )), VisibilityConstraint::HIDDEN));
+        }
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),

@@ -3,6 +3,123 @@
     <hr/>
     <form method="post" action="#form/field-config/<?php
             echo $field->get('id'); ?>">
+<ul class="tabs">
+    <li><a href="#config" class="active"><i class="icon-cogs"></i> Field Setup</a></li>
+    <li><a href="#visibility"><i class="icon-beaker"></i> Settings</a></li>
+</ul>
+
+<div class="tab_content" id="visibility" style="display:none">
+    <div>
+    <div class="span4">
+        <div style="margin-bottom:5px"><strong>Enabled</strong>
+        <i class="help-tip icon-question-sign"
+            data-title="Enabled"
+            data-content="This field can be disabled which will remove it
+            from the form for new entries, but will preserve the data on all
+            current entries."></i>
+        </div>
+    </div>
+    <div class="span6">
+    <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_ENABLED; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_ENABLED)) echo 'checked="checked"';
+            if ($field->hasFlag(DynamicFormField::FLAG_MASK_DISABLE)) echo ' disabled="disabled"';
+        ?>> Enabled<br/>
+    </div>
+    <hr class="faded"/>
+
+    <div class="span4">
+        <div style="margin-bottom:5px"><strong>Visible</strong>
+        <i class="help-tip icon-question-sign"
+            data-title="Visible"
+            data-content="Making fields <em>visible</em> allows agents and
+            endusers to view and create information in this field."></i>
+        </div>
+    </div>
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_CLIENT_VIEW; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_VIEW)) echo 'checked="checked"';
+            if ($field->isPrivacyForced()) echo ' disabled="disabled"';
+        ?>> For Clients<br/>
+    </div>
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_AGENT_VIEW; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_AGENT_VIEW)) echo 'checked="checked"';
+            if ($field->isPrivacyForced()) echo ' disabled="disabled"';
+        ?>> For Agents<br/>
+    </div>
+
+<?php if ($field->getImpl()->hasData()) { ?>
+    <hr class="faded"/>
+
+    <div class="span4">
+        <div style="margin-bottom:5px"><strong>Required</strong>
+        <i class="help-tip icon-question-sign"
+            data-title="Required"
+            data-content="New entries cannot be created unless all
+            <em>required</em> fields have valid data."></i>
+        </div>
+    </div>
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_CLIENT_REQUIRED; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_REQUIRED)) echo 'checked="checked"';
+            if ($field->isRequirementForced()) echo ' disabled="disabled"';
+        ?>> For Clients<br/>
+    </div>
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_AGENT_REQUIRED; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_AGENT_REQUIRED)) echo 'checked="checked"';
+            if ($field->isRequirementForced()) echo ' disabled="disabled"';
+        ?>> For Agents<br/>
+    </div>
+    <hr class="faded"/>
+
+    <div class="span4">
+        <div style="margin-bottom:5px"><strong>Editable</strong>
+        <i class="help-tip icon-question-sign"
+            data-content="Fields marked editable allow agents and endusers to update the
+            content of this field after the form entry has been created."
+            data-title="Editable"></i>
+        </div>
+    </div>
+
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_CLIENT_EDIT; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_EDIT)) echo 'checked="checked"';
+        ?>> For Clients<br/>
+    </div>
+    <div class="span3">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_AGENT_EDIT; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_AGENT_EDIT)) echo 'checked="checked"';
+        ?>> For Agents<br/>
+    </div>
+    <hr class="faded"/>
+
+    <div class="span4">
+        <div style="margin-bottom:5px"><strong>Data Integrity</strong>
+        <i class="help-tip icon-question-sign"
+            data-title="Required to close a ticket"
+            data-content="Optionally, this field can prevent closing a
+            ticket until it has valid data."></i>
+        </div>
+    </div>
+    <div class="span6">
+        <input type="checkbox" name="flags[]" value="<?php
+            echo DynamicFormField::FLAG_CLOSE_REQUIRED; ?>" <?php
+            if ($field->hasFlag(DynamicFormField::FLAG_CLOSE_REQUIRED)) echo 'checked="checked"';
+        ?>> Required to close a ticket<br/>
+    </div>
+<?php } ?>
+    </div>
+</div>
+
+<div class="tab_content" id="config">
         <?php
         echo csrf_token();
         $form = $field->getConfigurationForm();
@@ -50,6 +167,7 @@
             echo Format::htmlchars($field->get('hint')); ?></textarea>
         </div>
         </div>
+</div>
         <hr>
         <p class="full-width">
             <span class="buttons pull-left">
@@ -62,7 +180,41 @@
          </p>
     </form>
     <div class="clear"></div>
+
 <script type="text/javascript">
    // Make translatable fields translatable
    $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
 </script>
+
+<style type="text/css">
+.span3 {
+    width: 22.25%;
+    margin: 0 1%;
+    display: inline-block;
+    vertical-align: top;
+}
+.span4 {
+    width: 30.25%;
+    margin: 0 1%;
+    display: inline-block;
+    vertical-align: top;
+}
+.span6 {
+    width: 47.25%;
+    margin: 0 1%;
+    display: inline-block;
+    vertical-align: top;
+}
+.span12 {
+    width: 97%;
+    margin: 0 1%;
+    display: inline-block;
+    vertical-align: top;
+}
+.dialog input, .dialog select {
+    margin: 2px;
+}
+hr.faded {
+    opacity: 0.3;
+}
+</style>

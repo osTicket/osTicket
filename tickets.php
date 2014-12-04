@@ -47,8 +47,6 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
-        elseif (!$cfg || !$cfg->allowClientUpdates())
-            $errors['err']=__('Access Denied. Client updates are currently disabled');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             foreach ($forms as $form) {
@@ -107,7 +105,7 @@ endif;
 $nav->setActiveNav('tickets');
 if($ticket && $ticket->checkUserAccess($thisclient)) {
     if (isset($_REQUEST['a']) && $_REQUEST['a'] == 'edit'
-            && $cfg->allowClientUpdates()) {
+            && $ticket->hasClientEditableFields()) {
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries

@@ -83,17 +83,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $uform = UserForm::objects()->all();
         $ftypes = FormField::allTypes();
         foreach ($uform[0]->getFields() as $f) {
-            if ($f->get('private')) continue;
+            if (!$f->isVisibleToUsers()) continue;
         ?>
         <tr>
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
             <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
-            <td><?php
-                $rmode = $f->getRequirementMode();
-                $modes = $f->getAllRequirementModes();
-                echo $modes[$rmode]['desc'];
-            ?></td>
+            <td><?php echo $f->getVisibilityDescription(); ?></td>
             <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td></tr>
 
@@ -127,7 +123,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $rmode = $f->getRequirementMode();
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
@@ -162,12 +157,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
             <?php } ?></td>
             <td>
-                <select name="visibility-<?php echo $id; ?>">
-<?php foreach ($f->getAllRequirementModes() as $m=>$I) { ?>
-    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
-         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
-<?php } ?>
-                <select>
+                <?php echo $f->getVisibilityDescription(); ?>
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"

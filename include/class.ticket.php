@@ -791,6 +791,15 @@ class Ticket {
         return $this->recipients;
     }
 
+    function hasClientEditableFields() {
+        $forms = DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            foreach ($form->getFields() as $field) {
+                if ($field->isEditableToUsers())
+                    return true;
+            }
+        }
+    }
 
     function addCollaborator($user, $vars, &$errors) {
 
@@ -2221,7 +2230,7 @@ class Ticket {
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
             $form->setSource($_POST);
-            if (!$form->isValid())
+            if (!$form->isValidForStaff())
                 $errors = array_merge($errors, $form->errors());
         }
 
@@ -2456,10 +2465,9 @@ class Ticket {
                 case 'staff':
                     // Required 'Contact Information' fields aren't required
                     // when staff open tickets
-                    return $type != 'user'
-                        || in_array($f->get('name'), array('name','email'));
+                    return $f->isVisibleToStaff();
                 case 'web':
-                    return !$f->get('private');
+                    return $f->isVisibleToUsers();
                 default:
                     return true;
                 }
@@ -2772,6 +2780,13 @@ class Ticket {
         /* -------------------- POST CREATE ------------------------ */
 
         // Save the (common) dynamic form
+        // Ensure we have a subject
+        $subject = $form->getAnswer('subject');
+        if ($subject && !$subject->getValue()) {
+            if ($topic) {
+                $form->setAnswer('subject', $topic->getFullName());
+            }
+        }
         $form->setTicketId($id);
         $form->save();
 
