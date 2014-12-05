@@ -87,12 +87,26 @@ class Deployment extends Unpacker {
         }
     }
 
-    function copyFile($src, $dest) {
+    function writeManifest($root) {
+        $lines = array();
+        foreach ($this->manifest as $F=>$H)
+            $lines[] = "$H $F";
+
+        return file_put_contents($root.'/.MANIFEST', implode("\n", $lines));
+    }
+
+    function hashContents($file) {
+        $md5 = md5($file);
+        $sha1 = sha1($file);
+        return substr($md5, -20) . substr($sha1, -20);
+    }
+
+    function getEditedContents($src) {
         static $short = false;
         static $version = false;
 
         if (substr($src, -4) != '.php')
-            return parent::copyFile($src, $dest);
+            return false;
 
         if (!$short) {
             $hash = exec('git rev-parse HEAD');
@@ -103,7 +117,7 @@ class Deployment extends Unpacker {
             $version = exec('git describe');
 
         if (!$short || !$version)
-            return parent::copyFile($src, $dest);
+            return false;
 
         $source = file_get_contents($src);
         $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
@@ -125,10 +139,62 @@ class Deployment extends Unpacker {
             "$1ini_set('$2', '0'); // Set by installer",
             $source);
 
-        if (!file_put_contents($dest, $source))
-            die("Unable to apply rewrite rules to ".$dest);
+        return $source;
+    }
+
+    function copyFile($source, $dest, $hash=false) {
+        $contents = $this->getEditedContents($source);
+        if ($contents === false)
+            // Regular file
+            return parent::copyFile($source, $dest, $hash);
+
+        if (!file_put_contents($dest, $contents))
+            $this->fail($dest.": Unable to apply rewrite rules");
 
         return true;
+    }
+
+    function unpackage($folder, $destination, $recurse=0, $exclude=false) {
+        return parent::unpackage($folder, $destination, $recurse, $exclude);
+
+        // TODO: Consider using `git ls-files` for deployment
+        if (substr($destination, -1) !== '/')
+            $destination .= '/';
+        $source = $this->source;
+        if (substr($source, -1) != '/')
+            $source .= '/';
+
+        $pipes = array();
+        $patterns = array();
+        foreach ((array) $exclude as $x) {
+            $patterns[] = str_replace($source, '', $x);
+        }
+        $exclude = implode(' --exclude-per-directory=', $patterns);
+        if (!($files = proc_open(
+            "git ls-files -s --exclude-standard --exclude-per-directory=$exclude $folder",
+            array(1 => array('pipe', 'w')),
+            $pipes
+        ))) {
+            return parent::unpackage($folder, $destination, $recurse, $exclude);
+        }
+
+        $dryrun = $this->getOption('dry-run', false);
+        $verbose = $this->getOption('verbose') || $dryrun;
+        while ($line = stream_get_line($pipes[1], 255, PHP_EOL)) {
+            list($mode, $hash, , $path) = preg_split('/\s+/', $line);
+            $src = $source.$path;
+            $dst = $destination.$path;
+            if (!$this->isChanged($src, false, $hash))
+                continue;
+            if ($verbose)
+                $this->stdout->write($dst."\n");
+            if ($dryrun)
+                continue;
+            if (!is_dir(dirname($dst)))
+                mkdir(dirname($dst), 0751, true);
+            // TODO: Consider the MODE value
+            $this->copyFile($src, $dst, $hash);
+        }
     }
 
     function run($args, $options) {
@@ -150,8 +216,11 @@ class Deployment extends Unpacker {
         $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
-        $root = $this->find_root_folder();
+        $root = $this->source = $this->find_root_folder();
         $rootPattern = str_replace("\\","\\\\", $root); //need for windows case
+
+        # Prime the manifest system
+        $this->readManifest($this->destination.'/.MANIFEST');
 
         $exclusions = array("$rootPattern/include", "$rootPattern/.git*",
             "*.sw[a-z]","*.md", "*.txt");
@@ -177,6 +246,8 @@ class Deployment extends Unpacker {
                 array("ost-config.php","settings.php","plugins/",
                 "*/.htaccess"));
         }
+
+        $this->writeManifest($this->destination);
     }
 }
 
