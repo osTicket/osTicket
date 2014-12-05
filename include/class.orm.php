@@ -1028,8 +1028,7 @@ class ModelInstanceManager extends ResultSet {
         // be the root model's fields. The annotated fields will be wrapped
         // using an AnnotatedModel instance.
         if ($annotations && $modelClass == $this->model) {
-            foreach ($annotations as $A) {
-                $name = $A->getAlias();
+            foreach ($annotations as $name=>$A) {
                 if (isset($fields[$name])) {
                     $extras[$name] = $fields[$name];
                     unset($fields[$name]);
@@ -1798,6 +1797,9 @@ class MySqlCompiler extends SqlCompiler {
                 }
                 // TODO: Throw exception if $field can be indentified as
                 //       invalid
+                if ($field instanceof SqlFunction)
+                    $field = $field->toSql($this, $model);
+
                 $orders[] = $field.' '.$dir;
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
@@ -1883,8 +1885,8 @@ class MySqlCompiler extends SqlCompiler {
         $group_by = array();
         // Add in annotations
         if ($queryset->annotations) {
-            foreach ($queryset->annotations as $A) {
-                $fields[] = $T = $A->toSql($this, $model, true);
+            foreach ($queryset->annotations as $alias=>$A) {
+                $fields[] = $T = $A->toSql($this, $model, $alias);
                 // TODO: Add to last fieldset in fieldMap
                 if ($fieldMap)
                     $fieldMap[0][0][] = $A->getAlias();
