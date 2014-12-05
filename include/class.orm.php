@@ -612,7 +612,10 @@ class SqlAggregate extends SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        $options = array('constraint'=>$this->constraint);
+        $options = array(
+                'constraint' => $this->constraint,
+                'distinct' => $this->distinct);
+
         list($field) = $compiler->getField($this->expr, $model, $options);
         return sprintf('%s(%s)%s', $this->func, $field,
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
@@ -1373,6 +1376,10 @@ class SqlCompiler {
             $field = $alias.'.'.$this->quote($field);
         else
             $field = $this->quote($field);
+
+        if (isset($options['distinct']) && $options['distinct'])
+            $field = " DISTINCT $field";
+
         if (isset($options['model']) && $options['model'])
             $operator = $model;
         return array($field, $operator);
