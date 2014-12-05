@@ -491,6 +491,24 @@ class SqlFunction {
     }
 }
 
+class SqlExpr extends SqlFunction {
+    function __construct($args) {
+        $this->args = $args;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $O = array();
+        foreach ($this->args as $field=>$value) {
+            list($field, $op) = $compiler->getField($field, $model);
+            if (is_callable($op))
+                $O[] = call_user_func($op, $field, $value, $model);
+            else
+                $O[] = sprintf($op, $field, $compiler->input($value));
+        }
+        return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
+    }
+}
+
 class SqlExpression extends SqlFunction {
     var $operator;
     var $operands;
@@ -515,6 +533,10 @@ class SqlExpression extends SqlFunction {
                 $operator = '+'; break;
             case 'times':
                 $operator = '*'; break;
+            case 'bitand':
+                $operator = '&'; break;
+            case 'bitor':
+                $operator = '|'; break;
             default:
                 throw new InvalidArgumentException('Invalid operator specified');
         }

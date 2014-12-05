@@ -126,6 +126,8 @@ class SqlFunction {
 
 class SqlExpression {
     static function plus() {}
+    static function bitor() {}
+    static function bitand() {}
 }
 
 class SqlInterval {
