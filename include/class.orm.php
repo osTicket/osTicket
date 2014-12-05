@@ -803,12 +803,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
         if (!is_array($annotations))
             $annotations = func_get_args();
         foreach ($annotations as $name=>$A) {
-            if ($A instanceof Aggregate) {
+            if ($A instanceof SqlAggregate) {
                 if (is_int($name))
                     $name = $A->getFieldName();
                 $A->setAlias($name);
-                $this->annotations[$name] = $A;
             }
+            $this->annotations[$name] = $A;
         }
         return $this;
     }
