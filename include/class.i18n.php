@@ -50,7 +50,7 @@ class Internationalization {
         # notrans -- do not translate the contents of this array
         $models = array(
             'department.yaml' =>    'Dept::__create',
-            'sla.yaml' =>           'SLA::create',
+            'sla.yaml' =>           'SLA::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
