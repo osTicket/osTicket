@@ -52,10 +52,13 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.STAFF_TABLE.' SET isactive=1 '
-                            .' WHERE staff_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Staff::objects()->filter(array(
+                            'staff_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isactive' => 1
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf('Successfully activated %s',
                                     _N('selected agent', 'selected agents', $count));
@@ -68,10 +71,13 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.STAFF_TABLE.' SET isactive=0 '
-                            .' WHERE staff_id IN ('.implode(',', db_input($_POST['ids'])).') AND staff_id!='.db_input($thisstaff->getId());
+                        $num = Staff::objects()->filter(array(
+                            'staff_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isactive' => 0
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf('Successfully disabled %s',
                                     _N('selected agent', 'selected agents', $count));
@@ -84,6 +90,7 @@ if($_POST){
                         }
                         break;
                     case 'delete':
+                        $i = 0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if($v!=$thisstaff->getId() && ($s=Staff::lookup($v)) && $s->delete())
                                 $i++;
