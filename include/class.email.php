@@ -11,9 +11,40 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
+
+class EmailModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => EMAIL_TABLE,
+        'pk' => array('email_id'),
+        'joins' => array(
+            'priority' => array(
+                'constraint' => array('priority_id' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+                'null' => true,
+            ),
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+                'null' => true,
+            ),
+        )
+    );
+
+    function getId() {
+        return $this->email_id;
+    }
+
+    function __toString() {
+        if ($this->name)
+            return sprintf('%s <%s>', $this->name, $this->email);
+
+        return $this->email;
+    }
+}
 
 class Email {
     var $id;

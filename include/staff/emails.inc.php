@@ -7,44 +7,43 @@ $sql='SELECT email.*,dept.dept_name as department,priority_desc as priority '.
      ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=email.dept_id) '.
      ' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=email.priority_id) ';
 $sql.=' WHERE 1';
-$sortOptions=array('email'=>'email.email','dept'=>'department','priority'=>'priority','created'=>'email.created','updated'=>'email.updated');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'email';
-//Sorting options...
-if($sort && $sortOptions[$sort]) {
-    $order_column =$sortOptions[$sort];
-}
-$order_column=$order_column?$order_column:'email.email';
 
-if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
-    $order=$orderWays[strtoupper($_REQUEST['order'])];
-}
-$order=$order?$order:'ASC';
+$sortOptions = array(
+        'email' => 'email',
+        'dept' => 'dept__name',
+        'priority' => 'priority__priority_desc',
+        'created' => 'created',
+        'updated' => 'updated');
 
-if($order_column && strpos($order_column,',')){
-    $order_column=str_replace(','," $order,",$order_column);
+
+$orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
+$sort = ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ?  strtolower($_REQUEST['sort']) : 'email';
+if ($sort && $sortOptions[$sort]) {
+        $order_column = $sortOptions[$sort];
 }
+
+$order_column = $order_column ? $order_column : 'email';
+
+if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])]))
+{
+        $order = $orderWays[strtoupper($_REQUEST['order'])];
+} else {
+        $order = 'ASC';
+}
+
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
-$order_by="$order_column $order ";
-
-$total=db_count('SELECT count(*) FROM '.EMAIL_TABLE.' email ');
-$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('emails.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$count = EmailModel::objects()->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
+$pageNav->setURL('emails.php', $_qstr);
+$showing = $pageNav->showing().' '._N('email', 'emails', $count);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql GROUP BY email.email_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '.__('emails');
-else
-    $showing=__('No emails found!');
 
 $def_dept_id = $cfg->getDefaultDeptId();
 $def_dept_name = $cfg->getDefaultDept()->getName();
 $def_priority = $cfg->getDefaultPriority()->getDesc();
-
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Email Addresses');?></h2>
@@ -70,30 +69,37 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     </thead>
     <tbody>
     <?php
-        $total=0;
-        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
+        $ids = ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
+        if ($count):
             $defaultId=$cfg->getDefaultEmailId();
-            while ($row = db_fetch_array($res)) {
+            $emails = EmailModel::objects()
+                ->order_by(sprintf('%s%s',
+                            strcasecmp($order, 'DESC') ? '' : '-',
+                            $order_column))
+                ->limit($pageNav->getLimit())
+                ->offset($pageNav->getStart());
+
+            foreach ($emails as $email) {
+                $id = $email->getId();
                 $sel=false;
-                if($ids && in_array($row['email_id'],$ids))
+                if ($ids && in_array($email, $ids))
                     $sel=true;
-                $default=($row['email_id']==$defaultId);
-                $email=$row['email'];
-                if($row['name'])
-                    $email=$row['name'].' <'.$row['email'].'>';
+                $default=($id==$defaultId);
                 ?>
-            <tr id="<?php echo $row['email_id']; ?>">
+            <tr id="<?php echo $id; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['email_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?>>
+                  <input type="checkbox" class="ckb" name="ids[]"
+                    value="<?php echo $id; ?>"
+                    <?php echo $sel ? 'checked="checked"' : ''; ?>
+                    <?php echo $default?'disabled="disabled"':''; ?>>
                 </td>
-                <td><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php echo Format::htmlchars($email); ?></a></span></td>
-                <td><?php echo $row['priority'] ?: $def_priority; ?></td>
-                <td><a href="departments.php?id=<?php $row['dept_id'] ?: $def_dept_id; ?>"><?php
-                    echo $row['department'] ?: $def_dept_name; ?></a></td>
-                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
+                <td><span class="ltr"><a href="emails.php?id=<?php echo $id; ?>"><?php
+                    echo Format::htmlchars((string) $email); ?></a></span></td>
+                <td><?php echo $email->priority ?: $def_priority; ?></td>
+                <td><a href="departments.php?id=<?php $email->dept_id ?: $def_dept_id; ?>"><?php
+                    echo $email->dept ?: $def_dept_name; ?></a></td>
+                <td>&nbsp;<?php echo Format::date($email->created); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($email->updated); ?></td>
             </tr>
             <?php
             } //end of while.
@@ -101,7 +107,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     <tfoot>
      <tr>
         <td colspan="6">
-            <?php if($res && $num){ ?>
+            <?php if ($count){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
@@ -114,7 +120,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($count):
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
