@@ -411,6 +411,18 @@ CREATE TABLE `%TABLE_PREFIX%groups` (
   KEY `group_active` (`group_enabled`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%role`;
+CREATE TABLE `%TABLE_PREFIX%role` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
+  `name` varchar(64) DEFAULT NULL,
+  `notes` text,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',

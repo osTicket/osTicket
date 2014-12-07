@@ -82,6 +82,7 @@ class Bootstrap {
         define('DEPT_TABLE',$prefix.'department');
         define('GROUP_TABLE',$prefix.'groups');
         define('GROUP_DEPT_TABLE', $prefix.'group_dept_access');
+        define('ROLE_TABLE', $prefix.'role');
 
         define('FAQ_TABLE',$prefix.'faq');
         define('FAQ_TOPIC_TABLE',$prefix.'faq_topic');
