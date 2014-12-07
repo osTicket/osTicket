@@ -50,9 +50,8 @@ $gmtime = Misc::gmtime();
                 <select name="default_dept_id">
                     <option value="">&mdash; <?php echo __('Select Default Department');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' WHERE ispublic=1';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id, $name) = db_fetch_row($res)){
+                    if (($depts=Dept::getPublicDepartments())) {
+                        foreach ($depts as $id => $name) {
                             $selected = ($config['default_dept_id']==$id)?'selected="selected"':''; ?>
                             <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?> <?php echo __('Dept');?></option>
                         <?php
@@ -110,12 +109,12 @@ $gmtime = Misc::gmtime();
             <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
             <td>
                 <select name="name_format">
-<?php foreach (PersonsName::allFormats() as $n=>$f) {
-    list($desc, $func) = $f;
-    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
-                    <option value="<?php echo $n; ?>" <?php echo $selected;
-                        ?>><?php echo __($desc); ?></option>
-<?php } ?>
+                <?php foreach (PersonsName::allFormats() as $n=>$f) {
+                    list($desc, $func) = $f;
+                    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
+                                    <option value="<?php echo $n; ?>" <?php echo $selected;
+                                        ?>><?php echo __($desc); ?></option>
+                <?php } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
             </td>
@@ -131,24 +130,30 @@ $gmtime = Misc::gmtime();
             <td>
                 <select name="default_locale">
                     <option value=""><?php echo __('Use Language Preference'); ?></option>
-<?php foreach (Internationalization::allLocales() as $code=>$name) { ?>
+                    <?php
+                    foreach (Internationalization::allLocales() as $code=>$name) { ?>
                     <option value="<?php echo $code; ?>" <?php
                         if ($code == $config['default_locale'])
                             echo 'selected="selected"';
                     ?>><?php echo $name; ?></option>
-<?php } ?>
+
+                    <?php
+                    } ?>
                 </select>
             </td>
         </tr>
         <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
                 <select name="default_timezone" id="timezone-dropdown">
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                <?php
+                foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
                     <option value="<?php echo $zone; ?>" <?php
                     if ($config['default_timezone'] == $zone)
                         echo 'selected="selected"';
                     ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-<?php } ?>
+
+                <?php
+                } ?>
                 </select>
                 <button class="action-button" onclick="javascript:
     $('head').append($('<script>').attr('src', '<?php

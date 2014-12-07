@@ -51,7 +51,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.dept_id'),
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'sla' => array(
                 'constraint' => array('sla_id' => 'SlaModel.id'),

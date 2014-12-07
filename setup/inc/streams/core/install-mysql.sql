@@ -197,22 +197,22 @@ CREATE TABLE `%TABLE_PREFIX%list_items` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%department`;
 CREATE TABLE `%TABLE_PREFIX%department` (
-  `dept_id` int(11) unsigned NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `tpl_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
   `autoresp_email_id` int(10) unsigned NOT NULL default '0',
   `manager_id` int(10) unsigned NOT NULL default '0',
-  `dept_name` varchar(128) NOT NULL default '',
-  `dept_signature` text NOT NULL,
+  `name` varchar(128) NOT NULL default '',
+  `signature` text NOT NULL,
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `group_membership` tinyint(1) NOT NULL default '0',
   `ticket_auto_response` tinyint(1) NOT NULL default '1',
   `message_auto_response` tinyint(1) NOT NULL default '0',
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
-  PRIMARY KEY  (`dept_id`),
-  UNIQUE KEY `dept_name` (`dept_name`),
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `name` (`name`),
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)

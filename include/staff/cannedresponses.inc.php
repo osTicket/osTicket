@@ -2,7 +2,7 @@
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
-$sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department '.
+$sql='SELECT canned.*, count(attach.file_id) as files, dept.name as department '.
      ' FROM '.CANNED_TABLE.' canned '.
      ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=canned.dept_id) '.
      ' LEFT JOIN '.ATTACHMENT_TABLE.' attach

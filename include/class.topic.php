@@ -40,6 +40,12 @@ class Topic extends VerySimpleModel {
                     'page_id' => 'Page.id',
                 ),
             ),
+            'dept' => array(
+                'null' => true,
+                'constraint' => array(
+                    'dept_id' => 'Dept.id',
+                ),
+            ),
             'priority' => array(
                 'null' => true,
                 'constraint' => array(
