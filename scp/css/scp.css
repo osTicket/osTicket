@@ -489,8 +489,12 @@ table.list tbody tr:hover td, table.list tbody tr.highlight td {  background: #F
 table.list tbody tr:hover td.nohover, table.list tbody tr.highlight td.nohover {}
 
 
-table.list tfoot td {
+table tfoot td {
     background:#eee;
+    padding: 1px;
+}
+
+table.list tfoot td {
     padding: 2px;
 }
 
@@ -1952,7 +1956,7 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-    padding: 10px;
+    padding: 5px 0;
 }
 .left-tabs {
     margin-left: 48px;

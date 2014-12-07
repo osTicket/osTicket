@@ -388,27 +388,17 @@ CREATE TABLE `%TABLE_PREFIX%file_chunk` (
   PRIMARY KEY (`file_id`, `chunk_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%groups`;
-CREATE TABLE `%TABLE_PREFIX%groups` (
-  `group_id` int(10) unsigned NOT NULL auto_increment,
-  `group_enabled` tinyint(1) unsigned NOT NULL default '1',
-  `group_name` varchar(50) NOT NULL default '',
-  `can_create_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_edit_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_post_ticket_reply` tinyint( 1 ) unsigned NOT NULL DEFAULT  '1',
-  `can_delete_tickets` tinyint(1) unsigned NOT NULL default '0',
-  `can_close_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_assign_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_transfer_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_ban_emails` tinyint(1) unsigned NOT NULL default '0',
-  `can_manage_premade` tinyint(1) unsigned NOT NULL default '0',
-  `can_manage_faq` tinyint(1) unsigned NOT NULL default '0',
-  `can_view_staff_stats` tinyint( 1 ) unsigned NOT NULL DEFAULT  '0',
+DROP TABLE IF EXISTS `%TABLE_PREFIX%group`;
+CREATE TABLE `%TABLE_PREFIX%group` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `role_id` int(11) unsigned NOT NULL,
+  `flags` int(11) unsigned NOT NULL default '1',
+  `name` varchar(120) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`group_id`),
-  KEY `group_active` (`group_enabled`)
+  PRIMARY KEY  (`id`),
+  KEY `role_id` (`role_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%role`;
@@ -427,8 +417,10 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
+  `role_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
-  KEY `dept_id`  (`dept_id`)
+  KEY `dept_id`  (`dept_id`),
+  KEY `role_id`  (`role_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;

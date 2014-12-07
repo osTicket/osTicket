@@ -45,7 +45,7 @@ class Dept extends VerySimpleModel {
         ),
     );
 
-    var $members;
+    var $_members;
     var $_groupids;
     var $config;
 
@@ -97,11 +97,10 @@ class Dept extends VerySimpleModel {
     function getEmail() {
         global $cfg;
 
-        if(!$this->email)
-            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
-                $this->email = $cfg->getDefaultEmail();
+        if ($this->email)
+            return $this->email;
 
-        return $this->email;
+        return $cfg? $cfg->getDefaultEmail() : null;
     }
 
     function getNumMembers() {
@@ -109,7 +108,7 @@ class Dept extends VerySimpleModel {
     }
 
     function getMembers($criteria=null) {
-        if (!$this->members || $criteria) {
+        if (!$this->_members || $criteria) {
             $members = Staff::objects()
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
@@ -132,9 +131,9 @@ class Dept extends VerySimpleModel {
             if ($criteria)
                 return $members->all();
 
-            $this->members = $members->all();
+            $this->_members = $members->all();
         }
-        return $this->members;
+        return $this->_members;
     }
 
     function getAvailableMembers() {
@@ -268,21 +267,30 @@ class Dept extends VerySimpleModel {
         return $this->_groupids;
     }
 
-    function updateGroups($groups_ids) {
+    function updateGroups($groups_ids, $vars) {
 
-        // Groups allowes to access department
+        // Groups allowed to access department
         if (is_array($groups_ids)) {
-            $groups = GroupDept::objects()
+            $groups = GroupDeptAccess::objects()
                 ->filter(array('dept_id' => $this->getId()));
             foreach ($groups as $group) {
-                if ($idx = array_search($group->group_id, $groups_ids))
+                if ($idx = array_search($group->group_id, $groups_ids)) {
                     unset($groups_ids[$idx]);
-                else
+                    $roleId = $vars['group'.$group->group_id.'_role_id'];
+                    if ($roleId != $group->role_id) {
+                        $group->set('role_id', $roleId ?: 0);
+                        $group->save();
+                    }
+                } else {
                     $group->delete();
+                }
             }
             foreach ($groups_ids as $id) {
-                GroupDept::create(array(
-                    'dept_id'=>$this->getId(), 'group_id'=>$id
+                $roleId = $vars['group'.$id.'_role_id'];
+                GroupDeptAccess::create(array(
+                    'dept_id' => $this->getId(),
+                    'group_id' => $id,
+                    'role_id' => $roleId ?: 0,
                 ))->save();
             }
         }
@@ -290,7 +298,7 @@ class Dept extends VerySimpleModel {
     }
 
     function updateSettings($vars) {
-        $this->updateGroups($vars['groups'] ?: array());
+        $this->updateGroups($vars['groups'] ?: array(), $vars);
         $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
         return true;
     }
@@ -302,9 +310,7 @@ class Dept extends VerySimpleModel {
             // Default department cannot be deleted
             || $this->getId()==$cfg->getDefaultDeptId()
             // Department  with users cannot be deleted
-            || Staff::objects()
-                ->filter(array('dept_id'=>$this->getId()))
-                ->count()
+            || $this->members->count()
         ) {
             return 0;
         }
@@ -482,7 +488,10 @@ class GroupDeptAccess extends VerySimpleModel {
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'group' => array(
-                'constraint' => array('group_id' => 'Group.group_id'),
+                'constraint' => array('group_id' => 'Group.id'),
+            ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id'),
             ),
         ),
     );

@@ -22,39 +22,52 @@ if($_REQUEST['id'] && !($group=Group::lookup($_REQUEST['id'])))
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
-            if(!$group){
+            if (!$group) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('group'));
-            }elseif($group->update($_POST,$errors)){
+            } elseif (!$_POST['isactive']
+                    && ($thisstaff->getGroupId() == $group->getId())) {
+                $errors['err'] = sprintf(
+                        __("As an admin, you cannot %s a group you belong to - you might lockout all admins!"),
+                        __('disable'));
+            } elseif ($group->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this group'));
-            }elseif(!$errors['err']){
+            } elseif (!$errors['err']) {
                 $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
                     __('this group'));
             }
             break;
-        case 'create':
-            $group = Group::create();
-            if(($group->update($_POST,$errors))){
+        case 'add':
+            $_group = Group::create();
+            if (($_group->update($_POST,$errors))) {
                 $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-            }elseif(!$errors['err']){
+            } elseif(!$errors['err']) {
                 $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
                     __('this group'));
             }
             break;
         case 'mass_process':
-            if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+            $action = strtolower($_POST['a']);
+            if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err'] = sprintf(__('You must select at least %s.'), __('one group'));
-            } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])) {
-                $errors['err'] = __("As an admin, you cannot disable/delete a group you belong to - you might lockout all admins!");
+            } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])
+                    && in_array($action, array('disable', 'delete'))) {
+                $errors['err'] = sprintf(
+                        __("As an admin, you cannot %s a group you belong to - you might lockout all admins!"),
+                        __('disable or delete'));
             } else {
-                $count=count($_POST['ids']);
-                switch(strtolower($_POST['a'])) {
+                $count = count($_POST['ids']);
+                switch($action) {
                     case 'enable':
-                        $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=1, updated=NOW() '
-                            .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                        if(db_query($sql) && ($num=db_affected_rows())){
+                        $num = Group::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags'=> SqlExpression::bitor(
+                                new SqlField('flags'),
+                                Group::FLAG_ENABLED)
+                        ));
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully activated %s'),
                                     _N('selected group', 'selected groups', $count));
@@ -67,9 +80,15 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.GROUP_TABLE.' SET group_enabled=0, updated=NOW() '
-                            .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = Group::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags'=> SqlExpression::bitand(
+                                new SqlField('flags'),
+                                (~Group::FLAG_ENABLED))
+                        ));
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected group', 'selected groups', $count));

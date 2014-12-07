@@ -39,6 +39,10 @@ class Config {
         if (!isset($_SESSION['cfg:'.$this->section]))
             $_SESSION['cfg:'.$this->section] = array();
         $this->session = &$_SESSION['cfg:'.$this->section];
+        $this->load();
+    }
+
+    function load() {
 
         $sql='SELECT id, `key`, value, `updated` FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
