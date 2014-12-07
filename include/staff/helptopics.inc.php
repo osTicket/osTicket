@@ -1,31 +1,14 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if (!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$sql='SELECT topic.* '
-    .', dept.dept_name as department '
-    .', priority_desc as priority '
-    .' FROM '.TOPIC_TABLE.' topic '
-    .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
-    .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
-$sql.=' WHERE 1';
-$order_by = '`sort`';
 
-$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-//Ok..lets roll...create the actual query
-$query="$sql ORDER BY $order_by";
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
-    $showing=sprintf(_N('Showing %d help topic', 'Showing %d help topics', $num), $num);
-else
-    $showing=__('No help topics found!');
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$count = Topic::objects()->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav->setURL('helptopics.php', $_qstr);
+$showing = $pageNav->showing().' '._N('help topic', 'help topics', $count);
 
-// Get the full names and filter for this page
-$topics = array();
-while ($row = db_fetch_array($res))
-    $topics[] = $row;
-
-foreach ($topics as &$t)
-    $t['name'] = Topic::getTopicName($t['topic_id']);
+$order_by = ($cfg->getTopicSortMode() == 'm') ? 'sort' : 'topic';
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
@@ -67,52 +50,67 @@ foreach ($topics as &$t)
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
         data-sort="sort-">
     <?php
-        $total=0;
-        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if (count($topics)):
+        $ids= ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
+        if ($count) {
+            $topics = Topic::objects()
+                ->order_by(sprintf('%s%s',
+                            strcasecmp($order, 'DESC') ? '' : '-',
+                            $order_by))
+                ->limit($pageNav->getLimit())
+                ->offset($pageNav->getStart());
+
             $defaultDept = $cfg->getDefaultDept();
             $defaultPriority = $cfg->getDefaultPriority();
             $sort = 0;
-            foreach($topics as $row) {
+            foreach($topics as $topic) {
+                $id = $topic->getId();
                 $sort++; // Track initial order for transition
                 $sel=false;
-                if($ids && in_array($row['topic_id'],$ids))
+                if ($ids && in_array($id, $ids))
                     $sel=true;
 
-                if (!$row['dept_id'] && $defaultDept) {
-                    $row['dept_id'] = $defaultDept->getId();
-                    $row['department'] = (string) $defaultDept;
+                if ($topic->dept_id) {
+                    $deptId = $topic->dept_id;
+                    $dept = (string) $topic->dept;
+                } elseif ($defaultDept) {
+                    $deptId = $defaultDept->getId();
+                    $dept = (string) $defaultDept;
+                } else {
+                    $deptId = 0;
+                    $dept = '';
                 }
-
-                if (!$row['priority'] && $defaultPriority)
-                    $row['priority'] = (string) $defaultPriority;
-
+                $priority = $team->priority ?: $defaultPriority;
                 ?>
-            <tr id="<?php echo $row['topic_id']; ?>">
+            <tr id="<?php echo $id; ?>">
                 <td width=7px>
-                  <input type="hidden" name="sort-<?php echo $row['topic_id']; ?>" value="<?php
-                        echo $row['sort'] ?: $sort; ?>"/>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['topic_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>>
+                  <input type="hidden" name="sort-<?php echo $id; ?>" value="<?php
+                        echo $topic->sort ?: $sort; ?>"/>
+                  <input type="checkbox" class="ckb" name="ids[]"
+                    value="<?php echo $id; ?>" <?php
+                    echo $sel ? 'checked="checked"' : ''; ?>>
                 </td>
                 <td>
-<?php if ($cfg->getTopicSortMode() == 'm') { ?>
-                    <i class="icon-sort"></i>
-<?php } ?>
-<a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
-                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
-                <td><?php echo $row['priority']; ?></td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
-                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
+                    <?php
+                    if ($cfg->getTopicSortMode() == 'm') { ?>
+                        <i class="icon-sort"></i>
+                    <?php } ?>
+                    <a href="helptopics.php?id=<?php echo $id; ?>"><?php
+                    echo Topic::getTopicName($id); ?></a>&nbsp;
+                </td>
+                <td><?php echo $topic->isactive ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>
+                <td><?php echo $topic->ispublic ? __('Public') : '<b>'.__('Private').'</b>'; ?></td>
+                <td><?php echo $priority; ?></td>
+                <td><a href="departments.php?id=<?php echo $deptId;
+                ?>"><?php echo $dept; ?></a></td>
+                <td>&nbsp;<?php echo Format::datetime($team->updated); ?></td>
             </tr>
             <?php
-            } //end of while.
-        endif; ?>
+            } //end of foreach.
+        }?>
     <tfoot>
      <tr>
         <td colspan="7">
-            <?php if($res && $num){ ?>
+            <?php if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
@@ -125,7 +123,8 @@ foreach ($topics as &$t)
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($count): //Show options..
+     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
 <?php if ($cfg->getTopicSortMode() != 'a') { ?>

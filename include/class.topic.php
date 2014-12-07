@@ -40,6 +40,12 @@ class Topic extends VerySimpleModel {
                     'page_id' => 'Page.id',
                 ),
             ),
+            'priority' => array(
+                'null' => true,
+                'constraint' => array(
+                    'priority_id' => 'Priority.priority_id',
+                ),
+            ),
         ),
     );
 
@@ -114,9 +120,6 @@ class Topic extends VerySimpleModel {
     }
 
     function getPage() {
-        if(!$this->page && $this->getPageId())
-            $this->page = Page::lookup($this->getPageId());
-
         return $this->page;
     }
 
