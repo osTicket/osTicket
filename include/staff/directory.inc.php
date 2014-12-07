@@ -3,7 +3,7 @@ if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access
 $qstr='';
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
-      'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) ';
+      'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.id) ';
 $where='WHERE staff.isvisible=1 ';
 
 $agents = Staff::objects()
