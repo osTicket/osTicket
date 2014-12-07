@@ -42,11 +42,11 @@ class OverviewReportAjaxAPI extends AjaxController {
         $groups = array(
             "dept" => array(
                 "table" => DEPT_TABLE,
-                "pk" => "dept_id",
-                "sort" => 'T1.dept_name',
-                "fields" => 'T1.dept_name',
+                "pk" => "id",
+                "sort" => 'T1.name',
+                "fields" => 'T1.name',
                 "headers" => array(__('Department')),
-                "filter" => ('T1.dept_id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
+                "filter" => ('T1.id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
             ),
             "topic" => array(
                 "table" => TOPIC_TABLE,

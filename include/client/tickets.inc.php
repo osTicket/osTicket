@@ -25,7 +25,7 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
 }
 
 $sortOptions=array('id'=>'`number`', 'subject'=>'cdata.subject',
-                    'status'=>'status.name', 'dept'=>'dept_name','date'=>'ticket.created');
+                    'status'=>'status.name', 'dept'=>'dept.name','date'=>'ticket.created');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 //Sorting options...
 $order_by=$order=null;
@@ -46,13 +46,13 @@ $$x=' class="'.strtolower($order).'" ';
 
 $qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
     .'dept.ispublic, cdata.subject,'
-    .'dept_name, status.name as status, status.state, ticket.source, ticket.created ';
+    .'dept.name as dept_name, status.name as status, status.state, ticket.source, ticket.created ';
 
 $qfrom='FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
             ON (status.id = ticket.status_id) '
       .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id)'
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
       .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
         ON (collab.ticket_id = ticket.ticket_id
                 AND collab.user_id ='.$thisclient->getId().' )';

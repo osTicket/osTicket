@@ -12,23 +12,23 @@
 # The very first group listed in this document will be the primary
 # department of the initial staff member -- the administrator.
 ---
-- dept_id: 1
-  dept_name: Support
-  dept_signature: |
+- id: 1
+  name: Support
+  signature: |
     Support Department
   ispublic: 1
   group_membership: 1
 
-- dept_id: 2
-  dept_name: Sales
-  dept_signature: |
+- id: 2
+  name: Sales
+  signature: |
     Sales and Customer Retention
   ispublic: 1
   sla_id: 1
   group_membership: 1
 
-- dept_id: 3
-  dept_name: Maintenance
+- id: 3
+  name: Maintenance
   dept_signature: |
     Maintenance Department
   ispublic: 0

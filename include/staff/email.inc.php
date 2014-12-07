@@ -84,12 +84,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			    <option value="0" selected="selected">&mdash; <?php
                 echo __('System Default'); ?> &mdash;</option>
 			    <?php
-			    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-			    if(($res=db_query($sql)) && db_num_rows($res)){
-				while(list($id,$name)=db_fetch_row($res)){
-				    $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-				}
+                if (($depts=Dept::getDepartments())) {
+                    foreach ($depts as $id => $name) {
+				        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+				        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+				    }
 			    }
 			    ?>
 			</select>

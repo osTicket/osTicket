@@ -75,7 +75,7 @@ $tickets->filter(Q::any($visibility));
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__dept_name', 'user__name', 'lastupdate');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
 
 // Apply requested quick filter
 
@@ -240,7 +240,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                     $flag='overdue';
 
                 $lc='';
-                $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__dept_name']);
+                $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
                 if($showassigned) {
                     if($T['staff_id'])
                         $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate((string) new PersonsName($T['staff__firstname'], $T['staff__lastname']),40));

@@ -31,7 +31,7 @@ implements AuthenticatedUser {
         'select_related' => array('group'),
         'joins' => array(
             'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.dept_id'),
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'group' => array(
                 'constraint' => array('group_id' => 'Group.group_id'),
@@ -202,28 +202,30 @@ implements AuthenticatedUser {
 
     function getDepartments() {
 
-        if (isset($this->departments))
-            return $this->departments;
+        if (!isset($this->departments)) {
 
-        // Departments the staff is "allowed" to access...
-        // based on the group they belong to + user's primary dept + user's managed depts.
-        $dept_ids = array();
-        $depts = Dept::objects()
-            ->filter(Q::any(array(
-                'dept_id' => $this->dept_id,
-                'groups__group_id' => $this->group_id,
-                'manager_id' => $this->getId(),
-            )))
-            ->values_flat('dept_id');
+            // Departments the staff is "allowed" to access...
+            // based on the group they belong to + user's primary dept + user's managed depts.
+            $dept_ids = array();
+            $depts = Dept::objects()
+                ->filter(Q::any(array(
+                    'id' => $this->dept_id,
+                    'groups__group_id' => $this->group_id,
+                    'manager_id' => $this->getId(),
+                )))
+                ->values_flat('id');
 
-        foreach ($depts as $row) {
-            list($id) = $row;
-            $dept_ids[] = $id;
+            foreach ($depts as $row)
+                $dept_ids[] = $row[0];
+
+            if (!$dept_ids) { //Neptune help us! (fallback)
+                $dept_ids = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+            }
+
+            $this->departments = array_filter(array_unique($dept_ids));
         }
-        if (!$dept_ids) { //Neptune help us! (fallback)
-            $dept_ids = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
-        }
-        return $this->departments = array_filter(array_unique($dept_ids));
+
+        return $this->departments;
     }
 
     function getDepts() {

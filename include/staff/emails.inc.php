@@ -2,12 +2,6 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
-$sql='SELECT email.*,dept.dept_name as department,priority_desc as priority '.
-     ' FROM '.EMAIL_TABLE.' email '.
-     ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=email.dept_id) '.
-     ' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=email.priority_id) ';
-$sql.=' WHERE 1';
-
 $sortOptions = array(
         'email' => 'email',
         'dept' => 'dept__name',
