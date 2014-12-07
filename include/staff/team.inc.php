@@ -1,8 +1,8 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
+$info=$members=array();
 $qstr='';
-if($team && $_REQUEST['a']!='add'){
+if ($team && $_REQUEST['a']!='add') {
     //Editing Team
     $title=__('Update Team');
     $action='update';
@@ -11,7 +11,8 @@ if($team && $_REQUEST['a']!='add'){
     $info['id']=$team->getId();
     $trans['name'] = $team->getTranslateTag('name');
     $qstr.='&id='.$team->getId();
-}else {
+    $members = $team->getMembers();
+} else {
     $title=__('Add New Team');
     $action='create';
     $submit_text=__('Create Team');
@@ -19,16 +20,29 @@ if($team && $_REQUEST['a']!='add'){
     $info['noalerts']=0;
     $qstr.='&a='.$_REQUEST['a'];
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
 <form action="teams.php?<?php echo $qstr; ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Team');?>
+ <h2><?php echo __('Team');?>&nbsp;
     <i class="help-tip icon-question-sign" href="#teams"></i>
     </h2>
+<br>
+<ul class="tabs">
+    <li class="active"><a href="#team">
+        <i class="icon-file"></i> <?php echo __('Team'); ?></a></li>
+    <?php
+    if ($members) { ?>
+    <li><a href="#members">
+        <i class="icon-group"></i> <?php echo __('Members'); ?></a></li>
+    <?php
+    } ?>
+</ul>
+<div id="team" class="tab_content">
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -71,9 +85,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <span>
                 <select name="lead_id">
                     <option value="0">&mdash; <?php echo __('None');?> &mdash;</option>
-                    <option value="" disabled="disabled"><?php echo __('Select Team Lead (Optional)');?></option>
                     <?php
-                    if($team && ($members=$team->getMembers())){
+                    if ($members) {
                         foreach($members as $k=>$staff){
                             $selected=($info['lead_id'] && $staff->getId()==$info['lead_id'])?'selected="selected"':'';
                             echo sprintf('<option value="%d" %s>%s</option>',$staff->getId(),$selected,$staff->getName());
@@ -96,25 +109,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <i class="help-tip icon-question-sign" href="#assignment_alert"></i>
             </td>
         </tr>
-        <?php
-        if($team && ($members=$team->getMembers())){ ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Team Members'); ?></strong>:
-                <i class="help-tip icon-question-sign" href="#members"></i>
-</em>
-            </th>
-        </tr>
-        <?php
-            foreach($members as $k=>$staff){
-                echo sprintf('<tr><td colspan=2><span style="width:350px;padding-left:5px; display:block;" class="pull-left">
-                            <b><a href="staff.php?id=%d">%s</a></span></b>
-                            &nbsp;<input type="checkbox" name="remove[]" value="%d"><i>'.__('Remove').'</i></td></tr>',
-                          $staff->getId(),$staff->getName(),$staff->getId());
-
-
-            }
-        } ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes viewable by all admins.');?>&nbsp;</em>
@@ -128,9 +122,39 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
+</div>
+<?php
+if ($members) { ?>
+<div id="members" class="tab_content" style="display:none">
+   <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <thead>
+        <tr>
+            <th>
+                <em><?php echo __('Agents who are members of this team'); ?><i
+                    class="help-tip icon-question-sign" href="#members"></i></em>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php
+        foreach($members as $k=>$staff) {
+            echo sprintf('<tr><td colspan=2><span style="width:350px;padding-left:5px; display:block;" class="pull-left">
+                        <b><a href="staff.php?id=%d">%s</a></span></b>
+                        &nbsp;<input type="checkbox" name="remove[]" value="%d"><i>'.__('Remove').'</i></td></tr>',
+                        $staff->getId() ,
+                        $staff->getName(),
+                        $staff->getId());
+
+        }
+     ?>
+    </tbody>
+   </table>
+</div>
+<?php
+} ?>
 <p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="teams.php"'>
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="?"'>
 </p>
 </form>

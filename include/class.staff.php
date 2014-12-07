@@ -37,18 +37,20 @@ implements AuthenticatedUser {
                 'constraint' => array('group_id' => 'Group.group_id'),
             ),
             'teams' => array(
-                'constraint' => array('staff_id' => 'StaffTeamMember.staff_id'),
+                'null' => true,
+                'list' => true,
+                'reverse' => 'TeamMember.staff',
             ),
         ),
     );
 
     var $authkey;
     var $departments;
-    var $teams;
     var $timezone;
     var $stats = array();
     var $_extra;
     var $passwd_change;
+    var $_teams = null;
 
     function __onload() {
         // WE have to patch info here to support upgrading from old versions.
@@ -375,16 +377,13 @@ implements AuthenticatedUser {
 
     function getTeams() {
 
-        if (!isset($this->teams)) {
-            $this->teams = array();
-            $sql='SELECT team_id FROM '.TEAM_MEMBER_TABLE
-                .' WHERE staff_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res))
-                while(list($id)=db_fetch_row($res))
-                    $this->teams[] = $id;
+        if (!isset($this->_teams)) {
+            $this->_teams = array();
+            foreach ($this->teams as $team)
+                 $this->_teams[] = $team->team_id;
         }
 
-        return $this->teams;
+        return $this->_teams;
     }
     /* stats */
 
@@ -530,27 +529,30 @@ implements AuthenticatedUser {
     }
 
     function updateTeams($team_ids) {
-        if ($team_ids && is_array($team_ids)) {
-            $teams = StaffTeamMember::objects()
+
+        if (is_array($team_ids)) {
+            $members = TeamMember::objects()
                 ->filter(array('staff_id' => $this->getId()));
-            foreach ($teams as $member) {
+            foreach ($members as $member) {
                 if ($idx = array_search($member->team_id, $team_ids)) {
-                    // XXX: Do we really need to track the time of update?
-                    $member->updated = SqlFunction::NOW();
-                    $member->save();
                     unset($team_ids[$idx]);
-                }
-                else {
+                } else {
                     $member->delete();
                 }
             }
+
             foreach ($team_ids as $id) {
-                StaffTeamMember::create(array(
-                    'updated'=>SqlFunction::NOW(),
-                    'staff_id'=>$this->getId(), 'team_id'=>$id
+                TeamMember::create(array(
+                    'staff_id'=>$this->getId(),
+                    'team_id'=>$id
                 ))->save();
             }
+        } else {
+            TeamMember::objects()
+                ->filter(array('staff_id'=>$this->getId()))
+                ->delete();
         }
+
         return true;
     }
 
@@ -573,9 +575,7 @@ implements AuthenticatedUser {
                 .' WHERE staff_id='.db_input($this->getId()));
 
         // Cleanup Team membership table.
-        TeamMember::objects()
-            ->filter(array('staff_id'=>$this->getId()))
-            ->delete();
+        $this->updateTeams(array());
 
         return true;
     }
@@ -808,20 +808,5 @@ implements AuthenticatedUser {
         }
         return false;
     }
-}
-
-class StaffTeamMember extends VerySimpleModel {
-    static $meta = array(
-        'table' => TEAM_MEMBER_TABLE,
-        'pk' => array('staff_id', 'team_id'),
-        'joins' => array(
-            'staff' => array(
-                'constraint' => array('staff_id' => 'Staff.staff_id'),
-            ),
-            'team' => array(
-                'constraint' => array('team_id' => 'Team.team_id'),
-            ),
-        ),
-    );
 }
 ?>

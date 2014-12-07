@@ -57,7 +57,7 @@ class Internationalization {
             // help_topic
             'help_topic.yaml' =>    'Topic::__create',
             'filter.yaml' =>        'Filter::create',
-            'team.yaml' =>          'Team::create',
+            'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
             // Ticket
