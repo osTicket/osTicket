@@ -17,6 +17,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.error.php');
 include_once(INCLUDE_DIR.'class.team.php');
+include_once(INCLUDE_DIR.'class.role.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
@@ -34,7 +35,7 @@ implements AuthenticatedUser {
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'group' => array(
-                'constraint' => array('group_id' => 'Group.group_id'),
+                'constraint' => array('group_id' => 'Group.id'),
             ),
             'teams' => array(
                 'null' => true,
@@ -276,7 +277,7 @@ implements AuthenticatedUser {
     }
 
     function isGroupActive() {
-        return $this->group->group_enabled;
+        return $this->group->isEnabled();
     }
 
     function isactive() {
@@ -602,7 +603,7 @@ implements AuthenticatedUser {
 
         if ($availableonly) {
             $members = $members->filter(array(
-                'group__group_enabled' => 1,
+                'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
@@ -610,7 +611,7 @@ implements AuthenticatedUser {
 
         $users=array();
         foreach ($members as $M) {
-            $users[$M->id] = $M->getName();
+            $users[$M->getId()] = $M->getName();
         }
 
         return $users;

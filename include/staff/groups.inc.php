@@ -1,43 +1,44 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin())
+    die('Access Denied');
 
-$qstr='';
+$qstr = '';
+$sortOptions = array(
+        'name'   => 'name',
+        'users'  => 'members_count',
+        'depts'  => 'depts_count',
+        'status' => 'isenabled',
+        'created'=> 'created',
+        'updated'=> 'updated');
 
-$sql='SELECT grp.*,count(DISTINCT staff.staff_id) as users, count(DISTINCT dept.dept_id) as depts '
-     .' FROM '.GROUP_TABLE.' grp '
-     .' LEFT JOIN '.STAFF_TABLE.' staff ON(staff.group_id=grp.group_id) '
-     .' LEFT JOIN '.GROUP_DEPT_TABLE.' dept ON(dept.group_id=grp.group_id) '
-     .' WHERE 1';
-$sortOptions=array('name'=>'grp.group_name','status'=>'grp.group_enabled',
-                   'users'=>'users', 'depts'=>'depts', 'created'=>'grp.created','updated'=>'grp.updated');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
+$orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
+$sort = ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
+
 //Sorting options...
-if($sort && $sortOptions[$sort]) {
-    $order_column =$sortOptions[$sort];
+if ($sort && $sortOptions[$sort]) {
+    $order_column = $sortOptions[$sort];
 }
-$order_column=$order_column?$order_column:'grp.group_name';
 
-if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
-    $order=$orderWays[strtoupper($_REQUEST['order'])];
+$order_column = $order_column ? $order_column : 'name';
+
+if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
+    $order = $orderWays[strtoupper($_REQUEST['order'])];
+} else {
+    $order = 'ASC';
 }
-$order=$order?$order:'ASC';
 
-if($order_column && strpos($order_column,',')){
+if ($order_column && strpos($order_column,',')) {
     $order_column=str_replace(','," $order,",$order_column);
 }
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
-$order_by="$order_column $order ";
-
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$count = Group::objects()->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
+$pageNav->setURL('groups.php', $_qstr);
+$showing = $pageNav->showing().' '._N('group', 'groups', $count);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql GROUP BY grp.group_id ORDER BY $order_by";
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
-    $showing=sprintf(__('Showing 1-%1$d of %2$d groups'), $num, $num);
-else
-    $showing=__('No groups found!');
-
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Agent Groups');?>
@@ -67,31 +68,47 @@ else
     <tbody>
     <?php
         $total=0;
-        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)) {
-            while ($row = db_fetch_array($res)) {
+        $ids = ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
+        if ($count) {
+            $groups= Group::objects()
+                ->annotate(array(
+                        'members_count'=>SqlAggregate::COUNT('members', true),
+                        'depts_count'=>SqlAggregate::COUNT('depts', true),
+                        'isenabled'=>new SqlExpr(array(
+                                'flags__hasbit' => Group::FLAG_ENABLED))
+                ))
+                ->order_by(sprintf('%s%s',
+                            strcasecmp($order, 'DESC') ? '' : '-',
+                            $order_column))
+                ->limit($pageNav->getLimit())
+                ->offset($pageNav->getStart());
+
+            foreach ($groups as $group) {
                 $sel=false;
-                if($ids && in_array($row['group_id'],$ids))
+                $id = $group->getId();
+                if($ids && in_array($id, $ids))
                     $sel=true;
                 ?>
-            <tr id="<?php echo $row['group_id']; ?>">
+            <tr id="<?php echo $id; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['group_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>> </td>
-                <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo $row['group_name']; ?></a> &nbsp;</td>
-                <td>&nbsp;<?php echo $row['group_enabled']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
+                  <input type="checkbox" class="ckb" name="ids[]"
+                    value="<?php echo $id; ?>"
+                    <?php echo $sel?'checked="checked"':''; ?>> </td>
+                <td><a href="groups.php?id=<?php echo $id; ?>"><?php echo
+                $group->getName(); ?></a> &nbsp;</td>
+                <td>&nbsp;<?php echo $group->isenabled ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
-                    <?php if($row['users']>0) { ?>
-                        <a href="staff.php?gid=<?php echo $row['group_id']; ?>"><?php echo $row['users']; ?></a>
-                    <?php }else{ ?> 0
+                    <?php if ($num=$group->members_count) { ?>
+                        <a href="staff.php?gid=<?php echo $id; ?>"><?php echo $num; ?></a>
+                    <?php } else { ?> 0
                     <?php } ?>
                     &nbsp;
                 </td>
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
-                    <?php echo $row['depts']; ?>
+                    <?php echo $group->depts_count; ?>
                 </td>
-                <td><?php echo Format::date($row['created']); ?>&nbsp;</td>
-                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($group->getCreateDate()); ?>&nbsp;</td>
+                <td><?php echo Format::datetime($group->getUpdateDate()); ?>&nbsp;</td>
             </tr>
             <?php
             } //end of while.
@@ -99,7 +116,7 @@ else
     <tfoot>
      <tr>
         <td colspan="7">
-            <?php if($res && $num){ ?>
+            <?php if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
@@ -112,7 +129,8 @@ else
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($count):
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
     <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >

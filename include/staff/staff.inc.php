@@ -234,7 +234,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="group_id" id="group_id">
                     <option value="0">&mdash; <?php echo __('Select Group');?> &mdash;</option>
                     <?php
-                    foreach (Group::getGroupNames() as $id=>$name) {
+                    foreach (Group::getGroups() as $id=>$name) {
                         $sel=($info['group_id']==$id)?'selected="selected"':'';
                         echo sprintf('<option value="%d" %s>%s</option>',
                             $id, $sel, $name);
