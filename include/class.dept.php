@@ -255,7 +255,6 @@ class Dept extends VerySimpleModel {
 
         if (!isset($this->_groupids)) {
             $this->_groupids = array();
-
             $groups = GroupDeptAccess::objects()
                 ->filter(array('dept_id' => $this->getId()))
                 ->values_flat('group_id');
