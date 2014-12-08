@@ -34,7 +34,7 @@
     background:#C3D9FF;
 }
 #ticket_thread .response .header {
-    background:#FFE0B3;
+    background:#DDD;
 }
 #ticket_thread .note .header {
     background:#FFE;
@@ -116,7 +116,7 @@ div.hr {
     <div class="hr">&nbsp;</div>
     <table width="100%"><tr><td class="flush-left">
         Ticket #<?php echo $ticket->getNumber(); ?> printed by
-        <?php echo $thisstaff->getUserName(); ?> on
+        <?php echo $thisclient->getName()->getFirst(); ?> on
         <?php echo Format::db_daydatetime(Misc::gmtime()); ?>
     </td>
     <td class="flush-right">
@@ -154,29 +154,6 @@ div.hr {
     <td><?php echo $ticket->getSource(); ?></td>
 </tr>
 </tbody>
-<tbody>
-    <tr><td colspan="4" class="spacer">&nbsp;</td></tr>
-</tbody>
-<tbody>
-<tr>
-    <th><?php echo __('Assigned To'); ?></th>
-    <td><?php echo $ticket->getAssigned(); ?></td>
-    <th><?php echo __('Help Topic'); ?></th>
-    <td><?php echo $ticket->getHelpTopic(); ?></td>
-</tr>
-<tr>
-    <th><?php echo __('SLA Plan'); ?></th>
-    <td><?php if ($sla = $ticket->getSLA()) echo $sla->getName(); ?></td>
-    <th><?php echo __('Last Response'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getLastResponseDate()); ?></td>
-</tr>
-<tr>
-    <th><?php echo __('Due Date'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
-    <th><?php echo __('Last Message'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getLastMessageDate()); ?></td>
-</tr>
-</tbody>
 </table>
 
 <!-- Custom Data -->
@@ -188,7 +165,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     //           array('email', ...))));
     $answers = array_filter($form->getAnswers(), function ($a) {
         return !in_array($a->getField()->get('name'),
-                array('email','subject','name','priority'));
+                array('email','subject','name','priority'))
+            && !$a->getField()->get('private');
         });
     if (count($answers) == 0)
         continue;
@@ -216,14 +194,12 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <div id="ticket_thread">
 <?php
 $types = array('M', 'R');
-if ($this->includenotes)
-    $types[] = 'N';
 
 if ($thread = $ticket->getThreadEntries($types)) {
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     foreach ($thread as $entry) { ?>
         <div class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>">
-            <table class="header" style="width:100%"><tr><td>
+            <table class="header"><tr><td>
                     <span><?php
                         echo Format::db_datetime($entry['created']);?></span>
                     <span style="padding:0 1em" class="faded title"><?php
@@ -236,6 +212,7 @@ if ($thread = $ticket->getThreadEntries($types)) {
             </tr></table>
             <div class="thread-body">
                 <div><?php echo $entry['body']->display('pdf'); ?></div>
+            </div>
             <?php
             if ($entry['attachments']
                     && ($tentry = $ticket->getThreadEntry($entry['id']))
@@ -249,7 +226,6 @@ if ($thread = $ticket->getThreadEntries($types)) {
 <?php           } ?>
                 </div>
 <?php       } ?>
-            </div>
         </div>
 <?php }
 } ?>

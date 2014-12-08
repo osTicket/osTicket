@@ -61,13 +61,18 @@ class Ticket2PDF extends mPDF
     }
 
     function _print() {
-        global $thisstaff, $cfg;
+        global $thisstaff, $thisclient, $cfg;
 
         if(!($ticket=$this->getTicket()))
             return;
 
         ob_start();
-        include STAFFINC_DIR.'templates/ticket-print.tmpl.php';
+        if ($thisstaff)
+            include STAFFINC_DIR.'templates/ticket-print.tmpl.php';
+        elseif ($thisclient)
+            include CLIENTINC_DIR.'templates/ticket-print.tmpl.php';
+        else
+            return;
         $html = ob_get_clean();
 
         $this->WriteHtml($html, 0, true, true);
