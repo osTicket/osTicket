@@ -536,6 +536,8 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
+        $role = $thisstaff->getRole($ticket->getDeptId());
+
         $info = array();
         $state = null;
         switch($status) {
@@ -544,12 +546,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->canCloseTickets())
+                if (!$role->canCloseTickets())
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->canDeleteTickets())
+                if (!$role->canDeleteTickets())
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
                 break;
@@ -584,20 +586,21 @@ class TicketsAjaxAPI extends AjaxController {
                     __($status->getName()));
         else {
             // Make sure the agent has permission to set the status
+            $role = $thisstaff->getRole($ticket->getDeptId());
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->canCloseTickets()
-                            && !$thisstaff->canCreateTickets())
+                    if (!$role->canCloseTickets()
+                            && !$role->canCreateTickets())
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->canCloseTickets())
+                    if (!$role->canCloseTickets())
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->canDeleteTickets())
+                    if (!$role->canDeleteTickets())
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to archive/delete tickets'));
                     break;

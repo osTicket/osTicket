@@ -14,6 +14,7 @@ if($cfg->getLockTime() && !$ticket->acquireLock($thisstaff->getId(),$cfg->getLoc
 
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
+$role  = $thisstaff->getRole($dept);
 $staff = $ticket->getStaff(); //Assigned or closed by..
 $user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
@@ -59,8 +60,8 @@ if($ticket->isOverdue())
         </td>
         <td width="auto" class="flush-right has_bottom_border">
             <?php
-            if ($thisstaff->canBanEmails()
-                    || $thisstaff->canEditTickets()
+            if ($role->canBanEmails()
+                    || $role->canEditTickets()
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
@@ -71,12 +72,12 @@ if($ticket->isOverdue())
             // Status change options
             echo TicketStatus::status_options();
 
-            if ($thisstaff->canEditTickets()) { ?>
+            if ($role->canEditTickets()) { ?>
                 <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             }
-            if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
+            if ($ticket->isOpen() && !$ticket->isAssigned() && $role->canAssignTickets()) {?>
                 <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
@@ -98,13 +99,13 @@ if($ticket->isOverdue())
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
-                 if($thisstaff->canEditTickets()) { ?>
+                 if ($role->canEditTickets()) { ?>
                     <li><a class="change-user" href="#tickets/<?php
                     echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
                     echo __('Change Owner'); ?></a></li>
                 <?php
                  }
-                 if($thisstaff->canDeleteTickets()) {
+                 if ($role->canDeleteTickets()) {
                      ?>
                     <li><a class="ticket-action" href="#tickets/<?php
                     echo $ticket->getId(); ?>/status/delete"
@@ -142,7 +143,7 @@ if($ticket->isOverdue())
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
 
-<?php           if($thisstaff->canBanEmails()) {
+<?php           if ($role->canBanEmails()) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
@@ -446,24 +447,24 @@ $tcount+= $ticket->getNumNotes();
 <div id="response_options">
     <ul class="tabs">
         <?php
-        if($thisstaff->canPostReply()) { ?>
+        if ($role->canPostReply()) { ?>
         <li><a id="reply_tab" href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
         <li><a id="note_tab" href="#note"><?php echo __('Post Internal Note');?></a></li>
         <?php
-        if($thisstaff->canTransferTickets()) { ?>
+        if ($role->canTransferTickets()) { ?>
         <li><a id="transfer_tab" href="#transfer"><?php echo __('Department Transfer');?></a></li>
         <?php
         }
 
-        if($thisstaff->canAssignTickets()) { ?>
+        if ($role->canAssignTickets()) { ?>
         <li><a id="assign_tab" href="#assign"><?php echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
         <?php
         } ?>
     </ul>
     <?php
-    if($thisstaff->canPostReply()) { ?>
+    if ($role->canPostReply()) { ?>
     <form id="reply" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -621,7 +622,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
-                    if ($thisstaff->canCloseTickets() && !$outstanding)
+                    if ($role->canCloseTickets() && !$outstanding)
                         $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
@@ -704,7 +705,7 @@ print $note_form->getField('attachments')->render();
                         <?php
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
-                        if ($thisstaff->canCloseTickets())
+                        if ($role->canCloseTickets())
                             $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
@@ -730,7 +731,7 @@ print $note_form->getField('attachments')->render();
        </p>
    </form>
     <?php
-    if($thisstaff->canTransferTickets()) { ?>
+    if ($role->canTransferTickets()) { ?>
     <form id="transfer" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
@@ -790,7 +791,7 @@ print $note_form->getField('attachments')->render();
     <?php
     } ?>
     <?php
-    if($thisstaff->canAssignTickets()) { ?>
+    if ($role->canAssignTickets()) { ?>
     <form id="assign" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">

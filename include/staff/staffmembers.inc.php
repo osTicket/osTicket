@@ -156,7 +156,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                 <td><?php echo $agent->getUserName(); ?></td>
                 <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php
                     echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
-                <td><a href="groups.php?id=<?php echo $agent->getGroupId(); ?>"><?php
+                <td><a href="groups.php?id=<?php echo $agent->group_id; ?>"><?php
                     echo Format::htmlchars('FIXME'/*$agent->group->getName()*/); ?></a></td>
                 <td><a href="departments.php?id=<?php echo
                     $agent->getDeptId(); ?>"><?php

@@ -161,9 +161,9 @@ class StaffNav {
                 case 'kbase':
                     $subnav[]=array('desc'=>__('FAQs'),'href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
-                        if($staff->canManageFAQ())
+                        if($staff->getRole()->canManageFAQ())
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if($staff->canManageCannedResponses())
+                        if($staff->getRole()->canManageCannedResponses())
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;

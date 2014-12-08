@@ -229,7 +229,8 @@ class Team extends VerySimpleModel {
                 list($id, $name, $enabled) = $row;
                 $items[$id] = sprintf('%s%s',
                     self::getLocalById($id, 'name', $name),
-                    $enabled ? '' : ' ' . __('(disabled)'));
+                    ($enabled || isset($criteria['active']))
+                        ? '' : ' ' . __('(disabled)'));
             }
 
             //TODO: sort if $criteria['localize'];

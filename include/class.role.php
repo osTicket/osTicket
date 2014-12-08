@@ -103,6 +103,16 @@ class Role extends RoleModel {
         return (string) $this->getName();
     }
 
+    function __call($what, $args) {
+        $rv = null;
+        if($this->getPermission() && is_callable(array($this->_perm, $what)))
+            $rv = $args
+                ? call_user_func_array(array($this->_perm, $what), $args)
+                : call_user_func(array($this->_perm, $what));
+
+        return $rv;
+    }
+
     private function updatePerms($vars, &$errors=array()) {
 
         $config = array();
@@ -275,5 +285,64 @@ class RolePermission extends Config {
         return static::$_permissions;
     }
 
+    function get($var) {
+        return (bool) parent::get($var);
+    }
+
+    /* tickets */
+    function canCreateTickets() {
+        return ($this->get('ticket.create'));
+    }
+
+    function canEditTickets() {
+        return ($this->get('ticket.edit'));
+    }
+
+    function canAssignTickets() {
+        return ($this->get('ticket.assign'));
+    }
+
+    function canTransferTickets() {
+        return ($this->get('ticket.transfer'));
+    }
+
+    function canPostReply() {
+        return ($this->get('ticket.reply'));
+    }
+
+    function canCloseTickets() {
+        return ($this->get('ticket.close'));
+    }
+
+    function canDeleteTickets() {
+        return ($this->get('ticket.delete'));
+    }
+
+    /* Knowledge base */
+    function canManagePremade() {
+        return ($this->get('kb.premade'));
+    }
+
+    function canManageCannedResponses() {
+        return ($this->canManagePremade());
+    }
+
+    function canManageFAQ() {
+        return ($this->get('kb.faq'));
+    }
+
+    function canManageFAQs() {
+        return ($this->canManageFAQ());
+    }
+
+    /* stats */
+    function canViewStaffStats() {
+        return ($this->get('stats.agents'));
+    }
+
+    /* email */
+    function canBanEmails() {
+        return ($this->get('emails.banlist'));
+    }
 }
 ?>

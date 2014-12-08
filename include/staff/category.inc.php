@@ -1,5 +1,5 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Access Denied');
+if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->getRole()->canManageFAQ()) die('Access Denied');
 $info=array();
 $qstr='';
 if($category && $_REQUEST['a']!='add'){
