@@ -690,7 +690,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
-            if (isset($this->id))
+            if ($this->_form && isset($this->id))
                 $this->_form->data($this);
         }
         return $this->_form;
@@ -1122,12 +1122,20 @@ class SelectionField extends FormField {
     }
 
     function to_php($value, $id=false) {
-        $value = ($value && !is_array($value))
-            ? JsonDataParser::parse($value) : $value;
+        if (is_string($value))
+            $value = JsonDataParser::parse($value) ?: $value;
+
         if (!is_array($value)) {
+            $config = $this->getConfiguration();
+            if (!$config['multiselect']) {
+                // CDATA may be built with comma-list
+                list($value,) = explode(',', $value, 2);
+            }
             $choices = $this->getChoices();
             if (isset($choices[$value]))
-                $value = $choices[$value];
+                $value = array($value => $choices[$value]);
+            elseif ($id && isset($choices[$id]))
+                $value = array($id => $choices[$id]);
         }
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.

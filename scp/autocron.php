@@ -44,6 +44,11 @@ require_once(INCLUDE_DIR.'class.cron.php');
 
 $thisstaff = null; //Clear staff obj to avoid false credit internal notes & auto-assignment
 Cron::TicketMonitor(); //Age tickets: We're going to age tickets regardless of cron settings.
+
+// Run file purging about every 30 minutes
+if (mt_rand(1, 9) == 4)
+    Cron::CleanOrphanedFiles();
+
 if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
     $ost->logDebug(_S('Auto Cron'), sprintf(_S('Mail fetcher cron call [%s]'), $caller));

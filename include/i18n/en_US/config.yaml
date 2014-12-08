@@ -15,7 +15,6 @@ core:
     reply_separator: '-- reply above this line --'
 
     # Do not translate below here
-    allowed_filetypes: '.doc, .pdf, .jpg, .jpeg, .gif, .png, .xls, .docx, .xlsx, .txt'
     isonline: 1
     staff_ip_binding: 0
     staff_max_logins: 4
@@ -27,9 +26,6 @@ core:
     client_session_timeout: 30
     max_page_size: 25
     max_open_tickets: 0
-    max_file_size: 1048576
-    max_user_file_uploads: 1
-    max_staff_file_uploads: 1
     autolock_minutes: 3
     default_priority_id: 2
     default_smtp_id: 0

@@ -106,10 +106,10 @@ class Deployment extends Unpacker {
             return parent::copyFile($src, $dest);
 
         $source = file_get_contents($src);
-        $source = preg_replace(':<script(.*) src="(.*).js"></script>:',
+        $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
             '<script$1 src="$2.js?'.$short.'"></script>',
             $source);
-        $source = preg_replace(':<link(.*) href="(.*).css"([^/>]*)/?>:', # <?php
+        $source = preg_replace(':<link(.*) href="([^"]+)\.css"([^/>]*)/?>:', # <?php
             '<link$1 href="$2.css?'.$short.'"$3/>',
             $source);
         // Set THIS_VERSION

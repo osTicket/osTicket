@@ -110,9 +110,12 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
 $(function() {
     // Copy checked tickets to status form.
     $('form#tickets input[name="tids[]"]:checkbox:checked')
-    .clone()
-    .prop('type', 'hidden')
-    .removeAttr('class')
-    .appendTo('form#status');
- });
+    .each(function() {
+        $('<input>')
+        .prop('type', 'hidden')
+        .attr('name', 'tids[]')
+        .val($(this).val())
+        .appendTo('form#status');
+    });
+});
 </script>

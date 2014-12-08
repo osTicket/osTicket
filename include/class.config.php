@@ -523,15 +523,6 @@ class OsticketConfig extends Config {
         return $this->get('max_file_size');
     }
 
-    function getStaffMaxFileUploads() {
-        return $this->get('max_staff_file_uploads');
-    }
-
-    function getClientMaxFileUploads() {
-        //TODO: change max_user_file_uploads to max_client_file_uploads
-        return $this->get('max_user_file_uploads');
-    }
-
     function getLogLevel() {
         return $this->get('log_level');
     }
@@ -971,7 +962,6 @@ class OsticketConfig extends Config {
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
-            'email_attachments'=>isset($vars['email_attachments'])?1:0,
         ));
     }
 
@@ -1005,6 +995,7 @@ class OsticketConfig extends Config {
             'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
          ));
     }
 

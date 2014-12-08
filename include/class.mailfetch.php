@@ -138,7 +138,7 @@ class MailFetcher {
             $args += array(NULL, 0, array(
                 'DISABLE_AUTHENTICATOR' => array('GSSAPI', 'NTLM')));
 
-        $this->mbox = call_user_func_array('imap_open', $args);
+        $this->mbox = @call_user_func_array('imap_open', $args);
 
         return $this->mbox;
     }

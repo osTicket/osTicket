@@ -30,6 +30,16 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
+    function filesize2bytes($size) {
+        switch (substr($size, -1)) {
+        case 'M': case 'm': return (int)$size <<= 20;
+        case 'K': case 'k': return (int)$size <<= 10;
+        case 'G': case 'g': return (int)$size <<= 30;
+        }
+
+        return $size;
+    }
+
 	/* encode text into desired encoding - taking into accout charset when available. */
     function encode($text, $charset=null, $encoding='utf-8') {
 

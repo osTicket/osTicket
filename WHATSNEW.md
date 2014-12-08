@@ -1,3 +1,71 @@
+osTicket v1.9.4
+===============
+### Major New Features
+  * New ticket states (resolved, archived, and deleted) (#1094, #1159)
+  * Custom ticket statuses (#1159)
+  * Custom ticket number formats (#1128)
+  * Full text search capabilities (*beta*)
+  * Multiselect for choice fields and custom list selections
+  * Phase II Multi-Lingual Support (User Interface) (see
+    http://i18n.osticket.com and http://jipt.i18n.osticket.com) (#1096)
+    * Active interface translations of 46 languages currently
+    * Popup help tip documentation in all languages
+    * Flags displayed on client portal for manual switch of UI language by
+      EndUsers
+    * Automatic detection of enduser and agent language preference as
+      advertised by the browser
+    * Improved PDF ticket printing support, including greater support for
+      eastern characters such as Thai, Korean, Chinese, and Japanese
+    * Proper support for searching, including breaking words for languages
+      which do not use word breaks, such as Japanese
+    * Proper user interface layout for right-to-left languages such as Hebrew,
+      Arabic, and Farsi
+    * Right-to-Left support for the HTML text editor, regardless of the viewing
+      user’s current language setting
+    * Proper handling of bidirectional text in PDF output and in the ticket
+      view
+
+### Enhancements
+  * Plugins can have custom configurations (#1156)
+  * Upgrade to mPDF to v5.7.3 (#1356)
+  * Add support for PDF fonts in language packs (#1356)
+  * Advanced search improved to support multiple selections, custom status and flags
+
+### Improvements
+  * Fix display of text thread entries with HTML characters (`<`) (#1360)
+  * Fix crash creating new ticket if organization custom data has a selection field (#1361)
+  * Fix footer disappearance on PJAX navigation (#1366)
+  * Fix User Directory not sortable by user status (#1375)
+  * Fix loss of enduser or agent priority selection on new ticket (#1365)
+  * Add validation error if setting EndUser username to an email address (#1368)
+  * Fix skipped validation of some fields (#1369) (*regression from rc4*)
+  * Fix detection of inline attachments from rich text inputs (#1357)
+  * Fix dropping attachments when updating canned responses (#1357)
+  * Fix PJAX navigation crash in some browsers (#1378)
+  * Fix searching for tickets in the client portal (#1379) (*regression from rc4*)
+  * Fix crash submitting new ticket as agent with validation errors (#1380)
+  * Fix display of unanswered tickets in open queue (#1384)
+  * Fix incorrect statistics on dashboard page (#1345)
+  * Fix sorting by ticket number if using sequential numbers
+  * Fix threading if HTML is enabled and QR is disabled (#1197)
+  * Export ticket `created` date (#1201)
+  * Fix duplicate email where a collaborator would receive a confirmation
+    for his own message (#1235)
+  * Fix multi-line display of checkbox descriptions (#1160)
+  * Fix API validation failure for custom list selections (#1238)
+  * Fix crash adding a new user with a selection field custom data
+  * Fix failed user identification from email headers if `References` header
+    is sorted differently be mail client (#1263)
+  * Fix deletion of inline images on pages if draft was not saved (#1288)
+  * Fix corruption of custom date time fields on client portal if using non
+    US date format (#1320)
+  * Fix corruption of email mailbox if improperly encoded as ISO-8859-1
+    without RFC 2047 charset hint (#1332)
+  * Fix occasional MySQL Commands OOS error from ORM (#1334)
+
+### Performance and Security
+  * Fix possible XSS vulnerability in email template management (#1163)
+
 osTicket v1.9.3
 ===============
 ### Enhancements

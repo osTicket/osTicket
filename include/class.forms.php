@@ -676,7 +676,7 @@ class TextboxField extends FormField {
                     $wrapped = "/".$value."/iu";
                     if (false === @preg_match($value, ' ')
                             && false !== @preg_match($wrapped, ' ')) {
-                        return $wrapped;
+                        $value = $wrapped;
                     }
                     if ($value == '//iu')
                         return '';
@@ -950,16 +950,22 @@ class ChoiceField extends FormField {
         else
             $array = $value;
         $config = $this->getConfiguration();
-        if (is_array($array) && !$config['multiselect'] && count($array) < 2) {
-            reset($array);
-            return key($array);
+        if (!$config['multiselect']) {
+            if (is_array($array) && count($array) < 2) {
+                reset($array);
+                return key($array);
+            }
+            if (is_string($array) && strpos($array, ',') !== false) {
+                list($array,) = explode(',', $array, 2);
+            }
         }
         return $array;
     }
 
     function toString($value) {
         $selection = $this->getChoice($value);
-        return is_array($selection) ? implode(', ', array_filter($selection))
+        return is_array($selection)
+            ? (implode(', ', array_filter($selection)) ?: $value)
             : (string) $selection;
     }
 
@@ -1128,7 +1134,9 @@ class ThreadEntryField extends FormField {
 
         $attachments = new FileUploadField();
         $fileupload_config = $attachments->getConfigurationOptions();
-        $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
+        if ($cfg->getAllowedFileTypes())
+            $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
+
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),
@@ -1831,7 +1839,7 @@ class ChoicesWidget extends Widget {
             $values = array($values => $this->field->getChoice($values));
         }
 
-        if ($values === null)
+        if (!is_array($values))
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
         ?>

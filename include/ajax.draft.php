@@ -186,6 +186,23 @@ class DraftAjaxAPI extends AjaxController {
         return self::_updateDraft($draft);
     }
 
+    function deleteDraftClient($id) {
+        global $thisclient;
+
+        if (!($draft = Draft::lookup($id)))
+            Http::response(205, "Draft not found. Create one first");
+        elseif ($thisclient) {
+            if ($draft->getStaffId() != $thisclient->getId())
+                Http::response(404, "Draft not found");
+        }
+        else {
+            if (substr(session_id(), -12) != substr($draft->getNamespace(), -12))
+                Http::response(404, "Draft not found");
+        }
+
+        $draft->delete();
+    }
+
     function uploadInlineImageClient($id) {
         global $thisclient;
 

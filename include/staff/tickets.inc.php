@@ -406,6 +406,8 @@ if ($results) {
      </thead>
      <tbody>
         <?php
+        // Setup Subject field for display
+        $subject_field = TicketForm::objects()->one()->getField('subject');
         $class = "row1";
         $total=0;
         if($res && ($num=count($results))):
@@ -430,7 +432,10 @@ if ($results) {
                     $lc=Format::truncate($row['dept_name'],40);
                 }
                 $tid=$row['number'];
-                $subject = Format::htmlchars(Format::truncate($row['subject'],40));
+
+                $subject = Format::truncate($subject_field->display(
+                    $subject_field->to_php($row['subject']) ?: $row['subject']
+                ), 40);
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['state'],'open') && !$row['isanswered'] && !$row['lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);

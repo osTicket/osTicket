@@ -257,12 +257,34 @@ class MysqlSearchBackend extends SearchBackend {
         return db_query($sql);
     }
 
+    // Quote things like email addresses
+    function quote($query) {
+        $parts = array();
+        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+                PREG_SET_ORDER))
+            return $query;
+
+        $results = array();
+        foreach ($parts as $m) {
+            // Check for quoting
+            if ($m[1] // Already quoted?
+                && preg_match('`@`u', $m[0])
+            ) {
+                $char = strpos($m[1], '"') ? "'" : '"';
+                $m[0] = $char . $m[0] . $char;
+            }
+            $results[] = $m[0];
+        }
+        return implode(' ', $results);
+    }
+
     function find($query, $criteria=array(), $model=false, $sort=array()) {
         global $thisstaff;
 
         $mode = ' IN BOOLEAN MODE';
         #if (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
+        $query = $this->quote($query);
         $search = 'MATCH (search.title, search.content) AGAINST ('
             .db_input($query)
             .$mode.')';
@@ -403,14 +425,30 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     static function createSearchTable() {
-        $sql = 'CREATE TABLE IF NOT EXISTS '.TABLE_PREFIX.'_search (
+        // Use InnoDB with Galera, MyISAM with v5.5, and the database
+        // default otherwise
+        $sql = "select count(*) from information_schema.tables where
+            table_schema='information_schema' and table_name =
+            'INNODB_FT_CONFIG'";
+        $mysql56 = db_result(db_query($sql));
+
+        $sql = "show status like 'wsrep_local_state'";
+        $galera = db_result(db_query($sql));
+
+        if ($galera && !$mysql56)
+            throw new Exception('Galera cannot be used with MyISAM tables');
+        $engine = $galera ? 'InnodB' : ($mysql56 ? '' : 'MyISAM');
+        if ($engine)
+            $engine = 'ENGINE='.$engine;
+
+        $sql = 'CREATE TABLE IF NOT EXISTS '.TABLE_PREFIX."_search (
             `object_type` varchar(8) not null,
             `object_id` int(11) unsigned not null,
             `title` text collate utf8_general_ci,
             `content` text collate utf8_general_ci,
             primary key `object` (`object_type`, `object_id`),
             fulltext key `search` (`title`, `content`)
-        ) ENGINE=MyISAM CHARSET=utf8';
+        ) $engine CHARSET=utf8";
         return db_query($sql);
     }
 
