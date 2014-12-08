@@ -424,7 +424,7 @@ class DynamicFormField extends VerySimpleModel {
     var $_field;
 
     const FLAG_ENABLED          = 0x0001;
-    const FLAG_STORABLE         = 0x0002;
+    const FLAG_EXT_STORED       = 0x0002; // Value stored outside of form_entry_value
     const FLAG_CLOSE_REQUIRED   = 0x0004;
 
     const FLAG_MASK_CHANGE      = 0x0010;

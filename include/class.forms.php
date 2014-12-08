@@ -407,7 +407,7 @@ class FormField {
      */
 
     function isStorable() {
-        return (($this->get('flags') & 2) == 0);
+        return (($this->get('flags') & DynamicFormField::FLAG_EXT_STORED) == 0);
     }
 
     /**
