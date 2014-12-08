@@ -609,7 +609,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $state = strtolower($status->getState());
 
-        if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'])) {
+        if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
 
             if ($state == 'deleted') {
                 $msg = sprintf('%s %s',
@@ -723,13 +723,15 @@ class TicketsAjaxAPI extends AjaxController {
                 if (($ticket=Ticket::lookup($tid))
                         && $ticket->getStatusId() != $status->getId()
                         && $ticket->checkStaffAccess($thisstaff)
-                        && $ticket->setStatus($status, $comments))
+                        && $ticket->setStatus($status, $comments, $errors))
                     $i++;
             }
 
-            if (!$i)
-                $errors['err'] = sprintf(__('Unable to change status for %s'),
+            if (!$i) {
+                $errors['err'] = $errors['err']
+                    ?: sprintf(__('Unable to change status for %s'),
                         _N('the selected ticket', 'any of the selected tickets', $count));
+            }
             else {
                 // Assume success
                 if ($i==$count) {

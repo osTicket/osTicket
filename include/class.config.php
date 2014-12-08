@@ -156,7 +156,6 @@ class OsticketConfig extends Config {
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
-        'allow_client_updates' => false,
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
         'clients_only' => false,
@@ -348,10 +347,6 @@ class OsticketConfig extends Config {
 
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
-    }
-
-    function allowClientUpdates() {
-        return $this->get('allow_client_updates');
     }
 
     function getClientTimeout() {

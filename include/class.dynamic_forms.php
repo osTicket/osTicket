@@ -423,14 +423,27 @@ class DynamicFormField extends VerySimpleModel {
 
     var $_field;
 
-    const REQUIRE_NOBODY = 0;
-    const REQUIRE_EVERYONE = 1;
-    const REQUIRE_ENDUSER = 2;
-    const REQUIRE_AGENT = 3;
+    const FLAG_ENABLED          = 0x0001;
+    const FLAG_EXT_STORED       = 0x0002; // Value stored outside of form_entry_value
+    const FLAG_CLOSE_REQUIRED   = 0x0004;
 
-    const VISIBLE_EVERYONE = 0;
-    const VISIBLE_AGENTONLY = 1;
-    const VISIBLE_ENDUSERONLY = 2;
+    const FLAG_MASK_CHANGE      = 0x0010;
+    const FLAG_MASK_DELETE      = 0x0020;
+    const FLAG_MASK_EDIT        = 0x0040;
+    const FLAG_MASK_DISABLE     = 0x0080;
+    const FLAG_MASK_REQUIRE     = 0x10000;
+    const FLAG_MASK_VIEW        = 0x20000;
+    const FLAG_MASK_NAME        = 0x40000;
+
+    const MASK_MASK_ALL         = 0x700F0;
+
+    const FLAG_CLIENT_VIEW      = 0x0100;
+    const FLAG_CLIENT_EDIT      = 0x0200;
+    const FLAG_CLIENT_REQUIRED  = 0x0400;
+
+    const FLAG_AGENT_VIEW       = 0x1000;
+    const FLAG_AGENT_EDIT       = 0x2000;
+    const FLAG_AGENT_REQUIRED   = 0x4000;
 
     // Multiple inheritance -- delegate to FormField
     function __call($what, $args) {
@@ -481,24 +494,61 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function isDeletable() {
-        return (($this->get('edit_mask') & 1) == 0);
+        return !$this->hasFlag(self::FLAG_MASK_DELETE);
     }
     function isNameForced() {
-        return $this->get('edit_mask') & 2;
+        return $this->hasFlag(self::FLAG_MASK_NAME);
     }
     function isPrivacyForced() {
-        return $this->get('edit_mask') & 4;
+        return $this->hasFlag(self::FLAG_MASK_VIEW);
     }
     function isRequirementForced() {
-        return $this->get('edit_mask') & 8;
+        return $this->hasFlag(self::FLAG_MASK_REQUIRE);
     }
 
     function  isChangeable() {
-        return (($this->get('edit_mask') & 16) == 0);
+        return $this->hasFlag(self::FLAG_MASK_CHANGE);
     }
 
     function  isEditable() {
-        return (($this->get('edit_mask') & 32) == 0);
+        return $this->hasFlag(self::FLAG_MASK_EDIT);
+    }
+
+    function hasFlag($flag) {
+        return ($this->flags & $flag) != 0;
+    }
+
+    function getVisibilityDescription() {
+        $F = $this->flags;
+
+        if (!$this->hasFlag(self::FLAG_ENABLED))
+            return __('Disabled');
+
+        $impl = $this->getImpl();
+
+        $hints = array();
+        $VIEW = self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW;
+        if (($F & $VIEW) == 0) {
+            $hints[] = __('Hidden');
+        }
+        elseif (~$F & self::FLAG_CLIENT_VIEW) {
+            $hints[] = __('Internal');
+        }
+        elseif (~$F & self::FLAG_AGENT_VIEW) {
+            $hints[] = __('For EndUsers Only');
+        }
+        if ($impl->hasData()) {
+            if (~$F & (self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED)) {
+                $hints[] = __('Optional');
+            }
+            else {
+                $hints[] = __('Required');
+            }
+            if (!($F & (self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT))) {
+                $hints[] = __('Immutable');
+            }
+        }
+        return implode(', ', $hints);
     }
     function getTranslateTag($subtag) {
         return _H(sprintf('field.%s.%s', $subtag, $this->id));
@@ -512,19 +562,28 @@ class DynamicFormField extends VerySimpleModel {
     function allRequirementModes() {
         return array(
             'a' => array('desc' => __('Optional'),
-                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_NOBODY),
+                'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
+                    | self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT),
             'b' => array('desc' => __('Required'),
-                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_EVERYONE),
+                'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
+                    | self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT
+                    | self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED),
             'c' => array('desc' => __('Required for EndUsers'),
-                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_ENDUSER),
+                'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
+                    | self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT
+                    | self::FLAG_CLIENT_REQUIRED),
             'd' => array('desc' => __('Required for Agents'),
-                'private' => self::VISIBLE_EVERYONE, 'required' => self::REQUIRE_AGENT),
+                'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
+                    | self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT
+                    | self::FLAG_AGENT_REQUIRED),
             'e' => array('desc' => __('Internal, Optional'),
-                'private' => self::VISIBLE_AGENTONLY, 'required' => self::REQUIRE_NOBODY),
+                'flags' => self::FLAG_AGENT_VIEW | self::FLAG_AGENT_EDIT),
             'f' => array('desc' => __('Internal, Required'),
-                'private' => self::VISIBLE_AGENTONLY, 'required' => self::REQUIRE_EVERYONE),
+                'flags' => self::FLAG_AGENT_VIEW | self::FLAG_AGENT_EDIT
+                    | self::FLAG_AGENT_REQUIRED),
             'g' => array('desc' => __('For EndUsers Only'),
-                'private' => self::VISIBLE_ENDUSERONLY, 'required' => self::REQUIRE_ENDUSER),
+                'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_CLIENT_EDIT
+                    | self::FLAG_CLIENT_REQUIRED),
         );
     }
 
@@ -533,7 +592,7 @@ class DynamicFormField extends VerySimpleModel {
         if ($this->isPrivacyForced()) {
             // Required to be internal
             foreach ($modes as $m=>$info) {
-                if ($info['private'] != $this->get('private'))
+                if ($info['flags'] & (self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW))
                     unset($modes[$m]);
             }
         }
@@ -541,20 +600,11 @@ class DynamicFormField extends VerySimpleModel {
         if ($this->isRequirementForced()) {
             // Required to be required
             foreach ($modes as $m=>$info) {
-                if ($info['required'] != $this->get('required'))
+                if ($info['flags'] & (self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED))
                     unset($modes[$m]);
             }
         }
         return $modes;
-    }
-
-    function getRequirementMode() {
-        foreach ($this->getAllRequirementModes() as $m=>$info) {
-            if ($this->get('private') == $info['private']
-                    && $this->get('required') == $info['required'])
-                return $m;
-        }
-        return false;
     }
 
     function setRequirementMode($mode) {
@@ -563,25 +613,33 @@ class DynamicFormField extends VerySimpleModel {
             return false;
 
         $info = $modes[$mode];
-        $this->set('required', $info['required']);
-        $this->set('private', $info['private']);
+        $this->set('flags', $info['flags']);
     }
 
     function isRequiredForStaff() {
-        return in_array($this->get('required'),
-            array(self::REQUIRE_EVERYONE, self::REQUIRE_AGENT));
+        return $this->hasFlag(self::FLAG_AGENT_REQUIRED);
     }
     function isRequiredForUsers() {
-        return in_array($this->get('required'),
-            array(self::REQUIRE_EVERYONE, self::REQUIRE_ENDUSER));
+        return $this->hasFlag(self::FLAG_CLIENT_REQUIRED);
+    }
+    function isRequiredForClose() {
+        return $this->hasFlag(self::FLAG_CLOSE_REQUIRED);
+    }
+    function isEditableToStaff() {
+        return $this->hasFlag(self::FLAG_ENABLED)
+            && $this->hasFlag(self::FLAG_AGENT_EDIT);
     }
     function isVisibleToStaff() {
-        return in_array($this->get('private'),
-            array(self::VISIBLE_EVERYONE, self::VISIBLE_AGENTONLY));
+        return $this->hasFlag(self::FLAG_ENABLED)
+            && $this->hasFlag(self::FLAG_AGENT_VIEW);
+    }
+    function isEditableToUsers() {
+        return $this->hasFlag(self::FLAG_ENABLED)
+            && $this->hasFlag(self::FLAG_CLIENT_EDIT);
     }
     function isVisibleToUsers() {
-        return in_array($this->get('private'),
-            array(self::VISIBLE_EVERYONE, self::VISIBLE_ENDUSERONLY));
+        return $this->hasFlag(self::FLAG_ENABLED)
+            && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
     /**
@@ -689,10 +747,12 @@ class DynamicFormEntry extends VerySimpleModel {
                 return $ans;
         return null;
     }
+
     function setAnswer($name, $value, $id=false) {
         foreach ($this->getAnswers() as $ans) {
-            if ($ans->getField()->get('name') == $name) {
-                $ans->getField()->reset();
+            $f = $ans->getField();
+            if ($f->isStorable() && $f->get('name') == $name) {
+                $f->reset();
                 $ans->set('value', $value);
                 if ($id !== false)
                     $ans->set('value_id', $id);
@@ -907,18 +967,8 @@ class DynamicFormEntry extends VerySimpleModel {
                 $this->_fields[] = $fImpl;
                 $this->_form = null;
 
-                // Omit fields without data
-                // For user entries, the name and email fields should not be
-                // saved with the rest of the data
-                if ($this->object_type == 'U'
-                        && in_array($field->get('name'), array('name','email')))
-                    continue;
-
-                if ($this->object_type == 'O'
-                        && in_array($field->get('name'), array('name')))
-                    continue;
-
-                if (!$field->hasData())
+                // Omit fields without data and non-storable fields.
+                if (!$field->hasData() || !$field->isStorable())
                     continue;
 
                 $a->save();
@@ -937,15 +987,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $this->set('updated', new SqlFunction('NOW'));
         parent::save();
         foreach ($this->getFields() as $field) {
+            if (!$field->isStorable())
+                continue;
+
             $a = $field->getAnswer();
-            if ($this->object_type == 'U'
-                    && in_array($field->get('name'), array('name','email')))
-                continue;
-
-            if ($this->object_type == 'O'
-                    && in_array($field->get('name'), array('name')))
-                continue;
-
             // Set the entry ID here so that $field->getClean() can use the
             // entry-id if necessary
             $a->set('entry_id', $this->get('id'));

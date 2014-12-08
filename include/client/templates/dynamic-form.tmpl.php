@@ -5,7 +5,7 @@
     ?>
     <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
-    <?php print ($form instanceof DynamicFormEntry) 
+    <?php print ($form instanceof DynamicFormEntry)
         ? $form->getForm()->getMedia() : $form->getMedia(); ?>
     <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
     <em><?php echo Format::htmlchars($form->getInstructions()); ?></em>
@@ -16,19 +16,18 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if (!$field->isVisibleToUsers())
+        if (!$field->isEditableToUsers())
             continue;
         ?>
         <tr>
             <td colspan="2" style="padding-top:8px;">
             <?php if (!$field->isBlockLevel()) { ?>
                 <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
-                    if ($field->get('required')) echo 'required'; ?>">
+                    if ($field->isRequiredForUsers()) echo 'required'; ?>">
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>
-            <?php if ($field->get('required')) { ?>
+            <?php if ($field->isRequiredForUsers()) { ?>
                 <span class="error">*</span>
-            <?php
-                }
+            <?php }
             ?></span><?php
                 if ($field->get('hint')) { ?>
                     <br /><em style="color:gray;display:inline-block"><?php
@@ -41,8 +40,7 @@
             $field->render('client');
             ?></label><?php
             foreach ($field->errors() as $e) { ?>
-                <br />
-                <font class="error"><?php echo $e; ?></font>
+                <div class="error"><?php echo $e; ?></div>
             <?php }
             $field->renderExtras('client');
             ?>

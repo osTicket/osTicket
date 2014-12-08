@@ -1,5 +1,5 @@
 /**
- * @signature 7c218d81e84b304c1436326c26ace09d
+ * @signature 1ee831c854fe9f35115a3e672916bb91
  * @version v1.9.6
  * @title Make editable content translatable and add queues
  *
@@ -172,7 +172,41 @@ CREATE TABLE `%TABLE_PREFIX%queue` (
   primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 
+-- Add flags field to form field
+ALTER TABLE  `%TABLE_PREFIX%form_field`
+    ADD  `flags` INT UNSIGNED NOT NULL DEFAULT  '1' AFTER  `form_id`;
+
+-- Flag field stored in the system elsewhere as nonstorable locally.
+UPDATE `%TABLE_PREFIX%form_field` A1 JOIN `%TABLE_PREFIX%form` A2 ON(A2.id=A1.form_id)
+    SET A1.`flags` = 3
+    WHERE A2.`type` = 'U' AND A1.`name` IN('name','email');
+
+UPDATE `%TABLE_PREFIX%form_field` A1 JOIN `%TABLE_PREFIX%form` A2 ON(A2.id=A1.form_id)
+    SET A1.`flags`=3
+    WHERE A2.`type`='O' AND A1.`name` IN('name');
+
+set @client_edit = (
+    select value from `%TABLE_PREFIX%config` where `key` = 'allow_client_updates');
+
+-- Transfer previous visibility and requirement settings to new flag field
+UPDATE `%TABLE_PREFIX%form_field` SET `flags` = `flags` |
+     CASE WHEN `private` = 0 and @client_edit = 1 THEN CONV(3300, 16, 10)
+          WHEN `private` = 0 and @client_edit = 0 THEN CONV(3100, 16, 10)
+          WHEN `private` = 1 THEN CONV(3000, 16, 10)
+          WHEN `private` = 2 and @client_edit = 1 THEN CONV(300, 16, 10) END
+          WHEN `private` = 2 and @client_edit = 0 THEN CONV(100, 16, 10) END
+   | CASE WHEN `required` = 0 THEN 0
+          WHEN `required` = 1 THEN CONV(4400, 16, 10)
+          WHEN `required` = 2 THEN CONV(400, 16, 10)
+          WHEN `required` = 3 THEN CONV(4000, 16, 10) END
+   | IF(`edit_mask` & 1, CONV(20, 16, 10), 0)
+   | IF(`edit_mask` & 2, CONV(40000, 16, 10), 0)
+   | IF(`edit_mask` & 4, CONV(10000, 16, 10), 0)
+   | IF(`edit_mask` & 8, CONV(20000, 16, 10), 0)
+   | IF(`edit_mask` & 16, CONV(10, 16, 10), 0)
+   | IF(`edit_mask` & 32, CONV(40, 16, 10), 0);
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '7c218d81e84b304c1436326c26ace09d'
+    SET `value` = '1ee831c854fe9f35115a3e672916bb91'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

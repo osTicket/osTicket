@@ -1,6 +1,6 @@
 /**
- * @signature d7480e1c31a1f20d6954ecbb342722d3
- * @version v1.9.5
+ * @signature 1ee831c854fe9f35115a3e672916bb91
+ * @version v1.9.6
  * @title Make editable content translatable
  *
  * This patch adds support for translatable administratively editable

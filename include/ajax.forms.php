@@ -48,7 +48,31 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function saveFieldConfiguration($field_id) {
-        $field = DynamicFormField::lookup($field_id);
+        if (!($field = DynamicFormField::lookup($field_id)))
+            Http::response(404, 'No such field');
+
+        $DFF = 'DynamicFormField';
+
+        // Capture flags which should remain unchanged
+        $p_mask = $DFF::MASK_MASK_ALL;
+        if ($field->isPrivacyForced()) {
+            $p_mask |= $DFF::FLAG_CLIENT_VIEW | $DFF::FLAG_AGENT_VIEW;
+        }
+        if ($field->isRequirementForced()) {
+            $p_mask |= $DFF::FLAG_CLIENT_REQUIRED | $DFF::FLAG_AGENT_REQUIRED;
+        }
+        if ($field->hasFlag($DFF::FLAG_MASK_DISABLE)) {
+            $p_mask |= $DFF::FLAG_ENABLED;
+        }
+
+        // Capture current state of immutable flags
+        $preserve = $field->flags & $p_mask;
+
+        // Set admin-configured flag states
+        $flags = array_reduce($_POST['flags'],
+            function($a, $b) { return $a | $b; }, 0);
+        $field->flags = $flags | $preserve;
+
         if (!$field->setConfiguration()) {
             include STAFFINC_DIR . 'templates/dynamic-field-config.tmpl.php';
             return;

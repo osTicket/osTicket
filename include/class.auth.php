@@ -130,7 +130,7 @@ class ClientCreateRequest {
         if ($bk->supportsInteractiveAuthentication())
             // User can only be authenticated against this backend
             $defaults['backend'] = $bk::$id;
-        if ($this_form->isValid(function($f) { return !$f->get('private'); })
+        if ($this_form->isValid(function($f) { return !$f->isVisibleToUsers(); })
                 && ($U = User::fromVars($this_form->getClean()))
                 && ($acct = ClientAccount::createForUser($U, $defaults))
                 // Confirm and save the account

@@ -397,6 +397,18 @@ class FormField {
         return (($this->get('edit_mask') & 32) == 0);
     }
 
+    /**
+     * isStorable
+     *
+     * Indicate if this field data is storable locally (default).Some field's data
+     * might beed to be stored elsewhere for optimization reasons at the
+     * application level.
+     *
+     */
+
+    function isStorable() {
+        return (($this->get('flags') & DynamicFormField::FLAG_EXT_STORED) == 0);
+    }
 
     /**
      * parse
@@ -1436,6 +1448,11 @@ class ThreadEntryField extends FormField {
         if ($cfg->getAllowedFileTypes())
             $fileupload_config['extensions']->set('default', $cfg->getAllowedFileTypes());
 
+        foreach ($fileupload_config as $C) {
+            $C->set('visibility', new VisibilityConstraint(new Q(array(
+                'attachments__eq'=>true,
+            )), VisibilityConstraint::HIDDEN));
+        }
         return array(
             'attachments' => new BooleanField(array(
                 'label'=>__('Enable Attachments'),
