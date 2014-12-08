@@ -33,12 +33,16 @@ if ($thisclient && $thisclient->isGuest()
             <h1>
                 <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?> &nbsp;
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><span class="Icon refresh">&nbsp;</span></a>
+<div class="pull-right">
+    <a class="action-button" href="tickets.php?a=print&id=<?php
+        echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
 <?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button pull-right" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
 <?php } ?>
+</div>
             </h1>
         </td>
     </tr>
