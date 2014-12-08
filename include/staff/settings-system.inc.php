@@ -142,12 +142,12 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
-                <select name="default_timezone" multiple="multiple" id="timezone-dropdown">
+                <select name="default_timezone" id="timezone-dropdown">
 <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
                     <option value="<?php echo $zone; ?>" <?php
                     if ($config['default_timezone'] == $zone)
                         echo 'selected="selected"';
-                    ?>><?php echo $zone; ?></option>
+                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
 <?php } ?>
                 </select>
                 <button class="action-button" onclick="javascript:
@@ -157,9 +157,8 @@ $gmtime = Misc::gmtime();
         if (window.jstz !== undefined) {
             clearInterval(recheck);
             var zone = jstz.determine();
-            $('#timezone-dropdown').multiselect('widget')
-                .find('[value=\'' + zone.name() + '\']')
-                .trigger('click');
+            $('#timezone-dropdown').val(zone.name()).trigger('chosen:updated');
+
         }
     }, 200);
     return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
@@ -283,25 +282,12 @@ $gmtime = Misc::gmtime();
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.filter.css"/>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.filter.min.js"></script>
 <script type="text/javascript">
 (function() {
-var I = setInterval(function() {
-    if (!$.fn.multiselect || !$.ech.multiselectfilter)
-        return;
-    clearInterval(I);
-    $('#timezone-dropdown').multiselect({
-        multiple: false,
-        header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-        noneSelectedText: <?php echo JsonDataEncoder::encode(__('Select Default Time Zone')); ?>,
-        selectedList: 1,
-        minWidth: 400
-    }).multiselectfilter({
-        placeholder: <?php echo JsonDataEncoder::encode(__('Search')); ?>
+    $('#timezone-dropdown').chosen({
+        allow_single_deselect: true,
+        width: '350px'
     });
-}, 25);
 })();
 $('#secondary_langs').sortable({
     cursor: 'move'

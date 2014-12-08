@@ -15,6 +15,7 @@
 **********************************************************************/
 
 require_once INCLUDE_DIR . 'class.sequence.php';
+require_once INCLUDE_DIR . 'class.filter.php';
 
 class Topic extends VerySimpleModel {
 
@@ -281,6 +282,15 @@ class Topic extends VerySimpleModel {
                 $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
                     'disabled'=>!$act, 'topic'=>$topic);
             }
+
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("topic.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
 
             $localize_this = function($id, $default) use ($localize) {
                 if (!$localize)

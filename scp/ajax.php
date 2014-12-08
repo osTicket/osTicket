@@ -145,7 +145,16 @@ $dispatcher = patterns('',
         url_get('^status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeSelectedTicketsStatus'),
         url_post('^status/(?P<state>\w+)$', 'setSelectedTicketsStatus'),
         url_get('^lookup', 'lookup'),
-        url_get('^search', 'search')
+        url('^search', patterns('ajax.search.php:SearchAjaxAPI',
+            url_get('^$', 'getAdvancedSearchDialog'),
+            url_post('^$', 'doSearch'),
+            url_get('^quick$', 'doQuickSearch'),
+            url_get('^/(?P<id>\d+)$', 'loadSearch'),
+            url_post('^/(?P<id>\d+)$', 'saveSearch'),
+            url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
+            url_post('^/create$', 'createSearch'),
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
+        ))
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),

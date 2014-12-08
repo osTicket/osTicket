@@ -15,6 +15,7 @@
 
 if(!defined('INCLUDE_DIR')) die('403');
 
+require_once INCLUDE_DIR . 'class.organization.php';
 include_once(INCLUDE_DIR.'class.ticket.php');
 
 class OrgsAjaxAPI extends AjaxController {

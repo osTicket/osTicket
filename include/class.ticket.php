@@ -34,6 +34,123 @@ require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'User.id')
+            ),
+            'status' => array(
+                'constraint' => array('status_id' => 'TicketStatus.id')
+            ),
+            'lock' => array(
+                'reverse' => 'TicketLock.ticket',
+                'list' => false,
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.dept_id'),
+            ),
+            'sla' => array(
+                'constraint' => array('sla_id' => 'SlaModel.id'),
+                'null' => true,
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+                'null' => true,
+            ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+                'null' => true,
+            ),
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+                'null' => true,
+            ),
+            'cdata' => array(
+                'reverse' => 'TicketCData.ticket',
+                'list' => false,
+            ),
+        )
+    );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function getEffectiveDate() {
+         return Format::datetime(max(
+             strtotime($this->lastmessage),
+             strtotime($this->closed),
+             strtotime($this->reopened),
+             strtotime($this->created)
+         ));
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+
+    static function registerCustomData(DynamicForm $form) {
+        if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
+            $cdata_class = <<<EOF
+class DynamicForm{$form->id} extends DynamicForm {
+    static function getInstance() {
+        static \$instance;
+        if (!isset(\$instance))
+            \$instance = static::lookup({$form->id});
+        return \$instance;
+    }
+}
+class TicketCdataForm{$form->id} {
+    static \$meta = array(
+        'view' => true,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+        )
+    );
+    static function getQuery(\$compiler) {
+        return '('.DynamicForm{$form->id}::getCrossTabQuery('T', 'ticket_id').')';
+    }
+}
+EOF;
+            eval($cdata_class);
+            static::$meta['joins']['cdata+'.$form->id] = array(
+                'reverse' => 'TicketCdataForm'.$form->id.'.ticket',
+                'null' => true,
+            );
+            // This may be necessary if the model has already been inspected
+            if (static::$meta instanceof ModelMeta)
+                static::$meta->processJoin(static::$meta['joins']['cdata+'.$form->id]);
+        }
+    }
+}
+
+class TicketCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+            ':priority' => array(
+                'constraint' => array('priority' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+        ),
+    );
+}
+TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
+
 
 class Ticket {
 
@@ -66,8 +183,6 @@ class Ticket {
             return false;
 
         $sql='SELECT  ticket.*, lock_id, dept_name '
-            .' ,IF(sla.id IS NULL, NULL, '
-                .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
@@ -166,7 +281,7 @@ class Ticket {
     }
 
     function isLocked() {
-        return ($this->getLockId());
+        return null !== $this->getLock();
     }
 
     function checkStaffAccess($staff) {
@@ -297,7 +412,22 @@ class Ticket {
     }
 
     function getSLADueDate() {
-        return $this->ht['sla_duedate'];
+        if ($sla = $this->getSLA()) {
+            $dt = new DateTime($this->getCreateDate());
+
+            return $dt
+                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
+                ->format('Y-m-d H:i:s');
+        }
+    }
+
+    function updateEstDueDate() {
+        $estimatedDueDate = $this->getEstDueDate();
+        if ($estimatedDueDate != $this->ht['est_duedate']) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `est_duedate`='.db_input($estimatedDueDate)
+                .' WHERE `ticket_id`='.db_input($this->getId());
+            db_query($sql);
+        }
     }
 
     function getEstDueDate() {
@@ -393,15 +523,7 @@ class Ticket {
         return $info;
     }
 
-    function getLockId() {
-        return $this->ht['lock_id'];
-    }
-
     function getLock() {
-
-        if(!$this->tlock && $this->getLockId())
-            $this->tlock= TicketLock::lookup($this->getLockId(), $this->getId());
-
         return $this->tlock;
     }
 
@@ -421,10 +543,9 @@ class Ticket {
             return $lock;
         }
         //No lock on the ticket or it is expired
-        $this->tlock = null; //clear crap
-        $this->ht['lock_id'] = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
+        $this->tlock = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
         //load and return the newly created lock if any!
-        return $this->getLock();
+        return $this->tlock;
     }
 
     function getDept() {
@@ -774,10 +895,15 @@ class Ticket {
 
     function setSLAId($slaId) {
         if ($slaId == $this->getSLAId()) return true;
-        return db_query(
+        $rv = db_query(
              'UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($slaId)
             .' WHERE ticket_id='.db_input($this->getId()))
             && db_affected_rows();
+        if ($rv) {
+            $this->ht['sla_id'] = $slaId;
+            $this->sla = null;
+        }
+        return $rv;
     }
     /**
      * Selects the appropriate service-level-agreement plan for this ticket.
@@ -844,7 +970,7 @@ class Ticket {
         $ecb = null;
         switch($status->getState()) {
             case 'closed':
-                $sql.=', closed=NOW(), duedate=NULL ';
+                $sql.=', closed=NOW(), lastupdate=NOW(), duedate=NULL ';
                 if ($thisstaff)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
 
@@ -857,7 +983,7 @@ class Ticket {
             case 'open':
                 // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
-                    $sql .= ',closed=NULL, reopened=NOW() ';
+                    $sql .= ',closed=NULL, lastupdate=NOW(), reopened=NOW() ';
                     $ecb = function ($t) {
                         $t->logEvent('reopened', 'closed');
                     };
@@ -1135,7 +1261,7 @@ class Ticket {
     function onMessage($message, $autorespond=true) {
         global $cfg;
 
-        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
+        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastupdate=NOW(),lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
 
         // Auto-assign to closing staff or last respondent
         // If the ticket is closed and auto-claim is not enabled then put the
@@ -2147,10 +2273,14 @@ class Ticket {
                 && (!$this->getSLA() || $this->getSLA()->isTransient()))
             $this->selectSLAId();
 
+        // Update estimated due date in database
+        $estimatedDueDate = $this->getEstDueDate();
+        $this->updateEstDueDate();
+
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-                && (!$this->getEstDueDate() //Duedate + SLA cleared
-                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                && (!$estimatedDueDate //Duedate + SLA cleared
+                    || Misc::db2gmtime($estimatedDueDate) > Misc::gmtime() //New due date in the future.
                     )) {
             $this->clearOverdue();
         }
@@ -2235,7 +2365,7 @@ class Ticket {
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $where2 =' AND ticket.staff_id=0 ';
+            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';
 
@@ -2253,7 +2383,7 @@ class Ticket {
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
                 .'WHERE ticket.isanswered = 1 '
-                . $where
+                . $where . ($cfg->showAnsweredTickets() ? $where2 : '')
 
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
@@ -2618,6 +2748,7 @@ class Ticket {
         //We are ready son...hold on to the rails.
         $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
+            .' ,lastupdate= NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->getId())
             .' ,`number`='.db_input($number)
@@ -2696,6 +2827,9 @@ class Ticket {
             if ($vars['teamId'])
                 $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'));
         }
+
+        // Update the estimated due date in the database
+        $this->updateEstDueDate();
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.

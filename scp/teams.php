@@ -33,7 +33,8 @@ if($_POST){
             }
             break;
         case 'create':
-            if(($id=Team::create($_POST,$errors))){
+            $team = Team::create();
+            if ($team->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['team']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){

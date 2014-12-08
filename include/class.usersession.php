@@ -161,10 +161,12 @@ class StaffSession extends Staff {
     var $session;
     var $token;
 
-    function __construct($var) {
-        parent::__construct($var);
-        $this->token = &$_SESSION[':token']['staff'];
-        $this->session= new UserSession($this->getId());
+    static function lookup($var) {
+        if ($staff = parent::lookup($var)) {
+            $staff->token = &$_SESSION[':token']['staff'];
+            $staff->session= new UserSession($staff->getId());
+        }
+        return $staff;
     }
 
     function isValid(){

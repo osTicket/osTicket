@@ -338,25 +338,11 @@ var scp_prep = function() {
         return false;
     });
 
-    /* advanced search */
-    $('.dialog#advanced-search').css({
-        top  : ($(window).height() / 6),
-        left : ($(window).width() / 2 - 300)
-    });
-
     /* loading ... */
     $("#loading").css({
         top  : ($(window).height() / 3),
         left : ($(window).width() - $("#loading").outerWidth()) / 2
     });
-
-    $('#go-advanced').click(function(e) {
-        e.preventDefault();
-        $('#result-count').html('');
-        $.toggleOverlay(true);
-        $('#advanced-search').show();
-    });
-
 
     $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
         switch($(this).children('option:selected').data('state')) {
@@ -587,6 +573,11 @@ $.dialog = function (url, codes, cb, options) {
                         $('div.body', $popup).empty();
                         if(cb) cb(xhr);
                     } else {
+                        try {
+                            var json = $.parseJSON(resp);
+                            if (json.redirect) return window.location.href = json.redirect;
+                        }
+                        catch (e) { }
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
@@ -848,4 +839,24 @@ function __(s) {
   if ($.oststrings && $.oststrings[s])
     return $.oststrings[s];
   return s;
+}
+
+// Thanks, http://stackoverflow.com/a/487049
+function addSearchParam(key, value) {
+    key = encodeURI(key); value = encodeURI(value);
+
+    var kvp = document.location.search.substr(1).split('&');
+    var i=kvp.length; var x;
+    while (i--) {
+        x = kvp[i].split('=');
+        if (x[0]==key) {
+            x[1] = value;
+            kvp[i] = x.join('=');
+            break;
+        }
+    }
+    if(i<0) {kvp[kvp.length] = [key,value].join('=');}
+
+    //this will reload the page, it's likely better to store this until finished
+    document.location.search = kvp.join('&');
 }

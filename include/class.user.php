@@ -16,6 +16,7 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -33,37 +34,11 @@ class UserEmailModel extends VerySimpleModel {
     }
 }
 
-class TicketModel extends VerySimpleModel {
-    static $meta = array(
-        'table' => TICKET_TABLE,
-        'pk' => array('ticket_id'),
-        'joins' => array(
-            'user' => array(
-                'constraint' => array('user_id' => 'UserModel.id')
-            ),
-            'status' => array(
-                'constraint' => array('status_id' => 'TicketStatus.id')
-            )
-        )
-    );
-
-    function getId() {
-        return $this->ticket_id;
-    }
-
-    function delete() {
-
-        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
-            return true;
-
-        return false;
-    }
-}
-
 class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
         'pk' => array('id'),
+        'select_related' => array('default_email'),
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
@@ -83,16 +58,14 @@ class UserModel extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
             ),
+            'cdata' => array(
+                'constraint' => array('id' => 'UserCdata.user_id'),
+                'null' => true,
+            ),
         )
     );
 
     const PRIMARY_ORG_CONTACT   = 0x0001;
-
-    static function objects() {
-        $qs = parent::objects();
-        #$qs->select_related('default_email');
-        return $qs;
-    }
 
     function getId() {
         return $this->id;
@@ -149,6 +122,20 @@ class UserModel extends VerySimpleModel {
             $this->setStatus(User::PRIMARY_ORG_CONTACT);
         else
             $this->clearStatus(User::PRIMARY_ORG_CONTACT);
+    }
+}
+
+class UserCdata extends VerySimpleModel {
+    static $meta = array(
+        'table' => 'user__cdata',
+        'view' => true,
+        'pk' => array('user_id'),
+    );
+
+    static function getQuery($compiler) {
+        $form = UserForm::getUserForm();
+        $exclude = array('name', 'email');
+        return '('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).')';
     }
 }
 
@@ -1163,8 +1150,4 @@ class UserList extends ListObject {
         return $list ? implode(', ', $list) : '';
     }
 }
-
-require_once(INCLUDE_DIR . 'class.organization.php');
-User::_inspect();
-UserAccount::_inspect();
 ?>

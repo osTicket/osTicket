@@ -412,6 +412,7 @@ class DynamicFormField extends VerySimpleModel {
         'table' => FORM_FIELD_TABLE,
         'ordering' => array('sort'),
         'pk' => array('id'),
+        'select_related' => array('form'),
         'joins' => array(
             'form' => array(
                 'null' => true,
@@ -1107,7 +1108,7 @@ class SelectionField extends FormField {
     function getWidget() {
         $config = $this->getConfiguration();
         $widgetClass = false;
-        if ($config['widget'] == 'typeahead')
+        if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
         return parent::getWidget($widgetClass);
     }
@@ -1191,6 +1192,13 @@ class SelectionField extends FormField {
 
     function getConfigurationOptions() {
         return array(
+            'multiselect' => new BooleanField(array(
+                'id'=>2,
+                'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
+                'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc'=>__('Allow multiple selections')),
+            )),
             'widget' => new ChoiceField(array(
                 'id'=>1,
                 'label'=>__('Widget'),
@@ -1202,18 +1210,11 @@ class SelectionField extends FormField {
                 'configuration'=>array(
                     'multiselect' => false,
                 ),
-                'hint'=>__('Typeahead will work better for large lists')
-            )),
-            'multiselect' => new BooleanField(array(
-                'id'=>2,
-                'label'=>__(/* Type of widget allowing multiple selections */ 'Multiselect'),
-                'required'=>false, 'default'=>false,
-                'configuration'=>array(
-                    'desc'=>__('Allow multiple selections')),
                 'visibility' => new VisibilityConstraint(
-                    new Q(array('widget__eq'=>'dropdown')),
+                    new Q(array('multiselect__eq'=>false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'hint'=>__('Typeahead will work better for large lists')
             )),
             'prompt' => new TextboxField(array(
                 'id'=>3,
@@ -1237,7 +1238,7 @@ class SelectionField extends FormField {
         if ($config['widget'])
             $config['typeahead'] = $config['widget'] == 'typeahead';
 
-        //Typeahed doesn't support multiselect for now  TODO: Add!
+        // Drop down list does not support multiple selections
         if ($config['typeahead'])
             $config['multiselect'] = false;
 
@@ -1289,6 +1290,42 @@ class SelectionField extends FormField {
             $data = array_merge($data, $v->getFilterData());
         }
         return $data;
+    }
+
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('has a value'),
+            'notset' =>     __('does not have a value'),
+            'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'set' => null,
+            'notset' => null,
+            'includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            '!includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case '!includes':
+            return Q::not(array("{$name}__intersect" => array_keys($value)));
+        case 'includes':
+            return new Q(array("{$name}__intersect" => array_keys($value)));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }
 

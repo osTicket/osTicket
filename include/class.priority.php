@@ -14,55 +14,36 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Priority {
+class Priority extends VerySimpleModel {
 
-    var $id;
-    var $ht;
-
-    function Priority($id){
-
-        $this->id =0;
-        $this->load($id);
-    }
-
-    function load($id) {
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-
-        $sql='SELECT *  FROM '.PRIORITY_TABLE
-            .' WHERE priority_id='.db_input($id);
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht= db_fetch_array($res);
-        $this->id= $this->ht['priority_id'];
-
-        return true;;
-    }
+    static $meta = array(
+        'table' => PRIORITY_TABLE,
+        'pk' => array('priority_id'),
+        'ordering' => array('-priority_urgency')
+    );
 
     function getId() {
-        return $this->id;
+        return $this->priority_id;
     }
 
     function getTag() {
-        return $this->ht['priority'];
+        return $this->priority;
     }
 
     function getDesc() {
-        return $this->ht['priority_desc'];
+        return $this->priority_desc;
     }
 
     function getColor() {
-        return $this->ht['priority_color'];
+        return $this->priority_color;
     }
 
     function getUrgency() {
-        return $this->ht['priority_urgency'];
+        return $this->priority_urgency;
     }
 
     function isPublic() {
-        return ($this->ht['ispublic']);
+        return $this->ispublic;
     }
 
     function __toString() {
@@ -70,20 +51,16 @@ class Priority {
     }
 
     /* ------------- Static ---------------*/
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($p=new Priority($id)) && $p->getId()==$id)?$p:null;
-    }
-
-    function getPriorities( $publicOnly=false) {
-
+    static function getPriorities( $publicOnly=false) {
         $priorities=array();
-        $sql ='SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE;
-        if($publicOnly)
-            $sql.=' WHERE ispublic=1';
 
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $priorities[$id] = $name;
+        $objects = static::objects()->values_flat('priority_id', 'priority_desc');
+        if ($publicOnly)
+            $objects->filter(array('ispublic'=>1));
+
+        foreach ($objects as $row) {
+            list($id, $name) = $row;
+            $priorities[$id] = $name;
         }
 
         return $priorities;

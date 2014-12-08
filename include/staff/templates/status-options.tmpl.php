@@ -15,7 +15,7 @@ $actions= array(
 ?>
 
 <span
-    class="action-button pull-right"
+    class="action-button"
     data-dropdown="#action-dropdown-statuses">
     <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action"

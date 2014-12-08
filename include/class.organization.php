@@ -25,6 +25,9 @@ class OrganizationModel extends VerySimpleModel {
             'users' => array(
                 'reverse' => 'User.org',
             ),
+            'cdata' => array(
+                'constraint' => array('id' => 'OrganizationCdata.org_id'),
+            ),
         )
     );
 
@@ -99,6 +102,21 @@ class OrganizationModel extends VerySimpleModel {
         return $this->users;
     }
 }
+
+class OrganizationCdata extends VerySimpleModel {
+    static $meta = array(
+        'table' => 'org__cdata',
+        'view' => true,
+        'pk' => array('org_id'),
+    );
+
+    function getQuery($compiler) {
+        $form = OrganizationForm::getDefaultForm();
+        $exclude = array('name');
+        return '('.$form->getCrossTabQuery($form->type, 'org_id', $exclude).')';
+    }
+}
+
 
 class Organization extends OrganizationModel {
     var $_entries;

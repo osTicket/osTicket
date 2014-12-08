@@ -105,6 +105,7 @@
   text-decoration: none !important;
   line-height:18px;
   margin-left:5px;
+  vertical-align: bottom;
 }
 .action-button span,
 .action-button a {
@@ -130,4 +131,22 @@
 .action-button a {
   color: #777;
   text-decoration: none;
+}
+.action-buttons {
+    display: inline-block;
+    vertical-align: middle;
+}
+.action-buttons .action-button + .action-button {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.action-buttons .action-button:not(:last-of-type) {
+    margin-right: 0;
+    padding-right: 0;
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }

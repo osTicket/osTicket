@@ -1,9 +1,29 @@
 <?php
-require(INCLUDE_DIR.'class.ostsession.php');
-require(INCLUDE_DIR.'class.usersession.php');
 
+interface AuthenticatedUser {
+    // Get basic information
+    function getId();
+    function getUsername();
+    function getRole();
 
-abstract class AuthenticatedUser {
+    //Backend used to authenticate the user
+    function getAuthBackend();
+
+    //Authentication key
+    function setAuthKey($key);
+
+    function getAuthKey();
+
+    // logOut the user
+    function logOut();
+
+    // Signal method to allow performing extra things when a user is logged
+    // into the sysem
+    function onLogin($bk);
+}
+
+abstract class BaseAuthenticatedUser
+implements AuthenticatedUser {
     //Authorization key returned by the backend used to authorize the user
     private $authkey;
 
@@ -37,6 +57,9 @@ abstract class AuthenticatedUser {
     // into the sysem
     function onLogin($bk) {}
 }
+
+require_once(INCLUDE_DIR.'class.ostsession.php');
+require_once(INCLUDE_DIR.'class.usersession.php');
 
 interface AuthDirectorySearch {
     /**
@@ -509,7 +532,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
     protected function validate($authkey) {
 
-        if (($staff = new StaffSession($authkey)) && $staff->getId())
+        if (($staff = StaffSession::lookup($authkey)) && $staff->getId())
             return $staff;
     }
 }
@@ -909,7 +932,7 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
     static $id = "local";
 
     function authenticate($username, $password) {
-        if (($user = new StaffSession($username)) && $user->getId() &&
+        if (($user = StaffSession::lookup($username)) && $user->getId() &&
                 $user->check_passwd($password)) {
 
             //update last login && password reset stuff.
@@ -940,7 +963,7 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
             return false;
         elseif (!($_config = new Config('pwreset')))
             return false;
-        elseif (($staff = new StaffSession($_POST['userid'])) &&
+        elseif (($staff = StaffSession::lookup($_POST['userid'])) &&
                 !$staff->getId())
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))

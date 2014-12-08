@@ -609,10 +609,12 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
   `duedate` datetime default NULL,
+  `est_duedate` datetime default NULL,
   `reopened` datetime default NULL,
   `closed` datetime default NULL,
   `lastmessage` datetime default NULL,
   `lastresponse` datetime default NULL,
+  `lastupdate` datetime default NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`ticket_id`),
@@ -771,6 +773,20 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   `isactive` tinyint(1) not null default 0,
   `version` varchar(64),
   `installed` datetime not null,
+  primary key (`id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;
+CREATE TABLE `%TABLE_PREFIX%queue` (
+  `id` int(11) unsigned not null auto_increment,
+  `parent_id` int(11) unsigned not null default 0,
+  `flags` int(11) unsigned not null default 0,
+  `staff_id` int(11) unsigned not null default 0,
+  `sort` int(11) unsigned not null default 0,
+  `title` varchar(60),
+  `config` text,
+  `created` datetime not null,
+  `updated` datetime not null,
   primary key (`id`)
 ) DEFAULT CHARSET=utf8;
 

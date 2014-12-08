@@ -368,6 +368,10 @@ endif;
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();
 
+// Clear advanced search upon request
+if (isset($_GET['clear_filter']))
+    unset($_SESSION['advsearch']);
+
 //Navigation
 $nav->setTabActive('tickets');
 $open_name = _P('queue-name',
@@ -376,18 +380,18 @@ $open_name = _P('queue-name',
 if($cfg->showAnsweredTickets()) {
     $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
                             'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php',
+                            'href'=>'tickets.php?status=open',
                             'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
+                        ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
 } else {
 
     if ($stats) {
 
         $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php',
+                               'href'=>'tickets.php?status=open',
                                'iconclass'=>'Ticket'),
-                            (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
+                            ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
     }
 
     if($stats['answered']) {
@@ -434,6 +438,21 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 }
 
+if (isset($_SESSION['advsearch'])) {
+    // XXX: De-duplicate and simplify this code
+    $search = SavedSearch::create();
+    $form = $search->getFormFromSession('advsearch');
+    $form->loadState($_SESSION['advsearch']);
+    $tickets = TicketModel::objects();
+    $tickets = $search->mangleQuerySet($tickets, $form);
+    $count = $tickets->count();
+    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
+                           'title'=>__('Advanced Search Query'),
+                           'href'=>'tickets.php?status=search',
+                           'iconclass'=>'Ticket'),
+                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
+}
+
 if($thisstaff->canCreateTickets()) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
@@ -448,7 +467,6 @@ $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script
 $ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
     "$('#content').data('tipNamespace', 'tickets.queue');");
 
-$inc = 'tickets.inc.php';
 if($ticket) {
     $ost->setPageTitle(sprintf(__('Ticket #%s'),$ticket->getNumber()));
     $nav->setActiveSubMenu(-1);
@@ -466,9 +484,7 @@ if($ticket) {
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
-        if (!($token=$_REQUEST['h']))
-            $errors['err'] = __('Query token required');
-        elseif (!($query=$_SESSION['search_'.$token]))
+        if (!($query=$_SESSION[':Q:tickets']))
             $errors['err'] = __('Query token not found');
         elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
             $errors['err'] = __('Internal error: Unable to dump query results');
