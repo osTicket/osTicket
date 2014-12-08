@@ -83,10 +83,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     &nbsp;&nbsp;&nbsp;(<a class="tip" href="#ticket_variables"><?php echo __('Supported Variables'); ?></a>)
                     </div>
                 <textarea name="response" class="richtext draft draft-delete" cols="21" rows="12"
-                    data-draft-namespace="canned"
-                    data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
-                    style="width:98%;" class="richtext draft"><?php
-                        echo $info['response']; ?></textarea>
+                    style="width:98%;" class="richtext draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('canned',
+        is_object($canned) ? $canned->getId() : false, $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                ?></textarea>
+                <br><br>
                 <div><h3><?php echo __('Canned Attachments'); ?> <?php echo __('(optional)'); ?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i></h3>
                 <div class="error"><?php echo $errors['files']; ?></div>

@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.ajax.php';
 
 if(!defined('INCLUDE_DIR')) die('!');
 
@@ -42,7 +43,7 @@ class ConfigAjaxAPI extends AjaxController {
         return $this->json_encode($config);
     }
 
-    function client() {
+    function client($headers=true) {
         global $cfg;
 
         $lang = Internationalization::getCurrentLanguage();
@@ -62,8 +63,10 @@ class ConfigAjaxAPI extends AjaxController {
         );
 
         $config = $this->json_encode($config);
-        Http::cacheable(md5($config), $cfg->lastModified());
-        header('Content-Type: application/json; charset=UTF-8');
+        if ($headers) {
+            Http::cacheable(md5($config), $cfg->lastModified());
+            header('Content-Type: application/json; charset=UTF-8');
+        }
 
         return $config;
     }

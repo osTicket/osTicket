@@ -88,10 +88,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <b><?php echo __('Answer');?></b>&nbsp;<font class="error">*&nbsp;<?php echo $errors['answer']; ?></font></div>
                 </div>
                 <textarea name="answer" cols="21" rows="12"
-                    style="width:98%;" class="richtext draft"
-                    data-draft-namespace="faq"
-                    data-draft-object-id="<?php if (is_object($faq)) echo $faq->getId(); ?>"
-                    ><?php echo $info['answer']; ?></textarea>
+                    style="width:98%;" class="richtext draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq',
+        is_object($faq) ? $faq->getId() : false, $info['answer']);
+    echo $attrs; ?>><?php echo $draft ?: $info['answer'];
+                ?></textarea>
             </td>
         </tr>
         <tr>

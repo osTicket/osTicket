@@ -155,6 +155,7 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
         url_delete('^(?P<id>\d+)$', 'deleteDraft'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImage'),
+        url_post('^(?P<namespace>[\w.]+)/attach$', 'uploadInlineImageEarly'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
