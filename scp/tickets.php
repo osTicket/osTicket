@@ -58,7 +58,7 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
-        $role = $thisstaff->getRole($ticket->getDeptId);
+        $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
             if(!$role || !$role->canPostReply())
