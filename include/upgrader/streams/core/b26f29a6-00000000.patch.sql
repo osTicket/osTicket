@@ -16,7 +16,7 @@ ALTER TABLE `%TABLE_PREFIX%attachment`
 
 ALTER TABLE `%TABLE_PREFIX%faq`
     ADD `views` int(10) unsigned NOT NULL default '0' AFTER `notes`,
-    ADD `score` int(10) NOT NULL default '0' AFTER `views`,
+    ADD `score` int(10) NOT NULL default '0' AFTER `views`;
 
 ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `lang` varchar(16) DEFAULT NULL AFTER `signature`,
@@ -24,7 +24,7 @@ ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `locale` varchar(16) DEFAULT NULL AFTER `locale`,
     ADD `extra` text AFTER `default_paper_size`;
 
-ALTER TABLE `%TABLE_PREFIX%user_account` (
+ALTER TABLE `%TABLE_PREFIX%user_account`
     ADD `timezone` varchar(64) DEFAULT NULL AFTER `status`,
     ADD `extra` text AFTER `backend`;
 
