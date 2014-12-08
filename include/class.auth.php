@@ -101,8 +101,7 @@ class ClientCreateRequest {
         $this_form = UserForm::getUserForm()->getForm($this->getInfo());
         $bk = $this->getBackend();
         $defaults = array(
-            'timezone_id' => $cfg->getDefaultTimezoneId(),
-            'dst' => $cfg->observeDaylightSaving(),
+            'timezone' => $cfg->getDefaultTimezone(),
             'username' => $this->getUsername(),
         );
         if ($bk->supportsInteractiveAuthentication())

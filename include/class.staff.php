@@ -150,10 +150,6 @@ class Staff extends AuthenticatedUser {
         return $this->isPasswdResetDue();
     }
 
-    function observeDaylight() {
-        return $this->ht['daylight_saving']?true:false;
-    }
-
     function getRefreshRate() {
         return $this->ht['auto_refresh_rate'];
     }

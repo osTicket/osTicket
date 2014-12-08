@@ -178,17 +178,6 @@ class OsticketConfig extends Config {
                     $this->config[$key] = array('value'=>$value);
         }
 
-        //Get the default time zone
-        // We can't JOIN timezone table above due to upgrade support.
-        if ($this->get('default_timezone_id')) {
-            if (!$this->exists('tz_offset'))
-                $this->persist('tz_offset',
-                    Timezone::getOffsetById($this->get('default_timezone_id')));
-        } else
-            // Previous osTicket versions saved the offset value instead of
-            // a timezone instance. This is compatibility for the upgrader
-            $this->persist('tz_offset', 0);
-
         return true;
     }
 
@@ -275,9 +264,6 @@ class OsticketConfig extends Config {
     }
 
     /* Date & Time Formats */
-    function observeDaylightSaving() {
-        return ($this->get('enable_daylight_saving'));
-    }
     function getTimeFormat() {
         if ($this->get('date_formats') == 'custom')
             return $this->get('time_format');
@@ -286,6 +272,18 @@ class OsticketConfig extends Config {
     function isForce24HourTime() {
         return $this->get('date_formats') == '24';
     }
+    /**
+     * getDateFormat
+     *
+     * Retrieve the current date format for the system, as a string, and in
+     * the intl (icu) format.
+     *
+     * Parameters:
+     * $propogate - (boolean:default=false), if set and the configuration
+     *      indicates default date and time formats (ie. not custom), then
+     *      the intl date formatter will be queried to find the pattern used
+     *      internally for the current locale settings.
+     */
     function getDateFormat($propogate=false) {
         if ($this->get('date_formats') == 'custom')
             return $this->get('date_format');
@@ -334,10 +332,6 @@ class OsticketConfig extends Config {
 
     function getBaseUrl() { //Same as above with no trailing slash.
         return rtrim($this->getUrl(),'/');
-    }
-
-    function getTZOffset() {
-        return $this->get('tz_offset');
     }
 
     function getPageSize() {

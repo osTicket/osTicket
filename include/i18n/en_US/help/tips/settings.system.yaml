@@ -81,13 +81,15 @@ default_name_formatting:
 date_time_options:
     title: Date &amp; Time Options
     content: >
-        The following settings define the Date &amp; Time settings for
-        Clients. You can change how these appear by following the PHP date
-        format characters. The dates shown below simply illustrate the
-        result of their corresponding values.
+        The following settings define the default settings for Date &amp;
+        Time settings for the help desk. You can choose to use the locale
+        defaults for the selected locale or use customize the formats to
+        meet your unique requirements. Refer to the ICU format strings as a
+        reference for customization.  The dates shown below simply
+        illustrate the result of their corresponding values.
     links:
-      - title: See the PHP Date Formatting Table
-        href: http://www.php.net/manual/en/function.date.php
+      - title: See the ICU Date Formatting Table
+        href: http://userguide.icu-project.org/formatparse/datetime
 
 languages:
     title: System Languages
