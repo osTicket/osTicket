@@ -79,7 +79,7 @@ implements AuthenticatedUser {
 
     // AuthenticatedUser implementation...
     // TODO: Move to an abstract class that extends Staff
-    function getRole() {
+    function getUserType() {
         return 'staff';
     }
 
