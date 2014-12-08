@@ -1,7 +1,7 @@
 /**
- * @signature d7480e1c31a1f20d6954ecbb342722d3
- * @version v1.9.5
- * @title Make editable content translatable
+ * @signature 7c218d81e84b304c1436326c26ace09d
+ * @version v1.9.6
+ * @title Make editable content translatable and add queues
  *
  * This patch adds support for translatable administratively editable
  * content, such as help topic names, department and group names, site page
@@ -28,7 +28,6 @@ ALTER TABLE `%TABLE_PREFIX%user_account`
     ADD `timezone` varchar(64) DEFAULT NULL AFTER `status`,
     ADD `extra` text AFTER `backend`;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;
 CREATE TABLE `%TABLE_PREFIX%translation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `object_hash` char(16) CHARACTER SET ascii DEFAULT NULL,
@@ -51,7 +50,7 @@ CREATE TABLE `%TABLE_PREFIX%_timezones` (
     `offset` int,
     `dst` tinyint(1) unsigned,
     `south` tinyint(1) unsigned default 0,
-    `olson_name` varchar(32) 
+    `olson_name` varchar(32)
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `%TABLE_PREFIX%_timezones` (`offset`, `dst`, `olson_name`) VALUES
@@ -160,7 +159,20 @@ UPDATE `%TABLE_PREFIX%ticket` A1
       A1.`lastupdate` =
         CAST(GREATEST(IFNULL(A1.lastmessage, 0), IFNULL(A1.closed, 0), IFNULL(A1.reopened, 0), A1.created) as DATETIME);
 
+CREATE TABLE `%TABLE_PREFIX%queue` (
+  `id` int(11) unsigned not null auto_increment,
+  `parent_id` int(11) unsigned not null default 0,
+  `flags` int(11) unsigned not null default 0,
+  `staff_id` int(11) unsigned not null default 0,
+  `sort` int(11) unsigned not null default 0,
+  `title` varchar(60),
+  `config` text,
+  `created` datetime not null,
+  `updated` datetime not null,
+  primary key (`id`)
+) DEFAULT CHARSET=utf8;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'd7480e1c31a1f20d6954ecbb342722d3'
+    SET `value` = '7c218d81e84b304c1436326c26ace09d'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
