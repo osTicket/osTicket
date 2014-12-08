@@ -30,86 +30,16 @@ class Ticket2PDF extends mPDF
 	function Ticket2PDF($ticket, $psize='Letter', $notes=false) {
         global $thisstaff;
 
-
         $this->ticket = $ticket;
         $this->includenotes = $notes;
 
         parent::__construct('', $psize);
-
-        $this->SetMargins(10,10,10);
-		$this->AliasNbPages();
-		$this->AddPage();
-		$this->cMargin = 3;
 
         $this->_print();
 	}
 
     function getTicket() {
         return $this->ticket;
-    }
-
-    function getLogoFile() {
-        global $ost;
-
-        if (!function_exists('imagecreatefromstring')
-                || (!($logo = $ost->getConfig()->getClientLogo()))) {
-            return INCLUDE_DIR.'fpdf/print-logo.png';
-        }
-
-        $tmp = tempnam(sys_get_temp_dir(), 'pdf') . '.jpg';
-        $img = imagecreatefromstring($logo->getData());
-        // Handle transparent images with white background
-        $img2 = imagecreatetruecolor(imagesx($img), imagesy($img));
-        $white = imagecolorallocate($img2, 255, 255, 255);
-        imagefill($img2, 0, 0, $white);
-        imagecopy($img2, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
-        imagejpeg($img2, $tmp);
-        return $tmp;
-    }
-
-	//report header...most stuff are hard coded for now...
-	function Header() {
-        global $cfg;
-
-		//Common header
-        $logo = $this->getLogoFile();
-		$this->Image($logo, $this->lMargin, $this->tMargin, 0, 20);
-        if (strpos($logo, INCLUDE_DIR) === false)
-            unlink($logo);
-		$this->SetFont('Arial', 'B', 16);
-		$this->SetY($this->tMargin + 20);
-        $this->SetX($this->lMargin);
-        $this->WriteCell(0, 0, '', "B", 2, 'L');
-		$this->Ln(1);
-        $this->SetFont('Arial', 'B',10);
-        $this->WriteCell(0, 5, $cfg->getTitle(), 0, 0, 'L');
-        $this->SetFont('Arial', 'I',10);
-        $this->WriteCell(0, 5, Format::daydatetime(null, false), 0, 1, 'R');
-		$this->Ln(5);
-	}
-
-	//Page footer baby
-	function Footer() {
-        global $thisstaff;
-
-		$this->SetY(-15);
-        $this->WriteCell(0, 2, '', "T", 2, 'L');
-		$this->SetFont('Arial', 'I', 9);
-        $this->WriteCell(0, 7, sprintf(__('Ticket #%1$s printed by %2$s on %3$s'),
-            $this->getTicket()->getNumber(), $thisstaff->getUserName(), date('r')), 0, 0, 'L');
-		//$this->WriteCell(0,10,'Page '.($this->PageNo()-$this->pageOffset).' of {nb} '.$this->pageOffset.' '.$this->PageNo(),0,0,'R');
-		$this->WriteCell(0, 7, sprintf(__('Page %d'), ($this->PageNo() - $this->pageOffset)), 0, 0, 'R');
-	}
-
-    function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link='') {
-        parent::Cell($w, $h, $txt, $border, $ln, $align, $fill, $link);
-    }
-
-    function WriteText($w, $text, $border) {
-
-        $this->SetFont('Arial','',11);
-        $this->MultiCell($w, 7, $text, $border, 'L');
-
     }
 
     function WriteHtml() {
@@ -131,187 +61,16 @@ class Ticket2PDF extends mPDF
     }
 
     function _print() {
+        global $thisstaff, $cfg;
 
         if(!($ticket=$this->getTicket()))
             return;
 
-        $w =(($this->w/2)-$this->lMargin);
-        $l = 35;
-        $c = $w-$l;
+        ob_start();
+        include STAFFINC_DIR.'templates/ticket-print.tmpl.php';
+        $html = ob_get_clean();
 
-        // Setup HTML writing and load default thread stylesheet
-        $this->WriteHtml(
-            '<style>'.file_get_contents(ROOT_DIR.'css/thread.css')
-            .'</style>', 1, true, false);
-
-        $this->SetFont('Arial', 'B', 11);
-        $this->cMargin = 0;
-        $this->SetFont('Arial', 'B', 11);
-        $this->SetTextColor(10, 86, 142);
-        $this->WriteCell($w, 7,sprintf(__('Ticket #%s'),$ticket->getNumber()), 0, 0, 'L');
-        $this->Ln(7);
-        $this->cMargin = 3;
-        $this->SetTextColor(0);
-        $this->SetDrawColor(220, 220, 220);
-        $this->SetFillColor(244, 250, 255);
-        $this->SetX($this->lMargin);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Status'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, (string)$ticket->getStatus(), 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Name'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, (string)$ticket->getName(), 1, 1, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Priority'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getPriority(), 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Email'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getEmail(), 1, 1, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Department'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getDeptName(), 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Phone'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getPhoneNumber(), 1, 1, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Create Date'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, Format::datetime($ticket->getCreateDate()), 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Source'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $source = ucfirst($ticket->getSource());
-        if($ticket->getIP())
-            $source.='  ('.$ticket->getIP().')';
-        $this->WriteCell($c, 7, $source, 1, 0, 'L', true);
-        $this->Ln(12);
-
-        $this->SetFont('Arial', 'B', 11);
-        if($ticket->isOpen()) {
-            $this->WriteCell($l, 7, __('Assigned To'), 1, 0, 'L', true);
-            $this->SetFont('');
-            $this->WriteCell($c, 7, $ticket->isAssigned()?$ticket->getAssigned():' -- ', 1, 0, 'L', true);
-        } else {
-
-            $closedby = __('unknown');
-            if(($staff = $ticket->getStaff()))
-                $closedby = (string) $staff->getName();
-
-            $this->WriteCell($l, 7, __('Closed By'), 1, 0, 'L', true);
-            $this->SetFont('');
-            $this->WriteCell($c, 7, $closedby, 1, 0, 'L', true);
-        }
-
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Help Topic'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, $ticket->getHelpTopic(), 1, 1, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('SLA Plan'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $sla = $ticket->getSLA();
-        $this->WriteCell($c, 7, $sla?$sla->getName():' -- ', 1, 0, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Last Response'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, Format::datetime($ticket->getLastRespDate()), 1, 1, 'L', true);
-        $this->SetFont('Arial', 'B', 11);
-        if($ticket->isOpen()) {
-            $this->WriteCell($l, 7, __('Due Date'), 1, 0, 'L', true);
-            $this->SetFont('');
-            $this->WriteCell($c, 7, Format::datetime($ticket->getEstDueDate()), 1, 0, 'L', true);
-        } else {
-            $this->WriteCell($l, 7, __('Close Date'), 1, 0, 'L', true);
-            $this->SetFont('');
-            $this->WriteCell($c, 7, Format::datetime($ticket->getCloseDate()), 1, 0, 'L', true);
-        }
-
-        $this->SetFont('Arial', 'B', 11);
-        $this->WriteCell($l, 7, __('Last Message'), 1, 0, 'L', true);
-        $this->SetFont('');
-        $this->WriteCell($c, 7, Format::datetime($ticket->getLastMsgDate()), 1, 1, 'L', true);
-
-        $this->SetFillColor(255, 255, 255);
-        foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
-            $idx = 0;
-            foreach ($form->getAnswers() as $a) {
-                if (in_array($a->getField()->get('name'),
-                            array('email','name','subject','phone','priority')))
-                    continue;
-                $this->SetFont('Arial', 'B', 11);
-                if ($idx++ === 0) {
-                    $this->Ln(5);
-                    $this->SetFillColor(244, 250, 255);
-                    $this->WriteCell(($l+$c)*2, 7, $a->getForm()->get('title'),
-                        1, 0, 'L', true);
-                    $this->SetFillColor(255, 255, 255);
-                }
-                if ($val = $a->toString()) {
-                    $this->Ln(7);
-                    $this->WriteCell($l*2, 7, $a->getField()->get('label'), 1, 0, 'L', true);
-                    $this->SetFont('');
-                    $this->WriteCell($c*2, 7, $val, 1, 0, 'L', true);
-                }
-            }
-        }
-        $this->SetFillColor(244, 250, 255);
-        $this->Ln(10);
-
-        $this->SetFont('Arial', 'B', 11);
-        $this->cMargin = 0;
-        $this->SetTextColor(10, 86, 142);
-        $this->WriteCell($w, 7,trim($ticket->getSubject()), 0, 0, 'L');
-        $this->Ln(7);
-        $this->SetTextColor(0);
-        $this->cMargin = 3;
-
-        //Table header colors (RGB)
-        $colors = array('M'=>array(195, 217, 255),
-                        'R'=>array(255, 224, 179),
-                        'N'=>array(250, 250, 210));
-        //Get ticket thread
-        $types = array('M', 'R');
-        if($this->includenotes)
-            $types[] = 'N';
-
-        if(($entries = $ticket->getThreadEntries($types))) {
-            foreach($entries as $entry) {
-
-                $color = $colors[$entry['thread_type']];
-
-                $this->SetFillColor($color[0], $color[1], $color[2]);
-                $this->SetFont('Arial', 'B', 11);
-                $this->WriteCell($w/2, 7, Format::datetime($entry['created']), 'LTB', 0, 'L', true);
-                $this->SetFont('Arial', '', 10);
-                $this->WriteCell($w, 7, Format::truncate($entry['title'], 50), 'TB', 0, 'L', true);
-                $this->WriteCell($w/2, 7, $entry['name'] ?: $entry['poster'], 'TBR', 1, 'L', true);
-                $this->SetFont('');
-                $text = $entry['body']->display('pdf');
-                if($entry['attachments']
-                        && ($tentry=$ticket->getThreadEntry($entry['id']))
-                        && ($attachments = $tentry->getAttachments())) {
-                    $files = array();
-                    foreach($attachments as $attachment)
-                        if (!$attachment['inline'])
-                            $files[]= $attachment['name'];
-
-                    if ($files)
-                        $text.="<div>Files Attached: [".implode(', ',$files)."]</div>";
-                        $text.="<div>".sprintf(__('Files Attached: [%s]'),implode(', ',$files))."</div>";
-                }
-                $this->WriteHtml('<div class="thread-body">'.$text.'</div>', 2, false, false);
-                $this->Ln(5);
-            }
-        }
-
-        $this->WriteHtml('', 2, false, true);
-
+        $this->WriteHtml($html, 0, true, true);
     }
 }
 ?>
