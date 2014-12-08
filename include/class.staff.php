@@ -51,6 +51,7 @@ implements AuthenticatedUser {
     var $stats = array();
     var $_extra;
     var $passwd_change;
+    var $_roles = null;
     var $_teams = null;
 
     function __onload() {
@@ -268,6 +269,57 @@ implements AuthenticatedUser {
         return $this->locale;
     }
 
+    function getRole($dept=null) {
+
+        if ($dept) {
+            $deptId = is_object($dept) ? $dept->getId() : $dept;
+            if (isset($this->_roles[$deptId]))
+                return $this->_roles[$deptId];
+
+            if (($role=$this->group->getRole($deptId)))
+                return $this->_roles[$deptId] = $role;
+        }
+
+        return $this->group->getRole();
+    }
+
+    function hasPermission($perm) {
+        static $perms = null;
+        if (!isset($perms[$perm])) {
+            $perms[$perm] = false;
+            foreach($this->getDepartments() as $deptId) {
+                if (($role=$this->getRole($deptId))
+                        && $role->getPermission()
+                        && $role->getPermission()->get($perm))
+                    $perms[$perm] = true;
+            }
+        }
+
+        return $perms[$perm];
+    }
+
+    function canCreateTickets() {
+        return $this->hasPermission('ticket.create');
+    }
+
+    function canAssignTickets() {
+        return $this->hasPermission('ticket.create');
+    }
+
+    function canCloseTickets() {
+        return $this->hasPermission('ticket.close');
+    }
+
+    function canDeleteTickets() {
+        return $this->hasPermission('ticket.delete');
+    }
+
+    function canManageTickets() {
+        return ($this->isAdmin()
+                || $this->canDeleteTickets()
+                || $this->canCloseTickets());
+    }
+
     function isManager() {
         return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
     }
@@ -316,6 +368,7 @@ implements AuthenticatedUser {
         return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
     }
 
+<<<<<<< HEAD
     function canCreateTickets() {
         return $this->group->can_create_tickets;
     }
@@ -378,6 +431,8 @@ implements AuthenticatedUser {
         return $this->show_assigned_tickets;
     }
 
+=======
+>>>>>>> 5847307... roles : Implement role-based access system-wide
     function getTeams() {
 
         if (!isset($this->_teams)) {

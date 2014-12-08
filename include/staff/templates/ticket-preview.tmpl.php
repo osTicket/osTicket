@@ -6,6 +6,7 @@
 
 $staff=$ticket->getStaff();
 $lock=$ticket->getLock();
+$role=$thisstaff->getRole($ticket->getDeptId());
 $error=$msg=$warn=null;
 
 if($lock && $lock->getStaffId()==$thisstaff->getId())
@@ -154,15 +155,15 @@ if($ticket->getNumNotes())
 if($ticket->isOpen())
     $options[]=array('action'=>__('Reply'),'url'=>"tickets.php?id=$tid#reply");
 
-if($thisstaff->canAssignTickets())
+if ($role->canAssignTickets())
     $options[]=array('action'=>($ticket->isAssigned()?__('Reassign'):__('Assign')),'url'=>"tickets.php?id=$tid#assign");
 
-if($thisstaff->canTransferTickets())
+if ($role->canTransferTickets())
     $options[]=array('action'=>__('Transfer'),'url'=>"tickets.php?id=$tid#transfer");
 
 $options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
-if($thisstaff->canEditTickets())
+if ($role->canEditTickets())
     $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {

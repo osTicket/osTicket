@@ -17,7 +17,7 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.category.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageFAQ()) {
+if(!$thisstaff || !$thisstaff->getRole()->canManageFAQ()) {
     header('Location: kb.php');
     exit;
 }

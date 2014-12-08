@@ -1,5 +1,10 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canEditTickets() || !$ticket) die('Access Denied');
+if (!defined('OSTSCPINC')
+        || !$thisstaff
+        || !$ticket
+        || !($role=$thisstaff->getRole($ticket->getDeptId()))
+        || !$role->canEditTickets())
+    die('Access Denied');
 
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
 if ($_POST)
