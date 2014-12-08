@@ -321,7 +321,7 @@ class Ticket {
         //Collaborator?
         // 1) If the user was authorized via this ticket.
         if ($user->getTicketId() == $this->getId()
-                && !strcasecmp($user->getRole(), 'collaborator'))
+                && !strcasecmp($user->getUserType(), 'collaborator'))
             return true;
 
         // 2) Query the database to check for expanded access...

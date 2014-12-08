@@ -232,7 +232,7 @@ class  EndUser extends BaseAuthenticatedUser {
         return $this->user->getEmail();
     }
 
-    function getRole() {
+    function getUserType() {
         return $this->isOwner() ? 'owner' : 'collaborator';
     }
 
