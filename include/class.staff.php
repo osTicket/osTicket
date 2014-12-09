@@ -71,6 +71,7 @@ implements AuthenticatedUser {
     function getHashtable() {
         $base = $this->ht;
         $base['group'] = $base['group_id'];
+        unset($base['teams']);
         return $base;
     }
 
@@ -366,6 +367,10 @@ implements AuthenticatedUser {
 
     function canAccessDept($deptId) {
         return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
+    }
+
+    function showAssignedTickets() {
+        return $this->show_assigned_tickets;
     }
 
     function getTeams() {

@@ -56,6 +56,7 @@ $agents = Staff::objects()
     ->annotate(array(
             'teams_count'=>SqlAggregate::COUNT('teams', true),
     ))
+    ->select_related('dept', 'group')
     ->order_by(sprintf('%s%s',
                 strcasecmp($order, 'DESC') ? '' : '-',
                 $order_column));
@@ -157,7 +158,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                 <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php
                     echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
                 <td><a href="groups.php?id=<?php echo $agent->group_id; ?>"><?php
-                    echo Format::htmlchars('FIXME'/*$agent->group->getName()*/); ?></a></td>
+                    echo Format::htmlchars($agent->group->getName()); ?></a></td>
                 <td><a href="departments.php?id=<?php echo
                     $agent->getDeptId(); ?>"><?php
                     echo Format::htmlchars((string) $agent->dept); ?></a></td>

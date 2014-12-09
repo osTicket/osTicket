@@ -58,7 +58,7 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
-        $role = $thistaff->getRole($ticket->getDeptId);
+        $role = $thisstaff->getRole($ticket->getDeptId);
         switch(strtolower($_POST['a'])):
         case 'reply':
             if(!$role || !$role->canPostReply())
@@ -448,7 +448,7 @@ if (isset($_SESSION['advsearch'])) {
     $tickets = $search->mangleQuerySet($tickets, $form);
     $count = $tickets->count();
     $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Search Query'),
+                           'title'=>__('Advanced Ticket Search'),
                            'href'=>'tickets.php?status=search',
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));

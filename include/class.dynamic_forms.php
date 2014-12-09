@@ -452,11 +452,18 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function getField($cache=true) {
+        global $thisstaff;
+
+        // Create the `required` flag for the FormField instance
+        $ht = $this->ht;
+        $ht['required'] = ($thisstaff) ? $this->isRequiredForStaff()
+            : $this->isRequiredForUsers();
+
         if (!$cache)
-            return new FormField($this->ht);
+            return new FormField($ht);
 
         if (!isset($this->_field))
-            $this->_field = new FormField($this->ht);
+            $this->_field = new FormField($ht);
         return $this->_field;
     }
 
@@ -538,11 +545,11 @@ class DynamicFormField extends VerySimpleModel {
             $hints[] = __('For EndUsers Only');
         }
         if ($impl->hasData()) {
-            if (~$F & (self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED)) {
-                $hints[] = __('Optional');
+            if ($F & (self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED)) {
+                $hints[] = __('Required');
             }
             else {
-                $hints[] = __('Required');
+                $hints[] = __('Optional');
             }
             if (!($F & (self::FLAG_CLIENT_EDIT | self::FLAG_AGENT_EDIT))) {
                 $hints[] = __('Immutable');
@@ -613,7 +620,7 @@ class DynamicFormField extends VerySimpleModel {
             return false;
 
         $info = $modes[$mode];
-        $this->set('flags', $info['flags']);
+        $this->set('flags', $info['flags'] | self::FLAG_ENABLED);
     }
 
     function isRequiredForStaff() {
@@ -686,6 +693,7 @@ class DynamicFormField extends VerySimpleModel {
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
+        $inst->flags = self::FLAG_ENABLED;
         if (isset($ht['configuration']))
             $inst->configuration = JsonDataEncoder::encode($ht['configuration']);
         return $inst;

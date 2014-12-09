@@ -62,7 +62,7 @@ $showing=$pageNav->showing().' '._N('role', 'roles', $count);
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="4">
+        <td colspan="5">
             <?php if($count){ ?>
             <?php echo __('Select'); ?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;

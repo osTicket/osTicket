@@ -72,7 +72,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
         if ($count) {
             $groups= Group::objects()
                 ->annotate(array(
-                        'members_count'=>SqlAggregate::COUNT('members', true),
+                        'members_count'=>SqlAggregate::COUNT('members__staff_id', true),
                         'depts_count'=>SqlAggregate::COUNT('depts', true),
                         'isenabled'=>new SqlExpr(array(
                                 'flags__hasbit' => Group::FLAG_ENABLED))

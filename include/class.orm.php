@@ -612,12 +612,34 @@ class SqlAggregate extends SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        $options = array(
-                'constraint' => $this->constraint,
-                'distinct' => $this->distinct);
+        $options = array('constraint' => $this->constraint, 'model' => true);
 
-        list($field) = $compiler->getField($this->expr, $model, $options);
-        return sprintf('%s(%s)%s', $this->func, $field,
+        // For DISTINCT, require a field specification — not a relationship
+        // specification.
+        list($field, $rmodel) = $compiler->getField($this->expr, $model, $options);
+        if ($this->distinct) {
+            $pk = false;
+            foreach ($rmodel::$meta['pk'] as $f) {
+                $pk |= false !== strpos($field, $f);
+            }
+            if (!$pk) {
+                // Try and use the foriegn primary key
+                if (count($rmodel::$meta['pk']) == 1) {
+                    list($field) = $compiler->getField(
+                        $this->expr . '__' . $rmodel::$meta['pk'][0],
+                        $model, $options);
+                }
+                else {
+                    throw new OrmException(
+                        sprintf('%s :: %s', $rmodel, $field) .
+                        ': DISTINCT aggregate expressions require specification of a single primary key field of the remote model'
+                    );
+                }
+            }
+        }
+
+        return sprintf('%s(%s%s)%s', $this->func,
+            $this->distinct ? 'DISTINCT ' : '', $field,
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 
@@ -1377,9 +1399,6 @@ class SqlCompiler {
         else
             $field = $this->quote($field);
 
-        if (isset($options['distinct']) && $options['distinct'])
-            $field = " DISTINCT $field";
-
         if (isset($options['model']) && $options['model'])
             $operator = $model;
         return array($field, $operator);
@@ -1469,7 +1488,7 @@ class SqlCompiler {
             // Handle simple field = <value> constraints
             else {
                 list($field, $op) = $this->getField($field, $model);
-                if ($field instanceof Aggregate) {
+                if ($field instanceof SqlAggregate) {
                     // This constraint has to go in the HAVING clause
                     $field = $field->toSql($this, $model);
                     $type = CompiledExpression::TYPE_HAVING;
@@ -1590,7 +1609,7 @@ class MySqlCompiler extends SqlCompiler {
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
-        'startwith' => array('self', '__startswith'),
+        'startswith' => array('self', '__startswith'),
         'endswith' => array('self', '__endswith'),
         'gt' => '%1$s > %2$s',
         'lt' => '%1$s < %2$s',
@@ -1616,11 +1635,11 @@ class MySqlCompiler extends SqlCompiler {
     }
     function __startswith($a, $b) {
         $b = $this->like_escape($b);
-        return sprintf('%s LIKE %s', $a, $this->input("%$b"));
+        return sprintf('%s LIKE %s', $a, $this->input("$b%"));
     }
     function __endswith($a, $b) {
         $b = $this->like_escape($b);
-        return sprintf('%s LIKE %s', $a, $this->input("$b%"));
+        return sprintf('%s LIKE %s', $a, $this->input("%$b"));
     }
 
     function __in($a, $b) {
@@ -1713,8 +1732,8 @@ class MySqlCompiler extends SqlCompiler {
     function input($what, $slot=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
-            $this->params = array_merge($q->params);
-            return (string)$q;
+            $this->params = array_merge($this->params, $q->params);
+            return $q->sql;
         }
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
@@ -1893,10 +1912,17 @@ class MySqlCompiler extends SqlCompiler {
         // Add in annotations
         if ($queryset->annotations) {
             foreach ($queryset->annotations as $alias=>$A) {
-                $fields[] = $T = $A->toSql($this, $model, $alias);
-                // TODO: Add to last fieldset in fieldMap
-                if ($fieldMap)
+                // The root model will receive the annotations, add in the
+                // annotation after the root model's fields
+                $T = $A->toSql($this, $model, $alias);
+                if ($fieldMap) {
+                    array_splice($fields, count($fieldMap[0][0]), 0, array($T));
                     $fieldMap[0][0][] = $A->getAlias();
+                }
+                else {
+                    // No field map — just add to end of field list
+                    $fields[] = $T;
+                }
             }
             foreach ($model::$meta['pk'] as $pk)
                 $group_by[] = $rootAlias .'.'. $pk;

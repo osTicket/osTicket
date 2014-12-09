@@ -4,19 +4,17 @@
     <form method="post" action="#form/field-config/<?php
             echo $field->get('id'); ?>">
 <ul class="tabs">
-    <li><a href="#config" class="active"><i class="icon-cogs"></i> Field Setup</a></li>
-    <li><a href="#visibility"><i class="icon-beaker"></i> Settings</a></li>
+    <li class="active"><a href="#config"><i class="icon-cogs"></i> <?php echo __('Field Setup'); ?></a></li>
+    <li><a href="#visibility"><i class="icon-beaker"></i> <?php echo __('Settings'); ?></a></li>
 </ul>
 
-<div class="tab_content" id="visibility" style="display:none">
+<div class="hidden tab_content" id="visibility">
     <div>
     <div class="span4">
-        <div style="margin-bottom:5px"><strong>Enabled</strong>
+        <div style="margin-bottom:5px"><strong><?php echo __('Enabled'); ?></strong>
         <i class="help-tip icon-question-sign"
-            data-title="Enabled"
-            data-content="This field can be disabled which will remove it
-            from the form for new entries, but will preserve the data on all
-            current entries."></i>
+            data-title="<?php echo __('Enabled'); ?>"
+            data-content="<?php echo __('This field can be disabled which will remove it from the form for new entries, but will preserve the data on all current entries.'); ?>"></i>
         </div>
     </div>
     <div class="span6">
@@ -24,16 +22,15 @@
             echo DynamicFormField::FLAG_ENABLED; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_ENABLED)) echo 'checked="checked"';
             if ($field->hasFlag(DynamicFormField::FLAG_MASK_DISABLE)) echo ' disabled="disabled"';
-        ?>> Enabled<br/>
+        ?>> <?php echo __('Enabled'); ?><br/>
     </div>
     <hr class="faded"/>
 
     <div class="span4">
-        <div style="margin-bottom:5px"><strong>Visible</strong>
+        <div style="margin-bottom:5px"><strong><?php echo __('Visible'); ?></strong>
         <i class="help-tip icon-question-sign"
-            data-title="Visible"
-            data-content="Making fields <em>visible</em> allows agents and
-            endusers to view and create information in this field."></i>
+            data-title="<?php echo __('Visible'); ?>"
+            data-content="<?php echo __('Making fields <em>visible</em> allows agents and endusers to view and create information in this field.'); ?>"></i>
         </div>
     </div>
     <div class="span3">
@@ -41,25 +38,24 @@
             echo DynamicFormField::FLAG_CLIENT_VIEW; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_VIEW)) echo 'checked="checked"';
             if ($field->isPrivacyForced()) echo ' disabled="disabled"';
-        ?>> For Clients<br/>
+        ?>> <?php echo __('For Clients'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_AGENT_VIEW; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_AGENT_VIEW)) echo 'checked="checked"';
             if ($field->isPrivacyForced()) echo ' disabled="disabled"';
-        ?>> For Agents<br/>
+        ?>> <?php echo __('For Agents'); ?><br/>
     </div>
 
 <?php if ($field->getImpl()->hasData()) { ?>
     <hr class="faded"/>
 
     <div class="span4">
-        <div style="margin-bottom:5px"><strong>Required</strong>
+        <div style="margin-bottom:5px"><strong><?php echo __('Required'); ?></strong>
         <i class="help-tip icon-question-sign"
-            data-title="Required"
-            data-content="New entries cannot be created unless all
-            <em>required</em> fields have valid data."></i>
+            data-title="<?php echo __('Required'); ?>"
+            data-content="<?php echo __('New entries cannot be created unless all <em>required</em> fields have valid data.'); ?>"></i>
         </div>
     </div>
     <div class="span3">
@@ -67,23 +63,22 @@
             echo DynamicFormField::FLAG_CLIENT_REQUIRED; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_REQUIRED)) echo 'checked="checked"';
             if ($field->isRequirementForced()) echo ' disabled="disabled"';
-        ?>> For Clients<br/>
+        ?>> <?php echo __('For Clients'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_AGENT_REQUIRED; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_AGENT_REQUIRED)) echo 'checked="checked"';
             if ($field->isRequirementForced()) echo ' disabled="disabled"';
-        ?>> For Agents<br/>
+        ?>> <?php echo __('For Agents'); ?><br/>
     </div>
     <hr class="faded"/>
 
     <div class="span4">
         <div style="margin-bottom:5px"><strong>Editable</strong>
         <i class="help-tip icon-question-sign"
-            data-content="Fields marked editable allow agents and endusers to update the
-            content of this field after the form entry has been created."
-            data-title="Editable"></i>
+            data-content="<?php echo __('Fields marked editable allow agents and endusers to update the content of this field after the form entry has been created.'); ?>"
+            data-title="<?php echo __('Editable'); ?>"></i>
         </div>
     </div>
 
@@ -91,29 +86,28 @@
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_CLIENT_EDIT; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_EDIT)) echo 'checked="checked"';
-        ?>> For Clients<br/>
+        ?>> <?php echo __('For Clients'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_AGENT_EDIT; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_AGENT_EDIT)) echo 'checked="checked"';
-        ?>> For Agents<br/>
+        ?>> <?php echo __('For Agents'); ?><br/>
     </div>
     <hr class="faded"/>
 
     <div class="span4">
         <div style="margin-bottom:5px"><strong>Data Integrity</strong>
         <i class="help-tip icon-question-sign"
-            data-title="Required to close a ticket"
-            data-content="Optionally, this field can prevent closing a
-            ticket until it has valid data."></i>
+            data-title="<?php echo __('Required to close a ticket'); ?>"
+            data-content="<?php echo __('Optionally, this field can prevent closing a ticket until it has valid data.'); ?>"></i>
         </div>
     </div>
     <div class="span6">
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_CLOSE_REQUIRED; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLOSE_REQUIRED)) echo 'checked="checked"';
-        ?>> Required to close a ticket<br/>
+        ?>> <?php echo __('Required to close a ticket'); ?><br/>
     </div>
 <?php } ?>
     </div>

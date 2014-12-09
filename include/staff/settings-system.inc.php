@@ -244,9 +244,11 @@ $gmtime = Misc::gmtime();
         <tr>
             <td style="vertical-align:top;padding-top:4px;"><?php echo __('Secondary Languages'); ?>:</td>
             <td><div id="secondary_langs" style="width: 300px"><?php
-        foreach ($cfg->getSecondaryLanguages() as $lang) { ?>
+            foreach ($cfg->getSecondaryLanguages() as $lang) {
+                $info = Internationalization::getLanguageInfo($lang); ?>
             <div class="secondary_lang" style="cursor:move">
-            <i class="icon-sort"></i>
+            <i class="icon-sort"></i>&nbsp;
+            <span class="flag flag-<?php echo $info['flag']; ?>"></span>&nbsp;
             <?php echo Internationalization::getLanguageDescription($lang); ?>
             <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
             <div class="pull-right">

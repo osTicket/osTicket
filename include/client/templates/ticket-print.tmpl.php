@@ -108,7 +108,7 @@ div.hr {
     <div class="hr">&nbsp;</div>
     <table><tr>
         <td class="flush-left"><?php echo (string) $ost->company; ?></td>
-        <td class="flush-right"><?php echo Format::db_daydatetime(Misc::gmtime()); ?></td>
+        <td class="flush-right"><?php echo Format::daydatetime(Misc::gmtime()); ?></td>
     </tr></table>
 </htmlpageheader>
 
@@ -117,7 +117,7 @@ div.hr {
     <table width="100%"><tr><td class="flush-left">
         Ticket #<?php echo $ticket->getNumber(); ?> printed by
         <?php echo $thisclient->getName()->getFirst(); ?> on
-        <?php echo Format::db_daydatetime(Misc::gmtime()); ?>
+        <?php echo Format::daydatetime(Misc::gmtime()); ?>
     </td>
     <td class="flush-right">
         Page {PAGENO}
@@ -149,7 +149,7 @@ div.hr {
 </tr>
 <tr>
     <th><?php echo __('Create Date'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
     <th><?php echo __('Source'); ?></th>
     <td><?php echo $ticket->getSource(); ?></td>
 </tr>
@@ -201,7 +201,7 @@ if ($thread = $ticket->getThreadEntries($types)) {
         <div class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>">
             <table class="header"><tr><td>
                     <span><?php
-                        echo Format::db_datetime($entry['created']);?></span>
+                        echo Format::datetime($entry['created']);?></span>
                     <span style="padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                 </td>

@@ -27,8 +27,6 @@ if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the f
         $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
     elseif($staff->updateProfile($_POST,$errors)){
         $msg=__('Profile updated successfully');
-        $thisstaff->reload();
-        $staff->reload();
     }elseif(!$errors['err'])
         $errors['err']=__('Profile update error. Try correcting the errors below and try again!');
 }

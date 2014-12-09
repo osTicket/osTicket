@@ -312,7 +312,6 @@ if ($_POST)
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
     echo $attrs; ?>><?php echo $draft ?: $info['response'];
                 ?></textarea>
-                    style="width:80%;"><?php echo $info['response']; ?></textarea>
                     <div class="attachments">
 <?php
 print $response_form->getField('attachments')->render();

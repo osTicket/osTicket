@@ -22,10 +22,10 @@ ALTER TABLE  `%TABLE_PREFIX%group_dept_access`
     ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0';
 
 ALTER TABLE  `%TABLE_PREFIX%groups`
-    ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `group_id` ,
-    ADD  `flags` INT UNSIGNED NOT NULL DEFAULT  '1' AFTER  `role_id`,
-    CHANGE  `group_name`  `name` VARCHAR(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '',
     CHANGE  `group_id`  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    CHANGE  `group_name`  `name` VARCHAR(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '',
+    ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `id` ,
+    ADD  `flags` INT UNSIGNED NOT NULL DEFAULT  '1' AFTER  `role_id`,
     ADD INDEX (`role_id`);
 
 RENAME TABLE  `%TABLE_PREFIX%groups` TO  `%TABLE_PREFIX%group`;
@@ -38,4 +38,5 @@ ALTER TABLE  `%TABLE_PREFIX%department`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `schema_signature`='c7c828356c88b462ba2e3e1437dca0df';
+    SET `value`='c7c828356c88b462ba2e3e1437dca0df'
+    WHERE `key` = 'schema_signature' AND `namespace` = 'core';

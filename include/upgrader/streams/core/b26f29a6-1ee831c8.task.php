@@ -1,6 +1,8 @@
 <?php
 
 class IntlMigrator extends MigrationTask {
+    var $description = "Date format migration from date() to ICU";
+
     static $dateToIntl = array(
         'd' => 'dd',
         'D' => 'EEE',

@@ -108,7 +108,7 @@ div.hr {
     <div class="hr">&nbsp;</div>
     <table><tr>
         <td class="flush-left"><?php echo (string) $ost->company; ?></td>
-        <td class="flush-right"><?php echo Format::db_daydatetime(Misc::gmtime()); ?></td>
+        <td class="flush-right"><?php echo Format::daydatetime(Misc::gmtime()); ?></td>
     </tr></table>
 </htmlpageheader>
 
@@ -117,7 +117,7 @@ div.hr {
     <table width="100%"><tr><td class="flush-left">
         Ticket #<?php echo $ticket->getNumber(); ?> printed by
         <?php echo $thisstaff->getUserName(); ?> on
-        <?php echo Format::db_daydatetime(Misc::gmtime()); ?>
+        <?php echo Format::daydatetime(Misc::gmtime()); ?>
     </td>
     <td class="flush-right">
         Page {PAGENO}
@@ -149,7 +149,7 @@ div.hr {
 </tr>
 <tr>
     <th><?php echo __('Create Date'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
     <th><?php echo __('Source'); ?></th>
     <td><?php echo $ticket->getSource(); ?></td>
 </tr>
@@ -168,13 +168,13 @@ div.hr {
     <th><?php echo __('SLA Plan'); ?></th>
     <td><?php if ($sla = $ticket->getSLA()) echo $sla->getName(); ?></td>
     <th><?php echo __('Last Response'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getLastResponseDate()); ?></td>
+    <td><?php echo Format::datetime($ticket->getLastResponseDate()); ?></td>
 </tr>
 <tr>
     <th><?php echo __('Due Date'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
+    <td><?php echo Format::datetime($ticket->getEstDueDate()); ?></td>
     <th><?php echo __('Last Message'); ?></th>
-    <td><?php echo Format::db_datetime($ticket->getLastMessageDate()); ?></td>
+    <td><?php echo Format::datetime($ticket->getLastMessageDate()); ?></td>
 </tr>
 </tbody>
 </table>
@@ -225,7 +225,7 @@ if ($thread = $ticket->getThreadEntries($types)) {
         <div class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>">
             <table class="header" style="width:100%"><tr><td>
                     <span><?php
-                        echo Format::db_datetime($entry['created']);?></span>
+                        echo Format::datetime($entry['created']);?></span>
                     <span style="padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                 </td>

@@ -181,8 +181,6 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
     echo $attrs; ?>><?php echo $draft ?: $info['message'];
                 ?></textarea>
-            </td>
-        </tr>
         <?php
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php

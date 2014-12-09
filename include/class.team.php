@@ -213,12 +213,12 @@ class Team extends VerySimpleModel {
                 ->order_by('name');
 
             if (isset($criteria['active']) && $criteria['active']) {
-                $query->annotate(array('members_count'=>Aggregate::COUNT('members')))
+                $query->annotate(array('members_count'=>SqlAggregate::COUNT('members')))
                 ->filter(array(
                     'isenabled'=>1,
                     'members__staff__isactive'=>1,
                     'members__staff__onvacation'=>0,
-                    'members__staff__group__group_enabled'=>1,
+                    'members__staff__group__flags__hasbit'=>Group::FLAG_ENABLED,
                 ))
                 ->filter(array('members_count__gt'=>0));
             }

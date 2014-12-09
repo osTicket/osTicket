@@ -1,18 +1,20 @@
 <?php
 class GroupRoles extends MigrationTask {
+    var $description = "Migrate permissions from Group to Role";
 
-    var $pmap = array(
-            'can_create_tickets'  => 'ticket.create',
-            'can_edit_tickets' => 'ticket.edit',
+    static $pmap = array(
+            'can_create_tickets'    => 'ticket.create',
+            'can_edit_tickets'      => 'ticket.edit',
             'can_post_ticket_reply' => 'ticket.reply',
-            'can_delete_tickets' => 'ticket.delete',
-            'can_close_tickets' => 'ticket.close',
-            'can_assign_tickets' => 'ticket.assign',
-            'can_transfer_tickets' => 'ticket.transfer',
-            'can_ban_emails' => 'emails.banlist',
-            'can_manage_premade' => 'kb.premade',
-            'can_manage_faq' => 'kb.faq',
-            'can_view_staff_stats' => 'stats.agents');
+            'can_delete_tickets'    => 'ticket.delete',
+            'can_close_tickets'     => 'ticket.close',
+            'can_assign_tickets'    => 'ticket.assign',
+            'can_transfer_tickets'  => 'ticket.transfer',
+            'can_ban_emails'        => 'emails.banlist',
+            'can_manage_premade'    => 'kb.premade',
+            'can_manage_faq'        => 'kb.faq',
+            'can_view_staff_stats'  => 'stats.agents',
+    );
 
     function run($max_time) {
         global $cfg;
@@ -20,8 +22,10 @@ class GroupRoles extends MigrationTask {
         // settings
         foreach (Group::objects() as $group) {
             $ht=array(
-                    'flags=1',
+                    'flags' => Group::FLAG_ENABLED,
                     'name' => sprintf('%s %s', $group->getName(),
+                        // XXX: Translate based on the system language, not
+                        //      the current agent's
                         __('Role')),
                     'notes' => $group->getName()
                     );

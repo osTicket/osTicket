@@ -4,7 +4,18 @@ $tickets = TicketModel::objects();
 $clear_button = false;
 $date_header = $date_col = false;
 
-// Add "other" fields (via $_POST['other'][])
+// Figure out REFRESH url — which might not be accurate after posting a
+// response
+list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
+$args = array();
+parse_str($_SERVER['QUERY_STRING'], $args);
+
+// Remove commands from query
+unset($args['id']);
+unset($args['a']);
+
+$refresh_url = $path . '?' . http_build_query($args);
+
 
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
 case 'closed':
@@ -32,7 +43,24 @@ case 'answered':
     break;
 default:
 case 'search':
-    if (isset($_SESSION['advsearch'])) {
+    // Consider basic search
+    if ($_REQUEST['query']) {
+        $results_type=__('Search Results');
+        // Use an index if possible
+        if (Validator::is_email($_REQUEST['query'])) {
+            $tickets = $tickets->filter(array(
+                'user__emails__address' => $_REQUEST['query'],
+            ));
+        }
+        else {
+            $tickets = $tickets->filter(Q::any(array(
+                'number__startswith' => $_REQUEST['query'],
+                'user__emails__address__contains' => $_REQUEST['query'],
+            )));
+        }
+        break;
+    }
+    elseif (isset($_SESSION['advsearch'])) {
         // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
         $form->loadState($_SESSION['advsearch']);
@@ -98,7 +126,7 @@ case 'due':
     $date_col = 'est_duedate';
     $tickets->values('est_duedate');
     $tickets->filter(array('est_duedate__isnull'=>false));
-    $tickets->order_by(new SqlField('est_duedate'));
+    $tickets->order_by('est_duedate');
     break;
 
 default:
@@ -117,19 +145,17 @@ TicketForm::ensureDynamicDataView();
 
 // Save the query to the session for exporting
 $_SESSION[':Q:tickets'] = $tickets;
-
 ?>
 
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
     <form action="tickets.php" method="get">
-    <?php csrf_token(); ?>
-    <input type="hidden" name="a" value="search">
+    <input type="hidden" name="status" value="search">
     <table>
         <tr>
             <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-            <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
+            <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
             <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
                 $.dialog('ajax.php/tickets/search', 201);"
                 >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
@@ -142,7 +168,7 @@ $_SESSION[':Q:tickets'] = $tickets;
 <div style="margin-bottom:20px; padding-top:10px;">
 <div>
         <div class="pull-left flush-left">
-            <h2><a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
+            <h2><a href="<?php echo $refresh_url; ?>"
                 title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
                 $results_type.$showing; ?></a></h2>
         </div>

@@ -1020,16 +1020,6 @@ ul.tabs.vertical li a {
     background-repeat:no-repeat;
 }
 
-ul.tabs li a.active {
-    height:18px;
-    color:#184E81;
-    background-color:#f9f9f9;
-    border:1px solid #aaa;
-    border-top:2px solid #81a9d7;
-    border-bottom:none;
-    bottom: 0;
-}
-
 #response_options > form {
     padding:10px 5px;
     background:#f9f9f9;
