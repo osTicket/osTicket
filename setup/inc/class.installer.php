@@ -159,16 +159,16 @@ class Installer extends SetupWizard {
 
             Signal::send('system.install', $this);
 
-            $sql='SELECT `id` FROM '.TABLE_PREFIX.'sla ORDER BY `id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'sla` ORDER BY `id` LIMIT 1';
             $sla_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `dept_id` FROM '.TABLE_PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'department` ORDER BY `id` LIMIT 1';
             $dept_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `tpl_id` FROM '.TABLE_PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
+            $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
             $template_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `group_id` FROM '.TABLE_PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'group` ORDER BY `id` LIMIT 1';
             $group_id_1 = db_result(db_query($sql, false));
 
             //Create admin user.

@@ -2891,7 +2891,7 @@ class Ticket {
         }
 
         // Update the estimated due date in the database
-        $this->updateEstDueDate();
+        $ticket->updateEstDueDate();
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
