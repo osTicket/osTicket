@@ -406,6 +406,7 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `flags` int(10) unsigned NOT NULL DEFAULT '1',
   `name` varchar(64) DEFAULT NULL,
+  `permissions` text,
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,

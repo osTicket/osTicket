@@ -53,6 +53,7 @@ implements AuthenticatedUser {
     var $passwd_change;
     var $_roles = null;
     var $_teams = null;
+    var $_perms = null;
 
     function __onload() {
         // WE have to patch info here to support upgrading from old versions.
@@ -285,18 +286,16 @@ implements AuthenticatedUser {
     }
 
     function hasPermission($perm) {
-        static $perms = null;
-        if (!isset($perms[$perm])) {
-            $perms[$perm] = false;
-            foreach($this->getDepartments() as $deptId) {
-                if (($role=$this->getRole($deptId))
-                        && $role->getPermission()
-                        && $role->getPermission()->get($perm))
-                    $perms[$perm] = true;
+        if (!isset($this->_perms)) {
+            foreach ($this->getDepartments() as $deptId) {
+                if (($role = $this->getRole($deptId))) {
+                    foreach ($role->getPermission()->getInfo() as $perm=>$v) {
+                        $this->_perms[$perm] |= $v;
+                    }
+                }
             }
         }
-
-        return $perms[$perm];
+        return @$this->_perms[$perm];
     }
 
     function canCreateTickets() {
