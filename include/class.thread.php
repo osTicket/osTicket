@@ -486,7 +486,7 @@ Class ThreadEntry {
             if(!$error)
                 $error = sprintf(_S('Unable to import attachment - %s'),
                         $attachment['name']);
-            //FIXME: $this->logComment();
+            //FIXME: logComment here
             $this->getThread()->getObject()->logNote(
                     _S('File Import Error'), $error, _S('SYSTEM'), false);
         }

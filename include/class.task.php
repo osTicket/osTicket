@@ -278,7 +278,7 @@ class Task extends TaskModel {
         $vars['staffId'] = $thisstaff->getId();
         $vars['poster'] = $thisstaff;
         if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
-            $vars['ip_address'] = $SERVER['REMOTE_ADDR'];
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
         $thread->addDescription($vars);
 

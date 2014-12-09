@@ -78,11 +78,12 @@ class Attachment {
 
     static function lookup($var, $objectId=0) {
 
-        $id = is_numeric($var) ? $var : self::getIdByFileHash($var, $oid);
+        $id = is_numeric($var) ? $var : self::getIdByFileHash($var,
+                $objectId);
 
         return ($id
                 && is_numeric($id)
-                && ($attach = new Attachment($id, $oid))
+                && ($attach = new Attachment($id, $objectId))
                 && $attach->getId()==$id
             ) ? $attach : null;
     }
