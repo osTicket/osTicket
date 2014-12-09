@@ -14,7 +14,7 @@ if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access
 $faqs = FAQ::objects()
     ->filter(array('category'=>$category))
     ->exclude(array('ispublished'=>false))
-    ->annotate(array('has_attachments'=>Aggregate::COUNT('attachments', false,
+    ->annotate(array('has_attachments'=>SqlAggregate::COUNT('attachments', false,
         array('attachments__inline'=>0))))
     ->order_by('-ispublished', 'question');
 
@@ -55,7 +55,7 @@ foreach (Topic::objects()
     ->filter(array('faqs__faq__category__category_id'=>$category->getId()))
     as $t) { ?>
         <a href="?topicId=<?php echo urlencode($t->getId()); ?>"
-            ><?php echo $t->getFullname(); ?></a>
+            ><?php echo $t->getFullName(); ?></a>
 <?php } ?>
         </section>
     </div>

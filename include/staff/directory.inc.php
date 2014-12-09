@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
 $qstr='';
-$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.dept_name as dept ';
+$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) ';
 $where='WHERE staff.isvisible=1 ';
@@ -28,7 +28,7 @@ if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $qstr.='&did='.urlencode($_REQUEST['did']);
 }
 
-$sortOptions=array('name'=>'staff.firstname,staff.lastname','email'=>'staff.email','dept'=>'dept.dept_name',
+$sortOptions=array('name'=>'staff.firstname,staff.lastname','email'=>'staff.email','dept'=>'dept.name',
                    'phone'=>'staff.phone','mobile'=>'staff.mobile','ext'=>'phone_ext',
                    'created'=>'staff.created','login'=>'staff.lastlogin');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
@@ -68,10 +68,10 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
         <select name="did" id="did">
              <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
              <?php
-             $sql='SELECT dept.dept_id, dept.dept_name,count(staff.staff_id) as users  '.
+             $sql='SELECT dept.dept_id, dept.name as dept,count(staff.staff_id) as users  '.
                   'FROM '.DEPT_TABLE.' dept '.
                   'INNER JOIN '.STAFF_TABLE.' staff ON(staff.dept_id=dept.dept_id AND staff.isvisible=1) '.
-                  'GROUP By dept.dept_id HAVING users>0 ORDER BY dept_name';
+                  'GROUP By dept.dept_id HAVING users>0 ORDER BY dept.name';
              if(($res=db_query($sql)) && db_num_rows($res)){
                  while(list($id,$name, $users)=db_fetch_row($res)){
                      $sel=($_REQUEST['did'] && $_REQUEST['did']==$id)?'selected="selected"':'';

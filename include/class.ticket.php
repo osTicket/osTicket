@@ -51,7 +51,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.dept_id'),
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'sla' => array(
                 'constraint' => array('sla_id' => 'SlaModel.id'),
@@ -182,10 +182,10 @@ class Ticket {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, lock_id, dept_name '
+        $sql='SELECT  ticket.*, lock_id, dept.name as dept_name '
             .' ,count(distinct attach.attach_id) as attachments'
             .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+            .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
                 ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
@@ -321,7 +321,7 @@ class Ticket {
         //Collaborator?
         // 1) If the user was authorized via this ticket.
         if ($user->getTicketId() == $this->getId()
-                && !strcasecmp($user->getRole(), 'collaborator'))
+                && !strcasecmp($user->getUserType(), 'collaborator'))
             return true;
 
         // 2) Query the database to check for expanded access...
@@ -980,15 +980,29 @@ class Ticket {
     function setStatus($status, $comments='', &$errors=array()) {
         global $thisstaff;
 
+        if (!$thisstaff || !($role=$thisstaff->getRole($this->getDeptId())))
+            return false;
+
         if ($status && is_numeric($status))
             $status = TicketStatus::lookup($status);
 
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
-        // XXX: intercept deleted status and do hard delete
-        if (!strcasecmp($status->getState(), 'deleted'))
-            return $this->delete($comments);
+        // Double check permissions
+        switch ($status->getState()) {
+        case 'closed':
+            if (!($role->canCloseTickets()))
+                return false;
+            break;
+        case 'deleted':
+            // XXX: intercept deleted status and do hard delete
+            if ($role->canDeleteTickets())
+                return $this->delete($comments);
+            // Agent doesn't have permission to delete  tickets
+            return false;
+            break;
+        }
 
         if ($this->getStatusId() == $status->getId())
             return true;
@@ -996,6 +1010,7 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
                ' ,status_id='.db_input($status->getId());
 
+        //TODO: move this up.
         $ecb = null;
         switch($status->getState()) {
             case 'closed':
@@ -1593,7 +1608,9 @@ class Ticket {
 
         global $cfg, $thisstaff;
 
-        if(!$thisstaff || !$thisstaff->canTransferTickets())
+        if(!$thisstaff
+                || !($role=$thisstaff->getRole($this->getDeptId()))
+                || !$role->canTransferTickets())
             return false;
 
         $currentDept = $this->getDeptName(); //Current department
@@ -1745,7 +1762,8 @@ class Ticket {
 
         if (!$user
                 || ($user->getId() == $this->getOwnerId())
-                || !$thisstaff->canEditTickets())
+                || !($role=$thisstaff->getRole($this->getDeptId()))
+                || !$role->canEditTickets())
             return false;
 
         $sql ='UPDATE '.TICKET_TABLE.' SET updated = NOW() '
@@ -2224,7 +2242,10 @@ class Ticket {
 
         global $cfg, $thisstaff;
 
-        if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
+        if (!$cfg
+                || !$thisstaff
+                || !($role=$thisstaff->getRole($this->getDeptId()))
+                || !$role->canEditTickets())
             return false;
 
         $fields=array();
@@ -2870,7 +2891,7 @@ class Ticket {
         }
 
         // Update the estimated due date in the database
-        $this->updateEstDueDate();
+        $ticket->updateEstDueDate();
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2926,7 +2947,7 @@ class Ticket {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
+        if (!$thisstaff || !$thisstaff->canCreateTickets()) return false;
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']=sprintf(__('Invalid source given - %s'),Format::htmlchars($vars['source']));
@@ -2943,6 +2964,9 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
+        //TODO: Deny action based on selected department.
+
+
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
         $create_vars['cannedattachments']
@@ -2953,16 +2977,19 @@ class Ticket {
 
         $vars['msgId']=$ticket->getLastMsgId();
 
+        // Effective role for the department
+        $role = $thisstaff->getRole($ticket->getDeptId());
+
         // post response - if any
         $response = null;
-        if($vars['response'] && $thisstaff->canPostReply()) {
+        if($vars['response'] && $role->canPostReply()) {
 
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
-                if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())
+                if(isset($vars['ticket_state']) && $role->canCloseTickets())
                     $ticket->setState($vars['ticket_state']);
             }
         }

@@ -291,7 +291,7 @@ class DraftAjaxAPI extends AjaxController {
 
         $draft = Draft::create(array(
             'staff_id' => $thisstaff->getId(),
-            'namespace' => $namepace
+            'namespace' => $namespace
         ));
         if (!$draft->save())
             Http::response(500, 'Unable to create draft');

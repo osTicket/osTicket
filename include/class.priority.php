@@ -59,8 +59,7 @@ class Priority extends VerySimpleModel {
             $objects->filter(array('ispublic'=>1));
 
         foreach ($objects as $row) {
-            list($id, $name) = $row;
-            $priorities[$id] = $name;
+            $priorities[$row[0]] = $row[1];
         }
 
         return $priorities;

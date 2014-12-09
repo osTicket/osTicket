@@ -491,6 +491,24 @@ class SqlFunction {
     }
 }
 
+class SqlExpr extends SqlFunction {
+    function __construct($args) {
+        $this->args = $args;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $O = array();
+        foreach ($this->args as $field=>$value) {
+            list($field, $op) = $compiler->getField($field, $model);
+            if (is_callable($op))
+                $O[] = call_user_func($op, $field, $value, $model);
+            else
+                $O[] = sprintf($op, $field, $compiler->input($value));
+        }
+        return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
+    }
+}
+
 class SqlExpression extends SqlFunction {
     var $operator;
     var $operands;
@@ -515,6 +533,10 @@ class SqlExpression extends SqlFunction {
                 $operator = '+'; break;
             case 'times':
                 $operator = '*'; break;
+            case 'bitand':
+                $operator = '&'; break;
+            case 'bitor':
+                $operator = '|'; break;
             default:
                 throw new InvalidArgumentException('Invalid operator specified');
         }
@@ -566,7 +588,7 @@ class SqlCode extends SqlFunction {
     }
 }
 
-class Aggregate extends SqlFunction {
+class SqlAggregate extends SqlFunction {
 
     var $func;
     var $expr;
@@ -590,7 +612,10 @@ class Aggregate extends SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        $options = array('constraint'=>$this->constraint);
+        $options = array(
+                'constraint' => $this->constraint,
+                'distinct' => $this->distinct);
+
         list($field) = $compiler->getField($this->expr, $model, $options);
         return sprintf('%s(%s)%s', $this->func, $field,
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
@@ -781,12 +806,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
         if (!is_array($annotations))
             $annotations = func_get_args();
         foreach ($annotations as $name=>$A) {
-            if ($A instanceof Aggregate) {
+            if ($A instanceof SqlAggregate) {
                 if (is_int($name))
                     $name = $A->getFieldName();
                 $A->setAlias($name);
-                $this->annotations[$name] = $A;
             }
+            $this->annotations[$name] = $A;
         }
         return $this;
     }
@@ -991,7 +1016,7 @@ class ModelInstanceManager extends ResultSet {
      * The annotated fields are in the AnnotatedModel instance and the
      * database-backed fields are managed by the Model instance.
      */
-    function getOrBuild($modelClass, $fields) {
+    function getOrBuild($modelClass, $fields, $cache=true) {
         // Check for NULL primary key, used with related model fetching. If
         // the PK is NULL, then consider the object to also be NULL
         foreach ($modelClass::$meta['pk'] as $pkf) {
@@ -1006,8 +1031,7 @@ class ModelInstanceManager extends ResultSet {
         // be the root model's fields. The annotated fields will be wrapped
         // using an AnnotatedModel instance.
         if ($annotations && $modelClass == $this->model) {
-            foreach ($annotations as $A) {
-                $name = $A->getAlias();
+            foreach ($annotations as $name=>$A) {
                 if (isset($fields[$name])) {
                     $extras[$name] = $fields[$name];
                     unset($fields[$name]);
@@ -1312,7 +1336,8 @@ class SqlCompiler {
 
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
-        $push = function($p, $path, $extra=false) use (&$model) {
+        $self = $this;
+        $push = function($p, $path, $extra=false) use (&$model, $self) {
             $model::_inspect();
             if (!($info = $model::$meta['joins'][$p])) {
                 throw new OrmException(sprintf(
@@ -1322,7 +1347,7 @@ class SqlCompiler {
             $crumb = implode('__', $path);
             $path[] = $p;
             $tip = implode('__', $path);
-            $alias = $this->pushJoin($crumb, $tip, $model, $info, $extra);
+            $alias = $self->pushJoin($crumb, $tip, $model, $info, $extra);
             // Roll to foreign model
             foreach ($info['constraint'] as $local => $foreign) {
                 list($model, $f) = explode('.', $foreign);
@@ -1351,6 +1376,10 @@ class SqlCompiler {
             $field = $alias.'.'.$this->quote($field);
         else
             $field = $this->quote($field);
+
+        if (isset($options['distinct']) && $options['distinct'])
+            $field = " DISTINCT $field";
+
         if (isset($options['model']) && $options['model'])
             $operator = $model;
         return array($field, $operator);
@@ -1775,6 +1804,9 @@ class MySqlCompiler extends SqlCompiler {
                 }
                 // TODO: Throw exception if $field can be indentified as
                 //       invalid
+                if ($field instanceof SqlFunction)
+                    $field = $field->toSql($this, $model);
+
                 $orders[] = $field.' '.$dir;
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
@@ -1857,10 +1889,11 @@ class MySqlCompiler extends SqlCompiler {
             }
         }
         $fields = array_keys($fields);
+        $group_by = array();
         // Add in annotations
         if ($queryset->annotations) {
-            foreach ($queryset->annotations as $A) {
-                $fields[] = $T = $A->toSql($this, $model, true);
+            foreach ($queryset->annotations as $alias=>$A) {
+                $fields[] = $T = $A->toSql($this, $model, $alias);
                 // TODO: Add to last fieldset in fieldMap
                 if ($fieldMap)
                     $fieldMap[0][0][] = $A->getAlias();

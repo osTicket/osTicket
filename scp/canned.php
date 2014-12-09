@@ -17,7 +17,7 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageCannedResponses()) {
+if(!$thisstaff || !$thisstaff->getRole()->canManageCannedResponses()) {
     header('Location: kb.php');
     exit;
 }
@@ -35,7 +35,7 @@ $canned_form = new Form(array(
    )),
 ));
 
-if($_POST && $thisstaff->canManageCannedResponses()) {
+if($_POST && $thisstaff->getRole()->canManageCannedResponses()) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$canned) {

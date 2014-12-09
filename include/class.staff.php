@@ -17,6 +17,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.error.php');
 include_once(INCLUDE_DIR.'class.team.php');
+include_once(INCLUDE_DIR.'class.role.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
@@ -31,24 +32,27 @@ implements AuthenticatedUser {
         'select_related' => array('group'),
         'joins' => array(
             'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.dept_id'),
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'group' => array(
-                'constraint' => array('group_id' => 'Group.group_id'),
+                'constraint' => array('group_id' => 'Group.id'),
             ),
             'teams' => array(
-                'constraint' => array('staff_id' => 'StaffTeamMember.staff_id'),
+                'null' => true,
+                'list' => true,
+                'reverse' => 'TeamMember.staff',
             ),
         ),
     );
 
     var $authkey;
     var $departments;
-    var $teams;
     var $timezone;
     var $stats = array();
     var $_extra;
     var $passwd_change;
+    var $_roles = null;
+    var $_teams = null;
 
     function __onload() {
         // WE have to patch info here to support upgrading from old versions.
@@ -76,7 +80,7 @@ implements AuthenticatedUser {
 
     // AuthenticatedUser implementation...
     // TODO: Move to an abstract class that extends Staff
-    function getRole() {
+    function getUserType() {
         return 'staff';
     }
 
@@ -200,28 +204,30 @@ implements AuthenticatedUser {
 
     function getDepartments() {
 
-        if (isset($this->departments))
-            return $this->departments;
+        if (!isset($this->departments)) {
 
-        // Departments the staff is "allowed" to access...
-        // based on the group they belong to + user's primary dept + user's managed depts.
-        $dept_ids = array();
-        $depts = Dept::objects()
-            ->filter(Q::any(array(
-                'dept_id' => $this->dept_id,
-                'groups__group_id' => $this->group_id,
-                'manager_id' => $this->getId(),
-            )))
-            ->values_flat('dept_id');
+            // Departments the staff is "allowed" to access...
+            // based on the group they belong to + user's primary dept + user's managed depts.
+            $dept_ids = array();
+            $depts = Dept::objects()
+                ->filter(Q::any(array(
+                    'id' => $this->dept_id,
+                    'groups__group_id' => $this->group_id,
+                    'manager_id' => $this->getId(),
+                )))
+                ->values_flat('id');
 
-        foreach ($depts as $row) {
-            list($id) = $row;
-            $dept_ids[] = $id;
+            foreach ($depts as $row)
+                $dept_ids[] = $row[0];
+
+            if (!$dept_ids) { //Neptune help us! (fallback)
+                $dept_ids = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+            }
+
+            $this->departments = array_filter(array_unique($dept_ids));
         }
-        if (!$dept_ids) { //Neptune help us! (fallback)
-            $dept_ids = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
-        }
-        return $this->departments = array_filter(array_unique($dept_ids));
+
+        return $this->departments;
     }
 
     function getDepts() {
@@ -263,6 +269,57 @@ implements AuthenticatedUser {
         return $this->locale;
     }
 
+    function getRole($dept=null) {
+
+        if ($dept) {
+            $deptId = is_object($dept) ? $dept->getId() : $dept;
+            if (isset($this->_roles[$deptId]))
+                return $this->_roles[$deptId];
+
+            if (($role=$this->group->getRole($deptId)))
+                return $this->_roles[$deptId] = $role;
+        }
+
+        return $this->group->getRole();
+    }
+
+    function hasPermission($perm) {
+        static $perms = null;
+        if (!isset($perms[$perm])) {
+            $perms[$perm] = false;
+            foreach($this->getDepartments() as $deptId) {
+                if (($role=$this->getRole($deptId))
+                        && $role->getPermission()
+                        && $role->getPermission()->get($perm))
+                    $perms[$perm] = true;
+            }
+        }
+
+        return $perms[$perm];
+    }
+
+    function canCreateTickets() {
+        return $this->hasPermission('ticket.create');
+    }
+
+    function canAssignTickets() {
+        return $this->hasPermission('ticket.create');
+    }
+
+    function canCloseTickets() {
+        return $this->hasPermission('ticket.close');
+    }
+
+    function canDeleteTickets() {
+        return $this->hasPermission('ticket.delete');
+    }
+
+    function canManageTickets() {
+        return ($this->isAdmin()
+                || $this->canDeleteTickets()
+                || $this->canCloseTickets());
+    }
+
     function isManager() {
         return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
     }
@@ -272,7 +329,7 @@ implements AuthenticatedUser {
     }
 
     function isGroupActive() {
-        return $this->group->group_enabled;
+        return $this->group->isEnabled();
     }
 
     function isactive() {
@@ -311,80 +368,15 @@ implements AuthenticatedUser {
         return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
     }
 
-    function canCreateTickets() {
-        return $this->group->can_create_tickets;
-    }
-
-    function canEditTickets() {
-        return $this->group->can_edit_tickets;
-    }
-
-    function canDeleteTickets() {
-        return $this->group->can_delete_tickets;
-    }
-
-    function canCloseTickets() {
-        return $this->group->can_close_tickets;
-    }
-
-    function canPostReply() {
-        return $this->group->can_post_ticket_reply;
-    }
-
-    function canViewStaffStats() {
-        return $this->group->can_view_staff_stats;
-    }
-
-    function canAssignTickets() {
-        return $this->group->can_assign_tickets;
-    }
-
-    function canTransferTickets() {
-        return $this->group->can_transfer_tickets;
-    }
-
-    function canBanEmails() {
-        return $this->group->can_ban_emails;
-    }
-
-    function canManageTickets() {
-        return ($this->isAdmin()
-                 || $this->canDeleteTickets()
-                    || $this->canCloseTickets());
-    }
-
-    function canManagePremade() {
-        return $this->group->can_manage_premade;
-    }
-
-    function canManageCannedResponses() {
-        return $this->canManagePremade();
-    }
-
-    function canManageFAQ() {
-        return $this->group->can_manage_faq;
-    }
-
-    function canManageFAQs() {
-        return $this->canManageFAQ();
-    }
-
-    function showAssignedTickets() {
-        return $this->show_assigned_tickets;
-    }
-
     function getTeams() {
 
-        if (!isset($this->teams)) {
-            $this->teams = array();
-            $sql='SELECT team_id FROM '.TEAM_MEMBER_TABLE
-                .' WHERE staff_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res))
-                while(list($id)=db_fetch_row($res))
-                    $this->teams[] = $id;
+        if (!isset($this->_teams)) {
+            $this->_teams = array();
+            foreach ($this->teams as $team)
+                 $this->_teams[] = $team->team_id;
         }
 
-        return $this->teams;
+        return $this->_teams;
     }
     /* stats */
 
@@ -530,27 +522,30 @@ implements AuthenticatedUser {
     }
 
     function updateTeams($team_ids) {
-        if ($team_ids && is_array($team_ids)) {
-            $teams = StaffTeamMember::objects()
+
+        if (is_array($team_ids)) {
+            $members = TeamMember::objects()
                 ->filter(array('staff_id' => $this->getId()));
-            foreach ($teams as $member) {
+            foreach ($members as $member) {
                 if ($idx = array_search($member->team_id, $team_ids)) {
-                    // XXX: Do we really need to track the time of update?
-                    $member->updated = SqlFunction::NOW();
-                    $member->save();
                     unset($team_ids[$idx]);
-                }
-                else {
+                } else {
                     $member->delete();
                 }
             }
+
             foreach ($team_ids as $id) {
-                StaffTeamMember::create(array(
-                    'updated'=>SqlFunction::NOW(),
-                    'staff_id'=>$this->getId(), 'team_id'=>$id
+                TeamMember::create(array(
+                    'staff_id'=>$this->getId(),
+                    'team_id'=>$id
                 ))->save();
             }
+        } else {
+            TeamMember::objects()
+                ->filter(array('staff_id'=>$this->getId()))
+                ->delete();
         }
+
         return true;
     }
 
@@ -573,9 +568,7 @@ implements AuthenticatedUser {
                 .' WHERE staff_id='.db_input($this->getId()));
 
         // Cleanup Team membership table.
-        TeamMember::objects()
-            ->filter(array('staff_id'=>$this->getId()))
-            ->delete();
+        $this->updateTeams(array());
 
         return true;
     }
@@ -600,7 +593,7 @@ implements AuthenticatedUser {
 
         if ($availableonly) {
             $members = $members->filter(array(
-                'group__group_enabled' => 1,
+                'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
@@ -608,7 +601,7 @@ implements AuthenticatedUser {
 
         $users=array();
         foreach ($members as $M) {
-            $users[$S->id] = $M->getName();
+            $users[$M->getId()] = $M->getName();
         }
 
         return $users;
@@ -741,14 +734,14 @@ implements AuthenticatedUser {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || !$id) {
+        if($vars['passwd1'] || $vars['passwd2'] || !$vars['id']) {
             if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
                 $errors['passwd2']=__('Passwords do not match');
             }
             elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
                 // Password can be omitted
             }
-            elseif(!$vars['passwd1'] && !$id) {
+            elseif(!$vars['passwd1'] && !$vars['id']) {
                 $errors['passwd1']=__('Temporary password is required');
                 $errors['temppasswd']=__('Required');
             } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
@@ -808,20 +801,5 @@ implements AuthenticatedUser {
         }
         return false;
     }
-}
-
-class StaffTeamMember extends VerySimpleModel {
-    static $meta = array(
-        'table' => TEAM_MEMBER_TABLE,
-        'pk' => array('staff_id', 'team_id'),
-        'joins' => array(
-            'staff' => array(
-                'constraint' => array('staff_id' => 'Staff.staff_id'),
-            ),
-            'team' => array(
-                'constraint' => array('team_id' => 'Team.team_id'),
-            ),
-        ),
-    );
 }
 ?>

@@ -2,45 +2,41 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $qstr='';
-$sql='SELECT * FROM '.SLA_TABLE.' sla WHERE 1';
-$sortOptions=array('name'=>'sla.name','status'=>'sla.isactive','period'=>'sla.grace_period','date'=>'sla.created','updated'=>'sla.updated');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
-$sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
-//Sorting options...
-if($sort && $sortOptions[$sort]) {
-    $order_column =$sortOptions[$sort];
-}
-$order_column=$order_column?$order_column:'sla.name';
+$sortOptions=array(
+        'name' => 'name',
+        'status' => 'isactive',
+        'period' => 'grace_period',
+        'created' => 'created',
+        'updated' => 'updated'
+        );
 
-if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
-    $order=$orderWays[strtoupper($_REQUEST['order'])];
+$orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
+$sort = ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
+if ($sort && $sortOptions[$sort]) {
+    $order_column = $sortOptions[$sort];
 }
-$order=$order?$order:'ASC';
 
-if($order_column && strpos($order_column,',')){
+$order_column = $order_column ? $order_column : 'name';
+
+if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
+    $order = $orderWays[strtoupper($_REQUEST['order'])];
+} else {
+    $order = 'ASC';
+}
+
+if ($order_column && strpos($order_column,',')) {
     $order_column=str_replace(','," $order,",$order_column);
 }
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
-$order_by="$order_column $order ";
-
-$total=db_count('SELECT count(*) FROM '.SLA_TABLE.' sla ');
-$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('slas.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$count = SLA::objects()->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
+$pageNav->setURL('slas.php', $_qstr);
+$showing = $pageNav->showing().' '._N('SLA plan', 'SLA plans', $count);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
-    $showing=$pageNav->showing().' '._N('SLA plan',
-        'SLA plans' /* SLA is abbreviation for Service Level Agreement */,
-        $total);
-else
-    $showing=__('No SLA plans found!' /* SLA is abbreviation for Service Level Agreement */);
-
 ?>
-
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Service Level Agreements');?></h2>
 </div>
@@ -66,38 +62,46 @@ else
     <tbody>
     <?php
         $total=0;
-        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
+        $ids = ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
+        if ($count) {
+            $slas = SLA::objects()
+                ->order_by(sprintf('%s%s',
+                            strcasecmp($order, 'DESC') ? '' : '-',
+                            $order_column))
+                ->limit($pageNav->getLimit())
+                ->offset($pageNav->getStart());
+
             $defaultId = $cfg->getDefaultSLAId();
-            while ($row = db_fetch_array($res)) {
+            foreach ($slas as $sla) {
                 $sel=false;
-                if($ids && in_array($row['id'],$ids))
+                $id = $sla->getId();
+                if($ids && in_array($id, $ids))
                     $sel=true;
 
                 $default = '';
-                if ($row['id'] == $defaultId)
+                if ($id == $defaultId)
                     $default = '<small><em>(Default)</em></small>';
                 ?>
-            <tr id="<?php echo $row['id']; ?>">
+            <tr id="<?php echo $id; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
-                    <?php echo $sel?'checked="checked"':''; ?>>
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $id; ?>"
+                    <?php echo $sel ? 'checked="checked"' :'' ; ?>>
                 </td>
-                <td>&nbsp;<a href="slas.php?id=<?php echo $row['id'];
-                    ?>"><?php echo Format::htmlchars($row['name']);
+                <td>&nbsp;<a href="slas.php?id=<?php echo $id;
+                    ?>"><?php echo Format::htmlchars($sla->getName());
                     ?></a>&nbsp;<?php echo $default; ?></td>
-                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td style="text-align:right;padding-right:35px;"><?php echo $row['grace_period']; ?>&nbsp;</td>
-                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
-                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
+                <td><?php echo $sla->isActive() ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>
+                <td style="text-align:right;padding-right:35px;"><?php echo $sla->getGracePeriod(); ?>&nbsp;</td>
+                <td>&nbsp;<?php echo Format::date($sla->getCreateDate()); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($sla->getUpdateDate()); ?></td>
             </tr>
             <?php
-            } //end of while.
-        endif; ?>
+            } //end of foreach.
+        } ?>
     <tfoot>
      <tr>
         <td colspan="6">
-            <?php if($res && $num){ ?>
+            <?php if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
@@ -110,7 +114,7 @@ else
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($count): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">

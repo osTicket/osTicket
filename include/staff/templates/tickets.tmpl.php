@@ -1,7 +1,7 @@
 <?php
 
 $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id, ticket.user_id '
-        .' ,dept.dept_name,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
+        .' ,dept.name as department, status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
         .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
         .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
         .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
@@ -156,7 +156,7 @@ if ($results) { ?>
             </td>
             <?php
             if ($user) { ?>
-            <td><?php echo Format::truncate($row['dept_name'], 40); ?></td>
+            <td><?php echo Format::truncate($row['department'], 40); ?></td>
             <td>&nbsp;<?php echo $assigned; ?></td>
             <?php
             } else { ?>

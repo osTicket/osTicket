@@ -197,22 +197,22 @@ CREATE TABLE `%TABLE_PREFIX%list_items` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%department`;
 CREATE TABLE `%TABLE_PREFIX%department` (
-  `dept_id` int(11) unsigned NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `tpl_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
   `autoresp_email_id` int(10) unsigned NOT NULL default '0',
   `manager_id` int(10) unsigned NOT NULL default '0',
-  `dept_name` varchar(128) NOT NULL default '',
-  `dept_signature` text NOT NULL,
+  `name` varchar(128) NOT NULL default '',
+  `signature` text NOT NULL,
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `group_membership` tinyint(1) NOT NULL default '0',
   `ticket_auto_response` tinyint(1) NOT NULL default '1',
   `message_auto_response` tinyint(1) NOT NULL default '0',
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
-  PRIMARY KEY  (`dept_id`),
-  UNIQUE KEY `dept_name` (`dept_name`),
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `name` (`name`),
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)
@@ -388,35 +388,39 @@ CREATE TABLE `%TABLE_PREFIX%file_chunk` (
   PRIMARY KEY (`file_id`, `chunk_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%groups`;
-CREATE TABLE `%TABLE_PREFIX%groups` (
-  `group_id` int(10) unsigned NOT NULL auto_increment,
-  `group_enabled` tinyint(1) unsigned NOT NULL default '1',
-  `group_name` varchar(50) NOT NULL default '',
-  `can_create_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_edit_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_post_ticket_reply` tinyint( 1 ) unsigned NOT NULL DEFAULT  '1',
-  `can_delete_tickets` tinyint(1) unsigned NOT NULL default '0',
-  `can_close_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_assign_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_transfer_tickets` tinyint(1) unsigned NOT NULL default '1',
-  `can_ban_emails` tinyint(1) unsigned NOT NULL default '0',
-  `can_manage_premade` tinyint(1) unsigned NOT NULL default '0',
-  `can_manage_faq` tinyint(1) unsigned NOT NULL default '0',
-  `can_view_staff_stats` tinyint( 1 ) unsigned NOT NULL DEFAULT  '0',
+DROP TABLE IF EXISTS `%TABLE_PREFIX%group`;
+CREATE TABLE `%TABLE_PREFIX%group` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `role_id` int(11) unsigned NOT NULL,
+  `flags` int(11) unsigned NOT NULL default '1',
+  `name` varchar(120) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`group_id`),
-  KEY `group_active` (`group_enabled`)
+  PRIMARY KEY  (`id`),
+  KEY `role_id` (`role_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%role`;
+CREATE TABLE `%TABLE_PREFIX%role` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
+  `name` varchar(64) DEFAULT NULL,
+  `notes` text,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
+  `role_id` int(10) unsigned NOT NULL default '0',
   UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
-  KEY `dept_id`  (`dept_id`)
+  KEY `dept_id`  (`dept_id`),
+  KEY `role_id`  (`role_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;

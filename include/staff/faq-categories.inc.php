@@ -11,7 +11,7 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
             <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php
             $categories = Category::objects()
-                ->annotate(array('faq_count'=>Aggregate::COUNT('faqs')))
+                ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
                 ->filter(array('faq_count__gt'=>0))
                 ->order_by('name');
 print $categories;
@@ -31,7 +31,7 @@ print $categories;
             <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
             <?php
             $topics = Topic::objects()
-                ->annotate(array('faq_count'=>Aggregate::COUNT('faqs')))
+                ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
                 ->filter(array('faq_count__gt'=>0))
                 ->all();
             usort($topics, function($a, $b) {
@@ -53,8 +53,8 @@ print $categories;
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     $faqs = FAQ::objects()
         ->annotate(array(
-            'attachment_count'=>Aggregate::COUNT('attachments'),
-            'topic_count'=>Aggregate::COUNT('topics')
+            'attachment_count'=>SqlAggregate::COUNT('attachments'),
+            'topic_count'=>SqlAggregate::COUNT('topics')
         ))
         ->order_by('question');
 
@@ -89,7 +89,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 } else { //Category Listing.
     $categories = Category::objects()
-        ->annotate(array('faq_count'=>Aggregate::COUNT('faqs')))
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
         ->all();
 
     if (count($categories)) {

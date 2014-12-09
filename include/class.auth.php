@@ -4,7 +4,7 @@ interface AuthenticatedUser {
     // Get basic information
     function getId();
     function getUsername();
-    function getRole();
+    function getUserType();
 
     //Backend used to authenticate the user
     function getAuthBackend();
@@ -30,7 +30,7 @@ implements AuthenticatedUser {
     // Get basic information
     abstract function getId();
     abstract function getUsername();
-    abstract function getRole();
+    abstract function getUserType();
 
     //Backend used to authenticate the user
     abstract function getAuthBackend();

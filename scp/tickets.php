@@ -58,9 +58,10 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
+        $role = $thistaff->getRole($ticket->getDeptId);
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if(!$thisstaff->canPostReply())
+            if(!$role || !$role->canPostReply())
                 $errors['err'] = __('Action denied. Contact admin for access');
             else {
 
@@ -108,7 +109,7 @@ if($_POST && !$errors):
             break;
         case 'transfer': /** Transfer ticket **/
             //Check permission
-            if(!$thisstaff->canTransferTickets())
+            if(!$role->canTransferTickets())
                 $errors['err']=$errors['transfer'] = __('Action Denied. You are not allowed to transfer tickets.');
             else {
 
@@ -141,7 +142,7 @@ if($_POST && !$errors):
             break;
         case 'assign':
 
-             if(!$thisstaff->canAssignTickets())
+             if(!$role->canAssignTickets())
                  $errors['err']=$errors['assign'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
              else {
 
@@ -212,7 +213,7 @@ if($_POST && !$errors):
             break;
         case 'edit':
         case 'update':
-            if(!$ticket || !$thisstaff->canEditTickets())
+            if(!$ticket || !$role->canEditTickets())
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
@@ -240,7 +241,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'claim':
-                    if(!$thisstaff->canAssignTickets()) {
+                    if(!$role->canAssignTickets()) {
                         $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
                     } elseif(!$ticket->isOpen()) {
                         $errors['err'] = __('Only open tickets can be assigned');
@@ -286,7 +287,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if(!$thisstaff->canBanEmails()) {
+                    if(!$role->canBanEmails()) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
@@ -297,7 +298,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if(!$thisstaff->canBanEmails()) {
+                    if(!$role->canBanEmails()) {
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');
@@ -308,7 +309,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'changeuser':
-                    if (!$thisstaff->canEditTickets()) {
+                    if (!$role->canEditTickets()) {
                         $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
@@ -471,7 +472,8 @@ if($ticket) {
     $ost->setPageTitle(sprintf(__('Ticket #%s'),$ticket->getNumber()));
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canEditTickets()) {
+    if ($_REQUEST['a']=='edit'
+            && $thisstaff->getRole($ticket->getDeptId())->canEditTickets()) {
         $inc = 'ticket-edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries

@@ -40,6 +40,18 @@ class Topic extends VerySimpleModel {
                     'page_id' => 'Page.id',
                 ),
             ),
+            'dept' => array(
+                'null' => true,
+                'constraint' => array(
+                    'dept_id' => 'Dept.id',
+                ),
+            ),
+            'priority' => array(
+                'null' => true,
+                'constraint' => array(
+                    'priority_id' => 'Priority.priority_id',
+                ),
+            ),
         ),
     );
 
@@ -51,15 +63,6 @@ class Topic extends VerySimpleModel {
     const FORM_USE_PARENT = 4294967295;
 
     const FLAG_CUSTOM_NUMBERS = 0x0001;
-
-    function __onload() {
-        global $cfg;
-
-        // Handle upgrade case where sort has not yet been defined
-        if (!$this->ht['sort'] && $cfg->getTopicSortMode() == 'a') {
-            static::updateSortOrder();
-        }
-    }
 
     function asVar() {
         return $this->getName();
@@ -123,9 +126,6 @@ class Topic extends VerySimpleModel {
     }
 
     function getPage() {
-        if(!$this->page && $this->getPageId())
-            $this->page = Page::lookup($this->getPageId());
-
         return $this->page;
     }
 
@@ -260,7 +260,7 @@ class Topic extends VerySimpleModel {
 
     static function __create($vars, &$errors) {
         $topic = self::create();
-        $topic->save($vars, $errors);
+        $topic->update($vars, $errors);
         return $topic;
     }
 

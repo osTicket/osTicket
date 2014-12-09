@@ -272,7 +272,7 @@ if ($_POST)
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if($thisstaff->canPostReply()) { ?>
+        if($thisstaff->getRole()->canPostReply()) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>

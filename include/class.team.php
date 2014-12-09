@@ -20,16 +20,19 @@ class Team extends VerySimpleModel {
         'table' => TEAM_TABLE,
         'pk' => array('team_id'),
         'joins' => array(
-            'staffmembers' => array(
-                'reverse' => 'StaffTeamMember.team'
-            ),
             'lead' => array(
+                'null' => true,
                 'constraint' => array('lead_id' => 'Staff.staff_id'),
+            ),
+            'members' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'TeamMember.team',
             ),
         ),
     );
 
-    var $members;
+    var $_members;
 
     function asVar() {
         return $this->__toString();
@@ -52,16 +55,18 @@ class Team extends VerySimpleModel {
     }
 
     function getMembers() {
-        if (!isset($this->members)) {
-            $this->members = Staff::objects()
-                ->filter(array('teams__team_id'=>$this->getId()))
-                ->order_by('lastname', 'firstname');
+
+        if (!isset($this->_members)) {
+            $this->_members = array();
+            foreach ($this->members as $m)
+                $this->_members[] = $m->staff;
         }
-        return $this->members;
+
+        return $this->_members;
     }
 
     function hasMember($staff) {
-        return $this->getMembers()
+        return $this->members
             ->filter(array('staff_id'=>$staff->getId()))
             ->count() !== 0;
     }
@@ -114,16 +119,58 @@ class Team extends VerySimpleModel {
         return $T != $tag ? $T : $default;
     }
 
-    function updateMembership($vars) {
+    function update($vars, &$errors=array()) {
 
-        // Delete staff marked for removal...
-        if ($vars['remove']) {
-            $this->staffmembers
-                ->filter(array(
-                    'staff_id__in' => $vars['remove']))
-                ->delete();
+        if (!$vars['name']) {
+            $errors['name']=__('Team name is required');
+        } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
+            $errors['name']=__('Team name already exists');
         }
-        return true;
+
+        if ($errors)
+            return false;
+
+        // Reset team lead if they're getting removed
+        if (isset($this->lead_id)
+                && $this->lead_id == $vars['lead_id']
+                && $vars['remove']
+                && in_array($this->lead_id, $vars['remove']))
+            $vars['lead_id'] =0 ;
+
+        $this->isenabled = $vars['isenabled'];
+        $this->noalerts = isset($vars['noalerts']) ? $vars['noalerts'] : 0;
+        $this->lead_id = $vars['lead_id'] ?: 0;
+        $this->name = $vars['name'];
+        $this->notes = Format::sanitize($vars['notes']);
+
+        if ($this->save()) {
+            // Remove checked members
+            if ($vars['remove'] && is_array($vars['remove'])) {
+                TeamMember::objects()
+                    ->filter(array(
+                        'staff_id__in' => $vars['remove']))
+                    ->delete();
+            }
+
+            return true;
+        }
+
+        if (isset($this->team_id)) {
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
+               .' '.__('Internal error occurred');
+        } else {
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
+               .' '.__('Internal error occurred');
+        }
+
+        return false;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+
+        return parent::save($refetch || $this->dirty);
     }
 
     function delete() {
@@ -146,106 +193,89 @@ class Team extends VerySimpleModel {
         return true;
     }
 
-    function save($refetch=false) {
-        if ($this->dirty)
-            $this->updated = SqlFunction::NOW();
-        return parent::save($refetch || $this->dirty);
-    }
-
     /* ----------- Static function ------------------*/
+    static function getIdByName($name) {
 
-    static function getIdbyName($name) {
-        $row = static::objects()
-            ->filter(array('name'=>$name))
+        $row = self::objects()
+            ->filter(array('name'=>trim($name)))
             ->values_flat('team_id')
             ->first();
 
-        return $row ? $row[0] : null;
+        return $row ? $row[0] : 0;
     }
 
-    static function getTeams( $availableOnly=false ) {
-        static $names;
+    static function getTeams($criteria=array()) {
+        static $teams = null;
+        if (!$teams || $criteria) {
+            $teams = array();
+            $query = static::objects()
+                ->values_flat('team_id', 'name', 'isenabled')
+                ->order_by('name');
 
-        if (isset($names))
-            return $names;
-
-        $names = array();
-        $teams = static::objects()
-            ->values_flat('team_id', 'name', 'isenabled');
-
-        if ($availableOnly) {
-            //Make sure the members are active...TODO: include group check!!
-            $teams->annotate(array('members'=>Aggregate::COUNT('staffmembers')))
+            if (isset($criteria['active']) && $criteria['active']) {
+                $query->annotate(array('members_count'=>Aggregate::COUNT('members')))
                 ->filter(array(
                     'isenabled'=>1,
-                    'staffmembers__staff__isactive'=>1,
-                    'staffmembers__staff__onvacation'=>0,
-                    'staffmembers__staff__group__group_enabled'=>1,
+                    'members__staff__isactive'=>1,
+                    'members__staff__onvacation'=>0,
+                    'members__staff__group__group_enabled'=>1,
                 ))
-                ->filter(array('members__gt'=>0))
-                ->order_by('name');
+                ->filter(array('members_count__gt'=>0));
+            }
+
+            $items = array();
+            foreach ($query as $row) {
+                //TODO: Fix enabled - flags is a bit field.
+                list($id, $name, $enabled) = $row;
+                $items[$id] = sprintf('%s%s',
+                    self::getLocalById($id, 'name', $name),
+                    ($enabled || isset($criteria['active']))
+                        ? '' : ' ' . __('(disabled)'));
+            }
+
+            //TODO: sort if $criteria['localize'];
+            if ($criteria)
+                return $items;
+
+            $teams = $items;
         }
 
-        foreach ($teams as $row) {
-            list($id, $name, $isenabled) = $row;
-            $names[$id] = self::getLocalById($id, 'name', $name);
-            if (!$isenabled)
-                $names[$id] .= ' ' . __('(disabled)');
-        }
-
-        return $names;
+        return $teams;
     }
 
     static function getActiveTeams() {
-        return self::getTeams(true);
+        static $teams = null;
+
+        if (!isset($teams))
+            $teams = self::getTeams(array('active'=>true));
+
+        return $teams;
     }
 
-    static function create($vars=array()) {
+    static function create($vars=false) {
         $team = parent::create($vars);
         $team->created = SqlFunction::NOW();
         return $team;
     }
 
-    function update($vars, &$errors) {
-        if (isset($this->team_id) && $this->getId() != $vars['id'])
-            $errors['err']=__('Missing or invalid team');
-
-        if(!$vars['name']) {
-            $errors['name']=__('Team name is required');
-        } elseif(strlen($vars['name'])<3) {
-            $errors['name']=__('Team name must be at least 3 chars.');
-        } elseif(($tid=static::getIdByName($vars['name']))
-                && (!isset($this->team_id) || $tid!=$this->getId())) {
-            $errors['name']=__('Team name already exists');
-        }
-
-        if ($errors)
-            return false;
-
-        $this->isenabled = $vars['isenabled'];
-        $this->name = $vars['name'];
-        $this->noalerts = isset($vars['noalerts'])?$vars['noalerts']:0;
-        $this->notes = Format::sanitize($vars['notes']);
-        if (isset($vars['lead_id']))
-            $this->lead_id = $vars['lead_id'];
-
-        // reset team lead if they're being removed from the team
-        if ($this->getLeadId() == $vars['lead_id']
-                && $vars['remove'] && in_array($this->getLeadId(), $vars['remove']))
-            $this->lead_id = 0;
-
-        if ($this->save())
-            return $this->updateMembership($vars);
-
-        if ($this->__new__) {
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
-               .' '.__('Internal error occurred');
-        }
-        else {
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
-               .' '.__('Internal error occurred');
-        }
-        return false;
+    static function __create($vars, &$errors) {
+        return self::create($vars)->save();
     }
+
+}
+
+class TeamMember extends VerySimpleModel {
+    static $meta = array(
+        'table' => TEAM_MEMBER_TABLE,
+        'pk' => array('team_id', 'staff_id'),
+        'joins' => array(
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+            ),
+        ),
+    );
 }
 ?>

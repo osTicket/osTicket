@@ -153,11 +153,11 @@ else {
 $inc='faq-categories.inc.php'; //FAQs landing page.
 if($faq) {
     $inc='faq-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->canManageFAQ())
+    if($_REQUEST['a']=='edit' && $thisstaff->getRole()->canManageFAQ())
         $inc='faq.inc.php';
     elseif ($_REQUEST['a'] == 'print')
         return $faq->printPdf();
-}elseif($_REQUEST['a']=='add' && $thisstaff->canManageFAQ()) {
+}elseif($_REQUEST['a']=='add' && $thisstaff->getRole()->canManageFAQ()) {
     $inc='faq.inc.php';
 } elseif($category && $_REQUEST['a']!='search') {
     $inc='faq-category.inc.php';

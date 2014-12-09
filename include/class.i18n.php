@@ -49,21 +49,23 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::create',
-            'sla.yaml' =>           'SLA::create',
+            'department.yaml' =>    'Dept::__create',
+            'sla.yaml' =>           'SLA::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
             'help_topic.yaml' =>    'Topic::__create',
             'filter.yaml' =>        'Filter::create',
-            'team.yaml' =>          'Team::create',
+            'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
             // Ticket
-            'ticket_status.yaml' =>  'TicketStatus::__create',
+            'ticket_status.yaml' => 'TicketStatus::__create',
+            // Role
+            'role.yaml' =>          'Role::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group::create',
+            'group.yaml' =>         'Group::__create',
             'file.yaml' =>          'AttachmentFile::create',
             'sequence.yaml' =>      'Sequence::__create',
         );
@@ -384,10 +386,8 @@ class Internationalization {
             return $thisstaff->getLocale()
                 ?: self::getCurrentLanguage();
         }
-        if (!$locale)
-            $locale = $cfg->getDefaultLocale();
 
-        if (!$locale)
+        if (!($locale = $cfg->getDefaultLocale()))
             $locale = self::getCurrentLanguage();
 
         return $locale;

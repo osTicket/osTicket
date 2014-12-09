@@ -6,8 +6,8 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search
     $faqs = FAQ::allPublic()
         ->annotate(array(
-            'attachment_count'=>Aggregate::COUNT('attachments'),
-            'topic_count'=>Aggregate::COUNT('topics')
+            'attachment_count'=>SqlAggregate::COUNT('attachments'),
+            'topic_count'=>SqlAggregate::COUNT('topics')
         ))
         ->order_by('question');
 

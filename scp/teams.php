@@ -33,8 +33,8 @@ if($_POST){
             }
             break;
         case 'create':
-            $team = Team::create();
-            if ($team->update($_POST,$errors)) {
+            $_team = Team::create();
+            if (($_team->update($_POST, $errors))){
                 $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['team']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -49,10 +49,13 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isenabled' => 1
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully activated %s'),
                                     _N('selected team', 'selected teams', $count));
@@ -65,10 +68,13 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isenabled' => 0
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected team', 'selected teams', $count));

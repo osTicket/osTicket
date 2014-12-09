@@ -7,10 +7,9 @@ if($dept && $_REQUEST['a']!='add') {
     $title=__('Update Department');
     $action='update';
     $submit_text=__('Save Changes');
-    $info=$dept->getInfo();
-    $info['id']=$dept->getId();
+    $info = $dept->getInfo();
+    $info['id'] = $dept->getId();
     $info['groups'] = $dept->getAllowedGroups();
-
     $qstr.='&id='.$dept->getId();
 } else {
     $title=__('Add New Department');
@@ -23,8 +22,10 @@ if($dept && $_REQUEST['a']!='add') {
         $info['group_membership'] = 1;
 
     $qstr.='&a='.$_REQUEST['a'];
+
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
 <form action="departments.php?<?php echo $qstr; ?>" method="post" id="save">
  <?php csrf_token(); ?>
@@ -32,6 +33,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('Department');?></h2>
+<br>
+<ul class="tabs">
+    <li class="active"><a href="#settings">
+        <i class="icon-file"></i> <?php echo __('Settings'); ?></a></li>
+    <li><a href="#access">
+        <i class="icon-lock"></i> <?php echo __('Access'); ?></a></li>
+</ul>
+<div id="settings" class="tab_content">
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -47,7 +56,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Name');?>:
             </td>
             <td>
-                <input data-translate-tag="<?php echo $dept ? $dept->getTranslationTag() : '';
+                <input data-translate-tag="<?php echo $dept ? $dept->getTranslateTag() : '';
                 ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
@@ -252,30 +261,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Group Access'); ?></strong>:
-                <?php echo __('Check all groups allowed to access this department.'); ?>
-                <i class="help-tip icon-question-sign" href="#department_access"></i></em>
-            </th>
-        </tr>
-        <?php
-         $sql='SELECT group_id, group_name, count(staff.staff_id) as members '
-             .' FROM '.GROUP_TABLE.' grp '
-             .' LEFT JOIN '.STAFF_TABLE. ' staff USING(group_id) '
-             .' GROUP by grp.group_id '
-             .' ORDER BY group_name';
-         if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id, $name, $members) = db_fetch_row($res)) {
-                if($members>0)
-                    $members=sprintf('<a href="staff.php?a=filter&gid=%d">%d</a>', $id, $members);
-
-                $ck=($info['groups'] && in_array($id,$info['groups']))?'checked="checked"':'';
-                echo sprintf('<tr><td colspan=2>&nbsp;&nbsp;<label><input type="checkbox" name="groups[]" value="%d" %s>&nbsp;%s</label> (%s)</td></tr>',
-                        $id, $ck, $name, $members);
-            }
-         }
-        ?>
-        <tr>
-            <th colspan="2">
                 <em><strong><?php echo __('Department Signature'); ?></strong>:
                 <span class="error">&nbsp;<?php echo $errors['signature']; ?></span>
                 <i class="help-tip icon-question-sign" href="#department_signature"></i></em>
@@ -289,9 +274,92 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </tbody>
 </table>
+</div>
+<div id="access" class="tab_content" style="display:none">
+   <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <thead>
+        <tr>
+            <th colspan=2>
+                <em><?php echo __('Primary department members have access to this department by default'); ?></em>
+            </th>
+        </tr>
+        <tr>
+            <th width="40%"><?php echo __('Group'); ?></th>
+            <th><?php echo __('Role'); ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $deptId = $dept ? $dept->getId() : 0;
+        $roles = Role::getRoles();
+        $groups = Group::objects()
+            ->annotate(array(
+                'isenabled'=>new SqlExpr(array(
+                        'flags__hasbit' => Group::FLAG_ENABLED))
+                ))
+            ->order_by('name');
+        foreach ($groups as $group) {
+            $DeptAccess = $group->getDepartmentsAccess();
+            ?>
+         <tr>
+            <td>
+             &nbsp;
+             <label>
+              <?php
+              $ck = ($info['groups'] && in_array($group->getId(), $info['groups'])) ? 'checked="checked"' : '';
+              echo sprintf('%s&nbsp;&nbsp;%s',
+                        sprintf('<input type="checkbox" class="grp-ckb"
+                            name="groups[]" value="%s" %s />',
+                            $group->getId(), $ck),
+                        Format::htmlchars($group->getName()));
+              ?>
+             </label>
+            </td>
+            <td>
+                <?php
+                $_name = 'group'.$group->getId().'_role_id';
+                ?>
+                <select name="<?php echo $_name; ?>">
+                    <option value="0">&mdash; <?php
+                        echo sprintf('%s (%s)',
+                                __('Group Default'),
+                                $group->getRole());
+                        ?>
+                        &mdash;</option>
+                    <?php
+                    foreach ($roles as $rid => $role) {
+                        $sel = '';
+                        if (isset($info[$_name]))
+                            $sel = ($info[$_name] == $rid) ? 'selected="selected"' : '';
+                        elseif ($deptId && isset($DeptAccess[$deptId]))
+                            $sel = ($DeptAccess[$deptId] == $rid) ?  'selected="selected"' : '';
+
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                                $rid, $sel, $role);
+                    } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#dept-role"></i>
+            </td>
+         </tr>
+         <?php
+        } ?>
+    </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="2">
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#grp-ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#grp-ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#grp-ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+        </td>
+     </tr>
+    </tfoot>
+   </table>
+</div>
 <p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="departments.php"'>
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>"
+        onclick='window.location.href="?"'>
 </p>
 </form>

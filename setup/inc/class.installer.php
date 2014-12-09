@@ -159,25 +159,22 @@ class Installer extends SetupWizard {
 
             Signal::send('system.install', $this);
 
-            $sql='SELECT `id` FROM '.TABLE_PREFIX.'sla ORDER BY `id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'sla` ORDER BY `id` LIMIT 1';
             $sla_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `dept_id` FROM '.TABLE_PREFIX.'department ORDER BY `dept_id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'department` ORDER BY `id` LIMIT 1';
             $dept_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `tpl_id` FROM '.TABLE_PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
+            $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
             $template_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `group_id` FROM '.TABLE_PREFIX.'groups ORDER BY `group_id` LIMIT 1';
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'group` ORDER BY `id` LIMIT 1';
             $group_id_1 = db_result(db_query($sql, false));
-
-            $sql='SELECT `value` FROM '.TABLE_PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
-            $default_timezone = db_result(db_query($sql, false));
 
             //Create admin user.
             $sql='INSERT INTO '.TABLE_PREFIX.'staff SET created=NOW() '
                 .", isactive=1, isadmin=1, group_id='$group_id_1', dept_id='$dept_id_1'"
-                .", timezone_id='$default_timezone', max_page_size=25"
+                .', max_page_size=25'
                 .', email='.db_input($vars['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])

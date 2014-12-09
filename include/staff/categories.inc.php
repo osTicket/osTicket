@@ -3,7 +3,7 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qstr='';
 $categories = Category::objects()
-    ->annotate(array('faq_count'=>Aggregate::COUNT('faqs')));
+    ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')));
 $sortOptions=array('name'=>'name','type'=>'ispublic','faqs'=>'faq_count','updated'=>'updated');
 $orderWays=array('DESC'=>'-','ASC'=>'');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';

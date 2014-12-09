@@ -71,6 +71,7 @@ class TicketLock extends VerySimpleModel {
 
     //Renew existing lock.
     function renew($lockTime=0) {
+        global $cfg;
 
         if(!$lockTime || !is_numeric($lockTime)) //XXX: test to  make it works.
             $lockTime = $cfg->getLockTime();

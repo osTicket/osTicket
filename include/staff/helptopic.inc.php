@@ -118,11 +118,11 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
+                    if (($depts=Dept::getDepartments())) {
+                        foreach ($depts as $id => $name) {
                             $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, $selected, $name);
                         }
                     }
                     ?>
@@ -169,11 +169,10 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <select name="priority_id">
                     <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
-                    $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
+                    if (($priorities=Priority::getPriorities())) {
+                        foreach ($priorities as $id => $name) {
                             $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                            echo sprintf('<option value="%d" %s>%s</option>', $id, $selected, $name);
                         }
                     }
                     ?>
@@ -231,9 +230,9 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                     <option value="0">&mdash; <?php echo __('Unassigned'); ?> &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
-                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Agents (%d)'), count($user)));
+                        echo sprintf('<OPTGROUP label="%s">',
+                                sprintf(__('Agents (%d)'), count($users)));
                         foreach ($users as $id => $name) {
-                            $name = new PersonsName($name);
                             $k="s$id";
                             $selected = ($info['assign']==$k || $info['staff_id']==$id)?'selected="selected"':'';
                             ?>
@@ -243,15 +242,12 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                         }
                         echo '</OPTGROUP>';
                     }
-                    $sql='SELECT team_id, name, isenabled FROM '.TEAM_TABLE.' ORDER BY name';
-                    if(($res=db_query($sql)) && ($cteams = db_num_rows($res))) {
-                        echo sprintf('<OPTGROUP label="%s">', sprintf(__('Teams (%d)'), $cteams));
-                        while (list($id, $name, $isenabled) = db_fetch_row($res)){
+                    if (($teams=Team::getTeams())) {
+                        echo sprintf('<OPTGROUP label="%s">',
+                                sprintf(__('Teams (%d)'), count($teams)));
+                        foreach ($teams as $id => $name) {
                             $k="t$id";
-                            $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
-
-                            if (!$isenabled)
-                                $name .= ' '.__('(disabled)');
+                            $selected = ($info['assign']==$k || $info['team_id']==$id) ? 'selected="selected"' : '';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php

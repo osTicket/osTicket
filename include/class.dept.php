@@ -18,22 +18,35 @@ class Dept extends VerySimpleModel {
 
     static $meta = array(
         'table' => DEPT_TABLE,
-        'pk' => array('dept_id'),
+        'pk' => array('id'),
         'joins' => array(
+            'email' => array(
+                'constraint' => array('email_id' => 'EmailModel.email_id'),
+                'null' => true,
+             ),
             'sla' => array(
                 'constraint' => array('sla_id' => 'SLA.sla_id'),
                 'null' => true,
             ),
             'manager' => array(
+                'null' => true,
                 'constraint' => array('manager_id' => 'Staff.staff_id'),
             ),
+            'members' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'Staff.dept',
+            ),
             'groups' => array(
+                'null' => true,
+                'list' => true,
                 'reverse' => 'GroupDeptAccess.dept'
             ),
         ),
     );
 
-    var $members;
+    var $_members;
+    var $_groupids;
     var $config;
 
     var $template;
@@ -55,17 +68,17 @@ class Dept extends VerySimpleModel {
     }
 
     function getId() {
-        return $this->dept_id;
+        return $this->id;
     }
 
     function getName() {
-        return $this->dept_name;
+        return $this->name;
     }
 
     function getLocalName($locale=false) {
         $tag = $this->getTranslateTag();
         $T = CustomDataTranslation::translate($tag);
-        return $T != $tag ? $T : $this->dept_name;
+        return $T != $tag ? $T : $this->name;
     }
     static function getLocalById($id, $subtag, $default) {
         $tag = _H(sprintf('dept.%s.%s', $subtag, $id));
@@ -82,11 +95,12 @@ class Dept extends VerySimpleModel {
     }
 
     function getEmail() {
-        if(!$this->email)
-            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
-                $this->email = $cfg->getDefaultEmail();
+        global $cfg;
 
-        return $this->email;
+        if ($this->email)
+            return $this->email;
+
+        return $cfg? $cfg->getDefaultEmail() : null;
     }
 
     function getNumMembers() {
@@ -94,12 +108,12 @@ class Dept extends VerySimpleModel {
     }
 
     function getMembers($criteria=null) {
-        if (!$this->members || $criteria) {
+        if (!$this->_members || $criteria) {
             $members = Staff::objects()
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
-                        'group__depts__dept_id' => $this->getId(),
+                        'group__depts__id' => $this->getId(),
                         'group__depts__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
                     )),
                     'staff_id' => $this->manager_id
@@ -112,14 +126,14 @@ class Dept extends VerySimpleModel {
                     'onvacation' => 0,
                 ));
 
-            $qs->order_by('lastname', 'firstname');
+            $members->order_by('lastname', 'firstname');
 
             if ($criteria)
-                return $qs->all();
+                return $members->all();
 
-            $this->members = $qs->all();
+            $this->_members = $members->all();
         }
-        return $this->members;
+        return $this->_members;
     }
 
     function getAvailableMembers() {
@@ -177,7 +191,7 @@ class Dept extends VerySimpleModel {
     }
 
     function getSignature() {
-        return $this->dept_signature;
+        return $this->signature;
     }
 
     function canAppendSignature() {
@@ -225,7 +239,12 @@ class Dept extends VerySimpleModel {
     }
 
     function getHashtable() {
-        return $this->ht;
+        $ht = $this->ht;
+        if (static::$meta['joins'])
+            foreach (static::$meta['joins'] as $k => $v)
+                unset($ht[$k]);
+
+        return $ht;
     }
 
     function getInfo() {
@@ -233,42 +252,54 @@ class Dept extends VerySimpleModel {
     }
 
     function getAllowedGroups() {
-        if ($this->groups)
-            return $this->groups;
 
-        $groups = GroupDept::object()
-            ->filter(array('dept_id' => $this->getId()))
-            ->values_flat('group_id');
+        if (!isset($this->_groupids)) {
+            $this->_groupids = array();
 
-        foreach ($groups as $row) {
-            list($id) = $row;
-            $this->groups[] = $id;
+            $groups = GroupDeptAccess::objects()
+                ->filter(array('dept_id' => $this->getId()))
+                ->values_flat('group_id');
+
+            foreach ($groups as $row)
+                $this->_groupids[] = $row[0];
         }
-        return $this->groups;
+
+        return $this->_groupids;
     }
 
-    function updateSettings($vars) {
+    function updateGroups($groups_ids, $vars) {
 
-        // Groups allowes to access department
-        if($vars['groups'] && is_array($vars['groups'])) {
-            $groups = GroupDept::object()
+        // Groups allowed to access department
+        if (is_array($groups_ids)) {
+            $groups = GroupDeptAccess::objects()
                 ->filter(array('dept_id' => $this->getId()));
             foreach ($groups as $group) {
-                if ($idx = array_search($group->group_id, $vars['groups']))
-                    unset($vars['groups'][$idx]);
-                else
+                if ($idx = array_search($group->group_id, $groups_ids)) {
+                    unset($groups_ids[$idx]);
+                    $roleId = $vars['group'.$group->group_id.'_role_id'];
+                    if ($roleId != $group->role_id) {
+                        $group->set('role_id', $roleId ?: 0);
+                        $group->save();
+                    }
+                } else {
                     $group->delete();
+                }
             }
-            foreach ($vars['groups'] as $id) {
-                GroupDept::create(array(
-                    'dept_id'=>$this->getId(), 'group_id'=>$id
+            foreach ($groups_ids as $id) {
+                $roleId = $vars['group'.$id.'_role_id'];
+                GroupDeptAccess::create(array(
+                    'dept_id' => $this->getId(),
+                    'group_id' => $id,
+                    'role_id' => $roleId ?: 0,
                 ))->save();
             }
         }
 
-        // Misc. config settings
-        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
+    }
 
+    function updateSettings($vars) {
+        $this->updateGroups($vars['groups'] ?: array(), $vars);
+        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
         return true;
     }
 
@@ -279,16 +310,14 @@ class Dept extends VerySimpleModel {
             // Default department cannot be deleted
             || $this->getId()==$cfg->getDefaultDeptId()
             // Department  with users cannot be deleted
-            || Staff::objects()
-                ->filter(array('dept_id'=>$this->getId()))
-                ->count()
+            || $this->members->count()
         ) {
             return 0;
         }
 
         parent::delete();
         $id = $this->getId();
-        $sql='DELETE FROM '.DEPT_TABLE.' WHERE dept_id='.db_input($id).' LIMIT 1';
+        $sql='DELETE FROM '.DEPT_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
@@ -318,8 +347,8 @@ class Dept extends VerySimpleModel {
     /*----Static functions-------*/
 	static function getIdByName($name) {
         $row = static::objects()
-            ->filter(array('dept_name'=>$name))
-            ->values_flat('dept_id')
+            ->filter(array('name'=>$name))
+            ->values_flat('id')
             ->first();
 
         return $row ? $row[0] : 0;
@@ -339,38 +368,59 @@ class Dept extends VerySimpleModel {
     }
 
     static function getDepartments( $criteria=null) {
+        static $depts = null;
 
-        $depts = self::objects();
-        if ($criteria['publiconly'])
-            $depts->filter(array('public' => 1));
+        if (!isset($depts) || $criteria) {
+            $depts = array();
+            $query = self::objects();
+            if (isset($criteria['publiconly']))
+                $query->filter(array(
+                            'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
 
-        if ($manager=$criteria['manager'])
-            $depts->filter(array('manager_id' => is_object($manager)?$manager->getId():$manager));
+            if ($manager=$criteria['manager'])
+                $query->filter(array(
+                            'manager_id' => is_object($manager)?$manager->getId():$manager));
 
-        $depts->order_by('dept_name')
-            ->values_flat('dept_id', 'dept_name');
+            $query->order_by('name')
+                ->values_flat('id', 'name');
 
-        $names = array();
-        foreach ($depts as $row) {
-            list($id, $name) = $row;
-            $names[$id] = $name;
+            $names = array();
+            foreach ($query as $row)
+                $names[$row[0]] = $row[1];
+
+            // Fetch local names
+            foreach (CustomDataTranslation::getDepartmentNames(array_keys($names)) as $id=>$name) {
+                // Translate the department
+                $names[$id] = $name;
+            }
+
+            if ($criteria)
+                return $names;
+
+            $depts = $names;
         }
 
-        // Fetch local names
-        foreach (CustomDataTranslation::getDepartmentNames(array_keys($names)) as $id=>$name) {
-            // Translate the department
-            $names[$id] = $name;
-        }
-        return $names;
+        return $depts;
     }
 
-    function getPublicDepartments() {
-        return self::getDepartments(array('publiconly'=>true));
+    static function getPublicDepartments() {
+        static $depts =null;
+
+        if (!$depts)
+            $depts = self::getDepartments(array('publiconly'=>true));
+
+        return $depts;
     }
 
-    static function create($vars, &$errors) {
+    static function create($vars=false, &$errors=array()) {
         $dept = parent::create($vars);
-        $dept->create = SqlFunction::NOW();
+        $dept->created = SqlFunction::NOW();
+        return $dept;
+    }
+
+    static function __create($vars, &$errors) {
+        $dept = self::create($vars);
+        $dept->save();
         return $dept;
     }
 
@@ -383,7 +433,7 @@ class Dept extends VerySimpleModel {
     function update($vars, &$errors) {
         global $cfg;
 
-        if (isset($this->dept_id) && $this->getId() != $vars['id'])
+        if (isset($this->id) && $this->getId() != $vars['id'])
             $errors['err']=__('Missing or invalid Dept ID (internal error).');
 
         if (!$vars['name']) {
@@ -391,7 +441,7 @@ class Dept extends VerySimpleModel {
         } elseif (strlen($vars['name'])<4) {
             $errors['name']=__('Name is too short.');
         } elseif (($did=static::getIdByName($vars['name']))
-                && (!isset($this->dept_id) || $did!=$this->getId())) {
+                && (!isset($this->id) || $did!=$this->getId())) {
             $errors['name']=__('Department already exists');
         }
 
@@ -408,8 +458,8 @@ class Dept extends VerySimpleModel {
         $this->sla_id = isset($vars['sla_id'])?$vars['sla_id']:0;
         $this->autoresp_email_id = isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0;
         $this->manager_id = $vars['manager_id']?$vars['manager_id']:0;
-        $this->dept_name = Format::striptags($vars['name']);
-        $this->dept_signature = Format::sanitize($vars['signature']);
+        $this->name = Format::striptags($vars['name']);
+        $this->signature = Format::sanitize($vars['signature']);
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
@@ -417,7 +467,7 @@ class Dept extends VerySimpleModel {
         if ($this->save())
             return $this->updateSettings($vars);
 
-        if (isset($this->dept_id))
+        if (isset($this->id))
             $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
                .' '.__('Internal error occurred');
         else
@@ -435,10 +485,13 @@ class GroupDeptAccess extends VerySimpleModel {
         'pk' => array('dept_id', 'group_id'),
         'joins' => array(
             'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.dept_id'),
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
             'group' => array(
-                'constraint' => array('group_id' => 'Group.group_id'),
+                'constraint' => array('group_id' => 'Group.id'),
+            ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id'),
             ),
         ),
     );
