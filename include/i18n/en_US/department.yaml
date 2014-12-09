@@ -29,7 +29,7 @@
 
 - id: 3
   name: Maintenance
-  dept_signature: |
+  signature: |
     Maintenance Department
   ispublic: 0
   group_membership: 0

@@ -34,7 +34,7 @@
   depts: [1, 2, 3]
 
 - id: 3
-  role_id: 3
+  role_id: 2
   flags: 1
   name: Flea Trainers
   notes: |
