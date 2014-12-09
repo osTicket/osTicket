@@ -13,16 +13,16 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li class="active"><a href="#tab-profile"
+<ul class="tabs" id="orgprofile">
+    <li class="active"><a href="#profile"
         ><i class="icon-edit"></i>&nbsp;<?php echo __('Fields'); ?></a></li>
     <li><a href="#contact-settings"
         ><i class="icon-fixed-width icon-cogs faded"></i>&nbsp;<?php
         echo __('Settings'); ?></a></li>
 </ul>
 <form method="post" class="org" action="<?php echo $action; ?>">
-
-<div class="tab_content" id="tab-profile" style="margin:5px;">
+<div id="orgprofile_container">
+<div class="tab_content" id="profile" style="margin:5px;">
 <?php
 $action = $info['action'] ? $info['action'] : ('#orgs/'.$org->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())
@@ -38,7 +38,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     </table>
 </div>
 
-<div class="tab_content" id="contact-settings" style="display:none;margin:5px;">
+<div class="hidden tab_content" id="contact-settings" style="margin:5px;">
     <table style="width:100%">
         <tbody>
             <tr>
@@ -139,7 +139,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
         </tbody>
     </table>
 </div>
-
+</div>
 <div class="clear"></div>
 
 <hr>
