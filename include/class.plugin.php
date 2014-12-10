@@ -402,7 +402,9 @@ abstract class Plugin {
         if (!db_query($sql) || !db_affected_rows())
             return false;
 
-        $this->getConfig()->purge();
+        if ($config = $this->getConfig())
+            $config->purge();
+
         return true;
     }
 
