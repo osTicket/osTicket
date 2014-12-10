@@ -379,7 +379,8 @@ $tcount+= $ticket->getNumNotes();
 <ul id="threads">
     <li><a class="active" id="toggle_ticket_thread" href="#"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
 </ul>
-<div id="ticket_thread">
+<div id="ticket_tabs_container">
+    <div id="ticket_thread" class="tab_content">
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     /* -------- Messages & Responses & Notes (if inline)-------------*/
@@ -448,24 +449,26 @@ $tcount+= $ticket->getNumNotes();
     <ul class="tabs">
         <?php
         if ($role->canPostReply()) { ?>
-        <li><a id="reply_tab" href="#reply"><?php echo __('Post Reply');?></a></li>
+        <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
         <li><a id="note_tab" href="#note"><?php echo __('Post Internal Note');?></a></li>
         <?php
         if ($role->canTransferTickets()) { ?>
-        <li><a id="transfer_tab" href="#transfer"><?php echo __('Department Transfer');?></a></li>
+        <li><a href="#transfer"><?php echo __('Department Transfer');?></a></li>
         <?php
         }
 
         if ($role->canAssignTickets()) { ?>
-        <li><a id="assign_tab" href="#assign"><?php echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
+        <li><a href="#assign"><?php
+            echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
         <?php
         } ?>
     </ul>
     <?php
     if ($role->canPostReply()) { ?>
-    <form id="reply" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
+    <form id="reply" class="tab_content" action="tickets.php?id=<?php
+        echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
@@ -732,7 +735,8 @@ print $note_form->getField('attachments')->render();
    </form>
     <?php
     if ($role->canTransferTickets()) { ?>
-    <form id="transfer" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
+    <form id="transfer" class="hidden tab_content" action="tickets.php?id=<?php
+        echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="transfer">
@@ -792,7 +796,8 @@ print $note_form->getField('attachments')->render();
     } ?>
     <?php
     if ($role->canAssignTickets()) { ?>
-    <form id="assign" class="tab_content" action="tickets.php?id=<?php echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
+    <form id="assign" class="hidden tab_content" action="tickets.php?id=<?php
+         echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="a" value="assign">

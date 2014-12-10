@@ -628,14 +628,37 @@ $.uid = 1;
 
 //Tabs
 $(document).on('click.tab', 'ul.tabs li a', function(e) {
-    var target = $('.tab_content'+$(this).attr('href'));
-    if (target.length) {
-        var ul = $(this).closest('ul');
-        ul.children('li.active').removeClass('active');
-        $(this).closest('li').addClass('active');
-        ul.parent().children('.tab_content').hide();
-        target.fadeIn('fast');
+    e.preventDefault();
+    var $this = $(this),
+        $ul = $(this).closest('ul'),
+        $container = $('#'+$ul.attr('id')+'_container');
+    if (!$container.length)
+        $container = $ul.parent();
+
+    var $tab = $($this.attr('href'), $container);
+    if (!$tab.length && $(this).data('url').length > 1) {
+        var url = $this.data('url');
+        if (url.charAt(0) == '#')
+            url = 'ajax.php/' + url.substr(1);
+        $tab = $('<div>')
+            .addClass('tab_content')
+            .attr('id', $this.attr('href').substr(1)).hide();
+        $container.append(
+            $tab.load(url, function () {
+                // TODO: Add / hide loading spinner
+            })
+         );
+    }
+    else {
+        $tab.addClass('tab_content');
         $.changeHash($(this).attr('href'), true);
+    }
+
+    if ($tab.length) {
+        $ul.children('li.active').removeClass('active');
+        $(this).closest('li').addClass('active');
+        $container.children('.tab_content').hide();
+        $tab.fadeIn('fast');
         return false;
     }
 });

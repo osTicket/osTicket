@@ -522,7 +522,7 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function hasFlag($flag) {
-        return ($this->flags & $flag) != 0;
+        return (isset($this->flags) && ($this->flags & $flag) != 0);
     }
 
     function getVisibilityDescription() {

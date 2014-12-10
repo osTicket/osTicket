@@ -1486,10 +1486,6 @@ class PriorityField extends ChoiceField {
     function hasIdValue() {
         return true;
     }
-    function isChangeable() {
-        return $this->getForm()->get('type') != 'T' ||
-            $this->get('name') != 'priority';
-    }
 
     function getChoices() {
         global $cfg;

@@ -97,8 +97,8 @@
       type: priority # notrans
       name: priority # notrans
       label: Priority Level
-      sort: 0x430A3
-      flags: 1
+      flags: 0x430A3
+      sort: 3
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates

@@ -3,7 +3,7 @@
     <hr/>
     <form method="post" action="#form/field-config/<?php
             echo $field->get('id'); ?>">
-<ul class="tabs">
+<ul class="tabs" id="fieldtabs">
     <li class="active"><a href="#config"><i class="icon-cogs"></i> <?php echo __('Field Setup'); ?></a></li>
     <li><a href="#visibility"><i class="icon-beaker"></i> <?php echo __('Settings'); ?></a></li>
 </ul>

@@ -136,7 +136,7 @@ class Organization extends OrganizationModel {
 
     function getDynamicData($create=true) {
         if (!isset($this->_entries)) {
-            $this->_entries = DynamicFormEntry::forOrganization($this->id)->all();
+            $this->_entries = DynamicFormEntry::forObject($this->id, 'O')->all();
             if (!$this->_entries && $create) {
                 $g = OrganizationForm::getInstance($this->id, true);
                 $g->save();
