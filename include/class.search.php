@@ -302,7 +302,7 @@ class MysqlSearchBackend extends SearchBackend {
                     'key' => $key,
                     'relevance'=>'`search`.`relevance`',
                 ),
-                'order_by' => array('relevance'),
+                'order_by' => array(new SqlCode('`relevance`')),
                 'tables' => array(
                     "(SELECT object_type, object_id, $search AS `relevance`
                         FROM `{$P}_search` `search` WHERE $search) `search`",
