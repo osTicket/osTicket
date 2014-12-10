@@ -24,6 +24,9 @@ class RoleModel extends VerySimpleModel {
                 'list' => true,
                 'reverse' => 'Group.role',
             ),
+            'agents' => array(
+                'reverse' => 'Staff.role',
+            ),
         ),
     );
 
@@ -67,7 +70,7 @@ class RoleModel extends VerySimpleModel {
     }
 
     function isDeleteable() {
-        return ($this->groups->count() == 0);
+        return $this->groups->count() + $this->agents->count() == 0;
     }
 
 }
