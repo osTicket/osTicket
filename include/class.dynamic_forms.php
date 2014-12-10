@@ -423,27 +423,32 @@ class DynamicFormField extends VerySimpleModel {
 
     var $_field;
 
-    const FLAG_ENABLED          = 0x0001;
-    const FLAG_EXT_STORED       = 0x0002; // Value stored outside of form_entry_value
-    const FLAG_CLOSE_REQUIRED   = 0x0004;
+    const FLAG_ENABLED          = 0x00001;
+    const FLAG_EXT_STORED       = 0x00002; // Value stored outside of form_entry_value
+    const FLAG_CLOSE_REQUIRED   = 0x00004;
 
-    const FLAG_MASK_CHANGE      = 0x0010;
-    const FLAG_MASK_DELETE      = 0x0020;
-    const FLAG_MASK_EDIT        = 0x0040;
-    const FLAG_MASK_DISABLE     = 0x0080;
+    const FLAG_MASK_CHANGE      = 0x00010;
+    const FLAG_MASK_DELETE      = 0x00020;
+    const FLAG_MASK_EDIT        = 0x00040;
+    const FLAG_MASK_DISABLE     = 0x00080;
     const FLAG_MASK_REQUIRE     = 0x10000;
     const FLAG_MASK_VIEW        = 0x20000;
     const FLAG_MASK_NAME        = 0x40000;
 
+    const MASK_MASK_INTERNAL    = 0x400B0;  # !change, !delete, !disable, !edit-name
     const MASK_MASK_ALL         = 0x700F0;
 
-    const FLAG_CLIENT_VIEW      = 0x0100;
-    const FLAG_CLIENT_EDIT      = 0x0200;
-    const FLAG_CLIENT_REQUIRED  = 0x0400;
+    const FLAG_CLIENT_VIEW      = 0x00100;
+    const FLAG_CLIENT_EDIT      = 0x00200;
+    const FLAG_CLIENT_REQUIRED  = 0x00400;
 
-    const FLAG_AGENT_VIEW       = 0x1000;
-    const FLAG_AGENT_EDIT       = 0x2000;
-    const FLAG_AGENT_REQUIRED   = 0x4000;
+    const MASK_CLIENT_FULL      = 0x00700;
+
+    const FLAG_AGENT_VIEW       = 0x01000;
+    const FLAG_AGENT_EDIT       = 0x02000;
+    const FLAG_AGENT_REQUIRED   = 0x04000;
+
+    const MASK_AGENT_FULL       = 0x7000;
 
     // Multiple inheritance -- delegate to FormField
     function __call($what, $args) {

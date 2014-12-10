@@ -38,7 +38,7 @@
             echo DynamicFormField::FLAG_CLIENT_VIEW; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_VIEW)) echo 'checked="checked"';
             if ($field->isPrivacyForced()) echo ' disabled="disabled"';
-        ?>> <?php echo __('For Clients'); ?><br/>
+        ?>> <?php echo __('For EndUsers'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
@@ -63,7 +63,7 @@
             echo DynamicFormField::FLAG_CLIENT_REQUIRED; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_REQUIRED)) echo 'checked="checked"';
             if ($field->isRequirementForced()) echo ' disabled="disabled"';
-        ?>> <?php echo __('For Clients'); ?><br/>
+        ?>> <?php echo __('For EndUsers'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
@@ -86,7 +86,7 @@
         <input type="checkbox" name="flags[]" value="<?php
             echo DynamicFormField::FLAG_CLIENT_EDIT; ?>" <?php
             if ($field->hasFlag(DynamicFormField::FLAG_CLIENT_EDIT)) echo 'checked="checked"';
-        ?>> <?php echo __('For Clients'); ?><br/>
+        ?>> <?php echo __('For EndUsers'); ?><br/>
     </div>
     <div class="span3">
         <input type="checkbox" name="flags[]" value="<?php
@@ -94,6 +94,8 @@
             if ($field->hasFlag(DynamicFormField::FLAG_AGENT_EDIT)) echo 'checked="checked"';
         ?>> <?php echo __('For Agents'); ?><br/>
     </div>
+
+<?php if (in_array($field->get('form')->get('type'), array('G', 'T'))) { ?>
     <hr class="faded"/>
 
     <div class="span4">
@@ -109,6 +111,7 @@
             if ($field->hasFlag(DynamicFormField::FLAG_CLOSE_REQUIRED)) echo 'checked="checked"';
         ?>> <?php echo __('Required to close a ticket'); ?><br/>
     </div>
+<?php } ?>
 <?php } ?>
     </div>
 </div>
