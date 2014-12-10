@@ -101,9 +101,14 @@ if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
     ));
 $tickets->filter(Q::any($visibility));
 
+// Add in annotations
+$tickets->annotate(array(
+    'collab_count' => SqlAggregate::COUNT('collaborators')
+));
+
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'collab_count');
 
 // Apply requested quick filter
 
@@ -307,7 +312,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                         if ($threadcount>1)
                             echo "<small>($threadcount)</small>&nbsp;".'<i
                                 class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
-                        if ($row['collaborators'])
+                        if ($T['collab_count'])
                             echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
                         if ($row['attachments'])
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
