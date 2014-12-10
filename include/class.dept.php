@@ -381,6 +381,14 @@ class Dept extends VerySimpleModel {
                 $query->filter(array(
                             'manager_id' => is_object($manager)?$manager->getId():$manager));
 
+            if (isset($criteria['nonempty'])) {
+                $query->annotate(array(
+                    'user_count' => SqlAggregate::COUNT('members')
+                ))->filter(array(
+                    'user_count__gt' => 0
+                ));
+            }
+
             $query->order_by('name')
                 ->values_flat('id', 'name');
 
