@@ -89,8 +89,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             <?php
             }
             foreach ($field->errors() as $e) { ?>
-                <br />
-                <font class="error"><?php echo Format::htmlchars($e); ?></font>
+                <div class="error"><?php echo Format::htmlchars($e); ?></div>
             <?php } ?>
             </div></td>
         </tr>
