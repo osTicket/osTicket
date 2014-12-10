@@ -156,4 +156,19 @@ class Collaborator extends TicketUser {
             ? $c : null;
     }
 }
+
+class TicketCollaborator extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_COLLABORATOR_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+            'user' => array(
+                'constraint' => array('user_id' => 'User.id'),
+            ),
+        ),
+    );
+}
 ?>

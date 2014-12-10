@@ -1018,7 +1018,7 @@ class ModelInstanceManager extends ResultSet {
     }
 
     static function checkCache($modelClass, $fields) {
-        $key = $modelClass::$meta->model;
+        $key = $modelClass;
         foreach ($modelClass::$meta['pk'] as $f)
             $key .= '.'.$fields[$f];
         return @self::$objectCache[$key];

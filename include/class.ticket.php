@@ -42,6 +42,10 @@ class TicketModel extends VerySimpleModel {
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
             ),
+            'collaborators' => array(
+                'reverse' => 'TicketCollaborator.ticket',
+                'null' => true,
+            ),
             'status' => array(
                 'constraint' => array('status_id' => 'TicketStatus.id')
             ),

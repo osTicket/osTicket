@@ -1,6 +1,8 @@
 <?php
 if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
 
+$tickets = TicketModel::objects();
+
 $qstr='&'; //Query string collector
 $status=null;
 if(isset($_REQUEST['status'])) { //Query string status has nothing to do with the real status used below.
@@ -10,11 +12,11 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
     switch(strtolower($_REQUEST['status'])) {
      case 'open':
 		$results_type=__('Open Tickets');
+        $tickets->filter(array('status__state'=>'open'));
+        break;
      case 'closed':
 		$results_type=__('Closed Tickets');
-        break;
-     case 'resolved':
-        $results_type=__('Resolved Tickets');
+        $tickets->filter(array('status__state'=>'closed'));
         break;
      default:
         $status=''; //ignore
@@ -24,92 +26,66 @@ if(isset($_REQUEST['status'])) { //Query string status has nothing to do with th
 	$results_type=__('Open Tickets');
 }
 
-$sortOptions=array('id'=>'`number`', 'subject'=>'cdata.subject',
-                    'status'=>'status.name', 'dept'=>'dept.name','date'=>'ticket.created');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
+$sortOptions=array('id'=>'number', 'subject'=>'cdata__subject',
+                    'status'=>'status__name', 'dept'=>'dept__name','date'=>'created');
+$orderWays=array('DESC'=>'-','ASC'=>'');
 //Sorting options...
 $order_by=$order=null;
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'date';
 if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 
-$order_by=$order_by?$order_by:'ticket_created';
+$order_by=$order_by ?: $sortOptions['date'];
 if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
     $order=$orderWays[strtoupper($_REQUEST['order'])];
 
-$order=$order?$order:'ASC';
-if($order_by && strpos($order_by,','))
-    $order_by=str_replace(','," $order,",$order_by);
-
 $x=$sort.'_sort';
-$$x=' class="'.strtolower($order).'" ';
+$$x=' class="'.strtolower($_REQUEST['order'] ?: 'desc').'" ';
 
-$qselect='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,isanswered, '
-    .'dept.ispublic, cdata.subject,'
-    .'dept.name as dept_name, status.name as status, status.state, ticket.source, ticket.created ';
+// Add visibility constraints
+$tickets->filter(Q::any(array(
+    'user_id' => $thisclient->getId(),
+    'collaborators__user_id' => $thisclient->getId(),
+)));
 
-$qfrom='FROM '.TICKET_TABLE.' ticket '
-      .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
-            ON (status.id = ticket.status_id) '
-      .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id)'
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
-      .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-        ON (collab.ticket_id = ticket.ticket_id
-                AND collab.user_id ='.$thisclient->getId().' )';
-
-$qwhere = sprintf(' WHERE ( ticket.user_id=%d OR collab.user_id=%d )',
-            $thisclient->getId(), $thisclient->getId());
-
-$states = array(
-        'open' => 'open',
-        'closed' => 'closed');
-if($status && isset($states[$status])){
-    $qwhere.=' AND status.state='.db_input($states[$status]);
-}
-
+// Perform basic search
 $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
     $qstr.='&a='.urlencode($_REQUEST['a']).'&q='.urlencode($_REQUEST['q']);
-    if(is_numeric($_REQUEST['q'])) {
-        $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
-    } else {//Deep search!
-        $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
-        $qwhere.=' AND ( '
-                ." cdata.subject LIKE '%$queryterm%'"
-                ." OR thread.body LIKE '%$queryterm%'"
-                .' ) ';
-        $deep_search=true;
-        //Joins needed for search
-        $qfrom.=' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ('
-               .'ticket.ticket_id=thread.ticket_id AND thread.thread_type IN ("M","R"))';
+    if (is_numeric($_REQUEST['q'])) {
+        $tickets->filter(array('number__startswith'=>$_REQUEST['q']));
+    } else { //Deep search!
+        // Use the search engine to perform the search
+        $tickets = $ost->searcher->find($_REQUEST['q'], $tickets);
     }
 }
 
 TicketForm::ensureDynamicDataView();
 
-$total=db_count('SELECT count(DISTINCT ticket.ticket_id) '.$qfrom.' '.$qwhere);
+$total=$tickets->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$pageNav->paginate($tickets);
 
-//more stuff...
-$qselect.=' ,count(attach_id) as attachments ';
-$qfrom.=' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON  ticket.ticket_id=attach.ticket_id ';
-$qgroup=' GROUP BY ticket.ticket_id';
-
-$query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
-$res = db_query($query);
-$showing=($res && db_num_rows($res))?$pageNav->showing():"";
+$showing =$total ? $pageNav->showing() : "";
 if(!$results_type)
 {
-	$results_type=ucfirst($status).' Tickets';
+	$results_type=ucfirst($status).' '.__('Tickets');
 }
 $showing.=($status)?(' '.$results_type):' '.__('All Tickets');
 if($search)
     $showing=__('Search Results').": $showing";
 
-$negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
+$negorder=$order=='-'?'ASC':'DESC'; //Negate the sorting
+
+$tickets->order_by($order.$order_by);
+$tickets->values(
+    'ticket_id', 'number', 'created', 'isanswered', 'source', 'status__id',
+    'status__state', 'status__name', 'cdata__subject', 'dept_id',
+    'dept__name', 'dept__ispublic', 'user__default_email__address'
+);
 
 ?>
 <h1><?php echo __('Tickets');?></h1>
@@ -158,31 +134,33 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <tbody>
     <?php
      $subject_field = TicketForm::objects()->one()->getField('subject');
-     if($res && ($num=db_num_rows($res))) {
-        $defaultDept=Dept::getDefaultDeptName(); //Default public dept.
-        while ($row = db_fetch_array($res)) {
-            $dept= $row['ispublic']? $row['dept_name'] : $defaultDept;
+     $defaultDept=Dept::getDefaultDeptName(); //Default public dept.
+     if ($tickets->exists(true)) {
+         foreach ($tickets as $T) {
+            $dept = $T['dept__ispublic']
+                ? Dept::getLocalById($T['dept_id'], 'name', $T['dept__name'])
+                : $defaultDept;
             $subject = Format::truncate($subject_field->display(
-                $subject_field->to_php($row['subject']) ?: $row['subject']
+                $subject_field->to_php($T['cdata__subject']) ?: $T['cdata__subject']
             ), 40);
-            if($row['attachments'])
+            if (false) // XXX: Reimplement attachment count support
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
-            $ticketNumber=$row['number'];
-            if($row['isanswered'] && !strcasecmp($row['state'], 'open')) {
+            $ticketNumber=$T['number'];
+            if($T['isanswered'] && !strcasecmp($T['status__state'], 'open')) {
                 $subject="<b>$subject</b>";
                 $ticketNumber="<b>$ticketNumber</b>";
             }
             ?>
-            <tr id="<?php echo $row['ticket_id']; ?>">
+            <tr id="<?php echo $T['ticket_id']; ?>">
                 <td>
-                <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
-                    href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
+                <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::date($row['created']); ?></td>
-                <td>&nbsp;<?php echo $row['status']; ?></td>
+                <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
+                <td>&nbsp;<?php echo $T['status__name']; ?></td>
                 <td>
-                    <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    <a href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
             </tr>
@@ -196,7 +174,7 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     </tbody>
 </table>
 <?php
-if($res && $num>0) {
+if ($total) {
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 }
 ?>

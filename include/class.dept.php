@@ -364,7 +364,12 @@ class Dept extends VerySimpleModel {
 
     function getDefaultDeptName() {
         global $cfg;
-        return ($cfg && $cfg->getDefaultDeptId() && ($name=Dept::getNameById($cfg->getDefaultDeptId())))?$name:null;
+
+        return ($cfg
+            && ($did = $cfg->getDefaultDeptId())
+            && ($names = self::getDepartments()))
+            ? $names[$did]
+            : null;
     }
 
     static function getDepartments( $criteria=null) {

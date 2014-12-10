@@ -571,7 +571,7 @@ class User extends UserModel {
     }
 
     static function lookupByEmail($email) {
-        return self::lookup(array('emails__address'=>$email));
+        return static::lookup(array('emails__address'=>$email));
     }
 }
 
