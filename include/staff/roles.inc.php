@@ -51,7 +51,7 @@ $showing=$pageNav->showing().' '._N('role', 'roles', $count);
                 ?>
             </td>
             <td><a href="?id=<?php echo $id; ?>"><?php echo
-            $role->getName(); ?></a></td>
+            $role->getLocal('name'); ?></a></td>
             <td>&nbsp;<?php echo $role->isEnabled() ? __('Active') :
             '<b>'.__('Disabled').'</b>'; ?></td>
             <td><?php echo Format::date($role->getCreateDate()); ?></td>

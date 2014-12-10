@@ -89,6 +89,15 @@ class Role extends RoleModel {
         return $this->getPermission()->getInfo();
     }
 
+    function getTranslateTag($subtag) {
+        return _H(sprintf('role.%s.%s', $subtag, $this->getId()));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+
     function to_json() {
 
         $info = array(
@@ -191,20 +200,19 @@ class Role extends RoleModel {
         return $role;
     }
 
-    static function getRoles($criteria=null) {
+    static function getRoles($criteria=null, $localize=true) {
         static $roles = null;
 
         if (!isset($roles) || $criteria) {
 
             $filters = array();
             if (isset($criteria['enabled'])) {
-                if ($criteria['enabled'])
-                    $filters += array(
-                            'flags__hasbit' => self::FLAG_ENABLED);
-                else
-                    $filters [] = Q::not(array(
-                                'flags__hasbit' => self::FLAG_ENABLED));
+                $q = new Q(array('flags__hasbit' => self::FLAG_ENABLED));
+                if (!$criteria['enabled'])
+                    $q->negate();
+                $filters[] = $q;
             }
+
             $query = self::objects()
                 ->order_by('name')
                 ->values_flat('id', 'name');
@@ -212,13 +220,20 @@ class Role extends RoleModel {
             if ($filters)
                 $query->filter($filters);
 
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+                $tag = _H("role.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+
             $names = array();
             foreach ($query as $row)
-                $names[$row[0]] = $row[1];
+                $names[$row[0]] = $localize_this($row[0], $row[1]);
 
-            // TODO: Localize
-
-            if ($criteria) return $names;
+            if ($criteria || !$localize)
+                return $names;
 
             $roles = $names;
         }

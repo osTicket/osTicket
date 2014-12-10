@@ -6,6 +6,7 @@ if ($role) {
     $action = 'update';
     $submit_text = __('Save Changes');
     $info = $role->getInfo();
+    $trans['name'] = $role->getTranslateTag('name');
     $newcount=2;
 } else {
     $title = __('Add New Role');
@@ -48,7 +49,7 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
             <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td>
                 <input size="50" type="text" name="name" value="<?php echo
-                $info['name']; ?>"/>
+                $info['name']; ?>" data-translate-tag="<?php echo $trans['name']; ?>"/>
                 <span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>
