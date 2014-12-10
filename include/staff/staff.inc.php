@@ -258,7 +258,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
+                &nbsp;
+                <select name="role_id">
+                    <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+                    <?php
+                    foreach (Role::getRoles() as $id=>$name) {
+                        $sel=($info['role_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
+                <div class="error"><?php echo $errors['dept_id']; ?></div>
+                <div class="error"><?php echo $errors['role_id']; ?></div>
             </td>
         </tr>
         <tr>

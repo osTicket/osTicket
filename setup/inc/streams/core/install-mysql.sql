@@ -521,6 +521,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `staff_id` int(11) unsigned NOT NULL auto_increment,
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
+  `role_id` int(10) unsigned NOT NULL default '0',
   `username` varchar(32) NOT NULL default '',
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,

@@ -41,6 +41,13 @@ class GroupRoles extends MigrationTask {
             $group->role_id =  $role->getId();
             $group->save();
         }
+
+        // Copy group default role to the agent for the respective primary
+        // department role
+        foreach (Staff::objects()->select_related('group') as $staff) {
+            $staff->role_id = $staff->group->role_id;
+            $staff->save();
+        }
     }
 }
 
