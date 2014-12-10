@@ -21,7 +21,7 @@ ALTER TABLE `%TABLE_PREFIX%faq`
 ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `lang` varchar(16) DEFAULT NULL AFTER `signature`,
     ADD `timezone` varchar(64) default NULL AFTER `lang`,
-    ADD `locale` varchar(16) DEFAULT NULL AFTER `locale`,
+    ADD `locale` varchar(16) DEFAULT NULL AFTER `timezone`,
     ADD `extra` text AFTER `default_paper_size`;
 
 ALTER TABLE `%TABLE_PREFIX%user_account`
