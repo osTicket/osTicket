@@ -23,7 +23,10 @@ if($_POST) {
             case 'enable':
                 foreach ($_POST['ids'] as $id) {
                     if ($p = Plugin::lookup($id)) {
-                        $p->enable();
+                        if (!$p->enable())
+                            $errors['err'] = sprintf(
+                                __('Unable to enable %s.'),
+                                $p->getName());
                     }
                 }
                 break;

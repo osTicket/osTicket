@@ -164,15 +164,23 @@ class PluginManager {
             //      read all plugins
             $info = static::getInfoForPath(
                 INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
+
             list($path, $class) = explode(':', $info['plugin']);
             if (!$class)
                 $class = $path;
             elseif ($ht['isphar'])
-                require_once('phar://' . INCLUDE_DIR . $ht['install_path']
+                @include_once('phar://' . INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);
             else
-                require_once(INCLUDE_DIR . $ht['install_path']
+                @include_once(INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);
+
+            if (!class_exists($class)) {
+                $class = 'DefunctPlugin';
+                $ht['isactive'] = false;
+                $info = array('name' => $ht['name'] . ' '. __('(defunct — missing)'));
+            }
+
             if ($ht['isactive']) {
                 static::$plugin_list[$ht['install_path']]
                     = new $class($ht['id']);
@@ -271,7 +279,9 @@ class PluginManager {
         if (!isset(static::$plugin_info[$install_path])) {
             // plugin.php is require to return an array of informaiton about
             // the plugin.
-            $info = array_merge($defaults, (include $path . '/plugin.php'));
+            if (!file_exists($path . '/plugin.php'))
+                return false;
+            $info = array_merge($defaults, (@include $path . '/plugin.php'));
             $info['install_path'] = $install_path;
 
             // XXX: Ensure 'id' key isset
@@ -284,11 +294,14 @@ class PluginManager {
         static $instances = array();
         if (!isset($instances[$path])
                 && ($ps = static::allInstalled())
-                && ($ht = $ps[$path])
-                && ($info = static::getInfoForPath($path))) {
+                && ($ht = $ps[$path])) {
+
+            $info = static::getInfoForPath($path);
+
             // $ht may be the plugin instance
             if ($ht instanceof Plugin)
                 return $ht;
+
             // Usually this happens when the plugin is being enabled
             list($path, $class) = explode(':', $info['plugin']);
             if (!$class)
@@ -685,4 +698,11 @@ abstract class Plugin {
     }
 }
 
+class DefunctPlugin extends Plugin {
+    function bootstrap() {}
+
+    function enable() {
+        return false;
+    }
+}
 ?>
