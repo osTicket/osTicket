@@ -250,6 +250,10 @@ class Topic extends VerySimpleModel {
         return true;
     }
 
+    function __toString() {
+        return $this->getFullName();
+    }
+
     /*** Static functions ***/
 
     static function create($vars=array()) {

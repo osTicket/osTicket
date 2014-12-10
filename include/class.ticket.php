@@ -411,6 +411,10 @@ class Ticket {
         return $this->ht['updated'];
     }
 
+    function getEffectiveDate() {
+        return $this->ht['lastupdate'];
+    }
+
     function getDueDate() {
         return $this->ht['duedate'];
     }
