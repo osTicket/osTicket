@@ -108,7 +108,7 @@ $tickets->annotate(array(
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'collab_count');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'collab_count');
 
 // Apply requested quick filter
 
@@ -322,7 +322,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                         Format::truncate($un, 22, strpos($un, '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
-                    $displaystatus=ucfirst($T['status__name']);
+                    $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
                     if(!strcasecmp($T['status__state'],'open'))
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";

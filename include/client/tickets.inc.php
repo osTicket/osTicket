@@ -82,7 +82,7 @@ $negorder=$order=='-'?'ASC':'DESC'; //Negate the sorting
 
 $tickets->order_by($order.$order_by);
 $tickets->values(
-    'ticket_id', 'number', 'created', 'isanswered', 'source', 'status__id',
+    'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
     'dept__name', 'dept__ispublic', 'user__default_email__address'
 );
@@ -143,6 +143,7 @@ $tickets->values(
             $subject = Format::truncate($subject_field->display(
                 $subject_field->to_php($T['cdata__subject']) ?: $T['cdata__subject']
             ), 40);
+            $status = TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
             if (false) // XXX: Reimplement attachment count support
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
 
@@ -158,7 +159,7 @@ $tickets->values(
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
-                <td>&nbsp;<?php echo $T['status__name']; ?></td>
+                <td>&nbsp;<?php echo $status; ?></td>
                 <td>
                     <a href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>

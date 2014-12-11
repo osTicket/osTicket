@@ -1035,6 +1035,11 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $this->get($subtag);
     }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('status.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
 
     function getConfiguration() {
 
