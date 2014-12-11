@@ -8,14 +8,32 @@ if (!defined('OSTSCPINC') || !$thisstaff || !is_object($task))
     die('Access Denied');
 */
 
-//Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
+$actions = array();
+$actions += array(
+        'edit' => array(
+            'icon' => 'icon-edit',
+            'dialog' => '{"size":"large"}',
+            'action' => __('Edit')
+        ));
+$actions += array(
+        'assign' => array(
+            'icon' => 'icon-user',
+            'action' => $task->isAssigned() ? __('Reassign') : __('Assign')
+        ));
+$actions += array(
+        'transfer' => array(
+            'icon' => 'icon-share',
+            'action' => __('Transfer')
+        ));
+$actions += array(
+        'delete' => array(
+            'icon' => 'icon-trash',
+            'action' => __('Delete')
+        ));
+
+
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-/*
-$dept  = $task->getDept();  //Dept
-$staff = $task->getStaff(); //Assigned or closed by..
-$team  = $task->getTeam();  //Assigned team.
-*/
 $id    = $task->getId();    //Ticket ID.
 if ($task->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
@@ -30,14 +48,39 @@ if ($task->isOverdue())
             </h3>
         </td>
         <td width="auto" class="flush-right has_bottom_border">
-            <span>
-                <i class="icon-list"></i>
-                <select name="task-action">
-                    <option value="" selected="selected">
-                    <?php echo _('Task Options'); ?>
-                    </option>
-                </select>
+        <?php
+           if ($actions) { ?>
+            <span
+                class="action-button"
+                data-dropdown="#action-dropdown-taskoptions">
+                <i class="icon-caret-down pull-right"></i>
+                <a class="task-action"
+                    href="#taskoptions"><i
+                    class="icon-reorder"></i> <?php
+                    echo __('Task Options'); ?></a>
             </span>
+            <div id="action-dropdown-taskoptions"
+                class="action-dropdown anchor-right">
+                <ul>
+            <?php foreach ($actions as $a => $action) { ?>
+                    <li>
+                        <a class="no-pjax task-action"
+                            <?php
+                            if ($action['dialog'])
+                                echo sprintf("data-dialog='%s'", $action['dialog']);
+                            ?>
+                            href="<?php
+                            echo sprintf('#tasks/%d/%s', $task->getId(), $a); ?>"
+                            ><i class="<?php
+                            echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
+                            echo $action['action']; ?></a>
+                    </li>
+                <?php
+                } ?>
+                </ul>
+            </div>
+            <?php
+           } ?>
         </td>
     </tr>
 </table>
@@ -51,11 +94,11 @@ if ($task->isOverdue())
                 </tr>
                 <tr>
                     <th><?php echo __('Department');?>:</th>
-                    <td><?php echo Format::htmlchars( (string) $task->getDept()); ?></td>
+                    <td><?php echo Format::htmlchars($task->dept->getName()); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::db_datetime($task->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
                 </tr>
             </table>
         </td>
@@ -67,8 +110,8 @@ if ($task->isOverdue())
                     <th width="100"><?php echo __('Assigned To');?>:</th>
                     <td>
                         <?php
-                        if ( 0 && $ticket->isAssigned())
-                            echo Format::htmlchars(implode('/', $ticket->getAssignees()));
+                        if ($assigned=$task->getAssigned())
+                            echo Format::htmlchars($assigned);
                         else
                             echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
                         ?>
@@ -97,14 +140,16 @@ if ($task->isOverdue())
                 if($task->isOpen()){ ?>
                 <tr>
                     <th><?php echo __('Due Date');?>:</th>
-                    <td><?php echo 'here'; //Format::db_datetime($ticket->getEstDueDate()); ?></td>
+                    <td><?php echo $task->duedate ?
+                    Format::datetime($task->duedate) : '<span
+                    class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
                 </tr>
                 <?php
                 }else { ?>
                 <tr>
                     <th><?php echo __('Close Date');?>:</th>
                     <td><?php echo 0 ?
-                    Format::db_datetime($task->getCloseDate()) : ' recently! '; ?></td>
+                    Format::datetime($task->getCloseDate()) : ''; ?></td>
                 </tr>
                 <?php
                 }
@@ -163,7 +208,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
                 <div>
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
-                        echo Format::db_datetime($entry['created']);?></span>
+                        echo Format::datetime($entry['created']);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                     </span>
@@ -219,7 +264,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
 <div id="response_options">
     <ul class="tabs"></ul>
     <form id="task_note"
-        action="#tasks/<? echo $task->getId(); ?>"
+        action="#tasks/<?php echo $task->getId(); ?>"
         name="task_note"
         method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -281,7 +326,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
  </div>
 <script type="text/javascript">
 $(function() {
-    $(document).on('click', 'a.active#ticket_tasks', function(e) {
+    $(document).on('click', 'li.active a#ticket_tasks', function(e) {
         e.preventDefault();
         $('div#task_content').hide().empty();
         $('div#tasks_content').show();

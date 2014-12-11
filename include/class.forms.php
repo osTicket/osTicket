@@ -1547,6 +1547,139 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 });
 
 
+class DepartmentField extends ChoiceField {
+    function getWidget() {
+        $widget = parent::getWidget();
+        if ($widget->value instanceof Dept)
+            $widget->value = $widget->value->getId();
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        global $cfg;
+
+        $choices = array();
+        if (($depts = Dept::getDepartments()))
+            foreach ($depts as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        return $id;
+    }
+
+    function to_database($dept) {
+        return ($dept instanceof Dept)
+            ? array($dept->getName(), $dept->getId())
+            : $dept;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'department' => array(__('Department'), DepartmentField),
+    );
+});
+
+
+class AssigneeField extends ChoiceField {
+    function getWidget() {
+        $widget = parent::getWidget();
+        if (is_object($widget->value))
+            $widget->value = $widget->value->getId();
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        global $cfg;
+        $choices = array();
+        if (($agents = Staff::getAvailableStaffMembers()))
+            foreach ($agents as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+
+        return $id;
+    }
+
+
+    function to_database($value) {
+        return (is_object($value))
+            ? array($value->getName(), $value->getId())
+            : $value;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'assignee' => array(__('Assignee'), AssigneeField),
+    );
+});
+
+
 class TicketStateField extends ChoiceField {
 
     static $_states = array(

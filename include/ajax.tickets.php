@@ -872,17 +872,39 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffAccess($thisstaff))
             Http::response(404, 'Unknown ticket');
 
-        $info = array();
+        $info=$errors=array();
 
         if ($_POST) {
-            /*
             Draft::deleteForNamespace(
                     sprintf('ticket.%d.task', $ticket->getId()),
                     $thisstaff->getId());
-            */
+            // Default form
             $form = TaskForm::getDefaultForm()->getForm($_POST);
-            if ($form && ($task = Task::create($form, $ticket)))
-                Http::response(201, $task->to_json());
+            // Internal form
+            $iform = TaskForm::getInternalForm($_POST);
+            $isvalid = true;
+            if (!$iform->isValid())
+                $isvalid = false;
+            if (!$form->isValid())
+                $isvalid = false;
+
+            if ($isvalid) {
+                $vars = $_POST;
+                $vars['object_id'] = $ticket->getId();
+                $vars['object_type'] = ObjectModel::OBJECT_TYPE_TICKET;
+                $vars['default_formdata'] = $form->getClean();
+                $vars['internal_formdata'] = $iform->getClean();
+                $desc = $form->getField('description');
+                if ($desc
+                        && $desc->isAttachmentsEnabled()
+                        && ($attachments=$desc->getWidget()->getAttachments()))
+                    $vars['cannedattachments'] = $attachments->getClean();
+                $vars['staffId'] = $thisstaff->getId();
+                $vars['poster'] = $thisstaff;
+                $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
+                if (($task=Task::create($vars, $errors)))
+                    Http::response(201, $task->getId());
+            }
 
             $info['error'] = __('Error adding task - try again!');
         }

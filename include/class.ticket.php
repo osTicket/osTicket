@@ -3031,7 +3031,7 @@ class Ticket {
 
         // post response - if any
         $response = null;
-        if($vars['response'] && $role->canPostReply()) {
+        if($vars['response'] && $role->canPostTicketReply()) {
 
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on

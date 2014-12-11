@@ -5,10 +5,14 @@ class TaskModel extends VerySimpleModel {
         'table' => TASK_TABLE,
         'pk' => array('id'),
         'joins' => array(
-            'thread' => array(
-                'reverse' => 'ThreadModel.object',
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
             ),
-        )
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+                'null' => true,
+            ),
+        ),
     );
 
     const ISOPEN    = 0x0001;
@@ -86,6 +90,8 @@ class Task extends TaskModel {
     var $entry;
     var $thread;
 
+    var $_entries;
+
 
     function getStatus() {
         return $this->isOpen() ? _('Open') : _('Closed');
@@ -95,9 +101,23 @@ class Task extends TaskModel {
         return $this->__cdata('title', ObjectModel::OBJECT_TYPE_TASK);
     }
 
+    function getAssignees() {
 
-    function getDept() {
-        return "Dept Object";
+        $assignees=array();
+        if ($this->staff)
+            $assignees[] = $this->staff->getName();
+
+        //Add team assignment
+        if (isset($this->team))
+            $assignees[] = $this->team->getName();
+
+        return $assignees;
+    }
+
+    function getAssigned($glue='/') {
+        $assignees = $this->getAssignees();
+
+        return $assignees ? implode($glue, $assignees):'';
     }
 
     function getThread() {
@@ -199,6 +219,68 @@ class Task extends TaskModel {
     }
 
     /* util routines */
+    function assign($vars, &$errors) {
+        global $thisstaff;
+
+        if (!isset($vars['staff_id']) || !($staff=Staff::lookup($vars['staff_id'])))
+            $errors['staff_id'] = __('Agent selection required');
+        elseif ($staff->getid() == $this->getStaffId())
+            $errors['dept_id'] = __('Task already assigned to agent');
+        else
+            $this->staff_id = $staff->getId();
+
+        if ($errors || !$this->save())
+            return false;
+
+        // Transfer completed... post internal note.
+        $title = sprintf(__('Task assigned to %s'),
+                $staff->getName());
+        if ($vars['comments']) {
+            $note = $vars['comments'];
+        } else {
+            $note = $title;
+            $title = '';
+        }
+
+        $this->postNote(
+                array('note' => $note, 'title' => $title),
+                $errors,
+                $thisstaff);
+
+        return true;
+    }
+
+    function transfer($vars, &$errors) {
+        global $thisstaff;
+
+        if (!isset($vars['dept_id']) || !($dept=Dept::lookup($vars['dept_id'])))
+            $errors['dept_id'] = __('Department selection required');
+        elseif ($dept->getid() == $this->getDeptId())
+            $errors['dept_id'] = __('Task already in the department');
+        else
+            $this->dept_id = $dept->getId();
+
+        if ($errors || !$this->save())
+            return false;
+
+        // Transfer completed... post internal note.
+        $title = sprintf(__('Task transfered to %s department'),
+                $dept->getName());
+        if ($vars['comments']) {
+            $note = $vars['comments'];
+        } else {
+            $note = $title;
+            $title = '';
+        }
+
+        $this->postNote(
+                array('note' => $note, 'title' => $title),
+                $errors,
+                $thisstaff);
+
+        return true;
+    }
+
     function postNote($vars, &$errors, $poster='', $alert=true) {
         global $cfg, $thisstaff;
 
@@ -216,7 +298,7 @@ class Task extends TaskModel {
 
         if (isset($vars['task_status'])) {
             if ($vars['task_status'])
-                $this->open();
+                $this->reopen();
             else
                 $this->close();
 
@@ -238,53 +320,67 @@ class Task extends TaskModel {
         return !self::lookupIdByNumber($number);
     }
 
-    static function create($form, $object) {
-        global $cfg, $thisstaff;
+    static function create($vars) {
+        global $cfg;
 
-        if (!$thisstaff
-                || !$form
-                // TODO: Make sure it's an instance of ORM Model
-                || !$object)
-            return null;
+        $task = parent::create(array(
+            'flags' => self::ISOPEN,
+            'object_id' => $vars['object_id'],
+            'object_type' => $vars['object_type'],
+            'number' => $cfg->getNewTaskNumber(),
+            'created' => new SqlFunction('NOW'),
+            'updated' => new SqlFunction('NOW'),
+        ));
+        // Save internal fields.
+        if ($vars['internal_formdata']['staff_id'])
+            $task->staff_id = $vars['internal_formdata']['staff_id'];
+        if ($vars['internal_formdata']['dept_id'])
+            $task->dept_id = $vars['internal_formdata']['dept_id'];
+        if ($vars['internal_formdata']['duedate'])
+            $task->duedate = $vars['internal_formdata']['duedate'];
 
-        if (!$form->isValid())
-            return false;
+        $task->save(true);
 
-        try {
+        // Add dynamic data
+        $task->addDynamicData($vars['default_formdata']);
 
-            $task = parent::create(array(
-                'flags' => 1,
-                'object_id' => $object->getId(),
-                'object_type' => $object->getObjectType(),
-                'number' => $cfg->getNewTaskNumber(),
-                'created' => new SqlFunction('NOW'),
-                'updated' => new SqlFunction('NOW'),
-            ));
-            $task->save(true);
-        } catch(OrmException $e) {
-            return null;
-        }
-
-        $vars = $form->getClean();
-        $task->addDynamicData($vars);
         // Create a thread + message.
         $thread = TaskThread::create($task);
-        $desc = $form->getField('description');
-        if ($desc
-                && $desc->isAttachmentsEnabled()
-                && ($attachments=$desc->getWidget()->getAttachments()))
-            $vars['cannedattachments'] = $attachments->getClean();
-
-        $vars['staffId'] = $thisstaff->getId();
-        $vars['poster'] = $thisstaff;
-        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
-            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-
         $thread->addDescription($vars);
-
         Signal::send('model.created', $task);
 
         return $task;
+    }
+
+    function delete($comments='') {
+        global $ost, $thisstaff;
+
+        $thread = $this->getThread();
+
+        if (!parent::delete())
+            return false;
+
+        $thread->delete();
+
+        Draft::deleteForNamespace('task.%.' . $this->getId());
+
+        foreach (DynamicFormEntry::forObject($this->getId(), ObjectModel::OBJECT_TYPE_TASK) as $form)
+            $form->delete();
+
+        // Log delete
+        $log = sprintf(__('Task #%1$s deleted by %2$s'),
+                $this->getNumber(),
+                $thisstaff ? $thisstaff->getName() : __('SYSTEM'));
+
+        if ($comments)
+            $log .= sprintf('<hr>%s', $comments);
+
+        $ost->logDebug(
+                sprintf( __('Task #%s deleted'), $this->getNumber()),
+                $log);
+
+        return true;
+
     }
 
     static function __loadDefaultForm() {
@@ -305,7 +401,10 @@ class Task extends TaskModel {
 
 class TaskForm extends DynamicForm {
     static $instance;
-    static $form;
+    static $defaultForm;
+    static $internalForm;
+
+    static $forms;
 
     static function objects() {
         $os = parent::objects();
@@ -313,12 +412,12 @@ class TaskForm extends DynamicForm {
     }
 
     static function getDefaultForm() {
-        if (!isset(static::$form)) {
+        if (!isset(static::$defaultForm)) {
             if (($o = static::objects()) && $o[0])
-                static::$form = $o[0];
+                static::$defaultForm = $o[0];
         }
 
-        return static::$form;
+        return static::$defaultForm;
     }
 
     static function getInstance($object_id=0, $new=false) {
@@ -331,6 +430,43 @@ class TaskForm extends DynamicForm {
             static::$instance->object_id = $object_id;
 
         return static::$instance;
+    }
+
+    static function getInternalForm($source=null) {
+        if (!isset(static::$internalForm))
+            static::$internalForm = new Form(self::getInternalFields(), $source);
+
+        return static::$internalForm;
+    }
+
+    static function getInternalFields() {
+        return array(
+                'dept_id' => new DepartmentField(array(
+                    'id'=>1,
+                    'label' => __('Department'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    )),
+                'staff_id' => new AssigneeField(array(
+                    'id'=>2,
+                    'label' => __('Assignee'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => false,
+                    )),
+                'duedate'  =>  new DatetimeField(array(
+                    'id' => 3,
+                    'label' => __('Due Date'),
+                    'flags' => hexdec(0X450B3),
+                    'required' => false,
+                    'configuration' => array(
+                        'min' => Misc::gmtime(),
+                        'time' => true,
+                        'gmt' => true,
+                        'future' => true,
+                        ),
+                    )),
+
+            );
     }
 }
 

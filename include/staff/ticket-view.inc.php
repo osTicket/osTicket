@@ -377,8 +377,9 @@ $tcount = $ticket->getThreadCount();
 $tcount+= $ticket->getNumNotes();
 ?>
 <ul  class="tabs threads" id="ticket_tabs" >
-    <li><a class="active" href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
-    <li><a id="ticket_tasks" href="<?php
+    <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+    <li><a id="ticket_tasks" href="#tasks"
+            data-url="<?php
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
         echo __('Tasks');
         if ($ticket->getNumTasks())
@@ -454,7 +455,7 @@ $tcount+= $ticket->getNumNotes();
 <div id="response_options">
     <ul class="tabs">
         <?php
-        if ($role->canPostReply()) { ?>
+        if ($role->canPostTicketReply()) { ?>
         <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
@@ -472,7 +473,7 @@ $tcount+= $ticket->getNumNotes();
         } ?>
     </ul>
     <?php
-    if ($role->canPostReply()) { ?>
+    if ($role->canPostTicketReply()) { ?>
     <form id="reply" class="tab_content" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>

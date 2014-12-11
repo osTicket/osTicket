@@ -1,36 +1,22 @@
 <?php
 
-//TODO: Make it ORM based once we marge other models.
-$select ='SELECT task.*, dept.dept_name '
-        .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
-        .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned ';
+$tasks = Task::objects()
+    ->select_related('dept', 'staff')
+    ->order_by('-created');
 
-$from =' FROM '.TASK_TABLE.' task '
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON task.dept_id=dept.dept_id '
-      .' LEFT JOIN '.STAFF_TABLE.' staff ON (task.staff_id=staff.staff_id) '
-      .' LEFT JOIN '.TEAM_TABLE.' team ON (task.team_id=team.team_id) ';
 
-if ($ticket)
-    $where = 'WHERE task.object_type="T" AND task.object_id = '.db_input($ticket->getId());
-
-$query ="$select $from $where ORDER BY task.created DESC";
-
-// Fetch the results
-$results = array();
-$res = db_query($query);
-while ($row = db_fetch_array($res))
-    $results[$row['id']] = $row;
+$count = $tasks->count();
+$pageNav = new Pagenate($count,1, 100000); //TODO: support ajax based pages
+$showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 
 ?>
-
 <div id="tasks_content" style="display:block;">
 <div style="width:700px; float:left;">
    <?php
-    if ($results) {
-        echo '<strong>'.sprintf(_N('Showing %d Task', 'Showing %d Tasks',
-            count($results)), count($results)).'</strong>';
+    if ($count) {
+        echo '<strong>'.$showing.'</strong>';
     } else {
-        echo sprintf(__('%s does not have any tasks'), $ticket? 'Ticket' :
+        echo sprintf(__('%s does not have any tasks'), $ticket? 'This ticket' :
                 'System');
     }
    ?>
@@ -39,7 +25,8 @@ while ($row = db_fetch_array($res))
     <?php
     if ($ticket) { ?>
         <a
-        class="Icon newTicket ticket-action"
+        class="Icon newTicket task-action"
+        data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
         data-dialog='{"size":"large"}'
         href="#tickets/<?php
             echo $ticket->getId(); ?>/add-task"> <?php
@@ -50,8 +37,8 @@ while ($row = db_fetch_array($res))
 <br/>
 <div>
 <?php
-if ($results) { ?>
-<form action="tickets.php?id=<?php echo $ticket->getId(); ?>" method="POST" name='tasks' style="padding-top:10px;">
+if ($count) { ?>
+<form action="#tickets/<?php echo $ticket->getId(); ?>/tasks" method="POST" name='tasks' style="padding-top:10px;">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
@@ -59,6 +46,7 @@ if ($results) { ?>
     <thead>
         <tr>
             <?php
+            //TODO: support mass actions.
             if (0) {?>
             <th width="8px">&nbsp;</th>
             <?php
@@ -73,52 +61,41 @@ if ($results) { ?>
     </thead>
     <tbody class="tasks">
     <?php
-    foreach($results as $row) {
-        if (!($task = Task::lookup($row['id'])))
-            continue;
-
-        $flag=null;
-        if ($row['lock_id'])
-            $flag='locked';
-        elseif ($row['isoverdue'])
-            $flag='overdue';
-
+    foreach($tasks as $task) {
+        $id = $task->getId();
         $assigned='';
-        if ($row['staff_id'])
-            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
-        elseif ($row['team_id'])
-            $assigned=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
-        else
-            $assigned=' ';
+        if ($task->staff)
+            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',
+                    Format::truncate($task->staff->getName(),40));
 
         $status = $task->isOpen() ? '<strong>open</strong>': 'closed';
 
-        $tid=$row['number'];
         $title = Format::htmlchars(Format::truncate($task->getTitle(),40));
-        $threadcount= $task->getThread()->getNumEntries();
+        $threadcount = $task->getThread() ?
+            $task->getThread()->getNumEntries() : 0;
         ?>
-        <tr id="<?php echo $row['id']; ?>">
+        <tr id="<?php echo $id; ?>">
             <?php
             //Implement mass  action....if need be.
             if (0) { ?>
             <td align="center" class="nohover">
                 <input class="ckb" type="checkbox" name="tids[]"
-                value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                value="<?php echo $id; ?>" <?php echo $sel?'checked="checked"':''; ?>>
             </td>
             <?php
             } ?>
             <td align="center" nowrap>
               <a class="Icon no-pjax preview"
                 title="<?php echo __('Preview Task'); ?>"
-                href="#tasks/<?php echo $task->getId(); ?>/view"
-                data-preview="#tasks/<?php echo $task->getId(); ?>/preview"
+                href="#tasks/<?php echo $id; ?>/view"
+                data-preview="#tasks/<?php echo $id; ?>/preview"
                 ><?php echo $task->getNumber(); ?></a></td>
             <td align="center" nowrap><?php echo
-            Format::db_datetime($row['created']); ?></td>
+            Format::datetime($task->created); ?></td>
             <td><?php echo $status; ?></td>
             <td><a <?php if ($flag) { ?> class="no-pjax"
                     title="<?php echo ucfirst($flag); ?> Task" <?php } ?>
-                    href="#tasks/<?php echo $task->getId(); ?>/view"><?php
+                    href="#tasks/<?php echo $id; ?>/view"><?php
                 echo $title; ?></a>
                  <?php
                     if ($threadcount>1)
@@ -130,7 +107,7 @@ if ($results) { ?>
                         echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                 ?>
             </td>
-            <td><?php echo Format::truncate($row['dept_name'], 40); ?></td>
+            <td><?php echo Format::truncate($task->dept->getName(), 40); ?></td>
             <td>&nbsp;<?php echo $assigned; ?></td>
         </tr>
    <?php
@@ -157,5 +134,30 @@ $(function() {
         }).show();
         return false;
      });
+    $(document).off('.task-action');
+    $(document).on('click.task-action', 'a.task-action', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'
+        +$(this).attr('href').substr(1)
+        +'?_uid='+new Date().getTime();
+        var $redirect = $(this).data('href');
+        var $options = $(this).data('dialog');
+        $.dialog(url, [201], function (xhr) {
+            var tid = parseInt(xhr.responseText);
+            if (tid) {
+                var url = 'ajax.php/tasks/'+tid+'/view';
+                var $container = $('div#task_content');
+                $container.load(url, function () {
+                    $('.tip_box').remove();
+                    $('div#tasks_content').hide();
+                }).show();
+            } else {
+                window.location.href = $redirect ? $redirect : window.location.href;
+            }
+        }, $options);
+        return false;
+    });
+
+
 });
 </script>

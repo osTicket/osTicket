@@ -297,7 +297,7 @@ class RolePermission {
                 'task.close'   => array(
                     /* @trans */ 'Close',
                     /* @trans */ 'Ability to close tasks'),
-                'tasks.delete'   => array(
+                'task.delete'   => array(
                     /* @trans */ 'Delete',
                     /* @trans */ 'Ability to delete tasks'),
                 ),
@@ -373,7 +373,7 @@ class RolePermission {
         return ($this->has('ticket.transfer'));
     }
 
-    function canPostReply() {
+    function canPostTicketReply() {
         return ($this->has('ticket.reply'));
     }
 
@@ -383,6 +383,35 @@ class RolePermission {
 
     function canDeleteTickets() {
         return ($this->has('ticket.delete'));
+    }
+
+    /* tasks */
+    function canCreateTasks() {
+        return ($this->get('task.create'));
+    }
+
+    function canEditTasks() {
+        return ($this->get('task.edit'));
+    }
+
+    function canAssignTasks() {
+        return ($this->get('task.assign'));
+    }
+
+    function canTransferTasks() {
+        return ($this->get('task.transfer'));
+    }
+
+    function canPostTaskReply() {
+        return ($this->get('task.reply'));
+    }
+
+    function canCloseTasks() {
+        return ($this->get('task.close'));
+    }
+
+    function canDeleteTasks() {
+        return ($this->get('task.delete'));
     }
 
     /* Knowledge base */
