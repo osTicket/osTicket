@@ -206,6 +206,21 @@ UPDATE `%TABLE_PREFIX%form_field` SET `flags` = `flags` |
    | IF(`edit_mask` & 16, CONV(10, 16, 10), 0)
    | IF(`edit_mask` & 32, CONV(40, 16, 10), 0);
 
+-- Detect inline images not recorded as inline
+CREATE TABLE `%TABLE_PREFIX%_unknown_inlines` AS
+  SELECT A2.`attach_id`
+  FROM `%TABLE_PREFIX%file` A1
+  JOIN `%TABLE_PREFIX%ticket_attachment` A2 ON (A1.id = A2.file_id)
+  JOIN `%TABLE_PREFIX%ticket_thread` A3 ON (A3.ticket_id = A2.ticket_id)
+  WHERE A1.`type` LIKE 'image/%' AND A2.inline = 0
+    AND A3.body LIKE CONCAT('%"cid:', A1.key, '"%');
+
+UPDATE `%TABLE_PREFIX%ticket_attachment` A1
+  JOIN %TABLE_PREFIX%_unknown_inlines A2 ON (A1.attach_id = A2.attach_id)
+  SET A1.inline = 1;
+
+DROP TABLE `%TABLE_PREFIX%_unknown_inlines`;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '1ee831c854fe9f35115a3e672916bb91'
