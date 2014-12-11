@@ -129,7 +129,8 @@ if($_POST && !$errors):
 
                 //If no errors - them attempt the transfer.
                 if(!$errors && $ticket->transfer($_POST['deptId'], $_POST['transfer_comments'])) {
-                    $msg = sprintf(__('Ticket transferred successfully to %s'),$ticket->getDeptName());
+                    $msg = sprintf(__('Ticket transferred successfully to %s'),
+                            $ticket->getDept()->getFullName());
                     //Check to make sure the staff still has access to the ticket
                     if(!$ticket->checkStaffAccess($thisstaff))
                         $ticket=null;

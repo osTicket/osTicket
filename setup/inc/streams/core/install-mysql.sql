@@ -216,7 +216,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `name` (`name`, `pid`),
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
   KEY `tpl_id` (`tpl_id`)

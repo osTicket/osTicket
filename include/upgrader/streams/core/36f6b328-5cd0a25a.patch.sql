@@ -110,9 +110,12 @@ UPDATE `%TABLE_PREFIX%config`
     SET `key` = 'ticket_sequence_id'
     WHERE `key` = 'sequence_id'  AND `namespace` = 'core';
 
+-- add parent department support
 ALTER TABLE `%TABLE_PREFIX%department`
+  DROP INDEX  `name`,
   ADD `pid` int(11) unsigned default NULL AFTER `id`,
-  ADD `path` varchar(128) NOT NULL default '/' AFTER `message_auto_response`;
+  ADD `path` varchar(128) NOT NULL default '/' AFTER `message_auto_response`,
+  ADD UNIQUE  `name` (  `name` ,  `pid` );
 
 UPDATE `%TABLE_PREFIX%department`
   SET `path` = CONCAT('/', id, '/');

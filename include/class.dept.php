@@ -307,6 +307,8 @@ class Dept extends VerySimpleModel {
     function updateSettings($vars) {
         $this->updateGroups($vars['groups'] ?: array(), $vars);
         $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
+        $this->path = $this->getFullPath();
+        $this->save();
         return true;
     }
 
@@ -380,9 +382,11 @@ class Dept extends VerySimpleModel {
     }
 
     /*----Static functions-------*/
-	static function getIdByName($name) {
+	static function getIdByName($name, $pid=0) {
         $row = static::objects()
-            ->filter(array('name'=>$name))
+            ->filter(array(
+                        'name' => $name,
+                        'pid'  => $pid ?: 0))
             ->values_flat('id')
             ->first();
 
@@ -483,18 +487,21 @@ class Dept extends VerySimpleModel {
     static function create($vars=false, &$errors=array()) {
         $dept = parent::create($vars);
         $dept->created = SqlFunction::NOW();
+
         return $dept;
     }
 
     static function __create($vars, &$errors) {
-        $dept = self::create($vars);
-        $dept->save();
-        return $dept;
+        $dept = self::create();
+        $dept->update($vars, $errors);
+
+        return isset($dept->id) ? $dept : null;
     }
 
     function save($refetch=false) {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
+
         return parent::save($refetch || $this->dirty);
     }
 
@@ -506,9 +513,7 @@ class Dept extends VerySimpleModel {
 
         if (!$vars['name']) {
             $errors['name']=__('Name required');
-        } elseif (strlen($vars['name'])<4) {
-            $errors['name']=__('Name is too short.');
-        } elseif (($did=static::getIdByName($vars['name']))
+        } elseif (($did=static::getIdByName($vars['name'], $vars['pid']))
                 && (!isset($this->id) || $did!=$this->getId())) {
             $errors['name']=__('Department already exists');
         }
@@ -522,14 +527,14 @@ class Dept extends VerySimpleModel {
         if ($errors)
             return false;
 
-        $this->pid = $vars['pid'];
+        $this->pid = $vars['pid'] ?: 0;
         $this->updated = SqlFunction::NOW();
         $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
         $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
         $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
         $this->sla_id = isset($vars['sla_id'])?$vars['sla_id']:0;
         $this->autoresp_email_id = isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0;
-        $this->manager_id = $vars['manager_id']?$vars['manager_id']:0;
+        $this->manager_id = $vars['manager_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->signature = Format::sanitize($vars['signature']);
         $this->group_membership = $vars['group_membership'];
