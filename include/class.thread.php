@@ -515,7 +515,7 @@ Class ThreadEntry {
     }
 
     function getAttachments() {
-        return $this->attachments->getAll(true, false);
+        return $this->attachments->getAll(false);
     }
 
     function getAttachmentUrls($script='image.php') {

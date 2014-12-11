@@ -698,7 +698,6 @@ class DynamicFormField extends VerySimpleModel {
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        $inst->flags = self::FLAG_ENABLED;
         if (isset($ht['configuration']))
             $inst->configuration = JsonDataEncoder::encode($ht['configuration']);
         return $inst;

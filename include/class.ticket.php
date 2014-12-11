@@ -188,7 +188,7 @@ class Ticket {
             return false;
 
         $sql='SELECT  ticket.*, thread.id as thread_id, lock_id, dept.name as dept_name '
-            .' ,count(distinct attach.attach_id) as attachments'
+            .' ,count(distinct attach.id) as attachments'
             .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
