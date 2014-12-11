@@ -1097,6 +1097,10 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return $this->_value;
     }
 
+    function getLocal($tag) {
+        return $this->field->getLocal($tag);
+    }
+
     function getIdValue() {
         return $this->get('value_id');
     }

@@ -169,7 +169,7 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo $ticket->getStatus(); ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
@@ -356,7 +356,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                 if (!($v = $a->display())) continue; ?>
                 <tr>
                     <th width="100"><?php
-    echo $a->getField()->get('label');
+    echo $a->getLocal('label');
                     ?>:</th>
                     <td><?php
     echo $v;

@@ -29,7 +29,7 @@ class SLA extends VerySimpleModel {
     }
 
     function getName() {
-        return $this->name;
+        return $this->getLocal('name');
     }
 
     function getGracePeriod() {

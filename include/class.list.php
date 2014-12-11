@@ -806,10 +806,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
 
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
-    }
-
     protected function hasFlag($field, $flag) {
         return 0 !== ($this->get($field) & $flag);
     }
@@ -1006,6 +1002,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function getValue() {
         return $this->getName();
     }
+    function getLocalName() {
+        return $this->getLocal('value');
+    }
 
     function getAbbrev() {
         return '';
@@ -1138,7 +1137,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function __toString() {
-        return __($this->getName());
+        return $this->getName();
     }
 
     static function create($ht) {
