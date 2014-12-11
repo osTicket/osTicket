@@ -24,6 +24,9 @@ class RoleModel extends VerySimpleModel {
                 'list' => true,
                 'reverse' => 'Group.role',
             ),
+            'agents' => array(
+                'reverse' => 'Staff.role',
+            ),
         ),
     );
 
@@ -67,7 +70,7 @@ class RoleModel extends VerySimpleModel {
     }
 
     function isDeleteable() {
-        return ($this->groups->count() == 0);
+        return $this->groups->count() + $this->agents->count() == 0;
     }
 
 }
@@ -79,9 +82,11 @@ class Role extends RoleModel {
     var $_perm;
 
     function getPermission() {
-        if (!$this->_perm)
-            $this->_perm = new RolePermission('role.'.$this->getId());
-
+        if (!$this->_perm) {
+            $this->_perm = new RolePermission(
+                isset($this->permissions) ? $this->permissions : array()
+            );
+        }
         return $this->_perm;
     }
 
@@ -125,13 +130,13 @@ class Role extends RoleModel {
     private function updatePerms($vars, &$errors=array()) {
 
         $config = array();
+        $permissions = $this->getPermission();
         foreach (RolePermission::allPermissions() as $g => $perms) {
-            foreach($perms as $k => $v)
-                $config[$k] = in_array($k, $vars) ? 1 : 0;
+            foreach($perms as $k => $v) {
+                $permissions->set($k, in_array($k, $vars) ? 1 : 0);
+            }
         }
-
-        $this->getPermission()->updateAll($config);
-        $this->getPermission()->load();
+        $this->permissions = $permissions->toJson();
     }
 
     function update($vars, &$errors) {
@@ -149,10 +154,11 @@ class Role extends RoleModel {
 
         $this->name = $vars['name'];
         $this->notes = $vars['notes'];
-        if (!$this->save(true))
-            return false;
 
         $this->updatePerms($vars['perms'], $errors);
+
+        if (!$this->save(true))
+            return false;
 
         return true;
     }
@@ -179,9 +185,6 @@ class Role extends RoleModel {
             ->filter(array('role_id'=>$this->getId()))
             ->update(array('role_id' => 0));
 
-        // Delete permission settings
-         $this->getPermission()->destroy();
-
         return true;
     }
 
@@ -193,10 +196,10 @@ class Role extends RoleModel {
 
     static function __create($vars, &$errors) {
         $role = self::create($vars);
-        $role->save();
         if ($vars['permissions'])
             $role->updatePerms($vars['permissions']);
 
+        $role->save();
         return $role;
     }
 
@@ -252,7 +255,7 @@ class Role extends RoleModel {
 }
 
 
-class RolePermission extends Config {
+class RolePermission {
 
     static $_permissions = array(
             /* @trans */ 'Tickets' => array(
@@ -296,46 +299,75 @@ class RolePermission extends Config {
                 ),
             );
 
+    var $perms;
+
     static function allPermissions() {
         return static::$_permissions;
     }
 
-    function get($var) {
-        return (bool) parent::get($var);
+    function __construct($perms) {
+        $this->perms = $perms;
+        if (is_string($this->perms))
+            $this->perms = JsonDataParser::parse($this->perms);
+        elseif (!$this->perms)
+            $this->perms = array();
+    }
+
+    function has($perm) {
+        return (bool) $this->get($perm);
+    }
+
+    function get($perm) {
+        return @$this->perms[$perm];
+    }
+
+    function set($perm, $value) {
+        if (!$value)
+            unset($this->perms[$perm]);
+        else
+            $this->perms[$perm] = $value;
+    }
+
+    function toJson() {
+        return JsonDataEncoder::encode($this->perms);
+    }
+
+    function getInfo() {
+        return $this->perms;
     }
 
     /* tickets */
     function canCreateTickets() {
-        return ($this->get('ticket.create'));
+        return ($this->has('ticket.create'));
     }
 
     function canEditTickets() {
-        return ($this->get('ticket.edit'));
+        return ($this->has('ticket.edit'));
     }
 
     function canAssignTickets() {
-        return ($this->get('ticket.assign'));
+        return ($this->has('ticket.assign'));
     }
 
     function canTransferTickets() {
-        return ($this->get('ticket.transfer'));
+        return ($this->has('ticket.transfer'));
     }
 
     function canPostReply() {
-        return ($this->get('ticket.reply'));
+        return ($this->has('ticket.reply'));
     }
 
     function canCloseTickets() {
-        return ($this->get('ticket.close'));
+        return ($this->has('ticket.close'));
     }
 
     function canDeleteTickets() {
-        return ($this->get('ticket.delete'));
+        return ($this->has('ticket.delete'));
     }
 
     /* Knowledge base */
     function canManagePremade() {
-        return ($this->get('kb.premade'));
+        return ($this->has('kb.premade'));
     }
 
     function canManageCannedResponses() {
@@ -343,7 +375,7 @@ class RolePermission extends Config {
     }
 
     function canManageFAQ() {
-        return ($this->get('kb.faq'));
+        return ($this->has('kb.faq'));
     }
 
     function canManageFAQs() {
@@ -352,12 +384,12 @@ class RolePermission extends Config {
 
     /* stats */
     function canViewStaffStats() {
-        return ($this->get('stats.agents'));
+        return ($this->has('stats.agents'));
     }
 
     /* email */
     function canBanEmails() {
-        return ($this->get('emails.banlist'));
+        return ($this->has('emails.banlist'));
     }
 }
 ?>

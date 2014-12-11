@@ -34,6 +34,9 @@ implements AuthenticatedUser {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id'),
+            ),
             'group' => array(
                 'constraint' => array('group_id' => 'Group.id'),
             ),
@@ -53,6 +56,7 @@ implements AuthenticatedUser {
     var $passwd_change;
     var $_roles = null;
     var $_teams = null;
+    var $_perms = null;
 
     function __onload() {
         // WE have to patch info here to support upgrading from old versions.
@@ -271,32 +275,29 @@ implements AuthenticatedUser {
     }
 
     function getRole($dept=null) {
-
-        if ($dept) {
-            $deptId = is_object($dept) ? $dept->getId() : $dept;
+        $deptId = is_object($dept) ? $dept->getId() : $dept;
+        if ($deptId && $deptId != $this->dept_id) {
             if (isset($this->_roles[$deptId]))
                 return $this->_roles[$deptId];
 
             if (($role=$this->group->getRole($deptId)))
                 return $this->_roles[$deptId] = $role;
         }
-
-        return $this->group->getRole();
+        // For the primary department, use the primary role
+        return $this->role;
     }
 
     function hasPermission($perm) {
-        static $perms = null;
-        if (!isset($perms[$perm])) {
-            $perms[$perm] = false;
-            foreach($this->getDepartments() as $deptId) {
-                if (($role=$this->getRole($deptId))
-                        && $role->getPermission()
-                        && $role->getPermission()->get($perm))
-                    $perms[$perm] = true;
+        if (!isset($this->_perms)) {
+            foreach ($this->getDepartments() as $deptId) {
+                if (($role = $this->getRole($deptId))) {
+                    foreach ($role->getPermission()->getInfo() as $perm=>$v) {
+                        $this->_perms[$perm] |= $v;
+                    }
+                }
             }
         }
-
-        return $perms[$perm];
+        return @$this->_perms[$perm];
     }
 
     function canCreateTickets() {
@@ -756,6 +757,8 @@ implements AuthenticatedUser {
 
         if(!$vars['dept_id'])
             $errors['dept_id']=__('Department is required');
+        if(!$vars['role_id'])
+            $errors['role_id']=__('Role for primary department is required');
 
         if(!$vars['group_id'])
             $errors['group_id']=__('Group is required');
@@ -769,6 +772,7 @@ implements AuthenticatedUser {
         $this->onvacation = isset($vars['onvacation'])?1:0;
         $this->assigned_only = isset($vars['assigned_only'])?1:0;
         $this->dept_id = $vars['dept_id'];
+        $this->role_id = $vars['role_id'];
         $this->group_id = $vars['group_id'];
         $this->timezone = $vars['timezone'];
         $this->username = $vars['username'];

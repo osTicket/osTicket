@@ -1,5 +1,5 @@
 /**
- * @signature c7c828356c88b462ba2e3e1437dca0df
+ * @signature 36f6b32893c2b97c5104ab5302d2dd2e
  * @version v1.9.6
  * @title Add role-based access
  *
@@ -11,6 +11,7 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `flags` int(10) unsigned NOT NULL DEFAULT '1',
   `name` varchar(64) DEFAULT NULL,
+  `permissions` text,
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -20,6 +21,9 @@ CREATE TABLE `%TABLE_PREFIX%role` (
 
 ALTER TABLE  `%TABLE_PREFIX%group_dept_access`
     ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0';
+
+ALTER TABLE `%TABLE_PREFIX%staff`
+    ADD `role_id` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_id`;
 
 ALTER TABLE  `%TABLE_PREFIX%groups`
     CHANGE  `group_id`  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -38,5 +42,5 @@ ALTER TABLE  `%TABLE_PREFIX%department`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value`='c7c828356c88b462ba2e3e1437dca0df'
+    SET `value`='36f6b32893c2b97c5104ab5302d2dd2e'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

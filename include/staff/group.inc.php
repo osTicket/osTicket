@@ -75,7 +75,7 @@ $roles = Role::getActiveRoles();
             </td>
             <td>
                 <select name="role_id">
-                    <option value="0">Select One</option>
+                    <option value="0"><?php echo __('Select One'); ?></option>
                     <?php
                     foreach ($roles as $id => $role) {
                         $sel = ($info['role_id'] == $id) ? 'selected="selected"' : '';
@@ -140,7 +140,9 @@ $roles = Role::getActiveRoles();
                 ?>
                 <select name="<?php echo $_name; ?>">
                     <option value="0">&mdash; <?php
-                        echo __('Group Default'); ?> &mdash;</option>
+                    echo __('Group Default'); ?><?php
+                    if (isset($group)) echo ' ('.$group->role->getName().')';
+                    ?> &mdash;</option>
                     <?php
                     foreach ($roles as $rid => $role) {
                         $sel = '';

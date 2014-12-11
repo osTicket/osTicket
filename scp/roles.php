@@ -42,6 +42,7 @@ if ($_POST) {
     case 'add':
         $_role = Role::create();
         if ($_role->update($_POST, $errors)) {
+            unset($_REQUEST['a']);
             $msg = sprintf(__('Successfully added %s'),
                     __('role'));
         } elseif ($errors) {
