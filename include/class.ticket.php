@@ -2285,11 +2285,15 @@ class Ticket {
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
             $form->setSource($_POST);
-            if (!$form->isValidForStaff())
+            if (!$form->isValid(function($f) {
+                return $f->isVisibleToStaff() && $f->isEditableToStaff();
+            })) {
                 $errors = array_merge($errors, $form->errors());
+            }
         }
 
-        if($errors) return false;
+        if ($errors)
+            return false;
 
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
             .' ,topic_id='.db_input($vars['topicId'])
