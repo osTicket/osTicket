@@ -1,9 +1,9 @@
 /**
- * @version v1.9.5
- * @signature 2257f6f22ca4b31bea6045b8b7d59d56
- * @title Threads revisited
+ * @version v1.9.6
+ * @signature  366ff61fbe023fe840a4a65138320d11
+ * @title Add tasks
  *
- * This patch adds ability to thread anything
+ * This patch adds ability to thread anything and introduces tasks
  *
  */
 
@@ -77,9 +77,40 @@ ALTER TABLE  `%TABLE_PREFIX%ticket_email_info`
 
 RENAME TABLE `%TABLE_PREFIX%ticket_email_info` TO  `%TABLE_PREFIX%thread_entry_email`;
 
+-- create task task
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%task` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `object_id` int(11) NOT NULL DEFAULT '0',
+  `object_type` char(1) NOT NULL,
+  `number` varchar(20) DEFAULT NULL,
+  `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `team_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `duedate` datetime DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dept_id` (`dept_id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `team_id` (`team_id`),
+  KEY `created` (`created`),
+  KEY `sla_id` (`sla_id`),
+  KEY `object` (`object_id`,`object_type`)
+) DEFAULT CHARSET=utf8;
 
+-- rename ticket sequence numbering
+
+UPDATE `%TABLE_PREFIX%config`
+    SET `key` = 'ticket_number_format'
+    WHERE `key` = 'number_format'  AND `namespace` = 'core';
+
+UPDATE `%TABLE_PREFIX%config`
+    SET `key` = 'ticket_sequence_id'
+    WHERE `key` = 'sequence_id'  AND `namespace` = 'core';
 
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '2257f6f22ca4b31bea6045b8b7d59d56'
+    SET `value` = '366ff61fbe023fe840a4a65138320d11'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

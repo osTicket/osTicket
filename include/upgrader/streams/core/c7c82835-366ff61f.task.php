@@ -4,8 +4,17 @@
  *
  */
 
-class TaskFormLoader extends MigrationTask {
+class TaskLoader extends MigrationTask {
     var $description = "Loading initial data for tasks";
+    static $pman = array(
+            'ticket.create'     => 'task.create',
+            'ticket.edit'       => 'task.edit',
+            'ticket.reply'      => 'task.reply',
+            'ticket.delete'     => 'task.delete',
+            'ticket.close'      => 'task.close',
+            'ticket.assign'     => 'task.assign',
+            'ticket.transfer'   => 'task.transfer',
+    );
 
     function run($max_time) {
         global $cfg;
@@ -30,9 +39,20 @@ class TaskFormLoader extends MigrationTask {
             break;
         }
 
+        // Copy ticket permissions
+        foreach (Role::objects() as $role) {
+            $perms = $role->getPermissionInfo();
+            foreach (self::$pmap as  $k => $v) {
+                if (in_array($k, $perms))
+                    $perms[] = $v;
+            }
+            $role->updatePerms($perms);
+            $role->save();
+        }
+
     }
 }
 
-return 'TaskFormLoader';
+return 'TaskLoader';
 
 ?>

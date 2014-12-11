@@ -281,6 +281,26 @@ class RolePermission {
                     /* @trans */ 'Delete',
                     /* @trans */ 'Ability to delete tickets'),
                 ),
+            /* @trans */ 'Tasks' => array(
+                'task.create'  => array(
+                    /* @trans */ 'Create',
+                    /* @trans */ 'Ability to create tasks'),
+                'task.edit'   => array(
+                    /* @trans */ 'Edit',
+                    /* @trans */ 'Ability to edit tasks'),
+                'task.assign'   => array(
+                    /* @trans */ 'Assign',
+                    /* @trans */ 'Ability to assign tasks to agents or teams'),
+                'task.transfer'   => array(
+                    /* @trans */ 'Transfer',
+                    /* @trans */ 'Ability to transfer tasks between departments'),
+                'task.close'   => array(
+                    /* @trans */ 'Close',
+                    /* @trans */ 'Ability to close tasks'),
+                'tasks.delete'   => array(
+                    /* @trans */ 'Delete',
+                    /* @trans */ 'Ability to delete tasks'),
+                ),
             /* @trans */ 'Knowledgebase' => array(
                 'kb.premade'   => array(
                     /* @trans */ 'Premade',

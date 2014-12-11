@@ -779,6 +779,7 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
   `team_id` int(10) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `duedate` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
