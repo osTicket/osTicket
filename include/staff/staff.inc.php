@@ -228,6 +228,44 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
+                <?php echo __('Primary Department');?>:
+            </td>
+            <td>
+                <select name="dept_id" id="dept_id">
+                    <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
+                    <?php
+                    foreach (Dept::getDepartments() as $id=>$name) {
+                        $sel=($info['dept_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
+                <div class="error"><?php echo $errors['dept_id']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Primary Role');?>:
+            </td>
+            <td>
+                <select name="role_id">
+                    <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+                    <?php
+                    foreach (Role::getRoles() as $id=>$name) {
+                        $sel=($info['role_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#primary_role"></i>
+                <div class="error"><?php echo $errors['role_id']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
                 <?php echo __('Assigned Group');?>:
             </td>
             <td>
@@ -242,36 +280,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['group_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#assigned_group"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Primary Department');?>:
-            </td>
-            <td>
-                <select name="dept_id" id="dept_id">
-                    <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
-                    <?php
-                    foreach (Dept::getDepartments() as $id=>$name) {
-                        $sel=($info['dept_id']==$id)?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                    }
-                    ?>
-                </select>
-                &nbsp;
-                <select name="role_id">
-                    <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
-                    <?php
-                    foreach (Role::getRoles() as $id=>$name) {
-                        $sel=($info['role_id']==$id)?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*</span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
-                <div class="error"><?php echo $errors['dept_id']; ?></div>
-                <div class="error"><?php echo $errors['role_id']; ?></div>
             </td>
         </tr>
         <tr>

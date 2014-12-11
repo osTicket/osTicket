@@ -1003,7 +1003,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->getName();
     }
     function getLocalName() {
-        return $this->getLocal('value');
+        return $this->getLocal('value', $this->getName());
     }
 
     function getAbbrev() {
@@ -1030,10 +1030,10 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function getTranslateTag($subtag) {
         return _H(sprintf('status.%s.%s', $subtag, $this->id));
     }
-    function getLocal($subtag) {
+    function getLocal($subtag, $default) {
         $tag = $this->getTranslateTag($subtag);
         $T = CustomDataTranslation::translate($tag);
-        return $T != $tag ? $T : $this->get($subtag);
+        return $T != $tag ? $T : $default;
     }
     static function getLocalById($id, $subtag, $default) {
         $tag = _H(sprintf('status.%s.%s', $subtag, $id));

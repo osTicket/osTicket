@@ -111,7 +111,7 @@ $('#timezone-dropdown').chosen({
 </script>
 <?php if (!isset($info['timezone'])) { ?>
 <!-- Auto detect client's timezone where possible -->
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>/js/jstz.min.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js"></script>
 <script type="text/javascript">
 $(function() {
     var zone = jstz.determine();

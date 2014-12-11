@@ -97,7 +97,7 @@ if (count($langs) > 1) { ?>
         $cname = "trans[$code][$cname]";
         $dname = "trans[$code][$dname]";
     } ?>
-    <div class="tab_content" style="margin:0 45px" style="<?php
+    <div class="tab_content" style="margin:0 48px;<?php
         if ($code != $cfg->getPrimaryLanguage()) echo "display:none;";
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>

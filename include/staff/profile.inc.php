@@ -97,7 +97,7 @@ $info['id']=$staff->getId();
                 </select>
                 <button class="action-button" onclick="javascript:
     $('head').append($('<script>').attr('src', '<?php
-        echo ROOT_PATH; ?>/js/jstz.min.js'));
+        echo ROOT_PATH; ?>js/jstz.min.js'));
     var recheck = setInterval(function() {
         if (window.jstz !== undefined) {
             clearInterval(recheck);

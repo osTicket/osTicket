@@ -209,7 +209,7 @@ class Installer extends SetupWizard {
                 'alert_email_id'=>$alert_email_id,
                 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
                 'default_template_id'=>$template_id_1,
-                'default_timezone' => date_default_timezone_get()
+                'default_timezone' => date_default_timezone_get(),
                 'admin_email'=>$vars['admin_email'],
                 'schema_signature'=>$streams['core'],
                 'helpdesk_url'=>URL,

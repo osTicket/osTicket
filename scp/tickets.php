@@ -61,7 +61,7 @@ if($_POST && !$errors):
         $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if(!$role || !$role->canPostReply())
+            if(!$role || !$role->canPostTicketReply())
                 $errors['err'] = __('Action denied. Contact admin for access');
             else {
 

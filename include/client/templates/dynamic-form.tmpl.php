@@ -16,7 +16,7 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if (!$field->isEditableToUsers())
+        if (!$field->isVisibleToUsers() && !$field->isEditableToUsers())
             continue;
         ?>
         <tr>
