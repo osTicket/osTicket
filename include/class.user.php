@@ -44,10 +44,12 @@ class UserModel extends VerySimpleModel {
                 'reverse' => 'UserEmailModel.user',
             ),
             'tickets' => array(
+                'null' => true,
                 'reverse' => 'TicketModel.user',
             ),
             'account' => array(
                 'list' => false,
+                'null' => true,
                 'reverse' => 'UserAccount.user',
             ),
             'org' => array(

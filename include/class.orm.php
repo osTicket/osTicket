@@ -895,7 +895,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
         $query = clone $this;
         if (!$query->ordering && isset($model::$meta['ordering']))
             $query->ordering = $model::$meta['ordering'];
-        if (!$query->related && $model::$meta['select_related'])
+        if (!$query->related && !$query->values && $model::$meta['select_related'])
             $query->related = $model::$meta['select_related'];
         if (!$query->defer && $model::$meta['defer'])
             $query->defer = $model::$meta['defer'];
