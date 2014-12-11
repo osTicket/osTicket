@@ -1,6 +1,6 @@
 /**
  * @version v1.9.6
- * @signature e7a338f95ed622678123386a8a59dfc0
+ * @signature 7337bc63d257cd49ddbebc1eecbd394e
  * @title Add support for ticket tasks
  *
  * This patch adds ability to thread anything and introduces tasks
@@ -119,5 +119,5 @@ UPDATE `%TABLE_PREFIX%department`
 
 -- Set new schema signature
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'e7a338f95ed622678123386a8a59dfc0'
+    SET `value` = '7337bc63d257cd49ddbebc1eecbd394e'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
