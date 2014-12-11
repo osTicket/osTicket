@@ -17,6 +17,24 @@
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
 
+class ThreadModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array(
+                    'object_id' => 'TicketModel.ticket_id',
+                    'object_type' => "'T'",
+                ),
+            ),
+            'entries' => array(
+                'reverse' => 'ThreadEntryModel.thread',
+            ),
+        ),
+    );
+}
+
 //Ticket thread.
 class Thread {
 
@@ -204,8 +222,23 @@ class Thread {
     }
 }
 
+class ThreadEntryModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_ENTRY_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'thread' => array(
+                'constraint' => array('thread_id' => 'ThreadModel.id'),
+            ),
+            'attachments' => array(
+                'reverse' => 'AttachmentModel.thread',
+                'null' => true,
+            ),
+        ),
+    );
+}
 
-Class ThreadEntry {
+class ThreadEntry {
 
     var $id;
     var $ht;

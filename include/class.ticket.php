@@ -74,6 +74,11 @@ class TicketModel extends VerySimpleModel {
                 'constraint' => array('topic_id' => 'Topic.topic_id'),
                 'null' => true,
             ),
+            'thread' => array(
+                'reverse' => 'ThreadModel.ticket',
+                'list' => false,
+                'null' => true,
+            ),
             'cdata' => array(
                 'reverse' => 'TicketCData.ticket',
                 'list' => false,

@@ -103,12 +103,14 @@ $tickets->filter(Q::any($visibility));
 
 // Add in annotations
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('collaborators')
+    'collab_count' => SqlAggregate::COUNT('collaborators'),
+    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+    'thread_count' => SqlAggregate::COUNT('thread__entries'),
 ));
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'collab_count');
+$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
 
 // Apply requested quick filter
 
@@ -286,7 +288,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                 }
                 $tid=$T['number'];
                 $subject = Format::truncate($subject_field->display($subject_field->to_php($T['cdata__subject'])),40);
-                $threadcount=$row['thread_count'];
+                $threadcount=$T['thread_count'];
                 if(!strcasecmp($T['status__state'],'open') && !$T['isanswered'] && !$T['lock__lock_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
@@ -318,7 +320,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                                 class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
                         if ($T['collab_count'])
                             echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
-                        if ($row['attachments'])
+                        if ($T['attachment_count'])
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>

@@ -293,8 +293,9 @@ class MysqlSearchBackend extends SearchBackend {
                         FROM `{$P}_search` `search` WHERE $search) `search`",
                     "(select ticket_id as ticket_id from {$P}ticket
                 ) Z1 ON (Z1.ticket_id = search.object_id and search.object_type = 'T')",
-                    "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
-                    join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
+                    "(select A3.id as thread_id, A1.ticket_id from {$P}ticket A1
+                    join {$P}thread A2 on (A1.ticket_id = A2.object_id and A2.object_type = 'T')
+                    join {$P}thread_entry A3 on (A2.id = A3.thread_id)
                 ) Z2 ON (Z2.thread_id = search.object_id and search.object_type = 'H')",
                 )
             ));

@@ -80,7 +80,7 @@ class ModelMeta implements ArrayAccess {
                     $j['reverse']));
             foreach ($info['constraint'] as $foreign => $local) {
                 list(,$field) = explode('.', $local);
-                $constraint[$field] = "$fmodel.$foreign";
+                $constraint[$field ?: $local] = "$fmodel.$foreign";
             }
             $j['constraint'] = $constraint;
             if (!isset($j['list']))
@@ -1680,6 +1680,15 @@ class MySqlCompiler extends SqlCompiler {
                 $constraints[] = sprintf("%s.%s = %s",
                     $alias, $this->quote($right),
                     $this->input(trim($local, '\'"'), self::SLOT_JOINS)
+                );
+            }
+            // Support local constraint
+            // field_name => "'constant'"
+            elseif ($foreign[0] == "'" && !$right) {
+            die();
+                $constraints[] = sprintf("%s.%s = %s",
+                    $table, $this->quote($local),
+                    $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
                 );
             }
             else {

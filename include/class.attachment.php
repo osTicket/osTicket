@@ -89,6 +89,21 @@ class Attachment {
     }
 }
 
+class AttachmentModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => ATTACHMENT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'thread' => array(
+                'constraint' => array(
+                    'object_id' => 'ThreadEntryModel.id',
+                    'type' => "'H'",
+                ),
+            ),
+        ),
+    );
+}
+
 class GenericAttachments {
 
     var $id;
