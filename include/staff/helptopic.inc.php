@@ -118,12 +118,9 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
-                    if (($depts=Dept::getDepartments())) {
-                        foreach ($depts as $id => $name) {
-                            $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, $selected, $name);
-                        }
+                    foreach (Dept::getDepartments() as $id=>$name) {
+                        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
                     }
                     ?>
                 </select>

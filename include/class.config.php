@@ -655,20 +655,42 @@ class OsticketConfig extends Config {
         return true; //No longer an option...hint: big plans for headers coming!!
     }
 
-    function getDefaultSequence() {
-        if ($this->get('sequence_id'))
-            $sequence = Sequence::lookup($this->get('sequence_id'));
+    function getDefaultTicketSequence() {
+        if ($this->get('ticket_sequence_id'))
+            $sequence = Sequence::lookup($this->get('ticket_sequence_id'));
         if (!$sequence)
             $sequence = new RandomSequence();
         return $sequence;
     }
-    function getDefaultNumberFormat() {
-        return $this->get('number_format');
+
+    function getDefaultTicketNumberFormat() {
+        return $this->get('ticket_number_format');
     }
+
     function getNewTicketNumber() {
-        $s = $this->getDefaultSequence();
-        return $s->next($this->getDefaultNumberFormat(),
+        $s = $this->getDefaultTicketSequence();
+        return $s->next($this->getDefaultTicketNumberFormat(),
             array('Ticket', 'isTicketNumberUnique'));
+    }
+
+    // Task sequence
+    function getDefaultTaskSequence() {
+        if ($this->get('task_sequence_id'))
+            $sequence = Sequence::lookup($this->get('task_sequence_id'));
+        if (!$sequence)
+            $sequence = new RandomSequence();
+
+        return $sequence;
+    }
+
+    function getDefaultTaskNumberFormat() {
+        return $this->get('task_number_format');
+    }
+
+    function getNewTaskNumber() {
+        $s = $this->getDefaultTaskSequence();
+        return $s->next($this->getDefaultTaskNumberFormat(),
+            array('Task', 'isNumberUnique'));
     }
 
     /* autoresponders  & Alerts */

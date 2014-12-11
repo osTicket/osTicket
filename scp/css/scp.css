@@ -459,7 +459,7 @@ table.list thead th {
     color:#000;
     text-align:left;
     vertical-align:top;
-    padding: 2px 4px;
+    padding: 4px 5px;
 }
 
 table.list th a {
@@ -468,7 +468,7 @@ table.list th a {
     color:#000;
 }
 
-table.list thead th a { padding: 3px; padding-right: 15px; display: block; white-space: nowrap; color: #000; background: url('../images/asc_desc.gif') 100% 50% no-repeat; }
+table.list thead th a { padding-right: 15px; display: block; white-space: nowrap; color: #000; background: url('../images/asc_desc.gif') 100% 50% no-repeat; }
 
 table.list thead th a.asc { background: url('../images/asc.gif') 100% 50% no-repeat #cfe6ff; }
 table.list thead th a.desc { background: url('../images/desc.gif') 100% 50% no-repeat #cfe6ff; }
@@ -774,40 +774,6 @@ h2 .reload {
     margin:0;
 }
 
-#threads {
-    margin:0;
-    padding:5px 10px 0 10px;
-    border:1px solid #aaa;
-    background:#F4FAFF;
-    height:30px;
-}
-
-#threads li {
-    list-style:none;
-    margin:0;
-    padding:0;
-    display:inline;
-}
-
-#threads li a {
-    display:inline-block;
-    width:auto;
-    height:30px;
-    line-height:30px;
-    border-top:1px solid #F4FAFF;
-    padding:0 10px 0 32px;
-    margin-right:10px;
-}
-
-#threads li a.active {
-    height:29px;
-    background-color:#fff;
-    border:1px solid #aaa;
-    border-bottom:none;
-    border-top:2px solid #ed9100;
-    font-weight:bold;
-}
-
 #toggle_ticket_thread {
     background:url(../images/icons/open.gif) 10px 50% no-repeat;
 }
@@ -816,9 +782,7 @@ h2 .reload {
     background:url(../images/icons/note.gif) 10px 50% no-repeat;
 }
 
-#ticket_thread table.message,
-#ticket_thread table.response,
-#ticket_thread table.note {
+table.thread-entry {
     margin-top:10px;
     border:1px solid #aaa;
     border-bottom:2px solid #aaa;
@@ -830,7 +794,7 @@ h2 .reload {
     border-bottom:2px solid #ddd;
 }
 
-#ticket_thread table th, #ticket_notes table th {
+table.thread-entry th, #ticket_notes table th {
     text-align:left;
     border-bottom:1px solid #aaa;
     font-size:10pt;
@@ -858,15 +822,15 @@ h2 .reload {
     text-align:right;
 }
 
-#ticket_thread > .message th {
+.thread-entry.message th {
     background:#C3D9FF;
 }
 
-#ticket_thread > .response th {
+.thread-entry.response th {
     background:#FFE0B3;
 }
 
-#ticket_thread > .note th {
+.thread-entry.note th {
     background:#FFE;
 }
 
@@ -878,7 +842,7 @@ h2 .reload {
     background:#f9f9f9;
 }
 
-#ticket_thread .info, #ticket_notes .info {
+.thread-entry .info, #ticket_notes .info {
     padding:5px;
     background:#F4FAFF;
     height:16px;
@@ -1411,6 +1375,18 @@ time {
     max-height: 72%;
     min-height: 50px;
     overflow-y: auto;
+}
+
+.dialog#popup {
+    width:650px;
+}
+
+.dialog.size-normal {
+    width:650px !important;
+}
+
+.dialog.size-large {
+    width:750px !important;
 }
 
 .dialog #popup-loading {

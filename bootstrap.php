@@ -89,15 +89,19 @@ class Bootstrap {
         define('FAQ_CATEGORY_TABLE',$prefix.'faq_category');
 
         define('DRAFT_TABLE',$prefix.'draft');
+
+        define('THREAD_TABLE', $prefix.'thread');
+        define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
+        define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+
         define('TICKET_TABLE',$prefix.'ticket');
-        define('TICKET_THREAD_TABLE',$prefix.'ticket_thread');
-        define('TICKET_ATTACHMENT_TABLE',$prefix.'ticket_attachment');
         define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
-        define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
         define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
+        define('TASK_TABLE',$prefix.'task');
 
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
@@ -184,6 +188,7 @@ class Bootstrap {
         require_once INCLUDE_DIR.'class.util.php';
         require_once INCLUDE_DIR.'class.translation.php';
         require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.model.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!

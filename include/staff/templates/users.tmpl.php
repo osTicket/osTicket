@@ -99,8 +99,10 @@ if ($num) { ?>
                     value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 </td>
                 <td>&nbsp;
-                    <a class="userPreview"
-                        href="users.php?id=<?php echo $row['id']; ?>"><?php
+                    <a class="preview"
+                        href="users.php?id=<?php echo $row['id']; ?>"
+                        data-preview="#users/<?php
+                        echo $row['id']; ?>/preview" ><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php

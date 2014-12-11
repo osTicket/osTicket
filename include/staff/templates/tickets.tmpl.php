@@ -14,7 +14,7 @@ $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id '
       .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
       .' LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (ticket.user_id=account.user_id) '
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '
+      .' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.id '
       .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
       .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
       .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
@@ -40,12 +40,15 @@ while ($row = db_fetch_array($res))
 
 if ($results) {
     $counts_sql = 'SELECT ticket.ticket_id,
-        count(DISTINCT attach.attach_id) as attachments,
-        count(DISTINCT thread.id) as thread_count,
+        count(DISTINCT attach.id) as attachments,
+        count(DISTINCT entry.id) as thread_count,
         count(DISTINCT collab.id) as collaborators
-        FROM '.TICKET_TABLE.' ticket
-        LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-     .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+        FROM '.TICKET_TABLE.' ticket '
+     .' LEFT JOIN '.THREAD_TABLE.' thread
+            ON (thread.object_id=ticket.ticket_id AND thread.object_type="T") '
+     .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry ON (entry.thread_id=thread.id) '
+     .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+            ON (attach.object_id=entry.id AND attach.`type` = "H") '
      .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
             ON ( ticket.ticket_id=collab.ticket_id) '
      .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
@@ -137,9 +140,11 @@ if ($results) { ?>
             <?php
             } ?>
             <td align="center" nowrap>
-              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
+              <a class="Icon <?php
+                echo strtolower($row['source']); ?>Ticket preview"
                 title="<?php echo __('Preview Ticket'); ?>"
-                href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
+                href="tickets.php?id=<?php echo $row['ticket_id']; ?>"
+                data-preview="#tickets/<?php echo $row['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
             <td align="center" nowrap><?php echo Format::datetime($row['effective_date']); ?></td>
             <td><?php echo $status; ?></td>
             <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>

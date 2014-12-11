@@ -319,44 +319,6 @@ $.refreshTicketView = function() {
 }
 
 var ticket_onload = function($) {
-    if (!location.hash || !$('#response_options .tab_content' + location.hash).length) {
-        $('#response_options ul.tabs li:first a').trigger('click');
-    }
-
-    $('#reply_tab').click(function() {
-       $(this).removeClass('tell');
-     });
-
-    $('#note_tab').click(function() {
-        if($('#response').val() != '') {
-            $('#reply_tab').addClass('tell');
-        }
-     });
-
-    $('#response_options ul.tabs li a').click(function(e) {
-        $("#msg_error, #msg_notice, #msg_warning").fadeOut();
-     });
-
-    $('#toggle_ticket_thread, #toggle_notes, .show_notes').click(function(e) {
-        e.preventDefault();
-        $('#threads a').removeClass('active');
-
-        if($(this).attr('id') == 'toggle_ticket_thread') {
-            $('#ticket_notes').hide();
-            $('#ticket_thread').show();
-            $('#toggle_ticket_thread').addClass('active');
-            $('#reply_tab').removeClass('tell').click();
-        } else {
-            $('#ticket_thread').hide();
-            $('#ticket_notes').show();
-            $('#toggle_notes').addClass('active');
-            $('#note_tab').click();
-            if($('#response').val() != '') {
-                $('#reply_tab').addClass('tell');
-            }
-        }
-     });
-
     //Start watching the form for activity.
     autoLock.Init();
 
@@ -377,15 +339,16 @@ var ticket_onload = function($) {
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
         var $redirect = $(this).data('href');
+        var $options = $(this).data('dialog');
         $.dialog(url, [201], function (xhr) {
             window.location.href = $redirect ? $redirect : window.location.href;
-        });
+        }, $options);
 
         return false;
     });
 
-    $(document).on('change', 'form#reply select#emailreply', function(e) {
-         var $cc = $('form#reply tbody#cc_sec');
+    $(document).on('change', 'form[name=reply] select#emailreply', function(e) {
+         var $cc = $('form[name=reply] tbody#cc_sec');
         if($(this).val() == 0)
             $cc.hide();
         else

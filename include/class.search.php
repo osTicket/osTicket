@@ -92,7 +92,8 @@ class SearchInterface {
                 $model->getBody()->getSearchable(), $new,
                 array(
                     'title' =>      $model->getTitle(),
-                    'ticket_id' =>  $model->getTicketId(),
+                    //TODO: send attribute of object_id
+                    'ticket_id' =>  $model->getThread()->getObjectId(),
                     'created' =>    $model->getCreateDate(),
                 )
             );
@@ -218,31 +219,15 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        switch (true) {
-        case $model instanceof ThreadEntry:
-            $type = 'H';
-            break;
-        case $model instanceof Ticket:
-            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
-            $type = 'T';
-            break;
-        case $model instanceof User:
-            $content .= implode("\n", $attrs['emails']);
-            $type = 'U';
-            break;
-        case $model instanceof Organization:
-            $type = 'O';
-            break;
-        case $model instanceof FAQ:
-            $type = 'K';
-            break;
-        case $model instanceof AttachmentFile:
-            $type = 'F';
-            break;
-        default:
-            // Not indexed
+
+
+        if (!($type=ObjectModel::getType($model)))
             return;
-        }
+
+        if ($model instanceof Ticket)
+            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
+        elseif ($model instanceof User)
+            $content .= implode("\n", $attrs['emails']);
 
         $title = $attrs['title'] ?: '';
 
@@ -374,8 +359,7 @@ class MysqlSearchBackend extends SearchBackend {
         };
 
         // THREADS ----------------------------------
-
-        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".TICKET_THREAD_TABLE."` A1
+        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".THREAD_ENTRY_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
@@ -384,7 +368,7 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $body = ThreadBody::fromFormattedText($row[2], $row[3]);
+            $body = ThreadEntryBody::fromFormattedText($row[2], $row[3]);
             $body = $body->getSearchable();
             $title = Format::searchable($row[1]);
             if (!$body && !$title)

@@ -1243,17 +1243,8 @@ class InstrumentedList extends ModelInstanceManager {
     }
 
     // QuerySet overriedes
-    function filter() {
-        return call_user_func_array(array($this->objects(), 'filter'), func_get_args());
-    }
-    function exclude() {
-        return call_user_func_array(array($this->objects(), 'exclude'), func_get_args());
-    }
-    function order_by() {
-        return call_user_func_array(array($this->objects(), 'order_by'), func_get_args());
-    }
-    function limit($how) {
-        return $this->objects()->limit($how);
+    function __call($what, $how) {
+        return call_user_func_array(array($this->objects(), $what), $how);
     }
 }
 

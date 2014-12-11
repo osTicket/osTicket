@@ -412,7 +412,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function manageForms($user_id) {
-        $forms = DynamicFormEntry::forUser($user_id);
+        $forms = DynamicFormEntry::forObject($user_id, 'U');
         $info = array('action' => '#users/'.Format::htmlchars($user_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -428,7 +428,7 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forUser($user_id);
+        $forms = DynamicFormEntry::forObject($user_id, 'U');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {

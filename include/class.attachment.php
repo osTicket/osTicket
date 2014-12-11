@@ -19,48 +19,27 @@ require_once(INCLUDE_DIR.'class.file.php');
 class Attachment {
     var $id;
     var $file_id;
-    var $ticket_id;
 
-    var $info;
+    var $ht;
+    var $object;
 
-    function Attachment($id,$tid=0) {
+    function Attachment($id) {
 
-        $sql='SELECT * FROM '.TICKET_ATTACHMENT_TABLE.' WHERE attach_id='.db_input($id);
-        if($tid)
-            $sql.=' AND ticket_id='.db_input($tid);
+        $sql = 'SELECT a.* FROM '.ATTACHMENT_TABLE.' a '
+             . 'WHERE a.id='.db_input($id);
+        if (!($res=db_query($sql)) || !db_num_rows($res))
+            return;
 
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-
-        $this->id=$this->ht['attach_id'];
-        $this->file_id=$this->ht['file_id'];
-        $this->ticket_id=$this->ht['ticket_id'];
-
-        $this->file=null;
-        $this->ticket=null;
-
-        return true;
+        $this->ht = db_fetch_array($res);
+        $this->file = $this->object = null;
     }
 
     function getId() {
-        return $this->id;
-    }
-
-    function getTicketId() {
-        return $this->ticket_id;
-    }
-
-    function getTicket() {
-        if(!$this->ticket && $this->getTicketId())
-            $this->ticket = Ticket::lookup($this->getTicketId());
-
-        return $this->ticket;
+        return $this->ht['id'];
     }
 
     function getFileId() {
-        return $this->file_id;
+        return $this->ht['file_id'];
     }
 
     function getFile() {
@@ -68,10 +47,6 @@ class Attachment {
             $this->file = AttachmentFile::lookup($this->getFileId());
 
         return $this->file;
-    }
-
-    function getCreateDate() {
-        return $this->ht['created'];
     }
 
     function getHashtable() {
@@ -82,25 +57,36 @@ class Attachment {
         return $this->getHashtable();
     }
 
-    /* Static functions */
-    function getIdByFileHash($hash, $tid=0) {
-        $sql='SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE.' a '
+    function getObject() {
+
+        if (!isset($this->object))
+            $this->object = ObjectModel::lookup(
+                    $this->ht['object_id'], $this->ht['type']);
+
+        return $this->object;
+    }
+
+    static function getIdByFileHash($hash, $objectId=0) {
+        $sql='SELECT a.id FROM '.ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
             .' WHERE f.`key`='.db_input($hash);
-        if($tid)
-            $sql.=' AND a.ticket_id='.db_input($tid);
+        if ($objectId)
+            $sql.=' AND a.object_id='.db_input($objectId);
 
         return db_result(db_query($sql));
     }
 
-    function lookup($var,$tid=0) {
-        $id=is_numeric($var)?$var:self::getIdByFileHash($var,$tid);
+    static function lookup($var, $objectId=0) {
 
-        return ($id && is_numeric($id)
-            && ($attach = new Attachment($id,$tid))
-            && $attach->getId()==$id)?$attach:null;
+        $id = is_numeric($var) ? $var : self::getIdByFileHash($var,
+                $objectId);
+
+        return ($id
+                && is_numeric($id)
+                && ($attach = new Attachment($id, $objectId))
+                && $attach->getId()==$id
+            ) ? $attach : null;
     }
-
 }
 
 class GenericAttachments {
@@ -175,7 +161,8 @@ class GenericAttachments {
     function _getList($separate=false, $inlines=false, $lang=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.`key`, f.name, a.inline, a.lang '
+            $sql='SELECT f.id, f.size, f.`key`, f.name '
+                .', a.inline, a.lang, a.id as attach_id '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
                 .' WHERE a.`type`='.db_input($this->getType())
@@ -193,7 +180,7 @@ class GenericAttachments {
             if (($a['inline'] != $separate || $a['inline'] == $inlines)
                     && $lang == $a['lang']) {
                 $a['file_id'] = $a['id'];
-                $a['hash'] = md5($a['file_id'].session_id().strtolower($a['key']));
+                $a['hash'] = md5($a['file_id'].session_id().$a['key']);
                 $attachments[] = $a;
             }
         }

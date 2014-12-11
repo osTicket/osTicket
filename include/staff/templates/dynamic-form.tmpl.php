@@ -56,7 +56,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
-            $field->render(); ?>
+            $field->render($options); ?>
             <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
                 <span class="error">*</span>
             <?php

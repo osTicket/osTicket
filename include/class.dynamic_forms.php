@@ -698,7 +698,6 @@ class DynamicFormField extends VerySimpleModel {
     static function create($ht=false) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        $inst->flags = self::FLAG_ENABLED;
         if (isset($ht['configuration']))
             $inst->configuration = JsonDataEncoder::encode($ht['configuration']);
         return $inst;
@@ -920,11 +919,6 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $ticket_id;
     }
 
-    function forClient($user_id) {
-        return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
-    }
-
     function setClientId($user_id) {
         $this->object_type = 'U';
         $this->object_id = $user_id;
@@ -934,14 +928,9 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $object_id;
     }
 
-    function forUser($user_id) {
+    function forObject($object_id, $object_type) {
         return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$user_id, 'object_type'=>'U'));
-    }
-
-    function forOrganization($org_id) {
-        return DynamicFormEntry::objects()
-            ->filter(array('object_id'=>$org_id, 'object_type'=>'O'));
+            ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }
 
     function render($staff=true, $title=false, $options=array()) {
@@ -1392,9 +1381,10 @@ class SelectionField extends FormField {
 }
 
 class TypeaheadSelectionWidget extends ChoicesWidget {
-    function render($how) {
-        if ($how == 'search')
-            return parent::render($how);
+    function render($options=array()) {
+
+        if ($options['mode'] == 'search')
+            return parent::render($options);
 
         $name = $this->getEnteredValue();
         $config = $this->field->getConfiguration();

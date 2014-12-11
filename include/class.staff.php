@@ -208,28 +208,50 @@ implements AuthenticatedUser {
     }
 
     function getDepartments() {
+        // TODO: Cache this in the agent's session as it is unlikely to
+        //       change while logged in
 
         if (!isset($this->departments)) {
 
             // Departments the staff is "allowed" to access...
             // based on the group they belong to + user's primary dept + user's managed depts.
-            $dept_ids = array();
-            $depts = Dept::objects()
-                ->filter(Q::any(array(
-                    'id' => $this->dept_id,
-                    'groups__group_id' => $this->group_id,
-                    'manager_id' => $this->getId(),
-                )))
-                ->values_flat('id');
-
-            foreach ($depts as $row)
-                $dept_ids[] = $row[0];
-
-            if (!$dept_ids) { //Neptune help us! (fallback)
-                $dept_ids = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+            $sql='SELECT DISTINCT d.id FROM '.STAFF_TABLE.' s '
+                .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON (s.group_id=g.group_id) '
+                .' INNER JOIN '.DEPT_TABLE.' d ON (LOCATE(CONCAT("/", s.dept_id, "/"), d.path) OR d.manager_id=s.staff_id OR LOCATE(CONCAT("/", g.dept_id, "/"), d.path)) '
+                .' WHERE s.staff_id='.db_input($this->getId());
+            $depts = array();
+            if (($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res))
+                    $depts[] = $id;
             }
 
-            $this->departments = array_filter(array_unique($dept_ids));
+            /* ORM method — about 2.0ms slower
+            $q = Q::any(array(
+                'path__contains' => '/'.$this->dept_id.'/',
+                'manager_id' => $this->getId(),
+            ));
+            // Add in group access
+            foreach ($this->group->depts->values_flat('dept_id') as $row) {
+                // Skip primary dept
+                if ($row[0] == $this->dept_id)
+                    continue;
+                $q->add(new Q(array('path__contains'=>'/'.$row[0].'/')));
+            }
+
+            $dept_ids = Dept::objects()
+                ->filter($q)
+                ->distinct('id')
+                ->values_flat('id');
+
+            foreach ($dept_ids as $row)
+                $depts[] = $row[0];
+            */
+
+            if (!$depts) { //Neptune help us! (fallback)
+                $depts = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
+            }
+
+            $this->departments = $depts;
         }
 
         return $this->departments;
@@ -563,6 +585,11 @@ implements AuthenticatedUser {
 
         if (!parent::delete())
             return false;
+
+        //Update the poster and clear staff_id on ticket thread table.
+        db_query('UPDATE '.THREAD_ENTRY_TABLE
+                .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
+                .' WHERE staff_id='.db_input($this->getId()));
 
         // DO SOME HOUSE CLEANING
         //Move remove any ticket assignments...TODO: send alert to Dept. manager?

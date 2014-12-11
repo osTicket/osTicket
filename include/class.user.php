@@ -287,7 +287,7 @@ class User extends UserModel {
 
     function getDynamicData($create=true) {
         if (!isset($this->_entries)) {
-            $this->_entries = DynamicFormEntry::forClient($this->id)->all();
+            $this->_entries = DynamicFormEntry::forObject($this->id, 'U')->all();
             if (!$this->_entries && $create) {
                 $g = UserForm::getNewInstance();
                 $g->setClientId($this->id);

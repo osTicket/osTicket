@@ -17,12 +17,14 @@ CREATE TABLE `%TABLE_PREFIX%api_key` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%attachment`;
 CREATE TABLE `%TABLE_PREFIX%attachment` (
+  `id` int(10) unsigned NOT NULL auto_increment,
   `object_id` int(11) unsigned NOT NULL,
   `type` char(1) NOT NULL,
   `file_id` int(11) unsigned NOT NULL,
   `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `lang` varchar(16),
-  PRIMARY KEY (`object_id`,`file_id`,`type`)
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `file-type` (`object_id`,`file_id`,`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
@@ -198,6 +200,7 @@ CREATE TABLE `%TABLE_PREFIX%list_items` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%department`;
 CREATE TABLE `%TABLE_PREFIX%department` (
   `id` int(11) unsigned NOT NULL auto_increment,
+  `pid` int(11) unsigned default NULL,
   `tpl_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
@@ -209,6 +212,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `group_membership` tinyint(1) NOT NULL default '0',
   `ticket_auto_response` tinyint(1) NOT NULL default '1',
   `message_auto_response` tinyint(1) NOT NULL default '0',
+  `path` varchar(128) NOT NULL default '/',
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY  (`id`),
@@ -414,6 +418,18 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   UNIQUE KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%role`;
+CREATE TABLE `%TABLE_PREFIX%role` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
+  `name` varchar(64) DEFAULT NULL,
+  `notes` text,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',
@@ -597,6 +613,52 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
   PRIMARY KEY  (`team_id`,`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread`;
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%thread` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `object_id` int(11) unsigned NOT NULL,
+  `object_type` char(1) NOT NULL,
+  `extra` text,
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `object_id` (`object_id`),
+  KEY `object_type` (`object_type`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry`;
+CREATE TABLE `%TABLE_PREFIX%thread_entry` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `pid` int(11) unsigned NOT NULL default '0',
+  `thread_id` int(11) unsigned NOT NULL default '0',
+  `staff_id` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned not null default 0,
+  `type` char(1) NOT NULL default '',
+  `poster` varchar(128) NOT NULL default '',
+  `source` varchar(32) NOT NULL default '',
+  `title` varchar(255),
+  `body` text NOT NULL,
+  `format` varchar(16) NOT NULL default 'html',
+  `ip_address` varchar(64) NOT NULL default '',
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`),
+  KEY `thread_id` (`thread_id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `type` (`type`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_email`;
+CREATE TABLE `%TABLE_PREFIX%thread_entry_email` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `thread_entry_id` int(11) unsigned NOT NULL,
+  `mid` varchar(255) NOT NULL,
+  `headers` text,
+  PRIMARY KEY (`id`),
+  KEY `thread_entry_id` (`thread_entry_id`),
+  KEY `mid` (`mid`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
@@ -637,20 +699,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `sla_id` (`sla_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_attachment`;
-CREATE TABLE `%TABLE_PREFIX%ticket_attachment` (
-  `attach_id` int(11) unsigned NOT NULL auto_increment,
-  `ticket_id` int(11) unsigned NOT NULL default '0',
-  `file_id` int(10) unsigned NOT NULL default '0',
-  `ref_id` int(11) unsigned NOT NULL default '0',
-  `inline` tinyint(1) NOT NULL default  '0',
-  `created` datetime NOT NULL,
-  PRIMARY KEY  (`attach_id`),
-  KEY `ticket_id` (`ticket_id`),
-  KEY `ref_id` (`ref_id`),
-  KEY `file_id` (`file_id`)
-) DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_lock`;
 CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
   `lock_id` int(11) unsigned NOT NULL auto_increment,
@@ -661,16 +709,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
   PRIMARY KEY  (`lock_id`),
   UNIQUE KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`)
-) DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_email_info`;
-CREATE TABLE `%TABLE_PREFIX%ticket_email_info` (
-  `id` int(11) unsigned NOT NULL auto_increment,
-  `thread_id` int(11) unsigned NOT NULL,
-  `email_mid` varchar(255) NOT NULL,
-  `headers` text,
-  PRIMARY KEY (`id`),
-  KEY `email_mid` (`email_mid`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
@@ -719,28 +757,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   KEY `ispublic` (`ispublic`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_thread`;
-CREATE TABLE `%TABLE_PREFIX%ticket_thread` (
-  `id` int(11) unsigned NOT NULL auto_increment,
-  `pid` int(11) unsigned NOT NULL default '0',
-  `ticket_id` int(11) unsigned NOT NULL default '0',
-  `staff_id` int(11) unsigned NOT NULL default '0',
-  `user_id` int(11) unsigned not null default 0,
-  `thread_type` enum('M','R','N') NOT NULL,
-  `poster` varchar(128) NOT NULL default '',
-  `source` varchar(32) NOT NULL default '',
-  `title` varchar(255),
-  `body` mediumtext NOT NULL,
-  `format` varchar(16) NOT NULL default 'html',
-  `ip_address` varchar(64) NOT NULL default '',
-  `created` datetime NOT NULL,
-  `updated` datetime NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `ticket_id` (`ticket_id`),
-  KEY `staff_id` (`staff_id`),
-  KEY `pid` (`pid`)
-) DEFAULT CHARSET=utf8;
-
 CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `isactive` tinyint(1) NOT NULL DEFAULT '1',
@@ -752,6 +768,29 @@ CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `collab` (`ticket_id`,`user_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%task`;
+CREATE TABLE `%TABLE_PREFIX%task` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `object_id` int(11) NOT NULL DEFAULT '0',
+  `object_type` char(1) NOT NULL,
+  `number` varchar(20) DEFAULT NULL,
+  `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `team_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `duedate` datetime DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dept_id` (`dept_id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `team_id` (`team_id`),
+  KEY `created` (`created`),
+  KEY `sla_id` (`sla_id`),
+  KEY `object` (`object_id`,`object_type`)
 ) DEFAULT CHARSET=utf8;
 
 -- pages

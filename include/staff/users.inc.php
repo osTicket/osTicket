@@ -124,7 +124,9 @@ else
                 ?>
                <tr id="<?php echo $U['id']; ?>">
                 <td>&nbsp;
-                    <a class="userPreview" href="users.php?id=<?php echo $U['id']; ?>"><?php
+                    <a class="preview"
+                        href="users.php?id=<?php echo $U['id']; ?>"
+                        data-preview="#users/<?php echo $U['id']; ?>/preview"><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php

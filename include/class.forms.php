@@ -95,6 +95,7 @@ class Form {
             foreach ($this->getFields() as $key=>$field) {
                 if (!$field->hasData())
                     continue;
+
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
             }
@@ -653,15 +654,15 @@ class FormField {
             return array();
     }
 
-    function render($mode=null) {
-        $rv = $this->getWidget()->render($mode);
+    function render($options=array()) {
+        $rv = $this->getWidget()->render($options);
         if ($v = $this->get('visibility')) {
             $v->emitJavascript($this);
         }
         return $rv;
     }
 
-    function renderExtras($mode=null) {
+    function renderExtras($options=array()) {
         return;
     }
 
@@ -1458,7 +1459,7 @@ class ThreadEntryField extends FormField {
                 'label'=>__('Enable Attachments'),
                 'default'=>$cfg->allowAttachments(),
                 'configuration'=>array(
-                    'desc'=>__('Enables attachments on tickets, regardless of channel'),
+                    'desc'=>__('Enables attachments, regardless of channel'),
                 ),
                 'validators' => function($self, $value) {
                     if (!ini_get('file_uploads'))
@@ -1542,6 +1543,139 @@ class PriorityField extends ChoiceField {
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
         'priority' => array(__('Priority Level'), PriorityField),
+    );
+});
+
+
+class DepartmentField extends ChoiceField {
+    function getWidget() {
+        $widget = parent::getWidget();
+        if ($widget->value instanceof Dept)
+            $widget->value = $widget->value->getId();
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        global $cfg;
+
+        $choices = array();
+        if (($depts = Dept::getDepartments()))
+            foreach ($depts as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        return $id;
+    }
+
+    function to_database($dept) {
+        return ($dept instanceof Dept)
+            ? array($dept->getName(), $dept->getId())
+            : $dept;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'department' => array(__('Department'), DepartmentField),
+    );
+});
+
+
+class AssigneeField extends ChoiceField {
+    function getWidget() {
+        $widget = parent::getWidget();
+        if (is_object($widget->value))
+            $widget->value = $widget->value->getId();
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        global $cfg;
+        $choices = array();
+        if (($agents = Staff::getAvailableStaffMembers()))
+            foreach ($agents as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+
+        return $id;
+    }
+
+
+    function to_database($value) {
+        return (is_object($value))
+            ? array($value->getName(), $value->getId())
+            : $value;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'assignee' => array(__('Assignee'), AssigneeField),
     );
 });
 
@@ -2130,7 +2264,7 @@ class Widget {
 class TextboxWidget extends Widget {
     static $input_type = 'text';
 
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
@@ -2172,7 +2306,7 @@ class PasswordWidget extends TextboxWidget {
 }
 
 class TextareaWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
         if (isset($config['rows']))
@@ -2201,7 +2335,7 @@ class TextareaWidget extends Widget {
 }
 
 class PhoneNumberWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
@@ -2229,7 +2363,9 @@ class PhoneNumberWidget extends Widget {
 }
 
 class ChoicesWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
+
+        $mode = isset($options['mode']) ? $options['mode'] : null;
 
         if ($mode == 'view') {
             if (!($val = (string) $this->field))
@@ -2333,7 +2469,7 @@ class CheckboxWidget extends Widget {
         $this->name = '_field-checkboxes';
     }
 
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
@@ -2362,7 +2498,7 @@ class CheckboxWidget extends Widget {
 }
 
 class DatetimePickerWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         global $cfg;
 
         $config = $this->field->getConfiguration();
@@ -2439,7 +2575,7 @@ class DatetimePickerWidget extends Widget {
 }
 
 class SectionBreakWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->getLocal('label'));
         ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
@@ -2449,17 +2585,18 @@ class SectionBreakWidget extends Widget {
 }
 
 class ThreadEntryWidget extends Widget {
-    function render($client=null) {
+    function render($options=array()) {
         global $cfg;
 
         $object_id = false;
-        if (!$client) {
-            $namespace = 'ticket.staff';
+        if ($options['client']) {
+            $namespace = $options['draft-namespace']
+                ?: 'ticket.client';
+             $object_id = substr(session_id(), -12);
+        } else {
+            $namespace = $options['draft-namespace'] ?: 'ticket.staff';
         }
-        else {
-            $namespace = 'ticket.client';
-            $object_id = substr(session_id(), -12);
-        }
+
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
         <span class="required"><?php
@@ -2477,7 +2614,7 @@ class ThreadEntryWidget extends Widget {
             return;
 
         $attachments = $this->getAttachments($config);
-        print $attachments->render($client);
+        print $attachments->render($options);
         foreach ($attachments->getMedia() as $type=>$urls) {
             foreach ($urls as $url)
                 Form::emitMedia($url, $type);
@@ -2505,7 +2642,7 @@ class FileUploadWidget extends Widget {
         ),
     );
 
-    function render($how) {
+    function render($options) {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
@@ -2607,7 +2744,7 @@ class FreeTextField extends FormField {
 }
 
 class FreeTextWidget extends Widget {
-    function render($mode=false) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         ?><div class=""><h3><?php
             echo Format::htmlchars($this->field->getLocal('label'));

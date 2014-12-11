@@ -32,6 +32,7 @@ include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
+require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
 class TicketModel extends VerySimpleModel {
@@ -183,23 +184,30 @@ class Ticket {
 
     function load($id=0) {
 
-        if(!$id && !($id=$this->getId()))
+        if (!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, lock_id, dept.name as dept_name '
-            .' ,count(distinct attach.attach_id) as attachments'
+        $sql='SELECT  ticket.*, thread.id as thread_id, lock_id, dept.name as dept_name '
+            .' ,count(distinct attach.id) as attachments'
+            .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
             .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
                 ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
-                ON ( ticket.ticket_id=attach.ticket_id) '
+            .' LEFT JOIN '.TASK_TABLE.' task
+                ON ( task.object_id = ticket.ticket_id AND task.object_type="T" ) '
+            .' LEFT JOIN '.THREAD_TABLE.' thread
+                ON ( thread.object_id = ticket.ticket_id AND thread.object_type="T" ) '
+            .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
+                ON ( entry.thread_id = thread.id ) '
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+                ON ( attach.object_id = entry.id AND attach.`type` = "H") '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
         //echo $sql;
-        if(!($res=db_query($sql)) || !db_num_rows($res))
+        if (!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
 
@@ -479,7 +487,7 @@ class Ticket {
     function getDeptName() {
 
         if(!$this->ht['dept_name'] && ($dept = $this->getDept()))
-            $this->ht['dept_name'] = $dept->getName();
+            $this->ht['dept_name'] = $dept->getFullName();
 
        return $this->ht['dept_name'];
     }
@@ -657,19 +665,25 @@ class Ticket {
 
     function getLastRespondent() {
 
-        $sql ='SELECT  resp.staff_id '
-             .' FROM '.TICKET_THREAD_TABLE.' resp '
-             .' LEFT JOIN '.STAFF_TABLE. ' USING(staff_id) '
-             .' WHERE  resp.ticket_id='.db_input($this->getId()).' AND resp.staff_id>0 '
-             .'   AND  resp.thread_type="R"'
-             .' ORDER BY resp.created DESC LIMIT 1';
+        if (!isset($this->lastrespondent)) {
 
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return null;
+            $sql ='SELECT resp.staff_id '
+                 .' FROM '.THREAD_ENTRY_TABLE.' resp '
+                 .' LEFT JOIN '.THREAD_TABLE.' t ON( t.id=resp.thread_id) '
+                 .' LEFT JOIN '.STAFF_TABLE. ' s ON(s.staff_id=resp.staff_id) '
+                 .' WHERE  t.object_id='.db_input($this->getId())
+                 .'     AND t.object_type="T" AND resp.staff_id>0 AND  resp.`type`="R" '
+                 .' ORDER BY resp.created DESC LIMIT 1';
 
-        list($id)=db_fetch_row($res);
+            if(!($res=db_query($sql)) || !db_num_rows($res))
+                return null;
 
-        return Staff::lookup($id);
+            list($id)=db_fetch_row($res);
+
+            $this->lastrespondent = Staff::lookup($id);
+        }
+
+        return $this->lastrespondent;
 
     }
 
@@ -695,21 +709,31 @@ class Ticket {
     }
 
     function getLastMessage() {
+
         if (!isset($this->last_message)) {
-            if($this->getLastMsgId())
-                $this->last_message =  Message::lookup(
-                    $this->getLastMsgId(), $this->getId());
+            if ($this->getLastMsgId())
+                $this->last_message = MessageThreadEntry::lookup(
+                    $this->getLastMsgId(), $this->getThreadId());
 
             if (!$this->last_message)
-                $this->last_message = Message::lastByTicketId($this->getId());
+                $this->last_message = $this->getThread()->getLastMessage();
         }
+
         return $this->last_message;
+    }
+
+    function getNumTasks() {
+        return $this->ht['tasks'];
+    }
+
+    function getThreadId() {
+        return $this->ht['thread_id'];
     }
 
     function getThread() {
 
-        if(!$this->thread)
-            $this->thread = Thread::lookup($this);
+        if (!$this->thread && $this->getThreadId())
+            $this->thread = TicketThread::lookup($this->getThreadId());
 
         return $this->thread;
     }
@@ -751,7 +775,8 @@ class Ticket {
     }
 
     function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries($type, $order);
+        return $this->getThread()->getEntries(
+                array( 'type' => $type, 'order' => $order));
     }
 
     //Collaborators
@@ -1343,8 +1368,16 @@ class Ticket {
         if ($this->isClosed() && $this->isReopenable())
             $this->reopen();
 
-       /**********   double check auto-response  ************/
-        if (!($user = $message->getUser()))
+        // Figure out the user
+        if ($this->getOwnerId() == $message->getUserId())
+            $user = new TicketOwner(
+                    User::lookup($message->getUserId()), $this);
+        else
+            $user = Collaborator::lookup(array(
+                    'userId'=>$message->getUserId(), 'ticketId'=>$this->getId()));
+
+        /**********   double check auto-response  ************/
+        if (!$user)
             $autorespond=false;
         elseif ($autorespond && (Email::getIdByEmail($user->getEmail())))
             $autorespond=false;
@@ -1930,10 +1963,10 @@ class Ticket {
             $files[] = $file['id'];
 
         if ($cfg->isHtmlThreadEnabled())
-            $response = new HtmlThreadBody(
+            $response = new HtmlThreadEntryBody(
                     $this->replaceVars($canned->getHtml()));
         else
-            $response = new TextThreadBody(
+            $response = new TextThreadEntryBody(
                     $this->replaceVars($canned->getPlainText()));
 
         $info = array('msgId' => $msgId,
@@ -2002,6 +2035,7 @@ class Ticket {
                 && $cfg->autoClaimTickets())
             $this->setStaffId($thisstaff->getId()); //direct assignment;
 
+        $this->lastrespondent = null;
         $this->onResponse(); //do house cleaning..
 
         /* email the user??  - if disabled - then bail out */
@@ -2084,7 +2118,7 @@ class Ticket {
         $errors = array();
         //Unless specified otherwise, assume HTML
         if ($note && is_string($note))
-            $note = new HtmlThreadBody($note);
+            $note = new HtmlThreadEntryBody($note);
 
         return $this->postNote(
                 array(
@@ -2833,7 +2867,10 @@ class Ticket {
              $sql.=' ,duedate='.db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time'])));
 
 
-        if(!db_query($sql) || !($id=db_insert_id()) || !($ticket =Ticket::lookup($id)))
+        if(!db_query($sql)
+                || !($id=db_insert_id())
+                || !($thread=TicketThread::create($id))
+                || !($ticket =Ticket::lookup($id)))
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
@@ -2994,7 +3031,7 @@ class Ticket {
 
         // post response - if any
         $response = null;
-        if($vars['response'] && $role->canPostReply()) {
+        if($vars['response'] && $role->canPostTicketReply()) {
 
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
