@@ -51,7 +51,7 @@ if ($thisclient && $thisclient->isGuest()
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
                     <th width="100"><?php echo __('Ticket Status');?>:</th>
-                    <td><?php echo $ticket->getStatus(); ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Department');?>:</th>
