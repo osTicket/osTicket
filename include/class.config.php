@@ -1014,8 +1014,8 @@ class OsticketConfig extends Config {
             $errors['default_help_topic'] = __('Default help topic must be set to active');
         }
 
-        if (!preg_match('`(?!<\\\)#`', $vars['number_format']))
-            $errors['number_format'] = 'Ticket number format requires at least one hash character (#)';
+        if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
+            $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1024,8 +1024,8 @@ class OsticketConfig extends Config {
             $this->update('default_storage_bk', $vars['default_storage_bk']);
 
         return $this->updateAll(array(
-            'number_format'=>$vars['number_format'] ?: '######',
-            'sequence_id'=>$vars['sequence_id'] ?: 0,
+            'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
+            'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
