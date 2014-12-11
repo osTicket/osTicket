@@ -171,10 +171,15 @@ class Installer extends SetupWizard {
             $sql='SELECT `id` FROM `'.TABLE_PREFIX.'group` ORDER BY `id` LIMIT 1';
             $group_id_1 = db_result(db_query($sql, false));
 
+            $sql='SELECT `id` FROM `'.TABLE_PREFIX.'role` ORDER BY `id` LIMIT 1';
+            $role_id_1 = db_result(db_query($sql, false));
+
             //Create admin user.
             $sql='INSERT INTO '.TABLE_PREFIX.'staff SET created=NOW() '
-                .", isactive=1, isadmin=1, group_id='$group_id_1', dept_id='$dept_id_1'"
-                .', max_page_size=25'
+                .', isactive=1, isadmin=1, max_page_size=25 '
+                .', group_id='.db_input($group_id_1)
+                .', dept_id='.db_input($dept_id_1)
+                .', role_id='.db_input($role_id_1)
                 .', email='.db_input($vars['admin_email'])
                 .', firstname='.db_input($vars['fname'])
                 .', lastname='.db_input($vars['lname'])
@@ -204,6 +209,7 @@ class Installer extends SetupWizard {
                 'alert_email_id'=>$alert_email_id,
                 'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
                 'default_template_id'=>$template_id_1,
+                'default_timezone' => date_default_timezone_get()
                 'admin_email'=>$vars['admin_email'],
                 'schema_signature'=>$streams['core'],
                 'helpdesk_url'=>URL,
