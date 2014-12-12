@@ -6,7 +6,7 @@
 
 class TaskLoader extends MigrationTask {
     var $description = "Loading initial data for tasks";
-    static $pman = array(
+    static $pmap = array(
             'ticket.create'     => 'task.create',
             'ticket.edit'       => 'task.edit',
             'ticket.reply'      => 'task.reply',

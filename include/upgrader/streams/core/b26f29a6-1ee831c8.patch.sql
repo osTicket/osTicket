@@ -193,7 +193,7 @@ UPDATE `%TABLE_PREFIX%form_field` SET `flags` = `flags` |
      CASE WHEN `private` = 0 and @client_edit = 1 THEN CONV(3300, 16, 10)
           WHEN `private` = 0 and @client_edit = 0 THEN CONV(3100, 16, 10)
           WHEN `private` = 1 THEN CONV(3000, 16, 10)
-          WHEN `private` = 2 and @client_edit = 1 THEN CONV(300, 16, 10) END
+          WHEN `private` = 2 and @client_edit = 1 THEN CONV(300, 16, 10)
           WHEN `private` = 2 and @client_edit = 0 THEN CONV(100, 16, 10) END
    | CASE WHEN `required` = 0 THEN 0
           WHEN `required` = 1 THEN CONV(4400, 16, 10)
