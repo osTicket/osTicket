@@ -112,7 +112,7 @@ UPDATE `%TABLE_PREFIX%config`
 
 -- add parent department support
 ALTER TABLE `%TABLE_PREFIX%department`
-  DROP INDEX  `name`,
+  DROP INDEX  `dept_name`,
   ADD `pid` int(11) unsigned default NULL AFTER `id`,
   ADD `path` varchar(128) NOT NULL default '/' AFTER `message_auto_response`,
   ADD UNIQUE  `name` (  `name` ,  `pid` );
