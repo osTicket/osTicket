@@ -115,10 +115,12 @@ INSERT INTO `%TABLE_PREFIX%config` (`namespace`, `key`, `value`) VALUES
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form`;
 CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
+    `pid` int(10) unsigned DEFAULT NULL,
     `type` varchar(8) NOT NULL DEFAULT 'G',
     `deletable` tinyint(1) NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
+    `name` varchar(64) NOT NULL DEFAULT '',
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
@@ -151,6 +153,7 @@ CREATE TABLE `%TABLE_PREFIX%form_entry` (
     `object_id` int(11) unsigned,
     `object_type` char(1) NOT NULL DEFAULT 'T',
     `sort` int(11) unsigned NOT NULL DEFAULT 1,
+    `extra` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
     PRIMARY KEY (`id`),
@@ -443,7 +446,6 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `team_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
   `page_id` int(10) unsigned NOT NULL default '0',
-  `form_id` int(10) unsigned NOT NULL default '0',
   `sequence_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sort` int(10) unsigned NOT NULL default '0',
   `topic` varchar(32) NOT NULL default '',
@@ -459,6 +461,16 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `staff_id` (`staff_id`,`team_id`),
   KEY `sla_id` (`sla_id`),
   KEY `page_id` (`page_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic_form`;
+CREATE TABLE `%TABLE_PREFIX%help_topic_form` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `topic_id` int(11) unsigned NOT NULL default 0,
+  `form_id` int(10) unsigned NOT NULL default 0,
+  `sort` int(10) unsigned NOT NULL default 1,
+  `extra` text,
+  PRIMARY KEY  (`topic_id`, `form_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%organization`;

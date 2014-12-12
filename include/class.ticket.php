@@ -2758,20 +2758,43 @@ class Ticket {
 
         if (!$errors) {
 
-            # Perform ticket filter actions on the new ticket arguments
-            $__form = null;
+            // Handle the forms associate with the help topics. Instanciate the
+            // entries, disable and track the requested disabled fields.
+            $topic_forms = array();
             if ($vars['topicId']) {
-                if (($__topic=Topic::lookup($vars['topicId']))
-                    && ($__form = $__topic->getForm())
-                ) {
-                    $__form = $__form->instanciate();
-                    $__form->setSource($vars);
+                if ($__topic=Topic::lookup($vars['topicId'])) {
+                    foreach ($__topic->getForms() as $idx=>$__F) {
+                        $disabled = array();
+                        foreach ($__F->getFields() as $field) {
+                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                                $disabled[] = $field->get('id');
+                        }
+                        // Special handling for the ticket form — disable fields
+                        // requested to be disabled as per the help topic.
+                        if ($__F->get('type') == 'T') {
+                            foreach ($form->getFields() as $field) {
+                                if (false !== array_search($field->get('id'), $disabled))
+                                    $field->disable();
+                            }
+                            $form->sort = $idx;
+                            $__F = $form;
+                        }
+                        else {
+                            $__F = $__F->instanciate($idx);
+                            $__F->setSource($vars);
+                            $topic_forms[] = $__F;
+                        }
+                        // Track fields currently disabled
+                        $__F->extra = JsonDataEncoder::encode(array(
+                            'disable' => $disabled
+                        ));
+                    }
                 }
             }
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
-                    array($form, $__form), $user);
+                    array_merge(array($form), $topic_forms), $user);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
@@ -2825,10 +2848,8 @@ class Ticket {
 
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
-                if ($topic_form = $topic->getForm()) {
-                    $TF = $topic_form->getForm($vars);
-                    $topic_form = $topic_form->instanciate();
-                    $topic_form->setSource($vars);
+                foreach ($topic_forms as $topic_form) {
+                    $TF = $topic_form->getForm()->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }
@@ -2972,7 +2993,7 @@ class Ticket {
         $form->save();
 
         // Save the form data from the help-topic form, if any
-        if ($topic_form) {
+        foreach ($topic_forms as $topic_form) {
             $topic_form->setTicketId($id);
             $topic_form->save();
         }

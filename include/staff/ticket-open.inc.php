@@ -9,12 +9,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
 
-$form = null;
+$forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
-    $form = $topic->getForm();
-    if ($_POST && $form) {
-        $form = $form->instanciate();
-        $form->isValid();
+    foreach ($topic->getForms() as $F) {
+        if ($_POST) {
+            $F = $F->instanciate();
+            $F->isValidForClient();
+        }
+        $forms[] = $F;
     }
 }
 
@@ -156,9 +158,9 @@ if ($_POST)
                                 $id, ($info['topicId']==$id)?'selected="selected"':'',
                                 $selected, $name);
                         }
-                        if (count($topics) == 1 && !$form) {
+                        if (count($topics) == 1 && !$forms) {
                             if (($T = Topic::lookup($id)))
-                                $form =  $T->getForm();
+                                $forms =  $T->getForms();
                         }
                     }
                     ?>
@@ -260,16 +262,10 @@ if ($_POST)
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) {
+            foreach ($forms as $form) {
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
-        ?>
-        </tbody>
-        <tbody> <?php
-        $tform = TicketForm::getInstance()->getForm($_POST);
-        if ($_POST) $tform->isValid();
-        $tform->render(true);
         ?>
         </tbody>
         <tbody>

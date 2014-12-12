@@ -51,6 +51,10 @@ div#header a {
     clear:both;
 }
 
+.big {
+    font-size: 110%;
+}
+
 .faded {
     color:#666;
 }
@@ -587,6 +591,27 @@ a.print {
     border:1px solid #aaa;
     background:#fff;
     padding:2px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top:3px;
+}
+
+.table tr.header td,
+.table th {
+    font-weight: bold;
+    text-align: left;
+    height: 24px;
+    background: #f0f0f0;
+}
+
+.table tr {
+    border-bottom:1px dotted #ddd;
+}
+.table td:not(:empty) {
+    height: 24px;
 }
 
 .form_table {

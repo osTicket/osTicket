@@ -32,6 +32,11 @@ class DynamicForm extends VerySimpleModel {
         'table' => FORM_SEC_TABLE,
         'ordering' => array('title'),
         'pk' => array('id'),
+        'joins' => array(
+            'fields' => array(
+                'reverse' => 'DynamicFormField.form',
+            ),
+        ),
     );
 
     // Registered form types
@@ -110,6 +115,14 @@ class DynamicForm extends VerySimpleModel {
 
     function isDeletable() {
         return $this->get('deletable');
+    }
+
+    function disableFields(array $ids) {
+        foreach ($this->getFields() as $F) {
+            if (in_array($F->get('id'), $ids)) {
+                $F->disable();
+            }
+        }
     }
 
     function instanciate($sort=1) {
@@ -422,6 +435,7 @@ class DynamicFormField extends VerySimpleModel {
     );
 
     var $_field;
+    var $_disabled = false;
 
     const FLAG_ENABLED          = 0x00001;
     const FLAG_EXT_STORED       = 0x00002; // Value stored outside of form_entry_value
@@ -524,6 +538,12 @@ class DynamicFormField extends VerySimpleModel {
 
     function  isEditable() {
         return $this->hasFlag(self::FLAG_MASK_EDIT);
+    }
+    function disable() {
+        $this->_disabled = true;
+    }
+    function isEnabled() {
+        return !$this->_disabled && $this->hasFlag(self::FLAG_ENABLED);
     }
 
     function hasFlag($flag) {
@@ -638,19 +658,19 @@ class DynamicFormField extends VerySimpleModel {
         return $this->hasFlag(self::FLAG_CLOSE_REQUIRED);
     }
     function isEditableToStaff() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_AGENT_EDIT);
     }
     function isVisibleToStaff() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_AGENT_VIEW);
     }
     function isEditableToUsers() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_CLIENT_EDIT);
     }
     function isVisibleToUsers() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
@@ -722,7 +742,7 @@ class DynamicFormEntry extends VerySimpleModel {
         'pk' => array('id'),
         'select_related' => array('form'),
         'fields' => array('id', 'form_id', 'object_type', 'object_id',
-            'sort', 'updated', 'created'),
+            'sort', 'extra', 'updated', 'created'),
         'joins' => array(
             'form' => array(
                 'null' => true,
@@ -785,6 +805,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
             if ($this->_form && isset($this->id))
                 $this->_form->data($this);
+            if (isset($this->extra)) {
+                $x = JsonDataParser::decode($this->extra) ?: array();
+                $this->_form->disableFields($x['disable'] ?: array());
+            }
         }
         return $this->_form;
     }
@@ -958,6 +982,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 }
             }
             if (!$found && ($fImpl = $field->getImpl($field))
+                    && $field->isEnabled()
                     && !$fImpl->isPresentationOnly()) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));
