@@ -185,8 +185,10 @@ UPDATE `%TABLE_PREFIX%form_field` A1 JOIN `%TABLE_PREFIX%form` A2 ON(A2.id=A1.fo
     SET A1.`flags`=3
     WHERE A2.`type`='O' AND A1.`name` IN('name');
 
-set @client_edit = (
-    select value from `%TABLE_PREFIX%config` where `key` = 'allow_client_updates');
+-- Coalesce to zero here in case the config option has never been saved
+set @client_edit = coalesce(
+    (select value from `%TABLE_PREFIX%config` where `key` =
+    'allow_client_updates'), 0);
 
 -- Transfer previous visibility and requirement settings to new flag field
 UPDATE `%TABLE_PREFIX%form_field` SET `flags` = `flags` |

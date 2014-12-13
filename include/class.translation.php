@@ -1030,7 +1030,13 @@ class CustomDataTranslation extends VerySimpleModel {
         if ($lang)
             $criteria['lang'] = $lang;
 
-        return static::objects()->filter($criteria)->all();
+        try {
+            return static::objects()->filter($criteria)->all();
+        }
+        catch (OrmException $e) {
+            // Translation table might not exist yet — happens on the upgrader
+            return array();
+        }
     }
 }
 

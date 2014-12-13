@@ -285,7 +285,7 @@ implements AuthenticatedUser {
     }
 
     function getLanguage() {
-        return $this->lang;
+        return (isset($this->lang)) ? $this->lang : false;
     }
 
     function getTimezone() {
@@ -430,7 +430,7 @@ implements AuthenticatedUser {
     }
 
     function getExtraAttr($attr=false, $default=null) {
-        if (!isset($this->_extra))
+        if (!isset($this->_extra) && isset($this->extra))
             $this->_extra = JsonDataParser::decode($this->extra);
 
         return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;

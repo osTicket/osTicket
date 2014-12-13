@@ -2076,7 +2076,7 @@ class MysqlExecutor {
 
     function execute() {
         if (!($this->stmt = db_prepare($this->sql)))
-            throw new Exception('Unable to prepare query: '.db_error()
+            throw new OrmException('Unable to prepare query: '.db_error()
                 .' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);

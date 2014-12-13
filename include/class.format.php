@@ -513,7 +513,7 @@ class Format {
         $format = self::getStrftimeFormat($format);
         // TODO: Properly convert to local time
         $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
-        $time->setTimeZone(new DateTimeZone($cfg->getTimezone()));
+        $time->setTimeZone(new DateTimeZone($cfg->getTimezone() ?: date_default_timezone_get()));
         $timestamp = $time->getTimestamp();
         return strftime($format ?: $strftimeFallback, $timestamp);
     }
@@ -546,7 +546,7 @@ class Format {
 
         return self::__formatDate($timestamp,
             $format ?: $cfg->getTimeFormat(), $fromDb,
-            IntlDateFormatter::NONE, IntlDateFormatter::SHORT,
+            IDF_NONE, IDF_SHORT,
             '%x', $timezone ?: $cfg->getTimezone());
     }
 
@@ -555,7 +555,7 @@ class Format {
 
         return self::__formatDate($timestamp,
             $format ?: $cfg->getDateFormat(), $fromDb,
-            IntlDateFormatter::SHORT, IntlDateFormatter::NONE,
+            IDF_SHORT, IDF_NONE,
             '%X', $timezone ?: $cfg->getTimezone());
     }
 
@@ -564,7 +564,7 @@ class Format {
 
         return self::__formatDate($timestamp,
                 $cfg->getDateTimeFormat(), $fromDb,
-                IntlDateFormatter::SHORT, IntlDateFormatter::SHORT,
+                IDF_SHORT, IDF_SHORT,
                 '%X %x', $timezone ?: $cfg->getTimezone());
     }
 
@@ -573,7 +573,7 @@ class Format {
 
         return self::__formatDate($timestamp,
                 $cfg->getDayDateTimeFormat(), $fromDb,
-                IntlDateFormatter::FULL, IntlDateFormatter::SHORT,
+                IDF_FULL, IDF_SHORT,
                 '%X %x', $timezone ?: $cfg->getTimezone());
     }
 
@@ -759,5 +759,16 @@ class Format {
         }
         return $text;
     }
+}
+
+if (!class_exists('IntlDateFormatter')) {
+    define('IDF_NONE', 0);
+    define('IDF_SHORT', 1);
+    define('IDF_FULL', 2);
+}
+else {
+    define('IDF_NONE', IntlDateFormatter::NONE);
+    define('IDF_SHORT', IntlDateFormatter::SHORT);
+    define('IDF_FULL', IntlDateFormatter::FULL);
 }
 ?>
