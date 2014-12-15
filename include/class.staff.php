@@ -22,7 +22,8 @@ include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff extends AuthenticatedUser {
+class Staff extends AuthenticatedUser
+implements EmailContact {
 
     var $ht;
     var $id;

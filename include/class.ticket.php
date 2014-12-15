@@ -1035,7 +1035,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1259,7 +1259,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1308,7 +1308,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1511,7 +1511,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1746,7 +1746,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1869,7 +1869,7 @@ class Ticket {
                     $variables + array('recipient' => $this->getOwner()));
 
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2016,7 +2016,7 @@ class Ticket {
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[$staff->getEmail()] = 1;
             }
         }
