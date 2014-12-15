@@ -788,6 +788,25 @@ class ThreadEntry extends VerySimpleModel {
                         return $t;
                     }
                 }
+                // Attempt to detect the ticket and user ids from the
+                // message-id header. If the message originated from
+                // osTicket, the Mailer class can break it apart. If it came
+                // from this help desk, the 'loopback' property will be set
+                // to true.
+                $mid_info = Mailer::decodeMessageId($mid);
+                if ($mid_info['loopback'] && isset($mid_info['uid'])
+                    && @$mid_info['threadId']
+                    && ($t = ThreadEntry::lookup($mid_info['threadId']))
+                ) {
+                    if (@$mid_info['userId']) {
+                        $mailinfo['userId'] = $mid_info['userId'];
+                    }
+                    elseif (@$mid_info['staffId']) {
+                        $mailinfo['staffId'] = $mid_info['staffId'];
+                    }
+                    // ThreadEntry was positively identified
+                    return $t;
+                }
             }
             // Second best case — found a thread but couldn't identify the
             // user from the header. Return the first thread entry matched

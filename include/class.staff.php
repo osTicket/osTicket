@@ -24,7 +24,7 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser {
+implements AuthenticatedUser, EmailContact {
 
     static $meta = array(
         'table' => STAFF_TABLE,
