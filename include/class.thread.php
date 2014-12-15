@@ -665,8 +665,8 @@ Class ThreadEntry {
         // where code is a predictable string based on the SECRET_SALT of
         // this osTicket installation. If this incoming mail matches the
         // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+        $msgId_info = Mailer::decodeMessageId($mailinfo['mid']);
+        if ($msgId_info['loopback']) {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
@@ -895,6 +895,25 @@ Class ThreadEntry {
                         // user
                         return $t;
                     }
+                }
+                // Attempt to detect the ticket and user ids from the
+                // message-id header. If the message originated from
+                // osTicket, the Mailer class can break it apart. If it came
+                // from this help desk, the 'loopback' property will be set
+                // to true.
+                $mid_info = Mailer::decodeMessageId($mid);
+                if ($mid_info['loopback'] && isset($mid_info['uid'])
+                    && @$mid_info['threadId']
+                    && ($t = ThreadEntry::lookup($mid_info['threadId']))
+                ) {
+                    if (@$mid_info['userId']) {
+                        $mailinfo['userId'] = $mid_info['userId'];
+                    }
+                    elseif (@$mid_info['staffId']) {
+                        $mailinfo['staffId'] = $mid_info['staffId'];
+                    }
+                    // ThreadEntry was positively identified
+                    return $t;
                 }
             }
             // Second best case — found a thread but couldn't identify the
