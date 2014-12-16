@@ -17,7 +17,8 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageCannedResponses()) {
+if(!$thisstaff || !$thisstaff->canManageCannedResponses()
+        || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
 }

@@ -125,6 +125,7 @@ class StaffNav {
     }
 
     function getSubMenus(){ //Private.
+        global $cfg;
 
         $staff = $this->staff;
         $submenus=array();
@@ -163,7 +164,7 @@ class StaffNav {
                     if($staff) {
                         if($staff->canManageFAQ())
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if($staff->canManageCannedResponses())
+                        if ($cfg->isCannedResponseEnabled() && $staff->canManageCannedResponses())
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
