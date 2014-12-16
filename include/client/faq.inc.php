@@ -14,9 +14,9 @@ $category=$faq->getCategory();
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;"></div>
 <div class="clear"></div>
-<p>
+<div class="thread-body">
 <?php echo Format::safe_html($faq->getAnswerWithImages()); ?>
-</p>
+</div>
 <p>
 <?php
 if($faq->getNumAttachments()) { ?>
