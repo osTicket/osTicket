@@ -11,7 +11,7 @@ $category=$faq->getCategory();
     <span class="faded">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
 </div>
 <div class="pull-left" style="width:700px;padding-top:2px;">
-<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo '('.$faq->isPublished()?__('Published').')':''; ?></span>
+<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>&nbsp;&nbsp;<span class="faded"><?php echo $faq->isPublished() ? ('('.__('Published').')'):''; ?></span>
 </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
 <?php
