@@ -429,11 +429,18 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function getField($cache=true) {
+        global $thisstaff;
+
         if (!$cache)
             return new FormField($this->ht);
 
+        // Finagle the `required` flag for the FormField instance
+        $ht = $this->ht;
+        $ht['required'] = ($thisstaff) ? $this->isRequiredForStaff()
+            : $this->isRequiredForUsers();
+
         if (!isset($this->_field))
-            $this->_field = new FormField($this->ht);
+            $this->_field = new FormField($ht);
         return $this->_field;
     }
 
