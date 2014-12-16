@@ -2720,6 +2720,9 @@ class Ticket {
         if ($statusId)
             $ticket->setStatus($statusId, false, false);
 
+        // Fire post-create signal (for extra email sending, searching)
+        Signal::send('model.created', $ticket);
+
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
@@ -2761,9 +2764,6 @@ class Ticket {
 
         /* Start tracking ticket lifecycle events */
         $ticket->logEvent('created');
-
-        // Fire post-create signal (for extra email sending, searching)
-        Signal::send('model.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 
