@@ -993,7 +993,7 @@ class Ticket {
         //Send alert to out sleepy & idle staff.
         if ($alertstaff
                 && $cfg->alertONNewTicket()
-                && ($email=$cfg->getAlertEmail())
+                && ($email=$dept->getEmail())
                 && ($msg=$tpl->getNewTicketAlertMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
@@ -1219,7 +1219,7 @@ class Ticket {
         $dept = $this->getDept();
         if(!$dept
                 || !($tpl = $dept->getTemplate())
-                || !($email = $cfg->getAlertEmail()))
+                || !($email = $dept->getEmail()))
             return true;
 
         //recipients
@@ -1276,7 +1276,7 @@ class Ticket {
         //Get the message template
         if(($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getOverdueAlertMsgTemplate())
-                && ($email=$cfg->getAlertEmail())) {
+                && ($email = $dept->getEmail())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                 array('comments' => $comments));
@@ -1473,7 +1473,7 @@ class Ticket {
         if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept()))
             return true; //no alerts!!
 
-         if(($email=$cfg->getAlertEmail())
+         if (($email = $dept->getEmail())
                      && ($tpl = $dept->getTemplate())
                      && ($msg=$tpl->getTransferAlertMsgTemplate())) {
 
@@ -1701,7 +1701,7 @@ class Ticket {
                 'thread'=>$message);
         //If enabled...send alert to staff (New Message Alert)
         if($cfg->alertONNewMessage()
-                && ($email = $cfg->getAlertEmail())
+                && ($email = $dept->getEmail())
                 && ($tpl = $dept->getTemplate())
                 && ($msg = $tpl->getNewMessageAlertMsgTemplate())) {
 
@@ -1958,7 +1958,7 @@ class Ticket {
         if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
             return $note;
 
-        if(($email=$cfg->getAlertEmail())
+        if (($email = $dept->getEmail())
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getNoteAlertMsgTemplate())) {
 
