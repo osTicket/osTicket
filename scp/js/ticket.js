@@ -15,6 +15,20 @@
 **********************************************************************/
 var autoLock = {
 
+    // Defaults
+    lockId: 0,
+    timerId: 0,
+    lasteventTime: 0,
+    lastattemptTime: 0,
+    acquireTime: 0,
+    renewTime: 0,
+    renewFreq: 0, //renewal frequency in seconds...based on returned lock time.
+    time: 0,
+    lockAttempts: 0, //Consecutive lock attempt errors
+    maxattempts: 2, //Maximum failed lock attempts before giving up.
+    warn: true,
+    retry: true,
+
     addEvent: function(elm, evType, fn, useCapture) {
         if(elm.addEventListener) {
             elm.addEventListener(evType, fn, useCapture);
@@ -108,18 +122,6 @@ var autoLock = {
         void(autoLock.tid=parseInt($(':input[name=id]',fObj).val()));
         void(autoLock.lockTime=parseInt($(':input[name=locktime]',fObj).val()));
 
-        autoLock.lockId=0;
-        autoLock.timerId=0;
-        autoLock.lasteventTime=0;
-        autoLock.lastattemptTime=0;
-        autoLock.acquireTime=0;
-        autoLock.renewTime=0;
-        autoLock.renewFreq=0; //renewal frequency in seconds...based on returned lock time.
-        autoLock.time=0;
-        autoLock.lockAttempts=0; //Consecutive lock attempt errors
-        autoLock.maxattempts=2; //Maximum failed lock attempts before giving up.
-        autoLock.warn=true;
-        autoLock.retry=true;
         autoLock.watchDocument();
         autoLock.resetTimer();
         autoLock.addEvent(window,'unload',autoLock.releaseLock,true); //Release lock regardless of any activity.

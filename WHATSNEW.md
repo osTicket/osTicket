@@ -16,6 +16,7 @@ osTicket v1.8.7
   * Fix matching of `User / Email Address` in ticket filters (#1644)
   * Skip team assignment alert on new ticket if assigned to an agent
     (fddb3c7)
+  * Fix release of ticket lock when navigating away from ticket view (#1552)
 
 ### Performance and Security
   * Fix possible XSS vulnerability in sortable table view pages (#1639)
