@@ -141,7 +141,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php foreach($langs as $l) {
     $selected = ($info['lang_id'] == $l['code']) ? 'selected="selected"' : ''; ?>
                     <option value="<?php echo $l['code']; ?>" <?php echo $selected;
-                        ?>><?php echo $l['desc']; ?></option>
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
 <?php } ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['lang_id']; ?></span>
