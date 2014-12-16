@@ -989,5 +989,12 @@ $(function() {
             }
         });
     });
+<?php
+    // Set the lock if one exists
+    if ($lock) { ?>
+    autoLock.setLock({
+      id:<?php echo $lock->getId(); ?>,
+      time: <?php echo $cfg->getLockTime(); ?>}, 'acquire');
+<?php } ?>
 });
 </script>
