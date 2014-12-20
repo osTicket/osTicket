@@ -3,7 +3,7 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
 
 //Make sure the staff is allowed to access the page.
-if(!@$thisstaff->isStaff() || !$ticket->checkStaffAccess($thisstaff)) die('Access Denied');
+if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access Denied');
 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
@@ -60,8 +60,8 @@ if($ticket->isOverdue())
         </td>
         <td width="auto" class="flush-right has_bottom_border">
             <?php
-            if ($role->canBanEmails()
-                    || $role->canEditTickets()
+            if ($role->hasPerm(EmailModel::PERM_BANLIST)
+                    || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
@@ -72,12 +72,13 @@ if($ticket->isOverdue())
             // Status change options
             echo TicketStatus::status_options();
 
-            if ($role->canEditTickets()) { ?>
+            if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
                 <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             }
-            if ($ticket->isOpen() && !$ticket->isAssigned() && $role->canAssignTickets()) {?>
+            if ($ticket->isOpen() && !$ticket->isAssigned() &&
+                    $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
                 <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
@@ -99,13 +100,13 @@ if($ticket->isOverdue())
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
-                 if ($role->canEditTickets()) { ?>
+                 if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
                     <li><a class="change-user" href="#tickets/<?php
                     echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
                     echo __('Change Owner'); ?></a></li>
                 <?php
                  }
-                 if ($role->canDeleteTickets()) {
+                 if ($role->hasPerm(TicketModel::PERM_DELETE)) {
                      ?>
                     <li><a class="ticket-action" href="#tickets/<?php
                     echo $ticket->getId(); ?>/status/delete"
@@ -143,7 +144,7 @@ if($ticket->isOverdue())
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
 
-<?php           if ($role->canBanEmails()) {
+<?php           if ($role->hasPerm(EmailModel::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
@@ -455,25 +456,25 @@ $tcount+= $ticket->getNumNotes();
 <div id="response_options">
     <ul class="tabs">
         <?php
-        if ($role->canPostTicketReply()) { ?>
+        if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
         <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
         <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
         <?php
-        if ($role->canTransferTickets()) { ?>
+        if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
         <li><a href="#transfer"><?php echo __('Department Transfer');?></a></li>
         <?php
         }
 
-        if ($role->canAssignTickets()) { ?>
+        if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
         <li><a href="#assign"><?php
             echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
         <?php
         } ?>
     </ul>
     <?php
-    if ($role->canPostTicketReply()) { ?>
+    if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
     <form id="reply" class="tab_content" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -632,7 +633,7 @@ $tcount+= $ticket->getNumNotes();
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
-                    if ($role->canCloseTickets() && !$outstanding)
+                    if ($role->hasPerm(TicketModel::PERM_CLOSE) && !$outstanding)
                         $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
@@ -716,7 +717,7 @@ $tcount+= $ticket->getNumNotes();
                         <?php
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
-                        if ($role->canCloseTickets())
+                        if ($role->hasPerm(TicketModel::PERM_CLOSE))
                             $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
@@ -742,7 +743,7 @@ $tcount+= $ticket->getNumNotes();
        </p>
    </form>
     <?php
-    if ($role->canTransferTickets()) { ?>
+    if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
     <form id="transfer" class="hidden tab_content" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -803,7 +804,7 @@ $tcount+= $ticket->getNumNotes();
     <?php
     } ?>
     <?php
-    if ($role->canAssignTickets()) { ?>
+    if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
     <form id="assign" class="hidden tab_content" action="tickets.php?id=<?php
          echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>

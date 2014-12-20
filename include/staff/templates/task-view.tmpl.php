@@ -1,35 +1,45 @@
 <?php
-if (!defined('OSTSCPINC') || !$thisstaff || !is_object($task))
+if (!defined('OSTSCPINC')
+        || !$thisstaff
+        || !$task
+        || !($role = $thisstaff->getRole($task->getId())))
     die('Invalid path');
 
-//Make sure the staff is allowed to access this task
-/*
- if (!@$thisstaff->isStaff() || !$task->checkStaffAccess($thisstaff))
-    die('Access Denied');
-*/
 
 $actions = array();
-$actions += array(
-        'edit' => array(
-            'icon' => 'icon-edit',
-            'dialog' => '{"size":"large"}',
-            'action' => __('Edit')
-        ));
-$actions += array(
-        'assign' => array(
-            'icon' => 'icon-user',
-            'action' => $task->isAssigned() ? __('Reassign') : __('Assign')
-        ));
-$actions += array(
-        'transfer' => array(
-            'icon' => 'icon-share',
-            'action' => __('Transfer')
-        ));
-$actions += array(
-        'delete' => array(
-            'icon' => 'icon-trash',
-            'action' => __('Delete')
-        ));
+
+if ($role->hasPerm(Task::PERM_EDIT)) {
+    $actions += array(
+            'edit' => array(
+                'icon' => 'icon-edit',
+                'dialog' => '{"size":"large"}',
+                'action' => __('Edit')
+            ));
+}
+
+if ($role->hasPerm(Task::PERM_ASSIGN)) {
+    $actions += array(
+            'assign' => array(
+                'icon' => 'icon-user',
+                'action' => $task->isAssigned() ? __('Reassign') : __('Assign')
+            ));
+}
+
+if ($role->hasPerm(Task::PERM_TRANSFER)) {
+    $actions += array(
+            'transfer' => array(
+                'icon' => 'icon-share',
+                'action' => __('Transfer')
+            ));
+}
+
+if ($role->hasPerm(Task::PERM_DELETE)) {
+    $actions += array(
+            'delete' => array(
+                'icon' => 'icon-trash',
+                'action' => __('Delete')
+            ));
+}
 
 
 $info=($_POST && $errors)?Format::input($_POST):array();

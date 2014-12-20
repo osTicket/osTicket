@@ -206,7 +206,7 @@ class UsersAjaxAPI extends AjaxController {
         $info = array();
         if ($_POST) {
             if ($user->tickets->count()) {
-                if (!$thisstaff->canDeleteTickets()) {
+                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE)) {
                     $info['error'] = __('You do not have permission to delete a user with tickets!');
                 } elseif ($_POST['deletetickets']) {
                     foreach($user->tickets as $ticket)

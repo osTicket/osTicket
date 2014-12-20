@@ -1,4 +1,21 @@
 <?php
+/*********************************************************************
+    class.task.php
+
+    Task
+
+    Peter Rotich <peter@osticket.com>
+    Copyright (c)  2014 osTicket
+    http://www.osticket.com
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+
+    vim: expandtab sw=4 ts=4 sts=4:
+**********************************************************************/
+
+include_once INCLUDE_DIR.'class.role.php';
+
 
 class TaskModel extends VerySimpleModel {
     static $meta = array(
@@ -14,6 +31,34 @@ class TaskModel extends VerySimpleModel {
             ),
         ),
     );
+
+    const PERM_CREATE   = 'task.create';
+    const PERM_EDIT     = 'task.edit';
+    const PERM_ASSIGN   = 'task.assign';
+    const PERM_TRANSFER = 'task.transfer';
+    const PERM_CLOSE    = 'task.close';
+    const PERM_DELETE   = 'task.delete';
+
+    static protected $perms = array(
+            self::PERM_CREATE    => array(
+                /* @trans */ 'Create',
+                /* @trans */ 'Ability to create tasks'),
+            self::PERM_EDIT      => array(
+                /* @trans */ 'Edit',
+                /* @trans */ 'Ability to edit tasks'),
+            self::PERM_ASSIGN    => array(
+                /* @trans */ 'Assign',
+                /* @trans */ 'Ability to assign tasks to agents or teams'),
+            self::PERM_TRANSFER  => array(
+                /* @trans */ 'Transfer',
+                /* @trans */ 'Ability to transfer tasks between departments'),
+            self::PERM_CLOSE     => array(
+                /* @trans */ 'Close',
+                /* @trans */ 'Ability to close tasks'),
+            self::PERM_DELETE    => array(
+                /* @trans */ 'Delete',
+                /* @trans */ 'Ability to delete tasks'),
+            );
 
     const ISOPEN    = 0x0001;
     const ISOVERDUE = 0x0002;
@@ -83,7 +128,14 @@ class TaskModel extends VerySimpleModel {
         return $this->hasFlag(self::ISOVERDUE);
     }
 
+    static function getPermissions() {
+        return self::$perms;
+    }
+
 }
+
+RolePermission::register(/* @trans */ 'Tasks', TaskModel::getPermissions());
+
 
 class Task extends TaskModel {
     var $form;
@@ -99,6 +151,32 @@ class Task extends TaskModel {
 
     function getTitle() {
         return $this->__cdata('title', ObjectModel::OBJECT_TYPE_TASK);
+    }
+
+    function checkStaffPerm($staff, $perm=null) {
+
+        // Must be a valid staff
+        if (!$staff instanceof Staff && !($staff=Staff::lookup($staff)))
+            return false;
+
+        // Check access based on department or assignment
+        if (!$staff->canAccessDept($this->getDeptId())
+                && $this->isOpen()
+                && $staff->getId() != $this->getStaffId()
+                && !$staff->isTeamMember($this->getTeamId()))
+            return false;
+
+        // At this point staff has access unless a specific permission is
+        // requested
+        if ($perm === null)
+            return true;
+
+        // Permission check requested -- get role.
+        if (!($role=$staff->getRole($this->getDeptId())))
+            return false;
+
+        // Check permission based on the effective role
+        return $role->hasPerm($perm);
     }
 
     function getAssignees() {

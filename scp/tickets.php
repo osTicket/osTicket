@@ -29,7 +29,7 @@ $ticket = $user = null; //clean start.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
-    elseif(!$ticket->checkStaffAccess($thisstaff)) {
+    elseif(!$ticket->checkStaffPerm($thisstaff)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
         $ticket=null; //Clear ticket obj.
     }
@@ -61,7 +61,7 @@ if($_POST && !$errors):
         $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if(!$role || !$role->canPostTicketReply())
+            if(!$role || !$role->hasPerm(TicketModel::PERM_REPLY))
                 $errors['err'] = __('Action denied. Contact admin for access');
             else {
 
@@ -109,7 +109,7 @@ if($_POST && !$errors):
             break;
         case 'transfer': /** Transfer ticket **/
             //Check permission
-            if(!$role->canTransferTickets())
+            if(!$role->hasPerm(TicketModel::PERM_TRANSFER))
                 $errors['err']=$errors['transfer'] = __('Action Denied. You are not allowed to transfer tickets.');
             else {
 
@@ -132,7 +132,7 @@ if($_POST && !$errors):
                     $msg = sprintf(__('Ticket transferred successfully to %s'),
                             $ticket->getDept()->getFullName());
                     //Check to make sure the staff still has access to the ticket
-                    if(!$ticket->checkStaffAccess($thisstaff))
+                    if(!$ticket->checkStaffPerm($thisstaff))
                         $ticket=null;
 
                 } elseif(!$errors['transfer']) {
@@ -143,7 +143,7 @@ if($_POST && !$errors):
             break;
         case 'assign':
 
-             if(!$role->canAssignTickets())
+             if(!$role->hasPerm(TicketModel::PERM_ASSIGN))
                  $errors['err']=$errors['assign'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
              else {
 
@@ -214,13 +214,13 @@ if($_POST && !$errors):
             break;
         case 'edit':
         case 'update':
-            if(!$ticket || !$role->canEditTickets())
+            if(!$ticket || !$role->hasPerm(TicketModel::PERM_EDIT))
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
-                if(!$ticket->checkStaffAccess($thisstaff))
+                if(!$ticket->checkStaffPerm($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to update the ticket. Correct the errors below and try again!');
@@ -242,7 +242,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'claim':
-                    if(!$role->canAssignTickets()) {
+                    if(!$role->hasPerm(TicketModel::PERM_EDIT)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
                     } elseif(!$ticket->isOpen()) {
                         $errors['err'] = __('Only open tickets can be assigned');
@@ -288,7 +288,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if(!$role->canBanEmails()) {
+                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
@@ -299,7 +299,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if(!$role->canBanEmails()) {
+                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');
@@ -310,7 +310,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'changeuser':
-                    if (!$role->canEditTickets()) {
+                    if (!$role->hasPerm(TicketModel::PERM_EDIT)) {
                         $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
@@ -335,7 +335,8 @@ if($_POST && !$errors):
         switch($_POST['a']) {
             case 'open':
                 $ticket=null;
-                if(!$thisstaff || !$thisstaff->canCreateTickets()) {
+                if (!$thisstaff ||
+                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s.'),
                                  __('to create tickets')),
@@ -349,7 +350,7 @@ if($_POST && !$errors):
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg=__('Ticket created successfully');
                         $_REQUEST['a']=null;
-                        if (!$ticket->checkStaffAccess($thisstaff) || $ticket->isClosed())
+                        if (!$ticket->checkStaffPerm($thisstaff) || $ticket->isClosed())
                             $ticket=null;
                         Draft::deleteForNamespace('ticket.staff%', $thisstaff->getId());
                         // Drop files from the response attachments widget
@@ -455,7 +456,7 @@ if (isset($_SESSION['advsearch'])) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
-if($thisstaff->canCreateTickets()) {
+if ($thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
@@ -474,7 +475,7 @@ if($ticket) {
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
     if ($_REQUEST['a']=='edit'
-            && $thisstaff->getRole($ticket->getDeptId())->canEditTickets()) {
+            && $ticket->checkStaffPerm($thisstaff, TicketModel::PERM_EDIT)) {
         $inc = 'ticket-edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
@@ -483,7 +484,8 @@ if($ticket) {
         $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
 } else {
 	$inc = 'tickets.inc.php';
-    if($_REQUEST['a']=='open' && $thisstaff->canCreateTickets())
+    if ($_REQUEST['a']=='open' &&
+            $thisstaff->hasPerm(TicketModel::PERM_CREATE))
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');

@@ -54,7 +54,8 @@ class KbaseAjaxAPI extends AjaxController {
                 $faq->getId(),
                 $faq->getId(),
                 $faq->getNumAttachments());
-        if($thisstaff && $thisstaff->canManageFAQ()) {
+        if($thisstaff
+                && $thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ)) {
             $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">'.__('Edit').'</a>',$faq->getId());
 
         }

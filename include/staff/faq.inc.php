@@ -1,5 +1,8 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->getRole()->canManageFAQ()) die('Access Denied');
+if (!defined('OSTSCPINC') || !$thisstaff
+        || !$thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ))
+    die('Access Denied');
+
 $info=array();
 $qstr='';
 if($faq){

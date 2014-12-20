@@ -17,7 +17,8 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.category.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->getRole()->canManageFAQ()) {
+if(!$thisstaff ||
+        !$thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ)) {
     header('Location: kb.php');
     exit;
 }

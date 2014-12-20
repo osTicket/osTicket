@@ -140,7 +140,7 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
-                        if($staff->canCreateTickets())
+                        if ($staff->hasPerm(TicketModel::PERM_CREATE))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',
@@ -161,9 +161,9 @@ class StaffNav {
                 case 'kbase':
                     $subnav[]=array('desc'=>__('FAQs'),'href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
-                        if($staff->getRole()->canManageFAQ())
+                        if ($staff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ))
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if($staff->getRole()->canManageCannedResponses())
+                        if ($staff->getRole()->hasPerm(KnowledgebaseModel::PERM_PREMADE))
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;

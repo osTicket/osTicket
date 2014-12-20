@@ -309,7 +309,7 @@ implements AuthenticatedUser {
         return $this->role;
     }
 
-    function hasPermission($perm) {
+    function hasPerm($perm) {
         if (!isset($this->_perms)) {
             foreach ($this->getDepartments() as $deptId) {
                 if (($role = $this->getRole($deptId))) {
@@ -322,26 +322,10 @@ implements AuthenticatedUser {
         return @$this->_perms[$perm];
     }
 
-    function canCreateTickets() {
-        return $this->hasPermission('ticket.create');
-    }
-
-    function canAssignTickets() {
-        return $this->hasPermission('ticket.create');
-    }
-
-    function canCloseTickets() {
-        return $this->hasPermission('ticket.close');
-    }
-
-    function canDeleteTickets() {
-        return $this->hasPermission('ticket.delete');
-    }
-
     function canManageTickets() {
         return ($this->isAdmin()
-                || $this->canDeleteTickets()
-                || $this->canCloseTickets());
+                || $this->hasPerm(TicketModel::PERM_DELETE)
+                || $this->hasPerm(TicketModel::PERM_CLOSE));
     }
 
     function isManager() {

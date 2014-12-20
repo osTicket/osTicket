@@ -1,5 +1,8 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
+if (!defined('OSTSCPINC') || !$thisstaff
+        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+        die('Access Denied');
+
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
@@ -223,7 +226,7 @@ if ($_POST)
         </tr>
 
         <?php
-        if($thisstaff->canAssignTickets()) { ?>
+        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
         <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -272,7 +275,7 @@ if ($_POST)
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if($thisstaff->getRole()->canPostTicketReply()) { ?>
+        if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
@@ -326,7 +329,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->canCloseTickets())
+                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {

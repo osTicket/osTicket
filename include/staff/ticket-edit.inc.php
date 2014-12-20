@@ -1,9 +1,7 @@
 <?php
 if (!defined('OSTSCPINC')
-        || !$thisstaff
         || !$ticket
-        || !($role=$thisstaff->getRole($ticket->getDeptId()))
-        || !$role->canEditTickets())
+        || !($ticket->checkStaffPerm($thisstaff, TicketModel::PERM_EDIT)))
     die('Access Denied');
 
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());

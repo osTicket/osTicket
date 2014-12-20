@@ -25,7 +25,8 @@ class TasksAjaxAPI extends AjaxController {
     function preview($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
+        // No perm. check -- preview allowed for staff
+        // XXX: perhaps force preview via parent object?
         if(!$thisstaff || !($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
 
@@ -35,9 +36,11 @@ class TasksAjaxAPI extends AjaxController {
     function edit($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
-        if(!$thisstaff || !($task=Task::lookup($tid)))
+        if(!($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
+
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_EDIT))
+            Http::response(403, __('Permission Denied'));
 
         $info = $errors = array();
         $forms = DynamicFormEntry::forObject($task->getId(),
@@ -54,9 +57,11 @@ class TasksAjaxAPI extends AjaxController {
     function transfer($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
-        if(!$thisstaff || !($task=Task::lookup($tid)))
+        if(!($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
+
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_TRANSFER))
+            Http::response(403, __('Permission Denied'));
 
         $info = $errors = array();
         if ($_POST) {
@@ -75,9 +80,11 @@ class TasksAjaxAPI extends AjaxController {
     function assign($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
-        if(!$thisstaff || !($task=Task::lookup($tid)))
+        if(!($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
+
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN))
+            Http::response(403, __('Permission Denied'));
 
         $info = $errors = array();
         if ($_POST) {
@@ -96,9 +103,11 @@ class TasksAjaxAPI extends AjaxController {
    function delete($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
-        if(!$thisstaff || !($task=Task::lookup($tid)))
+        if(!($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
+
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_DELETE))
+            Http::response(403, __('Permission Denied'));
 
         $info = $errors = array();
         if ($_POST) {
@@ -127,8 +136,8 @@ class TasksAjaxAPI extends AjaxController {
     function task($tid) {
         global $thisstaff;
 
-        // TODO: check staff's access.
-        if (!$thisstaff || !($task=Task::lookup($tid)))
+        if (!($task=Task::lookup($tid))
+                || !$task->checkStaffPerm($thisstaff))
             Http::response(404, __('No such task'));
 
         $info=$errors=array();
