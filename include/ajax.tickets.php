@@ -678,7 +678,7 @@ class TicketsAjaxAPI extends AjaxController {
                 Http::response(422, 'Unknown ticket variable');
 
             // Ticket thread variables are assumed to be quotes
-            $response = "<br/><blockquote>$response</blockquote><br/>";
+            $response = "<br/><blockquote>{$response->asVar()}</blockquote><br/>";
 
             //  Return text if html thread is not enabled
             if (!$cfg->isHtmlThreadEnabled())
