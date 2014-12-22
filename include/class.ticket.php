@@ -822,7 +822,7 @@ class Ticket {
     }
 
     //Status helper.
-    function setStatus($status, $comments='') {
+    function setStatus($status, $comments='', $set_closing_agent=true) {
         global $thisstaff;
 
         if ($status && is_numeric($status))
@@ -845,7 +845,7 @@ class Ticket {
         switch($status->getState()) {
             case 'closed':
                 $sql.=', closed=NOW(), duedate=NULL ';
-                if ($thisstaff)
+                if ($thisstaff && $set_closing_agent)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
 
                 $ecb = function($t) {
@@ -877,21 +877,24 @@ class Ticket {
         if (!db_query($sql) || !db_affected_rows())
             return false;
 
-        // Log status change b4 reload
-        $note = sprintf(__('Status changed from %s to %s by %s'),
-                $this->getStatus(),
-                $status,
-                $thisstaff ?: 'SYSTEM');
+        // Log status change b4 reload — if currently has a status. (On new
+        // ticket, the ticket is opened and thereafter the status is set to
+        // the requested status).
+        if ($current_status = $this->getStatus()) {
+            $note = sprintf(__('Status changed from %s to %s by %s'),
+                    $this->getStatus(),
+                    $status,
+                    $thisstaff ?: 'SYSTEM');
 
-        $alert = false;
-        if ($comments) {
-            $note .= sprintf('<hr>%s', $comments);
-            // Send out alerts if comments are included
-            $alert = true;
+            $alert = false;
+            if ($comments) {
+                $note .= sprintf('<hr>%s', $comments);
+                // Send out alerts if comments are included
+                $alert = true;
+            }
+
+            $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
         }
-
-        $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
-
         // Log events via callback
         if ($ecb) $ecb($this);
 
@@ -2635,7 +2638,6 @@ class Ticket {
             .' ,`number`='.db_input($number)
             .' ,dept_id='.db_input($deptId)
             .' ,topic_id='.db_input($topicId)
-            .' ,status_id='.db_input($statusId)
             .' ,ip_address='.db_input($ipaddress)
             .' ,source='.db_input($source);
 
@@ -2708,6 +2710,12 @@ class Ticket {
             if ($vars['teamId'])
                 $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'));
         }
+
+        // Apply requested status — this should be done AFTER assignment,
+        // because if it is requested to be closed, it should not cause the
+        // ticket to be reopened for assignment.
+        if ($statusId)
+            $ticket->setStatus($statusId, false, false);
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2797,11 +2805,7 @@ class Ticket {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            if(($response=$ticket->postReply($vars, $errors, false))) {
-                //Only state supported is closed on response
-                if(isset($vars['ticket_state']) && $thisstaff->canCloseTickets())
-                    $ticket->setState($vars['ticket_state']);
-            }
+            $response = $ticket->postReply($vars, $errors, false);
         }
 
         // Not assigned...save optional note if any
