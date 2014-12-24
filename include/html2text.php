@@ -448,6 +448,11 @@ class HtmlAElement extends HtmlInlineElement {
             $href = substr($href, 7);
             $output = (($href != $output) ? "$href " : '') . "<$output>";
         } elseif (mb_strwidth($href) > $width / 2) {
+            if (mb_strwidth($output) > $width / 2) {
+                // Parse URL and use relative path part
+                if ($PU = parse_url($output))
+                    $output = $PU['host'] . $PU['path'];
+            }
             if ($href != $output)
                 $id = $this->getRoot()->addFootnote($output, $href);
             $output = "[$output][$id]";
