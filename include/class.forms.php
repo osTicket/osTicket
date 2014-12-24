@@ -1587,6 +1587,10 @@ class FileUploadField extends FormField {
                 else {
                     if ($ext[0] != '.')
                         $ext = '.' . $ext;
+
+                    // Ensure that the extension is lower-cased for comparison latr
+                    $ext = strtolower($ext);
+
                     // Add this to the MIME types list so it can be exported to
                     // the @accept attribute
                     if (!isset($extensions[$ext]))
