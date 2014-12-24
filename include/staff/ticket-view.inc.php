@@ -534,6 +534,7 @@ $tcount+= $ticket->getNumNotes();
                     <label><strong><?php echo __('Response');?>:</strong></label>
                 </td>
                 <td>
+<?php if ($cfg->isCannedResponseEnabled()) { ?>
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected"><?php echo __('Select a canned response');?></option>
                         <option value='original'><?php echo __('Original Message'); ?></option>
@@ -548,7 +549,7 @@ $tcount+= $ticket->getNumNotes();
                         ?>
                     </select>
                     <br>
-                    <?php
+<?php } # endif (canned-resonse-enabled)
                     $signature = '';
                     switch ($thisstaff->getDefaultSignatureType()) {
                     case 'dept':

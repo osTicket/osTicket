@@ -214,6 +214,10 @@ class OsticketConfig extends Config {
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 
+    function isCannedResponseEnabled() {
+        return $this->get('enable_premade');
+    }
+
     function getVersion() {
         return THIS_VERSION;
     }
