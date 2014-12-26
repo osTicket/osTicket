@@ -774,3 +774,66 @@ RedactorPlugins.video = function()
 
 	};
 };
+
+RedactorPlugins.imagepaste = function() {
+  return {
+    init: function() {
+      if (this.utils.browser('webkit') && navigator.userAgent.indexOf('Chrome') === -1)
+      {
+        var arr = this.utils.browser('version').split('.');
+        if (arr[0] < 536)
+          return true;
+      }
+
+      // paste except opera (not webkit)
+      if (this.utils.browser('opera'))
+          return true;
+
+      this.$editor.on('paste.imagepaste', $.proxy(this.imagepaste.buildEventPaste, this));
+    },
+    buildEventPaste: function(e)
+    {
+      var event = e.originalEvent || e,
+          fileUpload = false,
+          files = [],
+          i, file,
+          cd = event.clipboardData;
+
+      if (typeof(cd) === 'undefined') return;
+
+      if (cd.items && cd.items.length)
+      {
+        for (i = 0, k = cd.items.length; i < k; i++) {
+          if (cd.kind == 'file' && cd.type.indexOf('image/') !== -1) {
+            file = cd.items[i].getAsFile();
+            if (file !== null)
+              files.push(file);
+            }
+        }
+      }
+      else if (cd.files && cd.files.length)
+      {
+        files = cd.files
+      }
+      else if (cd.types.length) {
+        for (i = 0, k = cd.types.length; i < k; i++) {
+          console.log(cd.types[i], cd.getData(cd.types[i]));
+          if (cd.types[i].indexOf('image/') != -1) {
+            var data = cd.getData(cd.types[i]);
+            if (data.length)
+                files.push(new Blob([data]));
+          }
+        }
+      }
+      if (files.length) {
+        // clipboard upload
+        this.selection.save();
+        this.buffer.set();
+        this.clean.singleLine = false;
+        for (i = 0, k = files.length; i < k; i++)
+          this.upload.directUpload(files[i], event);
+        return false;
+      }
+    }
+  };
+};
