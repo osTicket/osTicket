@@ -111,5 +111,10 @@ class Http {
             exit;
         }
     }
+
+    static function build_query($vars, $encode=true, $separator='&amp;') {
+        return http_build_query(
+                ($encode ? Format::htmlchars($vars) : $vars), '', $separator);
+    }
 }
 ?>
