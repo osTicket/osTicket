@@ -1467,7 +1467,7 @@ class HtmlThreadBody extends ThreadBody {
         case 'email':
             return $this->body;
         case 'pdf':
-            return Format::clickableurls($this->body, false);
+            return Format::clickableurls($this->body);
         default:
             return Format::display($this->body);
         }
