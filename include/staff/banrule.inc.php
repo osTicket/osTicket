@@ -1,25 +1,25 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$info=array();
-$qstr='';
+$info=$qs= array();
 if($rule && $_REQUEST['a']!='add'){
     $title='Update Ban Rule';
     $action='update';
     $submit_text='Update';
     $info=$rule->getInfo();
     $info['id']=$rule->getId();
-    $qstr.='&id='.$rule->getId();
+    $qs += array('id' => $rule->getId());
 }else {
     $title='Add New Email Address to Ban List';
     $action='add';
     $submit_text='Add';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
+
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="banlist.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="banlist.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

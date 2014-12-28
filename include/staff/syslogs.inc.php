@@ -1,9 +1,9 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 if($_REQUEST['type']) {
-    $qstr.='&amp;type='.urlencode($_REQUEST['type']);
+    $qs += array('type' => $_REQUEST['type']);
 }
 $type=null;
 switch(strtolower($_REQUEST['type'])){
@@ -38,11 +38,11 @@ if( ($startTime && $startTime>time()) or ($startTime>$endTime && $endTime>0)){
 }else{
     if($startTime){
         $qwhere.=' AND created>=FROM_UNIXTIME('.$startTime.')';
-        $qstr.='&startDate='.urlencode($_REQUEST['startDate']);
+        $qs += array('startDate' => $_REQUEST['startDate']);
     }
     if($endTime){
         $qwhere.=' AND created<=FROM_UNIXTIME('.$endTime.')';
-        $qstr.='&endDate='.urlencode($_REQUEST['endDate']);
+        $qs += array('endDate' => $_REQUEST['endDate']);
     }
 }
 $sortOptions=array('id'=>'log.log_id', 'title'=>'log.title','type'=>'log_type','ip'=>'log.ip_address'
@@ -73,8 +73,9 @@ $total=db_count("SELECT count(*) $qfrom $qwhere");
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 //pagenate
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('logs.php',$qstr);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$pageNav->setURL('logs.php',$qs);
+$qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
+$qstr = '&amp;'. Http::build_query($qs);
 $query="$qselect $qfrom $qwhere ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))

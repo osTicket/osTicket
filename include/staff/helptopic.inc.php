@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($topic && $_REQUEST['a']!='add') {
     $title='Update Help Topic';
     $action='update';
@@ -9,18 +8,18 @@ if($topic && $_REQUEST['a']!='add') {
     $info=$topic->getInfo();
     $info['id']=$topic->getId();
     $info['pid']=$topic->getPid();
-    $qstr.='&id='.$topic->getId();
+    $qs += array('id' => $topic->getId());
 } else {
     $title='Add New Help Topic';
     $action='create';
     $submit_text='Add Topic';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="helptopics.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

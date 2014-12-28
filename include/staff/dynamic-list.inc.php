@@ -59,7 +59,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
         $count = $list->getItemCount();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-        $pageNav->setURL('dynamic-list.php', 'id='.urlencode($_REQUEST['id']));
+        $pageNav->setURL('dynamic-list.php', array('id' => $list->getId()));
         $showing=$pageNav->showing().' list items';
         ?>
     <?php }

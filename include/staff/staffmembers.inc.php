@@ -1,6 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$qstr='';
+$qs = array();
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name, grp.group_name, dept.dept_name as dept,count(m.team_id) as teams ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.GROUP_TABLE.' grp ON(staff.group_id=grp.group_id) '.
@@ -10,17 +10,17 @@ $where='WHERE 1 ';
 
 if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $where.=' AND staff.dept_id='.db_input($_REQUEST['did']);
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 if($_REQUEST['gid'] && is_numeric($_REQUEST['gid'])) {
     $where.=' AND staff.group_id='.db_input($_REQUEST['gid']);
-    $qstr.='&gid='.urlencode($_REQUEST['gid']);
+    $qs += array('gid' => $_REQUEST['gid']);
 }
 
 if($_REQUEST['tid'] && is_numeric($_REQUEST['tid'])) {
     $where.=' AND m.team_id='.db_input($_REQUEST['tid']);
-    $qstr.='&tid='.urlencode($_REQUEST['tid']);
+    $qs += array('tid' => $_REQUEST['tid']);
 }
 
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','username'=>'staff.username','status'=>'isactive',
@@ -48,9 +48,11 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT staff.staff_id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('staff.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+
+$pageNav->setURL('staff.php', $qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>

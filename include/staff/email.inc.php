@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($email && $_REQUEST['a']!='add'){
     $title='Update Email';
     $action='update';
@@ -17,7 +16,7 @@ if($email && $_REQUEST['a']!='add'){
     if($info['userpass'])
         $passwdtxt='To change password enter new password above.';
 
-    $qstr.='&id='.$email->getId();
+    $qs += array('id' => $email->getId());
 }else {
     $title='Add New Email';
     $action='create';
@@ -25,12 +24,12 @@ if($email && $_REQUEST['a']!='add'){
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
     $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <h2>Email Address</h2>
-<form action="emails.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

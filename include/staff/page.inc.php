@@ -6,8 +6,7 @@ $pageTypes = array(
         'thank-you' => 'Thank you page',
         'other' => 'Other',
         );
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($page && $_REQUEST['a']!='add'){
     $title='Update Page';
     $action='update';
@@ -16,17 +15,17 @@ if($page && $_REQUEST['a']!='add'){
     $info['body'] = Format::viewableImages($page->getBody());
     $info['notes'] = Format::viewableImages($info['notes']);
     $slug = Format::slugify($info['name']);
-    $qstr.='&id='.$page->getId();
+    $qs += array('id' => $page->getId());
 }else {
     $title='Add New Page';
     $action='add';
     $submit_text='Add Page';
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="pages.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="pages.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

@@ -1,9 +1,9 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !@$thisstaff->isStaff()) die('Access Denied');
 
-$qstr='&'; //Query string collector
+$qs= array(); //Query string collector
 if($_REQUEST['status']) { //Query string status has nothing to do with the real status used below; gets overloaded.
-    $qstr.='status='.urlencode($_REQUEST['status']);
+    $qs += array('status' => $_REQUEST['status']);
 }
 
 //See if this is a search
@@ -81,7 +81,7 @@ if($status) {
 if (isset($_REQUEST['uid']) && $_REQUEST['uid']) {
     $qwhere .= ' AND (ticket.user_id='.db_input($_REQUEST['uid'])
             .' OR collab.user_id='.db_input($_REQUEST['uid']).') ';
-    $qstr .= '&uid='.urlencode($_REQUEST['uid']);
+    $qs += array('uid' => $_REQUEST['uid']);
 }
 
 //Queues: Overloaded sub-statuses  - you've got to just have faith!
@@ -110,12 +110,10 @@ if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
 //Search?? Somebody...get me some coffee
 $deep_search=false;
 if($search):
-    $qstr.='&a='.urlencode($_REQUEST['a']);
-    $qstr.='&t='.urlencode($_REQUEST['t']);
-
+    $qs += array('a' => $_REQUEST['a'], 't' => $_REQUEST['t']);
     //query
     if($searchTerm){
-        $qstr.='&query='.urlencode($searchTerm);
+        $qs += array('query' => $searchTerm);
         $queryterm=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if (is_numeric($searchTerm)) {
             $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
@@ -141,7 +139,7 @@ if($search):
 endif;
 
 if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
-    $qstr.='advsid='.$_REQUEST['advsid'];
+    $qs += array('advsid' => $_REQUEST['advsid']);
     $qwhere .= ' AND ticket.ticket_id IN ('. implode(',',
         db_input($_SESSION['adv_'.$_REQUEST['advsid']])).')';
 }
@@ -196,7 +194,7 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
 if($_GET['limit'])
-    $qstr.='&limit='.urlencode($_GET['limit']);
+    $qs += array('limit' => $_GET['limit']);
 
 $qselect ='SELECT ticket.ticket_id,tlock.lock_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
@@ -225,7 +223,10 @@ $total=db_count("SELECT count(DISTINCT ticket.ticket_id) $qfrom $sjoin $qwhere")
 $pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,$pagelimit);
-$pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+
+$qstr = '&amp;'.http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('tickets.php', $qs);
 
 //ADD attachment,priorities, lock and other crap
 $qselect.=' ,IF(ticket.duedate IS NULL,IF(sla.id IS NULL, NULL, DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)), ticket.duedate) as duedate '
@@ -295,7 +296,9 @@ if ($results) {
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
-            <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+            <td><input type="text" id="basic-ticket-search" name="query"
+            size=30 value="<?php echo Format::htmlchars($_REQUEST['query'],
+            true); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" name="basic_search" class="button" value="Search"></td>
             <td>&nbsp;&nbsp;<a href="" id="go-advanced">[advanced]</a></td>
@@ -311,7 +314,8 @@ if ($results) {
  <a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">Refresh</a>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
+ <input type="hidden" name="status" value="<?php echo
+ Format::htmlchars($_REQUEST['status'], true); ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <caption><?php echo $showing; ?>&nbsp;&nbsp;&nbsp;<?php echo $results_type; ?></caption>
     <thead>
@@ -466,8 +470,10 @@ if ($results) {
     <?php
     if($num>0){ //if we actually had any tickets returned.
         echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;';
-        echo '<a class="export-csv" href="?a=export&h='
-            .$hash.'&status='.$_REQUEST['status'] .'">Export</a></div>';
+        echo sprintf('<a class="export-csv" href="?%s">Export</a></div>',
+                Http::build_query(array(
+                        'a' => 'export', 'h' => $hash,
+                        'status' => $_REQUEST['status'])));
     ?>
         <?php
          if($thisstaff->canManageTickets()) { ?>

@@ -187,7 +187,7 @@ class Format {
                     $s = str_replace('"','', $s);
             }
             if ($styles)
-                $attributes['style'] = Format::htmlencode(implode(';', $styles));
+                $attributes['style'] = Format::htmlchars(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -245,18 +245,12 @@ class Format {
     }
 
     function htmlchars($var, $sanitize = false) {
-        //XXX:  should we decode first?
-        $var = Format::htmldecode($var);
-        if ($sanitize)
-            $var = Format::sanitize($var);
-
-        return Format::htmlencode($var);
-    }
-
-    function htmlencode($var) {
 
         if (is_array($var))
-            return array_map(array('Format', 'htmlencode'), $var);
+            return array_map(array('Format', 'htmlchars'), $var);
+
+        if ($sanitize)
+            $var = Format::sanitize($var);
 
         $flags = ENT_COMPAT;
         if (phpversion() >= '5.4.0')
@@ -282,7 +276,7 @@ class Format {
     }
 
     function input($var) {
-        return Format::htmlencode($var);
+        return Format::htmlchars($var);
     }
 
     //Format text for display..
