@@ -275,7 +275,12 @@ class Format {
         return $striptags?Format::striptags($text, false):$text;
     }
 
-    function htmlchars($var) {
+    function htmlchars($var, $sanitize = false) {
+        //XXX:  should we decode first?
+        $var = Format::htmldecode($var);
+        if ($sanitize)
+            $var = Format::sanitize($var);
+
         return Format::htmlencode($var);
     }
 
@@ -293,7 +298,7 @@ class Format {
             $flags |= ENT_HTML401;
 
         try {
-            return htmlentities( (string) $var, $flags, 'UTF-8', false);
+            return htmlspecialchars( (string) $var, $flags, 'UTF-8', false);
         } catch(Exception $e) {
             return $var;
         }
@@ -308,7 +313,7 @@ class Format {
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return html_entity_decode($var, $flags, 'UTF-8');
+        return htmlspecialchars_decode($var, $flags);
     }
 
     function input($var) {
