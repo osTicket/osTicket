@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($email && $_REQUEST['a']!='add'){
     $title=__('Update Email');
     $action='update';
@@ -17,7 +16,7 @@ if($email && $_REQUEST['a']!='add'){
     if($info['userpass'])
         $passwdtxt=__('To change password enter new password above.');
 
-    $qstr.='&id='.$email->getId();
+    $qs += array('id' => $email->getId());
 }else {
     $title=__('Add New Email');
     $action='create';
@@ -31,12 +30,12 @@ if($email && $_REQUEST['a']!='add'){
         $info['mail_fetchmax'] = 10;
     if (!isset($info['smtp_auth']))
         $info['smtp_auth'] = 1;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <h2><?php echo __('Email Address');?></h2>
-<form action="emails.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

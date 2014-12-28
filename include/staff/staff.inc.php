@@ -1,8 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($staff && $_REQUEST['a']!='add'){
     //Editing Department.
     $title=__('Update Agent');
@@ -13,7 +12,7 @@ if($staff && $_REQUEST['a']!='add'){
     $info['id']=$staff->getId();
     $info['teams'] = $staff->getTeams();
     $info['signature'] = Format::viewableImages($info['signature']);
-    $qstr.='&id='.$staff->getId();
+    $qs += array('id' => $staff->getId());
 }else {
     $title=__('Add New Agent');
     $action='create';
@@ -27,11 +26,11 @@ if($staff && $_REQUEST['a']!='add'){
     $info['isadmin']=0;
     $info['timezone_id'] = $cfg->getDefaultTimezoneId();
     $info['daylight_saving'] = $cfg->observeDaylightSaving();
-    $qstr.='&a=add';
+    $qs += array('a' => 'add');
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="staff.php?<?php echo $qstr; ?>" method="post" id="save" autocomplete="off">
+<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

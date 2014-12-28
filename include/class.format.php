@@ -218,7 +218,7 @@ class Format {
             }
             unset($s);
             if ($styles)
-                $attributes['style'] = Format::htmlencode(implode(';', $styles));
+                $attributes['style'] = Format::htmlchars(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -276,19 +276,13 @@ class Format {
     }
 
     function htmlchars($var, $sanitize = false) {
-        //XXX:  should we decode first?
-        $var = Format::htmldecode($var);
-        if ($sanitize)
-            $var = Format::sanitize($var);
-
-        return Format::htmlencode($var);
-    }
-
-    function htmlencode($var) {
         static $phpversion = null;
 
         if (is_array($var))
-            return array_map(array('Format', 'htmlencode'), $var);
+            return array_map(array('Format', 'htmlchars'), $var);
+
+        if ($sanitize)
+            $var = Format::sanitize($var);
 
         if (!isset($phpversion))
             $phpversion = phpversion();
@@ -317,7 +311,7 @@ class Format {
     }
 
     function input($var) {
-        return Format::htmlencode($var);
+        return Format::htmlchars($var);
     }
 
     //Format text for display..

@@ -1,10 +1,10 @@
 <?php
 if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
 
-$qstr='&'; //Query string collector
+$qs = array();
 $status=null;
 if(isset($_REQUEST['status'])) { //Query string status has nothing to do with the real status used below.
-    $qstr.='status='.urlencode($_REQUEST['status']);
+    $qs += array('status' => $_REQUEST['status']);
     //Status we are actually going to use on the query...making sure it is clean!
     $status=strtolower($_REQUEST['status']);
     switch(strtolower($_REQUEST['status'])) {
@@ -69,7 +69,7 @@ if($status && isset($states[$status])){
 
 $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
-    $qstr.='&a='.urlencode($_REQUEST['a']).'&q='.urlencode($_REQUEST['q']);
+    $qs += array('a' => $_REQUEST['a'], 'q' => $_REQUEST['q']);
     if(is_numeric($_REQUEST['q'])) {
         $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
     } else {//Deep search!
@@ -90,7 +90,9 @@ TicketForm::ensureDynamicDataView();
 $total=db_count('SELECT count(DISTINCT ticket.ticket_id) '.$qfrom.' '.$qwhere);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('tickets.php', $qs);
 
 //more stuff...
 $qselect.=' ,count(attach_id) as attachments ';

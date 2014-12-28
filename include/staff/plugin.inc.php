@@ -14,10 +14,11 @@ if($plugin && $_REQUEST['a']!='add') {
     $submit_text = __('Save Changes');
     $info = $plugin->ht;
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
 
-<form action="?id=<?php echo urlencode($_REQUEST['id']); ?>" method="post" id="save">
+<form action="?<?php echo Http::build_query(array('id' => $_REQUEST['id'])); ?>" method="post" id="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">

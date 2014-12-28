@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($group && $_REQUEST['a']!='add'){
     $title=__('Update Group');
     $action='update';
@@ -9,18 +8,18 @@ if($group && $_REQUEST['a']!='add'){
     $info=$group->getInfo();
     $info['id']=$group->getId();
     $info['depts']=$group->getDepartments();
-    $qstr.='&id='.$group->getId();
+    $qs += array('id' => $group->getId());
 }else {
     $title=__('Add New Group');
     $action='create';
     $submit_text=__('Create Group');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['can_create_tickets']=isset($info['can_create_tickets'])?$info['can_create_tickets']:1;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="groups.php?<?php echo $qstr; ?>" method="post" id="save" name="group">
+<form action="groups.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" name="group">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

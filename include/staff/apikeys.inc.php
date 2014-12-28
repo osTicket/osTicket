@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT * FROM '.API_KEY_TABLE.' WHERE 1';
 $sortOptions=array('key'=>'apikey','status'=>'isactive','ip'=>'ipaddr','date'=>'created','created'=>'created','updated'=>'updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
@@ -27,9 +27,11 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(*) FROM '.API_KEY_TABLE.' ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('apikeys.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('apikeys.php', $qs);
+
+$qstr.='&amp;order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))

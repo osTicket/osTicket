@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canManageFAQ()) die('Access Denied');
 $info=array();
-$qstr='';
+$qs = array();
 if($category && $_REQUEST['a']!='add'){
     $title=__('Update Category').': '.$category->getName();
     $action='update';
@@ -9,17 +9,17 @@ if($category && $_REQUEST['a']!='add'){
     $info=$category->getHashtable();
     $info['id']=$category->getId();
     $info['notes'] = Format::viewableImages($category->getNotes());
-    $qstr.='&id='.$category->getId();
+    $qs += array('id' => $category->getId());
 }else {
     $title=__('Add New Category');
     $action='create';
     $submit_text=__('Add');
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="categories.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

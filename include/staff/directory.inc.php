@@ -1,6 +1,6 @@
 <?php
 if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
-$qstr='';
+$qs = array();
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.dept_name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) ';
@@ -25,7 +25,7 @@ if($_REQUEST['q']) {
 
 if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $where.=' AND staff.dept_id='.db_input($_REQUEST['did']);
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','email'=>'staff.email','dept'=>'dept.dept_name',
@@ -54,9 +54,11 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT staff.staff_id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('directory.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('directory.php', $qs);
 //Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
