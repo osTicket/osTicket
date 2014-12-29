@@ -129,7 +129,7 @@ class DraftAjaxAPI extends AjaxController {
 
         echo JsonDataEncoder::encode(array(
             'content_id' => 'cid:'.$f->getKey(),
-            'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
+            'filelink' => $f->getDownloadUrl(false, 'inline'),
         ));
     }
 
@@ -309,7 +309,7 @@ class DraftAjaxAPI extends AjaxController {
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);
-            $url = 'image.php?h='.$f->getDownloadHash();
+            $url = $f->getDownloadUrl();
             $files[] = array(
                 'thumb'=>$url.'&s=128',
                 'image'=>$url,
