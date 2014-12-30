@@ -2256,22 +2256,6 @@ class Ticket {
             }
         }
 
-        //Init ticket filters...
-        $ticket_filter = new TicketFilter($origin, $vars);
-        // Make sure email contents should not be rejected
-        if($ticket_filter
-                && ($filter=$ticket_filter->shouldReject())) {
-            $errors = array(
-                    'errno' => 403,
-                    'err' => "This help desk is for use by authorized users
-                    only");
-            $ost->logWarning('Ticket denied',
-                    sprintf('Ticket rejected ( %s) by filter "%s"',
-                        $vars['email'], $filter->getName()), true);
-
-            return 0;
-        }
-
         $id=0;
         $fields=array();
         $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>'Message required');
@@ -2310,7 +2294,21 @@ class Ticket {
         if (!$errors) {
 
             # Perform ticket filter actions on the new ticket arguments
-            if ($ticket_filter) $ticket_filter->apply($vars);
+            try {
+                // Init ticket filters...
+                $ticket_filter = new TicketFilter($origin, $vars);
+                $ticket_filter->apply($vars);
+            }
+            catch (RejectedException $ex) {
+                $errors = array(
+                    'errno' => 403,
+                    'err' => "This help desk is for use by authorized users only");
+                $ost->logWarning('Ticket denied',
+                    sprintf('Ticket rejected ( %s) by filter "%s"',
+                        $vars['email'], $ex->getRejectingFilter()->getName()), true);
+
+                return 0;
+            }
 
             // Allow vars to be changed in ticket filter and applied to the user
             // account created or detected

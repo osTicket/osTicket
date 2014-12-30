@@ -187,7 +187,7 @@ class User extends UserModel {
                 $this->_entries[] = $g;
             }
         }
-        return $this->_entries;
+        return $this->_entries ?: array();
     }
 
     function getForms($data=null) {
