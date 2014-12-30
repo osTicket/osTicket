@@ -2447,16 +2447,6 @@ class Ticket {
             }
         }
 
-        //Init ticket filters...
-        $ticket_filter = new TicketFilter($origin, $vars);
-        // Make sure email contents should not be rejected
-        if ($ticket_filter
-                && ($filter=$ticket_filter->shouldReject())) {
-            return $reject_ticket(
-                sprintf(_S('Ticket rejected (%s) by filter "%s"'),
-                    $vars['email'], $filter->getName()));
-        }
-
         $id=0;
         $fields=array();
         $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
@@ -2495,7 +2485,17 @@ class Ticket {
         if (!$errors) {
 
             # Perform ticket filter actions on the new ticket arguments
-            if ($ticket_filter) $ticket_filter->apply($vars);
+            try {
+                // Init ticket filters...
+                $ticket_filter = new TicketFilter($origin, $vars);
+                $ticket_filter->apply($vars);
+            }
+            catch (RejectedException $ex) {
+                return $reject_ticket(
+                    sprintf(_S('Ticket rejected (%s) by filter "%s"'),
+                    $vars['email'], $ex->getRejectingFilter()->getName())
+                );
+            }
 
             // Allow vars to be changed in ticket filter and applied to the user
             // account created or detected
