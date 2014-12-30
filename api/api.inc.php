@@ -1,18 +1,19 @@
 <?php
-/*********************************************************************
-    api.inc.php
 
-    File included on every API page...handles common includes.
+/* * *******************************************************************
+  api.inc.php
 
-    Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
-    http://www.osticket.com
+  File included on every API page...handles common includes.
 
-    Released under the GNU General Public License WITHOUT ANY WARRANTY.
-    See LICENSE.TXT for details.
+  Peter Rotich <peter@osticket.com>
+  Copyright (c)  2006-2013 osTicket
+  http://www.osticket.com
 
-    vim: expandtab sw=4 ts=4 sts=4:
-**********************************************************************/
+  Released under the GNU General Public License WITHOUT ANY WARRANTY.
+  See LICENSE.TXT for details.
+
+  vim: expandtab sw=4 ts=4 sts=4:
+ * ******************************************************************** */
 file_exists('../main.inc.php') or die('System Error');
 
 // Disable sessions for the API. API should be considered stateless and
@@ -20,7 +21,5 @@ file_exists('../main.inc.php') or die('System Error');
 define('DISABLE_SESSION', true);
 
 require_once('../main.inc.php');
-require_once(INCLUDE_DIR.'class.http.php');
-require_once(INCLUDE_DIR.'class.api.php');
-
-?>
+require_once(INCLUDE_DIR . 'class.http.php');
+require_once(INCLUDE_DIR . 'class.api.php');
