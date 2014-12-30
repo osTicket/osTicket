@@ -1,3 +1,3 @@
 <?php
+
 require('install.php');
-?>

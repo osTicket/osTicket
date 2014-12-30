@@ -1,52 +1,49 @@
 <?php
 
 require_once('client.inc.php');
-if(!defined('INCLUDE_DIR')) die('Fatal Error');
-define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
-define('OSTCLIENTINC',TRUE); //make includes happy
+if (!defined('INCLUDE_DIR')) {
+    die('Fatal Error');
+}
+define('CLIENTINC_DIR', INCLUDE_DIR . 'client/');
+define('OSTCLIENTINC', TRUE); //make includes happy
 
-require_once(INCLUDE_DIR.'class.client.php');
+require_once(INCLUDE_DIR . 'class.client.php');
 
 $inc = 'pwreset.request.php';
-if($_POST) {
+if ($_POST) {
     if (!$ost->checkCSRFToken()) {
         Http::response(400, __('Valid CSRF Token Required'));
         exit;
     }
     switch ($_POST['do']) {
         case 'sendmail':
-            if (($acct=ClientAccount::lookupByUsername($_POST['userid']))) {
+            if (($acct = ClientAccount::lookupByUsername($_POST['userid']))) {
                 if (!$acct->isPasswdResetEnabled()) {
                     $banner = __('Password reset is not enabled for your account. Contact your administrator');
-                }
-                elseif ($acct->sendResetEmail()) {
+                } elseif ($acct->sendResetEmail()) {
                     $inc = 'pwreset.sent.php';
-                }
-                else
+                } else {
                     $banner = __('Unable to send reset email. Internal error');
+                }
+            } else {
+                $banner = sprintf(__('Unable to verify username: %s'), Format::htmlchars($_POST['userid']));
             }
-            else
-                $banner = sprintf(__('Unable to verify username: %s'),
-                    Format::htmlchars($_POST['userid']));
             break;
         case 'reset':
             $inc = 'pwreset.login.php';
             $errors = array();
             if ($client = UserAuthenticationBackend::processSignOn($errors)) {
                 Http::redirect('index.php');
-            }
-            elseif (isset($errors['msg'])) {
+            } elseif (isset($errors['msg'])) {
                 $banner = $errors['msg'];
             }
             break;
     }
-}
-elseif ($_GET['token']) {
+} elseif ($_GET['token']) {
     $banner = __('Re-enter your username or email');
     $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
-    if (($id = $_config->get($_GET['token']))
-            && ($acct = ClientAccount::lookup(array('user_id'=>$id)))) {
+    if (($id = $_config->get($_GET['token'])) && ($acct = ClientAccount::lookup(array('user_id' => $id)))) {
         if (!$acct->isConfirmed()) {
             $inc = 'register.confirmed.inc.php';
             $acct->confirm();
@@ -63,23 +60,20 @@ elseif ($_GET['token']) {
                 Http::redirect('account.php?confirmed');
             }
         }
-    }
-    elseif ($id && ($user = User::lookup($id)))
+    } elseif ($id && ($user = User::lookup($id))) {
         $inc = 'pwreset.create.php';
-    else
+    } else {
         Http::redirect('index.php');
-}
-elseif ($cfg->allowPasswordReset()) {
+    }
+} elseif ($cfg->allowPasswordReset()) {
     $banner = __('Enter your username or email address below');
-}
-else {
-    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
+} else {
+    $_SESSION['_staff']['auth']['msg'] = __('Password resets are disabled');
     return header('Location: index.php');
 }
 
 $nav = new UserNav();
 $nav->setActiveNav('status');
-require CLIENTINC_DIR.'header.inc.php';
-require CLIENTINC_DIR.$inc;
-require CLIENTINC_DIR.'footer.inc.php';
-?>
+require CLIENTINC_DIR . 'header.inc.php';
+require CLIENTINC_DIR . $inc;
+require CLIENTINC_DIR . 'footer.inc.php';

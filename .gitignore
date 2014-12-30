@@ -17,3 +17,6 @@ stage
 # Ignore mPDF temp files
 include/mpdf/ttfontdata
 include/mpdf/tmp
+/nbproject/private/
+project.xml
+project.properties

@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
-if (php_sapi_name() != 'cli') exit();
+if (php_sapi_name() != 'cli')
+    exit();
 
 //Allow user to select suite
 $selected_test = (isset($argv[1])) ? $argv[1] : false;
@@ -9,8 +10,8 @@ require_once "tests/class.test.php";
 
 $root = get_osticket_root_path();
 define('INCLUDE_DIR', "$root/include/");
-define('PEAR_DIR', INCLUDE_DIR."pear/");
-ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
+define('PEAR_DIR', INCLUDE_DIR . "pear/");
+ini_set('include_path', './' . PATH_SEPARATOR . INCLUDE_DIR . PATH_SEPARATOR . PEAR_DIR);
 
 $fails = array();
 
@@ -24,30 +25,36 @@ function show_fails() {
         echo "-------------------------------------------------------\n";
         foreach ($fails as $f) {
             list($test, $script, $line, $message) = $f;
-            $script = str_replace($root.'/', '', $script);
+            $script = str_replace($root . '/', '', $script);
             print("$test: $message @ $script:$line\n");
         }
         return count($fails);
     }
 }
+
 if (function_exists('pcntl_signal')) {
-    declare(ticks=1);
+    declare(ticks = 1);
+
     function show_fails_on_ctrlc() {
         while (@ob_end_flush());
         print("\n");
         exit(show_fails());
     }
+
     pcntl_signal(SIGINT, 'show_fails_on_ctrlc');
 }
 
-foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
-    if (strpos($t,"class.") !== false)
+foreach (glob_recursive(dirname(__file__) . "/tests/test.*.php") as $t) {
+    if (strpos($t, "class.") !== false) {
         continue;
+    }
     $class = (include $t);
-    if (!is_string($class))
+    if (!is_string($class)) {
         continue;
-    if($selected_test && ($class != $selected_test))
-    	continue;
+    }
+    if ($selected_test && ($class != $selected_test)) {
+        continue;
+    }
     $test = new $class();
     echo "Running: " . $test->name . "\n";
     $test->run();
@@ -58,8 +65,8 @@ show_fails();
 
 // If executed directly expose the fail count to a shell script
 global $argv;
-if (!strcasecmp(basename($argv[0]), basename(__file__)))
+if (!strcasecmp(basename($argv[0]), basename(__file__))) {
     exit(count($fails));
-else
+} else {
     return count($fails);
-?>
+}
