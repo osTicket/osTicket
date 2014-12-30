@@ -15,6 +15,25 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.file.php');
 
+class CannedModel {
+
+    const PERM_MANAGE = 'canned.manage';
+
+    static protected $perms = array(
+            self::PERM_MANAGE => array(
+                'title' =>
+                /* @trans */ 'Premade',
+                'desc'  =>
+                /* @trans */ 'Ability to add/update/disable/delete canned responses')
+    );
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+}
+
+RolePermission::register( /* @trans */ 'Knowledgebase', CannedModel::getPermissions());
+
 class Canned {
     var $id;
     var $ht;

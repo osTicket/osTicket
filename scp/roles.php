@@ -14,7 +14,11 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require('admin.inc.php');
+require 'admin.inc.php';
+include_once INCLUDE_DIR . 'class.canned.php';
+include_once INCLUDE_DIR . 'class.faq.php';
+include_once INCLUDE_DIR . 'class.email.php';
+include_once INCLUDE_DIR . 'class.report.php';
 
 $errors = array();
 $role=null;

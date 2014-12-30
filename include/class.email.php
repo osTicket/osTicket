@@ -39,7 +39,9 @@ class EmailModel extends VerySimpleModel {
 
     static protected $perms = array(
             self::PERM_BANLIST => array(
+                'title' =>
                 /* @trans */ 'Banlist',
+                'desc'  =>
                 /* @trans */ 'Ability to add/remove emails from banlist via ticket interface'),
             );
 

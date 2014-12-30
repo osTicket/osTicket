@@ -79,7 +79,7 @@ $query = http_build_query($query); ?>
         echo __('Print'); ?>
     </a></button>
 <?php
-if ($thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ)) { ?>
+if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
     <button>
     <i class="icon-edit"></i>
     <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit"><?php
@@ -104,7 +104,7 @@ if ($thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ)) { ?>
 <hr>
 
 <?php
-if ($thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_FAQ)) { ?>
+if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
 <form action="faq.php?id=<?php echo  $faq->getId(); ?>" method="post">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="manage-faq">

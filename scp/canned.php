@@ -19,7 +19,7 @@ include_once(INCLUDE_DIR.'class.canned.php');
 /* check permission */
 if(!$thisstaff
         ||
-        !$thisstaff->getRole()->hasPerm(KnowledgebaseModel::PERM_PREMADE)) {
+        !$thisstaff->getRole()->hasPerm(CannedModel::PERM_MANAGE)) {
     header('Location: kb.php');
     exit;
 }

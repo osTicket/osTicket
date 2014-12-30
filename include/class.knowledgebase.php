@@ -15,27 +15,6 @@
 **********************************************************************/
 require_once("class.file.php");
 
-class KnowledgebaseModel {
-
-    const PERM_PREMADE  = 'kb.premade';
-    const PERM_FAQ      = 'kb.faq';
-
-    static protected $perms = array(
-            self::PERM_PREMADE => array(
-                /* @trans */ 'Premade',
-                /* @trans */ 'Ability to add/update/disable/delete canned responses'),
-            self::PERM_FAQ => array(
-                /* @trans */ 'FAQ',
-                /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs'),
-            );
-
-    static function getPermissions() {
-        return self::$perms;
-    }
-}
-
-RolePermission::register( /* @trans */ 'Knowledgebase', KnowledgebaseModel::getPermissions());
-
 class Knowledgebase {
 
     function Knowledgebase($id) {

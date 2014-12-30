@@ -41,22 +41,34 @@ class TaskModel extends VerySimpleModel {
 
     static protected $perms = array(
             self::PERM_CREATE    => array(
+                'title' =>
                 /* @trans */ 'Create',
+                'desc'  =>
                 /* @trans */ 'Ability to create tasks'),
             self::PERM_EDIT      => array(
+                'title' =>
                 /* @trans */ 'Edit',
+                'desc'  =>
                 /* @trans */ 'Ability to edit tasks'),
             self::PERM_ASSIGN    => array(
+                'title' =>
                 /* @trans */ 'Assign',
+                'desc'  =>
                 /* @trans */ 'Ability to assign tasks to agents or teams'),
             self::PERM_TRANSFER  => array(
+                'title' =>
                 /* @trans */ 'Transfer',
+                'desc'  =>
                 /* @trans */ 'Ability to transfer tasks between departments'),
             self::PERM_CLOSE     => array(
+                'title' =>
                 /* @trans */ 'Close',
+                'desc'  =>
                 /* @trans */ 'Ability to close tasks'),
             self::PERM_DELETE    => array(
+                'title' =>
                 /* @trans */ 'Delete',
+                'desc'  =>
                 /* @trans */ 'Ability to delete tasks'),
             );
 

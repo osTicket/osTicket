@@ -313,10 +313,4 @@ class RolePermission {
                             static::$_permissions[$group] ?: array(), $perms);
     }
 }
-
-// Classes that might need to register roles permissions
-include_once INCLUDE_DIR.'class.knowledgebase.php';
-include_once INCLUDE_DIR.'class.email.php';
-include_once INCLUDE_DIR.'class.report.php';
-
 ?>

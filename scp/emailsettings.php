@@ -35,5 +35,5 @@ $nav->setTabActive('emails', 'emailsettings.php');
 require_once(STAFFINC_DIR.'header.inc.php');
 include_once(STAFFINC_DIR.$inc);
 include_once(STAFFINC_DIR.'footer.inc.php');
-?>
 
+?>

@@ -11,8 +11,8 @@ class GroupRoles extends MigrationTask {
             'can_assign_tickets'    => 'ticket.assign',
             'can_transfer_tickets'  => 'ticket.transfer',
             'can_ban_emails'        => 'emails.banlist',
-            'can_manage_premade'    => 'kb.premade',
-            'can_manage_faq'        => 'kb.faq',
+            'can_manage_premade'    => 'canned.manage',
+            'can_manage_faq'        => 'faq.manage',
             'can_view_staff_stats'  => 'stats.agents',
     );
 
