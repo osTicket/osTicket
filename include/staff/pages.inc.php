@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT page.id, page.isactive, page.name, page.created, page.updated, '
      .'page.type, count(topic.topic_id) as topics '
      .' FROM '.PAGE_TABLE.' page '
@@ -36,9 +36,10 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(*) FROM '.PAGE_TABLE.' page '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('pages.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('pages.php', $qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 $query="$sql $where GROUP BY page.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))

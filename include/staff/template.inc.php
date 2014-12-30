@@ -1,26 +1,25 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($template && $_REQUEST['a']!='add'){
     $title=__('Update Template');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$template->getInfo();
     $info['tpl_id']=$template->getId();
-    $qstr.='&tpl_id='.$template->getId();
+    $qs += array('tpl_id' => $template->getId());
 }else {
     $title=__('Add New Template');
     $action='add';
     $submit_text=__('Add Template');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
     $info['lang_id'] = $cfg->getSystemLanguage();
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="templates.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="templates.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

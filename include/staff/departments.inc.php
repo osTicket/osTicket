@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT dept.dept_id,dept_name,email.email_id,email.email,email.name as email_name,ispublic,count(staff.staff_id) as users '.
      ',CONCAT_WS(" ",mgr.firstname,mgr.lastname) as manager,mgr.staff_id as manager_id,dept.created,dept.updated  FROM '.DEPT_TABLE.' dept '.
      ' LEFT JOIN '.STAFF_TABLE.' mgr ON dept.manager_id=mgr.staff_id '.
@@ -30,7 +30,8 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
+$qstr = '&amp;'. Http::build_query($qs);
 
 $query="$sql GROUP BY dept.dept_id ORDER BY $order_by";
 $res=db_query($query);

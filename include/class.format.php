@@ -218,7 +218,7 @@ class Format {
             }
             unset($s);
             if ($styles)
-                $attributes['style'] = Format::htmlencode(implode(';', $styles));
+                $attributes['style'] = Format::htmlchars(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -275,15 +275,14 @@ class Format {
         return $striptags?Format::striptags($text, false):$text;
     }
 
-    function htmlchars($var) {
-        return Format::htmlencode($var);
-    }
-
-    function htmlencode($var) {
+    function htmlchars($var, $sanitize = false) {
         static $phpversion = null;
 
         if (is_array($var))
-            return array_map(array('Format', 'htmlencode'), $var);
+            return array_map(array('Format', 'htmlchars'), $var);
+
+        if ($sanitize)
+            $var = Format::sanitize($var);
 
         if (!isset($phpversion))
             $phpversion = phpversion();
@@ -293,7 +292,7 @@ class Format {
             $flags |= ENT_HTML401;
 
         try {
-            return htmlentities( (string) $var, $flags, 'UTF-8', false);
+            return htmlspecialchars( (string) $var, $flags, 'UTF-8', false);
         } catch(Exception $e) {
             return $var;
         }
@@ -308,11 +307,11 @@ class Format {
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return html_entity_decode($var, $flags, 'UTF-8');
+        return htmlspecialchars_decode($var, $flags);
     }
 
     function input($var) {
-        return Format::htmlencode($var);
+        return Format::htmlchars($var);
     }
 
     //Format text for display..

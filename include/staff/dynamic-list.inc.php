@@ -213,7 +213,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
         $count = $list->getNumItems();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-        $pageNav->setURL('list.php', 'id='.urlencode($list->getId()));
+        $pageNav->setURL('list.php', array('id' => $list->getId()));
         $showing=$pageNav->showing().' '.__('list items');
         ?>
     <?php }

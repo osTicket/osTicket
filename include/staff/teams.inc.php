@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT team.*,count(m.staff_id) as members,CONCAT_WS(" ",lead.firstname,lead.lastname) as team_lead '.
      ' FROM '.TEAM_TABLE.' team '.
      ' LEFT JOIN '.TEAM_MEMBER_TABLE.' m ON(m.team_id=team.team_id) '.
@@ -28,7 +28,8 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
+$qstr = '&amp;'. Http::build_query($qs);
 
 $query="$sql GROUP BY team.team_id ORDER BY $order_by";
 $res=db_query($query);

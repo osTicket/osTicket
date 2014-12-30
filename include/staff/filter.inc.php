@@ -4,25 +4,24 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $matches=Filter::getSupportedMatches();
 $match_types=Filter::getSupportedMatchTypes();
 
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($filter && $_REQUEST['a']!='add'){
     $title=__('Update Filter');
     $action='update';
     $submit_text=__('Save Changes');
     $info=array_merge($filter->getInfo(),$filter->getFlatRules());
     $info['id']=$filter->getId();
-    $qstr.='&id='.$filter->getId();
+    $qs += array('id' => $filter->getId());
 }else {
     $title=__('Add New Filter');
     $action='add';
     $submit_text=__('Add Filter');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="filters.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="filters.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
