@@ -1,3 +1,25 @@
+osTicket v1.8.7
+===============
+### Improvements
+  * Consider auto response checkbox and department setting for new ticket by
+    staff (#1509)
+  * Properly handle alert and auto response flags from API (#1435), thanks
+    @stevepacker
+  * Do not reopen tickets for automated responses (#1529)
+  * Display FAQ article consistently on client portal (#1553)
+  * Avoid wrapping password reset URLs on text emails (#1558)
+  * Forbid disabling the only active administrator (#1569)
+  * Searching for tickets searches to midnight of the end date (#1572),
+    thanks @grintor
+  * Fix rejection of tickets by filter, even if a previous matching filter
+    would stop on match (#1644)
+  * Fix matching of `User / Email Address` in ticket filters (#1644)
+  * Skip team assignment alert on new ticket if assigned to an agent
+    (fddb3c7)
+
+### Performance and Security
+  * Fix possible XSS vulnerability in sortable table view pages (#1639)
+
 osTicket v1.8.6
 ===============
 ### Enhancements
