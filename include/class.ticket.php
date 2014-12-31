@@ -2711,7 +2711,9 @@ class Ticket {
             if ($vars['staffId'])
                  $ticket->assignToStaff($vars['staffId'], _S('Auto Assignment'));
             if ($vars['teamId'])
-                $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'));
+                // No team alert if also assigned to an individual agent
+                $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'),
+                    !$vars['staffId']);
         }
 
         // Apply requested status — this should be done AFTER assignment,
