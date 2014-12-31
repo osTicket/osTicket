@@ -2430,7 +2430,8 @@ class Ticket {
             if ($vars['staffId'])
                  $ticket->assignToStaff($vars['staffId'], 'Auto Assignment');
             if ($vars['teamId'])
-                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment');
+                $ticket->assignToTeam($vars['teamId'], 'Auto Assignment',
+                    !$vars['staffId']);
         }
 
         /**********   double check auto-response  ************/
