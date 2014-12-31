@@ -1647,10 +1647,8 @@ class FileUploadField extends FormField {
     function display($value) {
         $links = array();
         foreach ($this->getFiles() as $f) {
-            $hash = strtolower($f['key']
-                . md5($f['id'].session_id().strtolower($f['key'])));
-            $links[] = sprintf('<a class="no-pjax" href="file.php?h=%s">%s</a>',
-                $hash, Format::htmlchars($f['name']));
+            $links[] = sprintf('<a class="no-pjax" href="%s">%s</a>',
+                Format::htmlchars($f['download_url']), Format::htmlchars($f['name']));
         }
         return implode('<br/>', $links);
     }
@@ -2096,6 +2094,7 @@ class FileUploadWidget extends Widget {
                     'name' => $file->getName(),
                     'type' => $file->getType(),
                     'size' => $file->getSize(),
+                    'download_url' => $file->getDownloadUrl(),
                 );
             }
         }

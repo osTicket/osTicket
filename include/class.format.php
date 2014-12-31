@@ -259,9 +259,10 @@ class Format {
     }
 
     function localizeInlineImages($text) {
-        // Change image.php urls back to content-id's
-        return preg_replace('/image\\.php\\?h=([\\w.-]{32})\\w{32}/',
-            'cid:$1', $text);
+        // Change file.php urls back to content-id's
+        return preg_replace(
+            '/src="(?:\/[^"]+?)?\/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*/',
+            'src="cid:$1', $text);
     }
 
     function sanitize($text, $striptags=false) {
@@ -408,14 +409,14 @@ class Format {
     }
 
 
-    function viewableImages($html, $script='image.php') {
+    function viewableImages($html, $script=false) {
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($script) {
             $hash = $match[1];
             if (!($file = AttachmentFile::lookup($hash)))
                 return $match[0];
-            return sprintf('"%s?h=%s" data-cid="%s"',
-                $script, $file->getDownloadHash(), $match[1]);
+            return sprintf('"%s" data-cid="%s"',
+                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
         }, $html);
     }
 

@@ -579,7 +579,7 @@ Class ThreadEntry {
             return $this->attachments;
 
         //XXX: inner join the file table instead?
-        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name, a.inline '
+        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.`signature` as file_sig, f.name, a.inline '
             .' FROM '.FILE_TABLE.' f '
             .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
             .' WHERE a.ticket_id='.db_input($this->getTicketId())
@@ -587,19 +587,21 @@ Class ThreadEntry {
 
         $this->attachments = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($rec=db_fetch_array($res))
+            while($rec=db_fetch_array($res)) {
+                $rec['download_url'] = AttachmentFile::generateDownloadUrl(
+                    $rec['file_id'], $rec['file_hash'], $rec['file_sig']);
                 $this->attachments[] = $rec;
+            }
         }
 
         return $this->attachments;
     }
 
-    function getAttachmentUrls($script='image.php') {
+    function getAttachmentUrls() {
         $json = array();
         foreach ($this->getAttachments() as $att) {
             $json[$att['file_hash']] = array(
-                'download_url' => sprintf('attachment.php?id=%d&h=%s', $att['attach_id'],
-                    strtolower(md5($att['file_id'].session_id().$att['file_hash']))),
+                'download_url' => $att['download_url'],
                 'filename' => $att['name'],
             );
         }
@@ -612,14 +614,12 @@ Class ThreadEntry {
         foreach($this->getAttachments() as $attachment ) {
             if ($attachment['inline'])
                 continue;
-            /* The hash can be changed  but must match validation in @file */
-            $hash=md5($attachment['file_id'].session_id().$attachment['file_hash']);
             $size = '';
             if($attachment['size'])
                 $size=sprintf('<em>(%s)</em>', Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="%s?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $file, $attachment['attach_id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
         }
 
         return $str;

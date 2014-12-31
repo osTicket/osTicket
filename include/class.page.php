@@ -71,7 +71,7 @@ class Page {
         return $this->ht['body'];
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getBody(), ROOT_PATH.'image.php');
+        return Format::viewableImages($this->getBody());
     }
 
     function getNotes() {
