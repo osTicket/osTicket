@@ -316,9 +316,13 @@ class Filter {
         #       Override name with reply-to information from the TicketFilter
         #       match
         if ($this->useReplyToEmail() && $info['reply-to']) {
+            $changed = $info['reply-to'] != $ticket['email']
+                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
             $ticket['email'] = $info['reply-to'];
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
+            if ($changed)
+                throw new FilterDataChanged();
         }
 
         # Use canned response.
@@ -776,7 +780,7 @@ class TicketFilter {
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
             if ($filter->rejectOnMatch())
-                throw new RejectedException($filter);
+                throw new RejectedException($filter, $ticket);
             $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
@@ -940,16 +944,24 @@ class TicketFilter {
 
 class RejectedException extends Exception {
     var $filter;
+    var $vars;
 
-    function __construct(Filter $filter) {
+    function __construct(Filter $filter, $vars) {
         parent::__construct('Ticket rejected by a filter');
         $this->filter = $filter;
+        $this->vars = $vars;
     }
 
     function getRejectingFilter() {
         return $this->filter;
     }
+
+    function get($what) {
+        return $this->vars[$what];
+    }
 }
+
+class FilterDataChanged extends Exception {}
 
 /**
  * Function: endsWith
