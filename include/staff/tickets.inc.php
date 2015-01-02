@@ -110,7 +110,7 @@ $tickets->annotate(array(
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__lock_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
 
 // Apply requested quick filter
 
@@ -268,7 +268,7 @@ $_SESSION[':Q:tickets'] = $tickets;
             $total += 1;
                 $tag=$T['staff_id']?'assigned':'openticket';
                 $flag=null;
-                if($T['lock__lock_id'])
+                if($T['lock__staff_id'] && $T['lock__staff_id'] != $thisstaff->getId())
                     $flag='locked';
                 elseif($T['isoverdue'])
                     $flag='overdue';
@@ -289,7 +289,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                 $tid=$T['number'];
                 $subject = Format::truncate($subject_field->display($subject_field->to_php($T['cdata__subject'])),40);
                 $threadcount=$T['thread_count'];
-                if(!strcasecmp($T['status__state'],'open') && !$T['isanswered'] && !$T['lock__lock_id']) {
+                if(!strcasecmp($T['status__state'],'open') && !$T['isanswered'] && !$T['lock__staff_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
                 }
                 ?>

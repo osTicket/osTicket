@@ -174,7 +174,7 @@ class ContentAjaxAPI extends AjaxController {
 
         $vars = array_merge($content->getHashtable(), $_POST);
         $errors = array();
-        if (!$content->save($id, $vars, $errors)) {
+        if (!$content->update($vars, $errors)) {
             if ($errors['err'])
                 Http::response(422, $errors['err']);
             else

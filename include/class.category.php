@@ -224,12 +224,11 @@ class Category extends VerySimpleModel {
     /* ------------------> Static methods <--------------------- */
 
     static function findIdByName($name) {
-        $object = self::objects()->filter(array(
+        $row = self::objects()->filter(array(
             'name'=>$name
-        ))->values_flat('category_id')->one();
+        ))->values_flat('category_id')->first();
 
-        if ($object)
-            return $object[0];
+        return ($row) ? $row[0] : null;
     }
 
     static function findByName($name) {

@@ -18,6 +18,8 @@
 
 class OrmException extends Exception {}
 class OrmConfigurationException extends Exception {}
+// Database fields/tables do not match codebase
+class InconsistentModelException extends OrmException {}
 
 /**
  * Meta information about a model including edges (relationships), table
@@ -86,7 +88,8 @@ class ModelMeta implements ArrayAccess {
             if (!isset($j['list']))
                 $j['list'] = true;
             if (!isset($j['null']))
-                $j['null'] = $info['null'] ?: false;
+                // By default, reverse releationships can be empty lists
+                $j['null'] = true;
         }
         // XXX: Make this better (ie. composite keys)
         $keys = array_keys($j['constraint']);
@@ -2076,8 +2079,8 @@ class MysqlExecutor {
 
     function execute() {
         if (!($this->stmt = db_prepare($this->sql)))
-            throw new OrmException('Unable to prepare query: '.db_error()
-                .' '.$this->sql);
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$this->sql);
         if (count($this->params))
             $this->_bind($this->params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {

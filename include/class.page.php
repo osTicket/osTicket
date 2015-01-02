@@ -220,6 +220,11 @@ class Page extends VerySimpleModel {
         catch (DoesNotExist $ex) {
             return null;
         }
+        catch (InconsistentModelException $ex) {
+            // This largely happens on upgrades, and may specifically cause
+            // the staff login box to crash
+            return null;
+        }
     }
 
     static function lookupByType($type, $lang=false) {

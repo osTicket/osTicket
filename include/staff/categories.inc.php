@@ -26,10 +26,9 @@ $total=$categories->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('categories.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$pageNav->paginate($categories);
 $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 
-$categories = $categories->offset($pageNav->getStart())
-    ->limit($pageNav->getLimit());
 if ($total)
     $showing=$pageNav->showing().' '.__('categories');
 else

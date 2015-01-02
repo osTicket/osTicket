@@ -19,11 +19,12 @@ if($page && $_REQUEST['a']!='add'){
     $slug = Format::slugify($info['name']);
     $qstr.='&id='.$page->getId();
     $translations = CustomDataTranslation::allTranslations(
-        $page->getTranslateTag('body'), 'article');
+        $page->getTranslateTag('name:body'), 'article');
     foreach ($cfg->getSecondaryLanguages() as $tag) {
         foreach ($translations as $t) {
             if (strcasecmp($t->lang, $tag) === 0) {
-                $info['trans'][$tag] = Format::viewableImages($t->text);
+                $C = $t->getComplex();
+                $info['trans'][$tag] = Format::viewableImages($C['body']);
                 break;
             }
         }
