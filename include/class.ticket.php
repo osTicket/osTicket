@@ -2502,7 +2502,8 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
-        if(!($ticket=Ticket::create($vars, $errors, 'staff', false)))
+        $create_vars = $vars;
+        if(!($ticket=Ticket::create($create_vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
@@ -2537,8 +2538,8 @@ class Ticket {
         $dept = $ticket->getDept();
 
         // See if we need to skip auto-response.
-        $autorespond = isset($vars['autorespond'])
-            ? $vars['autorespond'] : true;
+        $autorespond = isset($create_vars['autorespond'])
+            ? $create_vars['autorespond'] : true;
 
         if (!$autorespond
                 || !isset($vars['alertuser'])
