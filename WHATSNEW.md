@@ -1,3 +1,52 @@
+osTicket v1.9.5
+===============
+### Enhancements
+  * Add support for organization vars in templates
+    (`%{ticket.user.organization...}`) (#1561)
+  * Canned responses feature can now be disabled (#1562)
+  * Drop link redirection through l.php (#1640)
+  * Use unified file download script (#1641). Links can now be shared with
+    external users and accessed without authenticating.
+  * Ticket filters support matching and banning based on the Reply-To user
+    information (#1645)
+
+### Improvements
+  * Remove custom data when users are deleted (#1492)
+  * Fix matching of ticket number in subject (regression in v1.9.4) (#1486)
+  * Several minor translatable strings (#1441, #1489, #1560), thanks @Chefkeks
+  * Fix invalid UTF-8 chars PDF error for empty thread title (regression in
+    v1.9.4) (#1512)
+  * Consider auto response checkbox and department setting for new ticket by
+    staff (#1509)
+  * Fix PHP crash if `finfo` extension is missing (#1437)
+  * Fix export of choice field items (#1436)
+  * Properly handle alert and auto response flags from API (#1435), thanks
+    @stevepacker
+  * Fix current value of choice fields if set to boolean false (#1466)
+  * Do not reopen tickets for automated responses (#1529)
+  * Properly handle uppercase file extensions in file field configuration
+    (#1549)
+  * Fix release of ticket lock when navigating away from ticket view (#1552)
+  * Display FAQ article consistently on client portal (#1553)
+  * Avoid wrapping password reset URLs on text emails (#1558)
+  * Fix field requirement for clients when only required for agents (#1559)
+  * Fix language selection for new email template group (#1563)
+  * Fix incorrect status of new ticket if opened as `closed` and assigning to
+    an agent (#1565)
+  * Forbid disabling the only active administrator (#1569)
+  * Searching for tickets searches to midnight of the end date (#1572), thanks
+    @grintor
+  * Fix rejection of tickets by filter, even if a previous matching filter
+    would stop on match (#1644)
+  * Fix matching of `User / Email Address` in ticket filters (#1644)
+  * Properly HTML escape thread bodies when quoting (#1637)
+  * Use department email for agent alerts (#1555)
+  * Skip team assignment alert on new ticket if assigned to an agent (fddb3c7)
+  * Use custom form name as the page title when editing (#1646)
+
+### Performance and Security
+  * Fix possible XSS vulnerability in sortable table view pages (#1639)
+
 osTicket v1.9.4
 ===============
 ### Major New Features
