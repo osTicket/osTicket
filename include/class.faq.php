@@ -29,14 +29,15 @@ class FAQ extends VerySimpleModel {
                 'constraint' => array(
                     'category_id' => 'Category.category_id'
                 ),
-            ), /* XXX: Not yet implemented
+            ),
             'attachments' => array(
                 'constraint' => array(
                     "'F'" => 'GenericAttachment.type',
                     'faq_id' => 'GenericAttachment.object_id',
                 ),
                 'list' => true,
-            ), */
+                'null' => true,
+            ),
             'topics' => array(
                 'constraint' => array(
                     'faq_id' => 'FaqTopic.faq_id'

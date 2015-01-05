@@ -104,6 +104,13 @@ class AttachmentModel extends VerySimpleModel {
     );
 }
 
+class GenericAttachment extends VerySimpleModel {
+    static $meta = array(
+        'table' => ATTACHMENT_TABLE,
+        'pk' => array('id'),
+    );
+}
+
 class GenericAttachments {
 
     var $id;

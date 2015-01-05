@@ -788,6 +788,7 @@ class UserAccountModel extends VerySimpleModel {
     );
 
     var $_status;
+    var $_extra;
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
@@ -860,7 +861,7 @@ class UserAccountModel extends VerySimpleModel {
 
     function getExtraAttr($attr=false, $default=null) {
         if (!isset($this->_extra))
-            $this->_extra = JsonDataParser::decode($this->extra);
+            $this->_extra = JsonDataParser::decode($this->get('extra', ''));
 
         return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
     }
@@ -984,8 +985,8 @@ class UserAccount extends UserAccountModel {
 
         // TODO: Make sure the username is unique
 
-        if (!$vars['timezone'])
-            $errors['timezone'] = __('Time zone selection is required');
+        // Timezone selection is not required. System default is a valid
+        // fallback
 
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {

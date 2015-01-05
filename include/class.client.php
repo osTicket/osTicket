@@ -319,8 +319,6 @@ class  EndUser extends BaseAuthenticatedUser {
 
 class ClientAccount extends UserAccount {
 
-    var $_extra;
-
     function checkPassword($password, $autoupdate=true) {
 
         /*bcrypt based password match*/
@@ -395,12 +393,12 @@ class ClientAccount extends UserAccount {
             }
         }
 
-        if (!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
+        // Timezone selection is not required. System default is a valid
+        // fallback
 
         if ($errors) return false;
 
-        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('timezone', $vars['timezone']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);

@@ -15,6 +15,7 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
+<form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
 <ul class="tabs" id="user-account-tabs">
     <li <?php echo !$access? 'class="active"' : ''; ?>><a href="#user-account"
         ><i class="icon-user"></i>&nbsp;<?php echo __('User Information'); ?></a></li>
