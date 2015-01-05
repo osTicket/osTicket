@@ -2323,6 +2323,64 @@ class Ticket {
         return db_fetch_array(db_query($sql));
     }
 
+    protected function filterTicketData($origin, $vars, $forms, $user=false) {
+        global $cfg;
+
+        // Unset all the filter data field data in case things change
+        // during recursive calls
+        foreach ($vars as $k=>$v)
+            if (strpos($k, 'field.') === 0)
+                unset($vars[$k]);
+
+        foreach ($forms as $F) {
+            if ($F) {
+                $vars += $F->getFilterData();
+            }
+        }
+
+        // Add in user and organization data for filtering
+        if ($user) {
+            $vars += $user->getFilterData();
+            $vars['email'] = $user->getEmail();
+            $vars['name'] = $user->getName();
+            if ($org = $user->getOrganization()) {
+                $vars += $org->getFilterData();
+            }
+        }
+        // Unpack the basic user information
+        else {
+            $interesting = array('name', 'email');
+            $user_form = UserForm::getUserForm()->getForm($vars);
+            // Add all the user-entered info for filtering
+            foreach ($user_form->getFields() as $f) {
+                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
+                if (in_array($f->get('name'), $interesting))
+                    $vars[$f->get('name')] = $vars['field.'.$f->get('id')];
+            }
+            // Add in organization data if one exists for this email domain
+            list($mailbox, $domain) = explode('@', $vars['email'], 2);
+            if ($org = Organization::forDomain($domain)) {
+                $vars += $org->getFilterData();
+            }
+        }
+
+        try {
+            // Make sure the email address is not banned
+            if (TicketFilter::isBanned($vars['email'])) {
+                throw new RejectedException(Banlist::getFilter(), $vars);
+            }
+
+            // Init ticket filters...
+            $ticket_filter = new TicketFilter($origin, $vars);
+            $ticket_filter->apply($vars);
+        }
+        catch (FilterDataChanged $ex) {
+            // Don't pass user recursively, assume the user has changed
+            return self::filterTicketData($origin, $vars, $forms);
+        }
+        return $vars;
+    }
+
     /*
      * The mother of all functions...You break it you fix it!
      *
@@ -2381,71 +2439,8 @@ class Ticket {
         if (!$form->isValid($field_filter('ticket')))
             $errors += $form->errors();
 
-        // Unpack dynamic variables into $vars for filter application
-        $vars += $form->getFilterData();
-
-        // Unpack the basic user information
-        if ($vars['uid'] && ($user = User::lookup($vars['uid']))) {
-            $vars['email'] = $user->getEmail();
-            $vars['name'] = $user->getName();
-            // Add in user and organization data for filtering
-            $vars += $user->getFilterData();
-            if ($org = $user->getOrganization()) {
-                $vars += $org->getFilterData();
-            }
-        }
-        else {
-            $interesting = array('name', 'email');
-            $user_form = UserForm::getUserForm()->getForm($vars);
-            // Add all the user-entered info for filtering
-            foreach ($user_form->getFields() as $f) {
-                $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
-                if (in_array($f->get('name'), $interesting))
-                    $vars[$f->get('name')] = $vars['field.'.$f->get('id')];
-            }
-            // Add in organization data if one exists for this email domain
-            list($mailbox, $domain) = explode('@', $vars['email'], 2);
-            if ($org = Organization::forDomain($domain)) {
-                $vars += $org->getFilterData();
-            }
-        }
-
-
-        //Check for 403
-        if ($vars['email']
-                && Validator::is_email($vars['email'])) {
-
-            //Make sure the email address is not banned
-            if (TicketFilter::isBanned($vars['email'])) {
-                return $reject_ticket(sprintf(_S('Banned email - %s'), $vars['email']));
-            }
-
-            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
-            if ($cfg->getMaxOpenTickets() > 0
-                    && strcasecmp($origin, 'staff')
-                    && ($_user=TicketUser::lookupByEmail($vars['email']))
-                    && ($openTickets=$_user->getNumOpenTickets())
-                    && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
-
-                $errors = array('err' => __("You've reached the maximum open tickets allowed."));
-                $ost->logWarning(sprintf(_S('Ticket denied - %s'), $vars['email']),
-                        sprintf(_S('Max open tickets (%1$d) reached for %2$s'),
-                            $cfg->getMaxOpenTickets(), $vars['email']),
-                        false);
-
-                return 0;
-            }
-        }
-
-        if ($vars['topicId']) {
-            if (($__topic=Topic::lookup($vars['topicId']))
-                && $__form = $__topic->getForm()
-            ) {
-                $__form = $__form->instanciate();
-                $__form->setSource($vars);
-                $vars += $__form->getFilterData();
-            }
-        }
+        if ($vars['uid'])
+            $user = User::lookup($vars['uid']);
 
         $id=0;
         $fields=array();
@@ -2485,16 +2480,41 @@ class Ticket {
         if (!$errors) {
 
             # Perform ticket filter actions on the new ticket arguments
+            $__form = null;
+            if ($vars['topicId']) {
+                if (($__topic=Topic::lookup($vars['topicId']))
+                    && $__form = $__topic->getForm()
+                ) {
+                    $__form = $__form->instanciate();
+                    $__form->setSource($vars);
+                }
+            }
+
             try {
-                // Init ticket filters...
-                $ticket_filter = new TicketFilter($origin, $vars);
-                $ticket_filter->apply($vars);
+                $vars = self::filterTicketData($origin, $vars,
+                    array($form, $__form), $user);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
                     sprintf(_S('Ticket rejected (%s) by filter "%s"'),
-                    $vars['email'], $ex->getRejectingFilter()->getName())
+                    $ex->vars['email'], $ex->getRejectingFilter()->getName())
                 );
+            }
+
+            //Make sure the open ticket limit hasn't been reached. (LOOP CONTROL)
+            if ($cfg->getMaxOpenTickets() > 0
+                    && strcasecmp($origin, 'staff')
+                    && ($_user=TicketUser::lookupByEmail($vars['email']))
+                    && ($openTickets=$_user->getNumOpenTickets())
+                    && ($openTickets>=$cfg->getMaxOpenTickets()) ) {
+
+                $errors = array('err' => __("You've reached the maximum open tickets allowed."));
+                $ost->logWarning(sprintf(_S('Ticket denied - %s'), $vars['email']),
+                        sprintf(_S('Max open tickets (%1$d) reached for %2$s'),
+                            $cfg->getMaxOpenTickets(), $vars['email']),
+                        false);
+
+                return 0;
             }
 
             // Allow vars to be changed in ticket filter and applied to the user
