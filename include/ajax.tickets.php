@@ -103,7 +103,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$tid || !is_numeric($tid) || !$thisstaff || !$cfg || !$cfg->getLockTime())
             return 0;
 
-        if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
+        if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))
             return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
 
         //is the ticket already locked?
@@ -167,7 +167,8 @@ class TicketsAjaxAPI extends AjaxController {
 
         global $thisstaff;
 
-        if(!$thisstaff || !($ticket=Ticket::lookup($tid)) || !$ticket->checkStaffAccess($thisstaff))
+        if(!$thisstaff || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, __('No such ticket'));
 
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
@@ -177,7 +178,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
@@ -198,7 +199,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, __('No such ticket'));
 
 
@@ -248,7 +249,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!($c=Collaborator::lookup($cid))
                 || !($user=$c->getUser())
                 || !($ticket=$c->getTicket())
-                || !$ticket->checkStaffAccess($thisstaff)
+                || !$ticket->checkStaffPerm($thisstaff)
                 )
             Http::response(404, 'Unknown collaborator');
 
@@ -267,7 +268,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!($collaborator=Collaborator::lookup($cid))
                 || !($ticket=$collaborator->getTicket())
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown collaborator');
 
         return self::_collaborator($collaborator);
@@ -277,7 +278,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if(!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
 
         if($ticket->getCollaborators())
@@ -290,7 +291,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
 
         ob_start();
@@ -316,7 +317,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if(!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
 
         $errors = $info = array();
@@ -362,7 +363,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
 
 
@@ -389,7 +390,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff)
+                || !$ticket->checkStaffPerm($thisstaff)
                 || !($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'No such ticket/user');
 
@@ -416,7 +417,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'No such ticket');
 
 
@@ -452,7 +453,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, "Login required");
         elseif (!($ticket = Ticket::lookup($ticket_id)))
             Http::response(404, "No such ticket");
-        elseif (!$ticket->checkStaffAccess($thisstaff))
+        elseif (!$ticket->checkStaffPerm($thisstaff))
             Http::response(403, "Access Denied");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
@@ -491,7 +492,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff, $cfg;
 
         if (!($ticket = Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket ID');
 
 
@@ -533,7 +534,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, 'Access denied');
         elseif (!$tid
                 || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
         $role = $thisstaff->getRole($ticket->getDeptId());
@@ -546,12 +547,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$role->canCloseTickets())
+                if (!$role->hasPerm(TicketModel::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$role->canDeleteTickets())
+                if (!$role->hasPerm(TicketModel::PERM_DELETE))
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
                 break;
@@ -573,7 +574,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, 'Access denied');
         elseif (!$tid
                 || !($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
         $errors = $info = array();
@@ -584,23 +585,22 @@ class TicketsAjaxAPI extends AjaxController {
         elseif ($status->getId() == $ticket->getStatusId())
             $errors['err'] = sprintf(__('Ticket already set to %s status'),
                     __($status->getName()));
-        else {
+        elseif (($role = $thisstaff->getRole($ticket->getDeptId()))) {
             // Make sure the agent has permission to set the status
-            $role = $thisstaff->getRole($ticket->getDeptId());
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$role->canCloseTickets()
-                            && !$role->canCreateTickets())
+                    if (!$role->hasPerm(TicketModel::PERM_CLOSE)
+                            && !$role->hasPerm(TicketModel::PERM_CREATE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$role->canCloseTickets())
+                    if (!$role->hasPerm(TicketModel::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$role->canDeleteTickets())
+                    if (!$role->hasPerm(TicketModel::PERM_DELETE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to archive/delete tickets'));
                     break;
@@ -608,6 +608,8 @@ class TicketsAjaxAPI extends AjaxController {
                     $errors['err'] = sprintf('%s %s',
                             __('Unknown or invalid'), __('status'));
             }
+        } else {
+            $errors['err'] = __('Access denied');
         }
 
         $state = strtolower($status->getState());
@@ -658,12 +660,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->canCloseTickets())
+                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->canDeleteTickets())
+                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
@@ -697,18 +699,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->canCloseTickets()
-                            && !$thisstaff->canCreateTickets())
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE)
+                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->canCloseTickets())
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->canDeleteTickets())
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to archive/delete tickets'));
                     break;
@@ -723,9 +725,10 @@ class TicketsAjaxAPI extends AjaxController {
             $i = 0;
             $comments = $_REQUEST['comments'];
             foreach ($_REQUEST['tids'] as $tid) {
+
                 if (($ticket=Ticket::lookup($tid))
                         && $ticket->getStatusId() != $status->getId()
-                        && $ticket->checkStaffAccess($thisstaff)
+                        && $ticket->checkStaffPerm($thisstaff)
                         && $ticket->setStatus($status, $comments, $errors))
                     $i++;
             }
@@ -859,7 +862,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+                || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket');
 
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
@@ -868,9 +871,11 @@ class TicketsAjaxAPI extends AjaxController {
     function addTask($tid) {
         global $thisstaff;
 
-        if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffAccess($thisstaff))
+        if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, 'Unknown ticket');
+
+        if (!$ticket->checkStaffPerm($thisstaff, Task::PERM_CREATE))
+            Http::response(403, 'Permission denied');
 
         $info=$errors=array();
 

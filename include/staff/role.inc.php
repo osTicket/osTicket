@@ -98,8 +98,8 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
               &nbsp;&nbsp;
               <?php
                 echo sprintf('%s - <em>%s</em>',
-                      Format::htmlchars(__($v[0])),
-                    Format::htmlchars(__($v[1])));
+                      Format::htmlchars(__($v['title'])),
+                    Format::htmlchars(__($v['desc'])));
               ?>
              </label>
             </td>

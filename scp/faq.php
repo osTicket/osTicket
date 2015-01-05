@@ -150,14 +150,17 @@ else {
     }
 }
 
+$role = $thisstaff->getRole();
 $inc='faq-categories.inc.php'; //FAQs landing page.
 if($faq) {
     $inc='faq-view.inc.php';
-    if($_REQUEST['a']=='edit' && $thisstaff->getRole()->canManageFAQ())
+    if ($_REQUEST['a']=='edit'
+            && $role->hasPerm(FAQ::PERM_MANAGE))
         $inc='faq.inc.php';
     elseif ($_REQUEST['a'] == 'print')
         return $faq->printPdf();
-}elseif($_REQUEST['a']=='add' && $thisstaff->getRole()->canManageFAQ()) {
+}elseif($_REQUEST['a']=='add'
+        && $role->hasPerm(FAQ::PERM_MANAGE)) {
     $inc='faq.inc.php';
 } elseif($category && $_REQUEST['a']!='search') {
     $inc='faq-category.inc.php';

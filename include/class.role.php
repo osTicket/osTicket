@@ -81,6 +81,10 @@ class Role extends RoleModel {
 
     var $_perm;
 
+    function hasPerm($perm) {
+        return $this->getPermission()->has($perm);
+    }
+
     function getPermission() {
         if (!$this->_perm) {
             $this->_perm = new RolePermission(
@@ -257,73 +261,17 @@ class Role extends RoleModel {
 
 class RolePermission {
 
-    static $_permissions = array(
-            /* @trans */ 'Tickets' => array(
-                'ticket.create'  => array(
-                    /* @trans */ 'Create',
-                    /* @trans */ 'Ability to open tickets on behalf of users'),
-                'ticket.edit'   => array(
-                    /* @trans */ 'Edit',
-                    /* @trans */ 'Ability to edit tickets'),
-                'ticket.assign'   => array(
-                    /* @trans */ 'Assign',
-                    /* @trans */ 'Ability to assign tickets to agents or teams'),
-                'ticket.transfer'   => array(
-                    /* @trans */ 'Transfer',
-                    /* @trans */ 'Ability to transfer tickets between departments'),
-                'ticket.reply'  => array(
-                    /* @trans */ 'Post Reply',
-                    /* @trans */ 'Ability to post a ticket reply'),
-                'ticket.close'   => array(
-                    /* @trans */ 'Close',
-                    /* @trans */ 'Ability to close tickets'),
-                'ticket.delete'   => array(
-                    /* @trans */ 'Delete',
-                    /* @trans */ 'Ability to delete tickets'),
-                ),
-            /* @trans */ 'Tasks' => array(
-                'task.create'  => array(
-                    /* @trans */ 'Create',
-                    /* @trans */ 'Ability to create tasks'),
-                'task.edit'   => array(
-                    /* @trans */ 'Edit',
-                    /* @trans */ 'Ability to edit tasks'),
-                'task.assign'   => array(
-                    /* @trans */ 'Assign',
-                    /* @trans */ 'Ability to assign tasks to agents or teams'),
-                'task.transfer'   => array(
-                    /* @trans */ 'Transfer',
-                    /* @trans */ 'Ability to transfer tasks between departments'),
-                'task.close'   => array(
-                    /* @trans */ 'Close',
-                    /* @trans */ 'Ability to close tasks'),
-                'task.delete'   => array(
-                    /* @trans */ 'Delete',
-                    /* @trans */ 'Ability to delete tasks'),
-                ),
-            /* @trans */ 'Knowledgebase' => array(
-                'kb.premade'   => array(
-                    /* @trans */ 'Premade',
-                    /* @trans */ 'Ability to add/update/disable/delete canned responses'),
-                'kb.faq'   => array(
-                    /* @trans */ 'FAQ',
-                    /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs'),
-                ),
-            /* @trans */ 'Misc.' => array(
-                'stats.agents'   => array(
-                    /* @trans */ 'Stats',
-                    /* @trans */ 'Ability to view stats of other agents in allowed departments'),
-                'emails.banlist'   => array(
-                    /* @trans */ 'Banlist',
-                    /* @trans */ 'Ability to add/remove emails from banlist via ticket interface'),
-                ),
+    // Predefined groups are for sort order.
+    // New groups will be appended to the bottom
+    static protected $_permissions = array(
+            /* @trans */ 'Tickets' => array(),
+            /* @trans */ 'Tasks' => array(),
+            /* @trans */ 'Knowledgebase' => array(),
+            /* @trans */ 'Miscellaneous' => array(),
             );
 
     var $perms;
 
-    static function allPermissions() {
-        return static::$_permissions;
-    }
 
     function __construct($perms) {
         $this->perms = $perms;
@@ -356,89 +304,13 @@ class RolePermission {
         return $this->perms;
     }
 
-    /* tickets */
-    function canCreateTickets() {
-        return ($this->has('ticket.create'));
+    static function allPermissions() {
+        return static::$_permissions;
     }
 
-    function canEditTickets() {
-        return ($this->has('ticket.edit'));
-    }
-
-    function canAssignTickets() {
-        return ($this->has('ticket.assign'));
-    }
-
-    function canTransferTickets() {
-        return ($this->has('ticket.transfer'));
-    }
-
-    function canPostTicketReply() {
-        return ($this->has('ticket.reply'));
-    }
-
-    function canCloseTickets() {
-        return ($this->has('ticket.close'));
-    }
-
-    function canDeleteTickets() {
-        return ($this->has('ticket.delete'));
-    }
-
-    /* tasks */
-    function canCreateTasks() {
-        return ($this->get('task.create'));
-    }
-
-    function canEditTasks() {
-        return ($this->get('task.edit'));
-    }
-
-    function canAssignTasks() {
-        return ($this->get('task.assign'));
-    }
-
-    function canTransferTasks() {
-        return ($this->get('task.transfer'));
-    }
-
-    function canPostTaskReply() {
-        return ($this->get('task.reply'));
-    }
-
-    function canCloseTasks() {
-        return ($this->get('task.close'));
-    }
-
-    function canDeleteTasks() {
-        return ($this->get('task.delete'));
-    }
-
-    /* Knowledge base */
-    function canManagePremade() {
-        return ($this->has('kb.premade'));
-    }
-
-    function canManageCannedResponses() {
-        return ($this->canManagePremade());
-    }
-
-    function canManageFAQ() {
-        return ($this->has('kb.faq'));
-    }
-
-    function canManageFAQs() {
-        return ($this->canManageFAQ());
-    }
-
-    /* stats */
-    function canViewStaffStats() {
-        return ($this->has('stats.agents'));
-    }
-
-    /* email */
-    function canBanEmails() {
-        return ($this->has('emails.banlist'));
+    static function register($group, $perms) {
+        static::$_permissions[$group] = array_merge(
+                            static::$_permissions[$group] ?: array(), $perms);
     }
 }
 ?>

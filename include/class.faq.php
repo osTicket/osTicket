@@ -46,6 +46,16 @@ class FAQ extends VerySimpleModel {
         ),
     );
 
+    const PERM_MANAGE  = 'faq.manage';
+    static protected $perms = array(
+            self::PERM_MANAGE => array(
+                'title' =>
+                /* @trans */ 'FAQ',
+                'desc'  =>
+                /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs'),
+            );
+
+
     var $attachments;
     var $topics;
     var $_local;
@@ -480,8 +490,14 @@ class FAQ extends VerySimpleModel {
             $this->updated = SqlFunction::NOW();
         return parent::save($refetch || $this->dirty);
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
-FAQ::_inspect();
+
+RolePermission::register( /* @trans */ 'Knowledgebase',
+        FAQ::getPermissions());
 
 class FaqTopic extends VerySimpleModel {
 

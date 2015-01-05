@@ -11,6 +11,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once INCLUDE_DIR.'class.role.php';
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
 
@@ -34,6 +35,16 @@ class EmailModel extends VerySimpleModel {
         )
     );
 
+    const PERM_BANLIST = 'emails.banlist';
+
+    static protected $perms = array(
+            self::PERM_BANLIST => array(
+                'title' =>
+                /* @trans */ 'Banlist',
+                'desc'  =>
+                /* @trans */ 'Ability to add/remove emails from banlist via ticket interface'),
+            );
+
     function getId() {
         return $this->email_id;
     }
@@ -44,7 +55,13 @@ class EmailModel extends VerySimpleModel {
 
         return $this->email;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+
+RolePermission::register(/* @trans */ 'Miscellaneous', EmailModel::getPermissions());
 
 class Email {
     var $id;

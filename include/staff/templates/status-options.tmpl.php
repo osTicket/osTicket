@@ -14,7 +14,8 @@ $actions= array(
         );
 
 $states = array('open');
-if ($thisstaff->canCloseTickets() && (!$ticket || !$ticket->getMissingRequiredFields()))
+if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE)
+        && (!$ticket || !$ticket->getMissingRequiredFields()))
     $states = array_merge($states, array('closed'));
 
 $statusId = $ticket ? $ticket->getStatusId() : 0;

@@ -199,7 +199,7 @@ $_SESSION[':Q:tickets'] = $tickets;
             if ($thisstaff->canManageTickets()) {
                 echo TicketStatus::status_options();
             }
-            if ($thisstaff->canDeleteTickets()) { ?>
+            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE)) { ?>
             <a id="tickets-delete" class="action-button tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
@@ -216,7 +216,7 @@ $_SESSION[':Q:tickets'] = $tickets;
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
-            <?php if($thisstaff->canManageTickets()) { ?>
+            <?php if ($thisstaff->canManageTickets()) { ?>
 	        <th width="8px">&nbsp;</th>
             <?php } ?>
 	        <th width="70">

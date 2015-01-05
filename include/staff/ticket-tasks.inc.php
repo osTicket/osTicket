@@ -1,4 +1,7 @@
 <?php
+global $thisstaff;
+
+$role = $thisstaff->getRole($ticket->getDeptId());
 
 $tasks = Task::objects()
     ->select_related('dept', 'staff')
@@ -23,7 +26,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 </div>
 <div style="float:right;text-align:right;padding-right:5px;">
     <?php
-    if ($ticket) { ?>
+    if ($role && $role->hasPerm(Task::PERM_CREATE)) { ?>
         <a
         class="Icon newTicket task-action"
         data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"

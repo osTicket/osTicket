@@ -466,5 +466,4 @@ Filter::addSupportedMatches(/*@trans*/ 'Organization Data', function() {
     }
     return $matches;
 },40);
-Organization::_inspect();
 ?>

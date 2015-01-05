@@ -86,6 +86,54 @@ class TicketModel extends VerySimpleModel {
         )
     );
 
+    const PERM_CREATE   = 'ticket.create';
+    const PERM_EDIT     = 'ticket.edit';
+    const PERM_ASSIGN   = 'ticket.assign';
+    const PERM_TRANSFER = 'ticket.transfer';
+    const PERM_REPLY    = 'ticket.reply';
+    const PERM_CLOSE    = 'ticket.close';
+    const PERM_DELETE   = 'ticket.delete';
+
+
+    static protected $perms = array(
+            self::PERM_CREATE => array(
+                'title' =>
+                /* @trans */ 'Create',
+                'desc'  =>
+                /* @trans */ 'Ability to open tickets on behalf of users'),
+            self::PERM_EDIT => array(
+                'title' =>
+                /* @trans */ 'Edit',
+                'desc'  =>
+                /* @trans */ 'Ability to edit tickets'),
+            self::PERM_ASSIGN => array(
+                'title' =>
+                /* @trans */ 'Assign',
+                'desc'  =>
+                /* @trans */ 'Ability to assign tickets to agents or teams'),
+            self::PERM_TRANSFER => array(
+
+                'title' =>
+                /* @trans */ 'Transfer',
+                'desc'  =>
+                /* @trans */ 'Ability to transfer tickets between departments'),
+            self::PERM_REPLY => array(
+                'title' =>
+                /* @trans */ 'Post Reply',
+                'desc'  =>
+                /* @trans */ 'Ability to post a ticket reply'),
+            self::PERM_CLOSE => array(
+                'title' =>
+                /* @trans */ 'Close',
+                'desc'  =>
+                /* @trans */ 'Ability to close tickets'),
+            self::PERM_DELETE => array(
+                'title' =>
+                /* @trans */ 'Delete',
+                'desc'  =>
+                /* @trans */ 'Ability to delete tickets'),
+            );
+
     function getId() {
         return $this->ticket_id;
     }
@@ -143,7 +191,13 @@ EOF;
                 static::$meta->processJoin(static::$meta['joins']['cdata+'.$form->id]);
         }
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+
+RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions());
 
 class TicketCData extends VerySimpleModel {
     static $meta = array(
@@ -301,29 +355,32 @@ class Ticket {
         return null !== $this->getLock();
     }
 
-    function checkStaffAccess($staff) {
+    function checkStaffPerm($staff, $perm=null) {
 
-        if(!is_object($staff) && !($staff=Staff::lookup($staff)))
+        // Must be a valid staff
+        if (!$staff instanceof Staff && !($staff=Staff::lookup($staff)))
             return false;
 
-        // Staff has access to the department.
-        if (!$staff->showAssignedOnly()
-                && $staff->canAccessDept($this->getDeptId()))
-            return true;
-
-        // Only consider assignment if the ticket is open
-        if (!$this->isOpen())
+        // Check access based on department or assignment
+        if (!(!$staff->showAssignedOnly()
+                    && $staff->canAccessDept($this->getDeptId()))
+                // only open tickets can be considered assigned
+                && $this->isOpen()
+                && $staff->getId() != $this->getStaffId()
+                && !$staff->isTeamMember($this->getTeamId()))
             return false;
 
-        // Check ticket access based on direct or team assignment
-        if ($staff->getId() == $this->getStaffId()
-                || ($this->getTeamId()
-                    && $staff->isTeamMember($this->getTeamId())
-        ))
+        // At this point staff has view access unless a specific permission is
+        // requested
+        if ($perm === null)
             return true;
 
-        // No access bro!
-        return false;
+        // Permission check requested -- get role.
+        if (!($role=$staff->getRole($this->getDeptId())))
+            return false;
+
+        // Check permission based on the effective role
+        return $role->hasPerm($perm);
     }
 
     function checkUserAccess($user) {
@@ -1030,12 +1087,12 @@ class Ticket {
         // Double check permissions
         switch ($status->getState()) {
         case 'closed':
-            if (!($role->canCloseTickets()))
+            if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
                 return false;
             break;
         case 'deleted':
             // XXX: intercept deleted status and do hard delete
-            if ($role->canDeleteTickets())
+            if ($role->hasPerm(TicketModel::PERM_DELETE))
                 return $this->delete($comments);
             // Agent doesn't have permission to delete  tickets
             return false;
@@ -1654,9 +1711,7 @@ class Ticket {
 
         global $cfg, $thisstaff;
 
-        if(!$thisstaff
-                || !($role=$thisstaff->getRole($this->getDeptId()))
-                || !$role->canTransferTickets())
+        if (!$this->checkStaffPerm($thisstaff, TicketModel::PERM_TRANSFER))
             return false;
 
         $currentDept = $this->getDeptName(); //Current department
@@ -1808,8 +1863,8 @@ class Ticket {
 
         if (!$user
                 || ($user->getId() == $this->getOwnerId())
-                || !($role=$thisstaff->getRole($this->getDeptId()))
-                || !$role->canEditTickets())
+                || !($this->checkStaffPerm($thisstaff,
+                        TicketModel::PERM_EDIT)))
             return false;
 
         $sql ='UPDATE '.TICKET_TABLE.' SET updated = NOW() '
@@ -2216,7 +2271,7 @@ class Ticket {
                         // No need to alert the poster!
                         || $note->getStaffId() == $staff->getId()
                         // Make sure staff has access to ticket
-                        || ($isClosed && !$this->checkStaffAccess($staff))
+                        || ($isClosed && !$this->checkStaffPerm($staff))
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -2290,9 +2345,8 @@ class Ticket {
         global $cfg, $thisstaff;
 
         if (!$cfg
-                || !$thisstaff
-                || !($role=$thisstaff->getRole($this->getDeptId()))
-                || !$role->canEditTickets())
+                || !($this->checkStaffPerm($thisstaff,
+                        TicketModel::PERM_EDIT)))
             return false;
 
         $fields=array();
@@ -3001,7 +3055,8 @@ class Ticket {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if (!$thisstaff || !$thisstaff->canCreateTickets()) return false;
+        if (!$thisstaff || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+            return false;
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']=sprintf(__('Invalid source given - %s'),Format::htmlchars($vars['source']));
@@ -3015,7 +3070,7 @@ class Ticket {
                 $errors['name'] = __('Name is required');
         }
 
-        if (!$thisstaff->canAssignTickets())
+        if (!$thisstaff->hasPerm(TicketModel::PERM_ASSIGN))
             unset($vars['assignId']);
 
         //TODO: Deny action based on selected department.
@@ -3036,14 +3091,15 @@ class Ticket {
 
         // post response - if any
         $response = null;
-        if($vars['response'] && $role->canPostTicketReply()) {
+        if($vars['response'] && $role->hasPerm(TicketModel::PERM_REPLY)) {
 
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
             if(($response=$ticket->postReply($vars, $errors, false))) {
                 //Only state supported is closed on response
-                if(isset($vars['ticket_state']) && $role->canCloseTickets())
+                if(isset($vars['ticket_state']) &&
+                        $role->hasPerm(TicketModel::PERM_CLOSE))
                     $ticket->setState($vars['ticket_state']);
             }
         }

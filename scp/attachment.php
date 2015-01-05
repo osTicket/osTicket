@@ -30,7 +30,7 @@ if (!$thisstaff
         )
     Http::response(404, __('Unknown or invalid file'));
 
-if (!$ticket->checkStaffAccess($thisstaff))
+if (!$ticket->checkStaffPerm($thisstaff))
     die(__('Access Denied'));
 
 //Download the file..
