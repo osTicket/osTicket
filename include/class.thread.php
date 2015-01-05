@@ -159,10 +159,10 @@ class Thread {
     function deleteAttachments() {
 
         // Clear reference table
-        $sql = 'DELETE FROM '.ATTACHMENT_TABLE. ' a '
-             . 'INNER JOIN '.THREAD_ENTRY_TABLE.' e
-                    ON(e.id = a.object_id AND a.`type`= "H") '
-             . ' WHERE e.thread_id='.db_input($this->getId());
+        $sql = 'DELETE `a`.* FROM '.ATTACHMENT_TABLE. ' `a` '
+             . 'INNER JOIN '.THREAD_ENTRY_TABLE.' `e`
+                    ON(`e`.id = `a`.object_id AND `a`.`type`= "H") '
+             . ' WHERE `e`.thread_id='.db_input($this->getId());
 
         $deleted=0;
         if (($res=db_query($sql)) && ($deleted=db_affected_rows()))

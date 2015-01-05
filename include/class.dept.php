@@ -121,15 +121,15 @@ class Dept extends VerySimpleModel {
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
-                        'group__depts__id' => $this->getId(),
-                        'group__depts__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
+                        'group__depts__dept_id' => $this->getId(),
+                        'group__depts__dept__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
                     )),
                     'staff_id' => $this->manager_id
                 )));
 
             if ($criteria && $criteria['available'])
                 $members->filter(array(
-                    'group__group_enabled' => 1,
+                    'group__flags__hasbit' => Group::FLAG_ENABLED,
                     'isactive' => 1,
                     'onvacation' => 0,
                 ));

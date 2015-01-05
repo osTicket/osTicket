@@ -14,6 +14,7 @@
 **********************************************************************/
 require_once('class.file.php');
 require_once('class.category.php');
+require_once('class.thread.php');
 
 class FAQ extends VerySimpleModel {
 
@@ -28,15 +29,14 @@ class FAQ extends VerySimpleModel {
                 'constraint' => array(
                     'category_id' => 'Category.category_id'
                 ),
-            ),
+            ), /* XXX: Not yet implemented
             'attachments' => array(
                 'constraint' => array(
                     "'F'" => 'GenericAttachment.type',
                     'faq_id' => 'GenericAttachment.object_id',
                 ),
                 'list' => true,
-                'null' => true,
-            ),
+            ), */
             'topics' => array(
                 'constraint' => array(
                     'faq_id' => 'FaqTopic.faq_id'
@@ -76,7 +76,7 @@ class FAQ extends VerySimpleModel {
         return Format::truncate(Format::striptags($this->answer), 150);
     }
     function getSearchableAnswer() {
-        return ThreadBody::fromFormattedText($this->answer, 'html')
+        return ThreadEntryBody::fromFormattedText($this->answer, 'html')
             ->getSearchable();
     }
     function getNotes() { return $this->notes; }
@@ -378,12 +378,11 @@ class FAQ extends VerySimpleModel {
     }
 
     static function findIdByQuestion($question) {
-        $object = self::objects()->filter(array(
+        $row = self::objects()->filter(array(
             'question'=>$question
-        ))->values_flat('faq_id')->one();
+        ))->values_flat('faq_id')->first();
 
-        if ($object)
-            return $object[0];
+        return ($row) ? $row[0] : null;
     }
 
     static function findByQuestion($question) {
