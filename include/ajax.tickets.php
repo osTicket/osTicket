@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
 require_once(INCLUDE_DIR.'class.note.php');
+include_once INCLUDE_DIR . 'class.thread_actions.php';
 
 class TicketsAjaxAPI extends AjaxController {
 
@@ -781,6 +782,25 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         return self::_changeSelectedTicketsStatus($state, $info, $errors);
+    }
+
+    function triggerThreadAction($ticket_id, $thread_id, $action) {
+        $thread = ThreadEntry::lookup($thread_id, $ticket_id);
+        if (!$thread)
+            Http::response(404, 'No such ticket thread entry');
+
+        $valid = false;
+        foreach ($thread->getActions() as $group=>$list) {
+            foreach ($list as $name=>$A) {
+                if ($A->getId() == $action) {
+                    $valid = true; break;
+                }
+            }
+        }
+        if (!$valid)
+            Http::response(400, 'Not a valid action for this thread');
+
+        $thread->triggerAction($action);
     }
 
     private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {

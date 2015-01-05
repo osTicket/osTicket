@@ -245,6 +245,7 @@ class ThreadEntry {
 
     var $thread;
     var $attachments;
+    var $_actions;
 
     function ThreadEntry($id, $threadId=0, $type='') {
         $this->load($id, $threadId, $type);
@@ -799,7 +800,7 @@ class ThreadEntry {
     function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT thread_entery_id, mid FROM '.THREAD_ENTRY_EMAIL_TABLE
+        $search = 'SELECT thread_entry_id, mid FROM '.THREAD_ENTRY_EMAIL_TABLE
                . ' WHERE mid=%s '
                . ' ORDER BY thread_entry_id DESC';
 
@@ -1079,6 +1080,65 @@ class ThreadEntry {
     static function add($vars) {
         return ($entry=self::create($vars)) ? $entry->getId() : 0;
     }
+
+    // Extensible thread entry actions ------------------------
+    /**
+     * getActions
+     *
+     * Retrieve a list of possible actions. This list is shown to the agent
+     * via drop-down list at the top-right of the thread entry when rendered
+     * in the UI.
+     */
+    function getActions() {
+        if (!isset($this->_actions)) {
+            $this->_actions = array();
+
+            foreach (self::$action_registry as $group=>$list) {
+                $T = array();
+                $this->_actions[__($group)] = &$T;
+                foreach ($list as $id=>$action) {
+                    $A = new $action($this);
+                    if ($A->isVisible()) {
+                        $T[$id] = $A;
+                    }
+                }
+                unset($T);
+            }
+        }
+        return $this->_actions;
+    }
+
+    function hasActions() {
+        foreach ($this->getActions() as $group => $list) {
+            if (count($list))
+                return true;
+        }
+        return false;
+    }
+
+    function triggerAction($name) {
+        foreach ($this->getActions() as $group=>$list) {
+            foreach ($list as $id=>$action) {
+                if (0 === strcasecmp($id, $name)) {
+                    if (!$action->isEnabled())
+                        return false;
+
+                    $action->trigger();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static $action_registry = array();
+
+    static function registerAction($group, $action) {
+        if (!isset(self::$action_registry[$group]))
+            self::$action_registry[$group] = array();
+
+        self::$action_registry[$group][$action::getId()] = $action;
+    }
 }
 
 
@@ -1253,7 +1313,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
 
     function getSearchable() {
         // <br> -> \n
-        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body);
+        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body); # <?php
         $body = Format::htmldecode(Format::striptags($body));
         return Format::searchable($body);
     }
@@ -1556,6 +1616,82 @@ class TicketThread extends ObjectThread {
                     'object_id' => $id,
                     'object_type' => ObjectModel::OBJECT_TYPE_TICKET
                     ));
+    }
+}
+
+/**
+ * Class: ThreadEntryAction
+ *
+ * Defines a simple action to be performed on a thread entry item, such as
+ * viewing the raw email headers used to generate the message, resend the
+ * confirmation emails, etc.
+ */
+abstract class ThreadEntryAction {
+    static $name;               // Friendly, translatable name
+    static $id;                 // Unique identifier used for plumbing
+    static $icon = 'cog';
+
+    var $thread;
+
+    function getName() {
+        $class = get_class($this);
+        return __($class::$name);
+    }
+
+    static function getId() {
+        return static::$id;
+    }
+
+    function getIcon() {
+        $class = get_class($this);
+        return 'icon-' . $class::$icon;
+    }
+
+    function __construct(ThreadEntry $thread) {
+        $this->thread = $thread;
+    }
+
+    abstract function trigger();
+
+    function getTicket() {
+        return $this->thread->getTicket();
+    }
+
+    function isEnabled() {
+        return $this->isVisible();
+    }
+    function isVisible() {
+        return true;
+    }
+
+    /**
+     * getJsStub
+     *
+     * Retrieves a small JavaScript snippet to insert into the rendered page
+     * which should, via an AJAX callback, trigger this action to be
+     * performed. The URL for this sort of activity is already provided for
+     * you via the ::getAjaxUrl() method in this class.
+     */
+    abstract function getJsStub();
+
+    /**
+     * getAjaxUrl
+     *
+     * Generate a URL to be used as an AJAX callback. The URL can be used to
+     * trigger this thread entry action via the callback.
+     *
+     * Parameters:
+     * $dialog - (bool) used in conjunction with `$.dialog()` javascript
+     *      function which assumes the `ajax.php/` should be replace a leading
+     *      `#` in the url
+     */
+    function getAjaxUrl($dialog=false) {
+        return sprintf('%stickets/%d/thread/%d/%s',
+            $dialog ? '#' : 'ajax.php/',
+            $this->thread->getThread()->getObjectId(),
+            $this->thread->getId(),
+            static::getId()
+        );
     }
 }
 ?>

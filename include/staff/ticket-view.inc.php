@@ -1,4 +1,6 @@
 <?php
+include_once INCLUDE_DIR . 'class.thread_actions.php';
+
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
 
@@ -394,7 +396,8 @@ $tcount+= $ticket->getNumNotes();
     /* -------- Messages & Responses & Notes (if inline)-------------*/
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
-       foreach($thread as $entry) { ?>
+       foreach($thread as $entry) {
+        $tentry = $ticket->getThreadEntry($entry['id']); ?>
         <table class="thread-entry <?php echo $threadTypes[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
@@ -405,7 +408,29 @@ $tcount+= $ticket->getNumNotes();
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
                         echo Format::truncate($entry['title'], 100); ?></span>
                     </span>
-                    <span class="pull-right" style="white-space:no-wrap;display:inline-block">
+<?php           if ($tentry->hasActions()) {
+                    $actions = $tentry->getActions(); ?>
+                    <div class="pull-right">
+                    <span class="action-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry['id']; ?>">
+                        <i class="icon-caret-down"></i>
+                        <span ><i class="icon-cog"></i></span>
+                    </span>
+                    <div id="entry-action-more-<?php echo $entry['id']; ?>" class="action-dropdown anchor-right">
+                <ul class="title">
+<?php               foreach ($actions as $group => $list) {
+                        foreach ($list as $id => $action) { ?>
+                    <li>
+                    <a class="no-pjax" href="#" onclick="javascript:
+                            <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
+                        <i class="<?php echo $action->getIcon(); ?>"></i> <?php
+                            echo $action->getName();
+                ?></a></li>
+<?php                   }
+                    } ?>
+                </ul>
+                    </div>
+<?php           } ?>
+                    <span style="vertical-align:middle">
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
@@ -420,7 +445,6 @@ $tcount+= $ticket->getNumNotes();
             <?php
             $urls = null;
             if($entry['attachments']
-                    && ($tentry = $ticket->getThreadEntry($entry['id']))
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
