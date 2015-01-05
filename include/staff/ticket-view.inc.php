@@ -993,9 +993,16 @@ $(function() {
 <?php
     // Set the lock if one exists
     if ($lock) { ?>
+!function() {
+  var setLock = setInterval(function() {
+    if (typeof(window.autoLock) === 'undefined')
+      return;
+    clearInterval(setLock);
     autoLock.setLock({
       id:<?php echo $lock->getId(); ?>,
       time: <?php echo $cfg->getLockTime(); ?>}, 'acquire');
+  }, 50);
+}();
 <?php } ?>
 });
 </script>
