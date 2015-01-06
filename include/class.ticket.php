@@ -2483,7 +2483,7 @@ class Ticket {
             $__form = null;
             if ($vars['topicId']) {
                 if (($__topic=Topic::lookup($vars['topicId']))
-                    && $__form = $__topic->getForm()
+                    && ($__form = $__topic->getForm())
                 ) {
                     $__form = $__form->instanciate();
                     $__form->setSource($vars);
