@@ -1377,6 +1377,11 @@ class ThreadBody /* extends SplString */ {
         return $this->display('html');
     }
 
+    function asVar() {
+        // Email template, assume HTML
+        return $this->display('email');
+    }
+
     function display($format=false) {
         throw new Exception('display: Abstract display() method not implemented');
     }
@@ -1420,11 +1425,6 @@ class TextThreadBody extends ThreadBody {
         default:
             return '<pre>'.$this->body.'</pre>';
         }
-    }
-
-    function asVar() {
-        // Email template, assume HTML
-        return $this->display('email');
     }
 }
 class HtmlThreadBody extends ThreadBody {
