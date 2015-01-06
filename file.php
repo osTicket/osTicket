@@ -30,7 +30,7 @@ if (!$_GET['key']
 // and the user has access to the parent ticket!!
 if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
     if (($s = @$_GET['s']) && strpos($file->getType(), 'image/') === 0)
-        $file->display($s);
+        return $file->display($s);
 
     // Download the file..
     $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
