@@ -243,7 +243,7 @@ class AttachmentFile {
     }
 
     function download($disposition=false, $expires=false) {
-        $disposition = $disposition ?: 'attachment';
+        $disposition = $disposition ?: 'inline';
         $bk = $this->open();
         if ($bk->sendRedirectUrl($disposition))
             return;
