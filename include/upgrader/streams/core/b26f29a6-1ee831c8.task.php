@@ -58,7 +58,7 @@ class IntlMigrator extends MigrationTask {
             $new_format = '';
             $format = $cfg->get($key);
             foreach (str_split($format) as $char) {
-                $new_format .= @$dateToIntl[$char] ?: $char;
+                $new_format .= @self::$dateToIntl[$char] ?: $char;
             }
             $cfg->set($key, $new_format);
 

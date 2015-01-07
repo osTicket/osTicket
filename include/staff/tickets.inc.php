@@ -152,7 +152,7 @@ case 'updated':
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($tickets->count(), $page, PAGE_LIMIT);
-$pageNav->setUrl('tickets.php', $args);
+$pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
 TicketForm::ensureDynamicDataView();
