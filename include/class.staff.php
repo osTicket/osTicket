@@ -780,7 +780,7 @@ class Staff extends AuthenticatedUser {
                 .' WHERE isadmin=1 and isactive=1';
             if (($res = db_query($sql))
                     && (list($count, $sid) = db_fetch_row($res))) {
-                if ($count == 1 && $sid = $id) {
+                if ($count == 1 && $sid == $id) {
                     $errors['isadmin'] = __(
                         'Cowardly refusing to remove or lock out the only active administrator'
                     );
