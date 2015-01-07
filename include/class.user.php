@@ -308,7 +308,8 @@ class User extends UserModel {
             // Add in special `name` and `email` fields
             foreach (array('name', 'email') as $name) {
                 if ($f = $entry->getForm()->getField($name))
-                    $vars['field.'.$f->get('id')] = $this->getName();
+                    $vars['field.'.$f->get('id')] =
+                        $name == 'name' ? $this->getName() : $this->getEmail();
             }
         }
         return $vars;
@@ -567,6 +568,11 @@ class User extends UserModel {
 
         // Delete emails.
         $this->emails->expunge();
+
+        // Drop dynamic data
+        foreach ($this->getDynamicData() as $cd) {
+            $cd->delete();
+        }
 
         // Delete user
         return parent::delete();

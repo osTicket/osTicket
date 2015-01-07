@@ -40,9 +40,13 @@ abstract class TicketUser {
         $tag =  substr($name, 3);
         switch (strtolower($tag)) {
             case 'ticket_link':
-                return sprintf('%s/view.php?auth=%s',
+                return sprintf('%s/view.php?%s',
                         $cfg->getBaseUrl(),
-                        urlencode($this->getAuthToken()));
+                        Http::build_query(
+                            array('auth' => $this->getAuthToken()),
+                            false
+                            )
+                        );
                 break;
         }
 

@@ -1,10 +1,6 @@
 <?php
 if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
-$qstr='';
-$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.name as dept ';
-$from='FROM '.STAFF_TABLE.' staff '.
-      'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.id) ';
-$where='WHERE staff.isvisible=1 ';
+$qs = array();
 
 $agents = Staff::objects()
     ->filter(array('isvisible'=>1))
@@ -34,7 +30,7 @@ if($_REQUEST['q']) {
 
 if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $agents->filter(array('dept'=>$_REQUEST['did']));
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 $sortOptions=array('name'=>'firstname,lastname','email'=>'email','dept'=>'dept__name',
@@ -61,11 +57,13 @@ foreach (explode(',', $order_column) as $C) {
 $total=$agents->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('directory.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('directory.php', $qs);
 $pageNav->paginate($agents);
 
 //Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='-'?'ASC':'DESC');
+$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 ?>
 <h2><?php echo __('Agents');?>

@@ -441,7 +441,7 @@ $tcount+= $ticket->getNumNotes();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry['id']; ?>"><div><?php
-                echo $entry['body']->toHtml(); ?></div></td></tr>
+                echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
             <?php
             $urls = null;
             if($entry['attachments']
@@ -570,6 +570,7 @@ $tcount+= $ticket->getNumNotes();
                     <label><strong><?php echo __('Response');?>:</strong></label>
                 </td>
                 <td>
+<?php if ($cfg->isCannedResponseEnabled()) { ?>
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected"><?php echo __('Select a canned response');?></option>
                         <option value='original'><?php echo __('Original Message'); ?></option>
@@ -584,7 +585,7 @@ $tcount+= $ticket->getNumNotes();
                         ?>
                     </select>
                     <br>
-                    <?php
+<?php } # endif (canned-resonse-enabled)
                     $signature = '';
                     switch ($thisstaff->getDefaultSignatureType()) {
                     case 'dept':
@@ -1043,5 +1044,19 @@ $(function() {
             }
         });
     });
+<?php
+    // Set the lock if one exists
+    if ($lock) { ?>
+!function() {
+  var setLock = setInterval(function() {
+    if (typeof(window.autoLock) === 'undefined')
+      return;
+    clearInterval(setLock);
+    autoLock.setLock({
+      id:<?php echo $lock->getId(); ?>,
+      time: <?php echo $cfg->getLockTime(); ?>}, 'acquire');
+  }, 50);
+}();
+<?php } ?>
 });
 </script>

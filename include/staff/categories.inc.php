@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $categories = Category::objects()
     ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')));
 $sortOptions=array('name'=>'name','type'=>'ispublic','faqs'=>'faq_count','updated'=>'updated');
@@ -25,9 +25,10 @@ $order_by="$order_column $order ";
 $total=$categories->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('categories.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('categories.php', $qs);
+$qstr = '&amp;order='.($order=='DESC'?'ASC':'DESC');
 $pageNav->paginate($categories);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 
 if ($total)
     $showing=$pageNav->showing().' '.__('categories');
@@ -90,7 +91,7 @@ else
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No FAQ categories found.');
+                echo __('No FAQ categories found!');
             } ?>
         </td>
      </tr>

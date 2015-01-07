@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sortOptions=array(
         'name' => 'name',
         'status' => 'isactive',
@@ -31,11 +31,12 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = SLA::objects()->count();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
-$pageNav->setURL('slas.php', $_qstr);
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+
+$pageNav->setURL('slas.php', $qs);
 $showing = $pageNav->showing().' '._N('SLA plan', 'SLA plans', $count);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Service Level Agreements');?></h2>

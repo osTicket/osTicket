@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($dept && $_REQUEST['a']!='add') {
     //Editing Department.
     $title=__('Update Department');
@@ -10,7 +9,7 @@ if($dept && $_REQUEST['a']!='add') {
     $info = $dept->getInfo();
     $info['id'] = $dept->getId();
     $info['groups'] = $dept->getAllowedGroups();
-    $qstr.='&id='.$dept->getId();
+    $qs += array('id' => $dept->getId());
 } else {
     $title=__('Add New Department');
     $action='create';
@@ -21,13 +20,12 @@ if($dept && $_REQUEST['a']!='add') {
     if (!isset($info['group_membership']))
         $info['group_membership'] = 1;
 
-    $qstr.='&a='.$_REQUEST['a'];
-
+    $qs += array('a' => $_REQUEST['a']);
 }
 
 $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
-<form action="departments.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="departments.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

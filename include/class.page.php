@@ -65,7 +65,7 @@ class Page extends VerySimpleModel {
         return $this->_getLocal('body', $lang);
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getLocalBody(), ROOT_PATH.'image.php');
+        return Format::viewableImages($this->getLocalBody());
     }
 
     function _getLocal($what, $lang=false) {

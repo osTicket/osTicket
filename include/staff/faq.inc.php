@@ -3,8 +3,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
         || !$thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE))
     die('Access Denied');
 
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($faq){
     $title=__('Update FAQ').': '.$faq->getQuestion();
     $action='update';
@@ -14,7 +13,7 @@ if($faq){
     $info['topics']=$faq->getHelpTopicsIds();
     $info['answer']=Format::viewableImages($faq->getAnswer());
     $info['notes']=Format::viewableImages($faq->getNotes());
-    $qstr='id='.$faq->getId();
+    $qs += array('id' => $faq->getId());
     $langs = $cfg->getSecondaryLanguages();
     $translations = $faq->getAllTranslations();
     foreach ($langs as $tag) {
@@ -34,12 +33,13 @@ if($faq){
     $action='create';
     $submit_text=__('Add FAQ');
     if($category) {
-        $qstr='cid='.$category->getId();
+        $qs += array('cid' => $category->getId());
         $info['category_id']=$category->getId();
     }
 }
 //TODO: Add attachment support.
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$qstr = Http::build_query($qs);
 ?>
 <form action="faq.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>

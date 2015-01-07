@@ -81,7 +81,7 @@ class FAQ extends VerySimpleModel {
     function getQuestion() { return $this->question; }
     function getAnswer() { return $this->answer; }
     function getAnswerWithImages() {
-        return Format::viewableImages($this->answer, ROOT_PATH.'image.php');
+        return Format::viewableImages($this->answer);
     }
     function getTeaser() {
         return Format::truncate(Format::striptags($this->answer), 150);
@@ -326,12 +326,11 @@ class FAQ extends VerySimpleModel {
         if ($attachments = $this->getVisibleAttachments()) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
-            $hash=$attachment['key'].md5($attachment['id'].session_id().strtolower($attachment['key']));
             if($attachment['size'])
                 $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
 
             }
         }

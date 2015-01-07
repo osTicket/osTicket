@@ -3,6 +3,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin())
     die('Access Denied');
 
 $qstr='';
+$qs = array();
 $sortOptions = array(
         'name' => 'lastname',
         'username' => 'username',
@@ -38,17 +39,17 @@ $$x=' class="'.strtolower($order).'" ';
 $filters = array();
 if ($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $filters += array('dept_id' => $_REQUEST['did']);
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 if ($_REQUEST['gid'] && is_numeric($_REQUEST['gid'])) {
     $filters += array('group_id' => $_REQUEST['gid']);
-    $qstr.='&gid='.urlencode($_REQUEST['gid']);
+    $qs += array('gid' => $_REQUEST['gid']);
 }
 
 if ($_REQUEST['tid'] && is_numeric($_REQUEST['tid'])) {
     $filters += array('teams__team_id' => $_REQUEST['tid']);
-    $qstr.='&tid='.urlencode($_REQUEST['tid']);
+    $qs += array('tid' => $_REQUEST['tid']);
 }
 
 //agents objects
@@ -68,10 +69,11 @@ if ($filters)
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = $agents->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
-$pageNav->setURL('staff.php', $_qstr);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('staff.php', $qs);
 $showing = $pageNav->showing().' '._N('agent', 'agents', $count);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 // add limits.
 $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());

@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$filter) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $select='SELECT rule.* ';
 $from='FROM '.FILTER_RULE_TABLE.' rule ';
 $where='WHERE rule.filter_id='.db_input($filter->getId());
@@ -41,8 +41,10 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT rule.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('banlist.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('banlist.php', $qs);
+$qstr.='&amp;order='.($order=='DESC'?'ASC':'DESC');
 $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>

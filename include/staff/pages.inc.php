@@ -4,7 +4,7 @@ if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 $pages = Page::objects()
     ->filter(array('type__in'=>array('other','landing','thank-you','offline')))
     ->annotate(array('topics'=>SqlAggregate::COUNT('topics')));
-$qstr='';
+$qs = array();
 $sortOptions=array(
         'name'=>'name', 'status'=>'isactive',
         'created'=>'created', 'updated'=>'updated',
@@ -25,10 +25,11 @@ $$x=' class="'.strtolower($order).'" ';
 $total = $pages->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('pages.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('pages.php', $qs);
 //Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
-$pages = $pages->limit($pageNav->getLimit())->offset($pageNav->getStart());
 if ($total)
     $showing=$pageNav->showing()._N('site page','site pages', $num);
 else

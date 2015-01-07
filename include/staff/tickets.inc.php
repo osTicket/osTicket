@@ -16,8 +16,8 @@ unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
-
-switch(strtolower($_REQUEST['status'])){ //Status is overloaded
+$queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+switch ($queue_name) {
 case 'closed':
     $status='closed';
     $results_type=__('Closed Tickets');
@@ -60,6 +60,10 @@ case 'search':
         }
         break;
     }
+    elseif (isset($_GET['uid'])) {
+        // Apply user filter
+        $tickets->filter(array('user__id'=>$_GET['uid']));
+    }
     elseif (isset($_SESSION['advsearch'])) {
         // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
@@ -67,7 +71,6 @@ case 'search':
         $tickets = $search->mangleQuerySet($tickets, $form);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        unset($_REQUEST['sort']);
         break;
     }
     // Fall-through and show open tickets
@@ -115,7 +118,11 @@ $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_i
 // Apply requested quick filter
 
 // Apply requested sorting
-switch ($_REQUEST['sort']) {
+$queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
+
+if (isset($_GET['sort']))
+    $_SESSION[$queue_sort_key] = $_GET['sort'];
+switch ($_SESSION[$queue_sort_key]) {
 case 'number':
     $tickets->extra(array(
         'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
@@ -143,9 +150,9 @@ case 'updated':
 }
 
 // Apply requested pagination
-$pagelimit=($_GET['limit'] && is_numeric($_GET['limit']))?$_GET['limit']:PAGE_LIMIT;
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($tickets->count(), $page,$pagelimit);
+$pageNav=new Pagenate($tickets->count(), $page, PAGE_LIMIT);
+$pageNav->setUrl('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
 TicketForm::ensureDynamicDataView();
@@ -158,10 +165,12 @@ $_SESSION[':Q:tickets'] = $tickets;
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
     <form action="tickets.php" method="get">
-    <input type="hidden" name="status" value="search">
+    <input type="hidden" name="a" value="search">
     <table>
         <tr>
-            <td><input type="text" id="basic-ticket-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+            <td><input type="text" id="basic-ticket-search" name="query"
+            size=30 value="<?php echo Format::htmlchars($_REQUEST['query'],
+            true); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
             <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
@@ -191,7 +200,7 @@ $_SESSION[':Q:tickets'] = $tickets;
     'priority,due' => __('Priority + Due Soon'),
     'number' =>     __('Ticket Number'),
 ) as $mode => $desc) { ?>
-            <option value="<?php echo $mode; ?>" <?php if ($mode == $_REQUEST['sort']) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
+            <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
 <?php } ?>
             </select>
             </span>
@@ -212,7 +221,8 @@ $_SESSION[':Q:tickets'] = $tickets;
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <input type="hidden" name="status" value="<?php echo Format::htmlchars($_REQUEST['status']); ?>" >
+ <input type="hidden" name="status" value="<?php echo
+ Format::htmlchars($_REQUEST['status'], true); ?>" >
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
@@ -364,10 +374,14 @@ $_SESSION[':Q:tickets'] = $tickets;
     </tfoot>
     </table>
     <?php
-    if($total>0){ //if we actually had any tickets returned.
+    if ($total>0) { //if we actually had any tickets returned.
         echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
-        echo '<a class="export-csv no-pjax" href="?a=export&status='
-            .$_REQUEST['status'] .'">'.__('Export').'</a>&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
+        echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+                Http::build_query(array(
+                        'a' => 'export', 'h' => $hash,
+                        'status' => $_REQUEST['status'])),
+                __('Export'));
+        echo '&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
     } ?>
     </form>
 </div>

@@ -774,6 +774,20 @@ implements AuthenticatedUser {
         if(!$vars['group_id'])
             $errors['group_id']=__('Group is required');
 
+        // Ensure we will still have an administrator with access
+        if ($vars['isadmin'] !== '1' || $vars['isactive'] !== '1') {
+            $sql = 'select count(*), max(staff_id) from '.STAFF_TABLE
+                .' WHERE isadmin=1 and isactive=1';
+            if (($res = db_query($sql))
+                    && (list($count, $sid) = db_fetch_row($res))) {
+                if ($count == 1 && $sid = $id) {
+                    $errors['isadmin'] = __(
+                        'Cowardly refusing to remove or lock out the only active administrator'
+                    );
+                }
+            }
+        }
+
         if ($errors)
             return false;
 

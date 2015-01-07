@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qstr='';
+$qs = array();
 
 $select = 'SELECT org.*
             ,COALESCE(team.name,
@@ -27,7 +27,7 @@ if ($_REQUEST['query']) {
                     org.name LIKE \'%'.$search.'%\' OR value.value LIKE \'%'.$search.'%\'
                 )';
 
-    $qstr.='&query='.urlencode($_REQUEST['query']);
+    $qs += array('query' => $_REQUEST['query']);
 }
 
 $sortOptions = array('name' => 'org.name',
@@ -56,9 +56,10 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT org.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('orgs.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('orgs.php', $qs);
+$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 $select .= ', count(DISTINCT user.id) as users ';
 

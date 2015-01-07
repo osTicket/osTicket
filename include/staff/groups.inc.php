@@ -2,7 +2,7 @@
 if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin())
     die('Access Denied');
 
-$qstr = '';
+$qs = array();
 $sortOptions = array(
         'name'   => 'name',
         'users'  => 'members_count',
@@ -35,10 +35,11 @@ $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = Group::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
-$pageNav->setURL('groups.php', $_qstr);
+$qstr = '&amp;'. Http::build_query($qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('pages.php', $qs);
 $showing = $pageNav->showing().' '._N('group', 'groups', $count);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Agent Groups');?>

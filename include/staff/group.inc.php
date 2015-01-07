@@ -1,6 +1,7 @@
 <?php
 
-$info=array();
+if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+$info = $qs = array();
 if ($group) {
     $title = __('Update Group');
     $action = 'update';
@@ -9,18 +10,20 @@ if ($group) {
     $info['id'] = $group->getId();
     $info['depts'] = $group->getDepartments();
     $trans['name'] = $group->getTranslateTag('name');
+    $qs += array('id' => $group->getId());
 } else {
     $title = __('Add New Group');
     $action = 'add';
     $submit_text = __('Create Group');
     $info['isactive'] = isset($info['isactive']) ? $info['isactive'] : 1;
+    $qs += array('a' => $_REQUEST['a']);
 }
 
 $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $info);
 $roles = Role::getActiveRoles();
 
 ?>
-<form action="" method="post" id="save">
+<form action="groups.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" name="group">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

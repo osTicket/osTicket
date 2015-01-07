@@ -113,7 +113,7 @@ class DraftAjaxAPI extends AjaxController {
             'content_id' => 'cid:'.$f->getKey(),
             // Return draft_id to connect the auto draft creation
             'draft_id' => $draft->getId(),
-            'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
+            'filelink' => $f->getDownloadUrl(false, 'inline'),
         ));
     }
 
@@ -335,7 +335,7 @@ class DraftAjaxAPI extends AjaxController {
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);
-            $url = 'image.php?h='.$f->getDownloadHash();
+            $url = $f->getDownloadUrl();
             $files[] = array(
                 'thumb'=>$url.'&s=128',
                 'image'=>$url,

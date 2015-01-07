@@ -92,7 +92,7 @@ class Draft extends VerySimpleModel {
     }
 
     function setBody($body) {
-        // Change image.php urls back to content-id's
+        // Change file.php urls back to content-id's
         $body = Format::sanitize($body, false);
 
         $this->body = $body ?: ' ';

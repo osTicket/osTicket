@@ -110,19 +110,6 @@ class AttachmentFile {
         return $this->ht['created'];
     }
 
-    static function getDownloadForIdAndKey($id, $key) {
-        return strtolower($key . md5($id.session_id().strtolower($key)));
-    }
-
-
-    /**
-     * Retrieve a signature that can be sent to scp/file.php?h= in order to
-     * download this file
-     */
-    function getDownloadHash() {
-        return self::getDownloadForIdAndKey($this->getId(), $this->getKey());
-    }
-
     function open() {
         return FileStorageBackend::getInstance($this);
     }
@@ -203,11 +190,68 @@ class AttachmentFile {
         exit();
     }
 
-    function download() {
+    function getDownloadUrl($minage=false, $disposition=false, $handler=false) {
+        // XXX: Drop this when AttachmentFile goes to ORM
+        return static::generateDownloadUrl($this->getId(),
+            strtolower($this->getKey()), $this->getSignature(), $minage,
+            $disposition, $handler);
+    }
+
+    static function generateDownloadUrl($id, $key, $hash, $minage=false,
+        $disposition=false, $handler=false
+    ) {
+        // Expire at the nearest midnight, allowing at least 12 hours access
+        $minage = $minage ?: 43200;
+        $gmnow = Misc::gmtime() + $minage;
+        $expires = $gmnow + 86400 - ($gmnow % 86400);
+
+        // Generate a signature based on secret content
+        $signature = static::_genUrlSignature($id, $key, $hash, $expires);
+
+        $handler = $handler ?: ROOT_PATH . 'file.php';
+
+        // Return sanitized query string
+        $args = array(
+            'key' => $key,
+            'expires' => $expires,
+            'signature' => $signature,
+        );
+
+        if ($disposition)
+            $args['disposition'] = $disposition;
+
+        return $handler . '?' . http_build_query($args);
+    }
+
+    function verifySignature($signature, $expires) {
+        $gmnow = Misc::gmtime();
+        if ($expires < $gmnow)
+            return false;
+
+        $check = static::_genUrlSignature($this->getId(), $this->getKey(),
+            $this->getSignature(), $expires);
+        return $signature == $check;
+    }
+
+    static function _genUrlSignature($id, $key, $signature, $expires) {
+        $pieces = array(
+            'Host='.$_SERVER['HTTP_HOST'],
+            'Path='.ROOT_PATH,
+            'Id='.$id,
+            'Key='.strtolower($key),
+            'Hash='.$signature,
+            'Expires='.$expires,
+        );
+        return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
+    }
+
+    function download($disposition=false, $expires=false) {
+        $disposition = $disposition ?: 'inline';
         $bk = $this->open();
-        if ($bk->sendRedirectUrl('inline'))
+        if ($bk->sendRedirectUrl($disposition))
             return;
-        $this->makeCacheable();
+        $ttl = ($expires) ? $expires - Misc::gmtime() : false;
+        $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
@@ -336,7 +380,7 @@ class AttachmentFile {
             return false;
         }
 
-        if (!$file['type']) {
+        if (!$file['type'] && extension_loaded('fileinfo')) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             if ($file['data'])
                 $type = $finfo->buffer($file['data']);
@@ -345,9 +389,9 @@ class AttachmentFile {
 
             if ($type)
                 $file['type'] = $type;
-            else
-                $file['type'] = 'application/octet-stream';
         }
+        if (!$file['type'])
+            $file['type'] = 'application/octet-stream';
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))

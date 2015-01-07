@@ -2,7 +2,7 @@
 if (!defined('OSTADMININC') || !$thisstaff->isAdmin())
     die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sortOptions=array(
     'name' => 'name',
     'type' => 'ispublic',
@@ -33,10 +33,11 @@ $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = Dept::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
-$pageNav->setURL('departments.php', $_qstr);
+$qstr = '&amp;'. Http::build_query($qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('departments.php', $qs);
 $showing = $pageNav->showing().' '._N('department', 'departments', $count);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Departments');?></h2>
@@ -128,7 +129,7 @@ $qstr.='&order='.($order=='DESC'?'ASC':'DESC');
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No department found');
+                echo __('No departments found!');
             } ?>
         </td>
      </tr>

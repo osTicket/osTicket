@@ -6,8 +6,7 @@ $pageTypes = array(
         'thank-you' => __('Thank you page'),
         'other' => __('Other'),
         );
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($page && $_REQUEST['a']!='add'){
     $title=__('Update Page');
     $action='update';
@@ -17,7 +16,7 @@ if($page && $_REQUEST['a']!='add'){
     $info['notes'] = Format::viewableImages($info['notes']);
     $trans['name'] = $page->getTranslateTag('name');
     $slug = Format::slugify($info['name']);
-    $qstr.='&id='.$page->getId();
+    $qs += array('id' => $page->getId());
     $translations = CustomDataTranslation::allTranslations(
         $page->getTranslateTag('name:body'), 'article');
     foreach ($cfg->getSecondaryLanguages() as $tag) {
@@ -34,11 +33,11 @@ if($page && $_REQUEST['a']!='add'){
     $action='add';
     $submit_text=__('Add Page');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="pages.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="pages.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

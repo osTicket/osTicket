@@ -1,14 +1,13 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
-$info=array();
-$qstr='';
+$info=$qs = array();
 if($canned && $_REQUEST['a']!='add'){
     $title=__('Update Canned Response');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
-    $qstr.='&id='.$canned->getId();
+    $qs += array('id' => $canned->getId());
     // Replace cid: scheme with downloadable URL for inline images
     $info['response'] = $canned->getResponseWithImages();
     $info['notes'] = Format::viewableImages($info['notes']);
@@ -17,12 +16,12 @@ if($canned && $_REQUEST['a']!='add'){
     $action='create';
     $submit_text=__('Add Response');
     $info['isenabled']=isset($info['isenabled'])?$info['isenabled']:1;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="canned.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+<form action="canned.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

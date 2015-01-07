@@ -552,12 +552,11 @@ class ThreadEntry {
         return $this->attachments->getAll(false);
     }
 
-    function getAttachmentUrls($script='image.php') {
+    function getAttachmentUrls() {
         $json = array();
         foreach ($this->getAttachments() as $att) {
             $json[$att['key']] = array(
-                'download_url' => sprintf('attachment.php?id=%d&h=%s',
-                    $att['attach_id'], $att['download']),
+                'download_url' => $att['download_url'],
                 'filename' => $att['name'],
             );
         }
@@ -574,14 +573,8 @@ class ThreadEntry {
             if ($att['size'])
                 $size=sprintf('<em>(%s)</em>', Format::file_size($att['size']));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="%s?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $file,
-                    $att['attach_id'],
-                    $att['download'],
-                    $target,
-                    Format::htmlchars($att['name']),
-                    $size,
-                    $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $att['download_url'], $target, Format::htmlchars($att['name']), $size, $separator);
         }
 
         return $str;
@@ -867,7 +860,10 @@ class ThreadEntry {
         $match = array();
         if ($subject
                 && $mailinfo['email']
-                && preg_match("/\b#(\S+)/u", $subject, $match)
+                // Required `#` followed by one or more of
+                //      punctuation (-) then letters, numbers, and symbols
+                // (Try not to match closing punctuation (`]`) in [#12345])
+                && preg_match("/#((\p{P}*[^\p{C}\p{Z}\p{P}]+)+)/u", $subject, $match)
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
@@ -1236,6 +1232,11 @@ class ThreadEntryBody /* extends SplString */ {
         return $this->display('html');
     }
 
+    function asVar() {
+        // Email template, assume HTML
+        return $this->display('email');
+    }
+
     function display($format=false) {
         throw new Exception('display: Abstract display() method not implemented');
     }
@@ -1271,20 +1272,14 @@ class TextThreadEntryBody extends ThreadEntryBody {
 
         switch ($output) {
         case 'html':
-            return '<div style="white-space:pre-wrap">'
-                .Format::clickableurls(Format::htmlchars($this->body)).'</div>';
         case 'email':
-            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+            return '<div style="white-space:pre-wrap">'
+                .Format::htmlchars($this->body).'</div>';
         case 'pdf':
             return nl2br($this->body);
         default:
             return '<pre>'.$this->body.'</pre>';
         }
-    }
-
-    function asVar() {
-        // Email template, assume HTML
-        return $this->display('email');
     }
 }
 class HtmlThreadEntryBody extends ThreadEntryBody {
@@ -1326,7 +1321,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         case 'email':
             return $this->body;
         case 'pdf':
-            return Format::clickableurls($this->body, false);
+            return Format::clickableurls($this->body);
         default:
             return Format::display($this->body);
         }

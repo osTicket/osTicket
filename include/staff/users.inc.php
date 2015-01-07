@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qstr='';
+$qs = array();
 
 $users = User::objects()
     ->annotate(array('ticket_count'=>SqlAggregate::COUNT('tickets')));
@@ -14,6 +14,7 @@ if ($_REQUEST['query']) {
         'org__name__contains' => $search,
         // TODO: Add search for cdata
     )));
+    $qs += array('query' => $_REQUEST['query']);
 }
 
 $sortOptions = array('name' => 'name',
@@ -42,11 +43,12 @@ $order_by="$order_column $order ";
 $total = $users->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('users.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
 $pageNav->paginate($users);
 
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('users.php', $qs);
+$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 //echo $query;
 $_SESSION[':Q:users'] = $users;

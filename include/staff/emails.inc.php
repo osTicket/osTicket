@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sortOptions = array(
         'email' => 'email',
         'dept' => 'dept__name',
@@ -30,10 +30,10 @@ $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = EmailModel::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$_qstr = $qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']);
-$pageNav->setURL('emails.php', $_qstr);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('emails.php', $qs);
 $showing = $pageNav->showing().' '._N('email', 'emails', $count);
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 $def_dept_id = $cfg->getDefaultDeptId();
 $def_dept_name = $cfg->getDefaultDept()->getName();
@@ -107,7 +107,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No help emails found');
+                echo __('No emails found!');
             } ?>
         </td>
      </tr>

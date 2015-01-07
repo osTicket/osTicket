@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=$members=array();
-$qstr='';
+$info = $members = $qs = array();
 if ($team && $_REQUEST['a']!='add') {
     //Editing Team
     $title=__('Update Team');
@@ -10,20 +9,20 @@ if ($team && $_REQUEST['a']!='add') {
     $info=$team->getInfo();
     $info['id']=$team->getId();
     $trans['name'] = $team->getTranslateTag('name');
-    $qstr.='&id='.$team->getId();
     $members = $team->getMembers();
+    $qs += array('id' => $team->getId());
 } else {
     $title=__('Add New Team');
     $action='create';
     $submit_text=__('Create Team');
     $info['isenabled']=1;
     $info['noalerts']=0;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 
 $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
-<form action="teams.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="teams.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

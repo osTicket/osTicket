@@ -183,7 +183,7 @@ class GenericAttachments {
     function _getList($separate=false, $inlines=false, $lang=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.`key`, f.name '
+            $sql='SELECT f.id, f.size, f.`key`, f.signature, f.name '
                 .', a.inline, a.lang, a.id as attach_id '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
@@ -191,8 +191,8 @@ class GenericAttachments {
                 .' AND a.object_id='.db_input($this->getId());
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($rec=db_fetch_array($res)) {
-                    $rec['download'] = AttachmentFile::getDownloadForIdAndKey(
-                        $rec['id'], $rec['key']);
+                    $rec['download_url'] = AttachmentFile::generateDownloadUrl(
+                        $rec['id'], $rec['key'], $rec['signature']);
                     $this->attachments[] = $rec;
                 }
             }

@@ -1,5 +1,5 @@
 <?php
-$qstr='';
+$qs = array();
 $select = 'SELECT user.*, email.address as email ';
 
 $from = 'FROM '.USER_TABLE.' user '
@@ -33,9 +33,12 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT user.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('users.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+
+$pageNav->setURL('users.php', $qs);
 //Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 $select .= ', count(DISTINCT ticket.ticket_id) as tickets ';
 

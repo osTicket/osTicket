@@ -330,9 +330,9 @@ class ApiXmlDataParser extends XmlDataParser {
             if ($key == "phone" && is_array($value)) {
                 $value = $value[":text"];
             } else if ($key == "alert") {
-                $value = (bool)$value;
+                $value = (bool) (strtolower($value) === 'false' ? false : $value);
             } else if ($key == "autorespond") {
-                $value = (bool)$value;
+                $value = (bool) (strtolower($value) === 'false' ? false : $value);
             } else if ($key == "message") {
                 if (!is_array($value)) {
                     $value = array(

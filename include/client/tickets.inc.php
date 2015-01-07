@@ -3,10 +3,10 @@ if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid(
 
 $tickets = TicketModel::objects();
 
-$qstr='&'; //Query string collector
+$qs = array();
 $status=null;
 if(isset($_REQUEST['status'])) { //Query string status has nothing to do with the real status used below.
-    $qstr.='status='.urlencode($_REQUEST['status']);
+    $qs += array('status' => $_REQUEST['status']);
     //Status we are actually going to use on the query...making sure it is clean!
     $status=strtolower($_REQUEST['status']);
     switch(strtolower($_REQUEST['status'])) {
@@ -51,7 +51,7 @@ $tickets->filter(Q::any(array(
 // Perform basic search
 $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
-    $qstr.='&a='.urlencode($_REQUEST['a']).'&q='.urlencode($_REQUEST['q']);
+    $qs += array('a' => $_REQUEST['a'], 'q' => $_REQUEST['q']);
     if (is_numeric($_REQUEST['q'])) {
         $tickets->filter(array('number__startswith'=>$_REQUEST['q']));
     } else { //Deep search!
@@ -65,19 +65,11 @@ TicketForm::ensureDynamicDataView();
 $total=$tickets->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('tickets.php', $qs);
 $pageNav->paginate($tickets);
 
-//more stuff...
-$qselect.=' ,count(DISTINCT attach.id) as attachments ';
-$qfrom.=' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
-            ON (entry.thread_id=thread.id AND entry.`type` IN ("M", "R")) ';
-$qfrom.=' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-            ON (attach.object_id=entry.id AND attach.`type` = "H") ';
-$qgroup=' GROUP BY ticket.ticket_id';
-
-$query="$qselect $qfrom $qwhere $qgroup ORDER BY $order_by $order LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-//echo $query;
 $showing =$total ? $pageNav->showing() : "";
 if(!$results_type)
 {

@@ -1,7 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($topic && $_REQUEST['a']!='add') {
     $title=__('Update Help Topic');
     $action='update';
@@ -10,7 +9,7 @@ if($topic && $_REQUEST['a']!='add') {
     $info['id']=$topic->getId();
     $info['pid']=$topic->getPid();
     $trans['name'] = $topic->getTranslateTag('name');
-    $qstr.='&id='.$topic->getId();
+    $qs += array('id' => $topic->getId());
 } else {
     $title=__('Add New Help Topic');
     $action='create';
@@ -18,11 +17,11 @@ if($topic && $_REQUEST['a']!='add') {
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $info['form_id'] = Topic::FORM_USE_PARENT;
-    $qstr.='&a='.$_REQUEST['a'];
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="helptopics.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

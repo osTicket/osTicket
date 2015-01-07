@@ -125,6 +125,7 @@ class StaffNav {
     }
 
     function getSubMenus(){ //Private.
+        global $cfg;
 
         $staff = $this->staff;
         $submenus=array();
@@ -163,7 +164,7 @@ class StaffNav {
                     if($staff) {
                         if ($staff->getRole()->hasPerm(FAQ::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if ($staff->getRole()->hasPerm(CannedModel::PERM_MANAGE))
+                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(CannedModel::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;

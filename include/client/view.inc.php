@@ -126,7 +126,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                 <span><?php echo $poster; ?></span>
             </div>
             </th></tr>
-            <tr><td class="thread-body"><div><?php echo $entry['body']->toHtml(); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))

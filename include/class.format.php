@@ -218,7 +218,7 @@ class Format {
             }
             unset($s);
             if ($styles)
-                $attributes['style'] = Format::htmlencode(implode(';', $styles));
+                $attributes['style'] = Format::htmlchars(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -259,9 +259,10 @@ class Format {
     }
 
     function localizeInlineImages($text) {
-        // Change image.php urls back to content-id's
-        return preg_replace('/image\\.php\\?h=([\\w.-]{32})\\w{32}/',
-            'cid:$1', $text);
+        // Change file.php urls back to content-id's
+        return preg_replace(
+            '/src="(?:\/[^"]+?)?\/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*/',
+            'src="cid:$1', $text);
     }
 
     function sanitize($text, $striptags=false) {
@@ -275,15 +276,14 @@ class Format {
         return $striptags?Format::striptags($text, false):$text;
     }
 
-    function htmlchars($var) {
-        return Format::htmlencode($var);
-    }
-
-    function htmlencode($var) {
+    function htmlchars($var, $sanitize = false) {
         static $phpversion = null;
 
         if (is_array($var))
-            return array_map(array('Format', 'htmlencode'), $var);
+            return array_map(array('Format', 'htmlchars'), $var);
+
+        if ($sanitize)
+            $var = Format::sanitize($var);
 
         if (!isset($phpversion))
             $phpversion = phpversion();
@@ -293,7 +293,7 @@ class Format {
             $flags |= ENT_HTML401;
 
         try {
-            return htmlentities( (string) $var, $flags, 'UTF-8', false);
+            return htmlspecialchars( (string) $var, $flags, 'UTF-8', false);
         } catch(Exception $e) {
             return $var;
         }
@@ -308,11 +308,11 @@ class Format {
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return html_entity_decode($var, $flags, 'UTF-8');
+        return htmlspecialchars_decode($var, $flags);
     }
 
     function input($var) {
-        return Format::htmlencode($var);
+        return Format::htmlchars($var);
     }
 
     //Format text for display..
@@ -345,19 +345,17 @@ class Format {
     }
 
     //make urls clickable. Mainly for display
-    function clickableurls($text, $trampoline=true) {
+    function clickableurls($text, $target='_blank') {
         global $ost;
-
-        $token = $ost->getLinkToken();
 
         // Find all text between tags
         $text = preg_replace_callback(':^[^<]+|>[^<]+:',
-            function($match) use ($token, $trampoline) {
+            function($match) {
                 // Scan for things that look like URLs
                 return preg_replace_callback(
                     '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)'
                    .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
-                    function ($match) use ($token, $trampoline) {
+                    function ($match) {
                         if ($match[1]) {
                             while (in_array(substr($match[1], -1),
                                     array('.','?','-',':',';'))) {
@@ -367,13 +365,9 @@ class Format {
                             if (strpos($match[2], '//') === false) {
                                 $match[1] = 'http://' . $match[1];
                             }
-                            if ($trampoline)
-                                return '<a href="l.php?url='.urlencode($match[1])
-                                    .sprintf('&auth=%s" target="_blank">', $token)
-                                    .$match[1].'</a>'.$match[9];
-                            else
-                                return sprintf('<a href="%s">%s</a>%s',
-                                    $match[1], $match[1], $match[9]);
+
+                            return sprintf('<a href="%s">%s</a>%s',
+                                $match[1], $match[1], $match[9]);
                         } elseif ($match[6]) {
                             return sprintf('<a href="mailto:%1$s" target="_blank">%1$s</a>',
                                 $match[6]);
@@ -386,35 +380,20 @@ class Format {
         // Now change @href and @src attributes to come back through our
         // system as well
         $config = array(
-            'hook_tag' => function($e, $a=0) use ($token) {
+            'hook_tag' => function($e, $a=0) use ($target) {
                 static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
                     'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
                 if ($e == 'a' && $a) {
-                    if (isset($a['href'])
-                            && strpos($a['href'], 'mailto:') !== 0
-                            && strpos($a['href'], 'l.php?') === false)
-                        $a['href'] = 'l.php?url='.urlencode($a['href'])
-                            .'&amp;auth='.$token;
-                    // ALL link targets open in a new tab
-                    $a['target'] = '_blank';
+                    $a['target'] = $target;
                     $a['class'] = 'no-pjax';
                 }
-                // Images which are external are rewritten to <div
-                // data-src='url...'/>
-                elseif ($e == 'span' && $a && isset($a['data-src']))
-                    $a['data-src'] = 'l.php?url='.urlencode($a['data-src'])
-                        .'&amp;auth='.$token;
-                // URLs for videos need to route too
-                elseif ($e == 'iframe' && $a && isset($a['src']))
-                    $a['src'] = 'l.php?url='.urlencode($a['src'])
-                        .'&amp;auth='.$token;
+
                 $at = '';
                 if (is_array($a)) {
                     foreach ($a as $k=>$v)
                         $at .= " $k=\"$v\"";
                     return "<{$e}{$at}".(isset($eE[$e])?" /":"").">";
-                }
-                else {
+                } else {
                     return "</{$e}>";
                 }
             },
@@ -430,14 +409,14 @@ class Format {
     }
 
 
-    function viewableImages($html, $script='image.php') {
+    function viewableImages($html, $script=false) {
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($script) {
             $hash = $match[1];
             if (!($file = AttachmentFile::lookup($hash)))
                 return $match[0];
-            return sprintf('"%s?h=%s" data-cid="%s"',
-                $script, $file->getDownloadHash(), $match[1]);
+            return sprintf('"%s" data-cid="%s"',
+                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
         }, $html);
     }
 

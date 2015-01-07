@@ -13,6 +13,10 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+// Use sessions — it's important for SSO authentication, which uses
+// /api/auth/ext
+define('DISABLE_SESSION', false);
+
 require 'api.inc.php';
 
 # Include the main api urls

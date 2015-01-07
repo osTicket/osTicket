@@ -37,6 +37,10 @@ $extensions = array(
             'name' => 'intl',
             'desc' => __('Highly recommended for non western european language content')
             ),
+        'fileinfo' => array(
+            'name' => 'fileinfo',
+            'desc' => __('Used to detect file types for uploads')
+            ),
         );
 
 ?>
