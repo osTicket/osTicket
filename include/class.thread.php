@@ -1415,15 +1415,18 @@ class TextThreadBody extends ThreadBody {
         if ($this->isEmpty())
             return '(empty)';
 
+        $escaped = Format::htmlchars($this->body);
         switch ($output) {
         case 'html':
+            return '<div style="white-space:pre-wrap">'
+                .Format::clickableurls($escaped).'</div>';
         case 'email':
             return '<div style="white-space:pre-wrap">'
-                .Format::htmlchars($this->body).'</div>';
+                .$escaped.'</div>';
         case 'pdf':
-            return nl2br($this->body);
+            return nl2br($escaped);
         default:
-            return '<pre>'.$this->body.'</pre>';
+            return '<pre>'.$escaped.'</pre>';
         }
     }
 }
