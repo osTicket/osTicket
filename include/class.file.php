@@ -97,9 +97,9 @@ class AttachmentFile {
         return $this->ht['key'];
     }
 
-    function getSignature() {
+    function getSignature($cascade=false) {
         $sig = $this->ht['signature'];
-        if (!$sig) return $this->getKey();
+        if (!$sig && $cascade) return $this->getKey();
         return $sig;
     }
 
@@ -153,7 +153,7 @@ class AttachmentFile {
     }
 
     function makeCacheable($ttl=86400) {
-        Http::cacheable($this->getSignature(), $this->lastModified(), $ttl);
+        Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
     function display($scale=false) {
