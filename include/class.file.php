@@ -357,7 +357,7 @@ class AttachmentFile {
                 $file['key'] = $key;
         }
 
-        if (isset($file['size'])) {
+        if (isset($file['size']) && $file['size'] > 0) {
             // Check and see if the file is already on record
             $sql = 'SELECT id, `key` FROM '.FILE_TABLE
                 .' WHERE signature='.db_input($file['signature'])
@@ -365,7 +365,7 @@ class AttachmentFile {
 
             // If the record exists in the database already, a file with the
             // same hash and size is already on file -- just return its ID
-            if (list($id, $key) = db_fetch_row(db_query($sql))) {
+            if (list($id, $key) = db_fetch_row(db_query($sql, false))) {
                 $file['key'] = $key;
                 return $id;
             }
