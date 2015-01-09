@@ -411,6 +411,10 @@ class FormField {
         return (($this->get('flags') & DynamicFormField::FLAG_EXT_STORED) == 0);
     }
 
+    function isRequired() {
+        return $this->get('required');
+    }
+
     /**
      * parse
      *
