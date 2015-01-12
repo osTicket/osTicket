@@ -2133,3 +2133,7 @@ td.indented {
    position: relative;
    top: -1px;
 }
+
+#topic-forms tbody + tbody td.handle {
+  padding-top: 15px;
+}

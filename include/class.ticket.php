@@ -526,6 +526,23 @@ class Ticket {
         return $this->ht['status_id'];
     }
 
+    /**
+     * setStatusId
+     *
+     * Forceably set the ticket status ID to the received status ID. No
+     * checks are made. Use ::setStatus() to change the ticket status
+     */
+    // XXX: Use ::setStatus to change the status. This can be used as a
+    //      fallback if the logic in ::setStatus fails.
+    function setStatusId($id) {
+        $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
+               ' ,status_id='.db_input($status->getId()) .
+               ' WHERE ticket_id='.db_input($this->getId());
+
+        if (!db_query($sql) || !db_affected_rows())
+            return false;
+    }
+
     function getStatus() {
 
         if (!$this->status && $this->getStatusId())
@@ -1076,7 +1093,7 @@ class Ticket {
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
 
-        if (!$thisstaff || !($role=$thisstaff->getRole($this->getDeptId())))
+        if ($thisstaff && !($role=$thisstaff->getRole($this->getDeptId())))
             return false;
 
         if ($status && is_numeric($status))
@@ -1085,19 +1102,21 @@ class Ticket {
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
-        // Double check permissions
-        switch ($status->getState()) {
-        case 'closed':
-            if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+        // Double check permissions (when changing status)
+        if ($role && $this->getStatusId()) {
+            switch ($status->getState()) {
+            case 'closed':
+                if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+                    return false;
+                break;
+            case 'deleted':
+                // XXX: intercept deleted status and do hard delete
+                if ($role->hasPerm(TicketModel::PERM_DELETE))
+                    return $this->delete($comments);
+                // Agent doesn't have permission to delete  tickets
                 return false;
-            break;
-        case 'deleted':
-            // XXX: intercept deleted status and do hard delete
-            if ($role->hasPerm(TicketModel::PERM_DELETE))
-                return $this->delete($comments);
-            // Agent doesn't have permission to delete  tickets
-            return false;
-            break;
+                break;
+            }
         }
 
         if ($this->getStatusId() == $status->getId())
@@ -1244,10 +1263,14 @@ class Ticket {
                 return false;  //bail out...missing stuff.
         }
 
-        $options = array(
-            'inreplyto'=>$message->getEmailMessageId(),
-            'references'=>$message->getEmailReferences(),
-            'thread'=>$message);
+        $options = array();
+        if ($message instanceof ThreadEntry) {
+            $options += array(
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references'=>$message->getEmailReferences(),
+                'thread'=>$message
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond
@@ -1275,7 +1298,7 @@ class Ticket {
 
             $recipients=$sentlist=array();
             //Exclude the auto responding email just incase it's from staff member.
-            if ($message->isAutoReply())
+            if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
             //Alert admin??
@@ -2019,7 +2042,7 @@ class Ticket {
         return $message;
     }
 
-    function postCannedReply($canned, $msgId, $alert=true) {
+    function postCannedReply($canned, $message, $alert=true) {
         global $ost, $cfg;
 
         if((!is_object($canned) && !($canned=Canned::lookup($canned))) || !$canned->isEnabled())
@@ -2036,7 +2059,7 @@ class Ticket {
             $response = new TextThreadEntryBody(
                     $this->replaceVars($canned->getPlainText()));
 
-        $info = array('msgId' => $msgId,
+        $info = array('msgId' => $message instanceof ThreadEntry ? $message->getId() : 0,
                       'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
                       'cannedattachments' => $files);
@@ -2715,15 +2738,11 @@ class Ticket {
             }
         }
 
-        if (!$form->isValid($field_filter('ticket')))
-            $errors += $form->errors();
-
         if ($vars['uid'])
             $user = User::lookup($vars['uid']);
 
         $id=0;
         $fields=array();
-        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
         switch (strtolower($origin)) {
             case 'web':
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a help topic'));
@@ -2756,11 +2775,11 @@ class Ticket {
                 $errors['duedate']=__('Due date must be in the future');
         }
 
+        $topic_forms = array();
         if (!$errors) {
 
             // Handle the forms associate with the help topics. Instanciate the
             // entries, disable and track the requested disabled fields.
-            $topic_forms = array();
             if ($vars['topicId']) {
                 if ($__topic=Topic::lookup($vars['topicId'])) {
                     foreach ($__topic->getForms() as $idx=>$__F) {
@@ -2845,6 +2864,9 @@ class Ticket {
                     $errors['user'] = __('Incomplete client information');
             }
         }
+
+        if (!$form->isValid($field_filter('ticket')))
+            $errors += $form->errors();
 
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
@@ -3053,8 +3075,12 @@ class Ticket {
         // Apply requested status — this should be done AFTER assignment,
         // because if it is requested to be closed, it should not cause the
         // ticket to be reopened for assignment.
-        if ($statusId)
-            $ticket->setStatus($statusId, false, $errors, false);
+        if ($statusId) {
+            if (!$ticket->setStatus($statusId, false, $errors, false)) {
+                // Tickets _must_ have a status. Forceably set one here
+                $ticket->setStatusId($cfg->getDefaultTicketStatusId());
+            }
+        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -3065,12 +3091,12 @@ class Ticket {
         # not have a return 'ping' message
         if (isset($vars['flags']) && $vars['flags']['bounce'])
             $autorespond = false;
-        if ($autorespond && $message->isAutoReply())
+        if ($autorespond && $message instanceof ThreadEntry && $message->isAutoReply())
             $autorespond = false;
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-            && $ticket->postCannedReply($vars['cannedResponseId'], $message->getId(), $autorespond)) {
+            && $ticket->postCannedReply($vars['cannedResponseId'], $message, $autorespond)) {
                 $ticket->markUnAnswered(); //Leave the ticket as unanswred.
                 $autorespond = false;
         }
@@ -3082,7 +3108,7 @@ class Ticket {
 
         //Don't send alerts to staff when the message is a bounce
         //  this is necessary to avoid possible loop (especially on new ticket)
-        if ($alertstaff && $message->isBounce())
+        if ($alertstaff && $message instanceof ThreadEntry && $message->isBounce())
             $alertstaff = false;
 
         /***** See if we need to send some alerts ****/
