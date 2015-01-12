@@ -337,13 +337,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <div class="hidden tab_content" id="forms">
  <table id="topic-forms" class="table" border="0" cellspacing="0" cellpadding="2">
 
-<?php foreach ($forms as $F) { ?>
+<?php
+$current_forms = array();
+foreach ($forms as $F) {
+    $current_forms[] = $F->id; ?>
     <tbody data-form-id="<?php echo $F->get('id'); ?>">
         <tr>
             <td class="handle" colspan="6">
                 <input type="hidden" name="forms[]" value="<?php echo $F->get('id'); ?>" />
                 <div class="pull-right">
-                <i class="icon-2x icon-move icon-muted"></i>
+                <i class="icon-large icon-move icon-muted"></i>
 <?php if ($F->get('type') != 'T') { ?>
                 <a href="#" title="<?php echo __('Delete'); ?>" onclick="javascript:
                 if (confirm(__('You sure?')))
@@ -352,11 +355,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     $(this).closest('form')
                         .find('[name=form_id] [value=' + tbody.data('formId') + ']')
                         .prop('disabled', false);
-                return false;"><i class="icon-2x icon-trash"></i></a>
+                return false;"><i class="icon-large icon-trash"></i></a>
 <?php } ?>
                 </div>
-                <div><strong><?php echo $F->getLocal('title'); ?></strong></div>
-                <div><?php echo $F->getLocal('instructions'); ?></div>
+                <div><strong><?php echo Format::htmlchars($F->getLocal('title')); ?></strong></div>
+                <div><?php echo Format::display($F->getLocal('instructions')); ?></div>
             </td>
         </tr>
         <tr>
@@ -402,6 +405,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
     <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $F) { ?>
         <option value="<?php echo $F->get('id'); ?>"
+           <?php if (in_array($F->id, $current_forms))
+               echo 'disabled="disabled"'; ?>
            <?php if ($F->get('id') == $info['form_id'])
                 echo 'selected="selected"'; ?>>
            <?php echo $F->getLocal('title'); ?>
@@ -448,5 +453,5 @@ $('table#topic-forms').sortable({
     ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
     return ui;
   }
-});
+}).disableSelection();
 </script>

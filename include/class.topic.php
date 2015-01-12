@@ -449,12 +449,14 @@ class Topic extends VerySimpleModel {
         };
 
         // Consider all the forms in the request
+        $current = array();
         if (is_array($form_ids = $vars['forms'])) {
             $forms = TopicFormModel::objects()
                 ->select_related('form')
                 ->filter(array('topic_id' => $this->getId()));
             foreach ($forms as $F) {
                 if (false !== ($idx = array_search($F->form_id, $form_ids))) {
+                    $current[] = $F->form_id;
                     $F->sort = $idx + 1;
                     $F->extra = JsonDataEncoder::encode(
                         array('disable' => $find_disabled($F->form))
@@ -468,6 +470,10 @@ class Topic extends VerySimpleModel {
             }
             foreach ($form_ids as $sort=>$id) {
                 if (!($form = DynamicForm::lookup($id))) {
+                    continue;
+                }
+                elseif (in_array($id, $current)) {
+                    // Don't add a form more than once
                     continue;
                 }
                 TopicFormModel::create(array(
