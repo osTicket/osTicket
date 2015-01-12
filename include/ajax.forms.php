@@ -24,13 +24,13 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'], $_GET);
         }
 
-        if ($form = $topic->getForm()) {
+        foreach ($topic->getForms() as $form) {
             ob_start();
             $form->getForm($_SESSION[':form-data'])->render(!$client);
-            $html = ob_get_clean();
+            $html .= ob_get_clean();
             ob_start();
             print $form->getMedia();
-            $media = ob_get_clean();
+            $media .= ob_get_clean();
         }
         return $this->encode(array(
             'media' => $media,
@@ -139,6 +139,24 @@ class DynamicFormsAjaxAPI extends AjaxController {
         return JsonDataEncoder::encode(
             array('id'=>$field->ajaxUpload(true))
         );
+    }
+
+    function getAllFields($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!$form = DynamicForm::lookup($id))
+            Http::response(400, 'No such form');
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/dynamic-form-fields-view.tmpl.php';
+        $html = ob_get_clean();
+
+        return $this->encode(array(
+            'success'=>true,
+            'html' => $html,
+        ));
     }
 }
 ?>

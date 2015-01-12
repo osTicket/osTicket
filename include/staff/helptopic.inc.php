@@ -10,6 +10,7 @@ if($topic && $_REQUEST['a']!='add') {
     $info['pid']=$topic->getPid();
     $trans['name'] = $topic->getTranslateTag('name');
     $qs += array('id' => $topic->getId());
+    $forms = $topic->getForms();
 } else {
     $title=__('Add New Help Topic');
     $action='create';
@@ -21,22 +22,31 @@ if($topic && $_REQUEST['a']!='add') {
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
+
+<h2 style="font-weight: normal"><?php echo $title; ?>
+    &nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i>
+    </h2>
+<?php if ($topic) { ?>
+    <div class="big"><strong><?php echo $topic->getLocal('topic'); ?></strong></div>
+<?php } ?>
+
+<br/>
+
+<ul class="tabs" id="topic-tabs">
+    <li class="active"><a href="#info"><i class="icon-info-sign"></i> Help Topic Information</a></li>
+    <li><a href="#routing"><i class="icon-ticket"></i> New ticket options</a></li>
+    <li><a href="#forms"><i class="icon-paste"></i> Forms</a></li>
+</ul>
+
 <form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Help Topic');?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th colspan="2">
-                <h4><?php echo $title; ?></h4>
-                <em><?php echo __('Help Topic Information');?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i></em>
-            </th>
-        </tr>
-    </thead>
+
+<div id="topic-tabs_container">
+<div class="tab_content" id="info">
+ <table class="table" border="0" cellspacing="0" cellpadding="2">
     <tbody>
         <tr>
             <td width="180" class="required">
@@ -53,8 +63,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Status');?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><?php echo __('Active'); ?>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled'); ?>
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>> <?php echo __('Active'); ?>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
                 &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>
@@ -63,8 +73,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Type');?>:
             </td>
             <td>
-                <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><?php echo __('Public'); ?>
-                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><?php echo __('Private/Internal'); ?>
+                <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>> <?php echo __('Public'); ?>
+                <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>> <?php echo __('Private/Internal'); ?>
                 &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
@@ -87,28 +97,26 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
 
-        <tr><th colspan="2"><em><?php echo __('New ticket options');?></em></th></tr>
-        <tr>
-            <td><strong><?php echo __('Custom Form'); ?></strong>:</td>
-           <td><select name="form_id">
-                <option value="0" <?php
-if ($info['form_id'] == '0') echo 'selected="selected"';
-                    ?>>&mdash; <?php echo __('None'); ?> &mdash;</option>
-                <option value="<?php echo Topic::FORM_USE_PARENT; ?>"  <?php
-if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
-                    ?>>&mdash; <?php echo __('Use Parent Form'); ?> &mdash;</option>
-               <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $group) { ?>
-                <option value="<?php echo $group->get('id'); ?>"
-                       <?php if ($group->get('id') == $info['form_id'])
-                            echo 'selected="selected"'; ?>>
-                       <?php echo $group->get('title'); ?>
-                   </option>
-               <?php } ?>
-               </select>
-               &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
-               <i class="help-tip icon-question-sign" href="#custom_form"></i>
-           </td>
-        </tr>
+    </tbody>
+    </table>
+
+        <div style="padding:8px 3px;border-bottom: 2px dotted #ddd;">
+            <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+            <?php echo __("be liberal, they're internal.");?>
+        </div>
+
+        <textarea class="richtext no-bar" name="notes" cols="21"
+            rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+
+</div>
+
+<div class="hidden tab_content" id="routing">
+<div style="padding:8px 0;border-bottom: 2px dotted #ddd;">
+<div><b class="big"><?php echo __('New ticket options');?></b></div>
+</div>
+
+ <table class="table" border="0" cellspacing="0" cellpadding="2">
+        <tbody>
         <tr>
             <td width="180" class="required">
                 <?php echo __('Department'); ?>:
@@ -127,6 +135,62 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                 <i class="help-tip icon-question-sign" href="#department"></i>
             </td>
         </tr>
+        <tr class="border">
+            <td>
+                <?php echo __('Ticket Number Format'); ?>:
+            </td>
+            <td>
+                <label>
+                <input type="radio" name="custom-numbers" value="0" <?php echo !$info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').hide();"> <?php echo __('System Default'); ?>
+                </label>&nbsp;<label>
+                <input type="radio" name="custom-numbers" value="1" <?php echo $info['custom-numbers']?'checked="checked"':''; ?>
+                    onchange="javascript:$('#custom-numbers').show(200);"> <?php echo __('Custom'); ?>
+                </label>&nbsp; <i class="help-tip icon-question-sign" href="#custom_numbers"></i>
+            </td>
+        </tr>
+    </tbody>
+    <tbody id="custom-numbers" style="<?php if (!$info['custom-numbers']) echo 'display:none'; ?>">
+        <tr>
+            <td style="padding-left:20px">
+                <?php echo __('Format'); ?>:
+            </td>
+            <td>
+                <input type="text" name="number_format" value="<?php echo $info['number_format']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
+                    if ($info['custom-numbers']) {
+                        if ($info['sequence_id'])
+                            $seq = Sequence::lookup($info['sequence_id']);
+                        if (!isset($seq))
+                            $seq = new RandomSequence();
+                        echo $seq->current($info['number_format']);
+                    } ?></span></span>
+                <div class="error"><?php echo $errors['number_format']; ?></div>
+            </td>
+        </tr>
+        <tr>
+<?php $selected = 'selected="selected"'; ?>
+            <td style="padding-left:20px">
+                <?php echo __('Sequence'); ?>:
+            </td>
+            <td>
+                <select name="sequence_id">
+                <option value="0" <?php if ($info['sequence_id'] == 0) echo $selected;
+                    ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
+<?php foreach (Sequence::objects() as $s) { ?>
+                <option value="<?php echo $s->id; ?>" <?php
+                    if ($info['sequence_id'] == $s->id) echo $selected;
+                    ?>><?php echo $s->name; ?></option>
+<?php } ?>
+                </select>
+                <button class="action-button pull-right" onclick="javascript:
+                $.dialog('ajax.php/sequence/manage', 205);
+                return false;
+                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
         <tr>
             <td width="180">
                 <?php echo __('Status'); ?>:
@@ -266,75 +330,90 @@ if ($info['form_id'] == Topic::FORM_USE_PARENT) echo 'selected="selected"';
                     <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
-        <tr>
-            <td>
-                <?php echo __('Ticket Number Format'); ?>:
-            </td>
-            <td>
-                <label>
-                <input type="radio" name="custom-numbers" value="0" <?php echo !$info['custom-numbers']?'checked="checked"':''; ?>
-                    onchange="javascript:$('#custom-numbers').hide();"> <?php echo __('System Default'); ?>
-                </label>&nbsp;<label>
-                <input type="radio" name="custom-numbers" value="1" <?php echo $info['custom-numbers']?'checked="checked"':''; ?>
-                    onchange="javascript:$('#custom-numbers').show(200);"> <?php echo __('Custom'); ?>
-                </label>&nbsp; <i class="help-tip icon-question-sign" href="#custom_numbers"></i>
-            </td>
-        </tr>
     </tbody>
-    <tbody id="custom-numbers" style="<?php if (!$info['custom-numbers']) echo 'display:none'; ?>">
+ </table>
+</div>
+
+<div class="hidden tab_content" id="forms">
+ <table id="topic-forms" class="table" border="0" cellspacing="0" cellpadding="2">
+
+<?php foreach ($forms as $F) { ?>
+    <tbody data-form-id="<?php echo $F->get('id'); ?>">
         <tr>
-            <td style="padding-left:20px">
-                <?php echo __('Format'); ?>:
-            </td>
-            <td>
-                <input type="text" name="number_format" value="<?php echo $info['number_format']; ?>"/>
-                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
-                    if ($info['custom-numbers']) {
-                        if ($info['sequence_id'])
-                            $seq = Sequence::lookup($info['sequence_id']);
-                        if (!isset($seq))
-                            $seq = new RandomSequence();
-                        echo $seq->current($info['number_format']);
-                    } ?></span></span>
-                <div class="error"><?php echo $errors['number_format']; ?></div>
-            </td>
-        </tr>
-        <tr>
-<?php $selected = 'selected="selected"'; ?>
-            <td style="padding-left:20px">
-                <?php echo __('Sequence'); ?>:
-            </td>
-            <td>
-                <select name="sequence_id">
-                <option value="0" <?php if ($info['sequence_id'] == 0) echo $selected;
-                    ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
-<?php foreach (Sequence::objects() as $s) { ?>
-                <option value="<?php echo $s->id; ?>" <?php
-                    if ($info['sequence_id'] == $s->id) echo $selected;
-                    ?>><?php echo $s->name; ?></option>
+            <td class="handle" colspan="6">
+                <input type="hidden" name="forms[]" value="<?php echo $F->get('id'); ?>" />
+                <div class="pull-right">
+                <i class="icon-2x icon-move icon-muted"></i>
+<?php if ($F->get('type') != 'T') { ?>
+                <a href="#" title="<?php echo __('Delete'); ?>" onclick="javascript:
+                if (confirm(__('You sure?')))
+                    var tbody = $(this).closest('tbody');
+                    tbody.fadeOut(function(){this.remove()});
+                    $(this).closest('form')
+                        .find('[name=form_id] [value=' + tbody.data('formId') + ']')
+                        .prop('disabled', false);
+                return false;"><i class="icon-2x icon-trash"></i></a>
 <?php } ?>
-                </select>
-                <button class="action-button pull-right" onclick="javascript:
-                $.dialog('ajax.php/sequence/manage', 205);
-                return false;
-                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
+                </div>
+                <div><strong><?php echo $F->getLocal('title'); ?></strong></div>
+                <div><?php echo $F->getLocal('instructions'); ?></div>
             </td>
         </tr>
-    </tbody>
-    <tbody>
         <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal.");?></em>
-            </th>
+            <th><?php echo __('Enable'); ?></th>
+            <th><?php echo __('Label'); ?></th>
+            <th><?php echo __('Type'); ?></th>
+            <th><?php echo __('Visibility'); ?></th>
+            <th><?php echo __('Variable'); ?></th>
         </tr>
+    <?php
+        foreach ($F->getFields() as $f) { ?>
         <tr>
-            <td colspan=2>
-                <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
-            </td>
+            <td><input type="checkbox" name="fields[]" value="<?php
+                echo $f->get('id'); ?>" <?php
+                if ($f->isEnabled()) echo 'checked="checked"'; ?>/></td>
+            <td><?php echo $f->get('label'); ?></td>
+            <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
+            <td><?php echo $f->getVisibilityDescription(); ?></td>
+            <td><?php echo $f->get('name'); ?></td>
         </tr>
+        <?php } ?>
     </tbody>
-</table>
+    <?php } ?>
+ </table>
+
+   <br/>
+   <strong><?php echo __('Add Custom Form'); ?></strong>:
+   <select name="form_id" onchange="javascript:
+    event.preventDefault();
+    var $this = $(this),
+        val = $this.val();
+    if (!val) return;
+    $.ajax({
+        url: 'ajax.php/form/' + val + '/fields/view',
+        dataType: 'json',
+        success: function(json) {
+            if (json.success) {
+                $(json.html).appendTo('#topic-forms').effect('highlight');
+                $this.find(':selected').prop('disabled', true);
+            }
+        }
+    });">
+    <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
+    <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $F) { ?>
+        <option value="<?php echo $F->get('id'); ?>"
+           <?php if ($F->get('id') == $info['form_id'])
+                echo 'selected="selected"'; ?>>
+           <?php echo $F->getLocal('title'); ?>
+        </option>
+    <?php } ?>
+   </select>
+   &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
+   <i class="help-tip icon-question-sign" href="#custom_form"></i>
+</div>
+
+</div>
+
 <p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
@@ -354,5 +433,20 @@ $(function() {
     };
     $('[name=sequence_id]').on('change', update_example);
     $('[name=number_format]').on('keyup', update_example);
+});
+$('table#topic-forms').sortable({
+  items: 'tbody',
+  handle: 'td.handle',
+  tolerance: 'pointer',
+  forcePlaceholderSize: true,
+  helper: function(e, ui) {
+    ui.children().each(function() {
+      $(this).children().each(function() {
+        $(this).width($(this).width());
+      });
+    });
+    ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
+    return ui;
+  }
 });
 </script>

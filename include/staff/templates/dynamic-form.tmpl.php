@@ -38,6 +38,8 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     }
     foreach ($form->getFields() as $field) {
         try {
+            if (!$field->isEnabled())
+                continue;
             if ($options['mode'] == 'edit' && !$field->isEditableToStaff())
                 continue;
         }

@@ -1076,7 +1076,7 @@ class Ticket {
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
 
-        if (!$thisstaff || !($role=$thisstaff->getRole($this->getDeptId())))
+        if ($thisstaff && !($role=$thisstaff->getRole($this->getDeptId())))
             return false;
 
         if ($status && is_numeric($status))
@@ -1085,19 +1085,21 @@ class Ticket {
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
-        // Double check permissions
-        switch ($status->getState()) {
-        case 'closed':
-            if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+        // Double check permissions (when changing status)
+        if ($this->getStatusId()) {
+            switch ($status->getState()) {
+            case 'closed':
+                if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+                    return false;
+                break;
+            case 'deleted':
+                // XXX: intercept deleted status and do hard delete
+                if ($role->hasPerm(TicketModel::PERM_DELETE))
+                    return $this->delete($comments);
+                // Agent doesn't have permission to delete  tickets
                 return false;
-            break;
-        case 'deleted':
-            // XXX: intercept deleted status and do hard delete
-            if ($role->hasPerm(TicketModel::PERM_DELETE))
-                return $this->delete($comments);
-            // Agent doesn't have permission to delete  tickets
-            return false;
-            break;
+                break;
+            }
         }
 
         if ($this->getStatusId() == $status->getId())
@@ -1244,10 +1246,14 @@ class Ticket {
                 return false;  //bail out...missing stuff.
         }
 
-        $options = array(
-            'inreplyto'=>$message->getEmailMessageId(),
-            'references'=>$message->getEmailReferences(),
-            'thread'=>$message);
+        $options = array();
+        if ($message instanceof ThreadEntry) {
+            $options += array(
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references'=>$message->getEmailReferences(),
+                'thread'=>$message
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond
@@ -1275,7 +1281,7 @@ class Ticket {
 
             $recipients=$sentlist=array();
             //Exclude the auto responding email just incase it's from staff member.
-            if ($message->isAutoReply())
+            if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
             //Alert admin??
@@ -2019,7 +2025,7 @@ class Ticket {
         return $message;
     }
 
-    function postCannedReply($canned, $msgId, $alert=true) {
+    function postCannedReply($canned, $message, $alert=true) {
         global $ost, $cfg;
 
         if((!is_object($canned) && !($canned=Canned::lookup($canned))) || !$canned->isEnabled())
@@ -2036,7 +2042,7 @@ class Ticket {
             $response = new TextThreadEntryBody(
                     $this->replaceVars($canned->getPlainText()));
 
-        $info = array('msgId' => $msgId,
+        $info = array('msgId' => $message instanceof ThreadEntry ? $message->getId() : 0,
                       'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
                       'cannedattachments' => $files);
@@ -2715,15 +2721,11 @@ class Ticket {
             }
         }
 
-        if (!$form->isValid($field_filter('ticket')))
-            $errors += $form->errors();
-
         if ($vars['uid'])
             $user = User::lookup($vars['uid']);
 
         $id=0;
         $fields=array();
-        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
         switch (strtolower($origin)) {
             case 'web':
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a help topic'));
@@ -2756,22 +2758,45 @@ class Ticket {
                 $errors['duedate']=__('Due date must be in the future');
         }
 
+        $topic_forms = array();
         if (!$errors) {
 
-            # Perform ticket filter actions on the new ticket arguments
-            $__form = null;
+            // Handle the forms associate with the help topics. Instanciate the
+            // entries, disable and track the requested disabled fields.
             if ($vars['topicId']) {
-                if (($__topic=Topic::lookup($vars['topicId']))
-                    && ($__form = $__topic->getForm())
-                ) {
-                    $__form = $__form->instanciate();
-                    $__form->setSource($vars);
+                if ($__topic=Topic::lookup($vars['topicId'])) {
+                    foreach ($__topic->getForms() as $idx=>$__F) {
+                        $disabled = array();
+                        foreach ($__F->getFields() as $field) {
+                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                                $disabled[] = $field->get('id');
+                        }
+                        // Special handling for the ticket form — disable fields
+                        // requested to be disabled as per the help topic.
+                        if ($__F->get('type') == 'T') {
+                            foreach ($form->getFields() as $field) {
+                                if (false !== array_search($field->get('id'), $disabled))
+                                    $field->disable();
+                            }
+                            $form->sort = $idx;
+                            $__F = $form;
+                        }
+                        else {
+                            $__F = $__F->instanciate($idx);
+                            $__F->setSource($vars);
+                            $topic_forms[] = $__F;
+                        }
+                        // Track fields currently disabled
+                        $__F->extra = JsonDataEncoder::encode(array(
+                            'disable' => $disabled
+                        ));
+                    }
                 }
             }
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
-                    array($form, $__form), $user);
+                    array_merge(array($form), $topic_forms), $user);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
@@ -2823,12 +2848,13 @@ class Ticket {
             }
         }
 
+        if (!$form->isValid($field_filter('ticket')))
+            $errors += $form->errors();
+
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
-                if ($topic_form = $topic->getForm()) {
-                    $TF = $topic_form->getForm($vars);
-                    $topic_form = $topic_form->instanciate();
-                    $topic_form->setSource($vars);
+                foreach ($topic_forms as $topic_form) {
+                    $TF = $topic_form->getForm()->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }
@@ -2972,7 +2998,7 @@ class Ticket {
         $form->save();
 
         // Save the form data from the help-topic form, if any
-        if ($topic_form) {
+        foreach ($topic_forms as $topic_form) {
             $topic_form->setTicketId($id);
             $topic_form->save();
         }
@@ -3044,12 +3070,12 @@ class Ticket {
         # not have a return 'ping' message
         if (isset($vars['flags']) && $vars['flags']['bounce'])
             $autorespond = false;
-        if ($autorespond && $message->isAutoReply())
+        if ($autorespond && $message instanceof ThreadEntry && $message->isAutoReply())
             $autorespond = false;
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-            && $ticket->postCannedReply($vars['cannedResponseId'], $message->getId(), $autorespond)) {
+            && $ticket->postCannedReply($vars['cannedResponseId'], $message, $autorespond)) {
                 $ticket->markUnAnswered(); //Leave the ticket as unanswred.
                 $autorespond = false;
         }
@@ -3061,7 +3087,7 @@ class Ticket {
 
         //Don't send alerts to staff when the message is a bounce
         //  this is necessary to avoid possible loop (especially on new ticket)
-        if ($alertstaff && $message->isBounce())
+        if ($alertstaff && $message instanceof ThreadEntry && $message->isBounce())
             $alertstaff = false;
 
         /***** See if we need to send some alerts ****/

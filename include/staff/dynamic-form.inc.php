@@ -7,9 +7,20 @@ if($form && $_REQUEST['a']!='add') {
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text=__('Save Changes');
     $info = $form->ht;
-    $trans['title'] = $form->getTranslateTag('title');
-    $trans['instructions'] = $form->getTranslateTag('instructions');
+    $trans = array(
+        'title' => $form->getTranslateTag('title'),
+        'instructions' => $form->getTranslateTag('instructions'),
+    );
     $newcount=2;
+    $translations = CustomDataTranslation::allTranslations($trans, 'phrase');
+    $_keys = array_flip($trans);
+    foreach ($translations as $t) {
+        if (!Internationalization::isLanguageInstalled($t->lang))
+            continue;
+        // Create keys of [trans][de_DE][title] for instance
+        $info['trans'][$t->lang][$_keys[$t->object_hash]]
+            = Format::viewableImages($t->text);
+    }
 } else {
     $title = __('Add new custom form section');
     $action = 'add';
@@ -39,23 +50,65 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </thead>
     <tbody style="vertical-align:top">
         <tr>
-            <td width="180" class="required"><?php echo __('Title'); ?>:</td>
-            <td><input type="text" name="title" size="40"
-                data-translate-tag="<?php echo $trans['title']; ?>"
+            <td colspan="2">
+    <table class="full-width"><tbody><tr><td style="vertical-align:top">
+<?php
+$langs = Internationalization::getConfiguredSystemLanguages();
+if ($form && count($langs) > 1) { ?>
+    <ul class="vertical tabs" id="translations">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $tag=>$nfo) { ?>
+    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>"><a href="#translation-<?php echo $tag; ?>" title="<?php
+        echo Internationalization::getLanguageDescription($tag);
+    ?>"><span class="flag flag-<?php echo strtolower($nfo['flag']); ?>"></span>
+    </a></li>
+<?php } ?>
+    </ul>
+<?php
+} ?>
+    </td>
+    <td id="translations_container">
+        <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content"
+            lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
+            <div class="required"><?php echo __('Title'); ?>:</div>
+            <div>
+            <input type="text" name="title" size="60"
                 value="<?php echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
-                <font class="error"><?php
-                    if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Instructions'); ?>:</td>
-            <td><textarea name="instructions" rows="3" cols="40"
-                data-translate-tag="<?php echo $trans['instructions']; ?>"><?php
-                echo $info['instructions']; ?></textarea>
+                <div class="error"><?php
+                    if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></div>
+            </div>
+            <div style="margin-top: 8px"><?php echo __('Instructions'); ?>:
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
-            </td>
-        </tr>
+                </div>
+            <textarea name="instructions" rows="3" cols="40" class="richtext"><?php
+                echo $info['instructions']; ?></textarea>
+        </div>
+
+<?php if ($langs && $form) {
+    foreach ($langs as $tag=>$nfo) {
+        if ($tag == $cfg->getPrimaryLanguage())
+            continue; ?>
+        <div id="translation-<?php echo $tag; ?>" class="tab_content"
+            style="display:none;" lang="<?php echo $tag; ?>">
+        <div>
+            <div class="required"><?php echo __('Title'); ?>:</div>
+            <input type="text" name="trans[<?php echo $tag; ?>][title]" size="60"
+                value="<?php echo $info['trans'][$tag]['title']; ?>"/>
+                <i class="help-tip icon-question-sign" href="#form_title"></i>
+        </div>
+        <div style="margin-top: 8px"><?php echo __('Instructions'); ?>:
+            <i class="help-tip icon-question-sign" href="#form_instructions"></i>
+            </div>
+        <textarea name="trans[<?php echo $tag; ?>][instructions]" cols="21" rows="12"
+            style="width:100%" class="richtext"><?php
+            echo $info['trans'][$tag]['instructions']; ?></textarea>
+        </div>
+<?php }
+} ?>
+    </td></tr></tbody></table>
+        </td></tr>
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
