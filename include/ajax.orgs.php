@@ -184,7 +184,8 @@ class OrgsAjaxAPI extends AjaxController {
         );
 
         if ($_POST) {
-            $status = User::importFromPost($_POST['pasted']);
+            $status = User::importFromPost($_POST['pasted'],
+                array('org_id'=>$org_id));
             if (is_string($status))
                 $info['error'] = $status;
             else
