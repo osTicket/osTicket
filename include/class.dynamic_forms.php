@@ -101,8 +101,8 @@ class DynamicForm extends VerySimpleModel {
     }
 
 
-    function getTitle() { return $this->get('title'); }
-    function getInstructions() { return $this->get('instructions'); }
+    function getTitle() { return $this->getLocal('title'); }
+    function getInstructions() { return $this->getLocal('instructions'); }
 
     function getForm($source=false) {
         if (!$this->_form || $source) {
@@ -151,7 +151,9 @@ class DynamicForm extends VerySimpleModel {
             $this->set('updated', new SqlFunction('NOW'));
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
-        return parent::save($refetch);
+        if ($rv = parent::save($refetch | $this->dirty))
+            return $this->saveTranslations();
+        return $rv;
     }
 
     function delete() {
@@ -195,6 +197,53 @@ class DynamicForm extends VerySimpleModel {
         return $inst;
     }
 
+    function saveTranslations($vars=false) {
+        global $thisstaff;
+
+        $vars = $vars ?: $_POST;
+        $tags = array(
+            'title' => $this->getTranslateTag('title'),
+            'instructions' => $this->getTranslateTag('instructions'),
+        );
+        $rtags = array_flip($tags);
+        $translations = CustomDataTranslation::allTranslations($tags, 'phrase');
+        foreach ($translations as $t) {
+            $T = $rtags[$t->object_hash];
+            $content = @$vars['trans'][$t->lang][$T];
+            if (!isset($content))
+                continue;
+
+            // Content is not new and shouldn't be added below
+            unset($vars['trans'][$t->lang][$T]);
+
+            $t->text = $content;
+            $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
+            if (!$t->save())
+                return false;
+        }
+        // New translations (?)
+        foreach ($vars['trans'] as $lang=>$parts) {
+            if (!Internationalization::isLanguageInstalled($lang))
+                continue;
+            foreach ($parts as $T => $content) {
+                $content = trim($content);
+                if (!$content)
+                    continue;
+                $t = CustomDataTranslation::create(array(
+                    'type'      => 'phrase',
+                    'object_hash' => $tags[$T],
+                    'lang'      => $lang,
+                    'text'      => $content,
+                    'agent_id'  => $thisstaff->getId(),
+                    'updated'   => SqlFunction::NOW(),
+                ));
+                if (!$t->save())
+                    return false;
+            }
+        }
+        return true;
+    }
 
 
     static function getCrossTabQuery($object_type, $object_id='object_id', $exclude=array()) {
@@ -709,10 +758,10 @@ class DynamicFormField extends VerySimpleModel {
         $this->save();
     }
 
-    function save() {
+    function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        return parent::save();
+        return parent::save($this->dirty || $refetch);
     }
 
     static function create($ht=false) {

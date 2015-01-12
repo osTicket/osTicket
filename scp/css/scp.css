@@ -632,10 +632,16 @@ table.fixed {
     border-collapse: collapse;
     width: 100%;
 }
-table.fixed td {
+table.fixed > thead > tr > th,
+table.fixed > thead > tr > td,
+table.fixed > tbody > tr > td,
+table.fixed > tr > td {
     width: 180px;
 }
-table.fixed td + td {
+table.fixed > thead > tr > th + th,
+table.fixed > thead > tr > td + td,
+table.fixed > tbody > tr > td + td,
+table.fixed > tr > td + td {
     width: auto;
 }
 
