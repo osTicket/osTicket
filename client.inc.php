@@ -48,7 +48,8 @@ $nav=null;
 $thisclient = UserAuthenticationBackend::getUser();
 
 if (isset($_GET['lang']) && $_GET['lang']) {
-    $_SESSION['client:lang'] = $_GET['lang'];
+    if (Internationalization::getLanguageInfo($_GET['lang']))
+        $_SESSION['client:lang'] = $_GET['lang'];
 }
 
 // Bootstrap gettext translations as early as possible, but after attempting
