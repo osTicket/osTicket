@@ -171,16 +171,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 echo __('Can be overwridden by other filters depending on processing order.');?>&nbsp;</em>
             </th>
         </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Reject Ticket');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="reject_ticket" value="1" <?php echo $info['reject_ticket']?'checked="checked"':''; ?> >
-                    <strong><font class="error"><?php echo __('Reject Ticket');?></font></strong>
-                    &nbsp;<i class="help-tip icon-question-sign" href="#reject_ticket"></i>
-            </td>
-        </tr>
     </tbody>
     <tbody id="dynamic-actions">
 <?php

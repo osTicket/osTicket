@@ -16,15 +16,15 @@
 
 require_once "class.filter.php";
 class Banlist {
-    
+
     function add($email,$submitter='') {
         return self::getSystemBanList()->addRule('email','equal',$email);
     }
-    
+
     function remove($email) {
         return self::getSystemBanList()->removeRule('email','equal',$email);
     }
-    
+
     function isbanned($email) {
         return TicketFilter::isBanned($email);
     }
@@ -49,7 +49,9 @@ class Banlist {
             'name'          => 'SYSTEM BAN LIST',
             'isactive'      => 1,
             'match_all_rules' => false,
-            'reject_ticket'  => true,
+            'actions'       => array(
+                'Nreject',
+            ),
             'rules'         => array(),
             'notes'         => __('Internal list for email banning. Do not remove')
         ), $errors);

@@ -132,6 +132,27 @@ abstract class TriggerAction {
     abstract function getConfigurationOptions();
 }
 
+class FA_RejectTicket extends TriggerAction {
+    static $type = 'reject';
+    static $name = /* trans */ 'Reject Ticket';
+
+    function apply(&$ticket, array $info) {
+        throw new RejectedException($filter, $ticket);
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            '' => new FreeTextField(array(
+                'configuration' => array(
+                    'content' => sprintf('<span style="color:red"><b>%s</b></span>',
+                        __('Reject Ticket')),
+                )
+            )),
+        );
+    }
+}
+FilterAction::register('FA_RejectTicket');
+
 class FA_UseReplyTo extends TriggerAction {
     static $type = 'replyto';
     static $name = /* trans */ 'Reply-To Email';

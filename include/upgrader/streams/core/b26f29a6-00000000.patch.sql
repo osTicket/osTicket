@@ -22,6 +22,12 @@ CREATE TABLE `%TABLE_PREFIX%filter_action` (
 
 INSERT INTO `%TABLE_PREFIX%filter_action`
     (`filter_id`, `type`, `configuration`, `updated`)
+    SELECT `id`, 'reject', '', `updated`
+    FROM `%TABLE_PREFIX%filter`
+    WHERE `reject_ticket` != 0;
+
+INSERT INTO `%TABLE_PREFIX%filter_action`
+    (`filter_id`, `type`, `configuration`, `updated`)
     SELECT `id`, 'replyto', '{"enable":true}', `updated`
     FROM `%TABLE_PREFIX%filter`
     WHERE `use_replyto_email` != 0;

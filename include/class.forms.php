@@ -2759,11 +2759,18 @@ class FreeTextField extends FormField {
 class FreeTextWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        ?><div class=""><h3><?php
-            echo Format::htmlchars($this->field->getLocal('label'));
-        ?></h3><em><?php
-            echo Format::htmlchars($this->field->getLocal('hint'));
-        ?></em><div><?php
+        ?><div class=""><?php
+        if ($label = $this->field->getLocal('label')) { ?>
+            <h3><?php
+            echo Format::htmlchars($label);
+        ?></h3><?php
+        }
+        if ($hint = $this->field->getLocal('hint')) { ?>
+        <em><?php
+            echo Format::htmlchars($hint);
+        ?></em><?php
+        } ?>
+        <div><?php
             echo Format::viewableImages($config['content']); ?></div>
         </div>
         <?php

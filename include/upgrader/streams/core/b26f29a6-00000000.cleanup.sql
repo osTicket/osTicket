@@ -1,4 +1,5 @@
 ALTER TABLE `%TABLE_PREFIX%filter`
+  DROP `reject_ticket`,
   DROP `use_replyto_email`,
   DROP `disable_autoresponder`,
   DROP `canned_response_id`,

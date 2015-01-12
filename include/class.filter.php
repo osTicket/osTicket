@@ -779,8 +779,6 @@ class TicketFilter {
      */
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            if ($filter->rejectOnMatch())
-                throw new RejectedException($filter, $ticket);
             $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
