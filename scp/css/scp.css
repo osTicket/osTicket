@@ -1490,12 +1490,12 @@ time {
     border:none;
 }
 
-.dialog .custom-field .field-label {
+.custom-field .field-label {
     margin-left: 3px;
     margin-right: 3px;
 }
-.dialog .custom-field + .custom-field {
-    margin-top: 8px;
+.custom-field + .custom-field {
+    margin-top: 5px;
 }
 .dialog label.fixed-size {
     width:100px;
@@ -2136,4 +2136,8 @@ td.indented {
 
 #topic-forms tbody + tbody td.handle {
   padding-top: 15px;
+}
+
+#dynamic-actions > tr > td {
+    padding: 5px;
 }

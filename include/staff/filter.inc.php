@@ -167,18 +167,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Filter Actions');?></strong>: <?php
-                echo __('Can be overwridden by other filters depending on processing order.');?>&nbsp;</em>
+                <em><strong><?php echo __('Filter Actions');?></strong>:
+                <div><?php
+                    echo __('Can be overwridden by other filters depending on processing order.');
+                ?><br/><?php
+                    echo __('Actions are executed in the order declared below');
+                ?></em>
             </th>
         </tr>
     </tbody>
-    <tbody id="dynamic-actions">
+    <tbody id="dynamic-actions" class="sortable-rows">
 <?php
 $existing = array();
 if ($filter) { foreach ($filter->getActions() as $A) {
     $existing[] = $A->type;
 ?>
-        <tr><td><?php echo $A->getImpl()->getName(); ?>:</td>
+        <tr style="background-color:white"><td><i class="icon-bolt icon-large icon-muted"></i>
+            <?php echo $A->getImpl()->getName(); ?>:</td>
             <td><div style="position:relative"><?php
                 $form = $A->getImpl()->getConfigurationForm($_POST ?: false);
                 // XXX: Drop this when the ORM supports proper caching
@@ -202,23 +207,34 @@ if ($filter) { foreach ($filter->getActions() as $A) {
     </tbody>
     <tbody>
         <tr>
-            <td><strong>
+            <td><strong><i class="icon-plus-sign"></i>
                 <?php echo __('Add'); ?>:
             </strong></td>
             <td>
                 <select name="new-action" id="new-action-select"
                     onchange="javascript: $('#new-action-btn').trigger('click');">
                     <option value=""><?php echo __('— Select an Action —'); ?></option>
-<?php foreach (FilterAction::allRegistered() as $type=>$name) {
-    if (in_array($type, $existing))
-        continue;
+<?php
+$current_group = '';
+foreach (FilterAction::allRegistered() as $group=>$actions) {
+    if ($group && $current_group != $group) {
+        if ($current_group) echo '</optgroup>';
+        $current_group = $group;
+        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+    }
+    foreach ($actions as $type=>$name) {
 ?>
-                    <option data-title="<?php echo $name; ?>" value="<?php echo $type; ?>"><?php echo $name; ?></option>
-<?php } ?>
+                <option data-title="<?php echo $name; ?>" value="<?php echo $type; ?>"
+                    data-multi-use="<?php echo $mu = FilterAction::lookupByType($type)->hasFlag(TriggerAction::FLAG_MULTI_USE); ?> " <?php
+                    if (in_array($type, $existing) && !$mu) echo 'disabled="disabled"';
+                ?>><?php echo $name; ?></option>
+<?php }
+} ?>
                 </select>
                 <input id="new-action-btn" type="button" value="<?php echo __('Add'); ?>"
                 onclick="javascript:
-        var selected = $('#new-action-select').find(':selected');
+        var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
+        dropdown.val('');
         $('#dynamic-actions')
           .append($('<tr></tr>')
             .append($('<td></td>')
@@ -226,7 +242,7 @@ if ($filter) { foreach ($filter->getActions() as $A) {
             ).append($('<td></td>')
               .append($('<em></em>').text(__('Loading ...')))
               .load('ajax.php/filter/action/' + selected.val() + '/config', function() {
-                selected.prop('disabled', true);
+                if (!selected.data('multiUse')) selected.prop('disabled', true);
               })
             )
           ).append(
@@ -254,3 +270,12 @@ if ($filter) { foreach ($filter->getActions() as $A) {
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="filters.php"'>
 </p>
 </form>
+<script type="text/javascript">
+   var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+          $(this).width($(this).width());
+      });
+      return ui;
+   };
+   $('#dynamic-actions').sortable({helper: fixHelper, opacity: 0.5});
+</script>

@@ -305,10 +305,15 @@ class Filter {
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $info=null) {
+    function apply(&$ticket, $vars) {
         foreach ($this->getActions() as $a) {
-            $a->apply($ticket, $info);
+            $a->setFilter($this);
+            $a->apply($ticket, $vars);
         }
+    }
+
+    function getVars() {
+        return $this->vars;
     }
 
     static function getSupportedMatches() {
@@ -537,13 +542,14 @@ class Filter {
         if (!is_array(@$vars['actions']))
             return;
 
-        foreach ($vars['actions'] as $v) {
+        foreach ($vars['actions'] as $sort=>$v) {
             $info = substr($v, 1);
             switch ($v[0]) {
             case 'N': # new filter action
                 $I = FilterAction::create(array(
                     'type'=>$info,
                     'filter_id'=>$id,
+                    'sort' => (int) $sort,
                 ));
                 $I->setConfiguration($errors, $vars);
                 $I->save();
@@ -551,6 +557,7 @@ class Filter {
             case 'I': # exiting filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
+                    $I->sort = (int) $sort;
                     $I->save();
                 }
                 break;

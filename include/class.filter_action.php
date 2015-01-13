@@ -10,12 +10,21 @@ class FilterAction extends VerySimpleModel {
     );
 
     static $registry = array();
+    static $registry_group = array();
 
     var $_impl;
     var $_config;
+    var $_filter;
 
     function getId() {
         return $this->id;
+    }
+
+    function setFilter($filter) {
+        $this->_filter = $filter;
+    }
+    function getFilter() {
+        return $this->_filter;
     }
 
     function getConfiguration() {
@@ -36,6 +45,8 @@ class FilterAction extends VerySimpleModel {
         $config = array();
         foreach ($this->getImpl()->getConfigurationForm($source ?: $_POST)
                 ->getFields() as $name=>$field) {
+            if (!$field->hasData())
+                continue;
             $config[$name] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
@@ -64,9 +75,14 @@ class FilterAction extends VerySimpleModel {
         return parent::save($refetch || $this->dirty);
     }
 
-    static function register($class, $type=false) {
-        // TODO: Check if $class implements TriggerAction
-        self::$registry[$type ?: $class::$type] = $class;
+    static function register($class, $group=false) {
+        if (!$class::$type)
+            throw new Exception('Filter actions must specify ::$type');
+        elseif (!is_subclass_of($class, 'TriggerAction'))
+            throw new Exception('Filter actions must extend from TriggerAction');
+
+        self::$registry[$class::$type] = $class;
+        self::$registry_group[$group ?: ''][$class::$type] = $class;
     }
 
     static function lookupByType($type, $thisObj=false) {
@@ -77,16 +93,26 @@ class FilterAction extends VerySimpleModel {
         return new $class($thisObj);
     }
 
-    static function allRegistered() {
+    static function allRegistered($group=false) {
         $types = array();
-        foreach (self::$registry as $type=>$class) {
-            $types[$type] = $class::getName();
+        foreach (self::$registry_group as $group=>$actions) {
+            $G = $group ? __($group) : '';
+            foreach ($actions as $type=>$class) {
+                $types[$G][$type] = __($class::getName());
+            }
         }
         return $types;
     }
 }
 
 abstract class TriggerAction {
+    static $type = false;
+    static $flags = 0;
+
+    const FLAG_MULTI_USE    = 0x0001;   // Action can be used multiple times
+
+    var $action;
+
     function __construct($action=false) {
         $this->action = $action;
     }
@@ -125,6 +151,10 @@ abstract class TriggerAction {
         return $this->_cform;
     }
 
+    function hasFlag($flag) {
+        return static::$flags & $flag > 0;
+    }
+
     static function getType() { return static::$type; }
     static function getName() { return __(static::$name); }
 
@@ -134,10 +164,10 @@ abstract class TriggerAction {
 
 class FA_RejectTicket extends TriggerAction {
     static $type = 'reject';
-    static $name = /* trans */ 'Reject Ticket';
+    static $name = /* @trans */ 'Reject Ticket';
 
     function apply(&$ticket, array $info) {
-        throw new RejectedException($filter, $ticket);
+        throw new RejectedException($this->action->getFilter(), $ticket);
     }
 
     function getConfigurationOptions() {
@@ -151,11 +181,11 @@ class FA_RejectTicket extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_RejectTicket');
+FilterAction::register('FA_RejectTicket', /* @trans */ 'Ticket');
 
 class FA_UseReplyTo extends TriggerAction {
     static $type = 'replyto';
-    static $name = /* trans */ 'Reply-To Email';
+    static $name = /* @trans */ 'Use Reply-To Email';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -168,19 +198,19 @@ class FA_UseReplyTo extends TriggerAction {
 
     function getConfigurationOptions() {
         return array(
-            'enable' => new BooleanField(array(
+            '' => new FreeTextField(array(
                 'configuration' => array(
-                    'desc' => __('Use the Reply-To email header')
+                    'content' => __('<strong>Use</strong> the Reply-To email header')
                 )
             )),
         );
     }
 }
-FilterAction::register('FA_UseReplyTo');
+FilterAction::register('FA_UseReplyTo', /* @trans */ 'Communication');
 
 class FA_DisableAutoResponse extends TriggerAction {
     static $type = 'noresp';
-    static $name = /* trans */ "Ticket auto-response";
+    static $name = /* @trans */ "Disable autoresponse";
 
     function apply(&$ticket, array $info) {
         # TODO: Disable alerting
@@ -193,19 +223,19 @@ class FA_DisableAutoResponse extends TriggerAction {
 
     function getConfigurationOptions() {
         return array(
-            'enable' => new BooleanField(array(
+            '' => new FreeTextField(array(
                 'configuration' => array(
-                    'desc' => __('<strong>Disable</strong> auto-response')
+                    'content' => __('<strong>Disable</strong> new ticket auto-response')
                 ),
             )),
         );
     }
 }
-FilterAction::register('FA_DisableAutoResponse');
+FilterAction::register('FA_DisableAutoResponse', /* @trans */ 'Communication');
 
 class FA_AutoCannedResponse extends TriggerAction {
     static $type = 'canned';
-    static $name = /* trans */ "Canned Response";
+    static $name = /* @trans */ "Attach Canned Response";
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -232,11 +262,11 @@ class FA_AutoCannedResponse extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AutoCannedResponse');
+FilterAction::register('FA_AutoCannedResponse', /* @trans */ 'Communication');
 
 class FA_RouteDepartment extends TriggerAction {
     static $type = 'dept';
-    static $name = /* trans */ 'Department';
+    static $name = /* @trans */ 'Set Department';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -245,26 +275,19 @@ class FA_RouteDepartment extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-        $choices = array();
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id,$name)=db_fetch_row($res)){
-                $choices[$id] = $name;
-            }
-        }
         return array(
             'dept_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),
-                'choices' => $choices,
+                'choices' => Dept::getDepartments(),
             )),
         );
     }
 }
-FilterAction::register('FA_RouteDepartment');
+FilterAction::register('FA_RouteDepartment', /* @trans */ 'Ticket');
 
 class FA_AssignPriority extends TriggerAction {
     static $type = 'pri';
-    static $name = /* trans */ "Priority";
+    static $name = /* @trans */ "Set Priority";
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -288,11 +311,11 @@ class FA_AssignPriority extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AssignPriority');
+FilterAction::register('FA_AssignPriority', /* @trans */ 'Ticket');
 
 class FA_AssignSLA extends TriggerAction {
     static $type = 'sla';
-    static $name = /* trans */ 'SLA Plan';
+    static $name = /* @trans */ 'Set SLA Plan';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -310,11 +333,11 @@ class FA_AssignSLA extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AssignSLA');
+FilterAction::register('FA_AssignSLA', /* @trans */ 'Ticket');
 
 class FA_AssignTeam extends TriggerAction {
     static $type = 'team';
-    static $name = /* trans */ 'Assign Team';
+    static $name = /* @trans */ 'Assign Team';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -323,15 +346,7 @@ class FA_AssignTeam extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $sql='SELECT team_id, isenabled, name FROM '.TEAM_TABLE .' ORDER BY name';
-        $choices = array();
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while (list($id, $isenabled, $name) = db_fetch_row($res)){
-                if (!$isenabled)
-                    $name .= ' '.__('(disabled)');
-                $choices[$id] = $name;
-            }
-        }
+        $choices = Team::getTeams();
         return array(
             'team_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),
@@ -340,11 +355,11 @@ class FA_AssignTeam extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AssignTeam');
+FilterAction::register('FA_AssignTeam', /* @trans */ 'Ticket');
 
 class FA_AssignAgent extends TriggerAction {
     static $type = 'agent';
-    static $name = /* trans */ 'Assign Agent';
+    static $name = /* @trans */ 'Assign Agent';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -362,11 +377,11 @@ class FA_AssignAgent extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AssignAgent');
+FilterAction::register('FA_AssignAgent', /* @trans */ 'Ticket');
 
 class FA_AssignTopic extends TriggerAction {
     static $type = 'topic';
-    static $name = /* trans */ 'Help Topic';
+    static $name = /* @trans */ 'Set Help Topic';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -384,11 +399,11 @@ class FA_AssignTopic extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_AssignTopic');
+FilterAction::register('FA_AssignTopic', /* @trans */ 'Ticket');
 
 class FA_SetStatus extends TriggerAction {
     static $type = 'status';
-    static $name = /* trans */ 'Ticket Status';
+    static $name = /* @trans */ 'Set Ticket Status';
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
@@ -413,11 +428,12 @@ class FA_SetStatus extends TriggerAction {
         );
     }
 }
-FilterAction::register('FA_SetStatus');
+FilterAction::register('FA_SetStatus', /* @trans */ 'Ticket');
 
 class FA_SendEmail extends TriggerAction {
     static $type = 'email';
-    static $name = /* trans */ 'Send an Email';
+    static $name = /* @trans */ 'Send an Email';
+    static $flags = TriggerAction::FLAG_MULTI_USE;
 
     function apply(&$ticket, array $info) {
         global $ost;
@@ -428,21 +444,50 @@ class FA_SendEmail extends TriggerAction {
         $info = $ost->replaceTemplateVariables(
             $info, array('ticket' => $ticket)
         );
-        $mailer = new Mailer();
-        $mailer->send($config['recipients'], $info['subject'], $info['message']);
+
+        // Honor FROM address settings
+        if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
+            $mailer = new Mailer();
+
+        // Honor %{user} variable
+        $to = $config['recipients'];
+        $replacer = new VariableReplacer();
+        $replacer->assign(array(
+            'user' => sprintf('%s <%s>', $ticket['name'], $ticket['email'])
+        ));
+        $to = $replacer->replaceVars($to);
+
+        $mailer->send($to, $info['subject'], $info['message']);
     }
 
     function getConfigurationOptions() {
+        $choices = array('' => __('Default System Email'));
+        $choices += EmailModel::getAddresses();
+
         return array(
             'recipients' => new TextboxField(array(
                 'label' => __('Recipients'), 'required' => true,
                 'configuration' => array(
-                    'size' => 80
+                    'size' => 80, 'length' => 1000,
                 ),
                 'validators' => function($self, $value) {
-                    if (!($q=Validator::is_email($value, true)))
+                    if (!($mails = Mail_RFC822::parseAddressList($value)) || PEAR::isError($mails))
                         $self->addError('Unable to parse address list. '
                             .'Use commas to separate addresses.');
+
+                    $valid = array('user',);
+                    foreach ($mails as $M) {
+                        // Check placeholders like '%{user}'
+                        $P = array();
+                        if (preg_match('`%\{([^}]+)\}`', $M->mailbox, $P)) {
+                            if (!in_array($P[1], $valid))
+                                $self->addError(sprintf('%s: Not a valid variable', $P[0]));
+                        }
+                        elseif ($M->host == 'localhost' || !$M->mailbox) {
+                            $self->addError(sprintf(__('%s: Not a valid email address'),
+                                $M->mailbox . '@' . $M->host));
+                        }
+                    }
                 }
             )),
             'subject' => new TextboxField(array(
@@ -457,7 +502,12 @@ class FA_SendEmail extends TriggerAction {
                     'html' => true,
                 ),
             )),
+            'from' => new ChoiceField(array(
+                'label' => __('From Email'),
+                'choices' => $choices,
+                'default' => '',
+            )),
         );
     }
 }
-FilterAction::register('FA_SendEmail');
+FilterAction::register('FA_SendEmail', /* @trans */ 'Communication');

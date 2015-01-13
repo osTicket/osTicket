@@ -263,6 +263,15 @@ if ($_POST)
         <tbody id="dynamic-form">
         <?php
             foreach ($forms as $form) {
+                $hasFields = false;
+                foreach ($form->getFields() as $f) {
+                    if ($f->isVisibleToStaff()) {
+                        $hasFields = true;
+                        break;
+                    }
+                }
+                if (!$hasFields)
+                    continue;
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
