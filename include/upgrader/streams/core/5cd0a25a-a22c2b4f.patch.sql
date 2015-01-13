@@ -1,7 +1,12 @@
 /**
- * @version v1.9.5
- * @signature 00000000000000000000000000000000
- * @title Add flexible filter actions
+ * @signature a22c2b4ff54ce5aa61e94124a73e6eac
+ * @version v1.9.6
+ * @title Make fields disable-able per help topic
+ *
+ * This patch adds the ability to associate more than one extra form with a
+ * help topic, allows specifying the sort order of each form, including the
+ * main ticket details forms, and also allows disabling any of the fields on
+ * any of the associated forms, including the issue details field.
  *
  * This patch migrates the columnar layout of the %filter table into a new
  * %filter_action table. The cleanup portion of the script will drop the old
@@ -86,7 +91,48 @@ INSERT INTO `%TABLE_PREFIX%filter_action`
     FROM `%TABLE_PREFIX%filter`
     WHERE `status_id` != 0;
 
--- Set new schema signature
+ALTER TABLE `%TABLE_PREFIX%form`
+    ADD `pid` int(10) unsigned DEFAULT NULL AFTER `id`,
+    ADD `name` varchar(64) NOT NULL DEFAULT '' AFTER `instructions`;
+
+ALTER TABLE `%TABLE_PREFIX%form_entry`
+    ADD `extra` text AFTER `sort`;
+
+CREATE TABLE `%TABLE_PREFIX%help_topic_form` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `topic_id` int(11) unsigned NOT NULL default 0,
+  `form_id` int(10) unsigned NOT NULL default 0,
+  `sort` int(10) unsigned NOT NULL default 1,
+  `extra` text,
+  PRIMARY KEY  (`topic_id`, `form_id`)
+) DEFAULT CHARSET=utf8;
+
+-- Handle A4 / A3 / A2 / A1 help topics. For these, consider the forms
+-- associated with each, which should sort above the ticket details form, as
+-- the graphical interface rendered it suchly. Then, consider cascaded
+-- forms, where the parent form was specified on a child.
+insert into `%TABLE_PREFIX%help_topic_form`
+    (`topic_id`, `form_id`, `sort`)
+    select A1.topic_id, case
+        when A3.form_id = 4294967295 then A4.form_id
+        when A2.form_id = 4294967295 then A3.form_id
+        when A1.form_id = 4294967295 then A2.form_id
+        else COALESCE(A4.form_id, A3.form_id, A2.form_id, A1.form_id) end as form_id, 1 as `sort`
+    from `%TABLE_PREFIX%help_topic` A1
+    left join `%TABLE_PREFIX%help_topic` A2 on (A2.topic_id = A1.topic_pid)
+    left join `%TABLE_PREFIX%help_topic` A3 on (A3.topic_id = A2.topic_pid)
+    left join `%TABLE_PREFIX%help_topic` A4 on (A4.topic_id = A3.topic_pid)
+    having `form_id` > 0
+    union
+    select A2.topic_id, id as `form_id`, 2 as `sort`
+    from `%TABLE_PREFIX%form` A1
+    join `%TABLE_PREFIX%help_topic` A2
+    where A1.`type` = 'T';
+
+ALTER TABLE `%TABLE_PREFIX%help_topic`
+    DROP `form_id` int(10) unsigned NOT NULL default '0';
+
+-- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = 'a22c2b4ff54ce5aa61e94124a73e6eac'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
