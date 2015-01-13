@@ -47,7 +47,7 @@ sla:
         Service Level Agreement for tickets routed to this Department.
     links:
       - title: Manage SLA Plans
-        href: /scp/slaplans.php
+        href: /scp/slas.php
 
 manager:
     title: Department Manager
