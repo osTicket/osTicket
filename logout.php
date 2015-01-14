@@ -19,6 +19,11 @@ require('client.inc.php');
 if ($thisclient && $_GET['auth'] && $ost->validateLinkToken($_GET['auth']))
    $thisclient->logOut();
 
+setcookie(session_name(), 'deleted', 1,
+    ini_get('session.cookie_path'),
+    ini_get('session.cookie_domain'),
+    ini_get('session.cookie_secure'),
+    ini_get('session.cookie_httponly'));
 
 Http::redirect('index.php');
 ?>
