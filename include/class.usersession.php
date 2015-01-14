@@ -133,6 +133,8 @@ class ClientSession extends EndUser {
     }
 
     function refreshSession($force=false){
+        global $cfg;
+
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
@@ -140,6 +142,13 @@ class ClientSession extends EndUser {
 
         $this->token = $this->getSessionToken();
         //TODO: separate expire time from hash??
+
+        setcookie(session_name(), session_id(),
+            ($time ?: time()) + ($cfg->getClientTimeout() ?: 604800),
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
     }
 
     function getSession() {
@@ -177,12 +186,21 @@ class StaffSession extends Staff {
     }
 
     function refreshSession($force=false){
+        global $cfg;
+
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
             return;
 
         $this->token=$this->getSessionToken();
+
+        setcookie(session_name(), session_id(),
+            ($time ?: time()) + ($cfg->getStaffTimeout() ?: 604800),
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
     }
 
     function getSession() {

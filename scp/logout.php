@@ -31,6 +31,12 @@ TicketLock::removeStaffLocks($thisstaff->getId());
 session_unset();
 session_destroy();
 
+setcookie(session_name(), 'deleted', 1,
+    ini_get('session.cookie_path'),
+    ini_get('session.cookie_domain'),
+    ini_get('session.cookie_secure'),
+    ini_get('session.cookie_httponly'));
+
 @header('Location: login.php');
 require('login.php');
 ?>
