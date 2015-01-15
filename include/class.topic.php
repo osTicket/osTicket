@@ -52,11 +52,15 @@ class Topic extends VerySimpleModel {
                     'priority_id' => 'Priority.priority_id',
                 ),
             ),
+            'forms' => array(
+                'reverse' => 'TopicFormModel.topic',
+                'null' => true,
+            ),
         ),
     );
 
     var $page;
-    var $form;
+    var $_forms;
 
     const DISPLAY_DISABLED = 2;
 
@@ -129,19 +133,15 @@ class Topic extends VerySimpleModel {
         return $this->page;
     }
 
-    function getFormId() {
-        return $this->form_id;
-    }
-
-    function getForm() {
-        $id = $this->getFormId();
-
-        if ($id == self::FORM_USE_PARENT && ($p = $this->getParent()))
-            $this->form = $p->getForm();
-        elseif ($id && !$this->form)
-            $this->form = DynamicForm::lookup($id);
-
-        return $this->form;
+    function getForms() {
+        if (!isset($this->_forms)) {
+            foreach ($this->forms->select_related('form') as $F) {
+                $extra = JsonDataParser::decode($F->extra) ?: array();
+                $F->form->disableFields($extra['disable'] ?: array());
+                $this->_forms[] = $F->form;
+            }
+        }
+        return $this->_forms;
     }
 
     function autoRespond() {
@@ -426,10 +426,67 @@ class Topic extends VerySimpleModel {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this help topic'))
             .' '.__('Internal error occurred');
         }
-        if (!$cfg || $cfg->getTopicSortMode() == 'a') {
-            static::updateSortOrder();
+        if ($rv) {
+            if (!$cfg || $cfg->getTopicSortMode() == 'a') {
+                static::updateSortOrder();
+            }
+            $this->updateForms($vars, $errors);
         }
         return $rv;
+    }
+
+    function updateForms($vars, &$errors) {
+        $find_disabled = function($form) use ($vars) {
+            $fields = $vars['fields'];
+            $disabled = array();
+            foreach ($form->fields->values_flat('id') as $row) {
+                list($id) = $row;
+                if (false === ($idx = array_search($id, $fields))) {
+                    $disabled[] = $id;
+                }
+            }
+            return $disabled;
+        };
+
+        // Consider all the forms in the request
+        $current = array();
+        if (is_array($form_ids = $vars['forms'])) {
+            $forms = TopicFormModel::objects()
+                ->select_related('form')
+                ->filter(array('topic_id' => $this->getId()));
+            foreach ($forms as $F) {
+                if (false !== ($idx = array_search($F->form_id, $form_ids))) {
+                    $current[] = $F->form_id;
+                    $F->sort = $idx + 1;
+                    $F->extra = JsonDataEncoder::encode(
+                        array('disable' => $find_disabled($F->form))
+                    );
+                    $F->save();
+                    unset($form_ids[$idx]);
+                }
+                elseif ($F->form->get('type') != 'T') {
+                    $F->delete();
+                }
+            }
+            foreach ($form_ids as $sort=>$id) {
+                if (!($form = DynamicForm::lookup($id))) {
+                    continue;
+                }
+                elseif (in_array($id, $current)) {
+                    // Don't add a form more than once
+                    continue;
+                }
+                TopicFormModel::create(array(
+                    'topic_id' => $this->getId(),
+                    'form_id' => $id,
+                    'sort' => $sort + 1,
+                    'extra' => JsonDataEncoder::encode(
+                        array('disable' => $find_disabled($form))
+                    )
+                ))->save();
+            }
+        }
+        return true;
     }
 
     function save($refetch=false) {
@@ -473,3 +530,19 @@ class Topic extends VerySimpleModel {
 
 // Add fields from the standard ticket form to the ticket filterable fields
 Filter::addSupportedMatches(/* @trans */ 'Help Topic', array('topicId' => 'Topic ID'), 100);
+
+class TopicFormModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TOPIC_FORM_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('sort'),
+        'joins' => array(
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+            ),
+            'form' => array(
+                'constraint' => array('form_id' => 'DynamicForm.id'),
+            ),
+        ),
+    );
+}

@@ -116,6 +116,7 @@ class Bootstrap {
         define('FORM_ANSWER_TABLE',$prefix.'form_entry_values');
 
         define('TOPIC_TABLE',$prefix.'help_topic');
+        define('TOPIC_FORM_TABLE',$prefix.'help_topic_form');
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');
@@ -124,6 +125,7 @@ class Bootstrap {
 
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
+        define('FILTER_ACTION_TABLE', $prefix.'filter_action');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');

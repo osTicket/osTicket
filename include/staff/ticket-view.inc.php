@@ -466,7 +466,7 @@ $tcount+= $ticket->getNumNotes();
             $msgId = $entry['id'];
        }
     } else {
-        echo '<p>'.__('Error fetching ticket thread - get technical help.').'</p>';
+        echo '<p><em>'.__('No entries have been posted to this ticket.').'</em></p>';
     }?>
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>

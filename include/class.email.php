@@ -59,6 +59,19 @@ class EmailModel extends VerySimpleModel {
     static function getPermissions() {
         return self::$perms;
     }
+
+    static function getAddresses($options=array()) {
+        $objects = static::objects();
+        if ($options['smtp'])
+            $objects = $objects->filter(array('smtp_active'=>true));
+
+        $addresses = array();
+        foreach ($objects->values_flat('email_id', 'email') as $row) {
+            list($id, $email) = $row;
+            $addresses[$id] = $email;
+        }
+        return $addresses;
+    }
 }
 
 RolePermission::register(/* @trans */ 'Miscellaneous', EmailModel::getPermissions());

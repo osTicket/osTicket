@@ -20,8 +20,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <?php } ?>
 <?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
-        <em><strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
-        <?php echo Format::htmlchars($form->getInstructions()); ?>
+        <em>
 <?php if ($options['mode'] == 'edit') { ?>
         <div class="pull-right">
     <?php if ($options['entry']
@@ -32,12 +31,17 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     <?php } ?>
             <i class="icon-sort" title="Drag to Sort"></i>
         </div>
-<?php } ?></em>
+<?php } ?>
+        <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
+        <div><?php echo Format::display($form->getInstructions()); ?></div>
+        </em>
     </th></tr>
     <?php
     }
     foreach ($form->getFields() as $field) {
         try {
+            if (!$field->isEnabled())
+                continue;
             if ($options['mode'] == 'edit' && !$field->isEditableToStaff())
                 continue;
         }

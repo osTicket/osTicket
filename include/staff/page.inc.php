@@ -116,10 +116,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
                 </ul>
     <div class="tab_content active" id="content">
+<table class="full-width"><tbody><tr><td style="vertical-align:top">
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if ($page && count($langs) > 1) { ?>
-    <ul class="vertical left tabs">
+    <ul class="vertical tabs" id="translations">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$nfo) { ?>
     <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
@@ -131,15 +132,18 @@ if ($page && count($langs) > 1) { ?>
     </ul>
 <?php
 } ?>
-    <div id="msg_info" style="margin:0 55px">
+</td>
+<td id="translations_container" style="padding-left: 10px">
+    <div id="msg_info">
     <em><i class="icon-info-sign"></i> <?php
         echo __(
             'Ticket variables are only supported in thank-you pages.'
-    ); ?></em></div>
+        ); ?></em>
+    </div>
 
-        <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content" style="margin:0 45px"
+        <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content"
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
-        <textarea name="body" cols="21" rows="12" style="width:98%;" class="richtext draft"
+        <textarea name="body" cols="21" rows="12" style="width:100%" class="richtext draft"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'], $info['body']);
     echo $attrs; ?>><?php echo $draft ?: $info['body']; ?></textarea>
@@ -150,17 +154,18 @@ if ($page && count($langs) > 1) { ?>
         if ($tag == $cfg->getPrimaryLanguage())
             continue; ?>
         <div id="translation-<?php echo $tag; ?>" class="tab_content"
-            style="display:none;margin:0 45px" lang="<?php echo $tag; ?>">
+            style="display:none;" lang="<?php echo $tag; ?>">
         <textarea name="trans[<?php echo $tag; ?>][body]" cols="21" rows="12"
-            style="width:98%;" class="richtext draft"
+            style="width:100%" class="richtext draft"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'].'.'.$tag, $info['trans'][$tag]);
     echo $attrs; ?>><?php echo $draft ?: $info['trans'][$tag]; ?></textarea>
         </div>
 <?php }
 } ?>
+</td></tr></tbody></table>
 
-        <div class="error" style="margin: 5px 55px"><?php echo $errors['body']; ?></div>
+        <div class="error" style="margin: 5px 0"><?php echo $errors['body']; ?></div>
         <div class="clear"></div>
     </div>
     <div class="tab_content" style="display:none" id="notes">

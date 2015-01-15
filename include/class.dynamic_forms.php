@@ -32,6 +32,11 @@ class DynamicForm extends VerySimpleModel {
         'table' => FORM_SEC_TABLE,
         'ordering' => array('title'),
         'pk' => array('id'),
+        'joins' => array(
+            'fields' => array(
+                'reverse' => 'DynamicFormField.form',
+            ),
+        ),
     );
 
     // Registered form types
@@ -96,8 +101,8 @@ class DynamicForm extends VerySimpleModel {
     }
 
 
-    function getTitle() { return $this->get('title'); }
-    function getInstructions() { return $this->get('instructions'); }
+    function getTitle() { return $this->getLocal('title'); }
+    function getInstructions() { return $this->getLocal('instructions'); }
 
     function getForm($source=false) {
         if (!$this->_form || $source) {
@@ -110,6 +115,14 @@ class DynamicForm extends VerySimpleModel {
 
     function isDeletable() {
         return $this->get('deletable');
+    }
+
+    function disableFields(array $ids) {
+        foreach ($this->getFields() as $F) {
+            if (in_array($F->get('id'), $ids)) {
+                $F->disable();
+            }
+        }
     }
 
     function instanciate($sort=1) {
@@ -138,7 +151,9 @@ class DynamicForm extends VerySimpleModel {
             $this->set('updated', new SqlFunction('NOW'));
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
-        return parent::save($refetch);
+        if ($rv = parent::save($refetch | $this->dirty))
+            return $this->saveTranslations();
+        return $rv;
     }
 
     function delete() {
@@ -182,6 +197,53 @@ class DynamicForm extends VerySimpleModel {
         return $inst;
     }
 
+    function saveTranslations($vars=false) {
+        global $thisstaff;
+
+        $vars = $vars ?: $_POST;
+        $tags = array(
+            'title' => $this->getTranslateTag('title'),
+            'instructions' => $this->getTranslateTag('instructions'),
+        );
+        $rtags = array_flip($tags);
+        $translations = CustomDataTranslation::allTranslations($tags, 'phrase');
+        foreach ($translations as $t) {
+            $T = $rtags[$t->object_hash];
+            $content = @$vars['trans'][$t->lang][$T];
+            if (!isset($content))
+                continue;
+
+            // Content is not new and shouldn't be added below
+            unset($vars['trans'][$t->lang][$T]);
+
+            $t->text = $content;
+            $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
+            if (!$t->save())
+                return false;
+        }
+        // New translations (?)
+        foreach ($vars['trans'] as $lang=>$parts) {
+            if (!Internationalization::isLanguageInstalled($lang))
+                continue;
+            foreach ($parts as $T => $content) {
+                $content = trim($content);
+                if (!$content)
+                    continue;
+                $t = CustomDataTranslation::create(array(
+                    'type'      => 'phrase',
+                    'object_hash' => $tags[$T],
+                    'lang'      => $lang,
+                    'text'      => $content,
+                    'agent_id'  => $thisstaff->getId(),
+                    'updated'   => SqlFunction::NOW(),
+                ));
+                if (!$t->save())
+                    return false;
+            }
+        }
+        return true;
+    }
 
 
     static function getCrossTabQuery($object_type, $object_id='object_id', $exclude=array()) {
@@ -422,6 +484,7 @@ class DynamicFormField extends VerySimpleModel {
     );
 
     var $_field;
+    var $_disabled = false;
 
     const FLAG_ENABLED          = 0x00001;
     const FLAG_EXT_STORED       = 0x00002; // Value stored outside of form_entry_value
@@ -524,6 +587,12 @@ class DynamicFormField extends VerySimpleModel {
 
     function  isEditable() {
         return $this->hasFlag(self::FLAG_MASK_EDIT);
+    }
+    function disable() {
+        $this->_disabled = true;
+    }
+    function isEnabled() {
+        return !$this->_disabled && $this->hasFlag(self::FLAG_ENABLED);
     }
 
     function hasFlag($flag) {
@@ -638,19 +707,19 @@ class DynamicFormField extends VerySimpleModel {
         return $this->hasFlag(self::FLAG_CLOSE_REQUIRED);
     }
     function isEditableToStaff() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_AGENT_EDIT);
     }
     function isVisibleToStaff() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_AGENT_VIEW);
     }
     function isEditableToUsers() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_CLIENT_EDIT);
     }
     function isVisibleToUsers() {
-        return $this->hasFlag(self::FLAG_ENABLED)
+        return $this->isEnabled()
             && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
@@ -689,10 +758,10 @@ class DynamicFormField extends VerySimpleModel {
         $this->save();
     }
 
-    function save() {
+    function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        return parent::save();
+        return parent::save($this->dirty || $refetch);
     }
 
     static function create($ht=false) {
@@ -722,7 +791,7 @@ class DynamicFormEntry extends VerySimpleModel {
         'pk' => array('id'),
         'select_related' => array('form'),
         'fields' => array('id', 'form_id', 'object_type', 'object_id',
-            'sort', 'updated', 'created'),
+            'sort', 'extra', 'updated', 'created'),
         'joins' => array(
             'form' => array(
                 'null' => true,
@@ -785,6 +854,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $this->_form = DynamicForm::lookup($this->get('form_id'));
             if ($this->_form && isset($this->id))
                 $this->_form->data($this);
+            if (isset($this->extra)) {
+                $x = JsonDataParser::decode($this->extra) ?: array();
+                $this->_form->disableFields($x['disable'] ?: array());
+            }
         }
         return $this->_form;
     }
@@ -958,6 +1031,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 }
             }
             if (!$found && ($fImpl = $field->getImpl($field))
+                    && $field->isEnabled()
                     && !$fImpl->isPresentationOnly()) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry_id'=>$this->id));

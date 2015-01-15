@@ -51,6 +51,10 @@ div#header a {
     clear:both;
 }
 
+.big {
+    font-size: 110%;
+}
+
 .faded {
     color:#666;
 }
@@ -589,6 +593,27 @@ a.print {
     padding:2px;
 }
 
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top:3px;
+}
+
+.table tr.header td,
+.table th {
+    font-weight: bold;
+    text-align: left;
+    height: 24px;
+    background: #f0f0f0;
+}
+
+.table tr {
+    border-bottom:1px dotted #ddd;
+}
+.table td:not(:empty) {
+    height: 24px;
+}
+
 .form_table {
     margin-top:3px;
     border-left:1px solid #ddd;
@@ -607,10 +632,16 @@ table.fixed {
     border-collapse: collapse;
     width: 100%;
 }
-table.fixed td {
+table.fixed > thead > tr > th,
+table.fixed > thead > tr > td,
+table.fixed > tbody > tr > td,
+table.fixed > tr > td {
     width: 180px;
 }
-table.fixed td + td {
+table.fixed > thead > tr > th + th,
+table.fixed > thead > tr > td + td,
+table.fixed > tbody > tr > td + td,
+table.fixed > tr > td + td {
     width: auto;
 }
 
@@ -1459,12 +1490,12 @@ time {
     border:none;
 }
 
-.dialog .custom-field .field-label {
+.custom-field .field-label {
     margin-left: 3px;
     margin-right: 3px;
 }
-.dialog .custom-field + .custom-field {
-    margin-top: 8px;
+.custom-field + .custom-field {
+    margin-top: 5px;
 }
 .dialog label.fixed-size {
     width:100px;
@@ -2101,4 +2132,12 @@ td.indented {
 .accordian dd:last-of-type {
    position: relative;
    top: -1px;
+}
+
+#topic-forms tbody + tbody td.handle {
+  padding-top: 15px;
+}
+
+#dynamic-actions > tr > td {
+    padding: 5px;
 }

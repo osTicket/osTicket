@@ -57,7 +57,11 @@ $dispatcher = patterns('',
         url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer'),
         url_post('^upload/(\d+)?$', 'upload'),
-        url_post('^upload/(\w+)?$', 'attach')
+        url_post('^upload/(\w+)?$', 'attach'),
+        url_get('^(?P<id>\d+)/fields/view$', 'getAllFields')
+    )),
+    url('^/filter/', patterns('ajax.filter.php:FilterAjaxAPI',
+        url_get('^action/(?P<type>\w+)/config$', 'getFilterActionForm')
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),

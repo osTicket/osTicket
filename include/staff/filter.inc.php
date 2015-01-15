@@ -167,209 +167,87 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Filter Actions');?></strong>: <?php
-                echo __('Can be overwridden by other filters depending on processing order.');?>&nbsp;</em>
+                <em><strong><?php echo __('Filter Actions');?></strong>:
+                <div><?php
+                    echo __('Can be overwridden by other filters depending on processing order.');
+                ?><br/><?php
+                    echo __('Actions are executed in the order declared below');
+                ?></em>
             </th>
         </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Reject Ticket');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="reject_ticket" value="1" <?php echo $info['reject_ticket']?'checked="checked"':''; ?> >
-                    <strong><font class="error"><?php echo __('Reject Ticket');?></font></strong>
-                    &nbsp;<i class="help-tip icon-question-sign" href="#reject_ticket"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Reply-To Email');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="use_replyto_email" value="1" <?php echo $info['use_replyto_email']?'checked="checked"':''; ?> >
-                    <?php echo __('<strong>Use</strong> Reply-To Email');?> <em>(<?php echo __('if available');?>)</em>
-                    &nbsp;<i class="help-tip icon-question-sign" href="#reply_to_email"></i></em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Ticket auto-response');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="disable_autoresponder" value="1" <?php echo $info['disable_autoresponder']?'checked="checked"':''; ?> >
-                    <?php echo __('<strong>Disable</strong> auto-response.');?>
-                    &nbsp;<i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
+    </tbody>
+    <tbody id="dynamic-actions" class="sortable-rows">
+<?php
+$existing = array();
+if ($filter) { foreach ($filter->getActions() as $A) {
+    $existing[] = $A->type;
+?>
+        <tr style="background-color:white"><td><i class="icon-bolt icon-large icon-muted"></i>
+            <?php echo $A->getImpl()->getName(); ?>:</td>
+            <td><div style="position:relative"><?php
+                $form = $A->getImpl()->getConfigurationForm($_POST ?: false);
+                // XXX: Drop this when the ORM supports proper caching
+                $form->isValid();
+                include STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+?>
+                <input type="hidden" name="actions[]" value="I<?php echo $A->getId(); ?>"/>
+                <div class="pull-right" style="position:absolute;top:2px;right:2px;">
+                    <a href="#" title="<?php echo __('clear'); ?>" onclick="javascript:
+        if (!confirm(__('You sure?')))
+            return false;
+        $(this).closest('td').find('input[name=\'actions[]\']')
+            .val(function(i,v) { return 'D' + v.substring(1); });
+        $(this).closest('tr').fadeOut(400, function() { $(this).hide(); });
+        return false;"><i class="icon-trash"></i></a>
+                </div>
+</div>
             </td>
         </tr>
+<?php } } ?>
+    </tbody>
+    <tbody>
         <tr>
-            <td width="180">
-                <?php echo __('Canned Response');?>:
-            </td>
-                <td>
-                <select name="canned_response_id">
-                    <option value="">&mdash; <?php echo __('None');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT canned_id, title, isenabled FROM '.CANNED_TABLE .' ORDER by title';
-                    if ($res=db_query($sql)) {
-                        while (list($id, $title, $isenabled)=db_fetch_row($res)) {
-                            $selected=($info['canned_response_id'] &&
-                                    $id==$info['canned_response_id'])
-                                ? 'selected="selected"' : '';
-
-                            if (!$isenabled)
-                                $title .= ' ' . __('(disabled)');
-
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                $id, $selected, $title);
-                        }
-                    }
-                    ?>
+            <td><strong><i class="icon-plus-sign"></i>
+                <?php echo __('Add'); ?>:
+            </strong></td>
+            <td>
+                <select name="new-action" id="new-action-select"
+                    onchange="javascript: $('#new-action-btn').trigger('click');">
+                    <option value=""><?php echo __('— Select an Action —'); ?></option>
+<?php
+$current_group = '';
+foreach (FilterAction::allRegistered() as $group=>$actions) {
+    if ($group && $current_group != $group) {
+        if ($current_group) echo '</optgroup>';
+        $current_group = $group;
+        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+    }
+    foreach ($actions as $type=>$name) {
+?>
+                <option data-title="<?php echo $name; ?>" value="<?php echo $type; ?>"
+                    data-multi-use="<?php echo $mu = FilterAction::lookupByType($type)->hasFlag(TriggerAction::FLAG_MULTI_USE); ?> " <?php
+                    if (in_array($type, $existing) && !$mu) echo 'disabled="disabled"';
+                ?>><?php echo $name; ?></option>
+<?php }
+} ?>
                 </select>
-                &nbsp;<i class="help-tip icon-question-sign" href="#canned_response"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Department');?>:
-            </td>
-            <td>
-                <select name="dept_id">
-                    <option value="">&mdash; <?php echo __('Default');?> &mdash;</option>
-                    <?php
-                    foreach (Dept::getDepartments() as $id=>$name) {
-                        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#department"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Status'); ?>:
-            </td>
-            <td>
-                <span>
-                <select name="status_id">
-                    <option value="">&mdash; <?php echo __('Default'); ?> &mdash;</option>
-                    <?php
-                    foreach (TicketStatusList::getStatuses() as $status) {
-                        $name = $status->getName();
-                        if (!($isenabled = $status->isEnabled()))
-                            $name.=' '.__('(disabled)');
-
-                        echo sprintf('<option value="%d" %s %s>%s</option>',
-                                $status->getId(),
-                                ($info['status_id'] == $status->getId())
-                                 ? 'selected="selected"' : '',
-                                 $isenabled ? '' : 'disabled="disabled"',
-                                 $name
-                                );
-                    }
-                    ?>
-                </select>
-                &nbsp;
-                <span class="error"><?php echo $errors['status_id']; ?></span>
-                <i class="help-tip icon-question-sign" href="#status"></i>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Priority');?>:
-            </td>
-            <td>
-                <select name="priority_id">
-                    <option value="">&mdash; <?php echo __('Default');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT priority_id,priority_desc FROM '.PRIORITY_TABLE.' pri ORDER by priority_urgency DESC';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['priority_id'] && $id==$info['priority_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['priority_id']; ?></span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#priority"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('SLA Plan');?>:
-            </td>
-            <td>
-                <select name="sla_id">
-                    <option value="0">&mdash; <?php echo __('System Default');?> &mdash;</option>
-                    <?php
-                    if($slas=SLA::getSLAs()) {
-                        foreach($slas as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['sla_id']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['sla_id']; ?></span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#sla_plan"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Auto-assign To');?>:
-            </td>
-            <td>
-                <select name="assign">
-                    <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
-                    <?php
-                    if (($users=Staff::getStaffMembers())) {
-                        echo '<OPTGROUP label="'.__('Agents').'">';
-                        foreach($users as $id => $name) {
-                            $name = new PersonsName($name);
-                            $k="s$id";
-                            $selected = ($info['assign']==$k || $info['staff_id']==$id)?'selected="selected"':'';
-                            ?>
-                            <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
-                        <?php
-                        }
-                        echo '</OPTGROUP>';
-                    }
-                    $sql='SELECT team_id, isenabled, name FROM '.TEAM_TABLE .' ORDER BY name';
-                    if ($teams = Team::getTeams()) {
-                        echo '<OPTGROUP label="'.__('Teams').'">';
-                        foreach ($teams as $id=>$name) {
-                            $k="t$id";
-                            $selected = ($info['assign']==$k || $info['team_id']==$id)?'selected="selected"':'';
-                            ?>
-                            <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
-                        <?php
-                        }
-                        echo '</OPTGROUP>';
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">&nbsp;<?php echo
-                $errors['assign']; ?></span><i class="help-tip icon-question-sign" href="#auto_assign"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Help Topic'); ?>
-            </td>
-            <td>
-                <select name="topic_id">
-                    <option value="0" selected="selected">&mdash; <?php
-                        echo __('Unchanged'); ?> &mdash;</option>
-                    <?php
-                    foreach (Topic::getAllHelpTopics(true) as $id=>$name) {
-                        $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['topic_id']; ?></span><i class="help-tip icon-question-sign" href="#help_topic"></i>
+                <input id="new-action-btn" type="button" value="<?php echo __('Add'); ?>"
+                onclick="javascript:
+        var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
+        dropdown.val('');
+        $('#dynamic-actions')
+          .append($('<tr></tr>')
+            .append($('<td></td>')
+              .text(selected.data('title') + ':')
+            ).append($('<td></td>')
+              .append($('<em></em>').text(__('Loading ...')))
+              .load('ajax.php/filter/action/' + selected.val() + '/config', function() {
+                if (!selected.data('multiUse')) selected.prop('disabled', true);
+              })
+            )
+          ).append(
+            $('<input>').attr({type:'hidden',name:'actions[]',value:'N'+selected.val()})
+          );"/>
             </td>
         </tr>
         <tr>
@@ -392,3 +270,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="filters.php"'>
 </p>
 </form>
+<script type="text/javascript">
+   var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+          $(this).width($(this).width());
+      });
+      return ui;
+   };
+   $('#dynamic-actions').sortable({helper: fixHelper, opacity: 0.5});
+</script>
