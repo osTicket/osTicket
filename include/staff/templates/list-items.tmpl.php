@@ -1,0 +1,99 @@
+    <?php if ($list) {
+        $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+        $count = $list->getNumItems();
+        $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+        if ($list->getSortMode() == 'SortCol')
+            $pageNav->setSlack(1);
+        $pageNav->setURL('lists.php?id='.$list->getId().'&a=items');
+        $showing=$pageNav->showing().' '.__('list items');
+        ?>
+    <?php }
+        else $showing = __('Add a few initial items to the list');
+    ?>
+    <div style="margin: 5px 0">
+    <div class="pull-left"><em><?php echo $showing; ?></em></div>
+    <div class="pull-right">
+        <?php if (!$list || $list->allowAdd()) { ?>
+        <a class="action-button field-config"
+            href="#list/<?php
+            echo $list->getId(); ?>/item/add">
+            <i class="icon-plus-sign"></i>
+            <?php echo __('Add New Item'); ?>
+        </a>
+        <a class="action-button field-config"
+            href="#list/<?php
+            echo $list->getId(); ?>/import">
+            <i class="icon-upload"></i>
+            <?php echo __('Import Items'); ?>
+        </a>
+        <?php } ?>
+        <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+            <i class="icon-caret-down pull-right"></i>
+            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+        </span>
+        <div id="action-dropdown-more" class="action-dropdown anchor-right">
+            <ul>
+                <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/delete">
+                    <i class="icon-trash icon-fixed-width"></i>
+                    <?php echo __('Delete'); ?></a></li>
+                <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/disable">
+                    <i class="icon-ban-circle icon-fixed-width"></i>
+                    <?php echo __('Disable'); ?></a></li>
+                <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/enable">
+                    <i class="icon-ok-sign icon-fixed-width"></i>
+                    <?php echo __('Enable'); ?></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="clear"></div>
+    </div>
+
+
+<?php
+$prop_fields = array();
+if ($list) {
+    foreach ($list->getConfigurationForm()->getFields() as $f) {
+        if (in_array($f->get('type'), array('text', 'datetime', 'phone')))
+            $prop_fields[] = $f;
+        if (strpos($f->get('type'), 'list-') === 0)
+            $prop_fields[] = $f;
+
+        // 4 property columns max
+        if (count($prop_fields) == 4)
+            break;
+    }
+}
+?>
+
+    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <thead>
+        <tr>
+            <th width="8" nowrap></th>
+            <th><?php echo __('Value'); ?></th>
+<?php foreach ($prop_fields as $F) { ?>
+            <th><?php echo $F->getLocal('label'); ?></th>
+<?php } ?>
+        </tr>
+    </thead>
+
+    <tbody <?php if ($list->get('sort_mode') == 'SortCol') { ?>
+            class="sortable-rows" data-sort="sort-"<?php } ?>>
+        <?php
+        if ($list) {
+            $icon = ($list->get('sort_mode') == 'SortCol')
+                ? '<i class="icon-sort"></i>&nbsp;' : '';
+            $items = $pageNav->paginate($list->getAllItems());
+            // Emit a marker for the first sort offset ?>
+            <input type="hidden" id="sort-offset" value="<?php echo
+                max($items[0]->sort, $pageNav->getStart()); ?>"/>
+<?php
+            foreach ($items as $item) {
+                include STAFFINC_DIR . 'templates/list-item-row.tmpl.php';
+            }
+        } ?>
+    </tbody>
+    </table>
+    <div><?php echo __('Page').':'.$pageNav->getPageLinks('items', $pjax_container); ?></div>
+</div>
+

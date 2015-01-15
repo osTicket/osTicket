@@ -153,7 +153,7 @@ var scp_prep = function() {
     };
 
     $("form#save :input").change(function() {
-        warnOnLeave($(this));
+        if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
     $("form#save :input[type=reset]").click(function() {
@@ -431,10 +431,11 @@ var scp_prep = function() {
        'helper': fixHelper,
        'cursor': 'move',
        'stop': function(e, ui) {
-           var attr = ui.item.parent('tbody').data('sort');
+           var attr = ui.item.parent('tbody').data('sort'),
+               offset = parseInt($('#sort-offset').val(), 10) || 0;
            warnOnLeave(ui.item);
            $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
-               $(el).val(i+1);
+               $(el).val(i + 1 + offset);
            });
        }
    });
@@ -587,7 +588,7 @@ $.dialog = function (url, codes, cb, options) {
                         $.toggleOverlay(false);
                         $popup.hide();
                         $('div.body', $popup).empty();
-                        if(cb) cb(xhr);
+                        if(cb) cb(xhr, resp);
                     } else {
                         try {
                             var json = $.parseJSON(resp);

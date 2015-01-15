@@ -1741,6 +1741,9 @@ class MySqlCompiler extends SqlCompiler {
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
         }
+        elseif ($what === null) {
+            return 'NULL';
+        }
         else {
             switch ($slot) {
             case self::SLOT_JOINS:

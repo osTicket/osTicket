@@ -8,7 +8,7 @@
         <div class="form-field"><?php
         if (!$field->isBlockLevel()) { ?>
             <div class="<?php if ($field->isRequired()) echo 'required';
-                ?>" style="display:inline-block;width:260px;">
+                ?>" style="display:inline-block;width:27%;">
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:
             <?php if ($field->isRequired()) { ?>
                 <span class="error">*</span>
@@ -20,7 +20,7 @@
                 ?></div>
 <?php       } ?>
             </div>
-            <div style="display:inline-block;max-width:700px"><?php
+            <div style="display:inline-block;max-width:73%"><?php
         }
         $field->render($options);
         foreach ($field->errors() as $e) { ?>

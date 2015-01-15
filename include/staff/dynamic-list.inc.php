@@ -121,6 +121,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <th nowrap></th>
             <th nowrap><?php echo __('Label'); ?></th>
             <th nowrap><?php echo __('Type'); ?></th>
+            <th nowrap><?php echo __('Visibility'); ?></th>
             <th nowrap><?php echo __('Variable'); ?></th>
             <th nowrap><?php echo __('Delete'); ?></th>
         </tr>
@@ -161,6 +162,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                         echo $f->get('id'); ?>"><i
                         class="icon-cog"></i> <?php echo __('Config'); ?></a> <?php } ?></td>
             <td>
+                <?php echo $f->getVisibilityDescription(); ?></td>
+            <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
                     value="<?php echo Format::htmlchars($f->get('name'));
                     ?>" <?php echo $force_name ?>/>
@@ -200,6 +203,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 </optgroup>
                 <?php } ?>
             </select></td>
+            <td></td>
             <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
                 value="<?php echo $info["name-new-$i"]; ?>"/>
                 <font class="error"><?php
@@ -212,125 +216,9 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 </table>
 </div>
 <div id="items" class="hidden tab_content">
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-    <?php if ($list) {
-        $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-        $count = $list->getNumItems();
-        $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-        $pageNav->setURL('list.php', array('id' => $list->getId()));
-        $showing=$pageNav->showing().' '.__('list items');
-        ?>
-    <?php }
-        else $showing = __('Add a few initial items to the list');
-    ?>
-        <tr>
-            <th colspan="5">
-                <em><?php echo $showing; ?></em>
-            </th>
-        </tr>
-        <tr>
-            <th></th>
-            <th><?php echo __('Value'); ?></th>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <th><?php echo __(/* Short for 'abbreviation' */ 'Abbrev'); ?> <em style="display:inline">&mdash;
-                <?php echo __('abbreviations and such'); ?></em></th>
-            <?php
-            } ?>
-            <th><?php echo __('Disabled'); ?></th>
-            <th><?php echo __('Delete'); ?></th>
-        </tr>
-    </thead>
-
-    <tbody <?php if ($info['sort_mode'] == 'SortCol') { ?>
-            class="sortable-rows" data-sort="sort-"<?php } ?>>
-        <?php
-        if ($list) {
-            $icon = ($info['sort_mode'] == 'SortCol')
-                ? '<i class="icon-sort"></i>&nbsp;' : '';
-        foreach ($list->getAllItems() as $i) {
-            $id = $i->getId(); ?>
-        <tr class="<?php if (!$i->isEnabled()) echo 'disabled'; ?>">
-            <td><?php echo $icon; ?>
-                <input type="hidden" name="sort-<?php echo $id; ?>"
-                value="<?php echo $i->getSortOrder(); ?>"/></td>
-            <td><input type="text" size="40" name="value-<?php echo $id; ?>"
-                data-translate-tag="<?php echo $i->getTranslateTag('value'); ?>"
-                value="<?php echo $i->getValue(); ?>"/>
-                <?php if ($list->hasProperties()) { ?>
-                   <a class="action-button field-config"
-                       style="overflow:inherit"
-                       href="#list/<?php
-                        echo $list->getId(); ?>/item/<?php
-                        echo $id ?>/properties"
-                       id="item-<?php echo $id; ?>"
-                    ><?php
-                        echo sprintf('<i class="icon-edit" %s></i> ',
-                                $i->getConfiguration()
-                                ? '': 'style="color:red; font-weight:bold;"');
-                        echo __('Properties');
-                   ?></a>
-                <?php
-                }
-
-                if ($errors["value-$id"])
-                    echo sprintf('<br><span class="error">%s</span>',
-                            $errors["value-$id"]);
-                ?>
-            </td>
-            <?php
-            if ($list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-<?php echo $id; ?>"
-                value="<?php echo $i->getAbbrev(); ?>"/></td>
-            <?php
-            } ?>
-            <td>
-                <?php
-                if (!$i->isDisableable())
-                     echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="disable-%s"
-                            %s %s />',
-                            $id,
-                            !$i->isEnabled() ? ' checked="checked" ' : '',
-                            (!$i->isEnabled() && !$i->isEnableable()) ? ' disabled="disabled" ' : ''
-                            );
-                ?>
-            </td>
-            <td>
-                <?php
-                if (!$i->isDeletable())
-                    echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="delete-item-%s">', $id);
-
-                ?>
-            </td>
-        </tr>
-    <?php }
-    }
-
-    if (!$list || $list->allowAdd()) {
-       for ($i=0; $i<$newcount; $i++) { ?>
-        <tr>
-            <td><?php echo $icon; ?> <em>+</em>
-                <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
-            <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-new-<?php echo $i; ?>"/></td>
-            <?php
-            } ?>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-    <?php
-       }
-    }?>
-    </tbody>
-    </table>
-</div>
+<?php
+    $pjax_container = '#items';
+    include STAFFINC_DIR . 'templates/list-items.tmpl.php'; ?>
 </div>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
@@ -342,13 +230,45 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 
 <script type="text/javascript">
 $(function() {
-    $('a.field-config').click( function(e) {
+    $(document).on('click', 'a.field-config', function(e) {
         e.preventDefault();
         var $id = $(this).attr('id');
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, [201], function (xhr) {
-            $('a#'+$id+' i').removeAttr('style');
+        $.dialog(url, [201], function (xhr, resp) {
+          var json = $.parseJSON(resp);
+          if (json && json.success) {
+            if (json.id && json.row) {
+              $('#list-item-' + json.id).replaceWith(json.row);
+            }
+            else {
+              $.pjax.reload('#pjax-container');
+            }
+          }
         });
+        return false;
+    });
+    $(document).on('click', 'a.items-action', function(e) {
+        e.preventDefault();
+        var ids = [];
+        $('form#save :checkbox.mass:checked').each(function() {
+            ids.push($(this).val());
+        });
+        if (ids.length && confirm(__('You sure?'))) {
+            $.ajax({
+              url: 'ajax.php/' + $(this).attr('href').substr(1),
+              type: 'POST',
+              data: {count:ids.length, ids:ids},
+              dataType: 'json',
+              success: function(json) {
+                if (json.success) {
+                  if (window.location.search.indexOf('a=items') != -1)
+                    $.pjax.reload('#items');
+                  else
+                    $.pjax.reload('#pjax-container');
+                }
+              }
+            });
+        }
         return false;
     });
 });

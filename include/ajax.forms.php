@@ -96,29 +96,228 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $ent->delete();
     }
 
-    function getListItemProperties($list_id, $item_id) {
+
+    function _getListItemEditForm($source=null, $item=false) {
+        return new Form(array(
+            'value' => new TextboxField(array(
+                'required' => true,
+                'label' => __('Value'),
+                'configuration' => array(
+                    'translatable' => $item ? $item->getTranslateTag('value') : false,
+                    'size' => 60,
+                    'length' => 0,
+                ),
+            )),
+            'extra' => new TextboxField(array(
+                'label' => __('Abbreviation'),
+                'configuration' => array(
+                    'size' => 60,
+                    'length' => 0,
+                ),
+            )),
+        ), $source);
+    }
+
+    function getListItem($list_id, $item_id) {
 
         $list = DynamicList::lookup($list_id);
         if (!$list || !($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
+
+        $action = "#list/{$list->getId()}/item/{$item->getId()}/update";
+        $item_form = $this->_getListItemEditForm($item->ht, $item);
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
     }
 
-    function saveListItemProperties($list_id, $item_id) {
+    function getListItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+
+        if (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+
+        $pjax_container = '#items';
+        include(STAFFINC_DIR . 'templates/list-items.tmpl.php');
+    }
+
+    function saveListItem($list_id, $item_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
 
         $list = DynamicList::lookup($list_id);
         if (!$list || !($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
-        if (!$item->setConfiguration()) {
+        $item_form = $this->_getListItemEditForm($_POST, $item);
+
+        if ($valid = $item_form->isValid()) {
+            // Update basic information
+            $basic = $item_form->getClean();
+            $item->extra = $basic['extra'];
+            $item->value = $basic['value'];
+
+            if ($_item = DynamicListItem::lookup(array('value'=>$item->value)))
+                if ($_item && $_item->id != $item->id)
+                    $item_form->getField('value')->addError(
+                        __('Value already in use'));
+        }
+
+        // Context
+        $action = "#list/{$list->getId()}/item/{$item->getId()}/update";
+        $icon = ($list->get('sort_mode') == 'SortCol')
+            ? '<i class="icon-sort"></i>&nbsp;' : '';
+
+        if (!$valid || !$item->setConfiguration()) {
             include STAFFINC_DIR . 'templates/list-item-properties.tmpl.php';
             return;
         }
-        else
+        else {
             $item->save();
+        }
 
-        Http::response(201, 'Successfully updated record');
+        // Send the whole row back
+        $prop_fields = array();
+        foreach ($list->getConfigurationForm()->getFields() as $f) {
+            if (in_array($f->get('type'), array('text', 'datetime', 'phone')))
+                $prop_fields[] = $f;
+            if (strpos($f->get('type'), 'list-') === 0)
+                $prop_fields[] = $f;
+
+            // 4 property columns max
+            if (count($prop_fields) == 4)
+                break;
+        }
+        ob_start();
+        $item->_config = null;
+        include STAFFINC_DIR . 'templates/list-item-row.tmpl.php';
+        $html = ob_get_clean();
+        Http::response(201, $this->encode(array(
+            'id' => $item->getId(),
+            'row' => $html,
+            'success' => true,
+        )));
+    }
+
+    function addListItem($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+
+        $action = "#list/{$list->getId()}/item/add";
+        $item_form = $this->_getListItemEditForm($_POST ?: null);
+
+        if ($_POST && ($valid = $item_form->isValid())) {
+            $data = $item_form->getClean();
+            if ($_item = DynamicListItem::lookup(array('value'=>$data['value'])))
+                if ($_item && $_item->id != $item->id)
+                    $item_form->getField('value')->addError(
+                        __('Value already in use'));
+            $data['list_id'] = $list_id;
+            $item = DynamicListItem::create($data);
+            if ($item->save() && $item->setConfiguration())
+                Http::response(201, $this->encode(array('success' => true)));
+        }
+
+        include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+    }
+
+    function importListItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+
+        $info = array(
+            'title' => sprintf('%s &mdash; %s',
+                $list->getName(), __('Import Items')),
+            'action' => "#list/{$list_id}/import",
+            'upload_url' => "lists.php?id={$list_id}&amp;do=import-users",
+        );
+
+        if ($_POST) {
+            $status = $list->importFromPost($_POST['pasted']);
+            if (is_string($status))
+                $info['error'] = $status;
+            else
+                Http::response(201, $this->encode(array('success' => true, 'count' => $status)));
+        }
+
+        include(STAFFINC_DIR . 'templates/list-import.tmpl.php');
+    }
+
+    function disableItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+        elseif (!$_POST['ids'])
+            Http::response(422, 'Send `ids` parameter');
+
+        foreach ($_POST['ids'] as $id) {
+            if ($item = $list->getItem( (int) $id)) {
+                $item->disable();
+                $item->save();
+            }
+            else {
+                Http::response(404, 'No such list item');
+            }
+        }
+        Http::response(200, $this->encode(array('success' => true)));
+    }
+
+    function undisableItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+        elseif (!$_POST['ids'])
+            Http::response(422, 'Send `ids` parameter');
+
+        foreach ($_POST['ids'] as $id) {
+            if ($item = $list->getItem( (int) $id)) {
+                $item->enable();
+                $item->save();
+            }
+            else {
+                Http::response(404, 'No such list item');
+            }
+        }
+        Http::response(200, $this->encode(array('success' => true)));
+    }
+
+    function deleteItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+        elseif (!$_POST['ids'])
+            Http::response(422, 'Send `ids` parameter');
+
+        foreach ($_POST['ids'] as $id) {
+            if ($item = $list->getItem( (int) $id)) {
+                $item->delete();
+            }
+            else {
+                Http::response(404, 'No such list item');
+            }
+        }
+        #Http::response(200, $this->encode(array('success' => true)));
     }
 
     function upload($id) {

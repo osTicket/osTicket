@@ -64,8 +64,15 @@ $dispatcher = patterns('',
         url_get('^action/(?P<type>\w+)/config$', 'getFilterActionForm')
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
-        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),
-        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'saveListItemProperties')
+        url_get('^(?P<list>\w+)/items$', 'getListItems'),
+        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'getListItem'),
+        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'saveListItem'),
+        url('^(?P<list>\w+)/item/add$', 'addListItem'),
+        url('^(?P<list>\w+)/import$', 'importListItems'),
+        url('^(?P<list>\w+)/manage$', 'massManageListItems'),
+        url_post('^(?P<list>\w+)/delete$', 'deleteItems'),
+        url_post('^(?P<list>\w+)/disable$', 'disableItems'),
+        url_post('^(?P<list>\w+)/enable$', 'undisableItems')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
