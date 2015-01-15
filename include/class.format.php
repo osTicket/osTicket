@@ -55,13 +55,16 @@ class Format {
 
         $original = $text;
         if (function_exists('iconv'))
-            $text = iconv($charset, $encoding.'//IGNORE', $text);
-        elseif (function_exists('mb_convert_encoding'))
-            $text = mb_convert_encoding($text, $encoding, $charset);
+            $text = iconv($charset, $encoding.'//IGNORE', $original);
+        // Workaround for Bug in iconv
+        // PHP: https://bugs.php.net/bug.php?id=48147
+        // glibc: https://sourceware.org/bugzilla/show_bug.cgi?id=13541
+        if (($text === false || !function_exists('iconv')) && function_exists('mb_convert_encoding'))
+            $text = mb_convert_encoding($original, $encoding, $charset);
         elseif (!strcasecmp($encoding, 'utf-8')
                 && function_exists('utf8_encode')
                 && !strcasecmp($charset, 'ISO-8859-1'))
-            $text = utf8_encode($text);
+            $text = utf8_encode($original);
 
         // If $text is false, then we have a (likely) invalid charset, use
         // the original text and assume 8-bit (latin-1 / iso-8859-1)
