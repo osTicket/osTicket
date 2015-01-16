@@ -135,6 +135,7 @@ class Topic extends VerySimpleModel {
 
     function getForms() {
         if (!isset($this->_forms)) {
+            $this->_forms = array();
             foreach ($this->forms->select_related('form') as $F) {
                 $extra = JsonDataParser::decode($F->extra) ?: array();
                 $F->form->disableFields($extra['disable'] ?: array());

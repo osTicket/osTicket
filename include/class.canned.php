@@ -50,12 +50,10 @@ class Canned {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT canned.*, count(attach.file_id) as attachments, '
-            .' count(filter.id) as filters '
+        $sql='SELECT canned.*, count(attach.file_id) as attachments '
             .' FROM '.CANNED_TABLE.' canned '
             .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
                     ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline) '
-            .' LEFT JOIN '.FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
             .' WHERE canned.canned_id='.db_input($id)
             .' GROUP BY canned.canned_id';
 
@@ -87,6 +85,7 @@ class Canned {
     }
 
     function getNumFilters() {
+        //XXX : Query the filter action table and cache the results
         return $this->ht['filters'];
     }
 

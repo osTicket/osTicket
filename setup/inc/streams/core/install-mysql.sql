@@ -303,6 +303,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
   `target` ENUM(  'Any',  'Web',  'Email',  'API' ) NOT NULL DEFAULT  'Any',
+  `email_id` int(10) unsigned NOT NULL default '0',
   `name` varchar(32) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
@@ -468,7 +469,8 @@ CREATE TABLE `%TABLE_PREFIX%help_topic_form` (
   `form_id` int(10) unsigned NOT NULL default 0,
   `sort` int(10) unsigned NOT NULL default 1,
   `extra` text,
-  PRIMARY KEY  (`topic_id`, `form_id`)
+  PRIMARY KEY (`id`),
+  KEY `topic-form` (`topic_id`, `form_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%organization`;

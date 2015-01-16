@@ -1,5 +1,5 @@
 /**
- * @signature a22c2b4ff54ce5aa61e94124a73e6eac
+ * @signature 2d590ffab4a6a928f08cc97aace1399e
  * @version v1.9.6
  * @title Make fields disable-able per help topic
  *
@@ -104,7 +104,8 @@ CREATE TABLE `%TABLE_PREFIX%help_topic_form` (
   `form_id` int(10) unsigned NOT NULL default 0,
   `sort` int(10) unsigned NOT NULL default 1,
   `extra` text,
-  PRIMARY KEY  (`topic_id`, `form_id`)
+  PRIMARY KEY (`id`),
+  KEY `topic-form` (`topic_id`, `form_id`)
 ) DEFAULT CHARSET=utf8;
 
 -- Handle A4 / A3 / A2 / A1 help topics. For these, consider the forms
@@ -134,5 +135,5 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'a22c2b4ff54ce5aa61e94124a73e6eac'
+    SET `value` = '2d590ffab4a6a928f08cc97aace1399e'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
