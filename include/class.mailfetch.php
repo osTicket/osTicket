@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'class.banlist.php');
 require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
@@ -600,7 +601,7 @@ class MailFetcher {
         }
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && Banlist::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning(_S('Ticket denied'),
                 sprintf(_S('Banned email — %s'),$mailinfo['email']), false);
