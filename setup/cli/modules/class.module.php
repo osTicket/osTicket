@@ -92,11 +92,10 @@ class Option {
 class OutputStream {
     var $stream;
 
-    function OutputStream() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct($stream) {
-        $this->stream = fopen($stream, 'w');
+        if (!($this->stream = fopen($stream, 'w')))
+            throw new Exception(sprintf('%s: Cannot open for writing',
+                $stream));
     }
 
     function write($what) {
