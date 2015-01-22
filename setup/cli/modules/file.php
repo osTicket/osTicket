@@ -183,13 +183,13 @@ class FileManager extends Module {
          * will be a continuous stream of file information in the following
          * format:
          *
-         * FILE<header-length><data-length><header><data>EOF\x1c
+         * FILE<meta-length><data-length><meta><data>EOF\x1c
          *
          * Where
          *   "FILE"         is the literal text 'FILE'
-         *   header-length  is 'V' packed header length (bytes)
+         *   meta-length    is 'V' packed header length (bytes)
          *   data-length    is 'V' packed data length (bytes)
-         *   header         is the file record, php serialized
+         *   meta           is the %file record, php serialized
          *   data           is the raw content of the file
          *   "EOF"          is the literal text 'EOF'
          *   \x1c           is an ASCII 0x1c byte (file separator)
@@ -233,7 +233,7 @@ class FileManager extends Module {
          * format.
          *
          * Options:
-         * --file       File to which to direct the stream output, default
+         * --file       File from which to read the export stream, default
          *              is stdin
          * --to         Backend to receive the contents (@see `backends`)
          * --verbose    Show file names while importing
@@ -247,10 +247,14 @@ class FileManager extends Module {
 
             while (true) {
                 // Read the file header
-                $header = fread($stream, 12);
-                if (!$header)
-                    // EOF
-                    break;
+                // struct file_data_header {
+                //   char[4] marker, // Four chars, 'BYTE'
+                //   int     lenMeta,
+                //   int     lenData,
+                // };
+                if (!($header = fread($stream, 12)))
+                    break; // EOF
+
                 list(, $mark, $hlen, $dlen) = unpack('V3', $header);
 
                 // FILE written as little-endian 4-byte int is 0x454c4946 (ELIF)
@@ -311,55 +315,66 @@ class FileManager extends Module {
                 // Write file contents to the backend
                 $md5 = hash_init('md5');
                 $sha1 = hash_init('sha1');
-                while ($dlen > 0) {
-                    $read_size = min($dlen, $bk->getBlockSize());
-                    $contents = '';
-                    // reading from the stream will likely return an amount
-                    // of data different from the backend requested block
-                    // size. Loop until $read_size bytes are recieved.
-                    while ($read_size > 0 && ($block = fread($stream, $read_size))) {
-                        $contents .= $block;
-                        $read_size -= strlen($block);
-                    }
-                    if ($read_size != 0) {
-                        // short read
-                        $this->fail(sprintf(
-                            '%s: Some contents are missing from the stream',
-                            $f->getName()
-                        ));
-                    }
-                    // Calculate MD5 and SHA1 hashes of the file to verify
-                    // contents after successfully written to backend
-                    if (!$bk->write($contents))
-                        $this->fail('Unable to send file contents to backend');
-                    hash_update($md5, $contents);
-                    hash_update($sha1, $contents);
-                    $dlen -= strlen($contents);
-                }
-                if (!$bk->flush())
-                    $this->fail('Unable to commit file contents to backend');
 
-                // Check the signature hash
-                if ($finfo['signature']) {
-                    $md5 = base64_encode(hash_final($md5, true));
-                    $sha1 = base64_encode(hash_final($sha1, true));
-                    $sig = str_replace(
-                        array('=','+','/'),
-                        array('','-','_'),
-                        substr($sha1, 0, 16) . substr($md5, 0, 16));
-                    if ($sig != $finfo['signature']) {
-                        $this->fail(sprintf(
-                            '%s: Signature verification failed',
-                            $f->getName()
-                        ));
+                // Handle exceptions by dropping imported file contents and
+                // then returning the error to the error output stream.
+                try {
+                    while ($dlen > 0) {
+                        $read_size = min($dlen, $bk->getBlockSize());
+                        $contents = '';
+                        // reading from the stream will likely return an amount of
+                        // data different from the backend requested block size. Loop
+                        // until $read_size bytes are recieved.
+                        while ($read_size > 0 && ($block = fread($stream, $read_size))) {
+                            $contents .= $block;
+                            $read_size -= strlen($block);
+                        }
+                        if ($read_size != 0) {
+                            // short read
+                            throw new Exception(sprintf(
+                                '%s: Some contents are missing from the stream',
+                                $f->getName()
+                            ));
+                        }
+                        // Calculate MD5 and SHA1 hashes of the file to verify
+                        // contents after successfully written to backend
+                        if (!$bk->write($contents))
+                            throw new Exception(
+                                'Unable to send file contents to backend');
+                        hash_update($md5, $contents);
+                        hash_update($sha1, $contents);
+                        $dlen -= strlen($contents);
                     }
+                    if (!$bk->flush())
+                        throw new Exception(
+                            'Unable to commit file contents to backend');
+
+                    // Check the signature hash
+                    if ($finfo['signature']) {
+                        $md5 = base64_encode(hash_final($md5, true));
+                        $sha1 = base64_encode(hash_final($sha1, true));
+                        $sig = str_replace(
+                            array('=','+','/'),
+                            array('','-','_'),
+                            substr($sha1, 0, 16) . substr($md5, 0, 16));
+                        if ($sig != $finfo['signature']) {
+                            throw new Exception(sprintf(
+                                '%s: Signature verification failed',
+                                $f->getName()
+                            ));
+                        }
+                    }
+                } // end try
+                catch (Exception $ex) {
+                    if ($bk) $bk->unlink();
+                    $this->fail($ex->getMessage());
                 }
 
                 // Read file record footer
                 $footer = fread($stream, 4);
                 if (strlen($footer) != 4)
                     $this->fail('Unable to read file EOF marker');
-                list(,$footer) = unpack('N', $footer);
+                list(, $footer) = unpack('N', $footer);
                 // Footer should be EOF\x1c as an int
                 if ($footer != 0x454f461c)
                     $this->fail('Incorrect file EOF marker');
