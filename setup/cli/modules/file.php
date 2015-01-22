@@ -12,6 +12,7 @@ class FileManager extends Module {
                 'list' => 'List files matching criteria',
                 'export' => 'Export files from the system',
                 'import' => 'Load files exported via `export`',
+                'zip' => 'Create a zip file of the matching files',
                 'dump' => 'Dump file content to stdout',
                 'load' => 'Load file contents from stdin',
                 'migrate' => 'Migrate a file to another backend',
@@ -210,6 +211,9 @@ class FileManager extends Module {
 
             foreach ($files as $m) {
                 $f = AttachmentFile::lookup($m->id);
+                if ($options['verbose'])
+                    $this->stderr->write($m->name."\n");
+
                 // TODO: Log %attachment and %ticket_attachment entries
                 $info = array('file' => $f->getInfo());
                 foreach ($m->tickets as $t)
@@ -242,8 +246,8 @@ class FileManager extends Module {
             if (!$options['file'] || $options['file'] == '-')
                 $options['file'] = 'php://stdin';
 
-            if (!($stream = fopen($options['file'], 'wb')))
-                $this->fail($options['file'].': Unable to open file for export stream');
+            if (!($stream = fopen($options['file'], 'rb')))
+                $this->fail($options['file'].': Unable to open import stream');
 
             while (true) {
                 // Read the file header
@@ -381,13 +385,45 @@ class FileManager extends Module {
             }
             break;
 
+        case 'zip':
+            // Create a temporary ZIP file
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
+            if (!$options['file'])
+                $this->fail('Please specify zip file with `-f`');
+
+            $zip = new ZipArchive();
+            if (true !== ($reason = $zip->open($options['file'],
+                    ZipArchive::CREATE)))
+                $this->fail($reason.': Unable to create zip file');
+
+            foreach ($files as $m) {
+                $f = AttachmentFile::lookup($m->id);
+                if ($options['verbose'])
+                    $this->stderr->write($m->name."\n");
+                $name = Format::encode(sprintf(
+                    '%d-%s', $f->getId(), $f->getName()
+                    ), 'utf-8', 'cp437');
+                $zip->addFromString($name, $f->getData());
+            }
+            $zip->close();
+            break;
+
         case 'expunge':
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
 
-            foreach ($files as $f) {
-                $f->tickets->expunge();
-                $f->unlink() && $f->delete();
+            foreach ($files as $m) {
+                // Drop associated attachment links
+                $m->tickets->expunge();
+                $f = AttachmentFile::lookup($m->id);
+
+                // Drop file contents
+                if ($bk = $f->open())
+                    $bk->unlink();
+
+                // Drop file record
+                $f->delete();
             }
         }
     }
