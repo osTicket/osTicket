@@ -3232,12 +3232,15 @@ class Ticket {
                         )
                     );
 
-            $references = $ticket->getLastMessage()->getEmailMessageId();
+            $references = array();
+            $message = $ticket->getLastMessage();
+            if (isset($message))
+                $references[] = $message->getEmailMessageId();
             if (isset($response))
-                $references = array($response->getEmailMessageId(), $references);
+                $references[] = $response->getEmailMessageId();
             $options = array(
                 'references' => $references,
-                'thread' => $ticket->getLastMessage()
+                'thread' => $message,
             );
             $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
