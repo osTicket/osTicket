@@ -291,6 +291,11 @@ Class ThreadEntry {
         return $this->ht['pid'];
     }
 
+    function getParent() {
+        if ($this->getPid())
+            return ThreadEntry::lookup($this->getPid());
+    }
+
     function getType() {
         return $this->ht['thread_type'];
     }
@@ -362,30 +367,9 @@ Class ThreadEntry {
         $headers = self::getEmailHeaderArray();
         if (isset($headers['References']) && $headers['References'])
             $references = $headers['References']." ";
-        if ($include_mid)
-            $references .= $this->getEmailMessageId();
+        if ($include_mid && ($mid = $this->getEmailMessageId()))
+            $references .= $mid;
         return $references;
-    }
-
-    function getTaggedEmailReferences($prefix, $refId) {
-
-        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
-
-        $mid = substr_replace($this->getEmailMessageId(),
-                $ref, strpos($this->getEmailMessageId(), '@'), 0);
-
-        return sprintf('%s %s', $this->getEmailReferences(false), $mid);
-    }
-
-    function getEmailReferencesForUser($user) {
-        return $this->getTaggedEmailReferences('u',
-            ($user instanceof Collaborator)
-                ? $user->getUserId()
-                : $user->getId());
-    }
-
-    function getEmailReferencesForStaff($staff) {
-        return $this->getTaggedEmailReferences('s', $staff->getId());
     }
 
     function getUIDFromEmailReference($ref) {
@@ -1123,10 +1107,7 @@ Class ThreadEntry {
                 return false;
         }
 
-        // Email message id (required for all thread posts)
-        if (!isset($vars['mid']))
-            $vars['mid'] = sprintf('<%s@%s>', Misc::randCode(24),
-                substr(md5($cfg->getUrl()), -10));
+        // Email message id
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)
