@@ -72,7 +72,7 @@ if($_POST && !$errors):
                     $errors['err']=__('Action Denied. Ticket is locked by someone else!');
 
                 //Make sure the email is not banned
-                if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
+                if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
 

@@ -43,7 +43,7 @@ if (!$errors['err']) {
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
         $errors['err'] = sprintf(__('This ticket is currently locked by %s'),
                 $lock->getStaffName());
-    elseif (($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
+    elseif (($emailBanned=Banlist::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
 }
 
