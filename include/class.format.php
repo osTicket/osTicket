@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+include_once INCLUDE_DIR.'class.charset.php';
 
 class Format {
 
@@ -47,12 +48,8 @@ class Format {
         if (!$charset && function_exists('mb_detect_encoding'))
             $charset = mb_detect_encoding($text);
 
-        // Cleanup - incorrect, bogus, or ambiguous charsets
-        // ISO-8859-1 is assumed for empty charset.
-        if (!$charset || in_array(strtolower(trim($charset)),
-                array('default','x-user-defined','iso','us-ascii')))
-            $charset = 'ISO-8859-1';
-
+        // Normalize bogus or ambiguous charsets
+        $charset = Charset::normalize(trim($charset));
         $original = $text;
         if (function_exists('iconv'))
             $text = iconv($charset, $encoding.'//IGNORE', $text);
