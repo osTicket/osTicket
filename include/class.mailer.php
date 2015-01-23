@@ -118,7 +118,7 @@ class Mailer {
      * A: Predictable random code — used for loop detection
      * B: Random data for unique identifier
      *    Version Code: A (at char position 10)
-     * C: TAG: Base64(Pack(userid, ticketid, type)), = chars discarded
+     * C: TAG: Base64(Pack(userid, entryId, type)), = chars discarded
      * D: Signature:
      *   '@' + Signed Tag value, last 10 chars from
      *        HMAC(sha1, tag+rand, SECRET_SALT)
@@ -126,7 +126,11 @@ class Mailer {
      */
     function getMessageId($recipient, $options=array(), $version='A') {
         $tag = '';
-        $rand = str_replace('-','_', Misc::randCode(9));
+        $rand = Misc::randCode(9,
+            // RFC822 specifies the LHS of the addr-spec can have any char
+            // except the specials — ()<>@,;:\".[], dash is reserved as the
+            // section separator, and + is reserved for historical reasons
+            'abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_=');
         $sig = $this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer';
         if ($recipient instanceof EmailContact) {
             // Create a tag for the outbound email
@@ -235,10 +239,16 @@ class Mailer {
 
         $messageId = $this->getMessageId($to, $options);
 
-        if ($to instanceof EmailContact
-            || (is_object($to) && is_callable(array($to, 'getEmail')))
-        ) {
-            $to = $to->getEmail();
+        if (is_object($to) && is_callable(array($to, 'getEmail'))) {
+            // Add personal name if available
+            if (is_callable(array($to, 'getName'))) {
+                $to = sprintf('"%s" <%s>',
+                    $to->getName()->getOriginal(), $to->getEmail()
+                );
+            }
+            else {
+                $to = $to->getEmail();
+            }
         }
 
         //do some cleanup
@@ -290,6 +300,26 @@ class Mailer {
                         implode(' ', $options['references']));
                 else
                     $headers += array('References' => $options['references']);
+            }
+        }
+
+        // Make the best effort to add In-Reply-To and References headers
+        if (isset($options['thread'])
+            && $options['thread'] instanceof ThreadEntry
+        ) {
+            $headers += array('References' => $options['thread']->getEmailReferences());
+            if ($irt = $options['thread']->getEmailMessageId()) {
+                // This is an response from an email, like and autoresponse.
+                // Web posts will not have a email message-id
+                $headers += array('In-Reply-To' => $irt);
+            }
+            elseif ($parent = $options['thread']->getParent()) {
+                // Use the parent item as the email information source. This
+                // will apply for staff replies
+                $headers += array(
+                    'In-Reply-To' => $parent->getEmailMessageId(),
+                    'References' => $parent->getEmailReferences(),
+                );
             }
         }
 
