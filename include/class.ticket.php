@@ -536,11 +536,10 @@ class Ticket {
     //      fallback if the logic in ::setStatus fails.
     function setStatusId($id) {
         $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
-               ' ,status_id='.db_input($status->getId()) .
+               ' ,status_id='.db_input($id) .
                ' WHERE ticket_id='.db_input($this->getId());
 
-        if (!db_query($sql) || !db_affected_rows())
-            return false;
+        return (db_query($sql) && db_affected_rows());
     }
 
     function getStatus() {
