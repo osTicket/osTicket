@@ -25,8 +25,31 @@ class Banlist {
         return self::getSystemBanList()->removeRule('email','equal',$email);
     }
 
-    function isbanned($email) {
-        return TicketFilter::isBanned($email);
+    /**
+     * Quick function to determine if the received email-address is in the
+     * banlist. Returns the filter of the filter that has the address
+     * blacklisted and FALSE if the email is not blacklisted.
+     *
+     */
+    static function isBanned($addr) {
+
+        if (!($filter=self::getFilter()))
+            return false;
+
+        $sql='SELECT filter.id '
+            .' FROM '.FILTER_TABLE.' filter'
+            .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
+            .'  ON (filter.id=rule.filter_id)'
+            .' WHERE filter.id='.db_input($filter->getId())
+            .'   AND filter.isactive'
+            .'   AND rule.isactive '
+            .'   AND rule.what="email"'
+            .'   AND rule.val='.db_input($addr);
+
+        if (($res=db_query($sql)) && db_num_rows($res))
+            return $filter;
+
+        return false;
     }
 
     function includes($email) {
@@ -61,7 +84,7 @@ class Banlist {
         return new Filter(self::ensureSystemBanList());
     }
 
-    function getFilter() {
+    static function getFilter() {
         return self::getSystemBanList();
     }
 }

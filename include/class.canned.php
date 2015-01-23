@@ -84,9 +84,28 @@ class Canned {
         return $this->isEnabled();
     }
 
+    function getFilters() {
+
+        if (!isset($this->_filters)) {
+            $this->_filters = array();
+            $cid = sprintf('"canned_id":%d', $this->getId());
+            $sql='SELECT filter.id, filter.name '
+                .' FROM '.FILTER_TABLE.' filter'
+                .' INNER JOIN '.FILTER_ACTION_TABLE.' action'
+                .'  ON (filter.id=action.filter_id)'
+                .' WHERE action.type="canned"'
+                ."  AND action.configuration LIKE '%$cid%'";
+
+            if (($res=db_query($sql)) && db_num_rows($res))
+                while (list($id, $name) = db_fetch_row($res))
+                    $this->_filters[$id] = $name;
+        }
+
+        return $this->_filters;
+    }
+
     function getNumFilters() {
-        //XXX : Query the filter action table and cache the results
-        return $this->ht['filters'];
+        return count($this->getFilters());
     }
 
     function getTitle() {
@@ -172,19 +191,6 @@ class Canned {
 
     function getInfo() {
         return $this->getHashtable();
-    }
-
-    function getFilters() {
-        if (!$this->_filters) {
-            $this->_filters = array();
-            $res = db_query(
-                  'SELECT name FROM '.FILTER_TABLE
-                .' WHERE canned_response_id = '.db_input($this->getId())
-                .' ORDER BY name');
-            while ($row = db_fetch_row($res))
-                $this->_filters[] = $row[0];
-        }
-        return $this->_filters;
     }
 
     function update($vars, &$errors) {

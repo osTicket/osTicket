@@ -2668,8 +2668,8 @@ class Ticket {
 
         try {
             // Make sure the email address is not banned
-            if (TicketFilter::isBanned($vars['email'])) {
-                throw new RejectedException(Banlist::getFilter(), $vars);
+            if (($filter=Banlist::isBanned($vars['email']))) {
+                throw new RejectedException($filter, $vars);
             }
 
             // Init ticket filters...

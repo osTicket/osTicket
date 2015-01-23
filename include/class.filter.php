@@ -503,17 +503,7 @@ class Filter {
             .',email_id='.db_input($emailId)
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
-            .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
             .',notes='.db_input(Format::sanitize($vars['notes']));
-
-
-        //Auto assign ID is overloaded...
-        if($vars['assign'] && $vars['assign'][0]=='s')
-             $sql.=',team_id=0,staff_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        elseif($vars['assign'] && $vars['assign'][0]=='t')
-            $sql.=',staff_id=0,team_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        else
-            $sql.=',staff_id=0,team_id=0 '; //no auto-assignment!
 
         if($id) {
             $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
@@ -543,8 +533,16 @@ class Filter {
             return;
 
         foreach ($vars['actions'] as $sort=>$v) {
-            $info = substr($v, 1);
-            switch ($v[0]) {
+            if (is_array($v)) {
+                $info = $v['type'];
+                $sort = $v['sort'] ?: $sort;
+                $action = 'N';
+            } else {
+                $action = $v[0];
+                $info = substr($v, 1);
+            }
+
+            switch ($action) {
             case 'N': # new filter action
                 $I = FilterAction::create(array(
                     'type'=>$info,
@@ -804,51 +802,6 @@ class TicketFilter {
         $sql.=' ORDER BY execorder';
 
         return db_query($sql);
-    }
-
-    /**
-     * Quick function to determine if the received email-address is
-     * indicated by an active email filter to be banned. Returns the id of
-     * the filter that has the address blacklisted and FALSE if the email is
-     * not blacklisted.
-     *
-     * XXX: If more detailed matching is to be supported, perhaps this
-     *      should receive an array like the constructor and
-     *      Filter::matches() method.
-     *      Peter - Let's keep it as a quick scan for obviously banned emails.
-     */
-    /* static */
-    function isBanned($addr) {
-
-        $sql='SELECT filter.id, what, how, UPPER(val) '
-            .' FROM '.FILTER_TABLE.' filter'
-            .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
-            .' ON (filter.id=rule.filter_id)'
-            .' WHERE filter.reject_ticket'
-            .'   AND filter.match_all_rules=0'
-            .'   AND filter.email_id=0'
-            .'   AND filter.isactive'
-            .'   AND rule.isactive '
-            .'   AND rule.what="email"'
-            .'   AND LOCATE(rule.val,'.db_input($addr).')';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        # XXX: Use MB_xxx function for proper unicode support
-        $addr = strtoupper($addr);
-        $how=array('equal'      => array('strcmp', 0),
-                   'contains'   => array('strpos', null, false));
-
-        while ($row=db_fetch_array($res)) {
-            list($func, $pos, $neg) = $how[$row['how']];
-            if (!$func) continue;
-            $result = call_user_func($func, $addr, $row['val']);
-            if (($neg === null && $result === $pos) || $result !== $neg)
-                return $row['id'];
-        }
-
-        return false;
     }
 
     /**
