@@ -341,7 +341,7 @@ class TnefAttributeStreamReader extends TnefStreamReader {
             /* Read and truncate to length. */
             $text = substr($this->_getx($datalen), 0, $length);
             if ($type == self::TypeUnicode) {
-                $text = Format::encode($text, 'ucs2');
+                $text = Charset::utf8($text, 'ucs2');
             }
 
             return $text;
@@ -543,7 +543,7 @@ class TnefMessage extends AbstractTnefObject {
 
         // Transcode it
         if ($encoding && $charset)
-            $body = Format::encode($body, $charset, $encoding);
+            $body = Charset::transcode($body, $charset, $encoding);
 
         return $body;
     }
