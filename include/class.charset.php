@@ -15,9 +15,11 @@
 
 class Charset {
 
+    const UTF8 = 'utf-8';
+
     // Cleanup invalid charsets
     // Thanks in part to https://github.com/mikel/mail/commit/88457e
-    function normalize($charset) {
+    static function normalize($charset) {
 
         $match = array();
         switch (true) {
@@ -36,6 +38,38 @@ class Charset {
 
         // Hmmmm
         return $charset;
+    }
+
+    // Translate characters ($text) from one encoding ($from) to another ($to)
+    static function transcode($text, $from, $to) {
+
+        //Try auto-detecting charset/encoding
+        if (!$from && function_exists('mb_detect_encoding'))
+            $from = mb_detect_encoding($text);
+
+        // Normalize bogus or ambiguous charsets
+        $from = self::normalize(trim($from));
+        $to = self::normalize(trim($to));
+
+        $original = $text;
+        if (function_exists('iconv'))
+            $text = iconv($from, $to.'//IGNORE', $text);
+        elseif (function_exists('mb_convert_encoding'))
+            $text = mb_convert_encoding($text, $to, $from);
+        elseif (!strcasecmp($to, 'utf-8')
+                && function_exists('utf8_encode')
+                && !strcasecmp($from, 'ISO-8859-1'))
+            $text = utf8_encode($text);
+
+        // If $text is false, then we have a (likely) invalid charset, use
+        // the original text and assume 8-bit (latin-1 / iso-8859-1)
+        // encoding
+        return (!$text && $original) ? $original : $text;
+    }
+
+    //Wrapper for utf-8 transcoding.
+    function utf8($text, $charset=null) {
+        return self::transcode($text, $charset, self::UTF8);
     }
 }
 ?>

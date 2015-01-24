@@ -345,7 +345,7 @@ class ApiXmlDataParser extends XmlDataParser {
                     unset($value[":text"]);
                 }
                 if (isset($value['encoding']))
-                    $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
+                    $value['body'] = Charset::utf8($value['body'], $value['encoding']);
 
                 if (!strcasecmp($value['type'], 'text/html'))
                     $value = new HtmlThreadBody($value['body']);
