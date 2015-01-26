@@ -29,7 +29,6 @@ implements AuthenticatedUser {
     static $meta = array(
         'table' => STAFF_TABLE,
         'pk' => array('staff_id'),
-        'select_related' => array('group'),
         'joins' => array(
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
