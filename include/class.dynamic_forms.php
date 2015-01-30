@@ -254,6 +254,87 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
+    static function ensureDynamicDataView() {
+
+        if (!($cdata=static::$cdata) || !$cdata['table'])
+            return false;
+
+        $sql = 'SHOW TABLES LIKE \''.$cdata['table'].'\'';
+        if (!db_num_rows(db_query($sql)))
+            return static::buildDynamicDataView($cdata);
+    }
+
+    static function buildDynamicDataView($cdata) {
+        $sql = 'CREATE TABLE `'.$cdata['table'].'` (PRIMARY KEY
+                ('.$cdata['object_id'].')) AS '
+             .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
+        db_query($sql);
+    }
+
+    static function dropDynamicDataView($table) {
+        db_query('DROP TABLE IF EXISTS `'.$table.'`');
+    }
+
+    static function updateDynamicDataView($answer, $data) {
+        // TODO: Detect $data['dirty'] for value and value_id
+        // We're chiefly concerned with Ticket form answers
+
+        $cdata = static::$cdata;
+        if (!$cdata
+                || !$cdata['table']
+                || !($e = $answer->getEntry())
+                || $e->getForm()->get('type') != $cdata['object_type'])
+            return;
+
+        // $record = array();
+        // $record[$f] = $answer->value'
+        // TicketFormData::objects()->filter(array('ticket_id'=>$a))
+        //      ->merge($record);
+        $sql = 'SHOW TABLES LIKE \''.$cdata['table'].'\'';
+        if (!db_num_rows(db_query($sql)))
+            return;
+
+        $f = $answer->getField();
+        $name = $f->get('name') ? $f->get('name')
+            : 'field_'.$f->get('id');
+        $fields = sprintf('`%s`=', $name) . db_input(
+            implode(',', $answer->getSearchKeys()));
+        $sql = 'INSERT INTO `'.$cdata['table'].'` SET '.$fields
+            . sprintf(', `%s`= %s',
+                    $cdata['object_id'],
+                    db_input($answer->getEntry()->get('object_id')))
+            .' ON DUPLICATE KEY UPDATE '.$fields;
+        if (!db_query($sql) || !db_affected_rows())
+            return self::dropDynamicDataView($cdata['table']);
+    }
+
+    static function updateDynamicFormEntryAnswer($answer, $data) {
+        if (!$answer
+                || !($e = $answer->getEntry())
+                || !$e->getForm())
+            return;
+
+        switch ($e->getForm()->get('type')) {
+        case 'T':
+            return TicketForm::updateDynamicDataView($answer, $data);
+        case 'A':
+            return TaskForm::updateDynamicDataView($answer, $data);
+        }
+
+    }
+
+    static function updateDynamicFormField($field, $data) {
+        if (!$field || !$field->getForm())
+            return;
+
+        switch ($field->getForm()->get('type')) {
+        case 'T':
+            return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
+        case 'A':
+            return TaskForm::dropDynamicDataView(TicketForm::$cdata['table']);
+        }
+
+    }
 
     static function getCrossTabQuery($object_type, $object_id='object_id', $exclude=array()) {
         $fields = static::getDynamicDataViewFields($exclude);
@@ -264,8 +345,7 @@ class DynamicForm extends VerySimpleModel {
             WHERE entry.object_type='$object_type' GROUP BY entry.object_id";
     }
 
-    // Materialized View for Ticket custom data (MySQL FlexViews would be
-    // nice)
+    // Materialized View for custom data (MySQL FlexViews would be nice)
     //
     // @see http://code.google.com/p/flexviews/
     static function getDynamicDataViewFields($exclude) {
@@ -346,6 +426,12 @@ Filter::addSupportedMatches(/* @trans */ 'User Data', function() {
 
 class TicketForm extends DynamicForm {
     static $instance;
+
+    static $cdata = array(
+            'table' => TICKET_CDATA_TABLE,
+            'object_id' => 'ticket_id',
+            'object_type' => 'T',
+        );
 
     static function objects() {
         $os = parent::objects();
@@ -435,27 +521,24 @@ Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
 }, 30);
 // Manage materialized view on custom data updates
 Signal::connect('model.created',
-    array('TicketForm', 'updateDynamicDataView'),
+    array('DynamicForm', 'updateDynamicFormEntryAnswer'),
     'DynamicFormEntryAnswer');
 Signal::connect('model.updated',
-    array('TicketForm', 'updateDynamicDataView'),
+    array('DynamicForm', 'updateDynamicFormEntryAnswer'),
     'DynamicFormEntryAnswer');
 // Recreate the dynamic view after new or removed fields to the ticket
 // details form
 Signal::connect('model.created',
-    array('TicketForm', 'dropDynamicDataView'),
-    'DynamicFormField',
-    function($o) { return $o->form->type == 'T'; });
+    array('DynamicForm', 'updateDynamicFormField'),
+    'DynamicFormField');
 Signal::connect('model.deleted',
-    array('TicketForm', 'dropDynamicDataView'),
-    'DynamicFormField',
-    function($o) { return $o->form->type == 'T'; });
+    array('DynamicForm', 'updateDynamicFormField'),
+    'DynamicFormField');
 // If the `name` column is in the dirty list, we would be renaming a
 // column. Delete the view instead.
 Signal::connect('model.updated',
-    array('TicketForm', 'dropDynamicDataView'),
+    array('DynamicForm', 'updateDynamicFormField'),
     'DynamicFormField',
-    // TODO: Lookup the dynamic form to verify {type == 'T'}
     function($o, $d) { return isset($d['dirty'])
         && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
 
