@@ -200,8 +200,16 @@ class Thread {
             return false;
 
         $this->deleteAttachments();
+        $this->removeCollaborators();
 
         return true;
+    }
+
+    function removeCollaborators() {
+        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE ticket_id='.db_input($this->getTicketId());
+
+        return  (db_query($sql) && db_affected_rows());
     }
 
     /* static */
