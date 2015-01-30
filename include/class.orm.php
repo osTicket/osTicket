@@ -176,9 +176,18 @@ class VerySimpleModel {
             elseif (isset($j['fkey'])
                     && ($class = $j['fkey'][0])
                     && class_exists($class)) {
+                $criteria = array();
+                foreach ($j['constraint'] as $local => $foreign) {
+                    list(,$F) = explode('.', $foreign);
+                    if ($local[0] == "'") {
+                        $criteria[$F] = trim($local,"'");
+                    }
+                    else {
+                        $criteria[$F] = $this->ht[$local];
+                    }
+                }
                 try {
-                    $v = $this->ht[$field] = $class::lookup(
-                        array($j['fkey'][1] => $this->ht[$j['local']]));
+                    $v = $this->ht[$field] = $class::lookup($criteria);
                 }
                 catch (DoesNotExist $e) {
                     $v = null;
@@ -1688,7 +1697,6 @@ class MySqlCompiler extends SqlCompiler {
             // Support local constraint
             // field_name => "'constant'"
             elseif ($foreign[0] == "'" && !$right) {
-            die();
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
                     $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
