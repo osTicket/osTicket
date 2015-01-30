@@ -60,6 +60,8 @@ RedactorPlugins.draft = function() {
             if (!this.opts.draftId)
                 trash.hide();
         }
+        if (this.code.get())
+          this.$box.trigger('draft:recovered');
     },
     afterUpdateDraft: function(name, data) {
         // Slight workaround. Signal the 'keyup' event normally signaled
@@ -93,6 +95,7 @@ RedactorPlugins.draft = function() {
         // Show the button if there is a draft to delete
         if (this.opts.draftId && this.opts.draftDelete)
             this.draft.deleteButton.show();
+        this.$box.trigger('draft:saved');
     },
     autosaveFailed: function(error) {
         if (error.code == 422)
@@ -103,6 +106,7 @@ RedactorPlugins.draft = function() {
         // Cancel autosave
         clearInterval(this.autosaveInterval);
         this.hideDraftSaved();
+        this.$box.trigger('draft:failed');
     },
 
     displayError: function(json) {
@@ -128,6 +132,7 @@ RedactorPlugins.draft = function() {
                 self.opts.autosave = self.opts.autoCreateUrl;
                 self.draft.deleteButton.hide();
                 self.draft.firstSave = false;
+                this.$box.trigger('draft:deleted');
             }
         });
     }

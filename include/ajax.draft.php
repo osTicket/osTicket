@@ -61,6 +61,21 @@ class DraftAjaxAPI extends AjaxController {
             unset($_FILES['file']);
 
             $file = AttachmentFile::format($_FILES['image']);
+            # Allow for data-uri uploaded files
+            $fp = fopen($file[0]['tmp_name'], 'rb');
+            if (fread($fp, 5) == 'data:') {
+                $data = 'data:';
+                while ($block = fread($fp, 8192))
+                  $data .= $block;
+                $file[0] = Format::parseRfc2397($data);
+                list(,$ext) = explode('/', $file[0]['type'], 2);
+                $file[0] += array(
+                    'name' => Misc::randCode(8).'.'.$ext,
+                    'size' => strlen($file[0]['data']),
+                );
+            }
+            fclose($fp);
+
             # TODO: Detect unacceptable attachment extension
             # TODO: Verify content-type and check file-content to ensure image
             $type = $file[0]['type'];
@@ -79,8 +94,14 @@ class DraftAjaxAPI extends AjaxController {
                     ))
                 );
 
+            if (isset($file[0]['tmp_name'])) {
+              $ids = $draft->attachments->upload($file);
+            }
+            else {
+              $ids = $draft->attachments->save($file[0]);
+            }
 
-            if (!($ids = $draft->attachments->upload($file))) {
+            if (!$ids) {
                 if ($file[0]['error']) {
                     return Http::response(403,
                         JsonDataEncoder::encode(array(
@@ -92,7 +113,7 @@ class DraftAjaxAPI extends AjaxController {
                     return Http::response(500, 'Unable to attach image');
             }
 
-            $id = $ids[0];
+            $id = (is_array($ids)) ? $ids[0] : $ids;
         }
         else {
             $type = explode('/', $_POST['contentType']);

@@ -817,11 +817,10 @@ RedactorPlugins.imagepaste = function() {
       }
       else if (cd.types.length) {
         for (i = 0, k = cd.types.length; i < k; i++) {
-          console.log(cd.types[i], cd.getData(cd.types[i]));
           if (cd.types[i].indexOf('image/') != -1) {
             var data = cd.getData(cd.types[i]);
             if (data.length)
-                files.push(new Blob([data]));
+                files.push(new Blob([data], {type: cd.types[i]}));
           }
         }
       }
@@ -838,80 +837,742 @@ RedactorPlugins.imagepaste = function() {
   };
 };
 
+var loadedFabric = false;
 RedactorPlugins.imageannotate = function() {
   return {
-    canvases: [],
+    annotateButton: false,
     init: function() {
-      var button = this.button.add('annotate', __('Annotate')),
-          dropdown = {
-            line: {title: __('Add Line'), func: this.imageannotate.addLine}
-          };
-      this.button.setAwesome('annotate', 'icon-pencil');
-      this.button.addDropdown(button, dropdown);
-      if (typeof window.fabric === 'undefined')
+      var redactor = this,
+          self = this.imageannotate;
+      if (typeof window.fabric === 'undefined' && !loadedFabric) {
           $.getScript('../js/fabric.min.js');
+          loadedFabric = true;
+      }
+      $(document).on('click', '.redactor-box img', function() {
+        var $image = $(this),
+            image_box = $('#redactor-image-box');
+        if (!image_box.length || !redactor.image.editter)
+            return;
+
+        var edit_size = redactor.image.editter.outerWidth();
+
+        self.annotateButton = redactor.image.editter
+          .on('remove.annotate',
+            function() { self.teardownAnnotate.call(redactor, image_box); })
+          .clone()
+          .text(' '+__('Annotate'))
+          .prepend('<i class="icon-pencil"></i>')
+          .addClass('annotate-button')
+          .insertAfter(redactor.image.editter)
+          .data('image', this)
+          .on('click',
+            function() { self.startAnnotate.call(redactor, $image) });
+        var diff = (edit_size - self.annotateButton.outerWidth()) / 2;
+        self.annotateButton.css('margin-left',
+          (diff + 5) + 'px');
+        redactor.image.editter.css('margin-left',
+          (-edit_size + diff - 5) + 'px');
+      });
     },
-    addLine: function() {
-      this.imageannotate.initCanvas();
+    startAnnotate: function(img) {
+        canvas = this.imageannotate.initCanvas(img);
+        this.imageannotate.buildToolbar(img);
+        this.image.editter.hide();
+        this.imageannotate.annotateButton.hide();
+    },
+    teardownAnnotate: function(box) {
+        this.image.editter.off('.annotate');
+        this.opts.keydownCallback = false;
+        this.opts.keyupCallback = false;
+        box.find('.annotate-toolbar').remove();
+        box.find('.annotate-button').remove();
+        var img = box.find('img')[0],
+            $img = $(img),
+            fcanvas = $img.data('canvas'),
+            state = fcanvas.toObject();
+        // Capture current annotations
+        delete state.backgroundImage;
+        $img.attr('data-annotations', btoa(JSON.stringify(state)));
+        // Drop the canvas
+        fcanvas.dispose();
+        box.find('canvas').parent().remove();
+        $img.data('canvas', false);
+        // Deselect the image
+        this.image.hideResize();
+        // Show the original image
+        $img.removeClass('hidden');
+    },
+    buildToolbar: function(img) {
+        var box = img.parent(),
+            redactor = this,
+            plugin = this.imageannotate,
+            shapes = $('<span>')
+              .attr('data-redactor', 'verified')
+              .attr('contenteditable', 'false')
+              .css({'display': 'inline-block', 'vertical-align': 'top'}),
+            swatches = shapes.clone(),
+            actions = shapes.clone(),
+            container = $('<div></div>')
+              .addClass('annotate-toolbar')
+              .attr('data-redactor', 'verified')
+              .attr('contenteditable', 'false')
+              .css({position: 'absolute', bottom: 0, 'min-height': '28px',
+                width: '100%', 'background-color': 'rgba(0,0,0,0.5)',
+                margin: 0, 'padding-top': '4px' })
+              .appendTo(box)
+              .append(shapes)
+              .append(swatches)
+              .append(actions);
+
+        var button = $('<a></a>')
+            .attr('href', '#')
+            .attr('data-redactor', 'verified')
+            .attr('contenteditable', 'false')
+            .css({color: 'white', padding: '0 7px 1px', margin: '1px 3px',
+                'text-decoration': 'none', 'vertical-align': 'top'});
+
+        shapes
+            .append(button.clone()
+              .append($('<i class="icon-arrow-right icon-large"></i>')
+              .on('click', plugin.drawArrow.bind(redactor))
+              .attr('title', __('Add Arrow')))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-check-empty icon-large"></i>')
+              .on('click', plugin.drawBox.bind(redactor))
+              .attr('title', __('Add Rectangle')))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-circle-blank icon-large"></i>')
+              .on('click', plugin.drawEllipse.bind(redactor))
+              .attr('title', __('Add Ellipse')))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-text-height icon-large"></i>')
+              .on('click', plugin.drawText.bind(redactor))
+              .attr('title', __('Add Text')))
+            );
+
+      var colors = [
+          '#ffffff', '#888888', '#000000', 'fuchsia', 'blue', 'red',
+          'lime', 'blueviolet', 'cyan', '#f4a63b', 'yellow']
+          len = colors.length;
+
+      swatches.append(
+        $('<span><i class="icon-ellipsis-vertical icon-large"></i></span>')
+          .css({color: 'white', padding: '0 3px 1px', margin: '1px 3px',
+            height: '21px', position: 'relative', bottom: '8px'}
+          )
+      );
+      for (var z = 0; z < len; z++) {
+        var color = colors[z];
+
+        var $swatch = $('<a rel="' + color + '" href="#" style="font-size: 0; padding: 0; margin: 2px; width: 22px; height: 22px;"></a>');
+        $swatch.css({'background-color': color, 'border': '1px dotted rgba(255,255,255,0.4)'});
+        $swatch.attr('data-redactor', 'verified');
+        $swatch.attr('contenteditable', 'false');
+        $swatch.on('click', plugin.setColor.bind(redactor));
+
+        swatches.append($swatch);
+      }
+
+        actions
+            .append(
+              $('<span><i class="icon-ellipsis-vertical icon-large"></i></span>')
+                .css({color: 'white', padding: '0 3px 1px', margin: '1px 3px',
+                  height: '21px'}
+                )
+            )
+            .append(button.clone()
+              .css('padding-left', '1px')
+              .append($('<span></span>').css('position','relative')
+                .append($('<i class="icon-font"></i>'))
+                .append($('<i class="icon-minus"></i>')
+                  .css({position: 'absolute', right: '-4px', top: '5px',
+                    'text-shadow': '0 0 2px black', 'font-size':'80%'})
+                )
+              )
+              .on('click', plugin.smallerFont.bind(redactor))
+              .attr('title', __('Decrease Font Size'))
+            )
+            .append(button.clone()
+              .css('padding-left', '1px')
+              .append($('<span></span>').css('position','relative')
+                .append($('<i class="icon-font icon-large"></i>'))
+                .append($('<i class="icon-plus"></i>')
+                  .css({position: 'absolute', right: '-8px', top: '4px',
+                    'text-shadow': '0 0 2px black'})
+                )
+              )
+              .on('click', plugin.biggerFont.bind(redactor))
+              .attr('title', __('Increase Font Size'))
+            )
+            .append(button.clone()
+              .attr('id', 'annotate-set-stroke')
+              .append($('<span></span>').css({'position': 'relative', 'top': '2px'})
+                .append($('<i class="icon-check-empty icon-large"></i>')
+                  .css('font-size', '120%')
+                ).append($('<i class="icon-tint"></i>')
+                  .css({position: 'absolute', left: '4.5px', top: 0})
+                )
+              )
+              .on('click', plugin.paintStroke.bind(redactor))
+              .attr('title', __('Set Stroke'))
+            )
+            .append(button.clone()
+              .attr('id', 'annotate-set-fill')
+              .append($('<span></span>').css('position','relative')
+                .append($('<i class="icon-sign-blank icon-large"></i>'))
+                .append($('<i class="icon-tint icon-dark"></i>')
+                  .css({position: 'absolute', left: '4px', top: '2px'})
+                )
+              )
+              .on('click', plugin.paintFill.bind(redactor))
+              .attr('title', __('Set Fill'))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-eye-close icon-large"></i>'))
+              .on('click', plugin.setOpacity.bind(redactor))
+              .attr('title', __('Toggle Opacity'))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-double-angle-up icon-large"></i>'))
+              .on('click', plugin.bringForward.bind(redactor))
+              .attr('title', __('Bring Forward'))
+            )
+            .append(button.clone()
+              .append($('<i class="icon-trash icon-large"></i>'))
+              .on('click', plugin.discard.bind(redactor))
+              .attr('title', __('Delete Object'))
+            );
+
+        container.append(button.clone()
+          .append($('<i class="icon-save icon-large"></i>'))
+          .on('click', plugin.commit.bind(redactor))
+          .addClass('pull-right')
+          .attr('title', __('Commit Annotations'))
+        );
+        plugin.paintStroke();
+    },
+
+    setColor: function(e) {
+      e.preventDefault();
+      var plugin = this.imageannotate,
+          redactor = this,
+          swatch = e.target,
+          image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active')) {
+          if (plugin.paintMode == 'fill')
+            this.setFill($(e.target).attr('rel'));
+          else
+            this.setStroke($(e.target).attr('rel'));
+        }
+      });
+      fcanvas.renderAll();
+    },
+
+    // Shapes
+    drawShape: function(ondown, onmove, onup, cursor) {
       // @see http://jsfiddle.net/URWru/
-      var isDown, line;
-      $(this.imageannotate.canvases)
-        .on('mouse:down', function(o){
-          isDown = true;
-          var pointer = canvas.getPointer(o.e);
-          var points = [ pointer.x, pointer.y, pointer.x, pointer.y ];
-          line = new fabric.Line(points, {
-            strokeWidth: 5,
-            fill: 'red',
-            stroke: 'red',
+      var plugin = this.imageannotate,
+          redactor = this,
+          image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas'),
+          isDown, shape,
+          mousedown = function(o) {
+            isDown = true;
+            plugin.setBuffer();
+            var pointer = fcanvas.getPointer(o.e);
+            shape = ondown(pointer, o.e);
+            fcanvas.add(shape);
+          },
+          mousemove = function(o) {
+            if (!isDown) return;
+            var pointer = fcanvas.getPointer(o.e);
+            onmove(shape, pointer, o.e);
+            fcanvas.renderAll();
+          },
+          mouseup = function(o) {
+            isDown = false;
+            if (onup) {
+              if (shape2 = onup(shape, fcanvas.getPointer(o.e))) {
+                shape.remove();
+                fcanvas.add(shape2);
+                shape = shape2;
+              }
+            }
+            shape.setCoords()
+              .set({
+                transparentCorners: false,
+                borderColor: 'rgba(102,153,255,0.9)',
+                cornerColor: 'rgba(102,153,255,0.5)',
+                cornerSize: 10
+              });
+            fcanvas.calcOffset()
+              .off('mouse:down', mousedown)
+              .off('mouse:up', mouseup)
+              .off('mouse:move', mousemove)
+              .deactivateAll()
+              .setActiveObject(shape)
+              .renderAll();
+            fcanvas.selection = true;
+            fcanvas.defaultCursor = 'default';
+          };
+
+        fcanvas.selection = false;
+        fcanvas.defaultCursor = cursor || 'crosshair';
+        // Ensure double presses of same button are squelched
+        fcanvas.off('mouse:down');
+        fcanvas.off('mouse:up');
+        fcanvas.off('mouse:move');
+        fcanvas.on('mouse:down', mousedown);
+        fcanvas.on('mouse:up', mouseup);
+        fcanvas.on('mouse:move', mousemove);
+        return false;
+    },
+
+    drawArrow: function(e) {
+      e.preventDefault();
+      var top, left;
+      return this.imageannotate.drawShape(
+        function(pointer) {
+          top = pointer.y;
+          left = pointer.x;
+          return new fabric.Group([
+            new fabric.Line([0, 5, 0, 5], {
+              strokeWidth: 5,
+              fill: 'red',
+              stroke: 'red',
+              originX: 'center',
+              originY: 'center',
+              selectable: false,
+              hasBorders: false
+            }),
+            new fabric.Polygon([
+              {x: 20, y: 0},
+              {x: 0, y: -5},
+              {x: 0, y: 5}
+              ], {
+              strokeWidth: 0,
+              fill: 'red',
+              originX: 'center',
+              originY: 'center',
+              selectable: false,
+              hasBorders: false
+            })
+          ], {
+            left: pointer.x,
+            top: pointer.y,
             originX: 'center',
             originY: 'center'
           });
-          this.add(line);
-        })
-        .on('mouse:move', function(o){
-          if (!isDown) return;
-          var pointer = this.getPointer(o.e);
-          line.set({ x2: pointer.x, y2: pointer.y });
-          this.renderAll();
-        })
-        .on('mouse:up', function(o){
-          isDown = false;
-        });
+        },
+        function(group, pointer) {
+          var dx = pointer.x - left,
+              dy = pointer.y - top,
+              angle = Math.atan(dy / dx),
+              d = Math.sqrt(dx * dx + dy * dy) - 10,
+              sign = dx < 0 ? -1 : 1,
+              dy2 = Math.sin(angle) * d * sign;
+              dx2 = Math.cos(angle) * d * sign,
+          group.item(0)
+            .set({ x2: dx2, y2: dy2 });
+          group.item(1)
+            .set({
+              angle: angle * 180 / Math.PI,
+              flipX: dx < 0,
+              flipY: dy < 0
+            })
+            .setPositionByOrigin(new fabric.Point(dx, dy),
+                'center', 'center');
+        },
+        function(shape, pointer) {
+          var dx = pointer.x - left,
+              dy = pointer.y - top,
+              angle = Math.atan(dy / dx),
+              d = Math.sqrt(dx * dx + dy * dy);
+          // Mess with the next two lines and you *will* be sorry!
+          shape.forEachObject(function(e) { shape.removeWithUpdate(e); });
+          return new fabric.Path(
+            'M '+left+' '+top+' l '+(d-20)+' 0 0 -3 15 3 -15 3 0 -3 z', {
+            angle: angle * 180 / Math.PI + (dx < 0 ? 180 : 0),
+            strokeWidth: 5,
+            fill: 'red',
+            stroke: 'red'
+          });
+        }
+      );
     },
-    initCanvas: function() {
-      var self = this;
-      $('img', this.$editor).each(function(i, img) {
-          var $img = $(img),
-              box = self.imageannotate.wrapImage($img),
-              canvas = fabric.Canvas(box);
-          $img.data('canvas') = canvas;
+
+    drawEllipse: function(e) {
+      e.preventDefault();
+      return this.imageannotate.drawShape(
+        function(pointer) {
+          return new fabric.Ellipse({
+            top: pointer.y,
+            left: pointer.x,
+            strokeWidth: 5,
+            fill: 'transparent',
+            stroke: 'red',
+            originX: 'left',
+            originY: 'top'
+          });
+        },
+        function(circle, pointer, event) {
+          var x = circle.get('left'), y = circle.get('top'),
+              dx = pointer.x - x, dy = pointer.y - y,
+              sw = circle.getStrokeWidth()/2;
+          // Use SHIFT to draw circles
+          if (event.shiftKey) {
+            dy = dx = Math.max(dx, dy);
+          }
+          circle.set({
+            rx: Math.max(0, Math.abs(dx/2) - sw),
+            ry: Math.max(0, Math.abs(dy/2) - sw),
+            originX: dx < 0 ? 'right' : 'left',
+            originY: dy < 0 ? 'bottom' : 'top'});
+        }
+      );
+    },
+
+    drawBox: function(e) {
+      e.preventDefault();
+      return this.imageannotate.drawShape(
+        function(pointer) {
+          return new fabric.Rect({
+            top: pointer.y,
+            left: pointer.x,
+            strokeWidth: 5,
+            fill: 'transparent',
+            stroke: 'red',
+            originX: 'left',
+            originY: 'top'
+          });
+        },
+        function(rect, pointer, event) {
+          var x = rect.get('left'), y = rect.get('top'),
+              dx = pointer.x - x, dy = pointer.y - y;
+          // Use SHIFT to draw squares
+          if (event.shiftKey) {
+            dy = dx = Math.max(dx, dy);
+          }
+          rect.set({ width: Math.abs(dx), height: Math.abs(dy),
+            originX: dx < 0 ? 'right' : 'left',
+            originY: dy < 0 ? 'bottom' : 'top'});
+        }
+      );
+    },
+
+    drawText: function(e) {
+      e.preventDefault();
+      return this.imageannotate.drawShape(
+        function(pointer) {
+          return new fabric.IText(__('Text'), {
+            top: pointer.y,
+            left: pointer.x,
+            fill: 'red',
+            originX: 'left',
+            originY: 'top',
+            fontFamily: 'sans-serif'
+          });
+        },
+        function(rect, pointer, event) {
+          var x = rect.get('left'), y = rect.get('top'),
+              dx = pointer.x - x, dy = pointer.y - y;
+          // Use SHIFT to draw squares
+          if (event.shiftKey) {
+            dy = dx = Math.max(dx, dy);
+          }
+          rect.set({ width: Math.abs(dx), height: Math.abs(dy),
+            originX: dx < 0 ? 'right' : 'left',
+            originY: dy < 0 ? 'bottom' : 'top'});
+        },
+        function(shape) {
+            shape.exitEditing();
+            shape.enterEditing();
+            shape.exitEditing();
+        },
+        'text'
+      );
+    },
+
+    // Action buttons
+    biggerFont: function(e) {
+      e.preventDefault();
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active') && this instanceof fabric.IText) {
+          if (this.getSelectedText()) {
+            this.setSelectionStyles({
+              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) + 10
+            });
+          }
+          else {
+            this.setFontSize(this.getFontSize() + 10);
+          }
+        }
+      });
+      fcanvas.renderAll();
+      return false;
+    },
+    smallerFont: function(e) {
+      e.preventDefault();
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active') && this instanceof fabric.IText) {
+          if (this.getSelectedText()) {
+            this.setSelectionStyles({
+              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) - 10
+            });
+          }
+          else {
+            this.setFontSize(this.getFontSize() - 10);
+          }
+        }
+      });
+      fcanvas.renderAll();
+      return false;
+    },
+
+    paintStroke: function(e) {
+      $('#annotate-set-stroke').css({'background-color': 'rgba(255,255,255,0.3)'});
+      $('#annotate-set-fill').css({'background-color': 'transparent'});
+      this.imageannotate.paintMode = 'stroke';
+      return false;
+    },
+    paintFill: function(e) {
+      $('#annotate-set-fill').css({'background-color': 'rgba(255,255,255,0.3)'});
+      $('#annotate-set-stroke').css({'background-color': 'transparent'});
+      this.imageannotate.paintMode = 'fill';
+      return false;
+    },
+
+    setOpacity: function(e) {
+      e.preventDefault();
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active')) {
+          if (this.getOpacity() != 1)
+            this.setOpacity(1);
+          else
+            this.setOpacity(0.6);
+        }
+      });
+      fcanvas.renderAll();
+      return false;
+    },
+
+    bringForward: function(e) {
+      e.preventDefault();
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active')) {
+          this.bringForward();
+        }
       });
     },
-    wrapImage: function($image) {
-        var imageBox = $('<span id="redactor-image-box" data-redactor="verified">');
-        imageBox.css('float', $image.css('float')).attr('contenteditable', false);
 
-        if ($image[0].style.margin != 'auto')
-        {
-            imageBox.css({
-                marginTop: $image[0].style.marginTop,
-                marginBottom: $image[0].style.marginBottom,
-                marginLeft: $image[0].style.marginLeft,
-                marginRight: $image[0].style.marginRight
-            });
+    keydown: function(e) {
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          fcanvas = $(img).data('canvas');
 
-            $image.css('margin', '');
-        }
-        else
-        {
-            imageBox.css({ 'display': 'block', 'margin': 'auto' });
-        }
+      if (!fcanvas)
+          return;
 
-        $image.css('opacity', '.5').after(imageBox);
+      var active = fcanvas.getActiveObject();
 
-        imageBox.append($image);
-        return imageBox;
+      // Check if editing a text element
+      if (active instanceof fabric.IText && active.get('isEditing')) {
+        // This keystroke is not for redactor
+        e.stopPropagation();
+        return;
+      }
+
+      // Check if [delete] was pressed with selected objects
+      if (e.keyCode == 8 || e.keyCode == 46)
+        return this.imageannotate.discard(e);
+      else if (e.keyCode == 90 && (e.metaKey || e.ctrlKey)) {
+        fcanvas.loadFromJSON(atob($(img).attr('data-annotations')));
+        return false;
+      }
+    },
+
+    discard: function(e) {
+      var image_box = $('#redactor-image-box', this.$editor),
+          img = image_box && image_box.find('img')[0],
+          fcanvas = img && $(img).data('canvas');
+
+      if (!fcanvas)
+        // Not annotating
+        return;
+
+      e.preventDefault();
+      this.imageannotate.setBuffer();
+      $.each(fcanvas.getObjects(), function() {
+        if (this.get('active'))
+          this.remove();
+      });
+      fcanvas.renderAll();
+      return false;
+    },
+
+    commit: function(e) {
+      e.preventDefault();
+      var redactor = this,
+          image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          $img = $(img),
+          fcanvas = $(img).data('canvas');
+      fcanvas.deactivateAll();
+
+      // Upload to server
+      redactor.buffer.set();
+      var annotated = fcanvas.toDataURL({
+            format: 'jpg', quality: 4,
+            multiplier: 1/fcanvas.getZoom()
+          }),
+          file = new Blob([annotated], {type: 'image/jpeg'});
+
+      // Fallback to the data URL — show while the image is being uploaded
+      var origSrc = $img.attr('src');
+      $img.attr('src', annotated);
+
+      var origCallback = redactor.opts.imageUploadCallback,
+          origErrorCbk = redactor.opts.imageUploadErrorCallback;
+
+      // After successful upload, replace the old image with the new one.
+      // Transfer the annotation state to the new image for replay.
+      redactor.opts.imageUploadCallback = function(image, json) {
+        redactor.opts.imageUploadCallback = origCallback;
+        redactor.opts.imageUploadErrorCallback = origErrorCbk;
+        // Transfer the annotation JSON data and drop the original image.
+        image.attr('data-annotations', $img.attr('data-annotations'));
+        // Record the image that was originally annotated. If the committed
+        // image is annotated again, it should be the original image with
+        // the annotations placed live on the original image. The image
+        // being committed here will be discarded.
+        image.attr('data-orig-annotated-image-src',
+          $img.attr('data-orig-annotated-image-src') || origSrc
+        );
+        $img.remove();
+        // Redactor will add <br> before and after the image in linebreaks
+        // mode
+        var N = image.next();
+        if (N.is('br')) N.remove();
+        var P = image.prev();
+        if (N.is('br')) P.remove();
+      };
+
+      // Handle upload issues
+      redactor.opts.imageUploadErrorCallback = function(json) {
+        redactor.opts.imageUploadCallback = origCallback;
+        redactor.opts.imageUploadErrorCallback = origErrorCbk;
+        $img.show();
+      };
+      redactor.imageannotate.teardownAnnotate(image_box);
+      $img.css({opacity: 0.5});
+      redactor.upload.directUpload(file, e);
+      return false;
+    },
+
+    // Utils
+    resizeShape: function(o) {
+      var shape = o.target;
+      if (shape instanceof fabric.Ellipse) {
+        shape.set({
+          rx: shape.get('rx') * shape.get('scaleX'),
+          ry: shape.get('ry') * shape.get('scaleY'),
+          scaleX: 1,
+          scaleY: 1
+        });
+      }
+      else if (shape instanceof fabric.Rect) {
+        shape.set({
+          width: shape.get('width') * shape.get('scaleX'),
+          height: shape.get('height') * shape.get('scaleY'),
+          scaleX: 1,
+          scaleY: 1
+        });
+      }
+    },
+    setBuffer: function() {
+      var image_box = $('#redactor-image-box'),
+          img = image_box.find('img')[0],
+          $img = $(img),
+          fcanvas = $img.data('canvas'),
+          state = fcanvas.toObject();
+      // Capture current annotations
+      delete state.backgroundImage;
+      $img.attr('data-annotations', btoa(JSON.stringify(state)));
+    },
+
+    // Startup
+
+    initCanvas: function(img) {
+      var self = this,
+          plugin = this.imageannotate,
+          $img = $(img);
+      if ($img.data('canvas'))
+        return;
+      var box = $img.parent(),
+          canvas = $('<canvas>').css({
+            position: 'absolute',
+            top: 0, bottom: 0, left: 0, right: 0,
+            width: '100%', height: '100%'
+          }).appendTo(box),
+          fcanvas = new fabric.Canvas(canvas[0], {
+            backgroundColor: 'rgba(0,0,0,0,0)',
+            containerClass: 'no-margin',
+            includeDefaultValues: false,
+          }),
+          previous = $(img).attr('data-annotations');
+
+      // Catch [delete] key and map to delete object
+      self.opts.keydownCallback = plugin.keydown.bind(self);
+      self.opts.keyupCallback = plugin.keydown.bind(self);
+
+      var I = new Image(), scale;
+      I.src = $img.attr('src');
+      scale = $img.width() / I.width;
+      fcanvas
+        .setDimensions({width: $img.width(), height: $img.height()})
+        .setZoom(Math.max(0.7, scale))
+        .setBackgroundImage(
+            $img.attr('data-orig-annotated-image-src') || $img.attr('src'),
+            fcanvas.renderAll.bind(fcanvas), {
+          width: I.width,
+          height: I.height || ($img.height() * scale),
+          // Needed to position overlayImage at 0/0
+          originX: 'left',
+          originY: 'top'
+        })
+        .on('object:scaling', plugin.resizeShape.bind(self));
+      if (previous) {
+        fcanvas.loadFromJSON(atob(previous));
+        fcanvas.forEachObject(function(o) {
+          o.set({
+            transparentCorners: false,
+            borderColor: 'rgba(102,153,255,0.9)',
+            cornerColor: 'rgba(102,153,255,0.5)',
+            cornerSize: 10
+          });
+        });
+      }
+      $img.data('canvas', fcanvas).addClass('hidden');
+      return fcanvas;
     }
   };
 };

@@ -2141,3 +2141,6 @@ td.indented {
 #dynamic-actions > tr > td {
     padding: 5px;
 }
+.no-margin {
+    margin: 0 !important;
+}
