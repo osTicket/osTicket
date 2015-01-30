@@ -390,7 +390,7 @@ $tcount+= $ticket->getNumNotes();
         ?></a></li>
 </ul>
 <div id="ticket_tabs_container">
-    <div id="ticket_thread" class="tab_content">
+    <div id="ticket_thread" data-thread-id="<?php echo $ticket->getThread()->getId(); ?>" class="tab_content">
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     /* -------- Messages & Responses & Notes (if inline)-------------*/

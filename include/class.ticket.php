@@ -216,7 +216,8 @@ class TicketCData extends VerySimpleModel {
 TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
-class Ticket {
+class Ticket
+implements RestrictedAccess {
 
     var $id;
     var $number;

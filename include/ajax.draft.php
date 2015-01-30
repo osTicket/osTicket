@@ -318,11 +318,23 @@ class DraftAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required for file queries");
 
+        if (isset($_GET['threadId']) && is_numeric($_GET['threadId'])
+            && ($thread = Thread::lookup($_GET['threadId']))
+            && ($object = $thread->getObject())
+            && ($thisstaff->canAccess($object))
+        ) {
+            $union = ' UNION SELECT f.id, a.`type` FROM '.THREAD_TABLE.' t
+                JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
+                JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
+                JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
+                WHERE t.id='.db_input($_GET['threadId']);
+        }
+
         $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft) FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')
-                AND f.`type` LIKE \'image/%\'';
-        if (!($res = db_query($sql)))
+            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')'
+                .' AND f.`type` LIKE \'image/%\'';
+        if (!($res = db_query($sql.$union)))
             Http::response(500, 'Unable to lookup files');
 
         $files = array();
@@ -332,12 +344,15 @@ class DraftAjaxAPI extends AjaxController {
             'T' => __('Email Templates'),
             'L' => __('Logos'),
             'P' => __('Pages'),
+            'H' => __('This Thread'),
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);
             $url = $f->getDownloadUrl();
             $files[] = array(
-                'thumb'=>$url.'&s=128',
+                // Don't send special sizing for thread items 'cause they
+                // should be cached already by the client
+                'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
                 'image'=>$url,
                 'title'=>$f->getName(),
                 'folder'=>$folders[$type]

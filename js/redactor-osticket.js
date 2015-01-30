@@ -237,8 +237,8 @@ $(function() {
                 'minHeight': selectedSize,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
-                  ? ['imagemanager','definedlinks']
-                  : ['signature','imagemanager','table','video','definedlinks'],
+                  ? ['imagepaste','imagemanager','definedlinks']
+                  : ['signature','imagepaste','imagemanager','imageannotate','table','video','definedlinks'],
                 'imageUpload': 'tbd',
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
@@ -277,6 +277,8 @@ $(function() {
         }
         if (el.hasClass('fullscreen'))
             options['plugins'].push('fullscreen');
+        if ($('#ticket_thread[data-thread-id]').length)
+            options['imageManagerJson'] += '?threadId=' + $('#ticket_thread').data('threadId');
         getConfig().then(function(c) {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])

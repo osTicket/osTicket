@@ -837,3 +837,81 @@ RedactorPlugins.imagepaste = function() {
     }
   };
 };
+
+RedactorPlugins.imageannotate = function() {
+  return {
+    canvases: [],
+    init: function() {
+      var button = this.button.add('annotate', __('Annotate')),
+          dropdown = {
+            line: {title: __('Add Line'), func: this.imageannotate.addLine}
+          };
+      this.button.setAwesome('annotate', 'icon-pencil');
+      this.button.addDropdown(button, dropdown);
+      if (typeof window.fabric === 'undefined')
+          $.getScript('../js/fabric.min.js');
+    },
+    addLine: function() {
+      this.imageannotate.initCanvas();
+      // @see http://jsfiddle.net/URWru/
+      var isDown, line;
+      $(this.imageannotate.canvases)
+        .on('mouse:down', function(o){
+          isDown = true;
+          var pointer = canvas.getPointer(o.e);
+          var points = [ pointer.x, pointer.y, pointer.x, pointer.y ];
+          line = new fabric.Line(points, {
+            strokeWidth: 5,
+            fill: 'red',
+            stroke: 'red',
+            originX: 'center',
+            originY: 'center'
+          });
+          this.add(line);
+        })
+        .on('mouse:move', function(o){
+          if (!isDown) return;
+          var pointer = this.getPointer(o.e);
+          line.set({ x2: pointer.x, y2: pointer.y });
+          this.renderAll();
+        })
+        .on('mouse:up', function(o){
+          isDown = false;
+        });
+    },
+    initCanvas: function() {
+      var self = this;
+      $('img', this.$editor).each(function(i, img) {
+          var $img = $(img),
+              box = self.imageannotate.wrapImage($img),
+              canvas = fabric.Canvas(box);
+          $img.data('canvas') = canvas;
+      });
+    },
+    wrapImage: function($image) {
+        var imageBox = $('<span id="redactor-image-box" data-redactor="verified">');
+        imageBox.css('float', $image.css('float')).attr('contenteditable', false);
+
+        if ($image[0].style.margin != 'auto')
+        {
+            imageBox.css({
+                marginTop: $image[0].style.marginTop,
+                marginBottom: $image[0].style.marginBottom,
+                marginLeft: $image[0].style.marginLeft,
+                marginRight: $image[0].style.marginRight
+            });
+
+            $image.css('margin', '');
+        }
+        else
+        {
+            imageBox.css({ 'display': 'block', 'margin': 'auto' });
+        }
+
+        $image.css('opacity', '.5').after(imageBox);
+
+        imageBox.append($image);
+        return imageBox;
+    }
+  };
+};
