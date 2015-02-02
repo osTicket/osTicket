@@ -217,7 +217,7 @@ TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
 class Ticket
-implements RestrictedAccess {
+implements RestrictedAccess, Threadable {
 
     var $id;
     var $number;
@@ -1928,7 +1928,8 @@ implements RestrictedAccess {
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
 
-        $vars['origin'] = $origin;
+        if ($origin)
+            $vars['origin'] = $origin;
         if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
@@ -2221,17 +2222,20 @@ implements RestrictedAccess {
         );
     }
 
-    function postNote($vars, &$errors, $poster, $alert=true) {
+    function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
         $vars['staffId'] = 0;
-        $vars['poster'] = 'SYSTEM';
         if($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
-        }elseif($poster) { //string
+        }
+        elseif ($poster) { //string
             $vars['poster'] = $poster;
+        }
+        elseif (!isset($vars['poster'])) {
+            $vars['poster'] = 'SYSTEM';
         }
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))

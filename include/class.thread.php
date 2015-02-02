@@ -155,6 +155,153 @@ class Thread {
         return ThreadEntry::lookup($id, $this->getId());
     }
 
+    /**
+     * postEmail
+     *
+     * After some security and sanity checks, attaches the body and subject
+     * of the message in reply to this thread item
+     *
+     * Parameters:
+     * mailinfo - (array) of information about the email, with at least the
+     *          following keys
+     *      - mid - (string) email message-id
+     *      - name - (string) personal name of email originator
+     *      - email - (string<email>) originating email address
+     *      - subject - (string) email subject line (decoded)
+     *      - body - (string) email message body (decoded)
+     */
+    function postEmail($mailinfo) {
+        global $ost;
+
+        // +==================+===================+=============+
+        // | Orig Thread-Type | Reply Thread-Type | Requires    |
+        // +==================+===================+=============+
+        // | *                | Message (M)       | From: Owner |
+        // | *                | Note (N)          | From: Staff |
+        // | Response (R)     | Message (M)       |             |
+        // | Message (M)      | Response (R)      | From: Staff |
+        // +------------------+-------------------+-------------+
+
+        if (!$object = $this->getObject())
+            // How should someone find this thread?
+            return false;
+
+        // Mail sent by this system will have a message-id format of
+        // <code-random-mailbox@domain.tld>
+        // where code is a predictable string based on the SECRET_SALT of
+        // this osTicket installation. If this incoming mail matches the
+        // code, then it very likely originated from this system and looped
+        @list($code) = explode('-', $mailinfo['mid'], 2);
+        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+            // This mail was sent by this system. It was received due to
+            // some kind of mail delivery loop. It should not be considered
+            // a response to an existing thread entry
+            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
+                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                $mailinfo['email']),
+
+                // This is quite intentional -- don't continue the loop
+                false,
+                // Force the message, even if logging is disabled
+                true);
+            return true;
+        }
+
+        $vars = array(
+            'mid' =>    $mailinfo['mid'],
+            'header' => $mailinfo['header'],
+            'poster' => $mailinfo['name'],
+            'origin' => 'Email',
+            'source' => 'Email',
+            'ip' =>     '',
+            'reply_to' => $this,
+            'recipients' => $mailinfo['recipients'],
+            'to-email-id' => $mailinfo['to-email-id'],
+        );
+
+        // XXX: Is this necessary?
+        if ($object instanceof Ticket)
+            $vars['ticketId'] = $object->getId();
+        if ($object instanceof Task)
+            $vars['taskId'] = $object->getId();
+
+        $errors = array();
+
+        if (isset($mailinfo['attachments']))
+            $vars['attachments'] = $mailinfo['attachments'];
+
+        $body = $mailinfo['message'];
+        $poster = $mailinfo['email'];
+
+        // Disambiguate if the user happens also to be a staff member of the
+        // system. The current ticket owner should _always_ post messages
+        // instead of notes or responses
+        if ($mailinfo['userId'] || (
+            $object instanceof Ticket
+            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
+        )) {
+            $vars['message'] = $body;
+            $vars['userId'] = $mailinfo['userId'] ?: $object->getUserId();
+            $vars['origin'] = 'Email';
+
+            if ($object instanceof Threadable)
+                return $object->postMessage($vars, $vars['origin']);
+            elseif ($this instanceof ObjectThread)
+                $this->addMessage($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        // XXX: Consider collaborator role
+        elseif ($mailinfo['staffId']
+                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
+            $vars['staffId'] = $mailinfo['staffId'];
+            $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+            $vars['note'] = $body;
+
+            if ($object instanceof Threadable)
+                return $object->postNote($vars, $errors);
+            elseif ($this instanceof ObjectThread)
+                $this->addNote($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        elseif (Email::getIdByEmail($mailinfo['email'])) {
+            // Don't process the email -- it came FROM this system
+            return true;
+        }
+        // Support the mail parsing system declaring a thread-type
+        elseif (isset($mailinfo['thread-type'])) {
+            switch ($mailinfo['thread-type']) {
+            case 'N':
+                $vars['note'] = $body;
+                $vars['poster'] = $poster;
+                if ($object instanceof Threadable)
+                    return $object->postNote($vars, $errors);
+                elseif ($this instanceof ObjectThread)
+                    $this->addNote($vars, $errors);
+                else
+                    throw new Exception('Cannot continue discussion with abstract thread');
+            }
+        }
+        // TODO: Consider security constraints
+        else {
+            //XXX: Are we potentially leaking the email address to
+            // collaborators?
+            $vars['message'] = sprintf("Received From: %s\n\n%s",
+                $mailinfo['email'], $body);
+            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
+            $vars['origin'] = 'Email';
+            if ($object instanceof Threadable)
+                return $object->postMessage($vars, $errors);
+            elseif ($this instanceof ObjectThread)
+                $this->addMessage($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        // Currently impossible, but indicate that this thread object could
+        // not append the incoming email.
+        return false;
+    }
 
     function deleteAttachments() {
 
@@ -283,6 +430,18 @@ class ThreadEntry {
         return true;
     }
 
+    function postEmail($mailinfo) {
+        if (!($thread = $this->getThread()))
+            // Kind of hard to continue a discussion without a thread ...
+            return false;
+
+        elseif ($this->getEmailMessageId() == $mailinfo['mid'])
+            // Reporting success so the email can be moved or deleted.
+            return true;
+
+        return $thread->postEmail($mailinfo);
+    }
+
     function reload() {
         return $this->load();
     }
@@ -405,7 +564,8 @@ class ThreadEntry {
     function getThread() {
 
         if(!$this->thread && $this->getThreadId())
-            $this->thread = Thread::lookup($this->getThreadId());
+            // TODO: Consider typing the thread based on its type field
+            $this->thread = ObjectThread::lookup($this->getThreadId());
 
         return $this->thread;
     }
@@ -579,125 +739,6 @@ class ThreadEntry {
 
         return $str;
     }
-    /**
-     * postEmail
-     *
-     * After some security and sanity checks, attaches the body and subject
-     * of the message in reply to this thread item
-     *
-     * Parameters:
-     * mailinfo - (array) of information about the email, with at least the
-     *          following keys
-     *      - mid - (string) email message-id
-     *      - name - (string) personal name of email originator
-     *      - email - (string<email>) originating email address
-     *      - subject - (string) email subject line (decoded)
-     *      - body - (string) email message body (decoded)
-     */
-    function postEmail($mailinfo) {
-        global $ost;
-
-        // +==================+===================+=============+
-        // | Orig Thread-Type | Reply Thread-Type | Requires    |
-        // +==================+===================+=============+
-        // | *                | Message (M)       | From: Owner |
-        // | *                | Note (N)          | From: Staff |
-        // | Response (R)     | Message (M)       |             |
-        // | Message (M)      | Response (R)      | From: Staff |
-        // +------------------+-------------------+-------------+
-
-        if (!$ticket = $this->getTicket())
-            // Kind of hard to continue a discussion without a ticket ...
-            return false;
-
-        // Make sure the email is NOT already fetched... (undeleted emails)
-        elseif ($this->getEmailMessageId() == $mailinfo['mid'])
-            // Reporting success so the email can be moved or deleted.
-            return true;
-
-        // Mail sent by this system will have a message-id format of
-        // <code-random-mailbox@domain.tld>
-        // where code is a predictable string based on the SECRET_SALT of
-        // this osTicket installation. If this incoming mail matches the
-        // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
-            // This mail was sent by this system. It was received due to
-            // some kind of mail delivery loop. It should not be considered
-            // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
-                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
-                $mailinfo['email']),
-
-                // This is quite intentional -- don't continue the loop
-                false,
-                // Force the message, even if logging is disabled
-                true);
-            return true;
-        }
-
-        $vars = array(
-            'mid' =>    $mailinfo['mid'],
-            'header' => $mailinfo['header'],
-            'ticketId' => $ticket->getId(),
-            'poster' => $mailinfo['name'],
-            'origin' => 'Email',
-            'source' => 'Email',
-            'ip' =>     '',
-            'reply_to' => $this,
-            'recipients' => $mailinfo['recipients'],
-            'to-email-id' => $mailinfo['to-email-id'],
-        );
-        $errors = array();
-
-        if (isset($mailinfo['attachments']))
-            $vars['attachments'] = $mailinfo['attachments'];
-
-        $body = $mailinfo['message'];
-
-        // Disambiguate if the user happens also to be a staff member of the
-        // system. The current ticket owner should _always_ post messages
-        // instead of notes or responses
-        if ($mailinfo['userId']
-                || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
-            $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
-            return $ticket->postMessage($vars, 'Email');
-        }
-        // XXX: Consider collaborator role
-        elseif ($mailinfo['staffId']
-                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
-            $vars['staffId'] = $mailinfo['staffId'];
-            $poster = Staff::lookup($mailinfo['staffId']);
-            $vars['note'] = $body;
-            return $ticket->postNote($vars, $errors, $poster);
-        }
-        elseif (Email::getIdByEmail($mailinfo['email'])) {
-            // Don't process the email -- it came FROM this system
-            return true;
-        }
-        // Support the mail parsing system declaring a thread-type
-        elseif (isset($mailinfo['thread-type'])) {
-            switch ($mailinfo['thread-type']) {
-            case 'N':
-                $vars['note'] = $body;
-                $poster = $mailinfo['email'];
-                return $ticket->postNote($vars, $errors, $poster);
-            }
-        }
-        // TODO: Consider security constraints
-        else {
-            //XXX: Are we potentially leaking the email address to
-            // collaborators?
-            $vars['message'] = sprintf("Received From: %s\n\n%s",
-                $mailinfo['email'], $body);
-            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
-            return $ticket->postMessage($vars, 'Email');
-        }
-        // Currently impossible, but indicate that this thread object could
-        // not append the incoming email.
-        return false;
-    }
 
     /* Returns file names with id as key */
     function getFiles() {
@@ -737,7 +778,7 @@ class ThreadEntry {
             .' SET thread_entry_id='.db_input($id)
             .', mid='.db_input($mid);
         if ($header)
-            $sql .= ', headers='.db_input($header);
+            $sql .= ', headers='.db_input(trim($header));
 
         return db_query($sql) ? db_insert_id() : 0;
     }
@@ -1477,6 +1518,10 @@ class NoteThreadEntry extends ThreadEntry {
 class ObjectThread extends Thread {
     private $_entries = array();
 
+    static $types = array(
+        ObjectModel::OBJECT_TYPE_TASK => 'TaskThread',
+    );
+
     function __construct($id) {
 
         parent::__construct($id);
@@ -1593,10 +1638,15 @@ class ObjectThread extends Thread {
         }
     }
 
-    static function lookup($criteria) {
+    static function lookup($criteria, $type=false) {
+        $class = false;
+        if ($type && isset(self::$types[$type]))
+            $class = self::$types[$type];
+        if (!class_exists($class))
+            $class = get_called_class();
 
         return ($criteria
-                && ($t= new static($criteria))
+                && ($t = new $class($criteria))
                 && $t->getId()
                 ) ? $t : null;
     }
@@ -1688,5 +1738,13 @@ abstract class ThreadEntryAction {
             static::getId()
         );
     }
+}
+
+interface Threadable {
+    /*
+    function postMessage($vars, $errors);
+    function postNote($vars, $errors);
+    function postReply($vars, $errors);
+    */
 }
 ?>
