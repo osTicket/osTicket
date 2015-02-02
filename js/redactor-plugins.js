@@ -1277,7 +1277,8 @@ RedactorPlugins.imageannotate = function() {
             fill: 'red',
             originX: 'left',
             originY: 'top',
-            fontFamily: 'sans-serif'
+            fontFamily: 'sans-serif',
+            fontSize: 30
           });
         },
         function(rect, pointer, event) {
@@ -1292,9 +1293,10 @@ RedactorPlugins.imageannotate = function() {
             originY: dy < 0 ? 'bottom' : 'top'});
         },
         function(shape) {
-            shape.exitEditing();
-            shape.enterEditing();
-            shape.exitEditing();
+          shape.on('editing:exited', function() {
+            if (!shape.getText())
+              shape.remove();
+          });
         },
         'text'
       );
@@ -1310,11 +1312,11 @@ RedactorPlugins.imageannotate = function() {
         if (this.get('active') && this instanceof fabric.IText) {
           if (this.getSelectedText()) {
             this.setSelectionStyles({
-              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) + 10
+              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) + 5
             });
           }
           else {
-            this.setFontSize(this.getFontSize() + 10);
+            this.setFontSize(this.getFontSize() + 5);
           }
         }
       });
@@ -1330,11 +1332,11 @@ RedactorPlugins.imageannotate = function() {
         if (this.get('active') && this instanceof fabric.IText) {
           if (this.getSelectedText()) {
             this.setSelectionStyles({
-              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) - 10
+              fontSize: (this.getSelectionStyles().fontSize || this.getFontSize()) - 5
             });
           }
           else {
-            this.setFontSize(this.getFontSize() - 10);
+            this.setFontSize(this.getFontSize() - 5);
           }
         }
       });
@@ -1397,8 +1399,19 @@ RedactorPlugins.imageannotate = function() {
       // Check if editing a text element
       if (active instanceof fabric.IText && active.get('isEditing')) {
         // This keystroke is not for redactor
-        e.stopPropagation();
-        return;
+        var ss = active.get('selectionStart'),
+            se = active.get('selectionEnd');
+        active.exitEditing();
+        active.enterEditing();
+        active.set({
+          'selectionStart': ss,
+          'selectionEnd': se
+        });
+        if (e.type == 'keydown')
+            active.onKeyDown(e);
+        else
+            active.onKeyPress(e);
+        return false;
       }
 
       // Check if [delete] was pressed with selected objects
