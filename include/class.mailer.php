@@ -79,15 +79,25 @@ class Mailer {
         return $this->attachments;
     }
 
-    function addAttachment($attachment) {
+    function addAttachment(Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$attachment['file_id']] = $attachment;
+        $this->attachments[$attachment->file_id] = $attachment->file;
+    }
+
+    function addFile(AttachmentFile $file) {
+        // XXX: This looks too assuming; however, the attachment processor
+        // in the ::send() method seems hard coded to expect this format
+        $this->attachments[$file->file_id] = $file;
     }
 
     function addAttachments($attachments) {
-        foreach ($attachments as $a)
-            $this->addAttachment($a);
+        foreach ($attachments as $a) {
+            if ($a instanceof Attachment)
+                $this->addAttachment($a);
+            elseif ($a instanceof AttachmentFile)
+                $this->addFile($a);
+        }
     }
 
     function send($to, $subject, $message, $options=null) {
@@ -211,7 +221,14 @@ class Mailer {
             $self = $this;
             $message = preg_replace_callback('/cid:([\w.-]{32})/',
                 function($match) use ($domain, $mime, $self) {
-                    if (!($file = AttachmentFile::lookup($match[1])))
+                    $file = false;
+                    foreach ($self->attachments as $id=>$F) {
+                        if (strcasecmp($F->getKey(), $match[1]) === 0) {
+                            $file = $F;
+                            break;
+                        }
+                    }
+                    if (!$file)
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
                         $file->getType(), $file->getName(), false,
@@ -225,12 +242,9 @@ class Mailer {
         }
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
-            foreach($attachments as $attachment) {
-                if ($attachment['file_id']
-                        && ($file=AttachmentFile::lookup($attachment['file_id']))) {
-                    $mime->addAttachment($file->getData(),
-                        $file->getType(), $file->getName(),false);
-                }
+            foreach($attachments as $id=>$file) {
+                $mime->addAttachment($file->getData(),
+                    $file->getType(), $file->getName(),false);
             }
         }
 

@@ -178,6 +178,7 @@ class User extends UserModel {
             catch (OrmException $e) {
                 return null;
             }
+            Signal::send('user.created', $user);
         }
 
         return $user;
@@ -716,9 +717,9 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
-        
+
         //check if name is bad format (ex: J.Everybody), and fix them
-        if($size==1 && mb_strpos($r[0], '.') !== false) 
+        if($size==1 && mb_strpos($r[0], '.') !== false)
         {
             $r = explode('.', $name);
             $size = count($r);

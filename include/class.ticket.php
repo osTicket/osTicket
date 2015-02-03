@@ -75,7 +75,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'thread' => array(
-                'reverse' => 'ThreadModel.ticket',
+                'reverse' => 'Thread.ticket',
                 'list' => false,
                 'null' => true,
             ),
@@ -818,7 +818,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getThreadCount() {
-        return $this->getNumMessages() + $this->getNumResponses();
+        return $this->getClientThread()->count();
     }
 
     function getNumMessages() {
@@ -834,15 +834,15 @@ implements RestrictedAccess, Threadable {
     }
 
     function getMessages() {
-        return $this->getThreadEntries('M');
+        return $this->getThreadEntries(array('M'));
     }
 
     function getResponses() {
-        return $this->getThreadEntries('R');
+        return $this->getThreadEntries(array('R'));
     }
 
     function getNotes() {
-        return $this->getThreadEntries('N');
+        return $this->getThreadEntries(array('N'));
     }
 
     function getClientThread() {
@@ -853,9 +853,11 @@ implements RestrictedAccess, Threadable {
         return $this->getThread()->getEntry($id);
     }
 
-    function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries(
-                array( 'type' => $type, 'order' => $order));
+    function getThreadEntries($type=false) {
+        $thread = $this->getThread()->getEntries();
+        if ($type && is_array($type))
+            $thread->filter(array('type__in' => $type));
+        return $thread;
     }
 
     //Collaborators
@@ -3129,7 +3131,7 @@ implements RestrictedAccess, Threadable {
         $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
-        Signal::send('model.created', $ticket);
+        Signal::send('ticket.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 

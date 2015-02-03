@@ -80,7 +80,8 @@ class TicketApiController extends ApiController {
                 }
                 // Validate and save immediately
                 try {
-                    $file['id'] = $fileField->uploadAttachment($file);
+                    $F = $fileField->uploadAttachment($file);
+                    $file['id'] = $F->getId();
                 }
                 catch (FileUploadError $ex) {
                     $file['error'] = $file['name'] . ': ' . $ex->getMessage();

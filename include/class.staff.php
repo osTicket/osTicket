@@ -640,7 +640,7 @@ implements AuthenticatedUser {
         return $row ? $row[0] : 0;
     }
 
-    function getIdByEmail($email) {
+    static function getIdByEmail($email) {
         $row = static::objects()->filter(array('email' => $email))
             ->values_flat('staff_id')->first();
         return $row ? $row[0] : 0;

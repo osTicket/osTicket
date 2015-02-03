@@ -256,8 +256,8 @@ class VerySimpleModel {
             // replaced in the dirty array
             if (!array_key_exists($field, $this->dirty))
                 $this->dirty[$field] = $old;
-            $this->ht[$field] = $value;
         }
+        $this->ht[$field] = $value;
     }
     function __set($field, $value) {
         return $this->set($field, $value);
@@ -2102,6 +2102,10 @@ class MysqlExecutor {
                 $types .= 'd';
             elseif (is_string($p))
                 $types .= 's';
+            elseif ($p instanceof DateTime) {
+                $types .= 's';
+                $p = $p->format('Y-m-d h:i:s');
+            }
             // TODO: Emit error if param is null
             $ps[] = &$p;
         }

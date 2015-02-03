@@ -1929,10 +1929,10 @@ class FileUploadField extends FormField {
         if (!$bypass && $file['size'] > $config['size'])
             Http::response(413, 'File is too large');
 
-        if (!($id = AttachmentFile::upload($file)))
+        if (!($F = AttachmentFile::upload($file)))
             Http::response(500, 'Unable to store file: '. $file['error']);
 
-        return $id;
+        return $F->getId();
     }
 
     /**
@@ -1972,10 +1972,10 @@ class FileUploadField extends FormField {
         if ($file['size'] > $config['size'])
             throw new FileUploadError(__('File size is too large'));
 
-        if (!$id = AttachmentFile::save($file))
+        if (!$F = AttachmentFile::create($file))
             throw new FileUploadError(__('Unable to save file'));
 
-        return $id;
+        return $F;
     }
 
     function isValidFileType($name, $type=false) {
@@ -2718,7 +2718,8 @@ class FileUploadWidget extends Widget {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
-                    $ids[] = $this->field->uploadFile($file);
+                    $F = $this->field->uploadFile($file);
+                    $ids[] = $F->getId();
                 }
                 catch (FileUploadError $ex) {}
             }

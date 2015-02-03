@@ -1111,7 +1111,7 @@ class OsticketConfig extends Config {
                 ; // Pass
             elseif ($logo['error'])
                 $errors['logo'] = $logo['error'];
-            elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
+            elseif (!AttachmentFile::uploadLogo($logo, $error))
                 $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 

@@ -410,10 +410,19 @@ class Format {
 
 
     function viewableImages($html, $script=false) {
+        $cids = $images = array();
+        // Try and get information for all the files in one query
+        if (preg_match_all('/"cid:([\w._-]{32})"/', $html, $cids)) {
+            foreach (AttachmentFile::objects()
+                ->filter(array('key__in' => $cids[1]))
+                as $file
+            ) {
+                $images[strtolower($file->getKey())] = $file;
+            }
+        }
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
-        function($match) use ($script) {
-            $hash = $match[1];
-            if (!($file = AttachmentFile::lookup($hash)))
+        function($match) use ($script, $images) {
+            if (!($file = $images[strtolower($match[1])]))
                 return $match[0];
             return sprintf('"%s" data-cid="%s"',
                 $file->getDownloadUrl(false, 'inline', $script), $match[1]);
