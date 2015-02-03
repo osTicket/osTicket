@@ -427,7 +427,5 @@ class ClientAccount extends UserAccount {
 
 // Used by the email system
 interface EmailContact {
-    function getId();
-    function getEmail();
 }
 ?>
