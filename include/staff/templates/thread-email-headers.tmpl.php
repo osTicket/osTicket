@@ -3,7 +3,7 @@
 <hr/>
 
 <pre style="max-height: 300px; overflow-y: scroll">
-<?php echo $headers; ?>
+<?php echo Format::htmlchars($headers); ?>
 </pre>
 
 <hr>
