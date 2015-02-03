@@ -1273,6 +1273,11 @@ implements RestrictedAccess, Threadable {
                 'thread'=>$message
             );
         }
+        else {
+            $options += array(
+                'thread' => $this->getThread(),
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond

@@ -779,8 +779,8 @@ class ThreadEntry extends VerySimpleModel {
                 // to true.
                 $mid_info = Mailer::decodeMessageId($mid);
                 if ($mid_info['loopback'] && isset($mid_info['uid'])
-                    && @$mid_info['threadId']
-                    && ($t = ThreadEntry::lookup($mid_info['threadId']))
+                    && @$mid_info['entryId']
+                    && ($t = ThreadEntry::lookup($mid_info['entryId']))
                 ) {
                     if (@$mid_info['userId']) {
                         $mailinfo['userId'] = $mid_info['userId'];

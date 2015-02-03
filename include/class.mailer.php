@@ -144,10 +144,15 @@ class Mailer {
         $sig = $this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer';
         if ($recipient instanceof EmailContact) {
             // Create a tag for the outbound email
-            $tag = pack('VVa',
+            $entry = (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
+                ? $options['thread'] : false;
+            $thread = $entry ? $entry->getThread()
+                : (isset($options['thread']) && $options['thread'] instanceof Thread
+                    ? $options['thread']->getId() : false);
+            $tag = pack('VVVa',
                 $recipient->getId(),
-                (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
-                    ? $options['thread']->getId() : 0,
+                $entry ? $entry->getId() : 0,
+                $thread ? $thread->getId() : 0,
                 ($recipient instanceof Staff ? 'S'
                     : ($recipient instanceof TicketOwner ? 'U'
                     : ($recipient instanceof Collaborator ? 'C'
@@ -157,7 +162,7 @@ class Mailer {
             // Sign the tag with the system secret salt
             $sig = '@' . substr(hash_hmac('sha1', $tag.$rand, SECRET_SALT), -10);
         }
-        return sprintf('<A%s-%s-%s-%s>',
+        return sprintf('<B%s-%s-%s-%s>',
             static::getSystemMessageIdCode(),
             $rand, $tag, $sig);
     }
@@ -180,6 +185,7 @@ class Mailer {
      *      'version' - (string|FALSE) version code of the message id
      *      'code' - (string) unique but predictable help desk message-id
      *      'id' - (string) random characters serving as the unique id
+     *      'entryId' - (int) thread-entry-id from which the message originated
      *      'threadId' - (int) thread-id from which the message originated
      *      'staffId' - (int|null) staff the email was originally sent to
      *      'userId' - (int|null) user the email was originally sent to
@@ -207,29 +213,32 @@ class Mailer {
         // Detect the MessageId version, which should be the tenth char of
         // the second segment
         $rv['version'] = @$parts[0][0];
+        $format = 'Vuid/VentryId/auserClass';
         switch ($rv['version']) {
-            case 'A':
-            default:
-                list($rv['code'], $rv['id'], $tag) = $parts;
-                // Drop the leading version code
-                $rv['code'] = substr($rv['code'], 1);
-                // Verify tag signature
-                $chksig = substr(hash_hmac('sha1', $tag.$rv['id'], SECRET_SALT), -10);
-                if ($tag && $sig == $chksig && ($tag = base64_decode($tag))) {
-                    // Find user and ticket id
-                    $rv += unpack('Vuid/VthreadId/auserClass', $tag);
-                    // Attempt to make the user-id more specific
-                    $classes = array(
-                        'S' => 'staffId', 'U' => 'userId'
-                    );
-                    if (isset($classes[$rv['userClass']]))
-                        $rv[$classes[$rv['userClass']]] = $rv['uid'];
-                }
-                // Round-trip detection - the first section is the local
-                // system's message-id code
-                $rv['loopback'] = (0 === strcasecmp($rv['code'],
-                    static::getSystemMessageIdCode()));
-                break;
+        case 'B':
+            $format = 'Vuid/VentryId/VthreadId/auserClass';
+        case 'A':
+        default:
+            list($rv['code'], $rv['id'], $tag) = $parts;
+            // Drop the leading version code
+            $rv['code'] = substr($rv['code'], 1);
+            // Verify tag signature
+            $chksig = substr(hash_hmac('sha1', $tag.$rv['id'], SECRET_SALT), -10);
+            if ($tag && $sig == $chksig && ($tag = base64_decode($tag))) {
+                // Find user and ticket id
+                $rv += unpack($format, $tag);
+                // Attempt to make the user-id more specific
+                $classes = array(
+                    'S' => 'staffId', 'U' => 'userId'
+                );
+                if (isset($classes[$rv['userClass']]))
+                    $rv[$classes[$rv['userClass']]] = $rv['uid'];
+            }
+            // Round-trip detection - the first section is the local
+            // system's message-id code
+            $rv['loopback'] = (0 === strcasecmp($rv['code'],
+                static::getSystemMessageIdCode()));
+            break;
         }
         return $rv;
     }
