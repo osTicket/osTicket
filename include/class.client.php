@@ -55,8 +55,8 @@ implements EmailContact {
 
     }
 
-    function getId() { return $this->user->getId(); }
-    function getEmail() { return $this->user->getEmail(); }
+    function getId() { return ($this->user) ? $this->user->getId() : null; }
+    function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
 
     function sendAccessLink() {
         global $ost;
