@@ -2319,6 +2319,18 @@ implements RestrictedAccess, Threadable {
         return $note;
     }
 
+    // Threadable interface
+    function postThreadEntry($type, $vars) {
+        switch ($type) {
+        case 'M':
+            return $this->postMessage($vars, $vars['origin']);
+        case 'N':
+            return $this->postNote($vars);
+        case 'R':
+            return $this->postReply($vars);
+        }
+    }
+
     //Print ticket... export the ticket thread as PDF.
     function pdfExport($psize='Letter', $notes=false) {
         global $thisstaff;

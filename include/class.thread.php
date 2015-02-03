@@ -171,7 +171,7 @@ class Thread extends VerySimpleModel {
             $vars['origin'] = 'Email';
 
             if ($object instanceof Threadable)
-                return $object->postMessage($vars, $vars['origin']);
+                return $object->postThreadEntry('M', $vars);
             elseif ($this instanceof ObjectThread)
                 $this->addMessage($vars, $errors);
             else
@@ -185,7 +185,7 @@ class Thread extends VerySimpleModel {
             $vars['note'] = $body;
 
             if ($object instanceof Threadable)
-                return $object->postNote($vars, $errors);
+                return $object->postThreadEntry('N', $vars);
             elseif ($this instanceof ObjectThread)
                 return $this->addNote($vars, $errors);
             else
@@ -202,7 +202,7 @@ class Thread extends VerySimpleModel {
                 $vars['note'] = $body;
                 $vars['poster'] = $poster;
                 if ($object instanceof Threadable)
-                    return $object->postNote($vars, $errors);
+                    return $object->postThreadEntry('N', $vars);
                 elseif ($this instanceof ObjectThread)
                     return $this->addNote($vars, $errors);
                 else
@@ -219,7 +219,7 @@ class Thread extends VerySimpleModel {
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             $vars['origin'] = 'Email';
             if ($object instanceof Threadable)
-                return $object->postMessage($vars, $errors);
+                return $object->postThreadEntry('M', $vars);
             elseif ($this instanceof ObjectThread)
                 return $this->addMessage($vars, $errors);
             else
@@ -1611,10 +1611,6 @@ abstract class ThreadEntryAction {
 }
 
 interface Threadable {
-    /*
-    function postMessage($vars, $errors);
-    function postNote($vars, $errors);
-    function postReply($vars, $errors);
-    */
+    function postThreadEntry($type, $vars);
 }
 ?>
