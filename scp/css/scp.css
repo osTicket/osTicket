@@ -100,12 +100,23 @@ div#header a {
 
 #logo {
     display:block;
-    width:190px;
-    height:76px;
     text-decoration:none;
     outline:none;
-    text-indent:-9999px;
-    background:url(../images/ost-logo.png) top left no-repeat;
+    height: 76px;
+    max-width: 400px;
+}
+#logo img {
+    max-height: 76px;
+    max-width: 300px;
+    height: auto;
+    width: auto;
+    padding-left: 10px;
+    vertical-align: middle;
+}
+.valign-helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 #header p {
