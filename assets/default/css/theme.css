@@ -300,9 +300,20 @@ body {
   height: 71px;
   padding: 0 20px;
 }
-#header #logo {
-  width: 220px;
-  height: 71px;
+#logo {
+    height: 100%;
+}
+#header #logo img {
+  max-height: 65px;
+  max-width: 380px;
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+}
+.valign-helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
 }
 #header p {
   width: 400px;
