@@ -319,6 +319,7 @@ class FileManager extends Module {
                 // Write file contents to the backend
                 $md5 = hash_init('md5');
                 $sha1 = hash_init('sha1');
+                $written = 0;
 
                 // Handle exceptions by dropping imported file contents and
                 // then returning the error to the error output stream.
@@ -348,8 +349,11 @@ class FileManager extends Module {
                         hash_update($md5, $contents);
                         hash_update($sha1, $contents);
                         $dlen -= strlen($contents);
+                        $written += strlen($contents);
                     }
-                    if (!$bk->flush())
+                    // Some backends cannot handle flush() without a
+                    // corresponding write() call.
+                    if ($written && !$bk->flush())
                         throw new Exception(
                             'Unable to commit file contents to backend');
 
