@@ -932,6 +932,10 @@ class UserAccount extends UserAccountModel {
         return static::sendUnlockEmail('registration-client') === true;
     }
 
+    function setPassword($new) {
+        $this->set('passwd', Passwd::hash($vars['passwd1']));
+    }
+
     protected function sendUnlockEmail($template) {
         global $ost, $cfg;
 
@@ -1016,7 +1020,7 @@ class UserAccount extends UserAccountModel {
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
-            $this->set('passwd', Passwd::hash($vars['passwd1']));
+            $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
         }
 
