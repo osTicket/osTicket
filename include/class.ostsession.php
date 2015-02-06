@@ -69,6 +69,23 @@ class osTicketSession {
         $this->destroy($oldId);
     }
 
+    static function destroyCookie() {
+        setcookie(session_name(), 'deleted', 1,
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
+    }
+
+    static function renewCookie($baseTime=false, $window=false) {
+        setcookie(session_name(), session_id(),
+            ($baseTime ?: time()) + ($window ?: SESSION_TTL),
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
+    }
+
     function open($save_path, $session_name){
         return (true);
     }
