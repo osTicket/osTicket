@@ -93,24 +93,25 @@ div#header a {
 
 #header {
     height:76px;
-    background:url(../images/header-bg.png) top left repeat-x;
     border-left:1px solid #aaa;
     border-right:1px solid #aaa;
+    background-color: rgb(248,248,248);
+    box-shadow: inset 0 -10px 8px -5px rgba(0,0,0,0.1);
 }
 
 #logo {
     display:block;
     text-decoration:none;
     outline:none;
-    height: 76px;
+    height: 64px;
     max-width: 400px;
+    padding: 5px 0 7px 5px;
 }
 #logo img {
-    max-height: 76px;
+    max-height: 66px;
     max-width: 300px;
     height: auto;
     width: auto;
-    padding-left: 10px;
     vertical-align: middle;
 }
 .valign-helper {
