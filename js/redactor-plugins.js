@@ -1559,15 +1559,21 @@ RedactorPlugins.imageannotate = function() {
 
       var I = new Image(), scale;
       I.src = $img.attr('src');
-      scale = $img.width() / I.width;
+      // Use a maximum zoom-out of 0.7, so that very large pictures do not
+      // result in unusually small annotations (esp. stroke widths which are
+      // not adjustable).
+      scale = Math.max(0.7, $img.width() / I.width);
+      var scaleWidth = $img.width() / scale,
+          scaleHeight = $img.height() / scale;
+      console.log(I.width, scaleWidth, $img.width(), scale);
       fcanvas
         .setDimensions({width: $img.width(), height: $img.height()})
-        .setZoom(Math.max(0.7, scale))
+        .setZoom(scale)
         .setBackgroundImage(
             $img.attr('data-orig-annotated-image-src') || $img.attr('src'),
             fcanvas.renderAll.bind(fcanvas), {
-          width: I.width,
-          height: I.height || ($img.height() * scale),
+          width: scaleWidth,
+          height: scaleHeight,
           // Needed to position overlayImage at 0/0
           originX: 'left',
           originY: 'top'
