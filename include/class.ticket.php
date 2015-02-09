@@ -2324,13 +2324,14 @@ implements RestrictedAccess, Threadable {
 
     // Threadable interface
     function postThreadEntry($type, $vars) {
+        $errors = array();
         switch ($type) {
         case 'M':
             return $this->postMessage($vars, $vars['origin']);
         case 'N':
-            return $this->postNote($vars);
+            return $this->postNote($vars, $errors);
         case 'R':
-            return $this->postReply($vars);
+            return $this->postReply($vars, $errors);
         }
     }
 
@@ -3262,7 +3263,7 @@ implements RestrictedAccess, Threadable {
                 $references[] = $response->getEmailMessageId();
             $options = array(
                 'references' => $references,
-                'thread' => $message,
+                'thread' => $message ?: $ticket->getThread(),
             );
             $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);

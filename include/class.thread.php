@@ -108,9 +108,19 @@ class Thread extends VerySimpleModel {
         // | Message (M)      | Response (R)      | From: Staff |
         // +------------------+-------------------+-------------+
 
-        if (!$object = $this->getObject())
+        if (!$object = $this->getObject()) {
             // How should someone find this thread?
             return false;
+        }
+        elseif ($object instanceof Ticket && (
+               !$mailinfo['staffId']
+            && $object->isClosed()
+            && !$object->isReopenable()
+        )) {
+            // Ticket is closed, not reopenable, and email was not submitted
+            // by an agent. Email cannot be submitted
+            return false;
+        }
 
         // Mail sent by this system will have a message-id format of
         // <code-random-mailbox@domain.tld>
@@ -241,6 +251,71 @@ class Thread extends VerySimpleModel {
         return $deleted;
     }
 
+    /**
+     * Function: lookupByEmailHeaders
+     *
+     * Attempt to locate a thread by the email headers. It should be
+     * considered a secondary lookup to ThreadEntry::lookupByEmailHeaders(),
+     * which should find an actual thread entry, which should be possible
+     * for all email communcation which is associated with a thread entry.
+     * The only time where this is useful is for threads which triggered
+     * email communication without a thread entry, for instance, like
+     * tickets created without an initial message.
+     */
+    function lookupByEmailHeaders(&$mailinfo) {
+        $possibles = array();
+        foreach (array('in-reply-to', 'references') as $header) {
+            $matches = array();
+            if (!isset($mailinfo[$header]) || !$mailinfo[$header])
+                continue;
+            // Header may have multiple entries (usually separated by
+            // spaces ( )
+            elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
+                        $matches))
+                continue;
+
+            // The References header will have the most recent message-id
+            // (parent) on the far right.
+            // @see rfc 1036, section 2.2.5
+            // @see http://www.jwz.org/doc/threading.html
+            $possibles = array_merge($possibles, array_reverse($matches[0]));
+        }
+
+        // Add the message id if it is embedded in the body
+        $match = array();
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match)
+            && !in_array($match[1], $possibles)
+        ) {
+            $possibles[] = $match[1];
+        }
+
+        foreach ($possibles as $mid) {
+            // Attempt to detect the ticket and user ids from the
+            // message-id header. If the message originated from
+            // osTicket, the Mailer class can break it apart. If it came
+            // from this help desk, the 'loopback' property will be set
+            // to true.
+            $mid_info = Mailer::decodeMessageId($mid);
+            if ($mid_info['loopback'] && isset($mid_info['uid'])
+                && @$mid_info['threadId']
+                && ($t = Thread::lookup($mid_info['threadId']))
+            ) {
+                if (@$mid_info['userId']) {
+                    $mailinfo['userId'] = $mid_info['userId'];
+                }
+                elseif (@$mid_info['staffId']) {
+                    $mailinfo['staffId'] = $mid_info['staffId'];
+                }
+                // ThreadEntry was positively identified
+                return $t;
+            }
+        }
+
+        return null;
+    }
+
+
     function delete() {
 
         //Self delete
@@ -286,7 +361,7 @@ class ThreadEntry extends VerySimpleModel {
         'select_related' => array('staff', 'user', 'email_info'),
         'joins' => array(
             'thread' => array(
-                'constraint' => array('thread_id' => 'ThreadModel.id'),
+                'constraint' => array('thread_id' => 'Thread.id'),
             ),
             'parent' => array(
                 'constraint' => array('pid' => 'ThreadEntry.id'),
@@ -730,6 +805,7 @@ class ThreadEntry extends VerySimpleModel {
             return $entry;
         }
 
+        $possibles = array();
         foreach (array('in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
@@ -744,59 +820,71 @@ class ThreadEntry extends VerySimpleModel {
             // (parent) on the far right.
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
-            $thread = null;
-            foreach (array_reverse($matches[0]) as $mid) {
-                //Try to determine if it's a reply to a tagged email.
-                $ref = null;
-                if (strpos($mid, '+')) {
-                    list($left, $right) = explode('@',$mid);
-                    list($left, $ref) = explode('+', $left);
-                    $mid = "$left@$right";
-                }
-                $possibles = ThreadEntry::objects()
-                    ->filter(array('email_info__mid' => $mid));
-                foreach ($possibles as $t) {
-                    // Capture the first match thread item
-                    if (!$thread)
-                        $thread = $t;
-                    // We found a match  - see if we can ID the user.
-                    // XXX: Check access of ref is enough?
-                    if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
-                        if ($ref[0] =='s') //staff
-                            $mailinfo['staffId'] = $uid;
-                        else // user or collaborator.
-                            $mailinfo['userId'] = $uid;
+            $possibles = array_merge($possibles, array_reverse($matches[0]));
+        }
 
-                        // Best possible case — found the thread and the
-                        // user
-                        return $t;
-                    }
-                }
-                // Attempt to detect the ticket and user ids from the
-                // message-id header. If the message originated from
-                // osTicket, the Mailer class can break it apart. If it came
-                // from this help desk, the 'loopback' property will be set
-                // to true.
-                $mid_info = Mailer::decodeMessageId($mid);
-                if ($mid_info['loopback'] && isset($mid_info['uid'])
-                    && @$mid_info['entryId']
-                    && ($t = ThreadEntry::lookup($mid_info['entryId']))
-                ) {
-                    if (@$mid_info['userId']) {
-                        $mailinfo['userId'] = $mid_info['userId'];
-                    }
-                    elseif (@$mid_info['staffId']) {
-                        $mailinfo['staffId'] = $mid_info['staffId'];
-                    }
-                    // ThreadEntry was positively identified
+        // Add the message id if it is embedded in the body
+        $match = array();
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match)
+            && !in_array($match[1], $possibles)
+        ) {
+            $possibles[] = $match[1];
+        }
+
+        $thread = null;
+        foreach ($possibles as $mid) {
+            //Try to determine if it's a reply to a tagged email.
+            $ref = null;
+            if (strpos($mid, '+')) {
+                list($left, $right) = explode('@',$mid);
+                list($left, $ref) = explode('+', $left);
+                $mid = "$left@$right";
+            }
+            $entries = ThreadEntry::objects()
+                ->filter(array('email_info__mid' => $mid));
+            foreach ($entries as $t) {
+                // Capture the first match thread item
+                if (!$thread)
+                    $thread = $t;
+                // We found a match  - see if we can ID the user.
+                // XXX: Check access of ref is enough?
+                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                    if ($ref[0] =='s') //staff
+                        $mailinfo['staffId'] = $uid;
+                    else // user or collaborator.
+                        $mailinfo['userId'] = $uid;
+
+                    // Best possible case — found the thread and the
+                    // user
                     return $t;
                 }
             }
-            // Second best case — found a thread but couldn't identify the
-            // user from the header. Return the first thread entry matched
-            if ($thread)
-                return $thread;
+            // Attempt to detect the ticket and user ids from the
+            // message-id header. If the message originated from
+            // osTicket, the Mailer class can break it apart. If it came
+            // from this help desk, the 'loopback' property will be set
+            // to true.
+            $mid_info = Mailer::decodeMessageId($mid);
+            if ($mid_info['loopback'] && isset($mid_info['uid'])
+                && @$mid_info['entryId']
+                && ($t = ThreadEntry::lookup($mid_info['entryId']))
+                && ($t->thread_id == $mid_info['threadId'])
+            ) {
+                if (@$mid_info['userId']) {
+                    $mailinfo['userId'] = $mid_info['userId'];
+                }
+                elseif (@$mid_info['staffId']) {
+                    $mailinfo['staffId'] = $mid_info['staffId'];
+                }
+                // ThreadEntry was positively identified
+                return $t;
+            }
         }
+        // Second best case — found a thread but couldn't identify the
+        // user from the header. Return the first thread entry matched
+        if ($thread)
+            return $thread;
 
         // Search for ticket by the [#123456] in the subject line
         // This is the last resort -  emails must match to avoid message
@@ -825,6 +913,8 @@ class ThreadEntry extends VerySimpleModel {
         }
 
         // Search for the message-id token in the body
+        // *DEPRECATED* the current algo on outgoing mail will use
+        // Mailer::getMessageId as the message id tagged here
         if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
@@ -836,7 +926,9 @@ class ThreadEntry extends VerySimpleModel {
 
     /**
      * Find a thread entry from a message-id created from the
-     * ::asMessageId() method
+     * ::asMessageId() method.
+     *
+     * *DEPRECATED* use Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
         $mid = trim($mid, '<>');
@@ -854,36 +946,7 @@ class ThreadEntry extends VerySimpleModel {
         if (!$thread)
             return false;
 
-        if (0 === strcasecmp($thread->asMessageId($from, $ver), $mid))
-            return $thread;
-    }
-
-    /**
-     * Get an email message-id that can be used to represent this thread
-     * entry. The same message-id can be passed to ::lookupByRefMessageId()
-     * to find this thread entry
-     *
-     * Formats:
-     * Initial (version <null>)
-     * <$:b32(thread-id)$:md5(to-addr.ticket-num.ticket-id)@:md5(url)>
-     *      thread-id - thread-id, little-endian INT, packed
-     *      :b32() - base32 encoded
-     *      to-addr - individual email recipient
-     *      ticket-num - external ticket number
-     *      ticket-id - internal ticket id
-     *      :md5() - last 10 hex chars of MD5 sum
-     *      url - helpdesk URL
-     */
-    function asMessageId($to, $version=false) {
-        global $ost;
-
-        $domain = md5($ost->getConfig()->getURL());
-        $ticket = $this->getThread()->getObject();
-        return sprintf('$%s$%s@%s',
-            base64_encode(pack('V', $this->getId())),
-            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
-            substr($domain, -10)
-        );
+        return $thread;
     }
 
     //new entry ... we're trusting the caller to check validity of the data.

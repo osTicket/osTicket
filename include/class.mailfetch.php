@@ -722,13 +722,6 @@ class MailFetcher {
 
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
-            && ($thread = $entry->getThread())
-            && ($t = $thread->getObject())
-            && (!$t instanceof Ticket || (
-                   $vars['staffId']
-                || !$t->isClosed()
-                || $t->isReopenable()
-            ))
             && ($message = $entry->postEmail($vars))
         ) {
             if (!$message instanceof ThreadEntry)
@@ -736,13 +729,23 @@ class MailFetcher {
                 return $message;
             // NOTE: This might not be a "ticket"
             $ticket = $message->getThread()->getObject();
-        } elseif ($seen) {
+        }
+        elseif ($seen) {
             // Already processed, but for some reason (like rejection), no
             // thread item was created. Ignore the email
             return true;
-        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
+        }
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($vars))
+            && ($message = $entry->postEmail($vars))
+        ) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $thread->getObject();
+        }
+        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
-        } else {
+        }
+        else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!

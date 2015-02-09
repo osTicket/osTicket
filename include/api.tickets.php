@@ -151,25 +151,29 @@ class TicketApiController extends ApiController {
         if (!$data)
             $data = $this->getEmailRequest();
 
+        $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
-            && ($thread = $entry->getThread())
-            && ($t = $thread->getObject())
-            && (!$t instanceof Ticket || (
-                   $vars['staffId']
-                || !$t->isClosed()
-                || $t->isReopenable()
-            ))
             && ($message = $entry->postEmail($data))
         ) {
             if ($message instanceof ThreadEntry) {
                 return $message->getThread()->getObject();
             }
-            else if ($message) {
+            else if ($seen) {
                 // Email has been processed previously
-                return $t;
+                return $entry->getThread()->getObject();
             }
         }
 
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($data))
+            && ($message = $thread->postEmail($data))
+        ) {
+            return $thread->getObject();
+        }
+
+        // All emails which do not appear to be part of an existing thread
+        // will always create new "Tickets". All other objects will need to
+        // be created via the web interface or the API
         return $this->createTicket($data);
     }
 
