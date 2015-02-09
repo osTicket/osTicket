@@ -33,6 +33,22 @@ class TaskModel extends VerySimpleModel {
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
                 'null' => true,
             ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+                'null' => true,
+            ),
+            'thread' => array(
+                'constraint' => array(
+                    'id'  => 'ThreadModel.object_id',
+                    "'A'" => 'ThreadModel.object_type',
+                ),
+                'list' => false,
+                'null' => false,
+            ),
+            'cdata' => array(
+                'constraint' => array('id' => 'TaskCData.task_id'),
+                'list' => false,
+            ),
         ),
     );
 
@@ -104,12 +120,24 @@ class TaskModel extends VerySimpleModel {
         return $this->staff_id;
     }
 
+    function getStaff() {
+        return $this->staff;
+    }
+
     function getTeamId() {
         return $this->team_id;
     }
 
+    function getTeam() {
+        return $this->team;
+    }
+
     function getDeptId() {
         return $this->dept_id;
+    }
+
+    function getDept() {
+        return $this->dept;
     }
 
     function getCreateDate() {
@@ -156,10 +184,9 @@ RolePermission::register(/* @trans */ 'Tasks', TaskModel::getPermissions());
 class Task extends TaskModel {
     var $form;
     var $entry;
-    var $thread;
 
+    var $_thread;
     var $_entries;
-
 
     function getStatus() {
         return $this->isOpen() ? _('Open') : _('Closed');
@@ -202,7 +229,7 @@ class Task extends TaskModel {
             $assignees[] = $this->staff->getName();
 
         //Add team assignment
-        if (isset($this->team))
+        if ($this->team)
             $assignees[] = $this->team->getName();
 
         return $assignees;
@@ -216,13 +243,14 @@ class Task extends TaskModel {
 
     function getThread() {
 
-        if (!$this->thread)
-            $this->thread = TaskThread::lookup(array(
+        //FIXME: use $this->thread once thread classes get ORMed.
+        if (!$this->_thread)
+            $this->_thread = TaskThread::lookup(array(
                         'object_id' => $this->getId(),
                         'object_type' => ObjectModel::OBJECT_TYPE_TASK)
                     );
 
-        return $this->thread;
+        return $this->_thread;
     }
 
     function getThreadEntry($id) {
@@ -360,7 +388,8 @@ class Task extends TaskModel {
             return false;
 
         // Transfer completed... post internal note.
-        $title = sprintf(__('Task transfered to %s department'),
+        $title = sprintf(__('%s transferred to %s department'),
+                __('Task'),
                 $dept->getName());
         if ($vars['comments']) {
             $note = $vars['comments'];
@@ -496,7 +525,78 @@ class Task extends TaskModel {
             }
         }
     }
+
+    /* Quick staff's stats */
+    static function getStaffStats($staff) {
+        global $cfg;
+
+        /* Unknown or invalid staff */
+        if (!$staff
+                || (!is_object($staff) && !($staff=Staff::lookup($staff)))
+                || !$staff->isStaff())
+            return null;
+
+        $where = array('(task.staff_id='.db_input($staff->getId())
+                    .sprintf(' AND task.flags & %d != 0 ', TaskModel::ISOPEN)
+                    .') ');
+        $where2 = '';
+
+        if(($teams=$staff->getTeams()))
+            $where[] = ' ( flags.team_id IN('.implode(',', db_input(array_filter($teams)))
+                        .') AND '
+                        .sprintf('task.flags & %d != 0 ', TaskModel::ISOPEN)
+                        .')';
+
+        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
+            $where[] = 'task.dept_id IN('.implode(',', db_input($depts)).') ';
+
+        $where = implode(' OR ', $where);
+        if ($where) $where = 'AND ( '.$where.' ) ';
+
+        $sql =  'SELECT \'open\', count(task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                . $where . $where2
+
+                .'UNION SELECT \'overdue\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                . sprintf(' AND task.flags & %d != 0 ', TaskModel::ISOVERDUE)
+                . $where
+
+                .'UNION SELECT \'assigned\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                .'AND task.staff_id = ' . db_input($staff->getId()) . ' '
+                . $where
+
+                .'UNION SELECT \'closed\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d = 0 ', TaskModel::ISOPEN)
+                . $where;
+
+        $res = db_query($sql);
+        $stats = array();
+        while ($row = db_fetch_row($res))
+            $stats[$row[0]] = $row[1];
+
+        return $stats;
+    }
 }
+
+
+class TaskCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('task_id'),
+        'table' => TASK_CDATA_TABLE,
+        'joins' => array(
+            'task' => array(
+                'constraint' => array('task_id' => 'TaskModel.task_id'),
+            ),
+        ),
+    );
+}
+
 
 class TaskForm extends DynamicForm {
     static $instance;
@@ -504,6 +604,12 @@ class TaskForm extends DynamicForm {
     static $internalForm;
 
     static $forms;
+
+    static $cdata = array(
+            'table' => TASK_CDATA_TABLE,
+            'object_id' => 'task_id',
+            'object_type' => 'A',
+        );
 
     static function objects() {
         $os = parent::objects();

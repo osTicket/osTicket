@@ -1,14 +1,11 @@
 <?php
 global $cfg;
 
-if (!$info['title'])
-    $info['title'] = sprintf(__('%s Tasks #%s'),
-            $task->isAssigned() ? __('Reassign') :  __('Assign'),
-            $task->getNumber()
-            );
-
+if (!$info[':title'])
+    $info[':title'] = sprintf(__('%s Selected Tasks'),
+            __('Assign'));
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3><?php echo $info[':title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>
@@ -25,10 +22,10 @@ if ($info['error']) {
 }
 
 
-$action = $info['action'] ?: ('#tasks/'.$task->getId().'/assign');
+$action = $info[':action'] ?: ('#tasks/mass/assign');
 ?>
 <div id="ticket-status" style="display:block; margin:5px;">
-<form method="post" name="transfer" id="transfer"
+<form class="mass-action" method="post" name="transfer" id="transfer"
     action="<?php echo $action; ?>">
     <table width="100%">
         <?php
@@ -46,8 +43,13 @@ $action = $info['action'] ?: ('#tasks/'.$task->getId().'/assign');
                 <span>
                 <strong><?php echo __('Agent') ?>:&nbsp;</strong>
                 <select name="staff_id">
+                <option value=""><?php
+                    echo __('Select Assignee'); ?></option>
                 <?php
                 foreach (Staff::getAvailableStaffMembers() as $id => $name) {
+                    if ($task && $task->getStaffId() == $id)
+                        $name .= sprintf(' (%s) ', __('current'));
+
                     echo sprintf('<option value="%d" %s>%s</option>',
                             $id,
                             ($info['staff_id'] == $id)
@@ -58,7 +60,7 @@ $action = $info['action'] ?: ('#tasks/'.$task->getId().'/assign');
                 ?>
                 </select>
                 <font class="error">*&nbsp;<?php echo
-                $errors['dept_id']; ?></font>
+                $errors['staff_id']; ?></font>
                 </span>
             </td> </tr>
         </tbody>

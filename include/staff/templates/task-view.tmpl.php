@@ -1,50 +1,22 @@
 <?php
 if (!defined('OSTSCPINC')
-        || !$thisstaff
-        || !$task
-        || !($role = $thisstaff->getRole($task->getId())))
+    || !$thisstaff || !$task
+    || !($role = $thisstaff->getRole($task->getDeptId())))
     die('Invalid path');
 
-
-$actions = array();
-
-if ($role->hasPerm(Task::PERM_EDIT)) {
-    $actions += array(
-            'edit' => array(
-                'icon' => 'icon-edit',
-                'dialog' => '{"size":"large"}',
-                'action' => __('Edit')
-            ));
-}
-
-if ($role->hasPerm(Task::PERM_ASSIGN)) {
-    $actions += array(
-            'assign' => array(
-                'icon' => 'icon-user',
-                'action' => $task->isAssigned() ? __('Reassign') : __('Assign')
-            ));
-}
-
-if ($role->hasPerm(Task::PERM_TRANSFER)) {
-    $actions += array(
-            'transfer' => array(
-                'icon' => 'icon-share',
-                'action' => __('Transfer')
-            ));
-}
-
+$more = array();
 if ($role->hasPerm(Task::PERM_DELETE)) {
-    $actions += array(
+    $more += array(
             'delete' => array(
                 'icon' => 'icon-trash',
-                'action' => __('Delete')
+                'redirect' => 'tasks.php',
+                'action' => __('Delete Task')
             ));
 }
-
 
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-$id    = $task->getId();    //Ticket ID.
+$id    = $task->getId();
 if ($task->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
@@ -52,32 +24,58 @@ if ($task->isOverdue())
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="20%" class="has_bottom_border">
-            <h3><a href="#tasks/<?php echo $task->getId(); ?>/view"
-                    id="reload-task"><i class="icon-refresh"></i> <?php
+            <h2><a href="tasks.php?id=<?php echo $task->getId(); ?>"><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
-            </h3>
+            </h2>
         </td>
         <td width="auto" class="flush-right has_bottom_border">
-        <?php
-           if ($actions) { ?>
+            <a class="action-button"
+                href="tasks.php?id=<?php echo $task->getId(); ?>&a=print"><i class="icon-print"></i> <?php
+                echo __('Print'); ?></a>
+            <?php
+            if ($role->hasPerm(Task::PERM_EDIT)) { ?>
+                <a class="action-button task-action"
+                    href="tasks.php?id=<?php echo $task->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
+                    echo __('Edit'); ?></a>
+            <?php
+            }
+            if ($role->hasPerm(Task::PERM_ASSIGN)) { ?>
+                <a class="action-button task-action"
+                    href="#tasks/<?php echo $task->getId(); ?>/assign"><i
+                    class="icon-user"></i> <?php
+                    echo $task->isAssigned() ? __('Reassign') : __('Assign');
+                ?></a>
+            <?php
+            }
+            if ($role->hasPerm(Task::PERM_TRANSFER)) { ?>
+                <a class="action-button task-action"
+                    href="#tasks/<?php echo $task->getId(); ?>/transfer"><i
+                    class="icon-share"></i> <?php
+                    echo __('Transfer');
+                ?></a>
+            <?php
+            }
+            if ($more) { ?>
             <span
                 class="action-button"
-                data-dropdown="#action-dropdown-taskoptions">
+                data-dropdown="#action-dropdown-moreoptions">
                 <i class="icon-caret-down pull-right"></i>
                 <a class="task-action"
-                    href="#taskoptions"><i
+                    href="#moreoptions"><i
                     class="icon-reorder"></i> <?php
-                    echo __('Task Options'); ?></a>
+                    echo __('More'); ?></a>
             </span>
-            <div id="action-dropdown-taskoptions"
+            <div id="action-dropdown-moreoptions"
                 class="action-dropdown anchor-right">
                 <ul>
-            <?php foreach ($actions as $a => $action) { ?>
+            <?php foreach ($more as $a => $action) { ?>
                     <li>
                         <a class="no-pjax task-action"
                             <?php
                             if ($action['dialog'])
                                 echo sprintf("data-dialog='%s'", $action['dialog']);
+                            if ($action['redirect'])
+                                echo sprintf("data-redirect='%s'", $action['redirect']);
                             ?>
                             href="<?php
                             echo sprintf('#tasks/%d/%s', $task->getId(), $a); ?>"
@@ -106,14 +104,6 @@ if ($task->isOverdue())
                     <th><?php echo __('Department');?>:</th>
                     <td><?php echo Format::htmlchars($task->dept->getName()); ?></td>
                 </tr>
-                <tr>
-                    <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
-                </tr>
-            </table>
-        </td>
-        <td width="50%" style="vertical-align:top">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
                 <?php
                 if ($task->isOpen()) { ?>
                 <tr>
@@ -142,9 +132,17 @@ if ($task->isOverdue())
                 </tr>
                 <?php
                 } ?>
+            </table>
+        </td>
+        <td width="50%" style="vertical-align:top">
+            <table cellspacing="0" cellpadding="4" width="100%" border="0">
                 <tr>
                     <th><?php echo __('SLA Plan');?>:</th>
                     <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
+                </tr>
+                <tr>
+                    <th><?php echo __('Create Date');?>:</th>
+                    <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
                 </tr>
                 <?php
                 if($task->isOpen()){ ?>
@@ -273,7 +271,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
 <div id="response_options">
     <ul class="tabs"></ul>
     <form id="task_note"
-        action="#tasks/<?php echo $task->getId(); ?>"
+        action="tasks.php?id=<?php echo $task->getId(); ?>"
         name="task_note"
         method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -301,8 +299,8 @@ foreach (DynamicFormEntry::forObject($task->getId(),
                         ?></textarea>
                     <div class="attachments">
                     <?php
-                        if ($task_note_form)
-                            print $task_note_form->getField('attachments')->render();
+                        if ($note_form)
+                            print $note_form->getField('attachments')->render();
                     ?>
                     </div>
                 </td>
@@ -333,33 +331,25 @@ foreach (DynamicFormEntry::forObject($task->getId(),
        </p>
     </form>
  </div>
+
 <script type="text/javascript">
 $(function() {
-    $(document).on('click', 'li.active a#ticket_tasks', function(e) {
+    $(document).off('.task-action');
+    $(document).on('click.task-action', 'a.task-action', function(e) {
         e.preventDefault();
-        $('div#task_content').hide().empty();
-        $('div#tasks_content').show();
+        var url = 'ajax.php/'
+        +$(this).attr('href').substr(1)
+        +'?_uid='+new Date().getTime();
+        var $options = $(this).data('dialog');
+        var $redirect = $(this).data('redirect');
+        $.dialog(url, [201], function (xhr) {
+            if ($redirect)
+                window.location.href = $redirect;
+            else
+                $.pjax.reload('#pjax-container');
+        }, $options);
+
         return false;
-     });
-    $(document).off('.tf');
-    $(document).on('submit.tf', 'form#task_note', function(e) {
-        e.preventDefault();
-        var $form = $(this);
-        var $container = $('div#task_content');
-        $.ajax({
-            type:  $form.attr('method'),
-            url: 'ajax.php/'+$form.attr('action').substr(1),
-            data: $form.serialize(),
-            cache: false,
-            success: function(resp, status, xhr) {
-                $container.html(resp);
-                $('#msg_notice, #msg_error',$container)
-                .delay(5000)
-                .slideUp();
-            }
-        })
-        .done(function() { })
-        .fail(function() { });
     });
 });
 </script>

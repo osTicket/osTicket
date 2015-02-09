@@ -137,8 +137,9 @@ $(function() {
         }).show();
         return false;
      });
-    $(document).off('.task-action');
-    $(document).on('click.task-action', 'a.task-action', function(e) {
+    // Ticket Tasks
+    $(document).off('.ticket-task-action');
+    $(document).on('click.ticket-task-action', 'a.ticket-task-action', function(e) {
         e.preventDefault();
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)

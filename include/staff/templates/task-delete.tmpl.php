@@ -1,14 +1,11 @@
 <?php
 global $cfg;
-
-if (!$info['title'])
-    $info['title'] = sprintf(__('%s Tasks #%s'),
+if (!$info[':title'])
+    $info[':title'] = sprintf(__('%s %s'),
             __('Delete'),
-            $task->getNumber()
-            );
-
+            _N('selected task', 'selected tasks', $count));
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3><?php echo $info[':title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>
@@ -25,17 +22,18 @@ if ($info['error']) {
 }
 
 
-$action = $info['action'] ?: ('#tasks/'.$task->getId().'/delete');
+$action = $info[':action'] ?: ('#tasks/mass/delete');
 ?>
 <div id="ticket-status" style="display:block; margin:5px;">
 <form method="post" name="delete" id="delete"
-    action="<?php echo $action; ?>">
+    action="<?php echo $action; ?>"
+    class="mass-action">
     <table width="100%">
         <?php
-        if ($info['extra']) {
+        if ($info[':extra']) {
             ?>
         <tbody>
-            <tr><td colspan="2"><strong><?php echo $info['extra'];
+            <tr><td colspan="2"><strong><?php echo $info[':extra'];
             ?></strong></td> </tr>
         </tbody>
         <?php
@@ -45,7 +43,7 @@ $action = $info['action'] ?: ('#tasks/'.$task->getId().'/delete');
             <tr>
                 <td colspan="2">
                 <?php
-                $placeholder = $info['placeholder'] ?: __('Optional reason for the deletion');
+                $placeholder = $info[':placeholder'] ?: __('Optional reason for the deletion');
                 ?>
                 <textarea name="comments" id="comments"
                     cols="50" rows="3" wrap="soft" style="width:100%"

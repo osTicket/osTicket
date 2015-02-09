@@ -182,7 +182,9 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/delete', 'delete'),
         url_post('^(?P<tid>\d+)/delete$', 'delete'),
         url_get('^(?P<tid>\d+)/view$', 'task'),
-        url_post('^(?P<tid>\d+)$', 'task')
+        url_post('^(?P<tid>\d+)$', 'task'),
+        url_get('^mass/(?P<action>[\w.]+)', 'massProcess'),
+        url_post('^mass/(?P<action>[\w.]+)', 'massProcess')
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),
