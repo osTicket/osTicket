@@ -250,7 +250,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
                             ?>
                             href="<?php
                             echo sprintf('#tasks/mass/%s', $a); ?>"
-                            ><i class="<?php
+                            ><i class="icon-fixed-width <?php
                             echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
                             echo $action['action']; ?></a>
                     </li>

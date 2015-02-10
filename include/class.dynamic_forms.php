@@ -331,7 +331,7 @@ class DynamicForm extends VerySimpleModel {
         case 'T':
             return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
         case 'A':
-            return TaskForm::dropDynamicDataView(TicketForm::$cdata['table']);
+            return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
         }
 
     }
