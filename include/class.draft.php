@@ -93,7 +93,9 @@ class Draft extends VerySimpleModel {
 
     function setBody($body) {
         // Change file.php urls back to content-id's
-        $body = Format::sanitize($body, false);
+        $body = Format::sanitize($body, false,
+            // Preserve annotation information, if any
+            'img=data-annotations,data-orig-annotated-image-src');
 
         $this->body = $body ?: ' ';
         $this->updated = SqlFunction::NOW();

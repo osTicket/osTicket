@@ -64,9 +64,9 @@
   padding-left: 10px;
   float: right;
 }
-.redactor_box + .filedrop .dropzone,
-.redactor_box + div > .filedrop .dropzone,
-.redactor_box + div > .filedrop .files {
+.redactor-box + .filedrop .dropzone,
+.redactor-box + div > .filedrop .dropzone,
+.redactor-box + div > .filedrop .files {
     border-top-width: 1px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;

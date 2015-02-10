@@ -150,6 +150,13 @@ implements AuthenticatedUser {
                     && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
+    function canAccess($something) {
+        if ($something instanceof RestrictedAccess)
+            return $something->checkStaffPerm($this);
+
+        return true;
+    }
+
     function isPasswdChangeDue() {
         return $this->isPasswdResetDue();
     }
@@ -834,5 +841,9 @@ implements AuthenticatedUser {
         }
         return false;
     }
+}
+
+interface RestrictedAccess {
+    function checkStaffPerm($staff);
 }
 ?>

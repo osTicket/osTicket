@@ -1431,7 +1431,7 @@ time {
     z-index:1;
 }
 
-.redactor_editor {
+.redactor-editor {
     font-size: 11pt;
 }
 
@@ -2140,4 +2140,7 @@ td.indented {
 
 #dynamic-actions > tr > td {
     padding: 5px;
+}
+.no-margin {
+    margin: 0 !important;
 }
