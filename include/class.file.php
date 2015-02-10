@@ -74,8 +74,10 @@ class AttachmentFile extends VerySimpleModel {
         return $this->key;
     }
 
-    function getSignature() {
-        return $this->signature ?: $this->getKey();
+    function getSignature($cascade=false) {
+        $sig = $this->signature;
+        if (!$sig && $cascade) return $this->getKey();
+        return $sig;
     }
 
     function lastModified() {
@@ -127,7 +129,7 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     function makeCacheable($ttl=86400) {
-        Http::cacheable($this->getSignature(), $this->lastModified(), $ttl);
+        Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
     function display($scale=false) {
@@ -269,7 +271,7 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     /* Function assumes the files types have been validated */
-    static function upload($file, $ft='T') {
+    static function upload($file, $ft='T', $deduplicate=true) {
 
         if(!$file['name'] || $file['error'] || !is_uploaded_file($file['tmp_name']))
             return false;
@@ -285,10 +287,10 @@ class AttachmentFile extends VerySimpleModel {
                     'tmp_name'=>$file['tmp_name'],
                     );
 
-        return static::create($info, $ft);
+        return static::create($info, $ft, $deduplicate);
     }
 
-    static function uploadLogo($file, &$error, $aspect_ratio=3) {
+    static function uploadLogo($file, &$error, $aspect_ratio=2) {
         /* Borrowed in part from
          * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
          */
@@ -313,13 +315,13 @@ class AttachmentFile extends VerySimpleModel {
         $source_aspect_ratio = $source_width / $source_height;
 
         if ($source_aspect_ratio >= $aspect_ratio)
-            return self::upload($file, 'L');
+            return self::upload($file, 'L', false);
 
         $error = __('Image is too square. Upload a wider image');
         return false;
     }
 
-    static function create(&$file, $ft='T') {
+    static function create(&$file, $ft='T', $deduplicate=true) {
         if (isset($file['encoding'])) {
             switch ($file['encoding']) {
             case 'base64':
@@ -338,18 +340,17 @@ class AttachmentFile extends VerySimpleModel {
                 $file['key'] = $key;
         }
 
-        if (isset($file['size'])) {
+        if (isset($file['size']) && $file['size'] > 0) {
             // Check and see if the file is already on record
             $existing = static::objects()->filter(array(
                 'signature' => $file['signature'],
                 'size' => $file['size']
-            ))
-            ->first();
+            ));
 
             // If the record exists in the database already, a file with
             // the same hash and size is already on file -- just return
             // the file
-            if ($existing) {
+            if ($deduplicate && $existing->exists()) {
                 $file['key'] = $existing->key;
                 return $existing;
             }

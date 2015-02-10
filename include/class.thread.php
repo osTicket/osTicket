@@ -251,6 +251,13 @@ class Thread extends VerySimpleModel {
         return $deleted;
     }
 
+    function removeCollaborators() {
+        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE ticket_id='.db_input($this->getObjectId());
+
+        return (db_query($sql) && db_affected_rows());
+    }
+
     /**
      * Function: lookupByEmailHeaders
      *
@@ -315,7 +322,6 @@ class Thread extends VerySimpleModel {
         return null;
     }
 
-
     function delete() {
 
         //Self delete
@@ -329,6 +335,7 @@ class Thread extends VerySimpleModel {
 
         // Mass delete entries
         $this->deleteAttachments();
+        $this->removeCollaborators();
 
         $this->entries->delete();
 
@@ -1274,15 +1281,18 @@ class TextThreadEntryBody extends ThreadEntryBody {
         if ($this->isEmpty())
             return '(empty)';
 
+        $escaped = Format::htmlchars($this->body);
         switch ($output) {
         case 'html':
+            return '<div style="white-space:pre-wrap">'
+                .Format::clickableurls($escaped).'</div>';
         case 'email':
             return '<div style="white-space:pre-wrap">'
-                .Format::htmlchars($this->body).'</div>';
+                .$escaped.'</div>';
         case 'pdf':
-            return nl2br($this->body);
+            return nl2br($escaped);
         default:
-            return '<pre>'.$this->body.'</pre>';
+            return '<pre>'.$escaped.'</pre>';
         }
     }
 }

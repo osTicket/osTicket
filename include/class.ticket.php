@@ -2019,8 +2019,12 @@ implements RestrictedAccess, Threadable {
 
             //Assigned staff if any...could be the last respondent
 
-            if($this->isAssigned() && ($staff=$this->getStaff()))
-                $recipients[]=$staff;
+            if ($this->isAssigned()) {
+                if ($staff = $this->getStaff())
+                    $recipients[] = $staff;
+                elseif ($team = $this->getTeam())
+                    $recipients = array_merge($recipients, $team->getMembers());
+            }
 
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
@@ -2711,7 +2715,7 @@ implements RestrictedAccess, Threadable {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    static function create(&$vars, &$errors, $origin, $autorespond=true,
+    static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
@@ -3213,16 +3217,10 @@ implements RestrictedAccess, Threadable {
         }
 
         $ticket->reload();
-        $dept = $ticket->getDept();
 
-        // See if we need to skip auto-response.
-        $autorespond = isset($create_vars['autorespond'])
-            ? $create_vars['autorespond'] : true;
-
-        if (!$autorespond
+        if(!$cfg->notifyONNewStaffTicket()
                 || !isset($vars['alertuser'])
-                || !$dept->autoRespONNewTicket()
-                || !$cfg->notifyONNewStaffTicket())
+                || !($dept=$ticket->getDept()))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!

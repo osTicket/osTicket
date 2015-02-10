@@ -133,6 +133,8 @@ class ClientSession extends EndUser {
     }
 
     function refreshSession($force=false){
+        global $cfg;
+
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
@@ -140,6 +142,8 @@ class ClientSession extends EndUser {
 
         $this->token = $this->getSessionToken();
         //TODO: separate expire time from hash??
+
+        osTicketSession::renewCookie($time, $cfg->getClientSessionTimeout());
     }
 
     function getSession() {
@@ -179,12 +183,16 @@ class StaffSession extends Staff {
     }
 
     function refreshSession($force=false){
+        global $cfg;
+
         $time = $this->session->getLastUpdate($this->token);
         // Deadband session token updates to once / 30-seconds
         if (!$force && time() - $time < 30)
             return;
 
         $this->token=$this->getSessionToken();
+
+        osTicketSession::renewCookie($time, $cfg->getStaffSessionTimeout());
     }
 
     function getSession() {

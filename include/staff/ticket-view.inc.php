@@ -439,7 +439,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry->getId(); ?>"><div><?php
-                echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
+                echo $entry['body']->toHtml(); ?></div></td></tr>
             <?php
             $urls = null;
             if ($entry->has_attachments

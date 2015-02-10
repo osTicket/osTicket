@@ -335,7 +335,7 @@ class Mail_Parse {
                 $content = $struct->body;
                 //Encode to desired encoding - ONLY if charset is known??
                 if (isset($struct->ctype_parameters['charset']))
-                    $content = Format::encode($content,
+                    $content = Charset::transcode($content,
                         $struct->ctype_parameters['charset'], $this->charset);
 
                 return $content;
@@ -358,7 +358,7 @@ class Mail_Parse {
 
 
     function mime_encode($text, $charset=null, $encoding='utf-8') {
-        return Format::encode($text, $charset, $encoding);
+        return Charset::transcode($text, $charset, $encoding);
     }
 
     function getAttachments($part=null){

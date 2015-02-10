@@ -29,7 +29,7 @@ define('OSTCLIENTINC',TRUE);
 define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 
 //Check the status of the HelpDesk.
-if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php',))
+if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php','file.php'))
         && !(is_object($ost) && $ost->isSystemOnline())) {
     include(ROOT_DIR.'offline.php');
     exit;
