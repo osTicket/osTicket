@@ -1706,10 +1706,17 @@ class AssigneeField extends ChoiceField {
 
     function getChoices() {
         global $cfg;
-        $choices = array();
+        $choices = array(__('Agents') => new ArrayObject(), __('Teams') => new ArrayObject());
+        $A = current($choices);
         if (($agents = Staff::getAvailableStaffMembers()))
             foreach ($agents as $id => $name)
-                $choices[$id] = $name;
+                $A['s'.$id] = $name;
+
+        next($choices);
+        $T = current($choices);
+        if (($teams = Team::getTeams()))
+            foreach ($teams as $id => $name)
+                $T['t'.$id] = $name;
 
         return $choices;
     }
@@ -2573,14 +2580,9 @@ class ChoicesWidget extends Widget {
             <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
-            <?php }
-            foreach ($choices as $key => $name) {
-                if (!$have_def && $key == $def_key)
-                    continue; ?>
-                <option value="<?php echo $key; ?>" <?php
-                    if (isset($values[$key])) echo 'selected="selected"';
-                ?>><?php echo $name; ?></option>
-            <?php } ?>
+<?php
+        }
+        $this->emitChoices($choices); ?>
         </select>
         <?php
         if ($config['multiselect']) {
@@ -2592,6 +2594,35 @@ class ChoicesWidget extends Widget {
         });
         </script>
        <?php
+        }
+    }
+
+    function emitChoices($choices) {
+        reset($choices);
+        if (is_array(current($choices)) || current($choices) instanceof Traversable)
+            return $this->emitComplexChoices($choices);
+
+        foreach ($choices as $key => $name) {
+            if (!$have_def && $key == $def_key)
+                continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo $name; ?></option>
+        <?php
+        }
+    }
+
+    function emitComplexChoices($choices) {
+        foreach ($choices as $label => $group) { ?>
+            <optgroup label="<?php echo $label; ?>"><?php
+            foreach ($group as $key => $name) {
+                if (!$have_def && $key == $def_key)
+                    continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo $name; ?></option>
+<?php       } ?>
+            </optgroup><?php
         }
     }
 
