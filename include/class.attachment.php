@@ -16,36 +16,37 @@
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.file.php');
 
-class Attachment {
-    var $id;
-    var $file_id;
+class Attachment extends VerySimpleModel {
+    static $meta = array(
+        'table' => ATTACHMENT_TABLE,
+        'pk' => array('id'),
+        'select_related' => array('file'),
+        'joins' => array(
+            'thread_entry' => array(
+                'constraint' => array(
+                    'object_id' => 'ThreadEntry.id',
+                    'type' => "'H'",
+                ),
+            ),
+            'file' => array(
+                'constraint' => array(
+                    'file_id' => 'AttachmentFile.id',
+                ),
+            ),
+        ),
+    );
 
-    var $ht;
     var $object;
 
-    function Attachment($id) {
-
-        $sql = 'SELECT a.* FROM '.ATTACHMENT_TABLE.' a '
-             . 'WHERE a.id='.db_input($id);
-        if (!($res=db_query($sql)) || !db_num_rows($res))
-            return;
-
-        $this->ht = db_fetch_array($res);
-        $this->file = $this->object = null;
-    }
-
     function getId() {
-        return $this->ht['id'];
+        return $this->id;
     }
 
     function getFileId() {
-        return $this->ht['file_id'];
+        return $this->file_id;
     }
 
     function getFile() {
-        if(!$this->file && $this->getFileId())
-            $this->file = AttachmentFile::lookup($this->getFileId());
-
         return $this->file;
     }
 
@@ -66,42 +67,21 @@ class Attachment {
         return $this->object;
     }
 
-    static function getIdByFileHash($hash, $objectId=0) {
-        $sql='SELECT a.id FROM '.ATTACHMENT_TABLE.' a '
-            .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
-            .' WHERE f.`key`='.db_input($hash);
-        if ($objectId)
-            $sql.=' AND a.object_id='.db_input($objectId);
+    static function lookupByFileHash($hash, $objectId=0) {
+        $file = static::objects()
+            ->filter(array('file__key' => $hash));
 
-        return db_result(db_query($sql));
+        if ($objectId)
+            $file->filter(array('object_id' => $objectId));
+
+        return $file->first();
     }
 
     static function lookup($var, $objectId=0) {
-
-        $id = is_numeric($var) ? $var : self::getIdByFileHash($var,
-                $objectId);
-
-        return ($id
-                && is_numeric($id)
-                && ($attach = new Attachment($id, $objectId))
-                && $attach->getId()==$id
-            ) ? $attach : null;
+        return is_numeric($var)
+            ? parent::lookup($var)
+            : static::lookupByFileHash($var, $objectId);
     }
-}
-
-class AttachmentModel extends VerySimpleModel {
-    static $meta = array(
-        'table' => ATTACHMENT_TABLE,
-        'pk' => array('id'),
-        'joins' => array(
-            'thread' => array(
-                'constraint' => array(
-                    'object_id' => 'ThreadEntryModel.id',
-                    'type' => "'H'",
-                ),
-            ),
-        ),
-    );
 }
 
 class GenericAttachment extends VerySimpleModel {
@@ -132,24 +112,26 @@ class GenericAttachments {
                 $fileId = $file;
             elseif (is_array($file) && isset($file['id']))
                 $fileId = $file['id'];
-            elseif (!($fileId = AttachmentFile::upload($file)))
+            elseif ($F = AttachmentFile::upload($file))
+                $fileId = $F->getId();
+            else
                 continue;
 
             $_inline = isset($file['inline']) ? $file['inline'] : $inline;
 
-            $sql ='INSERT INTO '.ATTACHMENT_TABLE
-                .' SET `type`='.db_input($this->getType())
-                .',object_id='.db_input($this->getId())
-                .',file_id='.db_input($fileId)
-                .',inline='.db_input($_inline ? 1 : 0);
+            $att = Attachment::create(array(
+                'type' => $this->getType(),
+                'object_id' => $this->getId(),
+                'file_id' => $fileId,
+                'inline' => $_inline ? 1 : 0,
+            ));
             if ($lang)
-                $sql .= ',lang='.db_input($lang);
+                $att->lang = $lang;
 
             // File may already be associated with the draft (in the
             // event it was deleted and re-added)
-            if (db_query($sql, function($errno) { return $errno != 1062; })
-                    || db_errno() == 1062)
-                $i[] = $fileId;
+            $att->save();
+            $i[] = $fileId;
         }
 
         return $i;
@@ -161,15 +143,18 @@ class GenericAttachments {
             $fileId = $file;
         elseif (is_array($file) && isset($file['id']))
             $fileId = $file['id'];
-        elseif (!($fileId = AttachmentFile::save($file)))
+        elseif ($file = AttachmentFile::create($file))
+            $fileId = $file->getId();
+        else
             return false;
 
-        $sql ='INSERT INTO '.ATTACHMENT_TABLE
-            .' SET `type`='.db_input($this->getType())
-            .',object_id='.db_input($this->getId())
-            .',file_id='.db_input($fileId)
-            .',inline='.db_input($inline ? 1 : 0);
-        if (!db_query($sql) || !db_affected_rows())
+        $att = Attachment::create(array(
+            'type' => $this->getType(),
+            'object_id' => $this->getId(),
+            'file_id' => $fileId,
+            'inline' => $inline ? 1 : 0,
+        ));
+        if (!$att->save())
             return false;
 
         return $fileId;
@@ -181,51 +166,29 @@ class GenericAttachments {
     function count($lang=false) { return count($this->getSeparates($lang)); }
 
     function _getList($separate=false, $inlines=false, $lang=false) {
-        if(!isset($this->attachments)) {
-            $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.`key`, f.signature, f.name '
-                .', a.inline, a.lang, a.id as attach_id '
-                .' FROM '.FILE_TABLE.' f '
-                .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
-                .' WHERE a.`type`='.db_input($this->getType())
-                .' AND a.object_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($rec=db_fetch_array($res)) {
-                    $rec['download_url'] = AttachmentFile::generateDownloadUrl(
-                        $rec['id'], $rec['key'], $rec['signature']);
-                    $this->attachments[] = $rec;
-                }
-            }
-        }
-        $attachments = array();
-        foreach ($this->attachments as $a) {
-            if (($a['inline'] != $separate || $a['inline'] == $inlines)
-                    && $lang == $a['lang']) {
-                $a['file_id'] = $a['id'];
-                $a['hash'] = md5($a['file_id'].session_id().$a['key']);
-                $attachments[] = $a;
-            }
-        }
-        return $attachments;
+        return Attachment::objects()->filter(array(
+            'type' => $this->getType(),
+            'object_id' => $this->getId(),
+        ));
     }
 
     function delete($file_id) {
-        $deleted = 0;
-        $sql='DELETE FROM '.ATTACHMENT_TABLE
-            .' WHERE object_id='.db_input($this->getId())
-            .'   AND `type`='.db_input($this->getType())
-            .'   AND file_id='.db_input($file_id);
-        return db_query($sql) && db_affected_rows() > 0;
+        return Attachment::objects()->filter(array(
+            'type' => $this->getType(),
+            'object_id' => $this->getId(),
+            'file_id' => $file_id,
+        ))->delete();
     }
 
     function deleteAll($inline_only=false){
-        $deleted=0;
-        $sql='DELETE FROM '.ATTACHMENT_TABLE
-            .' WHERE object_id='.db_input($this->getId())
-            .'   AND `type`='.db_input($this->getType());
+        $objects = Attachment::objects()->filter(array(
+            'type' => $this->getType(),
+            'object_id' => $this->getId(),
+        ));
         if ($inline_only)
-            $sql .= ' AND inline = 1';
-        return db_query($sql) && db_affected_rows() > 0;
+            $objects->filter(array('inline' => 1));
+
+        return $objects->delete();
     }
 
     function deleteInlines() {

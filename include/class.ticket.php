@@ -75,7 +75,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'thread' => array(
-                'reverse' => 'ThreadModel.ticket',
+                'reverse' => 'Thread.ticket',
                 'list' => false,
                 'null' => true,
             ),
@@ -217,7 +217,7 @@ TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
 class Ticket
-implements RestrictedAccess {
+implements RestrictedAccess, Threadable {
 
     var $id;
     var $number;
@@ -818,7 +818,7 @@ implements RestrictedAccess {
     }
 
     function getThreadCount() {
-        return $this->getNumMessages() + $this->getNumResponses();
+        return $this->getClientThread()->count();
     }
 
     function getNumMessages() {
@@ -834,15 +834,15 @@ implements RestrictedAccess {
     }
 
     function getMessages() {
-        return $this->getThreadEntries('M');
+        return $this->getThreadEntries(array('M'));
     }
 
     function getResponses() {
-        return $this->getThreadEntries('R');
+        return $this->getThreadEntries(array('R'));
     }
 
     function getNotes() {
-        return $this->getThreadEntries('N');
+        return $this->getThreadEntries(array('N'));
     }
 
     function getClientThread() {
@@ -853,9 +853,11 @@ implements RestrictedAccess {
         return $this->getThread()->getEntry($id);
     }
 
-    function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries(
-                array( 'type' => $type, 'order' => $order));
+    function getThreadEntries($type=false) {
+        $thread = $this->getThread()->getEntries();
+        if ($type && is_array($type))
+            $thread->filter(array('type__in' => $type));
+        return $thread;
     }
 
     //Collaborators
@@ -1271,6 +1273,11 @@ implements RestrictedAccess {
                 'thread'=>$message
             );
         }
+        else {
+            $options += array(
+                'thread' => $this->getThread(),
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond
@@ -1284,7 +1291,7 @@ implements RestrictedAccess {
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'],
                 null, $options);
         }
 
@@ -1330,7 +1337,7 @@ implements RestrictedAccess {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1359,7 +1366,7 @@ implements RestrictedAccess {
             $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body']);
         }
 
         $user = $this->getOwner();
@@ -1421,9 +1428,8 @@ implements RestrictedAccess {
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
             if ($uid == $recipient->getUserId()) continue;
-            $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
-            $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
+            $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
@@ -1497,9 +1503,8 @@ implements RestrictedAccess {
 
             $options = array(
                 'inreplyto'=>$message->getEmailMessageId(),
-                'references' => $message->getEmailReferencesForUser($user),
                 'thread'=>$message);
-            $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
     }
@@ -1562,7 +1567,7 @@ implements RestrictedAccess {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1611,7 +1616,7 @@ implements RestrictedAccess {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1802,7 +1807,7 @@ implements RestrictedAccess {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1928,7 +1933,8 @@ implements RestrictedAccess {
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
 
-        $vars['origin'] = $origin;
+        if ($origin)
+            $vars['origin'] = $origin;
         if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
@@ -2034,7 +2040,7 @@ implements RestrictedAccess {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -2095,7 +2101,7 @@ implements RestrictedAccess {
                 'inreplyto'=>$response->getEmailMessageId(),
                 'references'=>$response->getEmailReferences(),
                 'thread'=>$response);
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->sendAutoReply($this, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2158,7 +2164,7 @@ implements RestrictedAccess {
                     $variables + array('recipient' => $this->getOwner()));
 
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2221,17 +2227,20 @@ implements RestrictedAccess {
         );
     }
 
-    function postNote($vars, &$errors, $poster, $alert=true) {
+    function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
         $vars['staffId'] = 0;
-        $vars['poster'] = 'SYSTEM';
         if($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
-        }elseif($poster) { //string
+        }
+        elseif ($poster) { //string
             $vars['poster'] = $poster;
+        }
+        elseif (!isset($vars['poster'])) {
+            $vars['poster'] = 'SYSTEM';
         }
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))
@@ -2305,12 +2314,25 @@ implements RestrictedAccess {
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[$staff->getEmail()] = 1;
             }
         }
 
         return $note;
+    }
+
+    // Threadable interface
+    function postThreadEntry($type, $vars) {
+        $errors = array();
+        switch ($type) {
+        case 'M':
+            return $this->postMessage($vars, $vars['origin']);
+        case 'N':
+            return $this->postNote($vars, $errors);
+        case 'R':
+            return $this->postReply($vars, $errors);
+        }
     }
 
     //Print ticket... export the ticket thread as PDF.
@@ -3125,7 +3147,7 @@ implements RestrictedAccess {
         $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
-        Signal::send('model.created', $ticket);
+        Signal::send('ticket.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 
@@ -3241,9 +3263,9 @@ implements RestrictedAccess {
                 $references[] = $response->getEmailMessageId();
             $options = array(
                 'references' => $references,
-                'thread' => $message,
+                'thread' => $message ?: $ticket->getThread(),
             );
-            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 

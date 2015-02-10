@@ -198,30 +198,29 @@ $types = array('M', 'R');
 if ($thread = $ticket->getThreadEntries($types)) {
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     foreach ($thread as $entry) { ?>
-        <div class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>">
+        <div class="thread-entry <?php echo $threadTypes[$entry->type]; ?>">
             <table class="header"><tr><td>
                     <span><?php
-                        echo Format::datetime($entry['created']);?></span>
+                        echo Format::datetime($entry->created);?></span>
                     <span style="padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry['title'], 100); ?></span>
+                        echo Format::truncate($entry->title, 100); ?></span>
                 </td>
                 <td class="flush-right faded title" style="white-space:no-wrap">
                     <?php
-                        echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
+                        echo Format::htmlchars($entry->getName()); ?></span>
                 </td>
             </tr></table>
             <div class="thread-body">
-                <div><?php echo $entry['body']->display('pdf'); ?></div>
+                <div><?php echo $entry->getBody()->display('pdf'); ?></div>
             </div>
             <?php
-            if ($entry['attachments']
-                    && ($tentry = $ticket->getThreadEntry($entry['id']))
-                    && ($files = $tentry->getAttachments())) { ?>
+            if ($entry->has_attachments
+                    && ($files = $entry->attachments)) { ?>
                 <div class="info">
-<?php           foreach ($files as $F) { ?>
+<?php           foreach ($files as $A) { ?>
                     <div>
-                        <span><?php echo $F['name']; ?></span>
-                        <span class="faded">(<?php echo Format::file_size($F['size']); ?>)</span>
+                        <span><?php echo Format::htmlchars($A->file->name); ?></span>
+                        <span class="faded">(<?php echo Format::file_size($A->file->size); ?>)</span>
                     </div>
 <?php           } ?>
                 </div>

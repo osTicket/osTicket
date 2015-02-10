@@ -376,8 +376,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <div class="clear"></div>
 <h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
 <?php
-$tcount = $ticket->getThreadCount();
-$tcount+= $ticket->getNumNotes();
+$tcount = $ticket->getThreadEntries($types)->count();
 ?>
 <ul  class="tabs threads" id="ticket_tabs" >
     <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
@@ -396,26 +395,25 @@ $tcount+= $ticket->getNumNotes();
     /* -------- Messages & Responses & Notes (if inline)-------------*/
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
-       foreach($thread as $entry) {
-        $tentry = $ticket->getThreadEntry($entry['id']); ?>
-        <table class="thread-entry <?php echo $threadTypes[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
+        foreach($thread as $entry) { ?>
+        <table class="thread-entry <?php echo $threadTypes[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
                 <div>
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
-                        echo Format::datetime($entry['created']);?></span>
+                        echo Format::datetime($entry->created);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry['title'], 100); ?></span>
+                        echo Format::truncate($entry->title, 100); ?></span>
                     </span>
-<?php           if ($tentry->hasActions()) {
-                    $actions = $tentry->getActions(); ?>
-                    <div class="pull-right">
-                    <span class="action-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry['id']; ?>">
+                <div class="pull-right">
+<?php           if ($entry->hasActions()) {
+                    $actions = $entry->getActions(); ?>
+                    <span class="action-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry->getId(); ?>">
                         <i class="icon-caret-down"></i>
                         <span ><i class="icon-cog"></i></span>
                     </span>
-                    <div id="entry-action-more-<?php echo $entry['id']; ?>" class="action-dropdown anchor-right">
+                    <div id="entry-action-more-<?php echo $entry->getId(); ?>" class="action-dropdown anchor-right">
                 <ul class="title">
 <?php               foreach ($actions as $group => $list) {
                         foreach ($list as $id => $action) { ?>
@@ -434,36 +432,47 @@ $tcount+= $ticket->getNumNotes();
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
-                            echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
+                            echo Format::htmlchars($entry->getName()); ?></span>
                     </span>
                 </div>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
-                echo $entry['id']; ?>"><div><?php
-                echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
+                echo $entry->getId(); ?>"><div><?php
+                echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
             <?php
             $urls = null;
-            if($entry['attachments']
-                    && ($urls = $tentry->getAttachmentUrls())
-                    && ($links = $tentry->getAttachmentsLinks())) {?>
+            if ($entry->has_attachments
+                && ($urls = $entry->getAttachmentUrls())) { ?>
             <tr>
-                <td class="info" colspan="4"><?php echo $links; ?></td>
+                <td class="info" colspan="4"><?php
+                    foreach ($entry->attachments as $A) {
+                        if ($A->inline) continue;
+                        $size = '';
+                        if ($A->file->size)
+                            $size = sprintf('<em>(%s)</em>',
+                                Format::file_size($A->file->size));
+?>
+                <a class="Icon file no-pjax" href="<?php echo $A->file->getDownloadUrl();
+                    ?>" target="_blank"><?php echo Format::htmlchars($A->file->name);
+                ?></a><?php echo $size;?>&nbsp;
+<?php               } ?>
+                </td>
             </tr> <?php
             }
             if ($urls) { ?>
                 <script type="text/javascript">
-                    $('#thread-id-<?php echo $entry['id']; ?>')
+                    $('#thread-id-<?php echo $entry->getId(); ?>')
                         .data('urls', <?php
                             echo JsonDataEncoder::encode($urls); ?>)
-                        .data('id', <?php echo $entry['id']; ?>);
+                        .data('id', <?php echo $entry->getId(); ?>);
                 </script>
 <?php
             } ?>
         </table>
         <?php
-        if ($entry['type'] == 'M')
-            $msgId = $entry['id'];
+        if ($entry->type == 'M')
+            $msgId = $entry->getId();
        }
     } else {
         echo '<p><em>'.__('No entries have been posted to this ticket.').'</em></p>';

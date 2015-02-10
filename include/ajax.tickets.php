@@ -785,8 +785,10 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function triggerThreadAction($ticket_id, $thread_id, $action) {
-        $thread = ThreadEntry::lookup($thread_id, $ticket_id);
+        $thread = ThreadEntry::lookup($thread_id);
         if (!$thread)
+            Http::response(404, 'No such ticket thread entry');
+        if ($thread->getThread()->getObjectId() != $ticket_id)
             Http::response(404, 'No such ticket thread entry');
 
         $valid = false;

@@ -212,32 +212,31 @@ foreach (DynamicFormEntry::forObject($task->getId(),
     $types = array('M', 'R', 'N');
     if(($thread=$task->getThreadEntries($types))) {
        foreach($thread as $entry) { ?>
-        <table class="thread-entry <?php echo $threadTypes[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
+        <table class="thread-entry <?php echo $threadTypes[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
             <tr>
                 <th colspan="4" width="100%">
                 <div>
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
-                        echo Format::datetime($entry['created']);?></span>
+                        echo Format::datetime($entry->created);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry['title'], 100); ?></span>
+                        echo Format::truncate($entry->title, 100); ?></span>
                     </span>
                     <span class="pull-right" style="white-space:no-wrap;display:inline-block">
                         <span style="vertical-align:middle;" class="textra"></span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
-                            echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
+                            echo Format::htmlchars($entry->getName()); ?></span>
                     </span>
                 </div>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
-                echo $entry['id']; ?>"><div><?php
-                echo $entry['body']->toHtml(); ?></div></td></tr>
+                echo $entry->getId(); ?>"><div><?php
+                echo $entry->getBody()->toHtml(); ?></div></td></tr>
             <?php
             $urls = null;
-            if($entry['attachments']
-                    && ($tentry = $task->getThreadEntry($entry['id']))
+            if($entry->has_attachments
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
@@ -246,7 +245,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
             }
             if ($urls) { ?>
                 <script type="text/javascript">
-                    $('#thread-id-<?php echo $entry['id']; ?>')
+                    $('#thread-id-<?php echo $entry->getId(); ?>')
                         .data('urls', <?php
                             echo JsonDataEncoder::encode($urls); ?>)
                         .data('id', <?php echo $entry['id']; ?>);
@@ -255,8 +254,8 @@ foreach (DynamicFormEntry::forObject($task->getId(),
             } ?>
         </table>
         <?php
-        if ($entry['type'] == 'M')
-            $msgId = $entry['id'];
+        if ($entry->type == 'M')
+            $msgId = $entry->getId();
        }
     } else {
         echo '<p>'.__('Error fetching thread - get technical help.').'</p>';
