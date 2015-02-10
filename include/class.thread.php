@@ -299,6 +299,11 @@ Class ThreadEntry {
         return $this->ht['pid'];
     }
 
+    function getParent() {
+        if ($this->getPid())
+            return ThreadEntry::lookup($this->getPid());
+    }
+
     function getType() {
         return $this->ht['thread_type'];
     }
@@ -370,30 +375,9 @@ Class ThreadEntry {
         $headers = self::getEmailHeaderArray();
         if (isset($headers['References']) && $headers['References'])
             $references = $headers['References']." ";
-        if ($include_mid)
-            $references .= $this->getEmailMessageId();
+        if ($include_mid && ($mid = $this->getEmailMessageId()))
+            $references .= $mid;
         return $references;
-    }
-
-    function getTaggedEmailReferences($prefix, $refId) {
-
-        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
-
-        $mid = substr_replace($this->getEmailMessageId(),
-                $ref, strpos($this->getEmailMessageId(), '@'), 0);
-
-        return sprintf('%s %s', $this->getEmailReferences(false), $mid);
-    }
-
-    function getEmailReferencesForUser($user) {
-        return $this->getTaggedEmailReferences('u',
-            ($user instanceof Collaborator)
-                ? $user->getUserId()
-                : $user->getId());
-    }
-
-    function getEmailReferencesForStaff($staff) {
-        return $this->getTaggedEmailReferences('s', $staff->getId());
     }
 
     function getUIDFromEmailReference($ref) {
@@ -673,8 +657,8 @@ Class ThreadEntry {
         // where code is a predictable string based on the SECRET_SALT of
         // this osTicket installation. If this incoming mail matches the
         // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+        $msgId_info = Mailer::decodeMessageId($mailinfo['mid']);
+        if ($msgId_info['loopback']) {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
@@ -904,6 +888,25 @@ Class ThreadEntry {
                         return $t;
                     }
                 }
+                // Attempt to detect the ticket and user ids from the
+                // message-id header. If the message originated from
+                // osTicket, the Mailer class can break it apart. If it came
+                // from this help desk, the 'loopback' property will be set
+                // to true.
+                $mid_info = Mailer::decodeMessageId($mid);
+                if ($mid_info['loopback'] && isset($mid_info['uid'])
+                    && @$mid_info['threadId']
+                    && ($t = ThreadEntry::lookup($mid_info['threadId']))
+                ) {
+                    if (@$mid_info['userId']) {
+                        $mailinfo['userId'] = $mid_info['userId'];
+                    }
+                    elseif (@$mid_info['staffId']) {
+                        $mailinfo['staffId'] = $mid_info['staffId'];
+                    }
+                    // ThreadEntry was positively identified
+                    return $t;
+                }
             }
             // Second best case — found a thread but couldn't identify the
             // user from the header. Return the first thread entry matched
@@ -1112,10 +1115,7 @@ Class ThreadEntry {
                 return false;
         }
 
-        // Email message id (required for all thread posts)
-        if (!isset($vars['mid']))
-            $vars['mid'] = sprintf('<%s@%s>', Misc::randCode(24),
-                substr(md5($cfg->getUrl()), -10));
+        // Email message id
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)

@@ -989,7 +989,7 @@ class Ticket {
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'],
                 null, $options);
         }
 
@@ -1035,7 +1035,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1064,7 +1064,7 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body']);
         }
 
         $user = $this->getOwner();
@@ -1126,9 +1126,8 @@ class Ticket {
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
             if ($uid == $recipient->getUserId()) continue;
-            $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
-            $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
+            $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
@@ -1194,9 +1193,8 @@ class Ticket {
 
             $options = array(
                 'inreplyto'=>$message->getEmailMessageId(),
-                'references' => $message->getEmailReferencesForUser($user),
                 'thread'=>$message);
-            $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
     }
@@ -1259,7 +1257,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1308,7 +1306,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1511,7 +1509,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1746,7 +1744,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1807,7 +1805,7 @@ class Ticket {
                 'inreplyto'=>$response->getEmailMessageId(),
                 'references'=>$response->getEmailReferences(),
                 'thread'=>$response);
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->sendAutoReply($this, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -1869,7 +1867,7 @@ class Ticket {
                     $variables + array('recipient' => $this->getOwner()));
 
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2016,7 +2014,7 @@ class Ticket {
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[$staff->getEmail()] = 1;
             }
         }
@@ -2891,7 +2889,7 @@ class Ticket {
                 'references' => $references,
                 'thread' => $ticket->getLastMessage()
             );
-            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
