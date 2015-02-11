@@ -53,12 +53,15 @@ Class CSRF {
         return $this->name;
     }
 
+    function rotate() {
+        $this->csrf['token'] = sha1(session_id().Crypto::random(16).SECRET_SALT);
+        $this->csrf['time'] = time();
+    }
+
     function getToken() {
 
-        if(!$this->csrf['token'] || $this->isExpired()) {
-
-            $this->csrf['token'] = sha1(session_id().Crypto::random(16).SECRET_SALT);
-            $this->csrf['time'] = time();
+        if (!$this->csrf['token'] || $this->isExpired()) {
+            $this->rotate();
         } else {
             //Reset the timer
             $this->csrf['time'] = time();
