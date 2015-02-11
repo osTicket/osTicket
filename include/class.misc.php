@@ -32,7 +32,6 @@ class Misc {
         $loops = (int) (32 / $bits_per_char);
         $output = '';
         $ints = unpack('V*', $data);
-        array_shift($ints);
         foreach ($ints as $int) {
             for ($i = $loops; $i > 0; $i--) {
                 $output .= $chars[($int & $mask) % $char_count];
