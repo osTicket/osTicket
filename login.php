@@ -25,7 +25,19 @@ require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
 $inc = 'login.inc.php';
+
+// Check the CSRF token, and ensure that future requests will have to use a
+// different CSRF token. This will help ward off both parallel and serial
+// brute force attacks, because new tokens will have to be requested for
+// each attempt.
 if ($_POST) {
+    // Check CSRF token
+    if (!$ost->checkCSRFToken())
+        Http::response(400, __('Valid CSRF Token Required'));
+
+    // Rotate the CSRF token (original cannot be reused)
+    $ost->getCSRF()->rotate();
+
     if (!$_POST['lticket'] || !Validator::is_email($_POST['lemail']))
         $errors['err'] = 'Valid email address and ticket number required';
     elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
