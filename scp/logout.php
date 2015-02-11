@@ -23,7 +23,7 @@ if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
 $thisstaff->logOut();
 
 //Clear any ticket locks the staff has.
-TicketLock::removeStaffLocks($thisstaff->getId());
+Lock::removeStaffLocks($thisstaff->getId());
 
 //Destroy session on logout.
 // TODO: Stop doing this starting with 1.9 - separate session data per

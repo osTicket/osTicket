@@ -439,7 +439,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
                 echo $entry->getId(); ?>"><div><?php
-                echo $entry['body']->toHtml(); ?></div></td></tr>
+                echo $entry->getBody()->toHtml(); ?></div></td></tr>
             <?php
             $urls = null;
             if ($entry->has_attachments
@@ -514,6 +514,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
+        <input type="hidden" name="lockId" value="<?php echo $ticket->getLock()->getId(); ?>">
+        <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
         <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
            <tbody id="to_sec">
@@ -702,6 +704,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="postnote">
+        <input type="hidden" name="lockId" value="<?php echo $ticket->getLock()->getId(); ?>">
+        <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
         <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <?php
             if($errors['postnote']) {?>
@@ -1068,4 +1072,17 @@ $(function() {
 }();
 <?php } ?>
 });
+
+<?php
+// Hover support for all inline images
+$urls = array();
+foreach (AttachmentFile::objects()->filter(array(
+    'attachments__thread_entry__thread__id' => $ticket->getThreadId()
+)) as $file) {
+    $urls[strtolower($file->getKey())] = array(
+        'download_url' => $file->getDownloadUrl(),
+        'filename' => $file->name,
+    );
+} ?>
+$.showImagesInline(<?php echo JsonDataEncoder::encode($urls); ?>);
 </script>

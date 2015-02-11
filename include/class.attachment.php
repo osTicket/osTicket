@@ -24,8 +24,8 @@ class Attachment extends VerySimpleModel {
         'joins' => array(
             'thread_entry' => array(
                 'constraint' => array(
-                    'object_id' => 'ThreadEntry.id',
                     'type' => "'H'",
+                    'object_id' => 'ThreadEntry.id',
                 ),
             ),
             'file' => array(

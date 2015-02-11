@@ -845,7 +845,11 @@ RedactorPlugins.imageannotate = function() {
       var redactor = this,
           self = this.imageannotate;
       if (typeof window.fabric === 'undefined' && !loadedFabric) {
-          $.getScript('../js/fabric.min.js');
+          $.ajax({
+            dataType: 'script',
+            cache: true,
+            url: '../js/fabric.min.js'
+          });
           loadedFabric = true;
       }
       $(document).on('click', '.redactor-box img', function() {

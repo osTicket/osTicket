@@ -25,9 +25,18 @@ class Thread extends VerySimpleModel {
         'joins' => array(
             'ticket' => array(
                 'constraint' => array(
-                    'object_id' => 'TicketModel.ticket_id',
                     'object_type' => "'T'",
+                    'object_id' => 'TicketModel.ticket_id',
                 ),
+            ),
+            'task' => array(
+                'constraint' => array(
+                    'object_type' => "'A'",
+                    'object_id' => 'Task.id',
+                ),
+            ),
+            'collaborators' => array(
+                'reverse' => 'Collaborator.thread',
             ),
             'entries' => array(
                 'reverse' => 'ThreadEntry.thread',
@@ -70,7 +79,8 @@ class Thread extends VerySimpleModel {
 
     function getEntries($criteria=false) {
         $base = $this->entries->annotate(array(
-            'has_attachments' => SqlAggregate::COUNT('attachments')
+            'has_attachments' => SqlAggregate::COUNT('attachments', false,
+                new Q(array('attachments__inline'=>0)))
         ));
         if ($criteria)
             $base->filter($criteria);
@@ -252,10 +262,9 @@ class Thread extends VerySimpleModel {
     }
 
     function removeCollaborators() {
-        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
-            .' WHERE ticket_id='.db_input($this->getObjectId());
-
-        return (db_query($sql) && db_affected_rows());
+        return Collaborator::objects()
+            ->filter(array('thread_id'=>$this->getId()))
+            ->delete();
     }
 
     /**
@@ -396,6 +405,8 @@ class ThreadEntry extends VerySimpleModel {
         ),
     );
 
+    const FLAG_ORIGINAL_MESSAGE         = 0x0001;
+
     var $_headers;
     var $_thread;
     var $_actions;
@@ -418,7 +429,7 @@ class ThreadEntry extends VerySimpleModel {
     }
 
     function getPid() {
-        return $this->pid;
+        return $this->get('pid', 0);
     }
 
     function getParent() {
@@ -572,6 +583,16 @@ class ThreadEntry extends VerySimpleModel {
 
     function isBounceOrAutoReply() {
         return ($this->isAutoReply() || $this->isBounce());
+    }
+
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+    function clearFlag($flag) {
+        return $this->set('flags', $this->get('flags') & ~$flag);
+    }
+    function setFlag($flag) {
+        return $this->set('flags', $this->get('flags') | $flag);
     }
 
     //Web uploads - caller is expected to format, validate and set any errors.
@@ -841,7 +862,29 @@ class ThreadEntry extends VerySimpleModel {
 
         $thread = null;
         foreach ($possibles as $mid) {
-            //Try to determine if it's a reply to a tagged email.
+            // Attempt to detect the ticket and user ids from the
+            // message-id header. If the message originated from
+            // osTicket, the Mailer class can break it apart. If it came
+            // from this help desk, the 'loopback' property will be set
+            // to true.
+            $mid_info = Mailer::decodeMessageId($mid);
+            if ($mid_info['loopback'] && isset($mid_info['uid'])
+                && @$mid_info['entryId']
+                && ($t = ThreadEntry::lookup($mid_info['entryId']))
+                && ($t->thread_id == $mid_info['threadId'])
+            ) {
+                if (@$mid_info['userId']) {
+                    $mailinfo['userId'] = $mid_info['userId'];
+                }
+                elseif (@$mid_info['staffId']) {
+                    $mailinfo['staffId'] = $mid_info['staffId'];
+                }
+                // ThreadEntry was positively identified
+                return $t;
+            }
+
+            // Try to determine if it's a reply to a tagged email.
+            // (Deprecated)
             $ref = null;
             if (strpos($mid, '+')) {
                 list($left, $right) = explode('@',$mid);
@@ -866,26 +909,6 @@ class ThreadEntry extends VerySimpleModel {
                     // user
                     return $t;
                 }
-            }
-            // Attempt to detect the ticket and user ids from the
-            // message-id header. If the message originated from
-            // osTicket, the Mailer class can break it apart. If it came
-            // from this help desk, the 'loopback' property will be set
-            // to true.
-            $mid_info = Mailer::decodeMessageId($mid);
-            if ($mid_info['loopback'] && isset($mid_info['uid'])
-                && @$mid_info['entryId']
-                && ($t = ThreadEntry::lookup($mid_info['entryId']))
-                && ($t->thread_id == $mid_info['threadId'])
-            ) {
-                if (@$mid_info['userId']) {
-                    $mailinfo['userId'] = $mid_info['userId'];
-                }
-                elseif (@$mid_info['staffId']) {
-                    $mailinfo['staffId'] = $mid_info['staffId'];
-                }
-                // ThreadEntry was positively identified
-                return $t;
             }
         }
         // Second best case — found a thread but couldn't identify the
@@ -1465,17 +1488,18 @@ class ObjectThread extends Thread {
         if (!isset($this->counts) && $this->getId()) {
             $this->counts = array();
 
-            $stuff = static::objects()->annotate(array(
-                'count' => SqlAggregate::COUNT('thread_entry', true)
-            ))
-            ->values_flat('thread_entry__type', 'count');
-            print $stuff;
+            $stuff = $this->entries
+                ->values_flat('type')
+                ->annotate(array(
+                    'count' => SqlAggregate::COUNT('id')
+                ));
 
             foreach ($stuff as $row) {
                 list($type, $count) = $row;
                 $this->counts[$type] = $count;
             }
         }
+        return $this->counts;
     }
 
     function getNumMessages() {
@@ -1560,7 +1584,8 @@ class ObjectThread extends Thread {
         switch ($name) {
         case 'original':
             $entry = $this->entries->filter(array(
-                    'type'  => MessageThreadEntry::ENTRY_TYPE,
+                'type' => MessageThreadEntry::ENTRY_TYPE,
+                'flags__hasbit' => ThreadEntry::FLAG_ORIGINAL_MESSAGE,
                 ))
                 ->order_by('id')
                 ->first();

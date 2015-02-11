@@ -43,16 +43,11 @@ class TicketModel extends VerySimpleModel {
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
             ),
-            'collaborators' => array(
-                'reverse' => 'TicketCollaborator.ticket',
-                'null' => true,
-            ),
             'status' => array(
                 'constraint' => array('status_id' => 'TicketStatus.id')
             ),
             'lock' => array(
-                'reverse' => 'TicketLock.ticket',
-                'list' => false,
+                'constraint' => array('lock_id' => 'Lock.lock_id'),
                 'null' => true,
             ),
             'dept' => array(
@@ -247,14 +242,14 @@ implements RestrictedAccess, Threadable {
         if (!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, thread.id as thread_id, lock_id, dept.name as dept_name '
+        $sql='SELECT  ticket.*, thread.id as thread_id, ticket.lock_id, dept.name as dept_name '
             .' ,count(distinct attach.id) as attachments'
             .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
-                ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.LOCK_TABLE.' tlock
+                ON ( ticket.lock_id=tlock.lock_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TASK_TABLE.' task
                 ON ( task.object_id = ticket.ticket_id AND task.object_type="T" ) '
             .' LEFT JOIN '.THREAD_TABLE.' thread
@@ -442,7 +437,8 @@ implements RestrictedAccess, Threadable {
         return $this->getEmail();
     }
 
-    function getAuthToken() {
+    // Deprecated
+    function getOldAuthToken() {
         # XXX: Support variable email address (for CCs)
         return md5($this->getId() . strtolower($this->getEmail()) . SECRET_SALT);
     }
@@ -619,6 +615,9 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLock() {
+        if (!isset($this->tlock) && $this->ht['lock_id'])
+            $this->tlock = Lock::lookup($this->ht['lock_id']);
+
         return $this->tlock;
     }
 
@@ -638,9 +637,29 @@ implements RestrictedAccess, Threadable {
             return $lock;
         }
         //No lock on the ticket or it is expired
-        $this->tlock = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
+        $this->tlock = Lock::acquire($staffId, $lockTime); //Create a new lock..
+
+        if ($this->tlock) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = '
+                .db_input($this->tlock->getId())
+                .' WHERE `ticket_id` = '. db_input($this->getId());
+            db_query($sql);
+        }
+
         //load and return the newly created lock if any!
         return $this->tlock;
+    }
+
+    function releaseLock() {
+        if (!($lock = $this->getLock()))
+            return;
+
+        if (!$lock->delete())
+            return;
+
+        $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = 0 WHERE `ticket_id` = '
+            . db_input($this->getId());
+        return ($res = db_query($sql)) && db_affected_rows($res);
     }
 
     function getDept() {
@@ -941,7 +960,7 @@ implements RestrictedAccess, Threadable {
             return null;
 
         $vars = array_merge(array(
-                'ticketId' => $this->getId(),
+                'threadId' => $this->getThreadId(),
                 'userId' => $user->getId()), $vars);
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
@@ -975,25 +994,49 @@ implements RestrictedAccess, Threadable {
         //statuses
         $cids = null;
         if($vars['cid'] && ($cids=array_filter($vars['cid']))) {
-            $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-                .' SET updated=NOW(), isactive=1 '
-                .' WHERE ticket_id='.db_input($this->getId())
-                .' AND id IN('.implode(',', db_input($cids)).')';
-            db_query($sql);
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                'id__in' => $cids
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 1,
+            ));
         }
 
-        $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-            .' SET updated=NOW(), isactive=0 '
-            .' WHERE ticket_id='.db_input($this->getId());
-        if($cids)
-            $sql.=' AND id NOT IN('.implode(',', db_input($cids)).')';
-
-        db_query($sql);
+        if ($cids) {
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                Q::not(array('id__in' => $cids))
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 0,
+            ));
+        }
 
         unset($this->ht['active_collaborators']);
         $this->collaborators = null;
 
         return true;
+    }
+
+    function getAuthToken($user, $algo=1) {
+
+        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
+        $authtoken = sprintf('%s%dx%s',
+                ($user->getId() == $this->getOwnerId() ? 'o' : 'c'),
+                $algo,
+                Base32::encode(pack('VV',$user->getId(), $this->getId())));
+
+        switch($algo) {
+            case 1:
+                $authtoken .= substr(base64_encode(
+                            md5($user->getId().$this->getCreateDate().$this->getId().SECRET_SALT, true)), 8);
+                break;
+            default:
+                return null;
+        }
+
+        return $authtoken;
     }
 
     /* -------------------- Setters --------------------- */
@@ -1643,7 +1686,7 @@ implements RestrictedAccess, Threadable {
                 return $this->getPhoneNumber();
                 break;
             case 'auth_token':
-                return $this->getAuthToken();
+                return $this->getOldAuthToken();
                 break;
             case 'client_link':
                 return sprintf('%s/view.php?t=%s',
@@ -3076,6 +3119,14 @@ implements RestrictedAccess, Threadable {
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
+
+        // If a message was posted, flag it as the orignal message. This
+        // needs to be done on new ticket, so as to otherwise separate the
+        // concept from the first message entry in a thread.
+        if ($message instanceof ThreadEntry) {
+            $message->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $message->save();
+        }
 
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);

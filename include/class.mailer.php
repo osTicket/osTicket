@@ -137,7 +137,7 @@ class Mailer {
      */
     function getMessageId($recipient, $options=array(), $version='B') {
         $tag = '';
-        $rand = Misc::randCode(9,
+        $rand = Misc::randCode(5,
             // RFC822 specifies the LHS of the addr-spec can have any char
             // except the specials — ()<>@,;:\".[], dash is reserved as the
             // section separator, and + is reserved for historical reasons

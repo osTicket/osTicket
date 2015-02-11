@@ -61,14 +61,16 @@ RedactorPlugins.draft = function() {
                 trash.hide();
         }
         if (this.code.get())
-          this.$box.trigger('draft:recovered');
+            this.$box.trigger('draft:recovered');
     },
     afterUpdateDraft: function(name, data) {
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
-        if ($.autoLock && this.opts.draftNamespace == 'ticket.response') {
-            if (this.code.get())
-                $.autoLock.handleEvent();
+        if ($.autoLock
+            && this.$box.closest('form').find('input[name=lockId]').val()
+            && this.code.get()
+        ) {
+            $.autoLock.handleEvent();
         }
 
         // If the draft was created, a draft_id will be sent back — update
@@ -79,8 +81,8 @@ RedactorPlugins.draft = function() {
             this.opts.clipboardUploadUrl =
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
-            if (!this.get())
-                this.set(' ', false);
+            if (!this.code.get())
+                this.code.set(' ', false);
         }
         // Only show the [Draft Saved] notice if there is content in the
         // field that has been touched
@@ -243,7 +245,7 @@ $(function() {
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagepaste','imagemanager','definedlinks']
-                  : ['signature','imagepaste','imagemanager','imageannotate','table','video','definedlinks'],
+                  : ['imagepaste','imagemanager','imageannotate','table','video','definedlinks'],
                 'imageUpload': 'tbd',
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,

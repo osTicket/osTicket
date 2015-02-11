@@ -131,7 +131,10 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$tid || !is_numeric($tid) || !$id || !is_numeric($id) || !$thisstaff)
             return $this->json_encode(array('id'=>0, 'retry'=>true));
 
-        $lock= TicketLock::lookup($id, $tid);
+        if (!($ticket = Ticket::lookup($tid)))
+            return $this->json_encode(array('id'=>0, 'retry'=>true));
+
+        $lock = $ticket->getLock();
         if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
             return self::acquireLock($tid); //acquire the lock
 
@@ -149,7 +152,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if($id && is_numeric($id)){ //Lock Id provided!
 
-            $lock = TicketLock::lookup($id, $tid);
+            $lock = Lock::lookup($id);
             //Already gone?
             if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
                 return 1;
@@ -157,8 +160,10 @@ class TicketsAjaxAPI extends AjaxController {
             //make sure the user actually owns the lock before releasing it.
             return ($lock->getStaffId()==$thisstaff->getId() && $lock->release())?1:0;
 
-        }elseif($tid){ //release all the locks the user owns on the ticket.
-            return TicketLock::removeStaffLocks($thisstaff->getId(),$tid)?1:0;
+        } elseif ($tid) { //release all the locks the user owns on the ticket.
+            if (!($ticket = Ticket::lookup($tid)))
+                return 0;
+            return Lock::removeStaffLocks($thisstaff->getId(), $ticket)?1:0;
         }
 
         return 0;

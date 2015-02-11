@@ -173,12 +173,25 @@ class VerySimpleModel {
                 return $v;
             }
             // Support relationships
-            elseif (isset($j['fkey'])
-                    && ($class = $j['fkey'][0])
-                    && class_exists($class)) {
+            elseif (isset($j['fkey'])) {
+                $criteria = array();
+                foreach ($j['constraint'] as $local => $foreign) {
+                    list($klas,$F) = explode('.', $foreign);
+                    if (class_exists($klas))
+                        $class = $klas;
+                    if ($local[0] == "'") {
+                        $criteria[$F] = trim($local,"'");
+                    }
+                    elseif ($foreign[0] == "'") {
+                        // Does not affect the local model
+                        continue;
+                    }
+                    else {
+                        $criteria[$F] = $this->ht[$local];
+                    }
+                }
                 try {
-                    $v = $this->ht[$field] = $class::lookup(
-                        array($j['fkey'][1] => $this->ht[$j['local']]));
+                    $v = $this->ht[$field] = $class::lookup($criteria);
                 }
                 catch (DoesNotExist $e) {
                     $v = null;
@@ -189,6 +202,7 @@ class VerySimpleModel {
         elseif (isset($this->__deferred__[$field])) {
             // Fetch deferred field
             $row = static::objects()->filter($this->getPk())
+                // XXX: Seems like all the deferred fields should be fetched
                 ->values_flat($field)
                 ->one();
             if ($row)
@@ -324,10 +338,13 @@ class VerySimpleModel {
             $criteria = array();
             foreach (func_get_args() as $i=>$f)
                 $criteria[static::$meta['pk'][$i]] = $f;
+
+            // Only consult cache for PK lookup, which is assumed if the
+            // values are passed as args rather than an array
+            if ($cached = ModelInstanceManager::checkCache(get_called_class(),
+                    $criteria))
+                return $cached;
         }
-        if ($cached = ModelInstanceManager::checkCache(get_called_class(),
-                $criteria))
-            return $cached;
         try {
             return static::objects()->filter($criteria)->one();
         }
@@ -361,8 +378,17 @@ class VerySimpleModel {
         $ex = DbEngine::save($this);
         try {
             $ex->execute();
-            if ($ex->affected_rows() != 1)
-                return false;
+            if ($ex->affected_rows() != 1) {
+                // This doesn't really signify an error. It just means that
+                // the database believe that the row did not change. For
+                // inserts though, it's a deal breaker
+                if ($this->__new__)
+                    return false;
+                else
+                    // No need to reload the record if requested — the
+                    // database didn't update anything
+                    $refetch = false;
+            }
         }
         catch (OrmException $e) {
             return false;
@@ -388,7 +414,8 @@ class VerySimpleModel {
             // Uncache so that the lookup will not be short-cirtuited to
             // return this object
             ModelInstanceManager::uncache($this);
-            $self = static::lookup($this->get('pk'));
+            $self = call_user_func_array(array(get_class($this), 'lookup'),
+                $this->get('pk'));
             $this->ht = $self->ht;
         }
         if ($wasnew)
@@ -651,7 +678,7 @@ class SqlAggregate extends SqlFunction {
     }
 }
 
-class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
+class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countable {
     var $model;
 
     var $constraints = array();
@@ -674,6 +701,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
 
     var $params;
     var $query;
+    var $count;
 
     function __construct($model) {
         $this->model = $model;
@@ -798,9 +826,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
     }
 
     function count() {
+        // Defer to the iterator if fetching already started
+        if (isset($this->_iterator)) {
+            return $this->_iterator->count();
+        }
+        elseif (isset($this->_count)) {
+            return $this->_count;
+        }
         $class = $this->compiler;
         $compiler = new $class();
-        return $compiler->compileCount($this);
+        return $this->_count = $compiler->compileCount($this);
     }
 
     /**
@@ -930,7 +965,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable {
 class DoesNotExist extends Exception {}
 class ObjectNotUnique extends Exception {}
 
-abstract class ResultSet implements Iterator, ArrayAccess {
+abstract class ResultSet implements Iterator, ArrayAccess, Countable {
     var $resource;
     var $position = 0;
     var $queryset;
@@ -984,6 +1019,11 @@ abstract class ResultSet implements Iterator, ArrayAccess {
     }
     function offsetSet($a, $b) {
         throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
+    }
+
+    // Countable interface
+    function count() {
+        return count($this->asArray());
     }
 }
 
@@ -1688,7 +1728,6 @@ class MySqlCompiler extends SqlCompiler {
             // Support local constraint
             // field_name => "'constant'"
             elseif ($foreign[0] == "'" && !$right) {
-            die();
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
                     $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
@@ -1836,6 +1875,7 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the field listing
         $fields = array();
+        $group_by = array();
         $table = $this->quote($model::$meta['table']).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
@@ -1887,6 +1927,7 @@ class MySqlCompiler extends SqlCompiler {
         elseif ($queryset->values) {
             foreach ($queryset->values as $alias=>$v) {
                 list($f) = $this->getField($v, $model);
+                $unaliased = $f;
                 if ($f instanceof SqlFunction)
                     $fields[$f->toSql($this, $model, $alias)] = true;
                 else {
@@ -1894,6 +1935,10 @@ class MySqlCompiler extends SqlCompiler {
                         $f .= ' AS '.$this->quote($alias);
                     $fields[$f] = true;
                 }
+                // If there are annotations, add in these fields to the
+                // GROUP BY clause
+                if ($queryset->annotations)
+                    $group_by[] = $unaliased;
             }
         }
         // Simple selection from one table
@@ -1911,7 +1956,6 @@ class MySqlCompiler extends SqlCompiler {
             }
         }
         $fields = array_keys($fields);
-        $group_by = array();
         // Add in annotations
         if ($queryset->annotations) {
             foreach ($queryset->annotations as $alias=>$A) {
@@ -1927,8 +1971,10 @@ class MySqlCompiler extends SqlCompiler {
                     $fields[] = $T;
                 }
             }
-            foreach ($model::$meta['pk'] as $pk)
-                $group_by[] = $rootAlias .'.'. $pk;
+            if (!$queryset->values) {
+                foreach ($model::$meta['pk'] as $pk)
+                    $group_by[] = $rootAlias .'.'. $pk;
+            }
         }
         // Add in SELECT extras
         if (isset($queryset->extra['select'])) {

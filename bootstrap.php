@@ -95,9 +95,9 @@ class Bootstrap {
         define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
 
         define('TICKET_TABLE',$prefix.'ticket');
-        define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
+        define('LOCK_TABLE',$prefix.'lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
-        define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
 

@@ -27,9 +27,7 @@ class Cron {
 
     function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
-        require_once(INCLUDE_DIR.'class.lock.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
-        TicketLock::cleanup(); //Remove expired locks
     }
 
     function PurgeLogs() {
@@ -54,7 +52,7 @@ class Cron {
         $chance = rand(1,2000);
         switch ($chance) {
         case 42:
-            @db_query('OPTIMIZE TABLE '.TICKET_LOCK_TABLE);
+            @db_query('OPTIMIZE TABLE '.LOCK_TABLE);
             break;
         case 242:
             @db_query('OPTIMIZE TABLE '.SYSLOG_TABLE);
