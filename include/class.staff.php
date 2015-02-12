@@ -176,6 +176,9 @@ implements EmailContact {
     function getId() {
         return $this->id;
     }
+    function getUserId() {
+        return $this->getId();
+    }
 
     function getEmail() {
         return $this->ht['email'];
