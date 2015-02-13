@@ -1205,7 +1205,10 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
-        return Priority::lookup($id);
+        elseif ($id === false)
+            $id = $value;
+        if ($id)
+            return Priority::lookup($id);
     }
 
     function to_database($prio) {
