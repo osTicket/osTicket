@@ -184,10 +184,11 @@ class FileManager extends Module {
          * will be a continuous stream of file information in the following
          * format:
          *
-         * FILE<meta-length><data-length><meta><data>EOF\x1c
+         * AFIL<meta-length><data-length><meta><data>EOF\x1c
          *
          * Where
-         *   "FILE"         is the literal text 'FILE'
+         *   A              is the version code of the export
+         *   "FIL"          is the literal text 'FIL'
          *   meta-length    is 'V' packed header length (bytes)
          *   data-length    is 'V' packed data length (bytes)
          *   meta           is the %file record, php serialized
@@ -216,10 +217,8 @@ class FileManager extends Module {
 
                 // TODO: Log %attachment and %ticket_attachment entries
                 $info = array('file' => $f->getInfo());
-                foreach ($m->tickets as $t)
-                    $info['tickets'][] = $t->ht;
                 $header = serialize($info);
-                fwrite($stream, 'FILE'.pack('VV', strlen($header), $f->getSize()));
+                fwrite($stream, 'AFIL'.pack('VV', strlen($header), $f->getSize()));
                 fwrite($stream, $header);
                 $FS = $f->open();
                 while ($block = $FS->read())
@@ -252,17 +251,19 @@ class FileManager extends Module {
             while (true) {
                 // Read the file header
                 // struct file_data_header {
-                //   char[4] marker, // Four chars, 'BYTE'
-                //   int     lenMeta,
-                //   int     lenData,
+                //   char[4] marker; // Four chars, 'AFIL'
+                //   int     lenMeta;
+                //   int     lenData;
                 // };
                 if (!($header = fread($stream, 12)))
                     break; // EOF
 
                 list(, $mark, $hlen, $dlen) = unpack('V3', $header);
 
-                // FILE written as little-endian 4-byte int is 0x454c4946 (ELIF)
-                if ($mark != 0x454c4946)
+                // AFIL written as little-endian 4-byte int is 0x4c4946xx (LIFA),
+                // where 'A' is the version code of the export
+                $version = $mark & 0xff;
+                if (($mark >> 8) != 0x4c4946)
                     $this->fail('Bad file record');
 
                 // Read the header
@@ -276,6 +277,7 @@ class FileManager extends Module {
 
                 // Find or create the file record
                 $finfo = $header['file'];
+                // TODO: Consider the $version code
                 $f = AttachmentFile::lookup($finfo['id']);
                 if ($f) {
                     // Verify file information
