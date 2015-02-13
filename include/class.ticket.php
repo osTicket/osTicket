@@ -292,7 +292,7 @@ implements RestrictedAccess, Threadable {
 
     function loadDynamicData() {
         if (!$this->_answers) {
-            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
+            foreach (DynamicFormEntry::forTicket($this->getThreadId(), true) as $form) {
                 foreach ($form->getAnswers() as $answer) {
                     $tag = mb_strtolower($answer->getField()->get('name'))
                         ?: 'field.' . $answer->getField()->get('id');
@@ -650,12 +650,15 @@ implements RestrictedAccess, Threadable {
         return $this->tlock;
     }
 
-    function releaseLock() {
+    function releaseLock($staffId=false) {
         if (!($lock = $this->getLock()))
-            return;
+            return false;
+
+        if ($staffId && $lock->staff_id != $staffId)
+            return false;
 
         if (!$lock->delete())
-            return;
+            return false;
 
         $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = 0 WHERE `ticket_id` = '
             . db_input($this->getId());
@@ -900,10 +903,10 @@ implements RestrictedAccess, Threadable {
     function getCollaborators($criteria=array()) {
 
         if ($criteria)
-            return Collaborator::forTicket($this->getId(), $criteria);
+            return Collaborator::forThread($this->getThreadId(), $criteria);
 
         if (!isset($this->collaborators))
-            $this->collaborators = Collaborator::forTicket($this->getId());
+            $this->collaborators = Collaborator::forThread($this->getThreadId());
 
         return $this->collaborators;
     }

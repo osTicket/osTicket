@@ -113,9 +113,6 @@ class Lock extends VerySimpleModel {
         if (!$staffId or !$lockTime)
             return null;
 
-        // Cleanup any expired locks
-        self::cleanup();
-
         // Create the new lock.
         $lock = parent::create(array(
             'created' => SqlFunction::NOW(),

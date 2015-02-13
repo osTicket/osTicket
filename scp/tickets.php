@@ -101,7 +101,7 @@ if($_POST && !$errors):
                 $response_form->getField('attachments')->reset();
 
                 // Remove staff's locks
-                $ticket->releaseLock();
+                $ticket->releaseLock($thisstaff->getId());
 
                 // Cleanup response draft for this user
                 Draft::deleteForNamespace(
@@ -182,7 +182,7 @@ if($_POST && !$errors):
                          $msg = __('Ticket is NOW assigned to you!');
                      } else {
                          $msg=sprintf(__('Ticket assigned successfully to %s'), $ticket->getAssigned());
-                         $ticket->releaseLock();
+                         $ticket->releaseLock($thisstaff->getId());
                          $ticket=null;
                      }
                  } elseif(!$errors['assign']) {

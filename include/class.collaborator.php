@@ -23,6 +23,7 @@ implements EmailContact, ITicketUser {
     static $meta = array(
         'table' => THREAD_COLLABORATOR_TABLE,
         'pk' => array('id'),
+        'select_related' => array('user'),
         'joins' => array(
             'thread' => array(
                 'constraint' => array('thread_id' => 'Thread.id'),
@@ -51,14 +52,14 @@ implements EmailContact, ITicketUser {
     }
 
     function getTicketId() {
-        if ($this->thread->ticket)
+        if ($this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
             return $this->thread->object_id;
     }
 
     function getTicket() {
         // TODO: Change to $this->thread->ticket when Ticket goes to ORM
-        $ticket = Ticket::lookup($this->getTicketId());
-        return $ticket;
+        if ($id = $this->getTicketId())
+            return Ticket::lookup($id);
     }
 
     function getUser() {
@@ -71,6 +72,9 @@ implements EmailContact, ITicketUser {
     }
     function getName() {
         return $this->user->getName();
+    }
+    function sendAccessLink($ticket) {
+        return $this->user->sendAccessLink($ticket);
     }
 
     // VariableReplacer interface
@@ -139,10 +143,10 @@ implements EmailContact, ITicketUser {
         return false;
     }
 
-    static function forTicket($tid, $criteria=array()) {
+    static function forThread($tid, $criteria=array()) {
 
         $collaborators = static::objects()
-            ->filter(array('thread__ticket__ticket_id' => $tid));
+            ->filter(array('thread_id' => $tid));
 
         if (isset($criteria['isactive']))
             $collaborators->filter(array('isactive' => $criteria['isactive']));

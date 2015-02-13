@@ -514,7 +514,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
-        <input type="hidden" name="lockId" value="<?php echo $ticket->getLock()->getId(); ?>">
         <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
         <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
@@ -704,7 +703,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
         <input type="hidden" name="a" value="postnote">
-        <input type="hidden" name="lockId" value="<?php echo $ticket->getLock()->getId(); ?>">
         <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
         <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <?php
@@ -1077,7 +1075,8 @@ $(function() {
 // Hover support for all inline images
 $urls = array();
 foreach (AttachmentFile::objects()->filter(array(
-    'attachments__thread_entry__thread__id' => $ticket->getThreadId()
+    'attachments__thread_entry__thread__id' => $ticket->getThreadId(),
+    'attachments__inline' => true,
 )) as $file) {
     $urls[strtolower($file->getKey())] = array(
         'download_url' => $file->getDownloadUrl(),

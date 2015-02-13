@@ -67,7 +67,7 @@ RedactorPlugins.draft = function() {
         // Slight workaround. Signal the 'keyup' event normally signaled
         // from typing in the <textarea>
         if ($.autoLock
-            && this.$box.closest('form').find('input[name=lockId]').val()
+            && this.$box.closest('form').find('input[name=lockCode]').val()
             && this.code.get()
         ) {
             $.autoLock.handleEvent();

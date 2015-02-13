@@ -81,10 +81,9 @@ implements EmailContact, ITicketUser {
                     $user = null;
                 break;
             case 'o': //Ticket owner
-                if (($ticket = Ticket::lookup($matches['tid']))) {
-                    if (($user = $ticket->getOwner())
-                            && $user->getId() != $matches['uid'])
-                        $user = null;
+                if (($user = $ticket->getOwner())
+                        && $user->getId() != $matches['uid']) {
+                    $user = null;
                 }
                 break;
         }

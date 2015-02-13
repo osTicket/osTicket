@@ -92,10 +92,13 @@ class ModelMeta implements ArrayAccess {
                 $j['null'] = true;
         }
         // XXX: Make this better (ie. composite keys)
-        $keys = array_keys($j['constraint']);
-        $foreign = $j['constraint'][$keys[0]];
-        $j['fkey'] = explode('.', $foreign);
-        $j['local'] = $keys[0];
+        foreach ($j['constraint'] as $local => $foreign) {
+            list($class, $field) = explode('.', $foreign);
+            if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
+                continue;
+            $j['fkey'] = array($class, $field);
+            $j['local'] = $local;
+        }
     }
 
     function offsetGet($field) {
@@ -1971,7 +1974,8 @@ class MySqlCompiler extends SqlCompiler {
                     $fields[] = $T;
                 }
             }
-            if (!$queryset->values) {
+            // If no group by has been set yet, use the root model pk
+            if (!$group_by) {
                 foreach ($model::$meta['pk'] as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
