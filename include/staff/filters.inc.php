@@ -48,7 +48,7 @@ else
  <h2>Ticket Filters</h2>
 </div>
 <div style="float:right;text-align:right;padding-top:5px;padding-right:5px;">
- <b><a href="filters.php?a=add" class="Icon newEmailFilter">Add New Filter</a></b></div>
+ <b><a href="filters.php?a=add" class="Icon newTicketFilter">Add New Filter</a></b></div>
 <div class="clear"></div>
 <form action="filters.php" method="POST" name="filters">
  <?php csrf_token(); ?>
@@ -58,7 +58,7 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>        
+            <th width="7">&nbsp;</th>
             <th width="320"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order">Order</a></th>
@@ -80,7 +80,7 @@ else
                 ?>
             <tr id="<?php echo $row['id']; ?>">
                 <td width=7px>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" 
+                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
