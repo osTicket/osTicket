@@ -22,6 +22,8 @@ number_format:
         Topics</span> can define custom number formats.
         <br/><br/>
         For example, for six-digit numbers, use <code>######</code>.
+        <br/>
+        For example, for six-digit numbers followed by a letter, use <code>######@</code>.
 
 sequence_id:
     title: Ticket Number Sequence
