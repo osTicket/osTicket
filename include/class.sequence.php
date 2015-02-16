@@ -80,22 +80,25 @@ class Sequence extends VerySimpleModel {
      *
      * Formats a number to the given format. The number will be placed into
      * the format string according to the locations of hash characters (#)
-     * in the string. If more hash characters are encountered than digits
-     * the digits are left-padded accoring to the sequence padding
+     * or @ symbols in the string. If more hash characters are encountered
+     * than digits the digits are left-padded accoring to the sequence padding
      * character. If fewer are found, the last group will receive all the
      * remaining digits.
      *
      * Hash characters can be escaped with a backslash (\#) and will emit a
      * single hash character to the output.
      *
+     * At symbols can be escaped with a backslash (\@) and will emit a single
+     * at symbol to the output.
+     *
      * Parameters:
-     * $format - (string) Format string for the number, e.g. "TX-######-US"
+     * $format - (string) Format string for the number, e.g. "TX-######-@@"
      * $number - (int) Number to appear in the format. If not
      *      specified the next number in this sequence will be used.
      */
     function format($format, $number) {
         $groups = array();
-        preg_match_all('/(?<!\\\)#+/', $format, $groups, PREG_OFFSET_CAPTURE);
+        preg_match_all('/(?<!\\\)(#+|@+)/', $format, $groups, PREG_OFFSET_CAPTURE);
 
         $total = 0;
         foreach ($groups[0] as $g)
@@ -104,15 +107,24 @@ class Sequence extends VerySimpleModel {
         $number = str_pad($number, $total, $this->padding, STR_PAD_LEFT);
         $output = '';
         $start = $noff = 0;
+        $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
         // Interate through the ### groups and replace the number of hash
         // marks with numbers from the sequence
         foreach ($groups[0] as $g) {
             $size = strlen($g[0]);
-            // Add format string from previous marker to current ## group
-            $output .= str_replace('\#', '#',
-                substr($format, $start, $g[1] - $start));
-            // Add digits from the sequence number
-            $output .= substr($number, $noff, $size);
+
+            if (preg_match("/#/i", $g[0])) {
+                // Add format string from previous marker to current ## group
+                $output .= str_replace('\#', '#', substr($format, $start, $g[1] - $start));
+                // Add digits from the sequence number
+                $output .= substr($number, $noff, $size);
+            } else {
+                // Add format string from previous marker to current ## group
+                $output .= str_replace('\@', '@', substr($format, $start, $g[1] - $start));
+                // Add digits from the sequence number
+                $output .= substr(str_shuffle($alphabet), 0, $size);
+            }
             // Set offset counts for the next loop
             $start = $g[1] + $size;
             $noff += $size;
