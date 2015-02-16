@@ -847,6 +847,7 @@ class Ticket {
                 $sql.=', closed=NOW(), duedate=NULL ';
                 if ($thisstaff && $set_closing_agent)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
+                $this->clearOverdue();
 
                 $ecb = function($t) {
                     $t->reload();
