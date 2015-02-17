@@ -1263,9 +1263,21 @@ class SelectionField extends FormField {
     }
 
     function getFilterData() {
+        // Start with the filter data for the list item as the [0] index
         $data = array(parent::getFilterData());
-        if (($v = $this->getClean()) instanceof DynamicListItem) {
-            $data = array_merge($data, $v->getFilterData());
+        if (($v = $this->getClean())) {
+            // Add in the properties for all selected list items in sub
+            // labeled by their field id
+            foreach ($v as $id=>$L) {
+                if (!($li = DynamicListItem::lookup($id)))
+                    continue;
+                foreach ($li->getFilterData() as $prop=>$value) {
+                    if (!isset($data[$prop]))
+                        $data[$prop] = $value;
+                    else
+                        $data[$prop] .= " $value";
+                }
+            }
         }
         return $data;
     }
