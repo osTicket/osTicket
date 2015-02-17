@@ -1,5 +1,5 @@
 /*
- * @signature d9e311ad50bfe981f4356500c1d584ce
+ * @signature 9143a511719555e8f8f09b49523bd022
  * @version v1.9.6
  * @title All collaborators have threads
  *
@@ -47,5 +47,5 @@ DROP TABLE `%TABLE_PREFIX%_orig_msg_ids`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = 'd9e311ad50bfe981f4356500c1d584ce'
+    SET `value` = '9143a511719555e8f8f09b49523bd022'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
