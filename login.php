@@ -72,11 +72,11 @@ elseif ($_POST && isset($_POST['lticket'])) {
             Http::redirect('tickets.php');
 
         // This will succeed as it is checked in the authentication backend
-        $ticket = Ticket::lookup($_POST['lticket']);
+        $ticket = Ticket::lookupByNumber($_POST['lticket']);
 
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
-        $user->sendAccessLink($ticket);
+        $ticket->sendAccessLink($user);
         $msg = sprintf(__("%s - access link sent to your email!"),
             Format::htmlchars($user->getName()->getFirst()));
         $_POST = null;

@@ -89,7 +89,7 @@ implements EmailContact, ITicketUser {
         }
 
         if (!$user
-                || !$user instanceof TicketUser
+                || !$user instanceof ITicketUser
                 || strcasecmp($ticket->getAuthToken($user, $matches['algo']), $token))
             return false;
 
@@ -174,10 +174,13 @@ class  EndUser extends BaseAuthenticatedUser {
         $u = $this;
         // Traverse the $user properties of all nested user objects to get
         // to the User instance with the custom data
-        while (isset($u->user))
+        while (isset($u->user)) {
             $u = $u->user;
-        if (method_exists($u, 'getVar'))
-            return $u->getVar($tag);
+            if (method_exists($u, 'getVar')) {
+                if ($rv = $u->getVar($tag))
+                    return $rv;
+            }
+        }
     }
 
     function getId() {
@@ -402,5 +405,7 @@ interface ITicketUser {
     function flagGuest();
     function isGuest();
     function getUserId();
+    function getTicketId();
+    function getTicket();
 }
 ?>

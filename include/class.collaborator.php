@@ -73,15 +73,12 @@ implements EmailContact, ITicketUser {
     function getName() {
         return $this->user->getName();
     }
-    function sendAccessLink($ticket) {
-        return $this->user->sendAccessLink($ticket);
-    }
 
     // VariableReplacer interface
     function getVar($what) {
         global $cfg;
 
-        switch ($what) {
+        switch (strtolower($what)) {
         case 'ticket_link':
             return sprintf('%s/view.php?%s',
                 $cfg->getBaseUrl(),

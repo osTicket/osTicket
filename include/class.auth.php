@@ -1050,8 +1050,10 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         $user = null;
         switch ($matches['type']) {
             case 'c': //Collaborator
-                $criteria = array( 'userId' => $matches['id'],
-                        'ticketId' => $matches['tid']);
+                $criteria = array(
+                    'user_id' => $matches['id'],
+                    'thread__ticket__ticket_id' => $matches['tid']
+                );
                 if (($c = Collaborator::lookup($criteria))
                         && ($c->getTicketId() == $matches['tid']))
                     $user = new ClientSession($c);
@@ -1102,8 +1104,9 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
             $user = $ticket->getOwner();
         // Collaborator?
         elseif (!($user = Collaborator::lookup(array(
-                'userId' => $user->getId(),
-                'ticketId' => $ticket->getId()))))
+                'user_id' => $user->getId(),
+                'thread__ticket__ticket_id' => $ticket->getId())
+        )))
             return false; //Bro, we don't know you!
 
         return $user;

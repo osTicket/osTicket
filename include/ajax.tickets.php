@@ -150,23 +150,31 @@ class TicketsAjaxAPI extends AjaxController {
     function releaseLock($tid, $id=0) {
         global $thisstaff;
 
-        if($id && is_numeric($id)){ //Lock Id provided!
-
-            $lock = Lock::lookup($id);
-            //Already gone?
-            if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
-                return 1;
-
-            //make sure the user actually owns the lock before releasing it.
-            return ($lock->getStaffId()==$thisstaff->getId() && $lock->release())?1:0;
-
-        } elseif ($tid) { //release all the locks the user owns on the ticket.
-            if (!($ticket = Ticket::lookup($tid)))
-                return 0;
-            return Lock::removeStaffLocks($thisstaff->getId(), $ticket)?1:0;
+        if (!($ticket = Ticket::lookup($tid))) {
+            return 0;
         }
 
-        return 0;
+        if ($id) {
+            // Fetch the lock from the ticket
+            if (!($lock = $ticket->getLock())) {
+                return 1;
+            }
+            // Identify the lock by the ID number
+            if ($lock->getId() != $id) {
+                return 0;
+            }
+            // You have to own the lock
+            if ($lock->getStaffId() != $thisstaff->getId()) {
+                return 0;
+            }
+            // Can't be expired
+            if ($lock->isExpired()) {
+                return 1;
+            }
+            return $lock->release() ? 1 : 0;
+        }
+
+        return Lock::removeStaffLocks($thisstaff->getId(), $ticket) ? 1 : 0;
     }
 
     function previewTicket ($tid) {

@@ -246,27 +246,9 @@ class User extends UserModel {
         $form->save();
     }
 
-    function sendAccessLink($ticket) {
-        global $ost;
-
-        if (!($email = $ost->getConfig()->getDefaultEmail())
-            || !($content = Page::lookupByType('access-link')))
-            return;
-
-        $vars = array(
-            'url' => $ost->getConfig()->getBaseUrl(),
-            'ticket' => $ticket,
-            'user' => $this,
-            'recipient' => $this);
-
-        $lang = $this->getLanguage(UserAccount::LANG_MAILOUTS);
-        $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getLocalName($lang),
-            'body' => $content->getLocalBody($lang),
-        ), $vars);
-
-        $email->send($this->getEmail(), Format::striptags($msg['subj']),
-            $msg['body']);
+    function getLanguage($flags=false) {
+        if ($acct = $this->getAccount())
+            return $acct->getLanguage($flags);
     }
 
     function to_json() {

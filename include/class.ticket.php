@@ -1042,6 +1042,31 @@ implements RestrictedAccess, Threadable {
         return $authtoken;
     }
 
+    function sendAccessLink($user) {
+        global $ost;
+
+        if (!($email = $ost->getConfig()->getDefaultEmail())
+            || !($content = Page::lookupByType('access-link')))
+            return;
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $this,
+            'user' => $user,
+            'recipient' => $user,
+        );
+
+        $lang = $user->getLanguage(UserAccount::LANG_MAILOUTS);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
+        ), $vars);
+
+        $email->send($user, Format::striptags($msg['subj']),
+            $msg['body']);
+    }
+
+
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
         return $this->lastMsgId=$msgid;
