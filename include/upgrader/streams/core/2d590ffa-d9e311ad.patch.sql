@@ -39,9 +39,9 @@ SELECT min(id) AS id FROM `%TABLE_PREFIX%thread_entry`
   WHERE type = 'M'
   GROUP BY thread_id;
 
-UPDATE `%TABLE_PREFIX%thread_entry`
-  SET `flags` = 1
-  WHERE `id` IN (SELECT `id` FROM `%TABLE_PREFIX%_orig_msg_ids`);
+UPDATE `%TABLE_PREFIX%thread_entry` A1
+  JOIN `%TABLE_PREFIX%_orig_msg_ids` A2 ON (A1.id = A2.id)
+  SET A1.`flags` = 1 ;
 
 DROP TABLE `%TABLE_PREFIX%_orig_msg_ids`;
 

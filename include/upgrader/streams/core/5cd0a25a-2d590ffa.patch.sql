@@ -130,9 +130,6 @@ insert into `%TABLE_PREFIX%help_topic_form`
     join `%TABLE_PREFIX%help_topic` A2
     where A1.`type` = 'T';
 
-ALTER TABLE `%TABLE_PREFIX%help_topic`
-    DROP `form_id` int(10) unsigned NOT NULL default '0';
-
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '2d590ffab4a6a928f08cc97aace1399e'

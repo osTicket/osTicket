@@ -5,7 +5,7 @@
  */
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
-    DROP `form_id` int(10) unsigned NOT NULL default '0';
+    DROP `form_id`;
 
 ALTER TABLE `%TABLE_PREFIX%filter`
   DROP `reject_ticket`,
