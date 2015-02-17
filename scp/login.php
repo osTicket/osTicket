@@ -31,6 +31,16 @@ $msg = $msg ?: ($content ? $content->getLocalName() : __('Authentication Require
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {
+    // Check the CSRF token, and ensure that future requests will have to
+    // use a different CSRF token. This will help ward off both parallel and
+    // serial brute force attacks, because new tokens will have to be
+    // requested for each attempt.
+    if (!$ost->checkCSRFToken())
+        Http::response(400, __('Valid CSRF Token Required'));
+
+    // Rotate the CSRF token (original cannot be reused)
+    $ost->getCSRF()->rotate();
+
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,

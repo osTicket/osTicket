@@ -761,17 +761,6 @@ class FormField {
         return null;
     }
 
-    /**
-     * Indicates if the field provides for searching for something other
-     * than keywords. For instance, textbox fields can have hits by keyword
-     * searches alone, but selection fields should provide the option to
-     * match a specific value or set of values and therefore need to
-     * participate on any search builder.
-     */
-    function hasSpecialSearch() {
-        return true;
-    }
-
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -880,10 +869,6 @@ class TextboxField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function validateEntry($value) {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
@@ -955,10 +940,6 @@ class TextareaField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1009,10 +990,6 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
-    }
-
-    function hasSpecialSearch() {
-        return false;
     }
 
     function validateEntry($value) {
@@ -1446,9 +1423,6 @@ class ThreadEntryField extends FormField {
     }
     function isPresentationOnly() {
         return true;
-    }
-    function hasSpecialSearch() {
-        return false;
     }
 
     function getConfigurationOptions() {
@@ -1902,10 +1876,6 @@ class FileUploadField extends FormField {
                 'configuration'=>array('size'=>8, 'length'=>4, 'placeholder'=>__('No limit')),
             ))
         );
-    }
-
-    function hasSpecialSearch() {
-        return false;
     }
 
     /**
