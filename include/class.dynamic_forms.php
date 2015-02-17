@@ -1155,10 +1155,17 @@ class SelectionField extends FormField {
         return $this->getList()->getForm();
     }
     function getSubFields() {
+        $fields = new ListObject(array(
+            new TextboxField(array(
+                // XXX: i18n: Change to a better word when the UI changes
+                'label' => '['.__('Abbrev').']',
+                'id' => 'abb',
+            ))
+        ));
         $form = $this->getList()->getForm();
-        if ($form)
-            return $form->getFields();
-        return array();
+        if ($form && ($F = $form->getFields()))
+            $fields->extend($F);
+        return $fields;
     }
 
     function toString($items) {
@@ -1307,9 +1314,9 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         foreach ($this->field->getList()->getItems() as $i)
             $source[] = array(
                 'value' => $i->getValue(), 'id' => $i->getId(),
-                'info' => sprintf('%s %s',
+                'info' => sprintf('%s%s',
                     $i->getValue(),
-                    (($extra= $i->getAbbrev()) ? "-- $extra" : '')),
+                    (($extra= $i->getAbbrev()) ? " — $extra" : '')),
             );
         ?>
         <span style="display:inline-block">
@@ -1330,6 +1337,7 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
                     $('input#<?php echo $this->name; ?>_id')
                       .attr('name', '<?php echo $this->name; ?>[' + item['id'] + ']')
                       .val(item['value']);
+                    return false;
                 }
             });
         });
@@ -1348,8 +1356,12 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
     function getEnteredValue() {
         // Used to verify typeahead fields
         $data = $this->field->getSource();
-        if (isset($data[$this->name.'_name']))
-            return trim($data[$this->name.'_name']);
+        if (isset($data[$this->name.'_name'])) {
+            // Drop the extra part, if any
+            $v = $data[$this->name.'_name'];
+            $v = substr($v, 0, strrpos($v, ' — '));
+            return trim($v);
+        }
         return parent::getValue();
     }
 }

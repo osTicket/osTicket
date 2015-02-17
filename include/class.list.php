@@ -592,6 +592,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         foreach ($this->getConfigurationForm()->getFields() as $F) {
             $data['.'.$F->get('id')] = $F->toString($F->value);
         }
+        $data['.abb'] = (string) $this->get('extra');
         return $data;
     }
 
