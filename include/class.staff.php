@@ -172,6 +172,9 @@ implements AuthenticatedUser, EmailContact {
     function getId() {
         return $this->staff_id;
     }
+    function getUserId() {
+        return $this->getId();
+    }
 
     function getEmail() {
         return $this->email;

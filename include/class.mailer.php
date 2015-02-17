@@ -144,26 +144,24 @@ class Mailer {
             'abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_=');
         $sig = $this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer';
         $sysid = static::getSystemMessageIdCode();
-        if ($recipient instanceof EmailContact) {
-            // Create a tag for the outbound email
-            $entry = (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
-                ? $options['thread'] : false;
-            $thread = $entry ? $entry->getThread()
-                : (isset($options['thread']) && $options['thread'] instanceof Thread
-                    ? $options['thread'] : false);
-            $tag = pack('VVVa',
-                $recipient->getId(),
-                $entry ? $entry->getId() : 0,
-                $thread ? $thread->getId() : 0,
-                ($recipient instanceof Staff ? 'S'
-                    : ($recipient instanceof TicketOwner ? 'U'
-                    : ($recipient instanceof Collaborator ? 'C'
-                    : '?')))
-            );
-            // Sign the tag with the system secret salt
-            $tag .= substr(hash_hmac('sha1', $tag.$rand.$sysid, SECRET_SALT, true), -5);
-            $tag = str_replace('=','',base64_encode($tag));
-        }
+        // Create a tag for the outbound email
+        $entry = (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
+            ? $options['thread'] : false;
+        $thread = $entry ? $entry->getThread()
+            : (isset($options['thread']) && $options['thread'] instanceof Thread
+                ? $options['thread'] : false);
+        $tag = pack('VVVa',
+            $recipient instanceof EmailContact ? $recipient->getUserId() : 0,
+            $entry ? $entry->getId() : 0,
+            $thread ? $thread->getId() : 0,
+            ($recipient instanceof Staff ? 'S'
+                : ($recipient instanceof TicketOwner ? 'U'
+                : ($recipient instanceof Collaborator ? 'C'
+                : '?')))
+        );
+        // Sign the tag with the system secret salt
+        $tag .= substr(hash_hmac('sha1', $tag.$rand.$sysid, SECRET_SALT, true), -5);
+        $tag = str_replace('=','',base64_encode($tag));
         return sprintf('B%s-%s-%s-%s',
             $sysid, $rand, $tag, $sig);
     }
@@ -258,7 +256,7 @@ class Mailer {
 
         // Attempt to make the user-id more specific
         $classes = array(
-            'S' => 'staffId', 'U' => 'userId'
+            'S' => 'staffId', 'U' => 'userId', 'C' => 'userId',
         );
         if (isset($classes[$rv['userClass']]))
             $rv[$classes[$rv['userClass']]] = $rv['uid'];
