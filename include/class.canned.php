@@ -104,6 +104,16 @@ class Canned {
         return $this->_filters;
     }
 
+    function getAttachedFiles($inlines=false) {
+        return AttachmentFile::objects()
+            ->filter(array(
+                'attachments__type'=>'C',
+                'attachments__object_id'=>$this->getId(),
+                'attachments__inline' => $inlines,
+            ))
+            ->all();
+    }
+
     function getNumFilters() {
         return count($this->getFilters());
     }
@@ -148,11 +158,18 @@ class Canned {
                 if ($cb && is_callable($cb))
                     $resp = $cb($resp);
 
-                $resp['files'] = $this->attachments->getSeparates();
+                $resp['files'] = array();
+                foreach ($this->getAttachedFiles(!$html) as $file) {
+                    $resp['files'][] = array(
+                        'id' => $file->id,
+                        'name' => $file->name,
+                        'size' => $file->size,
+                        'download_url' => $file->getDownloadUrl(),
+                    );
+                }
                 // strip html
                 if (!$html) {
                     $resp['response'] = Format::html2text($resp['response'], 90);
-                    $resp['files'] += $this->attachments->getInlines();
                 }
                 return Format::json_encode($resp);
                 break;

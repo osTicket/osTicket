@@ -221,12 +221,12 @@ var scp_prep = function() {
                         redactor = box.data('redactor');
                     if(canned.response) {
                         if (redactor)
-                            redactor.insertHtml(canned.response);
+                            redactor.insert.html(canned.response);
                         else
                             box.val(box.val() + canned.response);
 
                         if (redactor)
-                            redactor.observeStart();
+                            redactor.observe.load();
                     }
                     //Canned attachments.
                     var ca = $('.attachments', fObj);
