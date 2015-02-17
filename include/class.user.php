@@ -246,6 +246,11 @@ class User extends UserModel {
         $form->save();
     }
 
+    function getLanguage($flags=false) {
+        if ($acct = $this->getAccount())
+            return $acct->getLanguage($flags);
+    }
+
     function to_json() {
 
         $info = array(

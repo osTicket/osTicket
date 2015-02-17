@@ -24,8 +24,8 @@ class Attachment extends VerySimpleModel {
         'joins' => array(
             'thread_entry' => array(
                 'constraint' => array(
-                    'object_id' => 'ThreadEntry.id',
                     'type' => "'H'",
+                    'object_id' => 'ThreadEntry.id',
                 ),
             ),
             'file' => array(
@@ -78,9 +78,9 @@ class Attachment extends VerySimpleModel {
     }
 
     static function lookup($var, $objectId=0) {
-        return is_numeric($var)
-            ? parent::lookup($var)
-            : static::lookupByFileHash($var, $objectId);
+        return (is_string($var))
+            ? static::lookupByFileHash($var, $objectId)
+            : parent::lookup($var);
     }
 }
 

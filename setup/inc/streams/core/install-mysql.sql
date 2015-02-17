@@ -633,6 +633,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `staff_id` int(11) unsigned NOT NULL default '0',
   `user_id` int(11) unsigned not null default 0,
   `type` char(1) NOT NULL default '',
+  `flags` int(11) unsigned NOT NULL default '0',
   `poster` varchar(128) NOT NULL default '',
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),
@@ -672,6 +673,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `staff_id` int(10) unsigned NOT NULL default '0',
   `team_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(11) unsigned NOT NULL default '0',
+  `lock_id` int(11) unsigned NOT NULL default '0',
   `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
@@ -699,12 +701,12 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `sla_id` (`sla_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_lock`;
-CREATE TABLE `%TABLE_PREFIX%ticket_lock` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%lock`;
+CREATE TABLE `%TABLE_PREFIX%lock` (
   `lock_id` int(11) unsigned NOT NULL auto_increment,
-  `ticket_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL default '0',
   `expire` datetime default NULL,
+  `code` varchar(20),
   `created` datetime NOT NULL,
   PRIMARY KEY  (`lock_id`),
   UNIQUE KEY `ticket_id` (`ticket_id`),
@@ -757,17 +759,17 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
   KEY `ispublic` (`ispublic`)
 ) DEFAULT CHARSET=utf8;
 
-CREATE TABLE `%TABLE_PREFIX%ticket_collaborator` (
+CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `isactive` tinyint(1) NOT NULL DEFAULT '1',
-  `ticket_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `thread_id` int(11) unsigned NOT NULL DEFAULT '0',
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
   `role` char(1) NOT NULL DEFAULT 'M',
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `collab` (`ticket_id`,`user_id`)
+  UNIQUE KEY `collab` (`thread_id`,`user_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task`;
@@ -780,6 +782,7 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
   `team_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `lock_id` int(11) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `duedate` datetime DEFAULT NULL,
   `created` datetime NOT NULL,

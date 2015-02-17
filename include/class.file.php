@@ -345,12 +345,12 @@ class AttachmentFile extends VerySimpleModel {
             $existing = static::objects()->filter(array(
                 'signature' => $file['signature'],
                 'size' => $file['size']
-            ));
+            ))->first();
 
             // If the record exists in the database already, a file with
             // the same hash and size is already on file -- just return
             // the file
-            if ($deduplicate && $existing->exists()) {
+            if ($deduplicate && $existing) {
                 $file['key'] = $existing->key;
                 return $existing;
             }
@@ -528,7 +528,13 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function lookupByHash($hash) {
-        return parent::lookup(array('key' => $hash));
+        static $keyCache = array();
+
+        if (isset($keyCache[$hash]))
+            return $keyCache[$hash];
+
+        // Cache a negative lookup if no such file exists
+        return $keyCache[$hash] = parent::lookup(array('key' => $hash));
     }
 
     static function lookup($id) {

@@ -25,6 +25,10 @@ class TaskModel extends VerySimpleModel {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
+            'lock' => array(
+                'constraint' => array('lock_id' => 'Lock.lock_id'),
+                'null' => true,
+            ),
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
                 'null' => true,

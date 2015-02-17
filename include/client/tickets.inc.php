@@ -45,7 +45,7 @@ $$x=' class="'.strtolower($_REQUEST['order'] ?: 'desc').'" ';
 // Add visibility constraints
 $tickets->filter(Q::any(array(
     'user_id' => $thisclient->getId(),
-    'collaborators__user_id' => $thisclient->getId(),
+    'thread__collaborators__user_id' => $thisclient->getId(),
 )));
 
 // Perform basic search

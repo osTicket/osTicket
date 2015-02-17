@@ -106,7 +106,7 @@ $tickets->filter(Q::any($visibility));
 
 // Add in annotations
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('collaborators'),
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
     'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
     'thread_count' => SqlAggregate::COUNT('thread__entries'),
 ));
