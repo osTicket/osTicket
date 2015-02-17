@@ -709,7 +709,6 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   `code` varchar(20),
   `created` datetime NOT NULL,
   PRIMARY KEY  (`lock_id`),
-  UNIQUE KEY `ticket_id` (`ticket_id`),
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
