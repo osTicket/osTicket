@@ -90,7 +90,7 @@ class Group extends VerySimpleModel {
      }
 
     function isEnabled() {
-        $this->get('flags') & self::FLAG_ENABLED !== 0;
+        return ($this->get('flags') & self::FLAG_ENABLED !== 0);
     }
 
     function isActive(){
