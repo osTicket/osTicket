@@ -484,9 +484,6 @@ class AnnotatedModel {
     function __call($what, $how) {
         return call_user_func_array(array($this->model, $what), $how);
     }
-    static function __callStatic($what, $how) {
-        return call_user_func_array(array($this->model, $what), $how);
-    }
 }
 
 class SqlFunction {
@@ -1783,6 +1780,9 @@ class MySqlCompiler extends SqlCompiler {
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
         }
+        elseif (!isset($what)) {
+            return 'NULL';
+        }
         else {
             switch ($slot) {
             case self::SLOT_JOINS:
@@ -2076,7 +2076,7 @@ class MySqlCompiler extends SqlCompiler {
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
-        $sql = 'UPDATE '.$this->quote($table).' SET '.$set.$joins.$where;
+        $sql = 'UPDATE '.$this->quote($table).$joins.' SET '.$set.$where;
         return new MysqlExecutor($sql, $this->params);
     }
 

@@ -34,8 +34,9 @@ ALTER TABLE `%TABLE_PREFIX%thread_entry`
   ADD `flags` int(11) unsigned NOT NULL default '0' AFTER `type`;
 
 -- Set the ORIGINAL_MESSAGE flag to all the first messages of each thread
-CREATE TABLE `%TABLE_PREFIX%_orig_msg_ids` AS
-SELECT min(id) AS id FROM `%TABLE_PREFIX%thread_entry`
+CREATE TABLE `%TABLE_PREFIX%_orig_msg_ids`
+  (id INT NOT NULL, PRIMARY KEY (id))
+  SELECT min(id) as id FROM `%TABLE_PREFIX%thread_entry`
   WHERE type = 'M'
   GROUP BY thread_id;
 

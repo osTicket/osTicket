@@ -302,7 +302,9 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getLocale() {
-        return $this->locale;
+        //XXX: isset is required here to avoid possible crash when upgrading
+        // installation where locale column doesn't exist yet.
+        return isset($this->locale) ? $this->locale : 0;
     }
 
     function getRole($dept=null) {

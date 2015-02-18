@@ -609,7 +609,7 @@ class ThreadEntry extends VerySimpleModel {
             if(!$file['error']
                     && ($F=AttachmentFile::upload($file))
                     && $this->saveAttachment($F))
-                $uploaded[]=$id;
+                $uploaded[]= $F->getId();
             else {
                 if(!$file['error'])
                     $error = sprintf(__('Unable to upload file - %s'),$file['name']);
@@ -1099,7 +1099,8 @@ class ThreadEntry extends VerySimpleModel {
         // Inline images (attached to the draft)
         $entry->saveAttachments(Draft::getAttachmentIds($body));
 
-        Signal::send('threadentry.created', $this);
+        Signal::send('threadentry.created', $entry);
+
         return $entry;
     }
 

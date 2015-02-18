@@ -223,23 +223,25 @@ class DynamicForm extends VerySimpleModel {
                 return false;
         }
         // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
-            if (!Internationalization::isLanguageInstalled($lang))
-                continue;
-            foreach ($parts as $T => $content) {
-                $content = trim($content);
-                if (!$content)
+        if ($vars['trans'] && is_array($vars['trans'])) {
+            foreach ($vars['trans'] as $lang=>$parts) {
+                if (!Internationalization::isLanguageInstalled($lang))
                     continue;
-                $t = CustomDataTranslation::create(array(
-                    'type'      => 'phrase',
-                    'object_hash' => $tags[$T],
-                    'lang'      => $lang,
-                    'text'      => $content,
-                    'agent_id'  => $thisstaff->getId(),
-                    'updated'   => SqlFunction::NOW(),
-                ));
-                if (!$t->save())
-                    return false;
+                foreach ($parts as $T => $content) {
+                    $content = trim($content);
+                    if (!$content)
+                        continue;
+                    $t = CustomDataTranslation::create(array(
+                        'type'      => 'phrase',
+                        'object_hash' => $tags[$T],
+                        'lang'      => $lang,
+                        'text'      => $content,
+                        'agent_id'  => $thisstaff->getId(),
+                        'updated'   => SqlFunction::NOW(),
+                    ));
+                    if (!$t->save())
+                        return false;
+                }
             }
         }
         return true;
@@ -790,8 +792,6 @@ class DynamicFormEntry extends VerySimpleModel {
         'ordering' => array('sort'),
         'pk' => array('id'),
         'select_related' => array('form'),
-        'fields' => array('id', 'form_id', 'object_type', 'object_id',
-            'sort', 'extra', 'updated', 'created'),
         'joins' => array(
             'form' => array(
                 'null' => true,

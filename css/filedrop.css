@@ -75,6 +75,7 @@
 .tooltip-preview img {
     max-width: 300px;
     max-height: 300px;
+    z-index:11;
 }
 
 /* Bootstrap 3.2 progress-bar */
