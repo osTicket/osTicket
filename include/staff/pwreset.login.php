@@ -5,7 +5,10 @@ $info = ($_POST)?Format::htmlchars($_POST):array();
 ?>
 
 <div id="loginBox">
-    <h1 id="logo"><a href="index.php">osTicket <?php echo __('Agent Password Reset'); ?></a></h1>
+    <h1 id="logo"><a href="index.php">
+        <span class="valign-helper"></span>
+        <img src="logo.php?login" alt="osTicket :: <?php echo __('Agent Password Reset');?>" />
+    </a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
 
     <form action="pwreset.php" method="post">
