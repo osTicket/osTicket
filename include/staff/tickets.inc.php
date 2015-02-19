@@ -28,11 +28,11 @@ $status=null;
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'open':
         $status='open';
-		$results_type=__('Open Tickets');
+    $results_type=__('Open Tickets');
         break;
     case 'closed':
         $status='closed';
-		$results_type=__('Closed Tickets');
+    $results_type=__('Closed Tickets');
         $showassigned=true; //closed by.
         break;
     case 'overdue':
@@ -360,15 +360,15 @@ if ($results) {
     <thead>
         <tr>
             <?php if($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+          <th width="8px">&nbsp;</th>
             <?php } ?>
-	        <th width="70">
+          <th width="70">
                 <a <?php echo $id_sort; ?> href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Ticket ID'), __($negorder)); ?>"><?php echo __('Ticket'); ?></a></th>
-	        <th width="70">
+          <th width="70">
                 <a  <?php echo $date_sort; ?> href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Date'), __($negorder)); ?>"><?php echo __('Date'); ?></a></th>
-	        <th width="280">
+          <th width="280">
                  <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject'); ?></a></th>
             <th width="170">
@@ -387,7 +387,7 @@ if ($results) {
             <?php
             }
 
-            if($showassigned ) {
+            //if($showassigned ) {
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
                     <th width="150">
@@ -400,12 +400,12 @@ if ($results) {
                             title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
                 <?php
                 }
-            } else { ?>
+            //} else { ?>
                 <th width="150">
                     <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
             <?php
-            } ?>
+            //} ?>
         </tr>
      </thead>
      <tbody>
@@ -425,16 +425,16 @@ if ($results) {
                     $flag='overdue';
 
                 $lc='';
-                if($showassigned) {
+                //if($showassigned) {
                     if($row['staff_id'])
                         $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
                     elseif($row['team_id'])
                         $lc=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
                     else
                         $lc=' ';
-                }else{
-                    $lc=Format::truncate($row['dept_name'],40);
-                }
+                //}else{
+                    $lc2=Format::truncate($row['dept_name'],40);
+                //}
                 $tid=$row['number'];
 
                 $subject = Format::truncate($subject_field->display(
@@ -489,6 +489,8 @@ if ($results) {
                 }
                 ?>
                 <td nowrap>&nbsp;<?php echo $lc; ?></td>
+                <td nowrap>&nbsp;<?php echo $lc2; ?></td>
+
             </tr>
             <?php
             } //end of while.
@@ -498,7 +500,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
