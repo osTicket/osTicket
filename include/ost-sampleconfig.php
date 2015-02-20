@@ -47,6 +47,12 @@ define('DBPASS','%CONFIG-DBPASS');
 # Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
 
+# DevSwitch for prevent autocron to work
+define('DEV', false);
+
+#Switch to diable intl break iterator.
+define('USE_INTL_BREAK_ITERATOR', false);
+
 #
 # SSL Options
 # ---------------------------------------------------
