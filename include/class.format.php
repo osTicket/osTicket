@@ -14,7 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-include_once INCLUDE_DIR.'class.charset.php';
 
 class Format {
 
@@ -41,13 +40,47 @@ class Format {
         return $size;
     }
 
+  /* encode text into desired encoding - taking into accout charset when available. */
+    function encode($text, $charset=null, $encoding='utf-8') {
+
+        //Try auto-detecting charset/encoding
+        if (!$charset && function_exists('mb_detect_encoding'))
+            $charset = mb_detect_encoding($text);
+
+        // Cleanup - incorrect, bogus, or ambiguous charsets
+        // ISO-8859-1 is assumed for empty charset.
+        if (!$charset || in_array(strtolower(trim($charset)),
+                array('default','x-user-defined','iso','us-ascii')))
+            $charset = 'ISO-8859-1';
+
+        $original = $text;
+        if (function_exists('iconv'))
+            $text = iconv($charset, $encoding.'//IGNORE', $text);
+        elseif (function_exists('mb_convert_encoding'))
+            $text = mb_convert_encoding($text, $encoding, $charset);
+        elseif (!strcasecmp($encoding, 'utf-8')
+                && function_exists('utf8_encode')
+                && !strcasecmp($charset, 'ISO-8859-1'))
+            $text = utf8_encode($text);
+
+        // If $text is false, then we have a (likely) invalid charset, use
+        // the original text and assume 8-bit (latin-1 / iso-8859-1)
+        // encoding
+        return (!$text && $original) ? $original : $text;
+    }
+
+    //Wrapper for utf-8 encoding.
+    function utf8encode($text, $charset=null) {
+        return Format::encode($text, $charset, 'utf-8');
+    }
+
     function mimedecode($text, $encoding='UTF-8') {
 
         if(function_exists('imap_mime_header_decode')
                 && ($parts = imap_mime_header_decode($text))) {
             $str ='';
             foreach ($parts as $part)
-                $str.= Charset::transcode($part->text, $part->charset, $encoding);
+                $str.= Format::encode($part->text, $part->charset, $encoding);
 
             $text = $str;
         } elseif($text[0] == '=' && function_exists('iconv_mime_decode')) {
@@ -72,7 +105,7 @@ class Format {
                 $filename, $match))
             // XXX: Currently we don't care about the language component.
             //      The  encoding hint is sufficient.
-            return Charset::utf8(urldecode($match[3]), $match[1]);
+            return self::utf8encode(urldecode($match[3]), $match[1]);
         else
             return $filename;
     }
@@ -86,15 +119,16 @@ class Format {
         return JsonDataEncoder::encode($what);
     }
 
-    function phone($phone) {
-        $stripped= preg_replace("/[^0-9]/", "", $phone);
-        if(strlen($stripped) == 7)
-            return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
-        elseif(strlen($stripped) == 10)
-            return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
-        else
-            return $phone;
-    }
+  function phone($phone) {
+
+    $stripped= preg_replace("/[^0-9]/", "", $phone);
+    if(strlen($stripped) == 7)
+      return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
+    elseif(strlen($stripped) == 10)
+      return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
+    else
+      return $phone;
+  }
 
     function truncate($string,$len,$hard=false) {
 
@@ -521,7 +555,7 @@ class Format {
                 $contents = base64_decode($contents);
         }
         if ($output_encoding && $charset)
-            $contents = Charset::transcode($contents, $charset, $output_encoding);
+            $contents = Format::encode($contents, $charset, $output_encoding);
 
         return array(
             'data' => $contents,
@@ -570,14 +604,14 @@ class Format {
         $text = trim($text);
 
 
-        if (class_exists('IntlBreakIterator')) {
+        if (class_exists('IntlBreakIterator') && USE_INTL_BREAK_ITERATOR) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
                     $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
             ) {
                 $tokenizer->setText($text);
                 $tokens = array();
-                foreach ($tokenizer->getPartsIterator() as $token) {
+                foreach ($tokenizer as $token) {
 
                     $tokens[] = $token;
                 }
