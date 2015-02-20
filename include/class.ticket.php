@@ -219,52 +219,49 @@ class Ticket {
 
     //Getters
     function getApiData() {
-      $data = array();
-      $skip = array(
-        'getApiData',
-        'getOwner',
-        'getName',
-        'getHashtable',
-        'getUpdateInfo',
-        'getVar',
-        'getIdByMessageId',
-        'getUserStats',
-        'getStaffStats',
-        'getIdByNumber',
-        'getThreadEntry',
-        //'getThreadEntries',
+        $data = array();
+        $skip = array(
+            'getApiData',
+            'getOwner',
+            'getName',
+            'getHashtable',
+            'getUpdateInfo',
+            'getVar',
+            'getIdByMessageId',
+            'getUserStats',
+            'getStaffStats',
+            'getIdByNumber',
+            'getThreadEntry',
+        );
+        $add = array();
 
+        foreach(get_class_methods($this) AS $m) {
+            if(substr($m, 0, 3)=='get' && !in_array($m, $skip)) {
+                $var = substr($m, 3);
+                $ret = call_user_func(array($this, 'getVar'), $var);
+                switch(gettype($ret)) {
+                    case 'string':
+                        $data[$var] = $ret ?: '';
+                        break;
+                    case 'array':
+                        $sdata = array();
 
-      );
-      $add = array();
-
-      foreach(get_class_methods($this) AS $m) {
-        if(substr($m, 0, 3)=='get' && !in_array($m, $skip)) {
-          $var = substr($m, 3);
-          $ret = call_user_func(array($this, 'getVar'), $var);
-          switch(gettype($ret)) {
-            case 'string':
-              $data[$var] = $ret ?: '';
-              break;
-            case 'array':
-              $sdata = array();
-
-              foreach($ret AS $obj) {
-                switch(gettype($obj)) {
-                  case 'array':
-                    $sdata[] = $obj['id'];
-                    break;
-                  default:
-                    break;
+                        foreach($ret AS $obj) {
+                          switch(gettype($obj)) {
+                            case 'array':
+                              $sdata[] = $obj['id'];
+                              break;
+                            default:
+                              break;
+                          }
+                        }
+                        $data[$var] = $sdata;
+                        break;
                 }
-              }
-              $data[$var] = $sdata;
-              break;
-          }
+            }
         }
-      }
 
-      return $data;
+        return $data;
     }
 
 

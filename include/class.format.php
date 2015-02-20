@@ -86,16 +86,15 @@ class Format {
         return JsonDataEncoder::encode($what);
     }
 
-  function phone($phone) {
-
-    $stripped= preg_replace("/[^0-9]/", "", $phone);
-    if(strlen($stripped) == 7)
-      return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
-    elseif(strlen($stripped) == 10)
-      return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
-    else
-      return $phone;
-  }
+    function phone($phone) {
+        $stripped= preg_replace("/[^0-9]/", "", $phone);
+        if(strlen($stripped) == 7)
+            return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
+        elseif(strlen($stripped) == 10)
+            return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
+        else
+            return $phone;
+    }
 
     function truncate($string,$len,$hard=false) {
 
