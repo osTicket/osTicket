@@ -47,6 +47,9 @@ define('DBPASS','%CONFIG-DBPASS');
 # Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
 
+#Dev switch for disabling autocron
+define('DEV', CFG::DEV);
+
 #
 # SSL Options
 # ---------------------------------------------------
