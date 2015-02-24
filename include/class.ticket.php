@@ -1242,10 +1242,15 @@ class Ticket {
         if ($recipients
                 && ($msg=$tpl->getAssignedAlertMsgTemplate())) {
 
+            //Add %{message} as an available template variable.
+            //Shows the first message from the thread.
+            $message = array_shift($this->getMessages());
+
             $msg = $this->replaceVars($msg->asArray(),
                         array('comments' => $comments,
                               'assignee' => $assignee,
-                              'assigner' => $assigner
+                              'assigner' => $assigner,
+                              'message' => isset($message['body']) ? $message['body'] : '',
                               ));
 
             //Send the alerts.
