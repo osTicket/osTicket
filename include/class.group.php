@@ -249,6 +249,10 @@ class Group extends VerySimpleModel {
     }
 
     static function create($vars=false) {
+
+        if (!isset($vars['flags']))
+            $vars['flags'] = 0;
+
         $group = parent::create($vars);
         $group->created = SqlFunction::NOW();
         return $group;

@@ -1154,9 +1154,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!$this->_value && isset($this->value))
+        if (!isset($this->_value) && isset($this->value)) {
+            //XXX: We're settting the value here to avoid infinite loop
+            $this->_value = false;
             $this->_value = $this->getField()->to_php(
                 $this->get('value'), $this->get('value_id'));
+        }
+
         return $this->_value;
     }
 

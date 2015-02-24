@@ -58,8 +58,15 @@ implements AuthenticatedUser, EmailContact {
     var $_perms = null;
 
     function __onload() {
+
         // WE have to patch info here to support upgrading from old versions.
-        if ($time=strtotime($this->passwdreset ?: (isset($this->added) ? $this->added : '')))
+        $time = null;
+        if (isset($this->passwdreset) && $this->passwdreset)
+            $time=strtotime($this->passwdreset);
+        elseif (isset($this->added) && $this->added)
+            $time=strtotime($this->added);
+
+        if ($time)
             $this->passwd_change = time()-$time; //XXX: check timezone issues.
     }
 
