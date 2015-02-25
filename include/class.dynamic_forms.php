@@ -1235,6 +1235,9 @@ class SelectionField extends FormField {
         $widgetClass = false;
         if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
+        elseif ($config['widget'] == 'textbox')
+            $widgetClass = 'TextboxSelectionWidget';
+
         return parent::getWidget($widgetClass);
     }
 
@@ -1250,9 +1253,12 @@ class SelectionField extends FormField {
             foreach ($value as $k=>$v) {
                 if (($i=$list->getItem((int) $k)))
                     $selection[$i->getId()] = $i->getValue();
-                elseif (isset($choices[$v]))
-                    $selection[$v] = $choices[$v];
+                elseif (isset($choices[$k]))
+                    $selection[$k] = $choices[$k];
             }
+        } elseif($value) {
+            //Assume invalid textbox input to be validated
+            $selection[] = $value;
         }
 
         return $selection;
@@ -1317,7 +1323,12 @@ class SelectionField extends FormField {
         parent::validateEntry($entry);
         if (!$this->errors()) {
             $config = $this->getConfiguration();
-            if ($config['typeahead']
+            if ($config['widget'] == 'textbox') {
+                if (!$entry
+                        || !($k=key($entry))
+                        || !($i=$this->getList()->getItem((int) $k)))
+                    $this->_errors[] = __('Unknown or invalid input');
+            } elseif ($config['typeahead']
                     && ($entered = $this->getWidget()->getEnteredValue())
                     && !in_array($entered, $entry))
                 $this->_errors[] = __('Select a value from the list');
@@ -1339,7 +1350,8 @@ class SelectionField extends FormField {
                 'required'=>false, 'default' => 'dropdown',
                 'choices'=>array(
                     'dropdown' => __('Drop Down'),
-                    'typeahead' =>__('Typeahead'),
+                    'typeahead' => __('Typeahead'),
+                    'textbox' => __('Text Input'),
                 ),
                 'configuration'=>array(
                     'multiselect' => false,
@@ -1381,21 +1393,27 @@ class SelectionField extends FormField {
 
     function getChoices($verbose=false) {
         if (!$this->_choices || $verbose) {
-            $this->_choices = array();
+            $choices = array();
             foreach ($this->getList()->getItems() as $i)
-                $this->_choices[$i->getId()] = $i->getValue();
+                $choices[$i->getId()] = $i->getValue();
 
             // Retired old selections
             $values = ($a=$this->getAnswer()) ? $a->getValue() : array();
             if ($values && is_array($values)) {
                 foreach ($values as $k => $v) {
-                    if (!isset($this->_choices[$k])) {
+                    if (!isset($choices[$k])) {
                         if ($verbose) $v .= ' '.__('(retired)');
-                        $this->_choices[$k] = $v;
+                        $choices[$k] = $v;
                     }
                 }
             }
+
+            if ($verbose) // Don't cache
+                return $choices;
+
+            $this->_choices = $choices;
         }
+
         return $this->_choices;
     }
 
@@ -1523,6 +1541,10 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         </script>
         </span>
         <?php
+    }
+
+    function parsedValue() {
+        return array($this->getValue() => $this->getEnteredValue());
     }
 
     function getValue() {
