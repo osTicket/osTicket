@@ -47,6 +47,9 @@ define('DBPASS','%CONFIG-DBPASS');
 # Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
 
+# Disable intl break iterator
+define('DISABLE_INTL_BREAK_ITERATOR', false);
+
 #
 # SSL Options
 # ---------------------------------------------------

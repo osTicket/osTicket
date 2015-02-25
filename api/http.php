@@ -21,9 +21,10 @@ require 'api.inc.php';
 
 # Include the main api urls
 require_once INCLUDE_DIR."class.dispatcher.php";
-
+$gets = array_keys($_GET);
+$method = isset($gets[0]) ? $gets[0] : 'create';
 $dispatcher = patterns('',
-        url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
+        url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController', $method)),
         url('^/tasks/', patterns('',
                 url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))
          ))
@@ -33,4 +34,3 @@ Signal::send('api', $dispatcher);
 
 # Call the respective function
 print $dispatcher->resolve($ost->get_path_info());
-?>
