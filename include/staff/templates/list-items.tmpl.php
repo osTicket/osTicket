@@ -11,9 +11,25 @@
         else $showing = __('Add a few initial items to the list');
     ?>
     <div style="margin: 5px 0">
-    <div class="pull-left"><em><?php echo $showing; ?></em></div>
+    <div class="pull-left">
+        <input type="search" size="25" id="search" value="<?php
+            echo Format::htmlchars($_POST['search']); ?>"/>
+        <button type="submit" onclick="javascript:
+            event.preventDefault();
+            $.pjax({type: 'POST', data: { search: $('#search').val() }, container: '#pjax-container'});
+            return false;
+"><?php echo __('Search'); ?></button>
+        <?php if ($_POST['search']) { ?>
+        <a href="#" onclick="javascript:
+            $.pjax.reload('#pjax-container'); return false; "
+            ><i class="icon-remove-sign"></i> <?php
+                echo __('clear'); ?></a>
+        <?php } ?>
+    </div>
+    <?php if ($list) { ?>
     <div class="pull-right">
-        <?php if (!$list || $list->allowAdd()) { ?>
+        <em style="display:inline-block; padding-bottom: 3px;"><?php echo $showing; ?></em>
+        <?php if ($list->allowAdd()) { ?>
         <a class="action-button field-config"
             href="#list/<?php
             echo $list->getId(); ?>/item/add">
@@ -45,6 +61,7 @@
             </ul>
         </div>
     </div>
+    <?php } ?>
 
     <div class="clear"></div>
     </div>
@@ -66,10 +83,10 @@ if ($list) {
 }
 ?>
 
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
-            <th width="8" nowrap></th>
+            <th width="24" nowrap></th>
             <th><?php echo __('Value'); ?></th>
 <?php foreach ($prop_fields as $F) { ?>
             <th><?php echo $F->getLocal('label'); ?></th>
@@ -77,13 +94,22 @@ if ($list) {
         </tr>
     </thead>
 
-    <tbody <?php if ($list->get('sort_mode') == 'SortCol') { ?>
+    <tbody <?php if (!isset($_POST['search']) && $list && $list->get('sort_mode') == 'SortCol') { ?>
             class="sortable-rows" data-sort="sort-"<?php } ?>>
         <?php
         if ($list) {
             $icon = ($list->get('sort_mode') == 'SortCol')
                 ? '<i class="icon-sort"></i>&nbsp;' : '';
-            $items = $pageNav->paginate($list->getAllItems());
+            $items = $list->getAllItems();
+            if ($_POST['search']) {
+                $items->filter(Q::any(array(
+                    'value__contains'=>$_POST['search'],
+                    'extra__contains'=>$_POST['search'],
+                    'properties__contains'=>$_POST['search'],
+                )));
+                $search = true;
+            }
+            $items = $pageNav->paginate($items);
             // Emit a marker for the first sort offset ?>
             <input type="hidden" id="sort-offset" value="<?php echo
                 max($items[0]->sort, $pageNav->getStart()); ?>"/>
@@ -94,6 +120,8 @@ if ($list) {
         } ?>
     </tbody>
     </table>
+<?php if ($pageNav && $pageNav->getNumPages()) { ?>
     <div><?php echo __('Page').':'.$pageNav->getPageLinks('items', $pjax_container); ?></div>
+<?php } ?>
 </div>
 

@@ -32,6 +32,8 @@
         </td>
 <?php $props = $item->getConfiguration();
     foreach ($prop_fields as $F) { ?>
-        <td><?php echo $F->display($props[$F->get('id')]); ?></td>
+        <td style="max-width: 20%"><span class="truncate"><?php
+        echo $F->display($props[$F->get('id')]);
+        ?></span></td>
 <?php } ?>
     </tr>

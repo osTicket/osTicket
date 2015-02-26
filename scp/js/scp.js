@@ -152,7 +152,7 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save :input").change(function() {
+    $("form#save :input[name]").change(function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 

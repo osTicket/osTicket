@@ -132,6 +132,7 @@ if($_POST) {
                 }
             }
             break;
+
         case 'import-items':
             if (!$list) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
