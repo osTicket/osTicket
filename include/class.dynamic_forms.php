@@ -935,7 +935,13 @@ class DynamicFormEntry extends VerySimpleModel {
             // Set the entry ID here so that $field->getClean() can use the
             // entry-id if necessary
             $a->set('entry_id', $this->get('id'));
-            $val = $field->to_database($field->getClean());
+            try {
+                $val = $field->to_database($field->getClean());
+            }
+            catch (FieldUnchanged $e) {
+                // Don't update the answer.
+                continue;
+            }
             if (is_array($val)) {
                 $a->set('value', $val[0]);
                 $a->set('value_id', $val[1]);
