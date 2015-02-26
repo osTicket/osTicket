@@ -1324,10 +1324,14 @@ class SelectionField extends FormField {
         if (!$this->errors()) {
             $config = $this->getConfiguration();
             if ($config['widget'] == 'textbox') {
-                if (!$entry
-                        || !($k=key($entry))
-                        || !($i=$this->getList()->getItem((int) $k)))
-                    $this->_errors[] = __('Unknown or invalid input');
+                if ($entry && (
+                        !($k=key($entry))
+                     || !($i=$this->getList()->getItem((int) $k))
+                 )) {
+                    $config = $this->getConfiguration();
+                    $this->_errors[] = $this->getLocal('validator-error', $config['validator-error'])
+                        ?: __('Unknown or invalid input');
+                }
             } elseif ($config['typeahead']
                     && ($entered = $this->getWidget()->getEnteredValue())
                     && !in_array($entered, $entry))
@@ -1361,6 +1365,17 @@ class SelectionField extends FormField {
                     VisibilityConstraint::HIDDEN
                 ),
                 'hint'=>__('Typeahead will work better for large lists')
+            )),
+            'validator-error' => new TextboxField(array(
+                'id'=>5, 'label'=>__('Validation Error'), 'default'=>'',
+                'configuration'=>array('size'=>40, 'length'=>80,
+                    'translatable'=>$this->getTranslateTag('validator-error')
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('widget__eq'=>'textbox')),
+                    VisibilityConstraint::HIDDEN
+                ),
+                'hint'=>__('Message shown to user if the item entered is not in the list')
             )),
             'prompt' => new TextboxField(array(
                 'id'=>3,
