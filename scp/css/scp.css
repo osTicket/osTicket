@@ -641,19 +641,18 @@ a.print {
 
 table.fixed {
     table-layout: fixed;
-    border-collapse: collapse;
     width: 100%;
 }
-table.fixed > thead > tr > th,
-table.fixed > thead > tr > td,
-table.fixed > tbody > tr > td,
-table.fixed > tr > td {
+table.fixed > thead > tr > th:not([width]),
+table.fixed > thead > tr > td:not([width]),
+table.fixed > tbody > tr > td:not([width]),
+table.fixed > tr > td:not([width]) {
     width: 180px;
 }
-table.fixed > thead > tr > th + th,
-table.fixed > thead > tr > td + td,
-table.fixed > tbody > tr > td + td,
-table.fixed > tr > td + td {
+table.fixed > thead > tr > th + th:not([width]),
+table.fixed > thead > tr > td + td:not([width]),
+table.fixed > tbody > tr > td + td:not([width]),
+table.fixed > tr > td + td:not([width]) {
     width: auto;
 }
 
@@ -2084,6 +2083,8 @@ button a:hover {
 }
 .truncate {
     width: auto;
+    display: inline-block;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

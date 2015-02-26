@@ -403,8 +403,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <span class="pull-left">
                     <span style="display:inline-block"><?php
                         echo Format::datetime($entry->created);?></span>
-                    <span style="display:inline-block;padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry->title, 100); ?></span>
+                    <span style="display:inline-block;padding:0 1em;max-width: 500px" class="faded title truncate"><?php
+                        echo $entry->title; ?></span>
                     </span>
                 <div class="pull-right">
 <?php           if ($entry->hasActions()) {

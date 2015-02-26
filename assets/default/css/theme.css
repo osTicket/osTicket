@@ -794,6 +794,7 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
+  table-layout: fixed;
 }
 #ticketTable caption {
   padding: 5px;
@@ -811,12 +812,13 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
+  padding: 0 5px;
 }
 #ticketTable th a {
   color: #000;
 }
 #ticketTable td {
-  padding: 2px;
+  padding: 3px 5px;
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
@@ -1036,4 +1038,12 @@ img.sign-in-image {
     width: 64.5%;
     margin: 0 1%;
     vertical-align: top;
+}
+.truncate {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
