@@ -217,7 +217,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         if ($_POST && ($valid = $item_form->isValid())) {
             $data = $item_form->getClean();
             if ($_item = DynamicListItem::lookup(array('value'=>$data['value'])))
-                if ($_item && $_item->id != $item->id)
+                if ($_item && $_item->id)
                     $item_form->getField('value')->addError(
                         __('Value already in use'));
             $data['list_id'] = $list_id;
