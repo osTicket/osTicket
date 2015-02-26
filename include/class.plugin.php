@@ -81,7 +81,13 @@ class PluginConfig extends Config {
             $dbready = array();
             foreach ($config as $name => $val) {
                 $field = $f->getField($name);
-                $dbready[$name] = $field->to_database($val);
+                try {
+                    $dbready[$name] = $field->to_database($val);
+                }
+                catch (FieldUnchanged $e) {
+                    // Don't save the field value
+                    continue;
+                }
             }
             if ($this->updateAll($dbready)) {
                 if (!$msg)
