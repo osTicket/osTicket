@@ -47,6 +47,8 @@ Class SetupWizard {
         load SQL schema - assumes MySQL && existing connection
         */
     function load_sql($schema, $prefix, $abort=true, $debug=false) {
+        global $ost;
+
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m', '', $schema);
         # Replace table prefix
@@ -62,8 +64,10 @@ Class SetupWizard {
         foreach($statements as $k=>$sql) {
             if(db_query($sql, false)) continue;
             $error = "[$sql] ".db_error();
-            if($abort)
-                    return $this->abort($error, $debug);
+            if ($abort)
+                return $this->abort($error, $debug);
+            elseif ($debug && $ost)
+                $ost->logDBError('DB Error #'.db_errno(), $error, false);
         }
 
         return true;
