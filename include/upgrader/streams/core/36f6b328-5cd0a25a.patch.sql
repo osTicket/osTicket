@@ -67,7 +67,8 @@ ALTER TABLE  `%TABLE_PREFIX%attachment`
 INSERT INTO `%TABLE_PREFIX%attachment`
     (`object_id`, `type`, `file_id`, `inline`)
     SELECT `ref_id`, 'H', `file_id`, `inline`
-    FROM `%TABLE_PREFIX%ticket_attachment`;
+    FROM `%TABLE_PREFIX%ticket_attachment` A
+    WHERE A.file_id > 0;
 
 -- convert ticket_email_info to thread_entry_email
 ALTER TABLE  `%TABLE_PREFIX%ticket_email_info`
