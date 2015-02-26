@@ -55,7 +55,7 @@ class PageNate {
     }
 
     function getStart() {
-        return max($this->start + 1 - $this->slack, 1);
+        return max($this->start - $this->slack, 0);
     }
 
     function getLimit() {
@@ -76,7 +76,7 @@ class PageNate {
 
     function showing() {
         $html = '';
-        $start = $this->getStart();
+        $start = $this->getStart() + 1;
         $end = min($start + $this->limit + $this->slack - 1, $this->total);
         if ($end < $this->total) {
             $to= $end;
@@ -147,7 +147,7 @@ class PageNate {
     }
 
     function paginate(QuerySet $qs) {
-        $start = $this->getStart() - 1;
+        $start = $this->getStart();
         $end = min($start + $this->getLimit() + $this->slack + ($start > 0 ? $this->slack : 0), $this->total);
         return $qs->limit($end-$start)->offset($start);
     }
