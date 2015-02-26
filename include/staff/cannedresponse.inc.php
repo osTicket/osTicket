@@ -93,10 +93,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </div>
                 <?php
                 $attachments = $canned_form->getField('attachments');
-                if ($canned && ($files=$canned->attachments->getSeparates())) {
+                if ($canned && ($files=$canned->getAttachedFiles())) {
                     $ids = array();
                     foreach ($files as $f)
-                        $ids[] = $f['id'];
+                        $ids[] = $f->id;
                     $attachments->value = $ids;
                 }
                 print $attachments->render(); ?>

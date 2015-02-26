@@ -370,6 +370,7 @@ class Organization extends OrganizationModel {
             $org->addDynamicData($vars);
         }
 
+        Signal::send('organization.created', $org);
         return $org;
     }
 

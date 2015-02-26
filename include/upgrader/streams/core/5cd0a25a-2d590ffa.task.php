@@ -1,6 +1,6 @@
 <?php
 
-class InstructionPorter extends MigrationTask {
+class InstructionsPorter extends MigrationTask {
     var $description = "Converting custom form instructions to HTML";
 
     function run($max_time) {

@@ -237,6 +237,9 @@ class Page extends VerySimpleModel {
         catch (DoesNotExist $ex) {
             return null;
         }
+        catch (InconsistentModelException $ex) {
+            return null;
+        }
     }
 
     function update($vars, &$errors) {

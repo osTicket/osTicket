@@ -3,7 +3,10 @@ include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 <div id="loginBox">
-    <h1 id="logo"><a href="index.php">osTicket :: <?php echo __('Staff Control Panel');?></a></h1>
+    <h1 id="logo"><a href="index.php">
+        <span class="valign-helper"></span>
+        <img src="logo.php?login" alt="osTicket :: <?php echo __('Staff Control Panel');?>" />
+    </a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
     <form action="login.php" method="post">

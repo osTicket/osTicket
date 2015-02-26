@@ -178,6 +178,7 @@ class User extends UserModel {
             catch (OrmException $e) {
                 return null;
             }
+            Signal::send('user.created', $user);
         }
 
         return $user;
@@ -243,6 +244,11 @@ class User extends UserModel {
         $form->set('object_type', 'U');
         $form->set('object_id', $this->getId());
         $form->save();
+    }
+
+    function getLanguage($flags=false) {
+        if ($acct = $this->getAccount())
+            return $acct->getLanguage($flags);
     }
 
     function to_json() {
@@ -716,9 +722,9 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
-        
+
         //check if name is bad format (ex: J.Everybody), and fix them
-        if($size==1 && mb_strpos($r[0], '.') !== false) 
+        if($size==1 && mb_strpos($r[0], '.') !== false)
         {
             $r = explode('.', $name);
             $size = count($r);

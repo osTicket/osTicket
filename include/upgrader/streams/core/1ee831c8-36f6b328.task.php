@@ -37,7 +37,8 @@ class GroupRoles extends MigrationTask {
 
             $ht['permissions'] = $perms;
 
-            $role = Role::__create($ht);
+            $errors = array();
+            $role = Role::__create($ht, $errors);
             $group->role_id =  $role->getId();
             $group->save();
         }

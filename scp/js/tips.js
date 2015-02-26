@@ -235,9 +235,11 @@ jQuery(function() {
 
     // Tooltip preview
     $('.preview').live('mouseover', function(e) {
-        e.preventDefault();
         var elem = $(this);
         var vars = elem.attr('href').split('=');
+        if (!elem.data('preview'))
+            return;
+        e.preventDefault();
         var url = 'ajax.php/'+elem.data('preview').substr(1);
         // TODO - hash url to integer and use it as id.
         var id= url.match(/\d/g).join("");

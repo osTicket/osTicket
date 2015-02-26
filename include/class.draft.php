@@ -62,11 +62,13 @@ class Draft extends VerySimpleModel {
         $body = Format::localizeInlineImages($body);
         $matches = array();
         if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
-            foreach ($matches[1] as $hash) {
-                if ($file_id = AttachmentFile::getIdByHash($hash))
-                    $attachments[] = array(
-                            'id' => $file_id,
-                            'inline' => true);
+            $files = AttachmentFile::objects()
+                ->filter(array('key__in' => $matches[1]));
+            foreach ($files as $F) {
+                $attachments[] = array(
+                    'id' => $F->getId(),
+                    'inline' => true
+                );
             }
         }
         return $attachments;
@@ -86,14 +88,19 @@ class Draft extends VerySimpleModel {
 
         // Purge current attachments
         $this->attachments->deleteInlines();
-        foreach ($matches[1] as $hash)
-            if ($file = AttachmentFile::getIdByHash($hash))
-                $this->attachments->upload($file, true);
+        foreach (AttachmentFile::objects()
+            ->filter(array('key__in' => $matches[1]))
+            as $F
+        ) {
+            $this->attachments->upload($F->getId(), true);
+        }
     }
 
     function setBody($body) {
         // Change file.php urls back to content-id's
-        $body = Format::sanitize($body, false);
+        $body = Format::sanitize($body, false,
+            // Preserve annotation information, if any
+            'img=data-annotations,data-orig-annotated-image-src');
 
         $this->body = $body ?: ' ';
         $this->updated = SqlFunction::NOW();

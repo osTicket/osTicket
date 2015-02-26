@@ -24,12 +24,11 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser {
+implements AuthenticatedUser, EmailContact {
 
     static $meta = array(
         'table' => STAFF_TABLE,
         'pk' => array('staff_id'),
-        'select_related' => array('group'),
         'joins' => array(
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
@@ -151,6 +150,13 @@ implements AuthenticatedUser {
                     && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
+    function canAccess($something) {
+        if ($something instanceof RestrictedAccess)
+            return $something->checkStaffPerm($this);
+
+        return true;
+    }
+
     function isPasswdChangeDue() {
         return $this->isPasswdResetDue();
     }
@@ -165,6 +171,9 @@ implements AuthenticatedUser {
 
     function getId() {
         return $this->staff_id;
+    }
+    function getUserId() {
+        return $this->getId();
     }
 
     function getEmail() {
@@ -293,7 +302,9 @@ implements AuthenticatedUser {
     }
 
     function getLocale() {
-        return $this->locale;
+        //XXX: isset is required here to avoid possible crash when upgrading
+        // installation where locale column doesn't exist yet.
+        return isset($this->locale) ? $this->locale : 0;
     }
 
     function getRole($dept=null) {
@@ -634,7 +645,7 @@ implements AuthenticatedUser {
         return $row ? $row[0] : 0;
     }
 
-    function getIdByEmail($email) {
+    static function getIdByEmail($email) {
         $row = static::objects()->filter(array('email' => $email))
             ->values_flat('staff_id')->first();
         return $row ? $row[0] : 0;
@@ -835,5 +846,9 @@ implements AuthenticatedUser {
         }
         return false;
     }
+}
+
+interface RestrictedAccess {
+    function checkStaffPerm($staff);
 }
 ?>

@@ -61,6 +61,21 @@ class DraftAjaxAPI extends AjaxController {
             unset($_FILES['file']);
 
             $file = AttachmentFile::format($_FILES['image']);
+            # Allow for data-uri uploaded files
+            $fp = fopen($file[0]['tmp_name'], 'rb');
+            if (fread($fp, 5) == 'data:') {
+                $data = 'data:';
+                while ($block = fread($fp, 8192))
+                  $data .= $block;
+                $file[0] = Format::parseRfc2397($data);
+                list(,$ext) = explode('/', $file[0]['type'], 2);
+                $file[0] += array(
+                    'name' => Misc::randCode(8).'.'.$ext,
+                    'size' => strlen($file[0]['data']),
+                );
+            }
+            fclose($fp);
+
             # TODO: Detect unacceptable attachment extension
             # TODO: Verify content-type and check file-content to ensure image
             $type = $file[0]['type'];
@@ -79,8 +94,14 @@ class DraftAjaxAPI extends AjaxController {
                     ))
                 );
 
+            if (isset($file[0]['tmp_name'])) {
+              $ids = $draft->attachments->upload($file);
+            }
+            else {
+              $ids = $draft->attachments->save($file[0]);
+            }
 
-            if (!($ids = $draft->attachments->upload($file))) {
+            if (!$ids) {
                 if ($file[0]['error']) {
                     return Http::response(403,
                         JsonDataEncoder::encode(array(
@@ -92,7 +113,7 @@ class DraftAjaxAPI extends AjaxController {
                     return Http::response(500, 'Unable to attach image');
             }
 
-            $id = $ids[0];
+            $id = (is_array($ids)) ? $ids[0] : $ids;
         }
         else {
             $type = explode('/', $_POST['contentType']);
@@ -318,11 +339,23 @@ class DraftAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required for file queries");
 
+        if (isset($_GET['threadId']) && is_numeric($_GET['threadId'])
+            && ($thread = Thread::lookup($_GET['threadId']))
+            && ($object = $thread->getObject())
+            && ($thisstaff->canAccess($object))
+        ) {
+            $union = ' UNION SELECT f.id, a.`type` FROM '.THREAD_TABLE.' t
+                JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
+                JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
+                JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
+                WHERE t.id='.db_input($_GET['threadId']);
+        }
+
         $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft) FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')
-                AND f.`type` LIKE \'image/%\'';
-        if (!($res = db_query($sql)))
+            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')'
+                .' AND f.`type` LIKE \'image/%\'';
+        if (!($res = db_query($sql.$union)))
             Http::response(500, 'Unable to lookup files');
 
         $files = array();
@@ -332,12 +365,15 @@ class DraftAjaxAPI extends AjaxController {
             'T' => __('Email Templates'),
             'L' => __('Logos'),
             'P' => __('Pages'),
+            'H' => __('This Thread'),
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);
             $url = $f->getDownloadUrl();
             $files[] = array(
-                'thumb'=>$url.'&s=128',
+                // Don't send special sizing for thread items 'cause they
+                // should be cached already by the client
+                'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
                 'image'=>$url,
                 'title'=>$f->getName(),
                 'folder'=>$folders[$type]

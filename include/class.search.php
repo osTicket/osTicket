@@ -197,7 +197,12 @@ class SearchInterface {
         // Tickets, which can be edited as well
         // Knowledgebase articles (FAQ and canned responses)
         // Users, organizations
-        Signal::connect('model.created', array($this, 'createModel'));
+        Signal::connect('threadentry.created', array($this, 'createModel'));
+        Signal::connect('ticket.created', array($this, 'createModel'));
+        Signal::connect('user.created', array($this, 'createModel'));
+        Signal::connect('organization.created', array($this, 'createModel'));
+        Signal::connect('model.created', array($this, 'createModel'), 'FAQ');
+
         Signal::connect('model.updated', array($this, 'updateModel'));
         #Signal::connect('model.deleted', array($this, 'deleteModel'));
     }

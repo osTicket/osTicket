@@ -49,8 +49,8 @@ if ($results) {
      .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry ON (entry.thread_id=thread.id) '
      .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
             ON (attach.object_id=entry.id AND attach.`type` = "H") '
-     .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-            ON ( ticket.ticket_id=collab.ticket_id) '
+     .' LEFT JOIN '.THREAD_COLLABORATOR_TABLE.' collab
+            ON ( thread.id=collab.thread_id) '
      .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
         GROUP BY ticket.ticket_id';
     $ids_res = db_query($counts_sql);

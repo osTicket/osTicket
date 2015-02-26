@@ -16,16 +16,7 @@ class NewHtmlTemplate extends MigrationTask {
             EmailTemplateGroup::create($t, $errors);
         }
 
-        $files = $i18n->getTemplate('file.yaml')->getData();
-        foreach ($files as $f) {
-            $id = AttachmentFile::create($f, $errors);
-
-            // Ensure the new files are never deleted (attached to Disk)
-            $sql ='INSERT INTO '.ATTACHMENT_TABLE
-                .' SET object_id=0, `type`=\'D\', inline=1'
-                .', file_id='.db_input($id);
-            db_query($sql);
-        }
+        // NOTE: Core files import moved to 934954de-f1ccd3bb.task.php
     }
 }
 return 'NewHtmlTemplate';

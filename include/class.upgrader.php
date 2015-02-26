@@ -348,7 +348,8 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("Bogus migration task", "{$this->phash}:{$class}") ;
+                return $ost->logError("Bogus migration task",
+                        "{$this->phash}:{$class}"); //FIXME: This can cause crash
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);

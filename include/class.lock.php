@@ -18,14 +18,19 @@
  * Mainly used as a helper...
  */
 
-class TicketLock extends VerySimpleModel {
+class Lock extends VerySimpleModel {
 
     static $meta = array(
-        'table' => TICKET_LOCK_TABLE,
+        'table' => LOCK_TABLE,
         'pk' => array('lock_id'),
         'joins' => array(
             'ticket' => array(
-                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+                'reverse' => 'TicketModel.lock',
+                'list' => false,
+            ),
+            'task' => array(
+                'reverse' => 'Task.lock',
+                'list' => false,
             ),
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
@@ -69,6 +74,10 @@ class TicketLock extends VerySimpleModel {
         return (time()>$this->expiretime);
     }
 
+    function getCode() {
+        return $this->code;
+    }
+
     //Renew existing lock.
     function renew($lockTime=0) {
         global $cfg;
@@ -89,58 +98,55 @@ class TicketLock extends VerySimpleModel {
     }
 
     /* ----------------------- Static functions ---------------------------*/
-    static function lookup($id, $tid=false) {
-        if ($tid)
-            return parent::lookup(array('lock_id' => $id, 'ticket_id' => $tid));
+    static function lookup($id, $object=false) {
+        if ($object instanceof Ticket)
+            return parent::lookup(array('lock_id' => $id, 'ticket__ticket_id' => $object->getId()));
+        elseif ($object instanceof Task)
+            return parent::lookup(array('lock_id' => $id, 'task__id' => $object->getId()));
         else
             return parent::lookup($id);
     }
 
     //Create a ticket lock...this function assumes the caller checked for access & validity of ticket & staff x-ship.
-    static function acquire($ticketId, $staffId, $lockTime) {
+    static function acquire($staffId, $lockTime) {
 
-        if (!$ticketId or !$staffId or !$lockTime)
-            return 0;
-
-        // Cleanup any expired locks on the ticket.
-        static::objects()->filter(array(
-            'ticket_id' => $ticketId,
-            'expire__lt' => SqlFunction::NOW()
-        ))->delete();
+        if (!$staffId or !$lockTime)
+            return null;
 
         // Create the new lock.
         $lock = parent::create(array(
             'created' => SqlFunction::NOW(),
-            'ticket_id' => $ticketId,
             'staff_id' => $staffId,
             'expire' => SqlExpression::plus(
                 SqlFunction::NOW(),
                 SqlInterval::MINUTE($lockTime)
             ),
+            'code' => Misc::randCode(10)
         ));
         if ($lock->save(true))
             return $lock;
     }
 
-    static function create($ticketId, $staffId, $lockTime) {
-        if ($lock = self::acquire($ticketId, $staffId, $lockTime))
+    static function create($staffId, $lockTime) {
+        if ($lock = self::acquire($staffId, $lockTime))
             return $lock;
     }
 
     // Simply remove ALL locks a user (staff) holds on a ticket(s).
-    static function removeStaffLocks($staffId, $ticketId=0) {
+    static function removeStaffLocks($staffId, $object=false) {
         $locks = static::objects()->filter(array(
             'staff_id' => $staffId,
         ));
-        if ($ticketId)
-            $locks->filter(array('ticket_id' => $ticketId));
+        if ($object instanceof Ticket)
+            $locks->filter(array('ticket__ticket_id' => $object->getId()));
+        elseif ($object instanceof Task)
+            $locks->filter(array('task__id' => $object->getId()));
 
         return $locks->delete();
     }
 
-    // Called via cron
     static function cleanup() {
-        static::objects()->filter(array(
+        return static::objects()->filter(array(
             'expire__lt' => SqlFunction::NOW()
         ))->delete();
     }

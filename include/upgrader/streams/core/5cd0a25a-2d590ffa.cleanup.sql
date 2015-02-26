@@ -1,11 +1,11 @@
 /**
- * @signature 0e47d678f50874fa0d33e1e3759f657e
+ * @signature 2d590ffab4a6a928f08cc97aace1399e
  * @version v1.9.6
  * @title Make fields disable-able per help topic
  */
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
-    DROP `form_id` int(10) unsigned NOT NULL default '0';
+    DROP `form_id`;
 
 ALTER TABLE `%TABLE_PREFIX%filter`
   DROP `reject_ticket`,

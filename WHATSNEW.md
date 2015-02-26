@@ -1,3 +1,17 @@
+osTicket v1.9.5.1
+=================
+### Improvements
+  * Fix file.php to serve files added to system before osTicket v1.9.1
+  * Fix file.php to serve files if client panel or system is offline
+  * Fix popover download of inline images
+  * Avoid de-duplicating zero-length files
+  * Send new message alert to team members if not assigned to an agent
+  * Fix import of users to organization not setting the organization
+  * Fix redactor toolbar showing over the date picker (#1450, thanks @Chefkeks)
+
+### Performance and Security
+  * Fix XSS vulnerability in client language selection
+
 osTicket v1.9.5
 ===============
 ### Enhancements

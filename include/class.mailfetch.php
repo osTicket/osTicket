@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'class.banlist.php');
 require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
@@ -206,7 +207,7 @@ class MailFetcher {
 
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner
-        return Format::encode($text, $charset, $encoding);
+        return Charset::transcode($text, $charset, $encoding);
     }
 
     function mailbox_encode($mailbox) {
@@ -240,7 +241,7 @@ class MailFetcher {
         if (function_exists('mb_detect_encoding'))
             if (($src_enc = mb_detect_encoding($text))
                     && (strcasecmp($src_enc, 'ASCII') !== 0))
-                return Format::encode($text, $src_enc, $encoding);
+                return Charset::transcode($text, $src_enc, $encoding);
 
         // Handle ASCII text and RFC-2047 encoding
         $str = '';
@@ -600,7 +601,7 @@ class MailFetcher {
         }
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && Banlist::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning(_S('Ticket denied'),
                 sprintf(_S('Banned email — %s'),$mailinfo['email']), false);
@@ -720,23 +721,31 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
-                && ($t=$thread->getTicket())
-                && ($vars['staffId']
-                    || !$t->isClosed()
-                    || $t->isReopenable())
-                && ($message = $thread->postEmail($vars))) {
+        if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+            && ($message = $entry->postEmail($vars))
+        ) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
-            $ticket = $message->getTicket();
-        } elseif ($seen) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $message->getThread()->getObject();
+        }
+        elseif ($seen) {
             // Already processed, but for some reason (like rejection), no
             // thread item was created. Ignore the email
             return true;
-        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
+        }
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($vars))
+            && ($message = $entry->postEmail($vars))
+        ) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $thread->getObject();
+        }
+        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
-        } else {
+        }
+        else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!

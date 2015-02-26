@@ -40,6 +40,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/chosen.jquery.min.js"></script>
@@ -52,11 +53,6 @@ if (($lang = Internationalization::getCurrentLanguage())
 <body>
     <div id="container">
         <div id="header">
-            <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
-            title="<?php echo __('Support Center'); ?>"><img src="<?php
-                echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
-                echo $ost->getConfig()->getTitle(); ?>"
-                style="height: 5em"></a>
             <div class="pull-right flush-right">
             <p>
              <?php
@@ -99,6 +95,12 @@ if (($all_langs = Internationalization::getConfiguredSystemLanguages())
 } ?>
             </p>
             </div>
+            <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
+            title="<?php echo __('Support Center'); ?>">
+                <span class="valign-helper"></span>
+                <img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
+                echo $ost->getConfig()->getTitle(); ?>">
+            </a>
         </div>
         <div class="clear"></div>
         <?php

@@ -50,12 +50,10 @@ class Canned {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT canned.*, count(attach.file_id) as attachments, '
-            .' count(filter.id) as filters '
+        $sql='SELECT canned.*, count(attach.file_id) as attachments '
             .' FROM '.CANNED_TABLE.' canned '
             .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
                     ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline) '
-            .' LEFT JOIN '.FILTER_TABLE.' filter ON (canned.canned_id = filter.canned_response_id) '
             .' WHERE canned.canned_id='.db_input($id)
             .' GROUP BY canned.canned_id';
 
@@ -86,8 +84,38 @@ class Canned {
         return $this->isEnabled();
     }
 
+    function getFilters() {
+
+        if (!isset($this->_filters)) {
+            $this->_filters = array();
+            $cid = sprintf('"canned_id":%d', $this->getId());
+            $sql='SELECT filter.id, filter.name '
+                .' FROM '.FILTER_TABLE.' filter'
+                .' INNER JOIN '.FILTER_ACTION_TABLE.' action'
+                .'  ON (filter.id=action.filter_id)'
+                .' WHERE action.type="canned"'
+                ."  AND action.configuration LIKE '%$cid%'";
+
+            if (($res=db_query($sql)) && db_num_rows($res))
+                while (list($id, $name) = db_fetch_row($res))
+                    $this->_filters[$id] = $name;
+        }
+
+        return $this->_filters;
+    }
+
+    function getAttachedFiles($inlines=false) {
+        return AttachmentFile::objects()
+            ->filter(array(
+                'attachments__type'=>'C',
+                'attachments__object_id'=>$this->getId(),
+                'attachments__inline' => $inlines,
+            ))
+            ->all();
+    }
+
     function getNumFilters() {
-        return $this->ht['filters'];
+        return count($this->getFilters());
     }
 
     function getTitle() {
@@ -130,11 +158,18 @@ class Canned {
                 if ($cb && is_callable($cb))
                     $resp = $cb($resp);
 
-                $resp['files'] = $this->attachments->getSeparates();
+                $resp['files'] = array();
+                foreach ($this->getAttachedFiles(!$html) as $file) {
+                    $resp['files'][] = array(
+                        'id' => $file->id,
+                        'name' => $file->name,
+                        'size' => $file->size,
+                        'download_url' => $file->getDownloadUrl(),
+                    );
+                }
                 // strip html
                 if (!$html) {
                     $resp['response'] = Format::html2text($resp['response'], 90);
-                    $resp['files'] += $this->attachments->getInlines();
                 }
                 return Format::json_encode($resp);
                 break;
@@ -173,19 +208,6 @@ class Canned {
 
     function getInfo() {
         return $this->getHashtable();
-    }
-
-    function getFilters() {
-        if (!$this->_filters) {
-            $this->_filters = array();
-            $res = db_query(
-                  'SELECT name FROM '.FILTER_TABLE
-                .' WHERE canned_response_id = '.db_input($this->getId())
-                .' ORDER BY name');
-            while ($row = db_fetch_row($res))
-                $this->_filters[] = $row[0];
-        }
-        return $this->_filters;
     }
 
     function update($vars, &$errors) {

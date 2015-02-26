@@ -761,17 +761,6 @@ class FormField {
         return null;
     }
 
-    /**
-     * Indicates if the field provides for searching for something other
-     * than keywords. For instance, textbox fields can have hits by keyword
-     * searches alone, but selection fields should provide the option to
-     * match a specific value or set of values and therefore need to
-     * participate on any search builder.
-     */
-    function hasSpecialSearch() {
-        return true;
-    }
-
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -880,10 +869,6 @@ class TextboxField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function validateEntry($value) {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
@@ -955,10 +940,6 @@ class TextareaField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1009,10 +990,6 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
-    }
-
-    function hasSpecialSearch() {
-        return false;
     }
 
     function validateEntry($value) {
@@ -1446,9 +1423,6 @@ class ThreadEntryField extends FormField {
     }
     function isPresentationOnly() {
         return true;
-    }
-    function hasSpecialSearch() {
-        return false;
     }
 
     function getConfigurationOptions() {
@@ -1904,10 +1878,6 @@ class FileUploadField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     /**
      * Called from the ajax handler for async uploads via web clients.
      */
@@ -1929,10 +1899,10 @@ class FileUploadField extends FormField {
         if (!$bypass && $file['size'] > $config['size'])
             Http::response(413, 'File is too large');
 
-        if (!($id = AttachmentFile::upload($file)))
+        if (!($F = AttachmentFile::upload($file)))
             Http::response(500, 'Unable to store file: '. $file['error']);
 
-        return $id;
+        return $F->getId();
     }
 
     /**
@@ -1972,10 +1942,10 @@ class FileUploadField extends FormField {
         if ($file['size'] > $config['size'])
             throw new FileUploadError(__('File size is too large'));
 
-        if (!$id = AttachmentFile::save($file))
+        if (!$F = AttachmentFile::create($file))
             throw new FileUploadError(__('Unable to save file'));
 
-        return $id;
+        return $F;
     }
 
     function isValidFileType($name, $type=false) {
@@ -2718,7 +2688,8 @@ class FileUploadWidget extends Widget {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
-                    $ids[] = $this->field->uploadFile($file);
+                    $F = $this->field->uploadFile($file);
+                    $ids[] = $F->getId();
                 }
                 catch (FileUploadError $ex) {}
             }

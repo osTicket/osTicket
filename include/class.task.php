@@ -25,6 +25,10 @@ class TaskModel extends VerySimpleModel {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
+            'lock' => array(
+                'constraint' => array('lock_id' => 'Lock.lock_id'),
+                'null' => true,
+            ),
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
                 'null' => true,
@@ -225,9 +229,11 @@ class Task extends TaskModel {
         return $this->getThread()->getEntry($id);
     }
 
-    function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries(
-                array('type' => $type, 'order' => $order));
+    function getThreadEntries($type=false) {
+        $thread = $this->getThread()->getEntries();
+        if ($type && is_array($type))
+            $thread->filter(array('type__in' => $type));
+        return $thread;
     }
 
     function getForm() {
@@ -437,7 +443,7 @@ class Task extends TaskModel {
         // Create a thread + message.
         $thread = TaskThread::create($task);
         $thread->addDescription($vars);
-        Signal::send('model.created', $task);
+        Signal::send('task.created', $task);
 
         return $task;
     }
@@ -574,10 +580,12 @@ class TaskThread extends ObjectThread {
 
     static function create($task) {
         $id = is_object($task) ? $task->getId() : $task;
-        return parent::create(array(
+        $thread = parent::create(array(
                     'object_id' => $id,
                     'object_type' => ObjectModel::OBJECT_TYPE_TASK
                     ));
+        if ($thread->save())
+            return $thread;
     }
 
 }

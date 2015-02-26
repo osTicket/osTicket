@@ -382,6 +382,8 @@ class Internationalization {
     static function getCurrentLocale() {
         global $thisstaff, $cfg;
 
+        // FIXME: Move this majic elsewhere - see upgrade bug note in
+        // class.staff.php
         if ($thisstaff) {
             return $thisstaff->getLocale()
                 ?: self::getCurrentLanguage();

@@ -57,22 +57,31 @@ if($_POST && !$errors):
     if($ticket && $ticket->getId()) {
         //More coffee please.
         $errors=array();
-        $lock=$ticket->getLock(); //Ticket lock if any
+        $lock = $ticket->getLock(); //Ticket lock if any
         $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if(!$role || !$role->hasPerm(TicketModel::PERM_REPLY))
+            if (!$role || !$role->hasPerm(TicketModel::PERM_REPLY)) {
                 $errors['err'] = __('Action denied. Contact admin for access');
+            }
             else {
 
                 if(!$_POST['response'])
                     $errors['response']=__('Response required');
-                //Use locks to avoid double replies
-                if($lock && $lock->getStaffId()!=$thisstaff->getId())
-                    $errors['err']=__('Action Denied. Ticket is locked by someone else!');
+
+                if (!$lock) {
+                    $errors['err'] = __('This action requires a lock. Please try again');
+                }
+                // Use locks to avoid double replies
+                elseif ($lock->getStaffId()!=$thisstaff->getId()) {
+                    $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+                }
+                elseif ($lock->getCode() != $_POST['lockCode']) {
+                    $errors['err'] = __('Your lock has expired. Please try again');
+                }
 
                 //Make sure the email is not banned
-                if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
+                if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
 
@@ -92,8 +101,7 @@ if($_POST && !$errors):
                 $response_form->getField('attachments')->reset();
 
                 // Remove staff's locks
-                TicketLock::removeStaffLocks($thisstaff->getId(),
-                        $ticket->getId());
+                $ticket->releaseLock($thisstaff->getId());
 
                 // Cleanup response draft for this user
                 Draft::deleteForNamespace(
@@ -174,7 +182,7 @@ if($_POST && !$errors):
                          $msg = __('Ticket is NOW assigned to you!');
                      } else {
                          $msg=sprintf(__('Ticket assigned successfully to %s'), $ticket->getAssigned());
-                         TicketLock::removeStaffLocks($thisstaff->getId(), $ticket->getId());
+                         $ticket->releaseLock($thisstaff->getId());
                          $ticket=null;
                      }
                  } elseif(!$errors['assign']) {
@@ -188,6 +196,17 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
+
+            if (!$lock) {
+                $errors['err'] = __('This action requires a lock. Please try again');
+            }
+            // Use locks to avoid double replies
+            elseif ($lock->getStaffId()!=$thisstaff->getId()) {
+                $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+            }
+            elseif ($lock->getCode() != $_POST['lockCode']) {
+                $errors['err'] = __('Your lock has expired. Please try again');
+            }
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {

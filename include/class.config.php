@@ -1096,6 +1096,13 @@ class OsticketConfig extends Config {
         return $this->getLogoId('client');
     }
 
+    function getStaffLogoId() {
+        return $this->getLogoId('staff');
+    }
+    function getStaffLogo() {
+        return $this->getLogo('staff');
+    }
+
     function updatePagesSettings($vars, &$errors) {
         global $ost;
 
@@ -1111,7 +1118,7 @@ class OsticketConfig extends Config {
                 ; // Pass
             elseif ($logo['error'])
                 $errors['logo'] = $logo['error'];
-            elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
+            elseif (!AttachmentFile::uploadLogo($logo, $error))
                 $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 
@@ -1139,6 +1146,9 @@ class OsticketConfig extends Config {
             'client_logo_id' => (
                 (is_numeric($vars['selected-logo']) && $vars['selected-logo'])
                 ? $vars['selected-logo'] : false),
+            'staff_logo_id' => (
+                (is_numeric($vars['selected-logo-scp']) && $vars['selected-logo-scp'])
+                ? $vars['selected-logo-scp'] : false),
            ));
     }
 

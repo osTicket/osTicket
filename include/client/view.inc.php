@@ -114,24 +114,23 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     foreach($thread as $entry) {
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
-        if(!$threadType[$entry['type']]) continue;
-        $poster = $entry['poster'];
-        if($entry['type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
+        if(!$threadType[$entry->type]) continue;
+        $poster = $entry->poster;
+        if($entry->type=='R' && ($cfg->hideStaffName() || !$entry->staff_id))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry['type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+        <table class="thread-entry <?php echo $threadType[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><div>
-<?php echo Format::datetime($entry['created']); ?>
+<?php echo Format::datetime($entry->created); ?>
                 &nbsp;&nbsp;<span class="textra"></span>
                 <span><?php echo $poster; ?></span>
             </div>
             </th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
             <?php
-            if($entry['attachments']
-                    && ($tentry=$ticket->getThreadEntry($entry['id']))
-                    && ($urls = $tentry->getAttachmentUrls())
-                    && ($links=$tentry->getAttachmentsLinks())) { ?>
+            if($entry->has_attachments
+                    && ($urls = $entry->getAttachmentUrls())
+                    && ($links = $entry->getAttachmentsLinks())) { ?>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
 <?php       }
             if ($urls) { ?>

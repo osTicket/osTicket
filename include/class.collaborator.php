@@ -16,159 +16,142 @@
 require_once(INCLUDE_DIR . 'class.user.php');
 require_once(INCLUDE_DIR . 'class.client.php');
 
-class Collaborator extends TicketUser {
+class Collaborator
+extends VerySimpleModel
+implements EmailContact, ITicketUser {
 
-    var $ht;
-
-    var $user;
-    var $ticket;
-
-    function __construct($id) {
-        $this->load($id);
-        parent::__construct($this->getUser());
-    }
-
-    function load($id) {
-
-        if(!$id && !($id=$this->getId()))
-            return;
-
-        $sql='SELECT * FROM '.TICKET_COLLABORATOR_TABLE
-            .' WHERE id='.db_input($id);
-
-        $this->ht = db_fetch_array(db_query($sql));
-        $this->ticket = null;
-    }
-
-    function reload() {
-        return $this->load();
-    }
-
-    function __toString() {
-        return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
-                    $this->getEmail()));
-    }
-
-    function getId() {
-        return $this->ht['id'];
-    }
-
-    function isActive() {
-        return ($this->ht['isactive']);
-    }
-
-    function getCreateDate() {
-        return $this->ht['created'];
-    }
-
-    function getTicketId() {
-        return $this->ht['ticket_id'];
-    }
-
-    function getTicket() {
-        if(!$this->ticket && $this->getTicketId())
-            $this->ticket = Ticket::lookup($this->getTicketId());
-
-        return $this->ticket;
-    }
-
-    function getUserId() {
-        return $this->ht['user_id'];
-    }
-
-    function getUser() {
-
-        if(!$this->user && $this->getUserId())
-            $this->user = User::lookup($this->getUserId());
-
-        return $this->user;
-    }
-
-    function remove() {
-
-        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
-            .' WHERE id='.db_input($this->getId())
-            .' LIMIT 1';
-
-        return  (db_query($sql) && db_affected_rows());
-    }
-
-    static function add($info, &$errors) {
-
-        if (!$info || !$info['ticketId'] || !$info['userId'])
-            $errors['err'] = __('Invalid or missing information');
-        elseif (($c=self::lookup($info)))
-            $errors['err'] = sprintf(__('%s is already a collaborator'),
-                    $c->getName());
-
-        if ($errors) return false;
-
-        $sql='INSERT INTO '.TICKET_COLLABORATOR_TABLE
-            .' SET updated=NOW() '
-            .' ,isactive='.db_input(isset($info['isactive']) ?  $info['isactive'] : 0)
-            .' ,ticket_id='.db_input($info['ticketId'])
-            .' ,user_id='.db_input($info['userId']);
-
-        if(db_query($sql) && ($id=db_insert_id()))
-            return self::lookup($id);
-
-        $errors['err'] = __('Unable to add collaborator. Internal error');
-
-        return false;
-    }
-
-    static function forTicket($tid, $criteria=array()) {
-
-        $collaborators = array();
-
-        $sql='SELECT id FROM '.TICKET_COLLABORATOR_TABLE
-            .' WHERE ticket_id='.db_input($tid);
-
-        if(isset($criteria['isactive']))
-            $sql.=' AND isactive='.db_input($criteria['isactive']);
-
-        //TODO: sort by name of the user
-
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while(list($id)=db_fetch_row($res))
-                $collaborators[] = self::lookup($id);
-
-        return $collaborators;
-    }
-
-    static function getIdByInfo($info) {
-
-        $sql='SELECT id FROM '.TICKET_COLLABORATOR_TABLE
-            .' WHERE ticket_id='.db_input($info['ticketId'])
-            .' AND user_id='.db_input($info['userId']);
-
-        return db_result(db_query($sql));
-    }
-
-    static function lookup($criteria) {
-
-        $id = is_numeric($criteria)
-            ? $criteria : self::getIdByInfo($criteria);
-
-        return ($id
-                && ($c = new Collaborator($id))
-                && $c->getId() == $id)
-            ? $c : null;
-    }
-}
-
-class TicketCollaborator extends VerySimpleModel {
     static $meta = array(
-        'table' => TICKET_COLLABORATOR_TABLE,
+        'table' => THREAD_COLLABORATOR_TABLE,
         'pk' => array('id'),
+        'select_related' => array('user'),
         'joins' => array(
-            'ticket' => array(
-                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
             ),
             'user' => array(
                 'constraint' => array('user_id' => 'User.id'),
             ),
         ),
     );
+
+    function __toString() {
+        return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
+                $this->getEmail()));
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function isActive() {
+        return $this->isactive;
+    }
+
+    function getCreateDate() {
+        return $this->created;
+    }
+
+    function getTicketId() {
+        if ($this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
+            return $this->thread->object_id;
+    }
+
+    function getTicket() {
+        // TODO: Change to $this->thread->ticket when Ticket goes to ORM
+        if ($id = $this->getTicketId())
+            return Ticket::lookup($id);
+    }
+
+    function getUser() {
+        return $this->user;
+    }
+
+    // EmailContact interface
+    function getEmail() {
+        return $this->user->getEmail();
+    }
+    function getName() {
+        return $this->user->getName();
+    }
+
+    // VariableReplacer interface
+    function getVar($what) {
+        global $cfg;
+
+        switch (strtolower($what)) {
+        case 'ticket_link':
+            return sprintf('%s/view.php?%s',
+                $cfg->getBaseUrl(),
+                Http::build_query(
+                    // TODO: Chance to $this->getTicket when
+                    array('auth' => $this->getTicket()->getAuthToken($this)),
+                    false
+                )
+            );
+            break;
+        }
+    }
+
+    // ITicketUser interface
+    var $_isguest;
+
+    function isOwner() {
+        return false;
+    }
+    function flagGuest() {
+        $this->_isguest = true;
+    }
+    function isGuest() {
+        return $this->_isguest;
+    }
+    function getUserId() {
+        return $this->user_id;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    static function add($info, &$errors) {
+
+        if (!$info || !$info['threadId'] || !$info['userId'])
+            $errors['err'] = __('Invalid or missing information');
+        elseif ($c = static::lookup(array(
+            'thread_id' => $info['threadId'],
+            'user_id' => $info['userId'],
+        )))
+            $errors['err'] = sprintf(__('%s is already a collaborator'),
+                    $c->getName());
+
+        if ($errors) return false;
+
+        $collab = static::create(array(
+            'isactive' => isset($info['isactive']) ? $info['isactive'] : 0,
+            'thread_id' => $info['threadId'],
+            'user_id' => $info['userId'],
+        ));
+        if ($collab->save(true))
+            return $collab;
+
+        $errors['err'] = __('Unable to add collaborator. Internal error');
+
+        return false;
+    }
+
+    static function forThread($tid, $criteria=array()) {
+
+        $collaborators = static::objects()
+            ->filter(array('thread_id' => $tid));
+
+        if (isset($criteria['isactive']))
+            $collaborators->filter(array('isactive' => $criteria['isactive']));
+
+        // TODO: sort by name of the user
+        $collaborators->order_by('user__name');
+
+        return $collaborators;
+    }
 }
 ?>

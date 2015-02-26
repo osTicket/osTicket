@@ -43,16 +43,11 @@ class TicketModel extends VerySimpleModel {
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
             ),
-            'collaborators' => array(
-                'reverse' => 'TicketCollaborator.ticket',
-                'null' => true,
-            ),
             'status' => array(
                 'constraint' => array('status_id' => 'TicketStatus.id')
             ),
             'lock' => array(
-                'reverse' => 'TicketLock.ticket',
-                'list' => false,
+                'constraint' => array('lock_id' => 'Lock.lock_id'),
                 'null' => true,
             ),
             'dept' => array(
@@ -75,7 +70,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'thread' => array(
-                'reverse' => 'ThreadModel.ticket',
+                'reverse' => 'Thread.ticket',
                 'list' => false,
                 'null' => true,
             ),
@@ -216,7 +211,8 @@ class TicketCData extends VerySimpleModel {
 TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
-class Ticket {
+class Ticket
+implements RestrictedAccess, Threadable {
 
     var $id;
     var $number;
@@ -246,14 +242,14 @@ class Ticket {
         if (!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, thread.id as thread_id, lock_id, dept.name as dept_name '
+        $sql='SELECT  ticket.*, thread.id as thread_id, ticket.lock_id, dept.name as dept_name '
             .' ,count(distinct attach.id) as attachments'
             .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
-                ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.LOCK_TABLE.' tlock
+                ON ( ticket.lock_id=tlock.lock_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TASK_TABLE.' task
                 ON ( task.object_id = ticket.ticket_id AND task.object_type="T" ) '
             .' LEFT JOIN '.THREAD_TABLE.' thread
@@ -296,7 +292,7 @@ class Ticket {
 
     function loadDynamicData() {
         if (!$this->_answers) {
-            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
+            foreach (DynamicFormEntry::forTicket($this->getThreadId(), true) as $form) {
                 foreach ($form->getAnswers() as $answer) {
                     $tag = mb_strtolower($answer->getField()->get('name'))
                         ?: 'field.' . $answer->getField()->get('id');
@@ -441,7 +437,8 @@ class Ticket {
         return $this->getEmail();
     }
 
-    function getAuthToken() {
+    // Deprecated
+    function getOldAuthToken() {
         # XXX: Support variable email address (for CCs)
         return md5($this->getId() . strtolower($this->getEmail()) . SECRET_SALT);
     }
@@ -536,11 +533,10 @@ class Ticket {
     //      fallback if the logic in ::setStatus fails.
     function setStatusId($id) {
         $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
-               ' ,status_id='.db_input($status->getId()) .
+               ' ,status_id='.db_input($id) .
                ' WHERE ticket_id='.db_input($this->getId());
 
-        if (!db_query($sql) || !db_affected_rows())
-            return false;
+        return (db_query($sql) && db_affected_rows());
     }
 
     function getStatus() {
@@ -619,6 +615,9 @@ class Ticket {
     }
 
     function getLock() {
+        if (!isset($this->tlock) && $this->ht['lock_id'])
+            $this->tlock = Lock::lookup($this->ht['lock_id']);
+
         return $this->tlock;
     }
 
@@ -638,9 +637,32 @@ class Ticket {
             return $lock;
         }
         //No lock on the ticket or it is expired
-        $this->tlock = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
+        $this->tlock = Lock::acquire($staffId, $lockTime); //Create a new lock..
+
+        if ($this->tlock) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = '
+                .db_input($this->tlock->getId())
+                .' WHERE `ticket_id` = '. db_input($this->getId());
+            db_query($sql);
+        }
+
         //load and return the newly created lock if any!
         return $this->tlock;
+    }
+
+    function releaseLock($staffId=false) {
+        if (!($lock = $this->getLock()))
+            return false;
+
+        if ($staffId && $lock->staff_id != $staffId)
+            return false;
+
+        if (!$lock->delete())
+            return false;
+
+        $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = 0 WHERE `ticket_id` = '
+            . db_input($this->getId());
+        return ($res = db_query($sql)) && db_affected_rows($res);
     }
 
     function getDept() {
@@ -818,7 +840,7 @@ class Ticket {
     }
 
     function getThreadCount() {
-        return $this->getNumMessages() + $this->getNumResponses();
+        return $this->getClientThread()->count();
     }
 
     function getNumMessages() {
@@ -834,15 +856,15 @@ class Ticket {
     }
 
     function getMessages() {
-        return $this->getThreadEntries('M');
+        return $this->getThreadEntries(array('M'));
     }
 
     function getResponses() {
-        return $this->getThreadEntries('R');
+        return $this->getThreadEntries(array('R'));
     }
 
     function getNotes() {
-        return $this->getThreadEntries('N');
+        return $this->getThreadEntries(array('N'));
     }
 
     function getClientThread() {
@@ -853,9 +875,11 @@ class Ticket {
         return $this->getThread()->getEntry($id);
     }
 
-    function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries(
-                array( 'type' => $type, 'order' => $order));
+    function getThreadEntries($type=false) {
+        $thread = $this->getThread()->getEntries();
+        if ($type && is_array($type))
+            $thread->filter(array('type__in' => $type));
+        return $thread;
     }
 
     //Collaborators
@@ -879,10 +903,10 @@ class Ticket {
     function getCollaborators($criteria=array()) {
 
         if ($criteria)
-            return Collaborator::forTicket($this->getId(), $criteria);
+            return Collaborator::forThread($this->getThreadId(), $criteria);
 
         if (!isset($this->collaborators))
-            $this->collaborators = Collaborator::forTicket($this->getId());
+            $this->collaborators = Collaborator::forThread($this->getThreadId());
 
         return $this->collaborators;
     }
@@ -939,7 +963,7 @@ class Ticket {
             return null;
 
         $vars = array_merge(array(
-                'ticketId' => $this->getId(),
+                'threadId' => $this->getThreadId(),
                 'userId' => $user->getId()), $vars);
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
@@ -973,26 +997,75 @@ class Ticket {
         //statuses
         $cids = null;
         if($vars['cid'] && ($cids=array_filter($vars['cid']))) {
-            $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-                .' SET updated=NOW(), isactive=1 '
-                .' WHERE ticket_id='.db_input($this->getId())
-                .' AND id IN('.implode(',', db_input($cids)).')';
-            db_query($sql);
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                'id__in' => $cids
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 1,
+            ));
         }
 
-        $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-            .' SET updated=NOW(), isactive=0 '
-            .' WHERE ticket_id='.db_input($this->getId());
-        if($cids)
-            $sql.=' AND id NOT IN('.implode(',', db_input($cids)).')';
-
-        db_query($sql);
+        if ($cids) {
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                Q::not(array('id__in' => $cids))
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 0,
+            ));
+        }
 
         unset($this->ht['active_collaborators']);
         $this->collaborators = null;
 
         return true;
     }
+
+    function getAuthToken($user, $algo=1) {
+
+        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
+        $authtoken = sprintf('%s%dx%s',
+                ($user->getId() == $this->getOwnerId() ? 'o' : 'c'),
+                $algo,
+                Base32::encode(pack('VV',$user->getId(), $this->getId())));
+
+        switch($algo) {
+            case 1:
+                $authtoken .= substr(base64_encode(
+                            md5($user->getId().$this->getCreateDate().$this->getId().SECRET_SALT, true)), 8);
+                break;
+            default:
+                return null;
+        }
+
+        return $authtoken;
+    }
+
+    function sendAccessLink($user) {
+        global $ost;
+
+        if (!($email = $ost->getConfig()->getDefaultEmail())
+            || !($content = Page::lookupByType('access-link')))
+            return;
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $this,
+            'user' => $user,
+            'recipient' => $user,
+        );
+
+        $lang = $user->getLanguage(UserAccount::LANG_MAILOUTS);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
+        ), $vars);
+
+        $email->send($user, Format::striptags($msg['subj']),
+            $msg['body']);
+    }
+
 
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
@@ -1271,6 +1344,11 @@ class Ticket {
                 'thread'=>$message
             );
         }
+        else {
+            $options += array(
+                'thread' => $this->getThread(),
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond
@@ -1284,7 +1362,7 @@ class Ticket {
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'],
                 null, $options);
         }
 
@@ -1330,7 +1408,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1359,7 +1437,7 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body']);
         }
 
         $user = $this->getOwner();
@@ -1421,9 +1499,8 @@ class Ticket {
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
             if ($uid == $recipient->getUserId()) continue;
-            $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
-            $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
+            $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
@@ -1497,9 +1574,8 @@ class Ticket {
 
             $options = array(
                 'inreplyto'=>$message->getEmailMessageId(),
-                'references' => $message->getEmailReferencesForUser($user),
                 'thread'=>$message);
-            $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
     }
@@ -1562,7 +1638,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1611,7 +1687,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1638,7 +1714,7 @@ class Ticket {
                 return $this->getPhoneNumber();
                 break;
             case 'auth_token':
-                return $this->getAuthToken();
+                return $this->getOldAuthToken();
                 break;
             case 'client_link':
                 return sprintf('%s/view.php?t=%s',
@@ -1802,7 +1878,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1928,7 +2004,8 @@ class Ticket {
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
 
-        $vars['origin'] = $origin;
+        if ($origin)
+            $vars['origin'] = $origin;
         if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
@@ -2013,8 +2090,12 @@ class Ticket {
 
             //Assigned staff if any...could be the last respondent
 
-            if($this->isAssigned() && ($staff=$this->getStaff()))
-                $recipients[]=$staff;
+            if ($this->isAssigned()) {
+                if ($staff = $this->getStaff())
+                    $recipients[] = $staff;
+                elseif ($team = $this->getTeam())
+                    $recipients = array_merge($recipients, $team->getMembers());
+            }
 
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
@@ -2034,7 +2115,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -2095,7 +2176,7 @@ class Ticket {
                 'inreplyto'=>$response->getEmailMessageId(),
                 'references'=>$response->getEmailReferences(),
                 'thread'=>$response);
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->sendAutoReply($this, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2158,7 +2239,7 @@ class Ticket {
                     $variables + array('recipient' => $this->getOwner()));
 
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2221,17 +2302,20 @@ class Ticket {
         );
     }
 
-    function postNote($vars, &$errors, $poster, $alert=true) {
+    function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
         $vars['staffId'] = 0;
-        $vars['poster'] = 'SYSTEM';
         if($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
-        }elseif($poster) { //string
+        }
+        elseif ($poster) { //string
             $vars['poster'] = $poster;
+        }
+        elseif (!isset($vars['poster'])) {
+            $vars['poster'] = 'SYSTEM';
         }
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))
@@ -2305,12 +2389,25 @@ class Ticket {
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[$staff->getEmail()] = 1;
             }
         }
 
         return $note;
+    }
+
+    // Threadable interface
+    function postThreadEntry($type, $vars) {
+        $errors = array();
+        switch ($type) {
+        case 'M':
+            return $this->postMessage($vars, $vars['origin']);
+        case 'N':
+            return $this->postNote($vars, $errors);
+        case 'R':
+            return $this->postReply($vars, $errors);
+        }
     }
 
     //Print ticket... export the ticket thread as PDF.
@@ -2669,8 +2766,8 @@ class Ticket {
 
         try {
             // Make sure the email address is not banned
-            if (TicketFilter::isBanned($vars['email'])) {
-                throw new RejectedException(Banlist::getFilter(), $vars);
+            if (($filter=Banlist::isBanned($vars['email']))) {
+                throw new RejectedException($filter, $vars);
             }
 
             // Init ticket filters...
@@ -2689,7 +2786,7 @@ class Ticket {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    static function create(&$vars, &$errors, $origin, $autorespond=true,
+    static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
@@ -3051,6 +3148,14 @@ class Ticket {
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
 
+        // If a message was posted, flag it as the orignal message. This
+        // needs to be done on new ticket, so as to otherwise separate the
+        // concept from the first message entry in a thread.
+        if ($message instanceof ThreadEntry) {
+            $message->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $message->save();
+        }
+
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
@@ -3125,7 +3230,7 @@ class Ticket {
         $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
-        Signal::send('model.created', $ticket);
+        Signal::send('ticket.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 
@@ -3191,16 +3296,10 @@ class Ticket {
         }
 
         $ticket->reload();
-        $dept = $ticket->getDept();
 
-        // See if we need to skip auto-response.
-        $autorespond = isset($create_vars['autorespond'])
-            ? $create_vars['autorespond'] : true;
-
-        if (!$autorespond
+        if(!$cfg->notifyONNewStaffTicket()
                 || !isset($vars['alertuser'])
-                || !$dept->autoRespONNewTicket()
-                || !$cfg->notifyONNewStaffTicket())
+                || !($dept=$ticket->getDept()))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
@@ -3233,14 +3332,17 @@ class Ticket {
                         )
                     );
 
-            $references = $ticket->getLastMessage()->getEmailMessageId();
+            $references = array();
+            $message = $ticket->getLastMessage();
+            if (isset($message))
+                $references[] = $message->getEmailMessageId();
             if (isset($response))
-                $references = array($response->getEmailMessageId(), $references);
+                $references[] = $response->getEmailMessageId();
             $options = array(
                 'references' => $references,
-                'thread' => $ticket->getLastMessage()
+                'thread' => $message ?: $ticket->getThread(),
             );
-            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 

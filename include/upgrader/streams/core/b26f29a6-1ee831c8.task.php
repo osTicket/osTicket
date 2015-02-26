@@ -69,6 +69,20 @@ class IntlMigrator extends MigrationTask {
 
         // Add in new custom date format flag
         $cfg->set('date_formats', $touched ? 'custom' : '' );
+
+        // Moved here from  core/8f99b8bf-03ff59bf.task.php
+        require_once(INCLUDE_DIR . 'class.list.php');
+        $i18n = new Internationalization($cfg->get('system_language', 'en_US'));
+        $lists = $i18n->getTemplate('list.yaml')->getData();
+        foreach ($lists as $l) {
+            DynamicList::create($l);
+        }
+
+        $statuses = $i18n->getTemplate('ticket_status.yaml')->getData();
+        foreach ($statuses as $s) {
+            TicketStatus::__create($s);
+        }
+
     }
 }
 

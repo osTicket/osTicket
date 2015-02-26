@@ -16,14 +16,30 @@
 
 class Misc {
 
-	function randCode($count=8, $chars=false) {
-        $chars = $chars ? $chars
-            : 'abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.';
-        $data = '';
-        $m = strlen($chars) - 1;
-        for ($i=0; $i < $count; $i++)
-            $data .= $chars[mt_rand(0,$m)];
-        return $data;
+	function randCode($len=8, $chars=false) {
+        $chars = $chars ?: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_=';
+
+        // Determine the number of bits we need
+        $char_count = strlen($chars);
+        $bits_per_char = ceil(log($char_count, 2));
+        $bytes = ceil(4 * $len / floor(32 / $bits_per_char));
+        // Pad to 4 byte boundary
+        $bytes += (4 - ($bytes % 4)) % 4;
+
+        // Fetch some random data blocks
+        $data = Crypto::random($bytes);
+
+        $mask = (1 << $bits_per_char) - 1;
+        $loops = (int) (32 / $bits_per_char);
+        $output = '';
+        $ints = unpack('V*', $data);
+        foreach ($ints as $int) {
+            for ($i = $loops; $i > 0; $i--) {
+                $output .= $chars[($int & $mask) % $char_count];
+                $int >>= $bits_per_char;
+            }
+        }
+        return substr($output, 0, $len);
 	}
 
     function __rand_seed($value=0) {

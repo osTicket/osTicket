@@ -107,49 +107,74 @@ $pages = Page::getPages();
     <tbody>
         <tr>
         <td colspan="2">
-                <label style="display:block">
+<table style="width:100%">
+    <thead><tr>
+        <th>Client</th>
+        <th>Staff</th>
+        <th>Logo</th>
+    </tr></thead>
+    <tbody>
+        <tr>
+            <td>
                 <input type="radio" name="selected-logo" value="0"
                     style="margin-left: 1em"
                     <?php if (!$ost->getConfig()->getClientLogoId())
                         echo 'checked="checked"'; ?>/>
-                <img src="../assets/default/images/logo.png"
+            </td><td>
+                <input type="radio" name="selected-logo-scp" value="0"
+                    style="margin-left: 1em"
+                    <?php if (!$ost->getConfig()->getStaffLogoId())
+                        echo 'checked="checked"'; ?>/>
+            </td><td>
+                <img src="<?php echo ROOT_PATH; ?>assets/default/images/logo.png"
                     alt="Default Logo" valign="middle"
                     style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                         margin: 0.5em; height: 5em;
                         vertical-align: middle"/>
-                </label>
-        </td></tr>
-        <tr>
-            <th colspan="2">
-                <em><?php echo __('Use a custom logo'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#upload_a_new_logo"></i></em>
-            </th>
+                <img src="<?php echo ROOT_PATH; ?>scp/images/ost-logo.png"
+                    alt="Default Logo" valign="middle"
+                    style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
+                        margin: 0.5em; height: 5em;
+                        vertical-align: middle"/>
+            </td>
         </tr>
-        <tr><td colspan="2">
-            <?php
-            $current = $ost->getConfig()->getClientLogoId();
-            foreach (AttachmentFile::allLogos() as $logo) { ?>
-                <div>
-                <label>
+        <tr><th colspan="3">
+            <em><?php echo __('Use a custom logo'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#upload_a_new_logo"></i></em>
+        </th></tr>
+    <?php
+    $current = $ost->getConfig()->getClientLogoId();
+    $currentScp = $ost->getConfig()->getStaffLogoId();
+    foreach (AttachmentFile::allLogos() as $logo) { ?>
+        <tr>
+            <td>
                 <input type="radio" name="selected-logo"
                     style="margin-left: 1em" value="<?php
                     echo $logo->getId(); ?>" <?php
                     if ($logo->getId() == $current)
                         echo 'checked="checked"'; ?>/>
+            </td><td>
+                <input type="radio" name="selected-logo-scp"
+                    style="margin-left: 1em" value="<?php
+                    echo $logo->getId(); ?>" <?php
+                    if ($logo->getId() == $currentScp)
+                        echo 'checked="checked"'; ?>/>
+            </td><td>
                 <img src="<?php echo $logo->getDownloadUrl(); ?>"
                     alt="Custom Logo" valign="middle"
                     style="box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
                         margin: 0.5em; height: 5em;
                         vertical-align: middle;"/>
-                </label>
-                <?php if ($logo->getId() != $current) { ?>
+                <?php if ($logo->getId() != $current && $logo->getId() != $currentScp) { ?>
                 <label>
                 <input type="checkbox" name="delete-logo[]" value="<?php
                     echo $logo->getId(); ?>"/> <?php echo __('Delete'); ?>
                 </label>
                 <?php } ?>
-                </div>
-            <?php } ?>
-            <br/>
+            </td>
+        </tr>
+<?php } ?>
+    </tbody>
+</table>
             <b><?php echo __('Upload a new logo'); ?>:</b>
             <input type="file" name="logo[]" size="30" value="" />
             <font class="error"><br/><?php echo $errors['logo']; ?></font>

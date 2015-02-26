@@ -17,78 +17,45 @@
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
 
-class ThreadModel extends VerySimpleModel {
+//Ticket thread.
+class Thread extends VerySimpleModel {
     static $meta = array(
         'table' => THREAD_TABLE,
         'pk' => array('id'),
         'joins' => array(
             'ticket' => array(
                 'constraint' => array(
-                    'object_id' => 'TicketModel.ticket_id',
                     'object_type' => "'T'",
+                    'object_id' => 'TicketModel.ticket_id',
                 ),
             ),
+            'task' => array(
+                'constraint' => array(
+                    'object_type' => "'A'",
+                    'object_id' => 'Task.id',
+                ),
+            ),
+            'collaborators' => array(
+                'reverse' => 'Collaborator.thread',
+            ),
             'entries' => array(
-                'reverse' => 'ThreadEntryModel.thread',
+                'reverse' => 'ThreadEntry.thread',
             ),
         ),
     );
-}
 
-//Ticket thread.
-class Thread {
-
-    var $ht;
-
-    function Thread($criteria) {
-        $this->load($criteria);
-    }
-
-    function load($criteria=null) {
-
-        if (!$criteria && !($criteria=$this->getId()))
-            return null;
-
-        $sql='SELECT thread.* '
-            .' ,count(DISTINCT a.id) as attachments '
-            .' ,count(DISTINCT entry.id) as entries '
-            .' FROM '.THREAD_TABLE.' thread '
-            .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
-                ON (entry.thread_id = thread.id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' a
-                ON (a.object_id=entry.id AND a.`type` = "H") ';
-
-        if (is_numeric($criteria))
-            $sql.= ' WHERE thread.id='.db_input($criteria);
-        else
-            $sql.= sprintf(' WHERE thread.object_id=%d AND
-                    thread.object_type=%s',
-                    $criteria['object_id'],
-                    db_input($criteria['object_type']));
-
-        $sql.= ' GROUP BY thread.id';
-
-        $this->ht = array();
-        if (($res=db_query($sql)) && db_num_rows($res))
-            $this->ht = db_fetch_array($res);
-
-        return ($this->ht);
-    }
-
-    function reload() {
-        return $this->load();
-    }
+    var $_object;
 
     function getId() {
-        return $this->ht['id'];
+        return $this->id;
     }
 
     function getObjectId() {
-        return $this->ht['object_id'];
+        return $this->object_id;
     }
 
     function getObjectType() {
-        return $this->ht['object_type'];
+        return $this->object_type;
     }
 
     function getObject() {
@@ -101,190 +68,360 @@ class Thread {
     }
 
     function getNumAttachments() {
-        return $this->ht['attachments'];
+        return Attachment::objects()->filter(array(
+            'thread_entry__thread' => $this
+        ))->count();
     }
 
     function getNumEntries() {
-        return $this->ht['entries'];
+        return $this->entries->count();
     }
 
-    function getEntries($criteria) {
-
-        if (!$criteria['order'] || !in_array($criteria['order'], array('DESC','ASC')))
-            $criteria['order'] = 'ASC';
-
-        $sql='SELECT entry.*
-               , COALESCE(user.name,
-                    IF(staff.staff_id,
-                        CONCAT_WS(" ", staff.firstname, staff.lastname),
-                        NULL)) as name '
-            .' ,count(DISTINCT attach.id) as attachments '
-            .' FROM '.THREAD_ENTRY_TABLE.' entry '
-            .' LEFT JOIN '.USER_TABLE.' user
-                ON (entry.user_id=user.id) '
-            .' LEFT JOIN '.STAFF_TABLE.' staff
-                ON (entry.staff_id=staff.staff_id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                ON (attach.object_id = entry.id AND attach.`type`="H") '
-            .' WHERE  entry.thread_id='.db_input($this->getId());
-
-        if ($criteria['type'] && is_array($criteria['type']))
-            $sql.=' AND entry.`type` IN ('
-                    .implode(',', db_input($criteria['type'])).')';
-        elseif ($criteria['type'])
-            $sql.=' AND entry.`type` = '.db_input($criteria['type']);
-
-        $sql.=' GROUP BY entry.id '
-             .' ORDER BY entry.created '.$criteria['order'];
-
-        if ($criteria['limit'])
-            $sql.=' LIMIT '.$criteria['limit'];
-
-        $entries = array();
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($rec=db_fetch_array($res)) {
-                $rec['body'] = ThreadEntryBody::fromFormattedText($rec['body'], $rec['format']);
-                $entries[] = $rec;
-            }
-        }
-
-        return $entries;
+    function getEntries($criteria=false) {
+        $base = $this->entries->annotate(array(
+            'has_attachments' => SqlAggregate::COUNT('attachments', false,
+                new Q(array('attachments__inline'=>0)))
+        ));
+        if ($criteria)
+            $base->filter($criteria);
+        return $base;
     }
 
     function getEntry($id) {
         return ThreadEntry::lookup($id, $this->getId());
     }
 
+    /**
+     * postEmail
+     *
+     * After some security and sanity checks, attaches the body and subject
+     * of the message in reply to this thread item
+     *
+     * Parameters:
+     * mailinfo - (array) of information about the email, with at least the
+     *          following keys
+     *      - mid - (string) email message-id
+     *      - name - (string) personal name of email originator
+     *      - email - (string<email>) originating email address
+     *      - subject - (string) email subject line (decoded)
+     *      - body - (string) email message body (decoded)
+     */
+    function postEmail($mailinfo) {
+        global $ost;
+
+        // +==================+===================+=============+
+        // | Orig Thread-Type | Reply Thread-Type | Requires    |
+        // +==================+===================+=============+
+        // | *                | Message (M)       | From: Owner |
+        // | *                | Note (N)          | From: Staff |
+        // | Response (R)     | Message (M)       |             |
+        // | Message (M)      | Response (R)      | From: Staff |
+        // +------------------+-------------------+-------------+
+
+        if (!$object = $this->getObject()) {
+            // How should someone find this thread?
+            return false;
+        }
+        elseif ($object instanceof Ticket && (
+               !$mailinfo['staffId']
+            && $object->isClosed()
+            && !$object->isReopenable()
+        )) {
+            // Ticket is closed, not reopenable, and email was not submitted
+            // by an agent. Email cannot be submitted
+            return false;
+        }
+
+        // Mail sent by this system will have a message-id format of
+        // <code-random-mailbox@domain.tld>
+        // where code is a predictable string based on the SECRET_SALT of
+        // this osTicket installation. If this incoming mail matches the
+        // code, then it very likely originated from this system and looped
+        @list($code) = explode('-', $mailinfo['mid'], 2);
+        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+            // This mail was sent by this system. It was received due to
+            // some kind of mail delivery loop. It should not be considered
+            // a response to an existing thread entry
+            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
+                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                $mailinfo['email']),
+
+                // This is quite intentional -- don't continue the loop
+                false,
+                // Force the message, even if logging is disabled
+                true);
+            return true;
+        }
+
+        $vars = array(
+            'mid' =>    $mailinfo['mid'],
+            'header' => $mailinfo['header'],
+            'poster' => $mailinfo['name'],
+            'origin' => 'Email',
+            'source' => 'Email',
+            'ip' =>     '',
+            'reply_to' => $this,
+            'recipients' => $mailinfo['recipients'],
+            'to-email-id' => $mailinfo['to-email-id'],
+        );
+
+        // XXX: Is this necessary?
+        if ($object instanceof Ticket)
+            $vars['ticketId'] = $object->getId();
+        if ($object instanceof Task)
+            $vars['taskId'] = $object->getId();
+
+        $errors = array();
+
+        if (isset($mailinfo['attachments']))
+            $vars['attachments'] = $mailinfo['attachments'];
+
+        $body = $mailinfo['message'];
+        $poster = $mailinfo['email'];
+
+        // Disambiguate if the user happens also to be a staff member of the
+        // system. The current ticket owner should _always_ post messages
+        // instead of notes or responses
+        if ($mailinfo['userId'] || (
+            $object instanceof Ticket
+            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
+        )) {
+            $vars['message'] = $body;
+            $vars['userId'] = $mailinfo['userId'] ?: $object->getUserId();
+            $vars['origin'] = 'Email';
+
+            if ($object instanceof Threadable)
+                return $object->postThreadEntry('M', $vars);
+            elseif ($this instanceof ObjectThread)
+                $this->addMessage($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        // XXX: Consider collaborator role
+        elseif ($mailinfo['staffId']
+                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
+            $vars['staffId'] = $mailinfo['staffId'];
+            $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+            $vars['note'] = $body;
+
+            if ($object instanceof Threadable)
+                return $object->postThreadEntry('N', $vars);
+            elseif ($this instanceof ObjectThread)
+                return $this->addNote($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        elseif (Email::getIdByEmail($mailinfo['email'])) {
+            // Don't process the email -- it came FROM this system
+            return true;
+        }
+        // Support the mail parsing system declaring a thread-type
+        elseif (isset($mailinfo['thread-type'])) {
+            switch ($mailinfo['thread-type']) {
+            case 'N':
+                $vars['note'] = $body;
+                $vars['poster'] = $poster;
+                if ($object instanceof Threadable)
+                    return $object->postThreadEntry('N', $vars);
+                elseif ($this instanceof ObjectThread)
+                    return $this->addNote($vars, $errors);
+                else
+                    throw new Exception('Cannot continue discussion with abstract thread');
+            }
+        }
+        // TODO: Consider security constraints
+        else {
+            //XXX: Are we potentially leaking the email address to
+            // collaborators?
+            // Try not to destroy the format of the body
+            $body->prepend(sprintf('Received From: %s', $mailinfo['email']));
+            $vars['message'] = $body;
+            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
+            $vars['origin'] = 'Email';
+            if ($object instanceof Threadable)
+                return $object->postThreadEntry('M', $vars);
+            elseif ($this instanceof ObjectThread)
+                return $this->addMessage($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        // Currently impossible, but indicate that this thread object could
+        // not append the incoming email.
+        return false;
+    }
 
     function deleteAttachments() {
+        $deleted = Attachment::objects()->filter(array(
+            'thread_entry__thread' => $this,
+        ))->delete();
 
-        // Clear reference table
-        $sql = 'DELETE `a`.* FROM '.ATTACHMENT_TABLE. ' `a` '
-             . 'INNER JOIN '.THREAD_ENTRY_TABLE.' `e`
-                    ON(`e`.id = `a`.object_id AND `a`.`type`= "H") '
-             . ' WHERE `e`.thread_id='.db_input($this->getId());
-
-        $deleted=0;
-        if (($res=db_query($sql)) && ($deleted=db_affected_rows()))
+        if ($deleted)
             AttachmentFile::deleteOrphans();
 
         return $deleted;
     }
 
+    function removeCollaborators() {
+        return Collaborator::objects()
+            ->filter(array('thread_id'=>$this->getId()))
+            ->delete();
+    }
+
+    /**
+     * Function: lookupByEmailHeaders
+     *
+     * Attempt to locate a thread by the email headers. It should be
+     * considered a secondary lookup to ThreadEntry::lookupByEmailHeaders(),
+     * which should find an actual thread entry, which should be possible
+     * for all email communcation which is associated with a thread entry.
+     * The only time where this is useful is for threads which triggered
+     * email communication without a thread entry, for instance, like
+     * tickets created without an initial message.
+     */
+    function lookupByEmailHeaders(&$mailinfo) {
+        $possibles = array();
+        foreach (array('in-reply-to', 'references') as $header) {
+            $matches = array();
+            if (!isset($mailinfo[$header]) || !$mailinfo[$header])
+                continue;
+            // Header may have multiple entries (usually separated by
+            // spaces ( )
+            elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
+                        $matches))
+                continue;
+
+            // The References header will have the most recent message-id
+            // (parent) on the far right.
+            // @see rfc 1036, section 2.2.5
+            // @see http://www.jwz.org/doc/threading.html
+            $possibles = array_merge($possibles, array_reverse($matches[0]));
+        }
+
+        // Add the message id if it is embedded in the body
+        $match = array();
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match)
+            && !in_array($match[1], $possibles)
+        ) {
+            $possibles[] = $match[1];
+        }
+
+        foreach ($possibles as $mid) {
+            // Attempt to detect the ticket and user ids from the
+            // message-id header. If the message originated from
+            // osTicket, the Mailer class can break it apart. If it came
+            // from this help desk, the 'loopback' property will be set
+            // to true.
+            $mid_info = Mailer::decodeMessageId($mid);
+            if ($mid_info['loopback'] && isset($mid_info['uid'])
+                && @$mid_info['threadId']
+                && ($t = Thread::lookup($mid_info['threadId']))
+            ) {
+                if (@$mid_info['userId']) {
+                    $mailinfo['userId'] = $mid_info['userId'];
+                }
+                elseif (@$mid_info['staffId']) {
+                    $mailinfo['staffId'] = $mid_info['staffId'];
+                }
+                // ThreadEntry was positively identified
+                return $t;
+            }
+        }
+
+        return null;
+    }
+
     function delete() {
 
         //Self delete
-        $sql = 'DELETE FROM '.THREAD_TABLE.' WHERE
-            id='.db_input($this->getId());
-
-        if (!db_query($sql) || !db_affected_rows())
+        if (!parent::delete())
             return false;
 
         // Clear email meta data (header..etc)
-        $sql = 'UPDATE '.THREAD_ENTRY_EMAIL_TABLE.' email '
-             . 'INNER JOIN '.THREAD_ENTRY_TABLE.' entry
-                    ON (entry.id = email.thread_entry_id) '
-             . 'SET email.headers = null '
-             . 'WHERE entry.thread_id = '.db_input($this->getId());
-        db_query($sql);
+        ThreadEntryEmailInfo::objects()
+            ->filter(array('thread_entry__thread' => $this))
+            ->update(array('headers' => null));
 
         // Mass delete entries
         $this->deleteAttachments();
-        $sql = 'DELETE FROM '.THREAD_ENTRY_TABLE
-             . ' WHERE thread_id='.db_input($this->getId());
-        db_query($sql);
+        $this->removeCollaborators();
+
+        $this->entries->delete();
 
         return true;
     }
 
     static function create($vars) {
-
-        if (!$vars || !$vars['object_id'] || !$vars['object_type'])
-            return false;
-
-        $sql = 'INSERT INTO '.THREAD_TABLE.' SET created=NOW() '
-              .', object_id='.db_input($vars['object_id'])
-              .', object_type='.db_input($vars['object_type']);
-
-        if (db_query($sql))
-            return static::lookup(db_insert_id());
-
-        return null;
-    }
-
-    static function lookup($id) {
-
-        return ($id
-                && ($thread = new Thread($id))
-                && $thread->getId()
-                )
-            ? $thread : null;
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
     }
 }
 
-class ThreadEntryModel extends VerySimpleModel {
+class ThreadEntryEmailInfo extends VerySimpleModel {
     static $meta = array(
-        'table' => THREAD_ENTRY_TABLE,
+        'table' => THREAD_ENTRY_EMAIL_TABLE,
         'pk' => array('id'),
         'joins' => array(
-            'thread' => array(
-                'constraint' => array('thread_id' => 'ThreadModel.id'),
-            ),
-            'attachments' => array(
-                'reverse' => 'AttachmentModel.thread',
-                'null' => true,
+            'thread_entry' => array(
+                'constraint' => array('thread_entry_id' => 'ThreadEntry.id'),
             ),
         ),
     );
 }
 
-class ThreadEntry {
+class ThreadEntry extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_ENTRY_TABLE,
+        'pk' => array('id'),
+        'select_related' => array('staff', 'user', 'email_info'),
+        'joins' => array(
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
+            ),
+            'parent' => array(
+                'constraint' => array('pid' => 'ThreadEntry.id'),
+                'null' => true,
+            ),
+            'children' => array(
+                'reverse' => 'ThreadEntry.parent',
+            ),
+            'email_info' => array(
+                'reverse' => 'ThreadEntryEmailInfo.thread_entry',
+                'list' => false,
+            ),
+            'attachments' => array(
+                'reverse' => 'Attachment.thread_entry',
+                'null' => true,
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+                'null' => true,
+            ),
+            'user' => array(
+                'constraint' => array('user_id' => 'User.id'),
+                'null' => true,
+            ),
+        ),
+    );
 
-    var $id;
-    var $ht;
+    const FLAG_ORIGINAL_MESSAGE         = 0x0001;
 
-    var $thread;
-    var $attachments;
+    var $_headers;
+    var $_thread;
     var $_actions;
+    var $_attachments;
 
-    function ThreadEntry($id, $threadId=0, $type='') {
-        $this->load($id, $threadId, $type);
-    }
-
-    function load($id=0, $threadId=0, $type='') {
-
-        if (!$id && !($id=$this->getId()))
+    function postEmail($mailinfo) {
+        if (!($thread = $this->getThread()))
+            // Kind of hard to continue a discussion without a thread ...
             return false;
 
-        $sql='SELECT entry.*, email.mid, email.headers '
-            .' ,count(DISTINCT attach.id) as attachments '
-            .' FROM '.THREAD_ENTRY_TABLE.' entry '
-            .' LEFT JOIN '.THREAD_ENTRY_EMAIL_TABLE.' email
-                ON (email.thread_entry_id=entry.id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                ON (attach.object_id=entry.id AND attach.`type` = "H") '
-            .' WHERE  entry.id='.db_input($id);
+        elseif ($this->getEmailMessageId() == $mailinfo['mid'])
+            // Reporting success so the email can be moved or deleted.
+            return true;
 
-        if ($type)
-            $sql.=' AND entry.type='.db_input($type);
-
-        if ($threadId)
-            $sql.=' AND entry.thread_id='.db_input($threadId);
-
-        $sql.=' GROUP BY entry.id ';
-
-        if (!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht = db_fetch_array($res);
-        $this->id = $this->ht['id'];
-        $this->attachments = new GenericAttachments($this->id, 'H');
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load();
+        return $thread->postEmail($mailinfo);
     }
 
     function getId() {
@@ -292,27 +429,32 @@ class ThreadEntry {
     }
 
     function getPid() {
-        return $this->ht['pid'];
+        return $this->get('pid', 0);
+    }
+
+    function getParent() {
+        if ($this->getPid())
+            return ThreadEntry::lookup($this->getPid());
     }
 
     function getType() {
-        return $this->ht['type'];
+        return $this->type;
     }
 
     function getSource() {
-        return $this->ht['source'];
+        return $this->source;
     }
 
     function getPoster() {
-        return $this->ht['poster'];
+        return $this->poster;
     }
 
     function getTitle() {
-        return $this->ht['title'];
+        return $this->title;
     }
 
     function getBody() {
-        return ThreadEntryBody::fromFormattedText($this->ht['body'], $this->ht['format']);
+        return ThreadEntryBody::fromFormattedText($this->body, $this->format);
     }
 
     function setBody($body) {
@@ -325,36 +467,37 @@ class ThreadEntry {
                 $body = new TextThreadEntryBody($body);
         }
 
-        $sql='UPDATE '.THREAD_ENTRY_TABLE.' SET updated=NOW()'
-            .',format='.db_input($body->getType())
-            .',body='.db_input((string) $body)
-            .' WHERE id='.db_input($this->getId());
-        return db_query($sql) && db_affected_rows();
+        $this->format = $body->getType();
+        $this->body = (string) $body;
+        return $this->save();
     }
 
     function getCreateDate() {
-        return $this->ht['created'];
+        return $this->created;
     }
 
     function getUpdateDate() {
-        return $this->ht['updated'];
+        return $this->updated;
     }
 
     function getNumAttachments() {
-        return $this->ht['attachments'];
+        return $this->attachments->count();
     }
 
     function getEmailMessageId() {
-        return $this->ht['mid'];
+        if ($this->email_info)
+            return $this->email_info->mid;
     }
 
     function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
-        if (!isset($this->ht['@headers']))
-            $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
-
-        return $this->ht['@headers'];
+        if (!isset($this->_headers) && $this->email_info
+            && isset($this->email_info->headers)
+        ) {
+            $this->_headers = Mail_Parse::splitHeaders($this->email_info->headers);
+        }
+        return $this->_headers;
     }
 
     function getEmailReferences($include_mid=true) {
@@ -362,30 +505,9 @@ class ThreadEntry {
         $headers = self::getEmailHeaderArray();
         if (isset($headers['References']) && $headers['References'])
             $references = $headers['References']." ";
-        if ($include_mid)
-            $references .= $this->getEmailMessageId();
+        if ($include_mid && ($mid = $this->getEmailMessageId()))
+            $references .= $mid;
         return $references;
-    }
-
-    function getTaggedEmailReferences($prefix, $refId) {
-
-        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
-
-        $mid = substr_replace($this->getEmailMessageId(),
-                $ref, strpos($this->getEmailMessageId(), '@'), 0);
-
-        return sprintf('%s %s', $this->getEmailReferences(false), $mid);
-    }
-
-    function getEmailReferencesForUser($user) {
-        return $this->getTaggedEmailReferences('u',
-            ($user instanceof Collaborator)
-                ? $user->getUserId()
-                : $user->getId());
-    }
-
-    function getEmailReferencesForStaff($staff) {
-        return $this->getTaggedEmailReferences('s', $staff->getId());
     }
 
     function getUIDFromEmailReference($ref) {
@@ -399,43 +521,46 @@ class ThreadEntry {
     }
 
     function getThreadId() {
-        return $this->ht['thread_id'];
+        return $this->thread_id;
     }
 
     function getThread() {
 
-        if(!$this->thread && $this->getThreadId())
-            $this->thread = Thread::lookup($this->getThreadId());
+        if (!isset($this->_thread) && $this->thread_id)
+            // TODO: Consider typing the thread based on its type field
+            $this->_thread = ObjectThread::lookup($this->getThreadId());
 
-        return $this->thread;
+        return $this->_thread;
     }
 
     function getStaffId() {
-        return $this->ht['staff_id'];
+        return isset($this->staff_id) ? $this->staff_id : 0;
     }
 
     function getStaff() {
-
-        if(!$this->staff && $this->getStaffId())
-            $this->staff = Staff::lookup($this->getStaffId());
-
         return $this->staff;
     }
 
     function getUserId() {
-        return $this->ht['user_id'];
+        return isset($this->user_id) ? $this->user_id : 0;
     }
 
     function getUser() {
-
-        if (!isset($this->user))
-            $this->user = User::lookup($this->getUserId());
-
         return $this->user;
     }
 
+    function getName() {
+        if ($this->staff_id)
+            return $this->staff->getName();
+        if ($this->user_id)
+            return $this->user->getName();
+
+        return $this->poster;
+    }
+
     function getEmailHeader() {
-        return $this->ht['headers'];
+        if ($this->email_info)
+            return $this->email_info->headers;
     }
 
     function isAutoReply() {
@@ -460,6 +585,16 @@ class ThreadEntry {
         return ($this->isAutoReply() || $this->isBounce());
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+    function clearFlag($flag) {
+        return $this->set('flags', $this->get('flags') & ~$flag);
+    }
+    function setFlag($flag) {
+        return $this->set('flags', $this->get('flags') | $flag);
+    }
+
     //Web uploads - caller is expected to format, validate and set any errors.
     function uploadFiles($files) {
 
@@ -472,9 +607,9 @@ class ThreadEntry {
                 continue;
 
             if(!$file['error']
-                    && ($id=AttachmentFile::upload($file))
-                    && $this->saveAttachment($id))
-                $uploaded[]=$id;
+                    && ($F=AttachmentFile::upload($file))
+                    && $this->saveAttachment($F))
+                $uploaded[]= $F->getId();
             else {
                 if(!$file['error'])
                     $error = sprintf(__('Unable to upload file - %s'),$file['name']);
@@ -514,8 +649,8 @@ class ThreadEntry {
         if(!$attachment || !is_array($attachment))
             return null;
 
-        $id=0;
-        if ($attachment['error'] || !($id=$this->saveAttachment($attachment))) {
+        $A=null;
+        if ($attachment['error'] || !($A=$this->saveAttachment($attachment))) {
             $error = $attachment['error'];
             if(!$error)
                 $error = sprintf(_S('Unable to import attachment - %s'),
@@ -525,7 +660,7 @@ class ThreadEntry {
                     _S('File Import Error'), $error, _S('SYSTEM'), false);
         }
 
-        return $id;
+        return $A;
     }
 
    /*
@@ -536,28 +671,47 @@ class ThreadEntry {
 
         $inline = is_array($file) && @$file['inline'];
 
-        return $this->attachments->save($file, $inline);
+        if (is_numeric($file))
+            $fileId = $file;
+        elseif ($file instanceof AttachmentFile)
+            $fileId = $file->getId();
+        elseif ($F = AttachmentFile::create($file))
+            $fileId = $F->getId();
+        elseif (is_array($file) && isset($file['id']))
+            $fileId = $file['id'];
+        else
+            return false;
+
+        $att = Attachment::create(array(
+            'type' => 'H',
+            'object_id' => $this->getId(),
+            'file_id' => $fileId,
+            'inline' => $inline ? 1 : 0,
+        ));
+        if (!$att->save())
+            return false;
+        return $att;
     }
 
     function saveAttachments($files) {
-        $ids=array();
+        $attachments = array();
         foreach ($files as $file)
-           if (($id=$this->saveAttachment($file)))
-               $ids[] = $id;
+           if (($A = $this->saveAttachment($file)))
+               $attachments[] = $A;
 
-        return $ids;
+        return $attachments;
     }
 
     function getAttachments() {
-        return $this->attachments->getAll(false);
+        return $this->attachments;
     }
 
     function getAttachmentUrls() {
         $json = array();
-        foreach ($this->getAttachments() as $att) {
-            $json[$att['key']] = array(
-                'download_url' => $att['download_url'],
-                'filename' => $att['name'],
+        foreach ($this->attachments as $att) {
+            $json[$att->file->getKey()] = array(
+                'download_url' => $att->file->getDownloadUrl(),
+                'filename' => $att->file->name,
             );
         }
 
@@ -565,146 +719,30 @@ class ThreadEntry {
     }
 
     function getAttachmentsLinks($file='attachment.php', $target='_blank', $separator=' ') {
+        // TODO: Move this to the respective UI templates
 
         $str='';
-        foreach ($this->getAttachments() as $att ) {
-            if ($att['inline']) continue;
+        foreach ($this->attachments as $att ) {
+            if ($att->inline) continue;
             $size = '';
-            if ($att['size'])
-                $size=sprintf('<em>(%s)</em>', Format::file_size($att['size']));
+            if ($att->file->size)
+                $size=sprintf('<em>(%s)</em>', Format::file_size($att->file->size));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
-                    $att['download_url'], $target, Format::htmlchars($att['name']), $size, $separator);
+            $str .= sprintf(
+                '<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                $att->file->getDownloadUrl(), $target,
+                Format::htmlchars($att->file->name), $size, $separator);
         }
 
         return $str;
-    }
-    /**
-     * postEmail
-     *
-     * After some security and sanity checks, attaches the body and subject
-     * of the message in reply to this thread item
-     *
-     * Parameters:
-     * mailinfo - (array) of information about the email, with at least the
-     *          following keys
-     *      - mid - (string) email message-id
-     *      - name - (string) personal name of email originator
-     *      - email - (string<email>) originating email address
-     *      - subject - (string) email subject line (decoded)
-     *      - body - (string) email message body (decoded)
-     */
-    function postEmail($mailinfo) {
-        global $ost;
-
-        // +==================+===================+=============+
-        // | Orig Thread-Type | Reply Thread-Type | Requires    |
-        // +==================+===================+=============+
-        // | *                | Message (M)       | From: Owner |
-        // | *                | Note (N)          | From: Staff |
-        // | Response (R)     | Message (M)       |             |
-        // | Message (M)      | Response (R)      | From: Staff |
-        // +------------------+-------------------+-------------+
-
-        if (!$ticket = $this->getTicket())
-            // Kind of hard to continue a discussion without a ticket ...
-            return false;
-
-        // Make sure the email is NOT already fetched... (undeleted emails)
-        elseif ($this->getEmailMessageId() == $mailinfo['mid'])
-            // Reporting success so the email can be moved or deleted.
-            return true;
-
-        // Mail sent by this system will have a message-id format of
-        // <code-random-mailbox@domain.tld>
-        // where code is a predictable string based on the SECRET_SALT of
-        // this osTicket installation. If this incoming mail matches the
-        // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
-            // This mail was sent by this system. It was received due to
-            // some kind of mail delivery loop. It should not be considered
-            // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
-                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
-                $mailinfo['email']),
-
-                // This is quite intentional -- don't continue the loop
-                false,
-                // Force the message, even if logging is disabled
-                true);
-            return true;
-        }
-
-        $vars = array(
-            'mid' =>    $mailinfo['mid'],
-            'header' => $mailinfo['header'],
-            'ticketId' => $ticket->getId(),
-            'poster' => $mailinfo['name'],
-            'origin' => 'Email',
-            'source' => 'Email',
-            'ip' =>     '',
-            'reply_to' => $this,
-            'recipients' => $mailinfo['recipients'],
-            'to-email-id' => $mailinfo['to-email-id'],
-        );
-        $errors = array();
-
-        if (isset($mailinfo['attachments']))
-            $vars['attachments'] = $mailinfo['attachments'];
-
-        $body = $mailinfo['message'];
-
-        // Disambiguate if the user happens also to be a staff member of the
-        // system. The current ticket owner should _always_ post messages
-        // instead of notes or responses
-        if ($mailinfo['userId']
-                || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
-            $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
-            return $ticket->postMessage($vars, 'Email');
-        }
-        // XXX: Consider collaborator role
-        elseif ($mailinfo['staffId']
-                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
-            $vars['staffId'] = $mailinfo['staffId'];
-            $poster = Staff::lookup($mailinfo['staffId']);
-            $vars['note'] = $body;
-            return $ticket->postNote($vars, $errors, $poster);
-        }
-        elseif (Email::getIdByEmail($mailinfo['email'])) {
-            // Don't process the email -- it came FROM this system
-            return true;
-        }
-        // Support the mail parsing system declaring a thread-type
-        elseif (isset($mailinfo['thread-type'])) {
-            switch ($mailinfo['thread-type']) {
-            case 'N':
-                $vars['note'] = $body;
-                $poster = $mailinfo['email'];
-                return $ticket->postNote($vars, $errors, $poster);
-            }
-        }
-        // TODO: Consider security constraints
-        else {
-            //XXX: Are we potentially leaking the email address to
-            // collaborators?
-            $vars['message'] = sprintf("Received From: %s\n\n%s",
-                $mailinfo['email'], $body);
-            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
-            return $ticket->postMessage($vars, 'Email');
-        }
-        // Currently impossible, but indicate that this thread object could
-        // not append the incoming email.
-        return false;
     }
 
     /* Returns file names with id as key */
     function getFiles() {
 
         $files = array();
-        foreach($this->getAttachments() as $attachment)
-            $files[$attachment['file_id']] = $attachment['name'];
+        foreach($this->attachments as $attachment)
+            $files[$attachment->file_id] = $attachment->file->name;
 
         return $files;
     }
@@ -733,13 +771,15 @@ class ThreadEntry {
         if (!$id || !$mid)
             return false;
 
-        $sql='INSERT INTO '.THREAD_ENTRY_EMAIL_TABLE
-            .' SET thread_entry_id='.db_input($id)
-            .', mid='.db_input($mid);
-        if ($header)
-            $sql .= ', headers='.db_input($header);
+        $this->email_info = ThreadEntryEmailInfo::create(array(
+            'thread_entry_id' => $id,
+            'mid' => $mid,
+        ));
 
-        return db_query($sql) ? db_insert_id() : 0;
+        if ($header)
+            $this->email_info->headers = trim($header);
+
+        return $this->email_info->save();
     }
 
     /* variables */
@@ -769,14 +809,6 @@ class ThreadEntry {
         return false;
     }
 
-    static function lookup($id, $tid=0, $type='') {
-        return ($id
-                && is_numeric($id)
-                && ($e = new ThreadEntry($id, $tid, $type))
-                && $e->getId()==$id
-                )?$e:null;
-    }
-
     /**
      * Parameters:
      * mailinfo (hash<String>) email header information. Must include keys
@@ -793,16 +825,15 @@ class ThreadEntry {
     function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        $search = 'SELECT thread_entry_id, mid FROM '.THREAD_ENTRY_EMAIL_TABLE
-               . ' WHERE mid=%s '
-               . ' ORDER BY thread_entry_id DESC';
-
-        if (list($id, $mid) = db_fetch_row(db_query(
-                sprintf($search, db_input($mailinfo['mid']))))) {
+        if ($entry = ThreadEntry::objects()
+            ->filter(array('email_info__mid' => $mailinfo['mid']))
+            ->first()
+        ) {
             $seen = true;
-            return ThreadEntry::lookup($id);
+            return $entry;
         }
 
+        $possibles = array();
         foreach (array('in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
@@ -817,41 +848,73 @@ class ThreadEntry {
             // (parent) on the far right.
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
-            $thread = null;
-            foreach (array_reverse($matches[0]) as $mid) {
-                //Try to determine if it's a reply to a tagged email.
-                $ref = null;
-                if (strpos($mid, '+')) {
-                    list($left, $right) = explode('@',$mid);
-                    list($left, $ref) = explode('+', $left);
-                    $mid = "$left@$right";
-                }
-                $res = db_query(sprintf($search, db_input($mid)));
-                while (list($id) = db_fetch_row($res)) {
-                    if (!($t = ThreadEntry::lookup($id)))
-                        continue;
-                    // Capture the first match thread item
-                    if (!$thread)
-                        $thread = $t;
-                    // We found a match  - see if we can ID the user.
-                    // XXX: Check access of ref is enough?
-                    if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
-                        if ($ref[0] =='s') //staff
-                            $mailinfo['staffId'] = $uid;
-                        else // user or collaborator.
-                            $mailinfo['userId'] = $uid;
+            $possibles = array_merge($possibles, array_reverse($matches[0]));
+        }
 
-                        // Best possible case — found the thread and the
-                        // user
-                        return $t;
-                    }
+        // Add the message id if it is embedded in the body
+        $match = array();
+        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match)
+            && !in_array($match[1], $possibles)
+        ) {
+            $possibles[] = $match[1];
+        }
+
+        $thread = null;
+        foreach ($possibles as $mid) {
+            // Attempt to detect the ticket and user ids from the
+            // message-id header. If the message originated from
+            // osTicket, the Mailer class can break it apart. If it came
+            // from this help desk, the 'loopback' property will be set
+            // to true.
+            $mid_info = Mailer::decodeMessageId($mid);
+            if ($mid_info['loopback'] && isset($mid_info['uid'])
+                && @$mid_info['entryId']
+                && ($t = ThreadEntry::lookup($mid_info['entryId']))
+                && ($t->thread_id == $mid_info['threadId'])
+            ) {
+                if (@$mid_info['userId']) {
+                    $mailinfo['userId'] = $mid_info['userId'];
+                }
+                elseif (@$mid_info['staffId']) {
+                    $mailinfo['staffId'] = $mid_info['staffId'];
+                }
+                // ThreadEntry was positively identified
+                return $t;
+            }
+
+            // Try to determine if it's a reply to a tagged email.
+            // (Deprecated)
+            $ref = null;
+            if (strpos($mid, '+')) {
+                list($left, $right) = explode('@',$mid);
+                list($left, $ref) = explode('+', $left);
+                $mid = "$left@$right";
+            }
+            $entries = ThreadEntry::objects()
+                ->filter(array('email_info__mid' => $mid));
+            foreach ($entries as $t) {
+                // Capture the first match thread item
+                if (!$thread)
+                    $thread = $t;
+                // We found a match  - see if we can ID the user.
+                // XXX: Check access of ref is enough?
+                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                    if ($ref[0] =='s') //staff
+                        $mailinfo['staffId'] = $uid;
+                    else // user or collaborator.
+                        $mailinfo['userId'] = $uid;
+
+                    // Best possible case — found the thread and the
+                    // user
+                    return $t;
                 }
             }
-            // Second best case — found a thread but couldn't identify the
-            // user from the header. Return the first thread entry matched
-            if ($thread)
-                return $thread;
         }
+        // Second best case — found a thread but couldn't identify the
+        // user from the header. Return the first thread entry matched
+        if ($thread)
+            return $thread;
 
         // Search for ticket by the [#123456] in the subject line
         // This is the last resort -  emails must match to avoid message
@@ -880,6 +943,8 @@ class ThreadEntry {
         }
 
         // Search for the message-id token in the body
+        // *DEPRECATED* the current algo on outgoing mail will use
+        // Mailer::getMessageId as the message id tagged here
         if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
@@ -891,7 +956,9 @@ class ThreadEntry {
 
     /**
      * Find a thread entry from a message-id created from the
-     * ::asMessageId() method
+     * ::asMessageId() method.
+     *
+     * *DEPRECATED* use Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
         $mid = trim($mid, '<>');
@@ -909,36 +976,7 @@ class ThreadEntry {
         if (!$thread)
             return false;
 
-        if (0 === strcasecmp($thread->asMessageId($from, $ver), $mid))
-            return $thread;
-    }
-
-    /**
-     * Get an email message-id that can be used to represent this thread
-     * entry. The same message-id can be passed to ::lookupByRefMessageId()
-     * to find this thread entry
-     *
-     * Formats:
-     * Initial (version <null>)
-     * <$:b32(thread-id)$:md5(to-addr.ticket-num.ticket-id)@:md5(url)>
-     *      thread-id - thread-id, little-endian INT, packed
-     *      :b32() - base32 encoded
-     *      to-addr - individual email recipient
-     *      ticket-num - external ticket number
-     *      ticket-id - internal ticket id
-     *      :md5() - last 10 hex chars of MD5 sum
-     *      url - helpdesk URL
-     */
-    function asMessageId($to, $version=false) {
-        global $ost;
-
-        $domain = md5($ost->getConfig()->getURL());
-        $ticket = $this->getThread()->getObject();
-        return sprintf('$%s$%s@%s',
-            base64_encode(pack('V', $this->getId())),
-            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
-            substr($domain, -10)
-        );
+        return $thread;
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
@@ -987,36 +1025,36 @@ class ThreadEntry {
         if ($poster && is_object($poster))
             $poster = (string) $poster;
 
-        $sql=' INSERT INTO '.THREAD_ENTRY_TABLE.' SET `created` = NOW() '
-            .' ,`type` = '.db_input($vars['type'])
-            .' ,`thread_id` = '.db_input($vars['threadId'])
-            .' ,`title` = '.db_input(Format::sanitize($vars['title'], true))
-            .' ,`format` = '.db_input($vars['body']->getType())
-            .' ,`staff_id` = '.db_input($vars['staffId'])
-            .' ,`user_id` = '.db_input($vars['userId'])
-            .' ,`poster` = '.db_input($poster)
-            .' ,`source` = '.db_input($vars['source']);
+        $entry = parent::create(array(
+            'created' => SqlFunction::NOW(),
+            'type' => $vars['type'],
+            'thread_id' => $vars['threadId'],
+            'title' => Format::sanitize($vars['title'], true),
+            'format' => $vars['body']->getType(),
+            'staff_id' => $vars['staffId'],
+            'user_id' => $vars['userId'],
+            'poster' => $poster,
+            'source' => $vars['source'],
+        ));
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
             // inline attachments are saved and updated in the database)
-            $sql.=' ,body='.db_input($body);
+            $entry->body = $body;
 
         if (isset($vars['pid']))
-            $sql.=' ,pid='.db_input($vars['pid']);
+            $entry->pid = $vars['pid'];
         // Check if 'reply_to' is in the $vars as the previous ThreadEntry
         // instance. If the body of the previous message is found in the new
         // body, strip it out.
         elseif (isset($vars['reply_to'])
                 && $vars['reply_to'] instanceof ThreadEntry)
-            $sql.=' ,pid='.db_input($vars['reply_to']->getId());
+            $entry->pid = $vars['reply_to']->getId();
 
         if ($vars['ip_address'])
-            $sql.=' ,ip_address='.db_input($vars['ip_address']);
+            $entry->ip_address = $vars['ip_address'];
 
-        //echo $sql;
-        if (!db_query($sql)
-                || !($entry=self::lookup(db_insert_id(), $vars['threadId'])))
+        if (!$entry->save())
             return false;
 
         /************* ATTACHMENTS *****************/
@@ -1050,31 +1088,24 @@ class ThreadEntry {
                 }
             }
 
-            $sql = 'UPDATE '.THREAD_ENTRY_TABLE
-                .' SET body='.db_input($body)
-                .' WHERE `id`='.db_input($entry->getId());
-
-            if (!db_query($sql) || !db_affected_rows())
+            $entry->body = $body;
+            if (!$entry->save())
                 return false;
         }
 
-        // Email message id (required for all thread posts)
-        if (!isset($vars['mid']))
-            $vars['mid'] = sprintf('<%s@%s>',
-                    Misc::randCode(24), substr(md5($cfg->getUrl()), -10));
-
+        // Save mail message id, if available
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)
         $entry->saveAttachments(Draft::getAttachmentIds($body));
 
-        Signal::send('model.created', $entry);
+        Signal::send('threadentry.created', $entry);
 
         return $entry;
     }
 
     static function add($vars) {
-        return ($entry=self::create($vars)) ? $entry->getId() : 0;
+        return self::create($vars);
     }
 
     // Extensible thread entry actions ------------------------
@@ -1266,19 +1297,26 @@ class TextThreadEntryBody extends ThreadEntryBody {
         return Format::stripEmptyLines($this->body);
     }
 
+    function prepend($what) {
+        $this->body = $what . "\n\n" . $this->body;
+    }
+
     function display($output=false) {
         if ($this->isEmpty())
             return '(empty)';
 
+        $escaped = Format::htmlchars($this->body);
         switch ($output) {
         case 'html':
+            return '<div style="white-space:pre-wrap">'
+                .Format::clickableurls($escaped).'</div>';
         case 'email':
             return '<div style="white-space:pre-wrap">'
-                .Format::htmlchars($this->body).'</div>';
+                .$escaped.'</div>';
         case 'pdf':
-            return nl2br($this->body);
+            return nl2br($escaped);
         default:
-            return '<pre>'.$this->body.'</pre>';
+            return '<pre>'.$escaped.'</pre>';
         }
     }
 }
@@ -1313,6 +1351,10 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         return Format::searchable($body);
     }
 
+    function prepend($what) {
+        $this->body = sprintf('<div>%s<br/><br/></div>%s', $what, $this->body);
+    }
+
     function display($output=false) {
         if ($this->isEmpty())
             return '(empty)';
@@ -1334,16 +1376,12 @@ class MessageThreadEntry extends ThreadEntry {
 
     const ENTRY_TYPE = 'M';
 
-    function MessageThreadEntry($id, $threadId=0) {
-        parent::ThreadEntry($id, $threadId, self::ENTRY_TYPE);
-    }
-
     function getSubject() {
         return $this->getTitle();
     }
 
     static function create($vars, &$errors) {
-        return self::lookup(self::add($vars, $errors));
+        return static::add($vars, $errors);
     }
 
     static function add($vars, &$errors) {
@@ -1365,26 +1403,12 @@ class MessageThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
-
-    static function lookup($id, $tid=0) {
-
-        return ($id
-                && is_numeric($id)
-                && ($m = new MessageThreadEntry($id, $tid))
-                && $m->getId()==$id
-                )?$m:null;
-    }
-
 }
 
 /* thread entry of type response */
 class ResponseThreadEntry extends ThreadEntry {
 
     const ENTRY_TYPE = 'R';
-
-    function ResponseThreadEntry($id, $threadId=0) {
-        parent::ThreadEntry($id, $threadId, self::ENTRY_TYPE);
-    }
 
     function getSubject() {
         return $this->getTitle();
@@ -1395,7 +1419,7 @@ class ResponseThreadEntry extends ThreadEntry {
     }
 
     static function create($vars, &$errors) {
-        return self::lookup(self::add($vars, $errors));
+        return static::add($vars, $errors);
     }
 
     static function add($vars, &$errors) {
@@ -1419,31 +1443,18 @@ class ResponseThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
-
-    static function lookup($id, $tid=0) {
-
-        return ($id
-                && is_numeric($id)
-                && ($r = new ResponseThreadEntry($id, $tid))
-                && $r->getId()==$id
-                )?$r:null;
-    }
 }
 
 /* Thread entry of type note (Internal Note) */
 class NoteThreadEntry extends ThreadEntry {
     const ENTRY_TYPE = 'N';
 
-    function NoteThreadEntry($id, $threadId=0) {
-        parent::ThreadEntry($id, $threadId, self::ENTRY_TYPE);
-    }
-
     function getMessage() {
         return $this->getBody();
     }
 
     static function create($vars, &$errors) {
-        return self::lookup(self::add($vars, $errors));
+        return self::add($vars, $errors);
     }
 
     static function add($vars, &$errors) {
@@ -1462,68 +1473,67 @@ class NoteThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
-
-    static function lookup($id, $tid=0) {
-
-        return ($id
-                && is_numeric($id)
-                && ($n = new NoteThreadEntry($id, $tid))
-                && $n->getId()==$id
-                )?$n:null;
-    }
 }
 
 // Object specific thread utils.
 class ObjectThread extends Thread {
     private $_entries = array();
 
-    function __construct($id) {
+    static $types = array(
+        ObjectModel::OBJECT_TYPE_TASK => 'TaskThread',
+    );
 
-        parent::__construct($id);
+    var $counts;
 
-        if ($this->getId()) {
-            $sql= ' SELECT `type`, count(DISTINCT e.id) as count '
-                 .' FROM '.THREAD_TABLE. ' t '
-                 .' INNER JOIN '.THREAD_ENTRY_TABLE. ' e ON (e.thread_id = t.id) '
-                 .' WHERE t.id='.db_input($this->getId())
-                 .' GROUP BY e.`type`';
+    function getCounts() {
+        if (!isset($this->counts) && $this->getId()) {
+            $this->counts = array();
 
-            if (($res=db_query($sql)) && db_num_rows($res)) {
-                while ($row=db_fetch_row($res))
-                    $this->_entries[$row[0]] = $row[1];
+            $stuff = $this->entries
+                ->values_flat('type')
+                ->annotate(array(
+                    'count' => SqlAggregate::COUNT('id')
+                ));
+
+            foreach ($stuff as $row) {
+                list($type, $count) = $row;
+                $this->counts[$type] = $count;
             }
         }
+        return $this->counts;
     }
 
     function getNumMessages() {
-        return $this->_entries[MessageThreadEntry::ENTRY_TYPE];
+        $this->getCounts();
+        return $this->counts[MessageThreadEntry::ENTRY_TYPE];
     }
 
     function getNumResponses() {
-        return $this->_entries[ResponseThreadEntry::ENTRY_TYPE];
+        $this->getCounts();
+        return $this->counts[ResponseThreadEntry::ENTRY_TYPE];
     }
 
     function getNumNotes() {
-        return $this->_entries[NoteThreadEntry::ENTRY_TYPE];
+        $this->getCounts();
+        return $this->counts[NoteThreadEntry::ENTRY_TYPE];
     }
 
     function getMessages() {
-        return $this->getEntries(array(
-                    'type' => MessageThreadEntry::ENTRY_TYPE));
+        return $this->entries->filter(array(
+            'type' => MessageThreadEntry::ENTRY_TYPE
+        ));
     }
 
     function getLastMessage() {
-
-        $criteria = array(
-                'type'  => MessageThreadEntry::ENTRY_TYPE,
-                'order' => 'DESC',
-                'limit' => 1);
-
-        return $this->getEntry($criteria);
+        return $this->entries->filter(array(
+            'type' => MessageThreadEntry::ENTRY_TYPE
+        ))
+        ->order_by('-id')
+        ->first();
     }
 
     function getEntry($var) {
-
+        // XXX: PUNT
         if (is_numeric($var))
             $id = $var;
         else {
@@ -1537,13 +1547,15 @@ class ObjectThread extends Thread {
     }
 
     function getResponses() {
-        return $this->getEntries(array(
-                    'type' => ResponseThreadEntry::ENTRY_TYPE));
+        return $this->entries->filter(array(
+            'type' => ResponseThreadEntry::ENTRY_TYPE
+        ));
     }
 
     function getNotes() {
-        return $this->getEntries(array(
-                    'type' => NoteThreadEntry::ENTRY_TYPE));
+        return $this->entries->filter(array(
+            'type' => NoteThreadEntry::ENTRY_TYPE
+        ));
     }
 
     function addNote($vars, &$errors) {
@@ -1572,33 +1584,37 @@ class ObjectThread extends Thread {
     function getVar($name) {
         switch ($name) {
         case 'original':
-            $entries = $this->getEntries(array(
-                        'type'  => MessageThreadEntry::ENTRY_TYPE,
-                        'order' => 'ASC',
-                        'limit' => 1));
-            if ($entries && $entries[0])
-                return (string) $entries[0]['body'];
+            $entry = $this->entries->filter(array(
+                'type' => MessageThreadEntry::ENTRY_TYPE,
+                'flags__hasbit' => ThreadEntry::FLAG_ORIGINAL_MESSAGE,
+                ))
+                ->order_by('id')
+                ->first();
+            if ($entry)
+                return $entry->getBody();
 
             break;
         case 'last_message':
         case 'lastmessage':
-            $entries = $this->getEntries(array(
-                        'type'  => MessageThreadEntry::ENTRY_TYPE,
-                        'order' => 'DESC',
-                        'limit' => 1));
-            if ($entries && $entries[0])
-                return (string) $entries[0]['body'];
+            $entry = $this->getLastMessage();
+            if ($entry)
+                return $entry->getBody();
 
             break;
         }
     }
 
-    static function lookup($criteria) {
+    static function lookup($criteria, $type=false) {
+        if (!$type)
+            return parent::lookup($criteria);
 
-        return ($criteria
-                && ($t= new static($criteria))
-                && $t->getId()
-                ) ? $t : null;
+        $class = false;
+        if (isset(self::$types[$type]))
+            $class = self::$types[$type];
+        if (!class_exists($class))
+            $class = get_called_class();
+
+        return $class::lookup($criteria);
     }
 }
 
@@ -1607,10 +1623,12 @@ class TicketThread extends ObjectThread {
 
     static function create($ticket) {
         $id = is_object($ticket) ? $ticket->getId() : $ticket;
-        return parent::create(array(
+        $thread = parent::create(array(
                     'object_id' => $id,
                     'object_type' => ObjectModel::OBJECT_TYPE_TICKET
                     ));
+        if ($thread->save())
+            return $thread;
     }
 }
 
@@ -1688,5 +1706,9 @@ abstract class ThreadEntryAction {
             static::getId()
         );
     }
+}
+
+interface Threadable {
+    function postThreadEntry($type, $vars);
 }
 ?>
