@@ -36,10 +36,23 @@ class Draft extends VerySimpleModel {
     function getStaffId() { return $this->staff_id; }
     function getNamespace() { return $this->namespace; }
 
+    static protected function getCurrentUserId() {
+        global $thisstaff, $thisclient;
+        
+        $user = $thisstaff ?: $thisclient;
+        if ($user)
+            return $user->getId();
+
+        return 1 << 31;
+    }
+
     static function getDraftAndDataAttrs($namespace, $id=0, $original='') {
         $draft_body = null;
         $attrs = array(sprintf('data-draft-namespace="%s"', Format::htmlchars($namespace)));
-        $criteria = array('namespace'=>$namespace);
+        $criteria = array(
+            'namespace' => $namespace,
+            'staff_id' => self::getCurrentUserId(),
+        );
         if ($id) {
             $attrs[] = sprintf('data-draft-object-id="%s"', Format::htmlchars($id));
             $criteria['namespace'] .= '.' . $id;
@@ -129,6 +142,7 @@ class Draft extends VerySimpleModel {
         unset($vars['attachments']);
 
         $vars['created'] = SqlFunction::NOW();
+        $vars['staff_id'] = self::getCurrentUserId();
         $draft = parent::create($vars);
 
         // Cloned attachments ...

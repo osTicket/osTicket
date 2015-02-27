@@ -146,7 +146,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Valid session required");
 
         $vars = array(
-            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
             'namespace' => $namespace,
         );
 
@@ -238,7 +237,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Valid session required");
 
         $draft = Draft::create(array(
-            'staff_id' => ($thisclient) ? $thisclient->getId() : 1<<31,
             'namespace' => $namespace,
         ));
         if (!$draft->save())
@@ -255,7 +253,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Login required for draft creation");
 
         $vars = array(
-            'staff_id' => $thisstaff->getId(),
             'namespace' => $namespace,
         );
 
@@ -311,7 +308,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Login required for image upload");
 
         $draft = Draft::create(array(
-            'staff_id' => $thisstaff->getId(),
             'namespace' => $namespace
         ));
         if (!$draft->save())
