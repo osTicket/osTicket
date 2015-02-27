@@ -122,7 +122,10 @@ class TicketsAjaxAPI extends AjaxController {
             return $this->json_encode(array('id'=>0, 'retry'=>true));
         }
 
-        return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
+        return $this->json_encode(array(
+            'id'=>$lock->getId(), 'time'=>$lock->getTime(),
+            'code' => $lock->getCode()
+        ));
     }
 
     function renewLock($tid, $id) {

@@ -701,7 +701,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
         echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
-        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
+        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime() * 60; ?>">
         <input type="hidden" name="a" value="postnote">
         <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
         <table width="100%" border="0" cellspacing="0" cellpadding="3">
@@ -1065,7 +1065,7 @@ $(function() {
     clearInterval(setLock);
     autoLock.setLock({
       id:<?php echo $lock->getId(); ?>,
-      time: <?php echo $cfg->getLockTime(); ?>}, 'acquire');
+      time: <?php echo $cfg->getLockTime() * 60; ?>}, 'acquire');
   }, 50);
 }();
 <?php } ?>
