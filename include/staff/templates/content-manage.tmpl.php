@@ -1,12 +1,19 @@
 <h3><?php echo __('Manage Content'); ?> &mdash; <?php echo Format::htmlchars($content->getName()); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
-<form method="post" action="#content/<?php echo $content->getId(); ?>">
+<?php if ($errors['err']) { ?>
+<div class="error-banner">
+    <?php echo $errors['err']; ?>
+</div>
+<?php } ?>
+<form method="post" action="#content/<?php echo $info['id']; ?>">
+    <div class="error"><?php echo $errors['name']; ?></div>
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
-        echo Format::htmlchars($content->getName()); ?>" />
+        echo Format::htmlchars($info['name']); ?>" />
     <div style="margin-top: 5px">
+    <div class="error"><?php echo $errors['body']; ?></div>
     <textarea class="richtext no-bar" name="body"><?php
-    echo Format::viewableImages($content->getBody());
+    echo Format::viewableImages($info['body']);
 ?></textarea>
     </div>
     <div id="msg_info" style="margin-top:7px"><?php
