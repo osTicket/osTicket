@@ -195,7 +195,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         if ($name = $this->getLocal('name_plural'))
             return $name;
         else
-            return $this->getName . 's';
+            return $this->getName() . 's';
     }
 
     function getItemCount() {
