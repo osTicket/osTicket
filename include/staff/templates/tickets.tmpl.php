@@ -85,7 +85,7 @@ if ($results) { ?>
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list fixed" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php
@@ -99,11 +99,11 @@ if ($results) { ?>
             <th width="300"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="200"><?php echo __('Department'); ?></th>
-            <th width="200"><?php echo __('Assignee'); ?></th>
+            <th width="100"><?php echo __('Department'); ?></th>
+            <th width="100"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="400"><?php echo __('User'); ?></th>
+            <th width="200"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
@@ -119,15 +119,15 @@ if ($results) { ?>
 
         $assigned='';
         if ($row['staff_id'])
-            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
+            $assigned=sprintf('<span class="truncate Icon staffAssigned">%s</span>',$row['staff']);
         elseif ($row['team_id'])
-            $assigned=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
+            $assigned=sprintf('<span class="truncate Icon teamAssigned">%s</span>',$row['team']);
         else
             $assigned=' ';
 
         $status = ucfirst($row['status']);
         $tid=$row['number'];
-        $subject = Format::htmlchars(Format::truncate($row['subject'],40));
+        $subject = Format::htmlchars($row['subject']);
         $threadcount=$row['thread_count'];
         ?>
         <tr id="<?php echo $row['ticket_id']; ?>">
@@ -147,7 +147,8 @@ if ($results) { ?>
                 data-preview="#tickets/<?php echo $row['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
             <td align="center" nowrap><?php echo Format::datetime($row['effective_date']); ?></td>
             <td><?php echo $status; ?></td>
-            <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+            <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
+                style="max-width: 80%; max-width: calc(100% - 86px);"
                 href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
                     if ($threadcount>1)
@@ -161,7 +162,7 @@ if ($results) { ?>
             </td>
             <?php
             if ($user) { ?>
-            <td><?php echo Format::truncate($row['department'], 40); ?></td>
+            <td><span class="truncate"><?php echo $row['department']; ?></td>
             <td>&nbsp;<?php echo $assigned; ?></td>
             <?php
             } else { ?>

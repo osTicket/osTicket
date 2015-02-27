@@ -601,7 +601,7 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function  isChangeable() {
-        return $this->hasFlag(self::FLAG_MASK_CHANGE);
+        return !$this->hasFlag(self::FLAG_MASK_CHANGE);
     }
 
     function  isEditable() {
@@ -1276,7 +1276,8 @@ class SelectionField extends FormField {
             }
         }
 
-        return $selection;
+        // Don't return an empty array
+        return $selection ?: null;
     }
 
     function to_database($value) {

@@ -141,9 +141,9 @@ $tickets->values(
             $dept = $T['dept__ispublic']
                 ? Dept::getLocalById($T['dept_id'], 'name', $T['dept__name'])
                 : $defaultDept;
-            $subject = Format::truncate($subject_field->display(
+            $subject = $subject_field->display(
                 $subject_field->to_php($T['cdata__subject']) ?: $T['cdata__subject']
-            ), 40);
+            );
             $status = TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
             if (false) // XXX: Reimplement attachment count support
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
@@ -162,9 +162,9 @@ $tickets->values(
                 <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
                 <td>&nbsp;<?php echo $status; ?></td>
                 <td>
-                    <a href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    <a class="truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
+                <td>&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
             </tr>
         <?php
         }

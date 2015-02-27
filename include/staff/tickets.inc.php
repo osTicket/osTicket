@@ -226,15 +226,15 @@ $_SESSION[':Q:tickets'] = $tickets;
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo
  Format::htmlchars($_REQUEST['status'], true); ?>" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list fixed" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+	        <th width="12px">&nbsp;</th>
             <?php } ?>
 	        <th width="70">
                 <?php echo __('Ticket'); ?></th>
-	        <th width="70">
+	        <th width="100">
                 <?php echo $date_header ?: __('Date'); ?></th>
 	        <th width="280">
                 <?php echo __('Subject'); ?></th>
@@ -290,17 +290,17 @@ $_SESSION[':Q:tickets'] = $tickets;
                 $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
                 if($showassigned) {
                     if($T['staff_id'])
-                        $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate((string) new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']),40));
+                        $lc=sprintf('<span class="Icon staffAssigned truncate">%s</span>',(string) new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']));
                     elseif($T['team_id'])
                         $lc=sprintf('<span class="Icon teamAssigned">%s</span>',
-                            Format::truncate(Team::getLocalById($T['team_id'], 'name', $T['team__name']),40));
+                            Team::getLocalById($T['team_id'], 'name', $T['team__name']));
                     else
                         $lc=' ';
                 }else{
-                    $lc=Format::truncate($dept,40);
+                    $lc='<span class="truncate">'.Format::htmlchars($dept).'</span>';
                 }
                 $tid=$T['number'];
-                $subject = Format::truncate($subject_field->display($subject_field->to_php($T['cdata__subject'])),40);
+                $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
                 $threadcount=$T['thread_count'];
                 if(!strcasecmp($T['status__state'],'open') && !$T['isanswered'] && !$T['lock__staff_id']) {
                     $tid=sprintf('<b>%s</b>',$tid);
@@ -326,7 +326,9 @@ $_SESSION[':Q:tickets'] = $tickets;
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    style="max-width: 80%; max-width: calc(100% - 86px);"
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span
+                    class="truncate"><?php echo $subject; ?></span></a>
                      <?php
                         if ($threadcount>1)
                             echo "<small>($threadcount)</small>&nbsp;".'<i
@@ -337,8 +339,10 @@ $_SESSION[':Q:tickets'] = $tickets;
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php $un = new PersonsName($T['user__name']); echo Format::htmlchars(
-                        Format::truncate($un, 22, strpos($un, '@'))); ?>&nbsp;</td>
+                <td nowrap><span class="truncate"><?php
+                    $un = new PersonsName($T['user__name']);
+                        echo Format::htmlchars($un);
+                ?></td>
                 <?php
                 if($search && !$status){
                     $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
