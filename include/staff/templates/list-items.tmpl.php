@@ -1,4 +1,5 @@
-    <?php if ($list) {
+<?php
+    if ($list) {
         $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
         $count = $list->getNumItems();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
@@ -124,4 +125,3 @@ if ($list) {
     <div><?php echo __('Page').':'.$pageNav->getPageLinks('items', $pjax_container); ?></div>
 <?php } ?>
 </div>
-
