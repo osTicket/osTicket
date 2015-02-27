@@ -1,6 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info = $qs = array();
+$info = $qs = $forms = array();
 if($topic && $_REQUEST['a']!='add') {
     $title=__('Update Help Topic');
     $action='update';
@@ -17,8 +17,8 @@ if($topic && $_REQUEST['a']!='add') {
     $submit_text=__('Add Topic');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
-    $info['form_id'] = Topic::FORM_USE_PARENT;
     $qs += array('a' => $_REQUEST['a']);
+    $forms = TicketForm::objects();
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
@@ -387,21 +387,7 @@ foreach ($forms as $F) {
 
    <br/>
    <strong><?php echo __('Add Custom Form'); ?></strong>:
-   <select name="form_id" onchange="javascript:
-    event.preventDefault();
-    var $this = $(this),
-        val = $this.val();
-    if (!val) return;
-    $.ajax({
-        url: 'ajax.php/form/' + val + '/fields/view',
-        dataType: 'json',
-        success: function(json) {
-            if (json.success) {
-                $(json.html).appendTo('#topic-forms').effect('highlight');
-                $this.find(':selected').prop('disabled', true);
-            }
-        }
-    });">
+   <select name="form_id" id="newform">
     <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
     <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $F) { ?>
         <option value="<?php echo $F->get('id'); ?>"
@@ -438,6 +424,23 @@ $(function() {
     };
     $('[name=sequence_id]').on('change', update_example);
     $('[name=number_format]').on('keyup', update_example);
+
+    $('form select#newform').change(function() {
+        var $this = $(this),
+            val = $this.val();
+        if (!val) return;
+        $.ajax({
+            url: 'ajax.php/form/' + val + '/fields/view',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success) {
+                    $(json.html).appendTo('#topic-forms').effect('highlight');
+                    $this.find(':selected').prop('disabled', true);
+                }
+            }
+        });
+    });
+
 });
 $('table#topic-forms').sortable({
   items: 'tbody',
