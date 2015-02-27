@@ -125,6 +125,23 @@ class DynamicForm extends VerySimpleModel {
         }
     }
 
+    function hasAnyVisibleFields($user=false) {
+        global $thisstaff, $thisclient;
+        $user = $user ?: $thisstaff ?: $thisclient;
+        $visible = 0;
+        $isstaff = $user instanceof Staff;
+        foreach ($this->getFields() as $F) {
+            if ($isstaff) {
+                if ($F->isVisibleToStaff())
+                    $visible++;
+            }
+            elseif ($F->isVisibleToUsers()) {
+                $visible++;
+            }
+        }
+        return $visible > 0;
+    }
+
     function instanciate($sort=1) {
         return DynamicFormEntry::create(array(
             'form_id'=>$this->get('id'), 'sort'=>$sort));
