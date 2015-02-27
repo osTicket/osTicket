@@ -136,6 +136,7 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
+        $info = $content->getHashtable();
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
@@ -146,6 +147,7 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(403, 'Login Required');
 
         $content = Page::lookup(Page::getIdByType($type, $lang));
+        $info = $content->getHashtable();
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
@@ -154,19 +156,25 @@ class ContentAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
-        elseif (!$_POST['name'] || !$_POST['body'])
-            Http::response(422, 'Please submit name and body');
         elseif (!($content = Page::lookup($id)))
             Http::response(404, 'No such content');
 
+        if (!isset($_POST['body']))
+            $_POST['body'] = '';
+
         $vars = array_merge($content->getHashtable(), $_POST);
         $errors = array();
-        if (!$content->save($id, $vars, $errors)) {
-            if ($errors['err'])
-                Http::response(422, $errors['err']);
-            else
-                Http::response(500, 'Unable to update content: '.print_r($errors, true));
+        // Allow empty content for the staff banner
+        if ($content->save($id, $vars, $errors,
+            $content->getType() == 'banner-staff')
+        ) {
+            Http::response(201, 'Have a great day!');
         }
+        if (!$errors['err'])
+            $errors['err'] = __('Correct the error(s) below and try again!');
+        $info = $_POST;
+        $errors = Format::htmlchars($errors);
+        include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 }
 ?>
