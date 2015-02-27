@@ -23,7 +23,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
             <td>
                 <input type="text" name="ticket_number_format" value="<?php
-                echo $config['ticke_number_format']; ?>"/>
+                echo $config['ticket_number_format']; ?>"/>
                 <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
                     if ($config['ticket_sequence_id'])
                         $seq = Sequence::lookup($config['ticket_sequence_id']);

@@ -25,6 +25,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
         }
 
         foreach ($topic->getForms() as $form) {
+            if (!$form->hasAnyVisibleFields())
+                continue;
             ob_start();
             $form->getForm($_SESSION[':form-data'])->render(!$client);
             $html .= ob_get_clean();

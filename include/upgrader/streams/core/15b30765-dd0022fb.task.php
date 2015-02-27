@@ -18,6 +18,9 @@
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once(INCLUDE_DIR.'class.file.php');
 
+// Later version of osTicket dropped/undefined the table
+@define('TICKET_ATTACHMENT_TABLE', TABLE_PREFIX.'ticket_attachment');
+
 class AttachmentMigrater extends MigrationTask {
     var $description = "Attachment migration from disk to database";
 

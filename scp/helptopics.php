@@ -36,8 +36,9 @@ if($_POST){
             }
             break;
         case 'create':
-            $topic = Topic::create();
-            if ($topic->update($_POST, $errors)) {
+            $_topic = Topic::create();
+            if ($_topic->update($_POST, $errors)) {
+                $topic = $_topic;
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['topic']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){

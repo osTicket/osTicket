@@ -77,10 +77,13 @@ case 'search':
 case 'open':
     $status='open';
     $results_type=__('Open Tickets');
+    $showassigned = ($cfg && $cfg->showAssignedTickets()) || $thisstaff->showAssignedTickets();
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
-    if (!$cfg || !($cfg->showAssignedTickets() || $thisstaff->showAssignedTickets()))
+    if (!$showassigned)
         $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
+    else
+        $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     break;
 }
 
@@ -287,7 +290,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                 $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
                 if($showassigned) {
                     if($T['staff_id'])
-                        $lc=sprintf('<span class="Icon staffAssigned truncate">%s</span>',(string) new PersonsName($T['staff__firstname'], $T['staff__lastname']));
+                        $lc=sprintf('<span class="Icon staffAssigned truncate">%s</span>',(string) new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']));
                     elseif($T['team_id'])
                         $lc=sprintf('<span class="Icon teamAssigned">%s</span>',
                             Team::getLocalById($T['team_id'], 'name', $T['team__name']));

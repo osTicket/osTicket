@@ -82,14 +82,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tbody>
     <tbody id="dynamic-form">
         <?php foreach ($forms as $form) {
-            $hasFields = false;
-            foreach ($form->getFields() as $f) {
-                if ($f->isVisibleToUsers()) {
-                    $hasFields = true;
-                    break;
-                }
-            }
-            if (!$hasFields)
+            if (!$form->hasAnyVisibleFields())
                 continue;
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>

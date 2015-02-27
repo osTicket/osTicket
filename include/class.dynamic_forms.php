@@ -125,6 +125,23 @@ class DynamicForm extends VerySimpleModel {
         }
     }
 
+    function hasAnyVisibleFields($user=false) {
+        global $thisstaff, $thisclient;
+        $user = $user ?: $thisstaff ?: $thisclient;
+        $visible = 0;
+        $isstaff = $user instanceof Staff;
+        foreach ($this->getFields() as $F) {
+            if ($isstaff) {
+                if ($F->isVisibleToStaff())
+                    $visible++;
+            }
+            elseif ($F->isVisibleToUsers()) {
+                $visible++;
+            }
+        }
+        return $visible > 0;
+    }
+
     function instanciate($sort=1) {
         return DynamicFormEntry::create(array(
             'form_id'=>$this->get('id'), 'sort'=>$sort));
@@ -1154,9 +1171,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!$this->_value && isset($this->value))
+        if (!isset($this->_value) && isset($this->value)) {
+            //XXX: We're settting the value here to avoid infinite loop
+            $this->_value = false;
             $this->_value = $this->getField()->to_php(
                 $this->get('value'), $this->get('value_id'));
+        }
+
         return $this->_value;
     }
 
