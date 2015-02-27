@@ -64,14 +64,14 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
                     <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
                     <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
-                    <tr><td>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'</td></tr>
-                    <tr><td>%{ticket.client_link}</td><td>'.__('Client\'s ticket view link').'</td></tr>
-                    <tr><td>%{recipient.ticket_link}</td><td>'.__('Agent\'s ticket view link').'</td></tr>
-                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em>'.__('Expandable Variables (See Wiki)').'</em></td></tr>
-                    <tr><td>%{ticket.<b>topic</b>}</td><td>'.__('Help topic').'</td></tr>
-                    <tr><td>%{ticket.<b>dept</b>}</td><td>'.__('Department').'</td></tr>
-                    <tr><td>%{ticket.<b>staff</b>}</td><td>'.__('Assigned/closing agent').'</td></tr>
-                    <tr><td>%{ticket.<b>team</b>}</td><td>'.__('Assigned/closing team').'</td></tr>
+                    <tr><td nowrap>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'<br/>
+                    '.__('Agent\'s ticket view link').'</td></tr>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Expandable Variables').'</b></em></td></tr>
+                    <tr><td>%{ticket.topic}</td><td>'.__('Help topic').'</td></tr>
+                    <tr><td>%{ticket.dept}</td><td>'.__('Department').'</td></tr>
+                    <tr><td>%{ticket.staff}</td><td>'.__('Assigned/closing agent').'</td></tr>
+                    <tr><td>%{ticket.team}</td><td>'.__('Assigned/closing team').'</td></tr>
+                    <tr><td>%{ticket.thread}</td><td>'.__('Ticket Thread').'</td></tr>
                 </table>
             </td>
             <td valign="top">
@@ -89,14 +89,17 @@ class ContentAjaxAPI extends AjaxController {
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
                     <tr><td colspan="2"><b>'.__('Name Expansion').'</b></td></tr>
                     <tr><td>.first</td><td>'.__('First Name').'</td></tr>
-                    <tr><td>.middle</td><td>'.__('Middle Name(s)').'</td></tr>
                     <tr><td>.last</td><td>'.__('Last Name').'</td></tr>
                     <tr><td>.full</td><td>'.__('First Last').'</td></tr>
-                    <tr><td>.legal</td><td>'.__('First M. Last').'</td></tr>
                     <tr><td>.short</td><td>'.__('First L.').'</td></tr>
-                    <tr><td>.formal</td><td>'.__('Mr. Last').'</td></tr>
                     <tr><td>.shortformal</td><td>'.__('F. Last').'</td></tr>
                     <tr><td>.lastfirst</td><td>'.__('Last, First').'</td></tr>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Ticket Thread expansions').'</b></em></td></tr>
+                    <tr><td>.original</td><td>'.__('Original Message').'</td></tr>
+                    <tr><td>.lastmessage</td><td>'.__('Last Message').'</td></tr>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Thread Entry expansions').'</b></em></td></tr>
+                    <tr><td>.poster</td><td>'.__('Poster').'</td></tr>
+                    <tr><td>.create_date</td><td>'.__('Date created').'</td></tr>
                 </table>
             </td>
         </tr>
