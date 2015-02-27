@@ -396,8 +396,8 @@ implements RestrictedAccess, Threadable {
 
         // 2) Query the database to check for expanded access...
         if (Collaborator::lookup(array(
-                        'userId' => $user->getId(),
-                        'ticketId' => $this->getId())))
+                        'user_id' => $user->getId(),
+                        'thread_id' => $this->getThreadId())))
             return true;
 
         return false;
@@ -1543,7 +1543,8 @@ implements RestrictedAccess, Threadable {
                     User::lookup($message->getUserId()), $this);
         else
             $user = Collaborator::lookup(array(
-                    'userId'=>$message->getUserId(), 'ticketId'=>$this->getId()));
+                    'user_id' => $message->getUserId(),
+                    'thread_id' => $this->getThreadId()));
 
         /**********   double check auto-response  ************/
         if (!$user)
@@ -1990,8 +1991,9 @@ implements RestrictedAccess, Threadable {
                 $thisstaff->getName(), $user->getName());
 
         //Remove the new owner from list of collaborators
-        $c = Collaborator::lookup(array('userId' => $user->getId(),
-                    'ticketId' => $this->getId()));
+        $c = Collaborator::lookup(array(
+                    'user_id' => $user->getId(),
+                    'thread_id' => $this->getThreadId()));
         if ($c && $c->remove())
             $note.= ' '._S('(removed as collaborator)');
 

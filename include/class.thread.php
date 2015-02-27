@@ -934,8 +934,8 @@ class ThreadEntry extends VerySimpleModel {
             //We have a valid ticket and user
             if ($ticket->getUserId() == $user->getId() //owner
                     ||  ($c = Collaborator::lookup( // check if collaborator
-                            array('userId' => $user->getId(),
-                                  'ticketId' => $ticket->getId())))) {
+                            array('user_id' => $user->getId(),
+                                  'thread_id' => $ticket->getThreadId())))) {
 
                 $mailinfo['userId'] = $user->getId();
                 return $ticket->getLastMessage();

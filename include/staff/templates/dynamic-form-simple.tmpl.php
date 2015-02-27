@@ -1,4 +1,4 @@
-        <?php
+<?php
         echo $form->getMedia();
         foreach ($form->getFields() as $name=>$f) { ?>
             <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
@@ -28,5 +28,6 @@
                 <div class="error"><?php echo $e; ?></div>
             <?php } ?>
             </div>
-        <?php }
-        ?>
+        <?php
+        }
+?>
