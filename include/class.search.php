@@ -30,6 +30,15 @@ abstract class SearchBackend {
     const SORT_RECENT = 2;
     const SORT_OLDEST = 3;
 
+    const PERM_AGENTS = 'search.all';
+
+    static protected $perms = array(
+        self::PERM_AGENTS => array(
+            'title' => /* @trans */ 'Search',
+            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access'
+        ),
+    );
+
     abstract function update($model, $id, $content, $new=false, $attrs=array());
     abstract function find($query, QuerySet $criteria);
 
@@ -48,7 +57,12 @@ abstract class SearchBackend {
 
         return new self::$registry[$id]();
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', SearchBackend::getPermissions());
 
 // Register signals to intercept saving of various content throughout the
 // system

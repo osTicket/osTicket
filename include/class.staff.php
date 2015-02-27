@@ -320,7 +320,7 @@ implements AuthenticatedUser, EmailContact {
             if (isset($this->_roles[$deptId]))
                 return $this->_roles[$deptId];
 
-            if (($role=$this->group->getRole($deptId)))
+            if (($role = $this->group->getRole($deptId)))
                 return $this->_roles[$deptId] = $role;
         }
         // For the primary department, use the primary role
@@ -329,6 +329,7 @@ implements AuthenticatedUser, EmailContact {
 
     function hasPerm($perm) {
         if (!isset($this->_perms)) {
+            $this->_perms = array();
             foreach ($this->getDepartments() as $deptId) {
                 if (($role = $this->getRole($deptId))) {
                     foreach ($role->getPermission()->getInfo() as $perm=>$v) {
@@ -337,7 +338,7 @@ implements AuthenticatedUser, EmailContact {
                 }
             }
         }
-        return @$this->_perms[$perm];
+        return @$this->_perms[$perm] ?: false;
     }
 
     function canManageTickets() {

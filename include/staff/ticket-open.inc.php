@@ -45,6 +45,7 @@ if ($_POST)
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
+                <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
         <?php
@@ -84,7 +85,8 @@ if ($_POST)
                 <span style="display:inline-block;">
                     <input type="text" size=45 name="email" id="user-email"
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['email']; ?></font>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['email']; ?></div>
             </td>
         </tr>
         <tr>
@@ -92,7 +94,8 @@ if ($_POST)
             <td>
                 <span style="display:inline-block;">
                     <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['name']; ?></font>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['name']; ?></div>
             </td>
         </tr>
         <?php
