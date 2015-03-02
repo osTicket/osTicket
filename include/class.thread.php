@@ -961,6 +961,8 @@ class ThreadEntry extends VerySimpleModel {
      * *DEPRECATED* use Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
+        global $ost;
+
         $mid = trim($mid, '<>');
         list($ver, $ids, $mails) = explode('$', $mid, 3);
 
@@ -972,11 +974,26 @@ class ThreadEntry extends VerySimpleModel {
         if (!$ids || !$ids['thread'])
             return false;
 
-        $thread = ThreadEntry::lookup($ids['thread']);
-        if (!$thread)
+        $entry = ThreadEntry::lookup($ids['thread']);
+        if (!$entry)
             return false;
 
-        return $thread;
+        // Compute the value to be compared from $mails (which used to be in
+        // ThreadEntry::asMessageId()
+        $domain = md5($ost->getConfig()->getURL());
+        $ticket = $entry->getThread()->getObject();
+        if (!$ticket instanceof Ticket)
+            return false;
+
+        $check = sprintf('%s@%s',
+            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
+            substr($domain, -10)
+        );
+
+        if ($check != $mails)
+            return false;
+
+        return $entry;
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
