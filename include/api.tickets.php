@@ -20,9 +20,10 @@ class TicketApiController extends ApiController {
         # the names to the supported request structure
         if (isset($data['topicId'])
                 && ($topic = Topic::lookup($data['topicId']))
-                && ($form = $topic->getForm())) {
-            foreach ($form->getDynamicFields() as $field)
-                $supported[] = $field->get('name');
+                && ($forms = $topic->getForms())) {
+            foreach ($forms as $form)
+                foreach ($form->getDynamicFields() as $field)
+                    $supported[] = $field->get('name');
         }
 
         # Ticket form fields
