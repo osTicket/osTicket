@@ -355,11 +355,20 @@ class DynamicList extends VerySimpleModel implements CustomList {
     function delete() {
         $fields = DynamicFormField::objects()->filter(array(
             'type'=>'list-'.$this->id))->count();
-        if ($fields == 0)
-            return parent::delete();
-        else
-            // Refuse to delete lists that are in use by fields
+
+        // Refuse to delete lists that are in use by fields
+        if ($fields != 0)
             return false;
+
+        if (!parent::delete())
+            return false;
+
+        if (($form = $this->getForm(false))) {
+            $form->delete(false);
+            $form->fields->delete();
+        }
+
+        return true;
     }
 
     private function createForm() {
