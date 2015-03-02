@@ -742,8 +742,14 @@ Class ThreadEntry {
         else {
             //XXX: Are we potentially leaking the email address to
             // collaborators?
-            $vars['message'] = sprintf("Received From: %s\n\n%s",
-                $mailinfo['email'], $body);
+            $header = sprintf("Received From: %s\n\n", $mailinfo['email']);
+            if ($body instanceof HtmlThreadBody)
+                $header = nl2br($header);
+            // Add the banner to the top of the message
+            if ($body instanceof ThreadBody)
+                $body->prepend($header);
+
+            $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             return $ticket->postMessage($vars, 'Email');
         }
@@ -1383,6 +1389,14 @@ class ThreadBody /* extends SplString */ {
 
     function toHtml() {
         return $this->display('html');
+    }
+
+    function prepend($what) {
+        $this->body = $what . $this->body;
+    }
+
+    function append($what) {
+        $this->body .= $what;
     }
 
     function asVar() {
