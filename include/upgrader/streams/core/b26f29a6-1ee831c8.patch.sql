@@ -153,7 +153,7 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
     ADD `lastupdate` datetime default NULL AFTER `lastresponse`;
 
 UPDATE `%TABLE_PREFIX%ticket` A1
-    JOIN `%TABLE_PREFIX%sla` A2 ON (A1.sla_id = A2.id)
+    LEFT JOIN `%TABLE_PREFIX%sla` A2 ON (A1.sla_id = A2.id)
     SET A1.`est_duedate` =
         COALESCE(A1.`duedate`, A1.`created` + INTERVAL A2.`grace_period` HOUR),
       A1.`lastupdate` =
