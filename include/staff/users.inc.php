@@ -37,8 +37,7 @@ if ($order_column && strpos($order_column,','))
     $order_column = str_replace(','," $order,",$order_column);
 
 $x=$sort.'_sort';
-$$x=' class="'.strtolower($order ?: 'desc').'" ';
-$order_by="$order_column $order ";
+$$x=' class="'.($order == '' ? 'asc' : 'desc').'" ';
 
 $total = $users->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
@@ -48,14 +47,14 @@ $pageNav->paginate($users);
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('users.php', $qs);
-$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qstr.='&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 
 //echo $query;
-$_SESSION[':Q:users'] = $users;
+$_SESSION[':Q:users'] = clone $users;
 
 $users->values('id', 'name', 'default_email__address', 'account__id',
     'account__status', 'created', 'updated');
-
+$users->order_by($order . $order_column);
 ?>
 <h2><?php echo __('User Directory'); ?></h2>
 <div class="pull-left" style="width:700px;">
