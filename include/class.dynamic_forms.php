@@ -874,12 +874,15 @@ class DynamicFormField extends VerySimpleModel {
         if (!$this->get('label'))
             $this->addError(
                 __("Label is required for custom form fields"), "label");
-        if ($this->get('required') && !$this->get('name'))
+        if (($this->isRequiredForStaff() || $this->isRequiredForUsers())
+            && !$this->get('name')
+        ) {
             $this->addError(
                 __("Variable name is required for required fields"
                 /* `required` is a visibility setting fields */
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
+        }
         if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
             $this->addError(__(
                 'Invalid character in variable name. Please use letters and numbers only.'

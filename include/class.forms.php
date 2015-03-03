@@ -498,7 +498,7 @@ class FormField {
      */
 
     function isEditable() {
-        return (($this->get('edit_mask') & 32) == 0);
+        return (($this->get('flags') & DynamicFormField::FLAG_MASK_EDIT) == 0);
     }
 
     /**
