@@ -31,7 +31,7 @@
             ?></span><?php
                 if ($field->get('hint')) { ?>
                     <br /><em style="color:gray;display:inline-block"><?php
-                        echo Format::htmlchars($field->getLocal('hint')); ?></em>
+                        echo Format::viewableImages($field->getLocal('hint')); ?></em>
                 <?php
                 } ?>
             <br/>

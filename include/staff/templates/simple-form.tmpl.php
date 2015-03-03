@@ -16,7 +16,7 @@
             }
             if ($field->get('hint')) { ?>
                 <div class="faded hint"><?php
-                echo Format::htmlchars($field->getLocal('hint'));
+                echo Format::viewableImages($field->getLocal('hint'));
                 ?></div>
 <?php       } ?>
             </div>

@@ -583,7 +583,7 @@ class DynamicFormField extends VerySimpleModel {
         }
         if (count($errors) === 0)
             $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', $_POST['hint']);
+        $this->set('hint', Format::sanitize($_POST['hint']));
         return count($errors) === 0;
     }
 

@@ -6,6 +6,7 @@ class InstructionsPorter extends MigrationTask {
     function run($max_time) {
         foreach (DynamicForm::objects() as $F) {
             $F->instructions = Format::htmlchars($F->get('instructions'));
+            $F->hint = Format::htmlchars($F->get('hint'));
             $F->save();
         }
     }

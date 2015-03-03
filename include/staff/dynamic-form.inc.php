@@ -82,7 +82,7 @@ if ($form && count($langs) > 1) { ?>
             <div style="margin-top: 8px"><?php echo __('Instructions'); ?>:
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
                 </div>
-            <textarea name="instructions" rows="3" cols="40" class="richtext"><?php
+            <textarea name="instructions" rows="3" cols="40" class="richtext small"><?php
                 echo $info['instructions']; ?></textarea>
         </div>
 
