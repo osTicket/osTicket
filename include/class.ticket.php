@@ -292,7 +292,7 @@ implements RestrictedAccess, Threadable {
 
     function loadDynamicData() {
         if (!$this->_answers) {
-            foreach (DynamicFormEntry::forTicket($this->getThreadId(), true) as $form) {
+            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
                 foreach ($form->getAnswers() as $answer) {
                     $tag = mb_strtolower($answer->getField()->get('name'))
                         ?: 'field.' . $answer->getField()->get('id');
