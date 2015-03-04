@@ -111,18 +111,18 @@ if (!$view_all_tickets) {
     $tickets->filter(Q::any($visibility));
 }
 
-// Add in annotations
-$tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
-    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
-    'thread_count' => SqlAggregate::COUNT('thread__entries'),
-));
-
-// Select pertinent columns
-// ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
-
 // Apply requested quick filter
+
+// Rewrite $tickets to use a nested query, which will include the LIMIT part
+// in order to speed the result
+
+// Apply requested pagination
+$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$pageNav = new Pagenate($tickets->count(), $page, PAGE_LIMIT);
+$pageNav->setURL('tickets.php', $args);
+$tickets = $pageNav->paginate($tickets);
+
+$tickets2 = TicketModel::objects();
 
 // Apply requested sorting
 $queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
@@ -156,13 +156,25 @@ case 'updated':
     break;
 }
 
-// Apply requested pagination
-$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($tickets->count(), $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php', $args);
-$tickets = $pageNav->paginate($tickets);
+$tickets2 = TicketModel::objects();
+$tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
+
+// Transfer the order_by from the original tickets
+$tickets2->order_by($tickets->getSortFields());
+$tickets = $tickets2;
 
 TicketForm::ensureDynamicDataView();
+
+// Select pertinent columns
+// ------------------------------------------------------------
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
+
+// Add in annotations
+$tickets->annotate(array(
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
+    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+    'thread_count' => SqlAggregate::COUNT('thread__entries'),
+));
 
 // Save the query to the session for exporting
 $_SESSION[':Q:tickets'] = $tickets;
