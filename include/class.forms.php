@@ -144,8 +144,21 @@ class Form {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
 
-    function addError($message) {
-        $this->_errors['form'][] = $message;
+    function addError($message, $index=false) {
+
+        if ($index)
+            $this->_errors[$index] = $message;
+        else
+            $this->_errors['form'][] = $message;
+    }
+
+    function addErrors($errors=array()) {
+        foreach ($errors as $k => $v) {
+            if (($f=$this->getField($k)))
+                $f->addError($v);
+            else
+                $this->addError($v, $k);
+        }
     }
 
     function addValidator($function) {
@@ -429,11 +442,15 @@ class FormField {
     function errors() {
         return $this->_errors;
     }
-    function addError($message, $field=false) {
+    function addError($message, $index=false) {
         if ($field)
-            $this->_errors[$field] = $message;
+            $this->_errors[$index] = $message;
         else
             $this->_errors[] = $message;
+
+        // Update parent form errors for the field
+        if ($this->_form)
+            $this->_form->addError($this->errors(), $this->get('id'));
     }
 
     function isValidEntry() {
