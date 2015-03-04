@@ -356,7 +356,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(404, __('No such task'));
 
         $info=$errors=array();
-        $task_note_form = new Form(array(
+        $note_form = new SimpleForm(array(
             'attachments' => new FileUploadField(array('id'=>'attach',
             'name'=>'attach:note',
             'configuration' => array('extensions'=>'')))

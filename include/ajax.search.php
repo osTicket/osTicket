@@ -74,7 +74,7 @@ class SearchAjaxAPI extends AjaxController {
             $field->form->getLocal('title'), $field->getLocal('label')
         ));
         $fields = SavedSearch::getSearchField($impl, $name);
-        $form = new Form($fields);
+        $form = new SimpleForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
             $F->value = true;

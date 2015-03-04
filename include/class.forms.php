@@ -19,6 +19,9 @@
  * data for a ticket
  */
 class Form {
+
+    static $id = 0;
+
     var $fields = array();
     var $title = '';
     var $instructions = '';
@@ -39,13 +42,34 @@ class Form {
             $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
+        if (isset($options['id']))
+            $this->id = $options['id'];
+
         // Use POST data if source was not specified
         $this->_source = ($source) ? $source : $_POST;
     }
+
+    function getId() {
+        return static::$id;
+    }
+
     function data($source) {
         foreach ($this->fields as $name=>$f)
             if (isset($source[$name]))
                 $f->value = $source[$name];
+    }
+
+    function setFields($fields) {
+
+        if (!is_array($fields))
+            return;
+
+        $this->fields = $fields;
+        foreach ($fields as $k=>$f) {
+            $f->setForm($this);
+            if (!$f->get('name') && $k)
+                $f->set('name', $k);
+        }
     }
 
     function getFields() {
@@ -163,6 +187,42 @@ class Form {
         }
     }
 
+    function emitJavascript($options=array()) {
+
+        // Check if we need to emit javascript
+        if (!($fid=$this->getId()))
+            return;
+        ?>
+        <script type="text/javascript">
+          $(function() {
+            <?php
+            //XXX: We ONLY want to watch field on this form. We'll only
+            // watch form inputs if form_id is specified. Current FORM API
+            // doesn't generate the entire form  (just fields)
+            if ($fid) {
+                ?>
+                $(document).off('change.<?php echo $fid; ?>');
+                $(document).on('change.<?php echo $fid; ?>',
+                    'form#<?php echo $fid; ?> :input',
+                    function() {
+                        //Clear any current errors...
+                        var errors = $('#field'+$(this).attr('id')+'_error');
+                        if (errors.length)
+                            errors.slideUp('fast', function (){
+                                $(this).remove();
+                                });
+                        //TODO: Validation input inplace or via ajax call
+                        // and set any new errors AND visibilty changes
+                    }
+                   );
+            <?php
+            }
+            ?>
+            });
+        </script>
+        <?php
+    }
+
     static function emitMedia($url, $type) {
         if ($url[0] == '/')
             $url = ROOT_PATH . substr($url, 1);
@@ -221,6 +281,28 @@ class Form {
             }
         }
     }
+
+    /*
+     * Initialize a generic static form
+     */
+    static function instantiate() {
+        $r = new ReflectionClass(get_called_class());
+        return $r->newInstanceArgs(func_get_args());
+    }
+}
+
+/**
+ * SimpleForm
+ * Wrapper for inline/static forms.
+ *
+ */
+class SimpleForm extends Form {
+
+    function __construct($fields=array(), $source=null, $options=array()) {
+        parent::__construct($source, $options);
+        $this->setFields($fields);
+    }
+
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -338,6 +420,10 @@ class FormField {
     }
     function reset() {
         $this->_clean = $this->_widget = null;
+    }
+
+    function getValue() {
+        return $this->getWidget()->getValue();
     }
 
     function errors() {
@@ -818,7 +904,7 @@ class FormField {
             $clazz = $type[1];
             $T = new $clazz($this->ht);
             $config = $this->getConfiguration();
-            $this->_cform = new Form($T->getConfigurationOptions(), $source);
+            $this->_cform = new SimpleForm($T->getConfigurationOptions(), $source);
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))
@@ -1008,7 +1094,7 @@ class TextareaField extends FormField {
     }
 
     function searchable($value) {
-        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value);
+        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value); //<?php
         $value = Format::htmldecode(Format::striptags($value));
         return Format::searchable($value);
     }
@@ -2298,7 +2384,7 @@ class InlineFormField extends FormField {
     function getInlineForm($data=false) {
         $form = $this->get('form');
         if (is_array($form)) {
-            $form = new Form($form, $data ?: $this->value ?: $this->getSource());
+            $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource());
         }
         return $form;
     }
@@ -2582,7 +2668,7 @@ class ChoicesWidget extends Widget {
                 echo $def_val; ?> &mdash;</option>
 <?php
         }
-        $this->emitChoices($choices); ?>
+        $this->emitChoices($choices, $values); ?>
         </select>
         <?php
         if ($config['multiselect']) {
@@ -2597,10 +2683,10 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function emitChoices($choices) {
+    function emitChoices($choices, $values=array()) {
         reset($choices);
         if (is_array(current($choices)) || current($choices) instanceof Traversable)
-            return $this->emitComplexChoices($choices);
+            return $this->emitComplexChoices($choices, $values);
 
         foreach ($choices as $key => $name) {
             if (!$have_def && $key == $def_key)
@@ -2612,7 +2698,7 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function emitComplexChoices($choices) {
+    function emitComplexChoices($choices, $values=array()) {
         foreach ($choices as $label => $group) { ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {
@@ -2637,12 +2723,23 @@ class ChoicesWidget extends Widget {
         // Assume multiselect
         $values = array();
         $choices = $this->field->getChoices();
-        if (is_array($value)) {
-            foreach($value as $k => $v) {
-                if (isset($choices[$v]))
-                    $values[$v] = $choices[$v];
-                elseif (($i=$this->field->lookupChoice($v)))
-                    $values += $i;
+
+        if ($choices && is_array($value)) {
+            // Complex choices
+            if (is_array(current($choices))
+                    || current($choices) instanceof Traversable) {
+                foreach ($choices as $label => $group) {
+                     foreach ($group as $k => $v)
+                        if (in_array($k, $value))
+                            $values[$k] = $v;
+                }
+            } else {
+                foreach($value as $k => $v) {
+                    if (isset($choices[$v]))
+                        $values[$v] = $choices[$v];
+                    elseif (($i=$this->field->lookupChoice($v)))
+                        $values += $i;
+                }
             }
         }
 

@@ -57,6 +57,10 @@ class DynamicForm extends VerySimpleModel {
         return $base;
     }
 
+    function getId() {
+        return $this->id;
+    }
+
     /**
      * Fetch a list of field implementations for the fields defined in this
      * form. This method should *always* be preferred over

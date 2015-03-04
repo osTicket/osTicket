@@ -30,7 +30,7 @@ $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('canned response'));
 
-$canned_form = new Form(array(
+$canned_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'configuration'=>array('extensions'=>false,
             'size'=>$cfg->getMaxFileSize())

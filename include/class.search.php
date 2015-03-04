@@ -630,7 +630,7 @@ class SavedSearch extends VerySimpleModel {
             $fields = array_merge($fields, self::getSearchField($field, $name));
         }
 
-        $form = new Form($fields, $source);
+        $form = new SimpleForm($fields, $source);
         $form->addValidator(function($form) {
             $selected = 0;
             foreach ($form->getFields() as $F) {

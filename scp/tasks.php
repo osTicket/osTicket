@@ -26,7 +26,7 @@ if ($_REQUEST['id']) {
 }
 
 // Configure form for file uploads
-$note_form = new Form(array(
+$note_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:note',
         'configuration' => array('extensions'=>'')))

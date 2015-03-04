@@ -138,7 +138,7 @@ abstract class TriggerAction {
             foreach ($options as $f) {
                 $f->set('id', $uid++);
             }
-            $this->_cform = new Form($options, $source);
+            $this->_cform = new SimpleForm($options, $source);
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))

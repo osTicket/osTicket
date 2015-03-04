@@ -2177,6 +2177,11 @@ td.indented {
 #dynamic-actions > tr > td {
     padding: 5px;
 }
+
 .no-margin {
     margin: 0 !important;
+}
+
+.form-simple select, .form-simple input, .form-simple textarea {
+    margin-left: 0;
 }

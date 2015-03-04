@@ -639,7 +639,7 @@ class TaskForm extends DynamicForm {
 
     static function getInternalForm($source=null) {
         if (!isset(static::$internalForm))
-            static::$internalForm = new Form(self::getInternalFields(), $source);
+            static::$internalForm = new SimpleForm(self::getInternalFields(), $source);
 
         return static::$internalForm;
     }
