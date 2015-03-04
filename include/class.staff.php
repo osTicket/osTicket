@@ -697,11 +697,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             return null;
     }
 
-    static function getStaffMembers($availableonly=false) {
+    static function getStaffMembers($criteria=array()) {
         global $cfg;
+
         $members = static::objects();
 
-        if ($availableonly) {
+        if (isset($criteria['available'])) {
             $members = $members->filter(array(
                 'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
@@ -729,7 +730,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     static function getAvailableStaffMembers() {
-        return self::getStaffMembers(true);
+        return self::getStaffMembers(array('available'=>true));
     }
 
     static function getIdByUsername($username) {

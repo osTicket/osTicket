@@ -175,6 +175,7 @@ implements TemplateVariable {
                     'onvacation' => 0,
                 ));
 
+            $members->distinct('staff_id');
             switch ($cfg->getDefaultNameFormat()) {
             case 'last':
             case 'lastfirst':

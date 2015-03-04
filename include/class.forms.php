@@ -1241,6 +1241,7 @@ class BooleanField extends FormField {
 
 class ChoiceField extends FormField {
     static $widget = 'ChoicesWidget';
+    var $_choices;
 
     function getConfigurationOptions() {
         return array(
@@ -1314,6 +1315,18 @@ class ChoiceField extends FormField {
         if (is_array($value))
             return implode(', ', $value);
         return (string) $value;
+    }
+
+    /*
+     Return criteria to which the choice should be filtered by
+     */
+    function getCriteria() {
+        $config = $this->getConfiguration();
+        $criteria = array();
+        if (isset($config['criteria']))
+            $criteria = $config['criteria'];
+
+        return $criteria;
     }
 
     function getChoice($value) {
@@ -1796,11 +1809,25 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 
 
 class AssigneeField extends ChoiceField {
+    var $_choices = array();
+    var $_criteria = null;
+
     function getWidget() {
         $widget = parent::getWidget();
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
         return $widget;
+    }
+
+    function getCriteria() {
+
+        if (!isset($this->_criteria)) {
+            $this->_criteria = array('available' => true);
+            if (($c=parent::getCriteria()))
+                $this->_criteria = array_merge($this->_criteria, $c);
+        }
+
+        return $this->_criteria;
     }
 
     function hasIdValue() {
@@ -1809,20 +1836,44 @@ class AssigneeField extends ChoiceField {
 
     function getChoices() {
         global $cfg;
-        $choices = array(__('Agents') => new ArrayObject(), __('Teams') => new ArrayObject());
-        $A = current($choices);
-        if (($agents = Staff::getAvailableStaffMembers()))
+
+        if (!$this->_choices) {
+            $config = $this->getConfiguration();
+            $choices = array(
+                    __('Agents') => new ArrayObject(),
+                    __('Teams') => new ArrayObject());
+            $A = current($choices);
+            $criteria = $this->getCriteria();
+            $agents = array();
+            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
+                if (($members = $dept->getMembers($criteria)))
+                    foreach ($members as $member)
+                        $agents[$member->getId()] = $member;
+            } else {
+                $agents = Staff::getStaffMembers($criteria);
+            }
+
             foreach ($agents as $id => $name)
                 $A['s'.$id] = $name;
 
-        next($choices);
-        $T = current($choices);
-        if (($teams = Team::getTeams()))
-            foreach ($teams as $id => $name)
-                $T['t'.$id] = $name;
+            next($choices);
+            $T = current($choices);
+            if (($teams = Team::getTeams()))
+                foreach ($teams as $id => $name)
+                    $T['t'.$id] = $name;
 
-        return $choices;
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
     }
+
+    function getValue() {
+
+        if (($value = parent::getValue()) && ($id=$this->getClean()))
+           return $value[$id];
+    }
+
 
     function parse($id) {
         return $this->to_php(null, $id);
@@ -3205,9 +3256,13 @@ class AssignmentForm extends Form {
 
     static $id = 'assign';
     var $_assignee = null;
+    var $_dept = null;
 
     function __construct($source=null, $options=array()) {
         parent::__construct($source, $options);
+        // Department of the object -- if necessary to limit assinees
+        if (isset($options['dept']))
+            $this->_dept = $options['dept'];
     }
 
     function getFields() {
@@ -3222,6 +3277,12 @@ class AssignmentForm extends Form {
                     'flags' => hexdec(0X450F3),
                     'required' => true,
                     'validator-error' => __('Assignee selection required'),
+                    'configuration' => array(
+                        'criteria' => array(
+                            'available' => true,
+                            ),
+                        'dept' => $this->_dept ?: null,
+                       ),
                     )
                 ),
             'comments' => new TextareaField(array(
