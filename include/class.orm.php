@@ -950,6 +950,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->query;
     }
 
+    /**
+     * Fetch a model class which can be used to render the QuerySet as a
+     * subquery to be used as a JOIN.
+     */
     function asView() {
         $unique = spl_object_hash($this);
         $classname = "QueryView{$unique}";
@@ -1707,7 +1711,8 @@ class MySqlCompiler extends SqlCompiler {
             $b = implode(', ', $vals);
         }
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
-        // add the constraint to the join
+        // the query as a JOIN and add the join constraint into the WHERE
+        // clause.
         elseif ($b instanceof QuerySet && $b->isWindowed()) {
             $f1 = $b->values[0];
             $view = $b->asView();

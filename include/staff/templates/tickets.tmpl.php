@@ -64,7 +64,7 @@ if ($results) { ?>
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <table class="list fixed" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php
@@ -78,11 +78,11 @@ if ($results) { ?>
             <th width="380"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="150"><?php echo __('Department'); ?></th>
-            <th width="150"><?php echo __('Assignee'); ?></th>
+            <th width="125"><?php echo __('Department'); ?></th>
+            <th width="125"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="300"><?php echo __('User'); ?></th>
+            <th width="250"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
@@ -100,8 +100,8 @@ if ($results) { ?>
         $assigned='';
         if ($T['staff_id'])
             $assigned = new PersonsName(array(
-                'first' => $row['staff__firstname'],
-                'last' => $row['staff__lastname']
+                'first' => $T['staff__firstname'],
+                'last' => $T['staff__lastname']
             ));
         elseif ($T['team_id'])
             $assigned = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
@@ -128,28 +128,28 @@ if ($results) { ?>
                 title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                 data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
-            <td align="center" nowrap><?php echo Format::datetime($row['effective_date']); ?></td>
+            <td align="center" nowrap><?php echo Format::datetime($T['effective_date']); ?></td>
             <td><?php echo $status; ?></td>
-            <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span class="truncate"
-                style="max-width: 290px"><?php echo $subject; ?></span></a>
+            <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
+                style="max-width: 230px;"
+                href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
                     if ($threadcount > 1) { ?>
-                        <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
-                        <small><?php echo $threadcount; ?></small>
+                            <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
+                            <small><?php echo $threadcount; ?></small></span>
 <?php               }
-                    if ($row['attachments'])
+                    if ($T['attachments'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
-                    if ($row['collaborators'])
+                    if ($T['collaborators'])
                         echo '<i class="icon-group faded-more"></i>';
                 ?>
-            </td>
+            </span></td>
             <?php
             if ($user) {
                 $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']); ?>
-            <td><span class="truncate" style="max-wdith:150px"><?php
+            <td><span class="truncate" style="max-wdith:125px"><?php
                 echo Format::htmlchars($dept); ?></span></td>
-            <td><span class="truncate" style="max-width:150px"><?php
+            <td><span class="truncate" style="max-width:125px"><?php
                 echo Format::htmlchars($assigned); ?></span></td>
             <?php
             } else { ?>

@@ -38,22 +38,23 @@ case 'closed':
     $showassigned=true; //closed by.
     $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
     $queue_sort_options = array('closed', 'priority,due', 'due',
-        'number', 'priority,updated', 'priority,created', 'answered', 'hot');
+        'priority,updated', 'priority,created', 'answered', 'number', 'hot');
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tickets');
     $tickets->filter(array('isoverdue'=>1));
     $queue_sort_options = array('priority,due', 'due', 'priority,updated',
-        'updated', 'priority,created', 'number', 'answered', 'hot');
+        'updated', 'answered', 'priority,created', 'number', 'hot');
     break;
 case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tickets');
     $tickets->filter(array('staff_id'=>$thisstaff->getId()));
-    $queue_sort_options = array('updated', 'priority,updated', 'priority,created', 'priority,due',
-        'due', 'answered', 'number', 'hot');
+    $queue_sort_options = array('updated', 'priority,updated',
+        'priority,created', 'priority,due', 'due', 'answered', 'number',
+        'hot');
     break;
 case 'answered':
     $status='open';
@@ -77,7 +78,9 @@ case 'search':
         else {
             $tickets = $tickets->filter(Q::any(array(
                 'number__startswith' => $_REQUEST['query'],
+                'user__name__contains' => $_REQUEST['query'],
                 'user__emails__address__contains' => $_REQUEST['query'],
+                'user__org__name__contains' => $_REQUEST['query'],
             )));
         }
         break;
@@ -88,9 +91,10 @@ case 'search':
         $tickets = $search->mangleQuerySet($tickets, $form);
         $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
-            . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        $queue_sort_options = array('priority,due', 'due', 'priority,updated',
-            'updated', 'priority,created', 'number', 'answered', 'closed', 'hot');
+            . '<a class="action-button" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
+        $queue_sort_options = array('priority,updated', 'priority,created',
+            'priority,due', 'due', 'updated', 'answered',
+            'closed', 'number', 'hot');
         $has_relevance = false;
         foreach ($tickets->getSortFields() as $sf) {
             if ($sf instanceof SqlCode && $sf->code == '`relevance`') {
@@ -119,8 +123,9 @@ case 'open':
         $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
     else
         $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
-    $queue_sort_options = array('priority,updated', 'updated', 'priority,created', 'priority,due',
-        'due', 'number', 'answered', 'hot');
+    $queue_sort_options = array('priority,updated', 'updated',
+        'priority,due', 'due', 'priority,created', 'answered', 'number',
+        'hot');
     break;
 }
 
@@ -138,17 +143,20 @@ if ($status)
 // ------------------------------------------------------------
 if (!$view_all_tickets) {
     // -- Open and assigned to me
+    $assigned = Q::any(array(
+        'staff_id' => $thisstaff->getId(),
+    ));
+    // -- Open and assigned to a team of mine
+    if ($teams = array_filter($thisstaff->getTeams()))
+        $assigned->add(array('team_id__in' => $teams));
+
     $visibility = array(
-        new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
+        new Q(array('status__state'=>'open', $assigned))
     );
     // -- Routed to a department of mine
     if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
         $visibility[] = new Q(array('dept_id__in' => $depts));
-    // -- Open and assigned to a team of mine
-    if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-        $visibility[] = new Q(array(
-            'team_id__in' => array_filter($teams), 'status__state'=>'open'
-        ));
+
     $tickets->filter(Q::any($visibility));
 }
 
@@ -183,6 +191,7 @@ case 'priority,created':
 case 'created':
     $date_header = __('Date Created');
     $date_col = 'created';
+    $tickets->values('created');
     $tickets->order_by('-created');
     break;
 
@@ -193,20 +202,22 @@ case 'due':
     $date_header = __('Due Date');
     $date_col = 'est_duedate';
     $tickets->values('est_duedate');
-    $tickets->filter(array('est_duedate__isnull'=>false));
-    $tickets->order_by('est_duedate');
+    $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'));
     break;
 
 case 'closed':
     $date_header = __('Date Closed');
     $date_col = 'closed';
+    $tickets->values('closed');
     $tickets->order_by('-closed');
     break;
 
 case 'answered':
     $date_header = __('Last Response');
-    $date_col = 'lastupdate';
-    $tickets->order_by('-lastupdate');
+    $date_col = 'lastresponse';
+    $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
+    $tickets->order_by('-lastresponse');
+    $tickets->values('lastresponse');
     break;
 
 case 'hot':
@@ -238,6 +249,7 @@ case 'updated':
 // ATM, advanced search with keywords doesn't support the subquery approach
 if ($use_subquery) {
     $tickets2 = TicketModel::objects();
+    $tickets2->values = $tickets->values;
     $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
 
     // Transfer the order_by from the original tickets
@@ -295,6 +307,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                 <span style="vertical-align: baseline">Sort:</span>
             <select name="sort" onchange="javascript: $.pjax({
                 url:'?' + addSearchParam('sort', $(this).val()),
+                timeout: 2000,
                 container: '#pjax-container'});">
 <?php foreach ($queue_sort_options as $mode) {
     $desc = $sort_options[$mode]; ?>
@@ -321,7 +334,7 @@ $_SESSION[':Q:tickets'] = $tickets;
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo
  Format::htmlchars($_REQUEST['status'], true); ?>" >
- <table class="list fixed" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
@@ -382,17 +395,14 @@ $_SESSION[':Q:tickets'] = $tickets;
                     $flag='overdue';
 
                 $lc='';
-                $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
-                if($showassigned) {
-                    if($T['staff_id'])
-                        $lc=sprintf('<span class="Icon staffAssigned truncate">%s</span>',(string) new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']));
-                    elseif($T['team_id'])
-                        $lc=sprintf('<span class="Icon teamAssigned">%s</span>',
-                            Team::getLocalById($T['team_id'], 'name', $T['team__name']));
-                    else
-                        $lc=' ';
-                }else{
-                    $lc='<span class="truncate">'.Format::htmlchars($dept).'</span>';
+                if ($showassigned) {
+                    if ($T['staff_id'])
+                        $lc = new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']);
+                    elseif ($T['team_id'])
+                        $lc = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
+                }
+                else {
+                    $lc = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
                 }
                 $tid=$T['number'];
                 $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
@@ -419,25 +429,27 @@ $_SESSION[':Q:tickets'] = $tickets;
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']); ?></td>
+                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    style="max-width: 80%; max-width: calc(100% - 86px);"
+                    style="max-width: 210px;"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span
                     class="truncate"><?php echo $subject; ?></span></a>
-                     <?php
-                        if ($threadcount>1)
-                            echo "<small>($threadcount)</small>&nbsp;".'<i
-                                class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
-                        if ($T['collab_count'])
-                            echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
-                        if ($T['attachment_count'])
-                            echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
-                    ?>
+<?php               if ($T['attachment_count'])
+                        echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
+                    if ($threadcount > 1) { ?>
+                        <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
+                            <small><?php echo $threadcount; ?></small>
+                        </span>
+                    <?php } ?>
                 </td>
-                <td nowrap><span class="truncate"><?php
+                <td nowrap><div><?php
+                    if ($T['collab_count'])
+                        echo '<span class="pull-right faded-more"><i class="icon-group"></i></span>';
+                    ?><span class="truncate" style="max-width:<?php
+                        echo $T['collab_count'] ? '150px' : '170px'; ?>"><?php
                     $un = new PersonsName($T['user__name']);
                         echo Format::htmlchars($un);
-                ?></td>
+                    ?></span></div></td>
                 <?php
                 if($search && !$status){
                     $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
@@ -450,7 +462,7 @@ $_SESSION[':Q:tickets'] = $tickets;
                 <?php
                 }
                 ?>
-                <td nowrap>&nbsp;<?php echo $lc; ?></td>
+                <td nowrap>&nbsp;<?php echo Format::htmlchars($lc); ?></td>
             </tr>
             <?php
             } //end of foreach
