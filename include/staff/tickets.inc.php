@@ -16,6 +16,20 @@ unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
+$sort_options = array(
+    'priority,updated' =>   __('Priority + Most Recently Updated'),
+    'updated' =>            __('Most Recently Updated'),
+    'priority,created' =>   __('Priority + Most Recently Created'),
+    'due' =>                __('Due Soon'),
+    'priority,due' =>       __('Priority + Due Soon'),
+    'number' =>             __('Ticket Number'),
+    'answered' =>           __('Most Recently Answered'),
+    'closed' =>             __('Most Recently Closed'),
+    'hot' =>                __('Longest Thread'),
+    'relevance' =>          __('Relevance'),
+);
+$use_subquery = true;
+
 $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
 switch ($queue_name) {
 case 'closed':
@@ -23,23 +37,31 @@ case 'closed':
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
     $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
+    $queue_sort_options = array('closed', 'priority,due', 'due',
+        'number', 'priority,updated', 'priority,created', 'answered', 'hot');
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tickets');
     $tickets->filter(array('isoverdue'=>1));
+    $queue_sort_options = array('priority,due', 'due', 'priority,updated',
+        'updated', 'priority,created', 'number', 'answered', 'hot');
     break;
 case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tickets');
     $tickets->filter(array('staff_id'=>$thisstaff->getId()));
+    $queue_sort_options = array('updated', 'priority,updated', 'priority,created', 'priority,due',
+        'due', 'answered', 'number', 'hot');
     break;
 case 'answered':
     $status='open';
     $showanswered=true;
     $results_type=__('Answered Tickets');
     $tickets->filter(array('isanswered'=>1));
+    $queue_sort_options = array('answered', 'priority,updated', 'updated',
+        'priority,created', 'priority,due', 'due', 'number', 'hot');
     break;
 default:
 case 'search':
@@ -67,6 +89,23 @@ case 'search':
         $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
+        $queue_sort_options = array('priority,due', 'due', 'priority,updated',
+            'updated', 'priority,created', 'number', 'answered', 'closed', 'hot');
+        $has_relevance = false;
+        foreach ($tickets->getSortFields() as $sf) {
+            if ($sf instanceof SqlCode && $sf->code == '`relevance`') {
+                $has_relevance = true;
+                break;
+            }
+        }
+        if ($has_relevance) {
+            $use_subquery = false;
+            array_unshift($queue_sort_options, 'relevance');
+        }
+        elseif ($_SESSION[$queue_sort_key] == 'relevance') {
+            unset($_SESSION[$queue_sort_key]);
+        }
+
         break;
     }
     // Fall-through and show open tickets
@@ -80,6 +119,8 @@ case 'open':
         $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
     else
         $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
+    $queue_sort_options = array('priority,updated', 'updated', 'priority,created', 'priority,due',
+        'due', 'number', 'answered', 'hot');
     break;
 }
 
@@ -111,10 +152,7 @@ if (!$view_all_tickets) {
     $tickets->filter(Q::any($visibility));
 }
 
-// Apply requested quick filter
-
-// Rewrite $tickets to use a nested query, which will include the LIMIT part
-// in order to speed the result
+// TODO :: Apply requested quick filter
 
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
@@ -122,20 +160,29 @@ $pageNav = new Pagenate($tickets->count(), $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
-$tickets2 = TicketModel::objects();
-
 // Apply requested sorting
 $queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
 
-if (isset($_GET['sort']))
+if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = $_GET['sort'];
+}
+elseif (!isset($_SESSION[$queue_sort_key])) {
+    $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+}
+
 switch ($_SESSION[$queue_sort_key]) {
 case 'number':
     $tickets->extra(array(
         'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
     ));
     break;
+
+case 'priority,created':
+    $tickets->order_by('cdata__:priority__priority_urgency');
+    // Fall through to columns for `created`
 case 'created':
+    $date_header = __('Date Created');
+    $date_col = 'created';
     $tickets->order_by('-created');
     break;
 
@@ -150,18 +197,53 @@ case 'due':
     $tickets->order_by('est_duedate');
     break;
 
+case 'closed':
+    $date_header = __('Date Closed');
+    $date_col = 'closed';
+    $tickets->order_by('-closed');
+    break;
+
+case 'answered':
+    $date_header = __('Last Response');
+    $date_col = 'lastupdate';
+    $tickets->order_by('-lastupdate');
+    break;
+
+case 'hot':
+    $tickets->order_by('-thread_count');
+    $tickets->annotate(array(
+        'thread_count' => SqlAggregate::COUNT('thread__entries'),
+    ));
+    break;
+
+case 'relevance':
+    $tickets->order_by(new SqlCode('relevance'));
+    break;
+
 default:
+case 'priority,updated':
+    $tickets->order_by('cdata__:priority__priority_urgency');
+    // Fall through for columns defined for `updated`
 case 'updated':
-    $tickets->order_by('cdata__:priority__priority_urgency', '-lastupdate');
+    $date_header = __('Last Updated');
+    $date_col = 'lastupdate';
+    $tickets->order_by('-lastupdate');
     break;
 }
 
-$tickets2 = TicketModel::objects();
-$tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
 
-// Transfer the order_by from the original tickets
-$tickets2->order_by($tickets->getSortFields());
-$tickets = $tickets2;
+// Rewrite $tickets to use a nested query, which will include the LIMIT part
+// in order to speed the result
+//
+// ATM, advanced search with keywords doesn't support the subquery approach
+if ($use_subquery) {
+    $tickets2 = TicketModel::objects();
+    $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
+
+    // Transfer the order_by from the original tickets
+    $tickets2->order_by($tickets->getSortFields());
+    $tickets = $tickets2;
+}
 
 TicketForm::ensureDynamicDataView();
 
@@ -211,14 +293,11 @@ $_SESSION[':Q:tickets'] = $tickets;
         <div class="pull-right flush-right">
             <span style="display:inline-block">
                 <span style="vertical-align: baseline">Sort:</span>
-            <select name="sort" onchange="javascript:addSearchParam('sort', $(this).val());">
-<?php foreach (array(
-    'updated' =>    __('Most Recently Updated'),
-    'created' =>    __('Most Recently Created'),
-    'due' =>        __('Due Soon'),
-    'priority,due' => __('Priority + Due Soon'),
-    'number' =>     __('Ticket Number'),
-) as $mode => $desc) { ?>
+            <select name="sort" onchange="javascript: $.pjax({
+                url:'?' + addSearchParam('sort', $(this).val()),
+                container: '#pjax-container'});">
+<?php foreach ($queue_sort_options as $mode) {
+    $desc = $sort_options[$mode]; ?>
             <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
 <?php } ?>
             </select>
@@ -251,7 +330,7 @@ $_SESSION[':Q:tickets'] = $tickets;
 	        <th width="70">
                 <?php echo __('Ticket'); ?></th>
 	        <th width="100">
-                <?php echo $date_header ?: __('Date'); ?></th>
+                <?php echo $date_header ?: __('Date Created'); ?></th>
 	        <th width="280">
                 <?php echo __('Subject'); ?></th>
             <th width="170">
