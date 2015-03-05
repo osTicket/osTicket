@@ -43,14 +43,17 @@ class OrganizationModel extends VerySimpleModel {
         self::PERM_CREATE => array(
             'title' => /* @trans */ 'Create',
             'desc' => /* @trans */ 'Ability to create new organizations',
+            'primary' => true,
         ),
         self::PERM_EDIT => array(
             'title' => /* @trans */ 'Edit',
             'desc' => /* @trans */ 'Ability to manage organizations',
+            'primary' => true,
         ),
         self::PERM_DELETE => array(
             'title' => /* @trans */ 'Delete',
             'desc' => /* @trans */ 'Ability to delete organizations',
+            'primary' => true,
         ),
     );
 

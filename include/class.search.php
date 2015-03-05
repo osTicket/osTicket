@@ -35,7 +35,8 @@ abstract class SearchBackend {
     static protected $perms = array(
         self::PERM_EVERYTHING => array(
             'title' => /* @trans */ 'Search',
-            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access'
+            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access',
+            'primary' => true,
         ),
     );
 
