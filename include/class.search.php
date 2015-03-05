@@ -30,10 +30,10 @@ abstract class SearchBackend {
     const SORT_RECENT = 2;
     const SORT_OLDEST = 3;
 
-    const PERM_AGENTS = 'search.all';
+    const PERM_EVERYTHING = 'search.all';
 
     static protected $perms = array(
-        self::PERM_AGENTS => array(
+        self::PERM_EVERYTHING => array(
             'title' => /* @trans */ 'Search',
             'desc'  => /* @trans */ 'See all tickets in search results, regardless of access'
         ),

@@ -93,19 +93,21 @@ if ($status)
 
 // Impose visibility constraints
 // ------------------------------------------------------------
-// -- Open and assigned to me
-$visibility = array(
-    new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
-);
-// -- Routed to a department of mine
-if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-    $visibility[] = new Q(array('dept_id__in' => $depts));
-// -- Open and assigned to a team of mine
-if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-    $visibility[] = new Q(array(
-        'team_id__in' => array_filter($teams), 'status__state'=>'open'
-    ));
-$tickets->filter(Q::any($visibility));
+if (!$thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING)) {
+    // -- Open and assigned to me
+    $visibility = array(
+        new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
+    );
+    // -- Routed to a department of mine
+    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+        $visibility[] = new Q(array('dept_id__in' => $depts));
+    // -- Open and assigned to a team of mine
+    if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
+        $visibility[] = new Q(array(
+            'team_id__in' => array_filter($teams), 'status__state'=>'open'
+        ));
+    $tickets->filter(Q::any($visibility));
+}
 
 // Add in annotations
 $tickets->annotate(array(
