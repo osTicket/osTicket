@@ -32,7 +32,6 @@ RedactorPlugins.draft = function() {
             this.opts.clipboardUploadUrl =
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
-            this.autosave.enable();
         }
         else {
             // Just upload the file. A draft will be created automatically
@@ -41,6 +40,8 @@ RedactorPlugins.draft = function() {
             this.opts.imageUpload = this.opts.autoCreateUrl + '/attach';
             this.opts.imageUploadCallback = this.afterUpdateDraft;
         }
+        if (autosave_url)
+            this.autosave.enable();
 
         this.$draft_saved = $('<span>')
             .addClass("pull-right draft-saved")
