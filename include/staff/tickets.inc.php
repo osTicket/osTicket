@@ -2,7 +2,7 @@
 $search = SavedSearch::create();
 $tickets = TicketModel::objects();
 $clear_button = false;
-$date_header = $date_col = false;
+$view_all_tickets = $date_header = $date_col = false;
 
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
@@ -69,6 +69,7 @@ case 'search':
         $form = $search->getFormFromSession('advsearch');
         $form->loadState($_SESSION['advsearch']);
         $tickets = $search->mangleQuerySet($tickets, $form);
+        $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
         break;
@@ -93,7 +94,7 @@ if ($status)
 
 // Impose visibility constraints
 // ------------------------------------------------------------
-if (!$thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING)) {
+if (!$view_all_tickets) {
     // -- Open and assigned to me
     $visibility = array(
         new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))

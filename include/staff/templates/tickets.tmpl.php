@@ -31,7 +31,7 @@ $tickets->annotate(array(
     'thread_count' => SqlAggregate::COUNT('thread__entries'),
 ));
 
-$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name');
+$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name');
 
 TicketForm::ensureDynamicDataView();
 
@@ -92,7 +92,7 @@ if ($results) { ?>
     $subject_field = TicketForm::objects()->one()->getField('subject');
     foreach($tickets as $T) {
         $flag=null;
-        if ($T['lock_id'] && $T['lock__staff_id'] != $thisstaff->getId())
+        if ($T['lock__lock_id'] && $T['lock__staff_id'] != $thisstaff->getId())
             $flag='locked';
         elseif ($T['isoverdue'])
             $flag='overdue';

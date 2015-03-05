@@ -178,7 +178,6 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function previewTicket ($tid) {
-
         global $thisstaff;
 
         if(!$thisstaff || !($ticket=Ticket::lookup($tid))
@@ -445,6 +444,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function _userlookup($user, $form, $info) {
+        global $thisstaff;
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');

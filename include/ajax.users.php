@@ -254,13 +254,13 @@ class UsersAjaxAPI extends AjaxController {
 
         $info = array();
 
-        if (!$thisstaff->getRole()->hasPerm(User::PERM_CREATE))
-            Http::response(403, 'Permission Denied');
-
         if (!AuthenticationBackend::getSearchDirectories())
             $info['lookup'] = 'local';
 
         if ($_POST) {
+            if (!$thisstaff->getRole()->hasPerm(User::PERM_CREATE))
+                Http::response(403, 'Permission Denied');
+
             $info['title'] = __('Add New User');
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
