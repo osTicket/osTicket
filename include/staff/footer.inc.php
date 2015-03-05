@@ -34,7 +34,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <hr style="margin-top:3em"/>
     <p class="full-width">
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('OK');?>" class="close">
+            <input type="button" value="<?php echo __('OK');?>" class="close ok">
         </span>
      </p>
     <div class="clear"></div>

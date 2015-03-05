@@ -209,6 +209,16 @@ RedactorPlugins.signature = function() {
   }
 };
 
+RedactorPlugins.autolock = function() {
+  return {
+    init: function() {
+      var code = this.$box.closest('form').find('[name=lockCode]');
+      if ($.autoLock && code.length)
+        this.opts.keydownCallback = $.autoLock.handleEvent;
+    }
+  };
+}
+
 /* Redactor richtext init */
 $(function() {
     var captureImageSizes = function(html) {
@@ -245,7 +255,7 @@ $(function() {
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagepaste','imagemanager','definedlinks']
-                  : ['imagepaste','imagemanager','imageannotate','table','video','definedlinks'],
+                  : ['imagepaste','imagemanager','imageannotate','table','video','definedlinks','autolock'],
                 'imageUpload': 'tbd',
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,

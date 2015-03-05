@@ -22,6 +22,7 @@ $user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
+$mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
 
 //Useful warnings and errors the user might want to know!
@@ -514,7 +515,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
-        <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
+        <input type="hidden" name="lockCode" value="<?php echo ($mylock) ? $mylock->getCode() : ''; ?>">
         <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
            <tbody id="to_sec">
@@ -701,9 +702,9 @@ $tcount = $ticket->getThreadEntries($types)->count();
         echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
-        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime(); ?>">
+        <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime() * 60; ?>">
         <input type="hidden" name="a" value="postnote">
-        <input type="hidden" name="lockCode" value="<?php echo $ticket->getLock()->getCode(); ?>">
+        <input type="hidden" name="lockCode" value="<?php echo ($mylock) ? $mylock->getCode() : ''; ?>">
         <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <?php
             if($errors['postnote']) {?>
@@ -1057,15 +1058,15 @@ $(function() {
     });
 <?php
     // Set the lock if one exists
-    if ($lock) { ?>
+    if ($mylock) { ?>
 !function() {
   var setLock = setInterval(function() {
     if (typeof(window.autoLock) === 'undefined')
       return;
     clearInterval(setLock);
     autoLock.setLock({
-      id:<?php echo $lock->getId(); ?>,
-      time: <?php echo $cfg->getLockTime(); ?>}, 'acquire');
+      id:<?php echo $mylock->getId(); ?>,
+      time: <?php echo $cfg->getLockTime() * 60; ?>}, 'acquire');
   }, 50);
 }();
 <?php } ?>

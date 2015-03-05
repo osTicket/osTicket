@@ -76,7 +76,10 @@ if($_POST && !$errors):
                 elseif ($lock->getStaffId()!=$thisstaff->getId()) {
                     $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
                 }
-                elseif ($lock->getCode() != $_POST['lockCode']) {
+                // Attempt to renew the lock if possible
+                elseif (($lock->isExpired() && !$lock->renew())
+                    ||($lock->getCode() != $_POST['lockCode'])
+                ) {
                     $errors['err'] = __('Your lock has expired. Please try again');
                 }
 

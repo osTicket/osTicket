@@ -618,6 +618,8 @@ $.sysAlert = function (title, msg, cb) {
         $('#title', $dialog).html(title);
         $('#body', $dialog).html(msg);
         $dialog.show();
+        if (cb)
+            $dialog.find('input.ok.close').click(cb);
     } else {
         alert(msg);
     }

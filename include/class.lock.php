@@ -38,13 +38,6 @@ class Lock extends VerySimpleModel {
         ),
     );
 
-    var $expiretime;
-
-    function __onload() {
-        if (isset($this->expire))
-            $this->expiretime = strtotime($this->expire);
-    }
-
     function getId() {
         return $this->lock_id;
     }
@@ -62,16 +55,16 @@ class Lock extends VerySimpleModel {
     }
 
     function getExpireTime() {
-        return $this->expire;
+        return strtotime($this->expire);
     }
     //Get remaiming time before the lock expires
     function getTime() {
-        return $this->isExpired()?0:($this->expiretime-time());
+        return $this->isExpired()?0:($this->getExpireTime()-time());
     }
 
     //Should we be doing realtime check here? (Ans: not really....expiretime is local & based on loadtime)
     function isExpired() {
-        return (time()>$this->expiretime);
+        return (time()>$this->getExpireTime());
     }
 
     function getCode() {
@@ -89,7 +82,7 @@ class Lock extends VerySimpleModel {
             SqlFunction::NOW(),
             SqlInterval::MINUTE($lockTime)
         );
-        return $this->save();
+        return $this->save(true);
     }
 
     //release aka delete a lock.
