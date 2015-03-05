@@ -134,7 +134,7 @@
             <?php
             if ($f->get('hint')) { ?>
                 <br/><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($f->get('hint')); ?></em>
+                    echo Format::viewableImages($f->get('hint')); ?></em>
             <?php
             } ?>
             </div><div>
@@ -160,6 +160,7 @@
         </div>
         <div style="width:100%">
         <textarea style="width:90%; width:calc(100% - 20px)" name="hint" rows="2" cols="40"
+            class="richtext small no-bar"
             data-translate-tag="<?php echo $field->getTranslateTag('hint'); ?>"><?php
             echo Format::htmlchars($field->get('hint')); ?></textarea>
         </div>

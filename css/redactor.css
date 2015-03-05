@@ -59,9 +59,11 @@
 .redactor-box-fullscreen {
   z-index: 99 !important;
 }
-.redactor-toolbar,
-.redactor-dropdown {
+.redactor-toolbar {
   z-index: 1 !important;
+}
+.redactor-dropdown {
+  z-index: 15;
 }
 #redactor-modal-overlay,
 #redactor-modal-box,

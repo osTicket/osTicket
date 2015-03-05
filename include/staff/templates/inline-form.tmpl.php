@@ -13,7 +13,7 @@ foreach ($form->getFields() as $field) { ?>
         }
         if ($field->get('hint') && !$field->isBlockLevel()) { ?>
             <br/><em style="color:gray;display:inline-block"><?php
-                echo Format::htmlchars($field->get('hint')); ?></em>
+                echo Format::viewableImages($field->get('hint')); ?></em>
         <?php
         }
         foreach ($field->errors() as $e) { ?>

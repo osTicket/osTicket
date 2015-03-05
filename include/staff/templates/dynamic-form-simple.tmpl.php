@@ -15,7 +15,7 @@
             <?php
             if ($f->get('hint')) { ?>
                 <br/><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($f->get('hint')); ?></em>
+                    echo Format::viewableImages($f->get('hint')); ?></em>
             <?php
             } ?>
             </div><div>
