@@ -1786,9 +1786,10 @@ class MySqlCompiler extends SqlCompiler {
             $rmodel = $model;
         // Support inline views
         $table = ($rmodel::$meta['view'])
+            // XXX: Support parameters from the nested query
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::$meta['table']);
-        $base = $join.$table.$alias;
+        $base = "$join$table $alias";
         if ($constraints)
             $base .= ' ON ('.implode(' AND ', $constraints).')';
         return $base;
@@ -1862,7 +1863,7 @@ class MySqlCompiler extends SqlCompiler {
         }
         if (isset($queryset->extra['where'])) {
             foreach ($queryset->extra['where'] as $S) {
-                $where[] = '('.$S.')';
+                $where[] = "($S)";
             }
         }
         if ($where)

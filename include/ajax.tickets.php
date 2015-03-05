@@ -33,29 +33,29 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT DISTINCT `number`, email.address AS email'
-            .' FROM '.TICKET_TABLE.' ticket'
-            .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
-            .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE `number` LIKE \''.db_input($_REQUEST['q'], false).'%\'';
+        $visibility = Q::any(array(
+            'staff_id' => $thisstaff->getId(),
+            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
+        ));
+        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
+            $visibility->add(array('dept_id__in' => $depts));
+        }
 
-        $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
 
-        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-            $sql.=' OR team_id IN('.implode(',', db_input(array_filter($teams))).')';
+        $hits = TicketModel::objects()
+            ->filter(Q::any(array(
+                'number__startswith' => $_REQUEST['q'],
+            )))
+            ->filter($visibility)
+            ->values('number', 'user__emails__address')
+            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
+            ->order_by('-created')
+            ->limit($limit);
 
-        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
-
-        $sql.=' )  '
-            .' ORDER BY ticket.created LIMIT '.$limit;
-
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $email)=db_fetch_row($res)) {
-                $info = "$id - $email";
-                $tickets[] = array('id'=>$id, 'email'=>$email, 'value'=>$id,
-                    'info'=>$info, 'matches'=>$_REQUEST['q']);
-            }
+        foreach ($hits as $T) {
+            $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                'info'=>"{$T['number']} — {$T['user__emails__address']}",
+                'matches'=>$_REQUEST['q']);
         }
         if (!$tickets)
             return self::lookupByEmail();
@@ -70,29 +70,31 @@ class TicketsAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $sql='SELECT email.address AS email, count(ticket.ticket_id) as tickets '
-            .' FROM '.TICKET_TABLE.' ticket'
-            .' JOIN '.USER_TABLE.' user ON user.id = ticket.user_id'
-            .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id'
-            .' WHERE (email.address LIKE \'%'.db_input(strtolower($_REQUEST['q']), false).'%\'
-                OR user.name LIKE \'%'.db_input($_REQUEST['q'], false).'%\')';
+        $visibility = Q::any(array(
+            'staff_id' => $thisstaff->getId(),
+            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
+        ));
+        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
+            $visibility->add(array('dept_id__in' => $depts));
+        }
 
-        $sql.=' AND ( staff_id='.db_input($thisstaff->getId());
+        $hits = TicketModel::objects()
+            ->filter(Q::any(array(
+                'user__emails__address__contains' => $_REQUEST['q'],
+                'user__name__contains' => $_REQUEST['q'],
+                'user__account__username' => $_REQUEST['q'],
+                'user__org__name__contains' => $_REQUEST['q'],
+            )))
+            ->filter($visibility)
+            ->values('user__emails__address')
+            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
+            ->limit($limit);
 
-        if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-            $sql.=' OR team_id IN('.implode(',', db_input(array_filter($teams))).')';
-
-        if(!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $sql.=' OR dept_id IN ('.implode(',', db_input($depts)).')';
-
-        $sql.=' ) '
-            .' GROUP BY email.address '
-            .' ORDER BY ticket.created  LIMIT '.$limit;
-
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($email, $count)=db_fetch_row($res))
-                $tickets[] = array('email'=>$email, 'value'=>$email,
-                    'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+        foreach ($hits as $T) {
+            $email = $T['user__emails__address'];
+            $count = $T['tickets'];
+            $tickets[] = array('email'=>$email, 'value'=>$email,
+                'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
         }
 
         return $this->json_encode($tickets);
