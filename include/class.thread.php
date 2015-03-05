@@ -742,9 +742,10 @@ Class ThreadEntry {
         else {
             //XXX: Are we potentially leaking the email address to
             // collaborators?
-            $header = sprintf("Received From: %s\n\n", $mailinfo['email']);
+            $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
+                $mailinfo['email']);
             if ($body instanceof HtmlThreadBody)
-                $header = nl2br($header);
+                $header = nl2br(Format::htmlchars($header));
             // Add the banner to the top of the message
             if ($body instanceof ThreadBody)
                 $body->prepend($header);
