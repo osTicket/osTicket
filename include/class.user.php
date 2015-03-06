@@ -457,14 +457,22 @@ class User extends UserModel {
             $users[] = $data;
         }
 
+        db_autocommit(false);
+        $error = false;
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars))
-                return sprintf(__('Unable to import user: %s'),
+            if (!static::fromVars($vars)) {
+                $error = sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
+                break;
+            }
         }
+        if ($error)
+            db_rollback();
 
-        return count($users);
+        db_autocommit(true);
+
+        return $error ?: count($users);
     }
 
     function importFromPost($stuff, $extra=array()) {
