@@ -1166,8 +1166,8 @@ class ThreadEntryField extends FormField {
 }
 
 class PriorityField extends ChoiceField {
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Priority)
             $widget->value = $widget->value->getId();
         return $widget;
@@ -1181,13 +1181,10 @@ class PriorityField extends ChoiceField {
             $this->get('name') != 'priority';
     }
 
-    function getChoices() {
-        global $cfg;
-        $this->ht['default'] = $cfg->getDefaultPriorityId();
-
+    function getChoices($verbose=false) {
         $sql = 'SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE
               .' ORDER BY priority_urgency DESC';
-        $choices = array();
+        $choices = array('' => '— '.__('Default').' —');
         if (!($res = db_query($sql)))
             return $choices;
 
@@ -1205,7 +1202,10 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
-        return Priority::lookup($id);
+        elseif ($id === false)
+            $id = $value;
+        if ($id)
+            return Priority::lookup($id);
     }
 
     function to_database($prio) {
@@ -1224,13 +1224,30 @@ class PriorityField extends ChoiceField {
     }
 
     function getConfigurationOptions() {
+        $choices = $this->getChoices();
+        $choices[''] = __('System Default');
         return array(
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
+            'default' => new ChoiceField(array(
+                'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
+                'choices' => $choices,
+                'hint'=>__('Default selection for this field'),
+                'configuration'=>array('size'=>20, 'length'=>40),
+            )),
         );
+    }
+
+    function getConfiguration() {
+        global $cfg;
+
+        $config = parent::getConfiguration();
+        if (!isset($config['default']))
+            $config['default'] = $cfg->getDefaultPriorityId();
+        return $config;
     }
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
@@ -1272,7 +1289,7 @@ class TicketStateField extends ChoiceField {
         return false;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         static $_choices;
 
         if (!isset($_choices)) {
@@ -1356,7 +1373,7 @@ class TicketFlagField extends ChoiceField {
         return true;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         $this->ht['default'] =  '';
 
         if (!$this->_choices) {
