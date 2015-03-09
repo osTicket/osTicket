@@ -64,6 +64,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
                     <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
                     <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
+                    <tr><td>%{ticket.recipients}</td><td>'.__('List of all recipient names').'</td></tr>
                     <tr><td nowrap>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'<br/>
                     '.__('Agent\'s ticket view link').'</td></tr>
                     <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Expandable Variables').'</b></em></td></tr>
