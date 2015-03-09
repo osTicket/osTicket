@@ -706,11 +706,24 @@ class DynamicFormEntry extends VerySimpleModel {
     function getFields() {
         if (!isset($this->_fields)) {
             $this->_fields = array();
+            // Get all dynamic fields associated with the form
+            //  even when stored elsewhere -- important during validation
+            foreach ($this->getForm()->getDynamicFields() as $field) {
+                $field->setForm($this);
+                $this->_fields[$field->get('id')] = $field->getImpl($field);
+            }
+            // Get answers to entries
             foreach ($this->getAnswers() as $a) {
-                $T = $this->_fields[] = $a->getField();
-                $T->setForm($this);
+                if (!($f = $a->getField())) continue;
+                if (isset($this->_fields[$f->get('id')]))
+                    $this->_fields[$f->get('id')] = $f;
+                else { // Perhaps an answer of deleted field
+                    $f->setForm($this);
+                    $this->_fields[] = $f;
+                }
             }
         }
+
         return $this->_fields;
     }
 
