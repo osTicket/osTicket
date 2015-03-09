@@ -715,12 +715,11 @@ class DynamicFormEntry extends VerySimpleModel {
             // Get answers to entries
             foreach ($this->getAnswers() as $a) {
                 if (!($f = $a->getField())) continue;
-                if (isset($this->_fields[$f->get('id')]))
-                    $this->_fields[$f->get('id')] = $f;
-                else { // Perhaps an answer of deleted field
+                // Perhaps an answer of deleted field
+                if (!isset($this->_fields[$f->get('id')])) {
                     $f->setForm($this);
-                    $this->_fields[] = $f;
                 }
+                $this->_fields[$f->get('id')] = $f;
             }
         }
 
@@ -903,7 +902,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
-                $this->_fields[] = $field;
+                $this->_fields[$field->get('id')] = $field;
                 $this->_form = null;
 
                 // Omit fields without data
