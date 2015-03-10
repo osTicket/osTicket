@@ -930,12 +930,16 @@ class DynamicFormEntry extends VerySimpleModel {
         }
     }
 
-    function save() {
+    function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        parent::save();
+        if (!parent::save($refetch || count($this->dirty)))
+            return false;
+
         foreach ($this->getFields() as $field) {
-            $a = $field->getAnswer();
+            if (!($a = $field->getAnswer()))
+                continue;
+
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
