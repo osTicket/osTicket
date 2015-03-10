@@ -202,19 +202,37 @@ class SearchInterface {
     }
 }
 
+require_once(INCLUDE_DIR.'class.config.php');
+class MySqlSearchConfig extends Config {
+    var $table = CONFIG_TABLE;
+
+    function __construct() {
+        parent::Config("mysqlsearch");
+    }
+}
+
 class MysqlSearchBackend extends SearchBackend {
     static $id = 'mysql';
     static $BATCH_SIZE = 30;
 
     // Only index 20 batches per cron run
     var $max_batches = 60;
+    var $_reindexed = 0;
 
     function __construct() {
         $this->SEARCH_TABLE = TABLE_PREFIX . '_search';
     }
 
+    function getConfig() {
+        if (!isset($this->config))
+            $this->config = new MySqlSearchConfig();
+        return $this->config;
+    }
+
+
     function bootstrap() {
-        Signal::connect('cron', array($this, 'IndexOldStuff'));
+        if ($this->getConfig()->get('reindex', true))
+            Signal::connect('cron', array($this, 'IndexOldStuff'));
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
@@ -588,7 +606,10 @@ class MysqlSearchBackend extends SearchBackend {
         // FILES ------------------------------------
 
         // Flush non-full batch of records
-        $this->__index(null, true);
+        if (!$this->_reindexed) {
+            // Stop rebuilding the index
+            $this->getConfig()->set('reindex', 0);
+        }
     }
 
     function __index($record, $force_flush=false) {
@@ -608,9 +629,10 @@ class MysqlSearchBackend extends SearchBackend {
 
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'_search` (`object_type`, `object_id`, `title`, `content`)
             VALUES '.implode(',', $queue);
-        if (!db_query($sql) || count($queue) != db_affected_rows())
+        if (!db_query($sql, false) || count($queue) != db_affected_rows())
             throw new Exception('Unable to index content');
 
+        $this->_reindexed += count($queue);
         $queue = array();
 
         if (!--$this->max_batches)
