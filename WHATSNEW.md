@@ -1,3 +1,39 @@
+osTicket v1.9.6
+===============
+### Enhancements
+  * New Message-Id system allowing for better threading in mail clients (#1549,
+    #1730)
+  * Fix forced session expiration after 24 hours (#1677)
+  * Staff panel logo is customizable (#1718)
+  * Priority fields have a selectable default (instead of system default) (#1732)
+  * Import/Export support for file contents via cli (#1661)
+
+### Improvements
+  * Fix broken links in documentation, thanks @Chefkeks (#1675)
+  * Fix handling of some Redmond-specific character set encoding names (#1698)
+  * Include the users name in the "To" field of outbound email (#1549)
+  * Delete collaborators when deleting tickets (#1709)
+  * Fix regression preventing auto-responses for staff new tickets (#1712)
+  * Fix empty export if ticket details form has multiple priority fields (#1732)
+  * Fix filtering by list item properties in ticket filters (#1741)
+  * Fix missing icon for "add new filter", thanks @Chefkeks (#1735)
+  * Support Firefox v6 - v12 on the file drop widget (#1776)
+  * Show update errors on access templates (#1778)
+  * Allow empty staff login banner on update (#1778)
+  * Fix corruption of text thread bodies for third-party collaborator email
+    posts (#1794)
+  * Add some hidden template variables to pop out content (#1781)
+  * Fix missing validation for user name and email address (#1816, eb8858e)
+  * Turn off search indexing when complete, disable incorrectly implemented
+    work breaking, squelch error 1062 email from search backend (afa9692)
+  * Fix possible out of memory crash in custom forms (#1707, 0440111)
+
+### Performance and Security
+  * Fix generation of random data on Windows® platforms (#1672)
+  * Fix possible DoS and brute force on login pages (#1727)
+  * Fix possible redirect away from HTTPS on client login page, thanks @ldrumm
+    (#1782)
+
 osTicket v1.9.5.1
 =================
 ### Improvements
