@@ -962,7 +962,7 @@ class ChoiceField extends FormField {
         $config = $this->getConfiguration();
         if (!$config['multiselect'] && is_array($value) && count($value) < 2) {
             reset($value);
-            $value = key($value);
+            return key($value);
         }
         return $value;
     }
@@ -1899,12 +1899,9 @@ class ChoicesWidget extends Widget {
     }
 
     function getValue() {
+        $value = parent::getValue();
 
-        if (!($value = parent::getValue()))
-            return null;
-
-        if ($value && !is_array($value))
-            $value = array($value);
+        if (!$value) return null;
 
         // Assume multiselect
         $values = array();
@@ -1915,7 +1912,6 @@ class ChoicesWidget extends Widget {
                     $values[$v] = $choices[$v];
             }
         }
-
         return $values;
     }
 
