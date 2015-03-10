@@ -1,3 +1,15 @@
+osTicket v1.8.8
+===============
+### Improvements
+  * Fix handling of some Redmond-specific character set encoding names (#1698)
+  * Delete collaborators when deleting tickets (#1709)
+  * Fix regression preventing auto-responses for staff new tickets (#1712)
+  * Fix missing icon for "add new filter", thanks @Chefkeks (#1735)
+
+### Performance and Security
+  * Fix generation of random data on Windows® platforms (#1672)
+  * Fix possible DoS and brute force on login pages (#1727)
+
 osTicket v1.8.7
 ===============
 ### Improvements
