@@ -30,7 +30,7 @@ class Form {
         $this->fields = $fields;
         foreach ($fields as $k=>$f) {
             $f->setForm($this);
-            if (!$f->get('name') && $k)
+            if (!$f->get('name') && $k && !is_numeric($k))
                 $f->set('name', $k);
         }
         if (isset($options['title']))
