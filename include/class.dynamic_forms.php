@@ -950,12 +950,14 @@ class DynamicFormEntry extends VerySimpleModel {
 
                 $a->save();
             }
-            // Sort the form the way it is declared to be sorted
-            if ($this->_fields)
-                usort($this->_fields,
-                    function($a, $b) {
-                        return $a->get('sort') - $b->get('sort');
-                });
+        }
+
+        // Sort the form the way it is declared to be sorted
+        if ($this->_fields) {
+            uasort($this->_fields,
+                function($a, $b) {
+                    return $a->get('sort') - $b->get('sort');
+            });
         }
     }
 
