@@ -95,7 +95,7 @@ $org = $user->getOrganization();
                                         $user->getId(), $org->getName());
                             else
                                 echo sprintf('<a href="#users/%d/org"
-                                        class="user-action">Add Organization</a>',
+                                        class="user-action"><?php echo __('Add Organization'); ?></a>',
                                         $user->getId());
                         ?>
                         </span>
