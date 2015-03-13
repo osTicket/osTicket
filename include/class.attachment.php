@@ -86,7 +86,7 @@ class Attachment {
     function getIdByFileHash($hash, $tid=0) {
         $sql='SELECT attach_id FROM '.TICKET_ATTACHMENT_TABLE.' a '
             .' INNER JOIN '.FILE_TABLE.' f ON(f.id=a.file_id) '
-            .' WHERE f.hash='.db_input($hash);
+            .' WHERE f.`key`='.db_input($hash);
         if($tid)
             $sql.=' AND a.ticket_id='.db_input($tid);
 
@@ -120,23 +120,37 @@ class GenericAttachments {
         $i=array();
         if (!is_array($files)) $files=array($files);
         foreach ($files as $file) {
-            if (($fileId = is_numeric($file)
-                    ? $file : AttachmentFile::upload($file))
-                    && is_numeric($fileId)) {
-                $sql ='INSERT INTO '.ATTACHMENT_TABLE
-                    .' SET `type`='.db_input($this->getType())
-                    .',object_id='.db_input($this->getId())
-                    .',file_id='.db_input($fileId)
-                    .',inline='.db_input($inline ? 1 : 0);
-                if (db_query($sql))
-                    $i[] = $fileId;
-            }
+            if (is_numeric($file))
+                $fileId = $file;
+            elseif (is_array($file) && isset($file['id']))
+                $fileId = $file['id'];
+            elseif (!($fileId = AttachmentFile::upload($file)))
+                continue;
+
+            $_inline = isset($file['inline']) ? $file['inline'] : $inline;
+
+            $sql ='INSERT INTO '.ATTACHMENT_TABLE
+                .' SET `type`='.db_input($this->getType())
+                .',object_id='.db_input($this->getId())
+                .',file_id='.db_input($fileId)
+                .',inline='.db_input($_inline ? 1 : 0);
+            // File may already be associated with the draft (in the
+            // event it was deleted and re-added)
+            if (db_query($sql, function($errno) { return $errno != 1062; })
+                    || db_errno() == 1062)
+                $i[] = $fileId;
         }
+
         return $i;
     }
 
-    function save($info, $inline=true) {
-        if (!($fileId = AttachmentFile::save($info)))
+    function save($file, $inline=true) {
+
+        if (is_numeric($file))
+            $fileId = $file;
+        elseif (is_array($file) && isset($file['id']))
+            $fileId = $file['id'];
+        elseif (!($fileId = AttachmentFile::save($file)))
             return false;
 
         $sql ='INSERT INTO '.ATTACHMENT_TABLE
@@ -157,13 +171,15 @@ class GenericAttachments {
     function _getList($separate=false, $inlines=false) {
         if(!isset($this->attachments)) {
             $this->attachments = array();
-            $sql='SELECT f.id, f.size, f.hash, f.name, a.inline '
+            $sql='SELECT f.id, f.size, f.`key`, f.signature, f.name, a.inline '
                 .' FROM '.FILE_TABLE.' f '
                 .' INNER JOIN '.ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
                 .' WHERE a.`type`='.db_input($this->getType())
                 .' AND a.object_id='.db_input($this->getId());
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while($rec=db_fetch_array($res)) {
+                    $rec['download_url'] = AttachmentFile::generateDownloadUrl(
+                        $rec['id'], $rec['key'], $rec['signature']);
                     $this->attachments[] = $rec;
                 }
             }
@@ -171,8 +187,8 @@ class GenericAttachments {
         $attachments = array();
         foreach ($this->attachments as $a) {
             if ($a['inline'] != $separate || $a['inline'] == $inlines) {
-                $a['key'] = md5($a['id'].session_id().$a['hash']);
                 $a['file_id'] = $a['id'];
+                $a['hash'] = md5($a['file_id'].session_id().strtolower($a['key']));
                 $attachments[] = $a;
             }
         }

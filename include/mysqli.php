@@ -40,6 +40,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     $port = ini_get("mysqli.default_port");
     $socket = ini_get("mysqli.default_socket");
+    $persistent = stripos($host, 'p:') === 0;
+    if ($persistent)
+        $host = substr($host, 2);
     if (strpos($host, ':') !== false) {
         list($host, $portspec) = explode(':', $host);
         // PHP may not honor the port number if connecting to 'localhost'
@@ -53,6 +56,9 @@ function db_connect($host, $user, $passwd, $options = array()) {
             $socket = $portspec;
         }
     }
+
+    if ($persistent)
+        $host = 'p:' . $host;
 
     // Connect
     $start = microtime(true);
@@ -70,10 +76,18 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     @db_set_variable('sql_mode', '');
 
+    $__db->autocommit(true);
+
     // Use connection timing to seed the random number generator
     Misc::__rand_seed((microtime(true) - $start) * 1000000);
 
     return $__db;
+}
+
+function db_autocommit($enable=true) {
+    global $__db;
+
+    return $__db->autocommit($enable);
 }
 
 function db_close() {
@@ -121,19 +135,57 @@ function db_create_database($database, $charset='utf8',
             $database, $charset, $collate));
 }
 
-// execute sql query
-function db_query($query, $logError=true) {
+/**
+ * Function: db_query
+ * Execute sql query
+ *
+ * Parameters:
+ * $query - (string) SQL query (with parameters)
+ * $logError - (mixed):
+ *      - (bool) true or false if error should be logged and alert email sent
+ *      - (callable) to receive error number and return true or false if
+ *      error should be logged and alert email sent. The callable is only
+ *      invoked if the query fails.
+ *
+ * Returns:
+ * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
+ * UPDATE, or DELETE succeeds, false or null if the query fails.
+ */
+function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
 
-    $res = $__db->query($query);
+    if ($__db->unbuffered_result) {
+        $__db->unbuffered_result->free();
+        $__db->unbuffered_result = false;
+    }
+
+    $tries = 3;
+    do {
+        $res = $__db->query($query,
+            $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+        // Retry the query due to deadlock error (#1213)
+        // TODO: Consider retry on #1205 (lock wait timeout exceeded)
+        // TODO: Log warning
+    } while (!$res && --$tries && $__db->errno == 1213);
 
     if(!$res && $logError && $ost) { //error reporting
+        // Allow $logError() callback to determine if logging is necessary
+        if (is_callable($logError) && !($logError($__db->errno)))
+            return $res;
+
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
         //echo $msg; #uncomment during debuging or dev.
     }
 
+    if (is_object($res) && !$buffered)
+        $__db->unbuffered_result = $res;
+
     return $res;
+}
+
+function db_query_unbuffered($sql, $logError=false) {
+    return db_query($sql, $logError, true);
 }
 
 function db_squery($query) { //smart db query...utilizing args and sprintf
@@ -151,11 +203,13 @@ function db_count($query) {
     return db_result(db_query($query));
 }
 
-function db_result($res, $row=0) {
+function db_result($res, $row=false) {
     if (!$res)
         return NULL;
 
-    $res->data_seek($row);
+    if ($row !== false)
+        $res->data_seek($row);
+
     list($value) = db_output($res->fetch_row());
     return $value;
 }
@@ -208,8 +262,12 @@ function db_free_result($res) {
 }
 
 function db_output($var) {
+    static $no_magic_quotes = null;
 
-    if(!function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime()) //Sucker is NOT on - thanks.
+    if (!isset($no_magic_quotes))
+        $no_magic_quotes = !function_exists('get_magic_quotes_runtime') || !get_magic_quotes_runtime();
+
+    if ($no_magic_quotes) //Sucker is NOT on - thanks.
         return $var;
 
     if (is_array($var))
@@ -233,7 +291,7 @@ function db_input($var, $quote=true) {
 
     if(is_array($var))
         return array_map('db_input', $var, array_fill(0, count($var), $quote));
-    elseif($var && preg_match("/^\d+(\.\d+)?$/", $var))
+    elseif($var && preg_match("/^(?:\d+\.\d+|[1-9]\d*)$/S", $var))
         return $var;
 
     return db_real_escape($var, $quote);

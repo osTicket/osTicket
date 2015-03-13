@@ -14,6 +14,9 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once dirname(__file__) . "/class.module.php";
+require_once dirname(__file__) . "../../cli.inc.php";
+require_once INCLUDE_DIR . "class.export.php";
+require_once INCLUDE_DIR . 'class.json.php';
 
 class Importer extends Module {
     var $prologue =
@@ -33,6 +36,8 @@ class Importer extends Module {
             tables. This option can be specified more than once"),
         'drop' => array('-D', '--drop', 'action'=>'store_true', 'help'=>
             'Issue DROP TABLE statements before the create statemente'),
+        'go-baby' => array('-P', '--prime-time', 'action'=>'store_true',
+            'help'=>'Load data into live database. Use at your own risk'),
     );
 
     var $epilog =
@@ -41,11 +46,46 @@ class Importer extends Module {
     var $stream;
     var $header;
     var $source_ost_info;
+    var $parent;
+
+    function __construct($parent=false) {
+        parent::__construct();
+        if ($parent) {
+            $this->parent = $parent;
+            $this->stream = $parent->stream;
+        }
+    }
+    function __get($what) {
+        return $this->parent->{$what};
+    }
+    function __call($what, $how) {
+        return call_user_func_array(array($this->parent, $what), $how);
+    }
+
+    function run($args, $options) {
+        $stream = $options['stream'];
+        if ($options['compress']) $stream = "compress.zlib://$stream";
+        if (!($this->stream = fopen($stream, 'rb'))) {
+            $this->stderr->write('Unable to open input stream');
+            die();
+        }
+
+        if (!$this->verify_header())
+            die('Unable to verify backup header');
+
+        Bootstrap::connect();
+
+        $class = 'Importer_' . $this->header[1];
+        $importer = new $class($this);
+
+        while ($importer->import_table());
+        @fclose($this->stream);
+    }
 
     function verify_header() {
         list($header, $info) = $this->read_block();
         if (!$header || $header[0] != OSTICKET_BACKUP_SIGNATURE) {
-            $this->stderr->write('Header mismatch -- not an osTicket backup');
+            $this->stderr->write("Header mismatch -- not an osTicket backup\n");
             return false;
         }
         else
@@ -60,9 +100,7 @@ class Importer extends Module {
     }
 
     function read_block() {
-        $block = '';
-        while (!feof($this->stream) && (($c = fgetc($this->stream)) != "\x1e"))
-            $block .= $c;
+        $block = fgets($this->stream);
 
         if ($json = JsonDataParser::decode($block))
             return $json;
@@ -70,6 +108,37 @@ class Importer extends Module {
         if (strlen($block)) {
             $this->stderr->write("Unable to read block from input");
             die();
+        }
+    }
+
+    function load_row($info, $row, $flush=false) {
+        static $header = null;
+        static $rows = array();
+        static $length = 0;
+
+        if ($info && $header === null) {
+            $header = "INSERT INTO `".TABLE_PREFIX.$info[1].'` (';
+            $cols = array();
+            foreach ($info[2] as $col)
+                $cols[] = "`{$col['Field']}`";
+            $header .= implode(', ', $cols);
+            $header .= ") VALUES ";
+        }
+        if ($row) {
+            $values = array();
+            foreach ($info[2] as $i=>$col)
+                $values[] = (is_numeric($row[$i]))
+                    ? $row[$i]
+                    : ($row[$i] ? '0x'.bin2hex($row[$i]) : "''");
+            $values = "(" . implode(', ', $values) . ")";
+            $length += strlen($values);
+            $rows[] = &$values;
+        }
+        if (($flush || $length > 16000) && $header) {
+            $this->send_statement($header . implode(',', $rows));
+            $header = null;
+            $rows = array();
+            $length = 0;
         }
     }
 
@@ -81,6 +150,9 @@ class Importer extends Module {
             $this->stdout->write(";\n");
         }
     }
+}
+
+class Importer_A extends Importer {
 
     function import_table() {
         if (!($header = $this->read_block()))
@@ -173,18 +245,44 @@ class Importer extends Module {
                 .')');
         }
     }
+}
 
+class Importer_B extends Importer {
     function truncate_table($info) {
         $this->send_statement('TRUNCATE TABLE '.TABLE_PREFIX.$info[1]);
-        $indexes = array();
-        foreach ($info[3] as $idx) {
-            if ($idx['Key_name'] == 'PRIMARY')
-                continue;
-            $indexes[$idx['Key_name']] =
-                '`'.TABLE_PREFIX.$info[1].'`.`'.$idx['Key_name'].'`';
+    }
+
+    function import_table() {
+        if (!($header = $this->read_block()))
+            return false;
+
+        else if ($header[0] != 'table') {
+            $this->stderr->write('Unable to read table header');
+            return false;
         }
-        foreach ($indexes as $T=>$fqn)
-            $this->send_statement('DROP INDEX IF EXISTS '.$fqn);
+
+        // TODO: Consider included tables and excluded tables
+
+        $this->stderr->write("Importing table: {$header[1]}\n");
+
+        $res = db_query("select column_name from information_schema.columns
+            where table_schema=DATABASE() and table_name='{$header[1]}'");
+        while (list($field) = db_fetch_row($res))
+            if (!in_array($field, $header[2]))
+                $this->fail($header[1]
+                    .": Destination table does not have the `$field` field");
+
+        if (!isset($header[3]['truncate']) || $header[3]['truncate'])
+            $this->truncate_table($header);
+
+        while (($row=$this->read_block())) {
+            if (isset($row[0]) && ($row[0] == 'end-table')) {
+                $this->load_row(null, null, true);
+                return true;
+            }
+            $this->load_row($header, $row);
+        }
+        return false;
     }
 
     function load_row($info, $row, $flush=false) {
@@ -196,7 +294,7 @@ class Importer extends Module {
             $header = "INSERT INTO `".TABLE_PREFIX.$info[1].'` (';
             $cols = array();
             foreach ($info[2] as $col)
-                $cols[] = "`{$col['Field']}`";
+                $cols[] = "`$col`";
             $header .= implode(', ', $cols);
             $header .= ") VALUES ";
         }
@@ -218,23 +316,6 @@ class Importer extends Module {
         }
     }
 
-    function run($args, $options) {
-        require_once dirname(__file__) . '/../../../main.inc.php';
-        require_once INCLUDE_DIR . 'class.json.php';
-
-        $stream = $options['stream'];
-        if ($options['compress']) $stream = "compress.zlib://$stream";
-        if (!($this->stream = fopen($stream, 'rb'))) {
-            $this->stderr->write('Unable to open input stream');
-            die();
-        }
-
-        if (!$this->verify_header())
-            die('Unable to verify backup header');
-
-        while ($this->import_table());
-        @fclose($this->stream);
-    }
 }
 
 Module::register('import', 'Importer');

@@ -20,8 +20,10 @@ include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
+include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff {
+class Staff extends AuthenticatedUser
+implements EmailContact {
 
     var $ht;
     var $id;
@@ -66,6 +68,7 @@ class Staff {
         $this->teams = $this->ht['teams'] = array();
         $this->group = $this->dept = null;
         $this->departments = $this->stats = array();
+        $this->config = new Config('staff.'.$this->id);
 
         //WE have to patch info here to support upgrading from old versions.
         if(($time=strtotime($this->ht['passwdreset']?$this->ht['passwdreset']:$this->ht['added'])))
@@ -83,16 +86,31 @@ class Staff {
         return $this->load();
     }
 
-    function asVar() {
-        return $this->getName();
+    function __toString() {
+        return (string) $this->getName();
     }
 
-    function getHastable() {
+    function asVar() {
+        return $this->__toString();
+    }
+
+    function getHashtable() {
         return $this->ht;
     }
 
     function getInfo() {
-        return $this->getHastable();
+        return $this->config->getInfo() + $this->getHashtable();
+    }
+
+    // AuthenticatedUser implementation...
+    // TODO: Move to an abstract class that extends Staff
+    function getRole() {
+        return 'staff';
+    }
+
+    function getAuthBackend() {
+        list($authkey, ) = explode(':', $this->getAuthKey());
+        return StaffAuthenticationBackend::getBackend($authkey);
     }
 
     /*compares user password*/
@@ -118,6 +136,10 @@ class Staff {
 
     function cmp_passwd($password) {
         return $this->check_passwd($password, false);
+    }
+
+    function hasPassword() {
+        return (bool) $this->ht['passwd'];
     }
 
     function forcePasswdRest() {
@@ -153,6 +175,9 @@ class Staff {
 
     function getId() {
         return $this->id;
+    }
+    function getUserId() {
+        return $this->getId();
     }
 
     function getEmail() {
@@ -256,6 +281,17 @@ class Staff {
         return $this->dept;
     }
 
+    function getLanguage() {
+        static $cached = false;
+        if (!$cached) $cached = &$_SESSION['staff:lang'];
+
+        if (!$cached) {
+            $cached = $this->config->get('lang');
+            if (!$cached)
+                $cached = Internationalization::getDefaultLanguage();
+        }
+        return $cached;
+    }
 
     function isManager() {
         return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
@@ -364,8 +400,7 @@ class Staff {
     }
 
     function showAssignedTickets() {
-        return ($this->ht['show_assigned_tickets']
-                && ($this->isAdmin() || $this->isManager()));
+        return ($this->ht['show_assigned_tickets']);
     }
 
     function getTeams() {
@@ -411,61 +446,65 @@ class Staff {
         $vars['lastname']=Format::striptags($vars['lastname']);
 
         if($this->getId()!=$vars['id'])
-            $errors['err']='Internal Error';
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['firstname'])
-            $errors['firstname']='First name required';
+            $errors['firstname']=__('First name is required');
 
         if(!$vars['lastname'])
-            $errors['lastname']='Last name required';
+            $errors['lastname']=__('Last name is required');
 
         if(!$vars['email'] || !Validator::is_email($vars['email']))
-            $errors['email']='Valid email required';
+            $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
-            $errors['email']='Already in-use as system email';
+            $errors['email']=__('Already in-use as system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$this->getId())
-            $errors['email']='Email already in-use by another staff member';
+            $errors['email']=__('Email already in-use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
-            $errors['phone']='Valid number required';
+            $errors['phone']=__('Valid phone number is required');
 
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
-            $errors['mobile']='Valid number required';
+            $errors['mobile']=__('Valid phone number is required');
 
         if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
 
             if(!$vars['passwd1'])
-                $errors['passwd1']='New password required';
+                $errors['passwd1']=__('New password is required');
             elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']='Must be at least 6 characters';
+                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']='Password(s) do not match';
+                $errors['passwd2']=__('Passwords do not match');
 
             if (($rtoken = $_SESSION['_staff']['reset-token'])) {
                 $_config = new Config('pwreset');
                 if ($_config->get($rtoken) != $this->getId())
                     $errors['err'] =
-                        'Invalid reset token. Logout and try again';
+                        __('Invalid reset token. Logout and try again');
                 elseif (!($ts = $_config->lastModified($rtoken))
                         && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
                     $errors['err'] =
-                        'Invalid reset token. Logout and try again';
+                        __('Invalid reset token. Logout and try again');
             }
             elseif(!$vars['cpasswd'])
-                $errors['cpasswd']='Current password required';
+                $errors['cpasswd']=__('Current password is required');
             elseif(!$this->cmp_passwd($vars['cpasswd']))
-                $errors['cpasswd']='Invalid current password!';
+                $errors['cpasswd']=__('Invalid current password!');
             elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                $errors['passwd1']='New password MUST be different from the current password!';
+                $errors['passwd1']=__('New password MUST be different from the current password!');
         }
 
         if(!$vars['timezone_id'])
-            $errors['timezone_id']='Time zone required';
+            $errors['timezone_id']=__('Time zone selection is required');
 
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
-            $errors['default_signature_type'] = "You don't have a signature";
+            $errors['default_signature_type'] = __("You don't have a signature");
 
         if($errors) return false;
+
+        $this->config->set('lang', $vars['lang']);
+        $_SESSION['staff:lang'] = null;
+        TextDomain::configureForUser($this);
 
         $sql='UPDATE '.STAFF_TABLE.' SET updated=NOW() '
             .' ,firstname='.db_input($vars['firstname'])
@@ -534,16 +573,26 @@ class Staff {
     function delete() {
         global $thisstaff;
 
-        if(!$thisstaff || !($id=$this->getId()) || $id==$thisstaff->getId())
+        if (!$thisstaff || $this->getId() == $thisstaff->getId())
             return 0;
 
-        $sql='DELETE FROM '.STAFF_TABLE.' WHERE staff_id='.db_input($id).' LIMIT 1';
+        $sql='DELETE FROM '.STAFF_TABLE
+            .' WHERE staff_id = '.db_input($this->getId()).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
             // DO SOME HOUSE CLEANING
             //Move remove any ticket assignments...TODO: send alert to Dept. manager?
-            db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE status=\'open\' AND staff_id='.db_input($id));
+            db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE staff_id='.db_input($this->getId()));
+
+            //Update the poster and clear staff_id on ticket thread table.
+            db_query('UPDATE '.TICKET_THREAD_TABLE
+                    .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
+                    .' WHERE staff_id='.db_input($this->getId()));
+
             //Cleanup Team membership table.
-            db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($id));
+            db_query('DELETE FROM '.TEAM_MEMBER_TABLE.' WHERE staff_id='.db_input($this->getId()));
+
+            // Destrory config settings
+            $this->config->destroy();
         }
 
         Signal::send('model.deleted', $this);
@@ -554,7 +603,7 @@ class Staff {
     /**** Static functions ********/
     function getStaffMembers($availableonly=false) {
 
-        $sql='SELECT s.staff_id,CONCAT_WS(", ",s.lastname, s.firstname) as name '
+        $sql='SELECT s.staff_id, CONCAT_WS(" ", s.firstname, s.lastname) as name '
             .' FROM '.STAFF_TABLE.' s ';
 
         if($availableonly) {
@@ -597,90 +646,13 @@ class Staff {
         return ($id && ($staff= new Staff($id)) && $staff->getId()) ? $staff : null;
     }
 
-    function login($username, $passwd, &$errors, $strike=true) {
-        global $ost, $cfg;
-
-
-        if($_SESSION['_staff']['laststrike']) {
-            if((time()-$_SESSION['_staff']['laststrike'])<$cfg->getStaffLoginTimeout()) {
-                $errors['err']='Max. failed login attempts reached';
-                $_SESSION['_staff']['laststrike'] = time(); //reset timer.
-            } else { //Timeout is over.
-                //Reset the counter for next round of attempts after the timeout.
-                $_SESSION['_staff']['laststrike']=null;
-                $_SESSION['_staff']['strikes']=0;
-            }
-        }
-
-        if(!$username || !$passwd || is_numeric($username))
-            $errors['err'] = 'Username and password required';
-
-        if($errors) return false;
-
-        if(($user=new StaffSession(trim($username))) && $user->getId() && $user->check_passwd($passwd)) {
-            self::_do_login($user, $username);
-
-            Signal::send('auth.login.succeeded', $user);
-            $user->cancelResetTokens();
-
-            return $user;
-        }
-
-        $info = array('username'=>$username, 'password'=>$passwd);
-        Signal::send('auth.login.failed', null, $info);
-
-        //If we get to this point we know the login failed.
-        $_SESSION['_staff']['strikes']+=1;
-        if(!$errors && $_SESSION['_staff']['strikes']>$cfg->getStaffMaxLogins()) {
-            $errors['err']='Forgot your login info? Contact Admin.';
-            $_SESSION['_staff']['laststrike']=time();
-            $alert='Excessive login attempts by a staff member?'."\n".
-                   'Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR']."\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".
-                   'Attempts #'.$_SESSION['_staff']['strikes']."\n".'Timeout: '.($cfg->getStaffLoginTimeout()/60)." minutes \n\n";
-            $ost->logWarning('Excessive login attempts ('.$username.')', $alert, ($cfg->alertONLoginError()));
-
-        } elseif($_SESSION['_staff']['strikes']%2==0) { //Log every other failed login attempt as a warning.
-            $alert='Username: '.$username."\n".'IP: '.$_SERVER['REMOTE_ADDR'].
-                   "\n".'TIME: '.date('M j, Y, g:i a T')."\n\n".'Attempts #'.$_SESSION['_staff']['strikes'];
-            $ost->logWarning('Failed staff login attempt ('.$username.')', $alert, false);
-        }
-
-        return false;
-    }
-
-    function _do_login($user, $username) {
-        global $ost;
-
-        //update last login && password reset stuff.
-        $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
-        if($user->isPasswdResetDue() && !$user->isAdmin())
-            $sql.=',change_passwd=1';
-        $sql.=' WHERE staff_id='.db_input($user->getId());
-        db_query($sql);
-        //Now set session crap and lets roll baby!
-        $_SESSION['_staff'] = array(); //clear.
-        $_SESSION['_staff']['userID'] = $user->getId();
-        $user->refreshSession(); //set the hash.
-        $_SESSION['TZ_OFFSET'] = $user->getTZoffset();
-        $_SESSION['TZ_DST'] = $user->observeDaylight();
-
-        //Log debug info.
-        $ost->logDebug('Staff login',
-                sprintf("%s logged in [%s]", $user->getUserName(), $_SERVER['REMOTE_ADDR'])); //Debug.
-
-        //Regenerate session id.
-        $sid=session_id(); //Current id
-        session_regenerate_id(TRUE);
-        //Destroy old session ID - needed for PHP version < 5.1.0 TODO: remove when we move to php 5.3 as min. requirement.
-        if(($session=$ost->getSession()) && is_object($session) && $sid!=session_id())
-            $session->destroy($sid);
-
-        return $user;
-    }
 
     function create($vars, &$errors) {
-        if(($id=self::save(0, $vars, $errors)) && $vars['teams'] && ($staff=Staff::lookup($id))) {
-            $staff->updateTeams($vars['teams']);
+        if(($id=self::save(0, $vars, $errors)) && ($staff=Staff::lookup($id))) {
+            if ($vars['teams'])
+                $staff->updateTeams($vars['teams']);
+            if ($vars['welcome_email'])
+                $staff->sendResetEmail('registration-staff');
             Signal::send('model.created', $staff);
         }
 
@@ -696,39 +668,40 @@ class Staff {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail() {
+    function sendResetEmail($template='pwreset-staff') {
         global $ost, $cfg;
 
-        if(!($tpl = $this->getDept()->getTemplate()))
-            $tpl= $ost->getConfig()->getDefaultTemplate();
-
+        $content = Page::lookup(Page::getIdByType($template));
         $token = Misc::randCode(48); // 290-bits
-        if (!($template = $tpl->getMsgTemplate('staff.pwreset')))
-            return new Error('Unable to retrieve password reset email template');
+
+        if (!$content)
+            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'token' => $token,
             'staff' => $this,
+            'recipient' => $this,
             'reset_link' => sprintf(
                 "%s/scp/pwreset.php?token=%s",
                 $ost->getConfig()->getBaseUrl(),
                 $token),
         );
+        $vars['link'] = &$vars['reset_link'];
 
-        if(!($email=$cfg->getAlertEmail()))
+        if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
         $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
-            $ost->logWarning('Staff Password Reset', sprintf(
-               'Password reset was attempted for staff member: %s<br><br>
-                Requested-User-Id: %s<br>
-                Source-Ip: %s<br>
-                Email-Sent-To: %s<br>
-                Email-Sent-Via: %s',
+            $ost->logWarning(_S('Agent Password Reset'), sprintf(
+             _S('Password reset was attempted for agent: %1$s<br><br>
+                Requested-User-Id: %2$s<br>
+                Source-Ip: %3$s<br>
+                Email-Sent-To: %4$s<br>
+                Email-Sent-Via: %5$s'),
                 $this->getName(),
                 $_POST['userid'],
                 $_SERVER['REMOTE_ADDR'],
@@ -736,12 +709,16 @@ class Staff {
                 $email->getEmail()
             ), false);
 
-        $msg = $ost->replaceTemplateVariables($template->asArray(), $vars);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getName(),
+            'body' => $content->getBody(),
+        ), $vars);
 
         $_config = new Config('pwreset');
         $_config->set($vars['token'], $this->getId());
 
-        $email->send($this->getEmail(), $msg['subj'], $msg['body']);
+        $email->send($this->getEmail(), Format::striptags($msg['subj']),
+            $msg['body']);
     }
 
     function save($id, $vars, &$errors) {
@@ -751,51 +728,69 @@ class Staff {
         $vars['lastname']=Format::striptags($vars['lastname']);
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal Error';
+            $errors['err']=__('Internal Error');
 
         if(!$vars['firstname'])
-            $errors['firstname']='First name required';
+            $errors['firstname']=__('First name required');
         if(!$vars['lastname'])
-            $errors['lastname']='Last name required';
+            $errors['lastname']=__('Last name required');
 
         $error = '';
         if(!$vars['username'] || !Validator::is_username($vars['username'], $error))
-            $errors['username']=($error) ? $error : 'Username required';
+            $errors['username']=($error) ? $error : __('Username is required');
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
-            $errors['username']='Username already in use';
+            $errors['username']=__('Username already in use');
 
         if(!$vars['email'] || !Validator::is_email($vars['email']))
-            $errors['email']='Valid email required';
+            $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
-            $errors['email']='Already in-use system email';
+            $errors['email']=__('Already in use system email');
         elseif(($uid=Staff::getIdByEmail($vars['email'])) && $uid!=$id)
-            $errors['email']='Email already in use by another staff member';
+            $errors['email']=__('Email already in use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
-            $errors['phone']='Valid number required';
+            $errors['phone']=__('Valid phone number is required');
 
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
-            $errors['mobile']='Valid number required';
+            $errors['mobile']=__('Valid phone number is required');
 
         if($vars['passwd1'] || $vars['passwd2'] || !$id) {
-            if(!$vars['passwd1'] && !$id) {
-                $errors['passwd1']='Temp. password required';
-                $errors['temppasswd']='Required';
+            if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
+                $errors['passwd2']=__('Passwords do not match');
+            }
+            elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
+                // Password can be omitted
+            }
+            elseif(!$vars['passwd1'] && !$id) {
+                $errors['passwd1']=__('Temporary password is required');
+                $errors['temppasswd']=__('Required');
             } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
-                $errors['passwd1']='Must be at least 6 characters';
-            } elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
-                $errors['passwd2']='Password(s) do not match';
+                $errors['passwd1']=__('Password must be at least 6 characters');
             }
         }
 
         if(!$vars['dept_id'])
-            $errors['dept_id']='Department required';
+            $errors['dept_id']=__('Department is required');
 
         if(!$vars['group_id'])
-            $errors['group_id']='Group required';
+            $errors['group_id']=__('Group is required');
 
         if(!$vars['timezone_id'])
-            $errors['timezone_id']='Time zone required';
+            $errors['timezone_id']=__('Time zone selection is required');
+
+        // Ensure we will still have an administrator with access
+        if ($vars['isadmin'] !== '1' || $vars['isactive'] !== '1') {
+            $sql = 'select count(*), max(staff_id) from '.STAFF_TABLE
+                .' WHERE isadmin=1 and isactive=1';
+            if (($res = db_query($sql))
+                    && (list($count, $sid) = db_fetch_row($res))) {
+                if ($count == 1 && $sid == $id) {
+                    $errors['isadmin'] = __(
+                        'Cowardly refusing to remove or lock out the only active administrator'
+                    );
+                }
+            }
+        }
 
         if($errors) return false;
 
@@ -814,6 +809,7 @@ class Staff {
             .' ,firstname='.db_input($vars['firstname'])
             .' ,lastname='.db_input($vars['lastname'])
             .' ,email='.db_input($vars['email'])
+            .' ,backend='.db_input($vars['backend'])
             .' ,phone="'.db_input(Format::phone($vars['phone']),false).'"'
             .' ,phone_ext='.db_input($vars['phone_ext'])
             .' ,mobile="'.db_input(Format::phone($vars['mobile']),false).'"'
@@ -822,23 +818,27 @@ class Staff {
 
         if($vars['passwd1']) {
             $sql.=' ,passwd='.db_input(Passwd::hash($vars['passwd1']));
-        }
 
-        if(isset($vars['change_passwd']))
-            $sql.=' ,change_passwd=1';
+            if(isset($vars['change_passwd']))
+                $sql.=' ,change_passwd=1';
+        }
+        elseif (!isset($vars['change_passwd']))
+            $sql .= ' ,change_passwd=0';
 
         if($id) {
             $sql='UPDATE '.STAFF_TABLE.' '.$sql.' WHERE staff_id='.db_input($id);
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']='Unable to update the user. Internal error occurred';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         } else {
             $sql='INSERT INTO '.STAFF_TABLE.' '.$sql.', created=NOW()';
             if(db_query($sql) && ($uid=db_insert_id()))
                 return $uid;
 
-            $errors['err']='Unable to create user. Internal error';
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

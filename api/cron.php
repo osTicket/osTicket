@@ -17,7 +17,7 @@
 require('api.inc.php');
 
 if (!osTicket::is_cli())
-    die('cron.php only supports local cron calls - use http -> api/tasks/cron');
+    die(__('cron.php only supports local cron calls - use http -> api/tasks/cron'));
 
 require_once(INCLUDE_DIR.'api.cron.php');
 LocalCronApiController::call();

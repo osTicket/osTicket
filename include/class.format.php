@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+include_once INCLUDE_DIR.'class.charset.php';
 
 class Format {
 
@@ -30,42 +31,14 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    function file_name($filename) {
-        return preg_replace('/\s+/', '_', $filename);
-    }
+    function filesize2bytes($size) {
+        switch (substr($size, -1)) {
+        case 'M': case 'm': return (int)$size <<= 20;
+        case 'K': case 'k': return (int)$size <<= 10;
+        case 'G': case 'g': return (int)$size <<= 30;
+        }
 
-    /* encode text into desired encoding - taking into accout charset when available. */
-    function encode($text, $charset=null, $encoding='utf-8') {
-
-        //Try auto-detecting charset/encoding
-        if(!$charset && function_exists('mb_detect_encoding'))
-            $charset = mb_detect_encoding($text);
-
-        // Cleanup - incorrect, bogus, or ambiguous charsets
-        if($charset && in_array(strtolower(trim($charset)),
-                array('default','x-user-defined','iso','us-ascii')))
-            $charset = 'ISO-8859-1';
-
-        if ($charset && strcasecmp($charset, $encoding) === 0)
-            return $text;
-
-        $original = $text;
-        if(function_exists('iconv') && $charset)
-            $text = iconv($charset, $encoding.'//IGNORE', $text);
-        elseif(function_exists('mb_convert_encoding') && $charset && $encoding)
-            $text = mb_convert_encoding($text, $encoding, $charset);
-        elseif(!strcasecmp($encoding, 'utf-8')) //forced blind utf8 encoding.
-            $text = function_exists('imap_utf8')?imap_utf8($text):utf8_encode($text);
-
-        // If $text is false, then we have a (likely) invalid charset, use
-        // the original text and assume 8-bit (latin-1 / iso-8859-1)
-        // encoding
-        return (!$text && $original) ? $original : $text;
-    }
-
-    //Wrapper for utf-8 encoding.
-    function utf8encode($text, $charset=null) {
-        return Format::encode($text, $charset, 'utf-8');
+        return $size;
     }
 
     function mimedecode($text, $encoding='UTF-8') {
@@ -74,12 +47,13 @@ class Format {
                 && ($parts = imap_mime_header_decode($text))) {
             $str ='';
             foreach ($parts as $part)
-                $str.= Format::encode($part->text, $part->charset, $encoding);
+                $str.= Charset::transcode($part->text, $part->charset, $encoding);
 
             $text = $str;
-        } elseif(function_exists('iconv_mime_decode')) {
+        } elseif($text[0] == '=' && function_exists('iconv_mime_decode')) {
             $text = iconv_mime_decode($text, 0, $encoding);
-        } elseif(!strcasecmp($encoding, 'utf-8') && function_exists('imap_utf8')) {
+        } elseif(!strcasecmp($encoding, 'utf-8')
+                && function_exists('imap_utf8')) {
             $text = imap_utf8($text);
         }
 
@@ -98,9 +72,18 @@ class Format {
                 $filename, $match))
             // XXX: Currently we don't care about the language component.
             //      The  encoding hint is sufficient.
-            return self::utf8encode(urldecode($match[3]), $match[1]);
+            return Charset::utf8(urldecode($match[3]), $match[1]);
         else
             return $filename;
+    }
+
+    /**
+     * Json Encoder
+     *
+     */
+    function json_encode($what) {
+        require_once (INCLUDE_DIR.'class.json.php');
+        return JsonDataEncoder::encode($what);
     }
 
 	function phone($phone) {
@@ -149,7 +132,7 @@ class Format {
 
         # See if advanced html2text is available (requires xml extension)
         if (function_exists('convert_html_to_text')
-                && extension_loaded('xml'))
+                && extension_loaded('dom'))
             return convert_html_to_text($html, $width);
 
         # Try simple html2text  - insert line breaks after new line tags.
@@ -171,7 +154,7 @@ class Format {
         if (isset($attributes['class'])) {
             $classes = explode(' ', $attributes['class']);
             foreach ($classes as $i=>$a)
-                // Unset all unsupported style classes -- anything by M$
+                // Unset all unsupported style classes -- anything but M$
                 if (strpos($a, 'Mso') !== 0)
                     unset($classes[$i]);
             if ($classes)
@@ -181,14 +164,28 @@ class Format {
         }
         // Clean browser-specific style attributes
         if (isset($attributes['style'])) {
-            $styles = explode(';', $attributes['style']);
-            foreach ($styles as $i=>$s) {
-                list($prop, $val) = explode(':', $s);
-                if (!$val || !$prop || $prop[0] == '-')
+            $styles = preg_split('/;\s*/S', html_entity_decode($attributes['style']));
+            $props = array();
+            foreach ($styles as $i=>&$s) {
+                @list($prop, $val) = explode(':', $s);
+                if (isset($props[$prop])) {
                     unset($styles[$i]);
+                    continue;
+                }
+                $props[$prop] = true;
+                // Remove unset or browser-specific style rules
+                if (!$val || !$prop || $prop[0] == '-' || substr($prop, 0, 4) == 'mso-')
+                    unset($styles[$i]);
+                // Remove quotes of properties without enclosed space
+                if (!strpos($val, ' '))
+                    $val = str_replace('"','', $val);
+                else
+                    $val = str_replace('"',"'", $val);
+                $s = "$prop:".trim($val);
             }
+            unset($s);
             if ($styles)
-                $attributes['style'] = implode(';', $styles);
+                $attributes['style'] = Format::htmlchars(implode(';', $styles));
             else
                 unset($attributes['style']);
         }
@@ -206,11 +203,12 @@ class Format {
     function safe_html($html) {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
-            array(':<(head|style|script).+</\1>:is',   # <head> and <style> sections
+            array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
+                  ':<\?[^>]+>:',                # <?xml version="1.0" ... >
             ),
-            array('', '', ''),
+            array('', '', '', ''),
             $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
@@ -221,16 +219,17 @@ class Format {
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
             'elements' => '*+iframe',
-            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder;',
+            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder; div=data-mid',
         );
 
         return Format::html($html, $config);
     }
 
     function localizeInlineImages($text) {
-        // Change image.php urls back to content-id's
-        return preg_replace('/image\\.php\\?h=([\\w.-]{32})\\w{32}/',
-            'cid:$1', $text);
+        // Change file.php urls back to content-id's
+        return preg_replace(
+            '/src="(?:\/[^"]+?)?\/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*/',
+            'src="cid:$1', $text);
     }
 
     function sanitize($text, $striptags=false) {
@@ -244,18 +243,27 @@ class Format {
         return $striptags?Format::striptags($text, false):$text;
     }
 
-    function htmlchars($var) {
-        return Format::htmlencode($var);
-    }
+    function htmlchars($var, $sanitize = false) {
+        static $phpversion = null;
 
-    function htmlencode($var) {
-        $flags = ENT_COMPAT | ENT_QUOTES;
-        if (phpversion() >= '5.4.0')
+        if (is_array($var))
+            return array_map(array('Format', 'htmlchars'), $var);
+
+        if ($sanitize)
+            $var = Format::sanitize($var);
+
+        if (!isset($phpversion))
+            $phpversion = phpversion();
+
+        $flags = ENT_COMPAT;
+        if ($phpversion >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return is_array($var)
-            ? array_map(array('Format','htmlencode'), $var)
-            : htmlentities($var, $flags, 'UTF-8');
+        try {
+            return htmlspecialchars( (string) $var, $flags, 'UTF-8', false);
+        } catch(Exception $e) {
+            return $var;
+        }
     }
 
     function htmldecode($var) {
@@ -267,11 +275,11 @@ class Format {
         if (phpversion() >= '5.4.0')
             $flags |= ENT_HTML401;
 
-        return html_entity_decode($var, $flags, 'UTF-8');
+        return htmlspecialchars_decode($var, $flags);
     }
 
     function input($var) {
-        return Format::htmlencode($var);
+        return Format::htmlchars($var);
     }
 
     //Format text for display..
@@ -281,7 +289,7 @@ class Format {
             function($match) {
                 // Drop embedded classes -- they don't refer to ours
                 $match = preg_replace('/class="[^"]*"/', '', $match);
-                return sprintf('<div %s class="non-local-image" data-%s %s></div>',
+                return sprintf('<span %s class="non-local-image" data-%s %s></span>',
                     $match[1], $match[2], $match[3]);
             },
             $text);
@@ -304,94 +312,78 @@ class Format {
     }
 
     //make urls clickable. Mainly for display
-    function clickableurls($text) {
+    function clickableurls($text, $target='_blank') {
         global $ost;
-
-        $token = $ost->getLinkToken();
 
         // Find all text between tags
         $text = preg_replace_callback(':^[^<]+|>[^<]+:',
-            function($match) use ($token) {
+            function($match) {
                 // Scan for things that look like URLs
-                $links = preg_replace_callback(
-                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([a-zA-Z0-9_-]+(\.|/|$))+\S*)`',
-                    function ($match) use ($token) {
-                        if (in_array(substr($match[1], -1),
-                                array(',','.','?','!',':',';'))) {
-                            $match[7] = substr($match[1], -1);
-                            $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                return preg_replace_callback(
+                    '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)'
+                   .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
+                    function ($match) {
+                        if ($match[1]) {
+                            while (in_array(substr($match[1], -1),
+                                    array('.','?','-',':',';'))) {
+                                $match[9] = substr($match[1], -1) . $match[9];
+                                $match[1] = substr($match[1], 0, strlen($match[1])-1);
+                            }
+                            if (strpos($match[2], '//') === false) {
+                                $match[1] = 'http://' . $match[1];
+                            }
+
+                            return sprintf('<a href="%s">%s</a>%s',
+                                $match[1], $match[1], $match[9]);
+                        } elseif ($match[6]) {
+                            return sprintf('<a href="mailto:%1$s" target="_blank">%1$s</a>',
+                                $match[6]);
                         }
-                        return '<a href="l.php?url='.urlencode($match[1])
-                            .sprintf('&auth=%s" target="_blank">', $token)
-                            .$match[1].'</a>'.$match[7];
                     },
                     $match[0]);
-                // Now change email addresses to links with mailto: scheme
-                return preg_replace(
-                    '/(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})/',
-                    '<a href="mailto:\\1" target="_blank">\\1</a>', $links);
             },
             $text);
 
         // Now change @href and @src attributes to come back through our
         // system as well
         $config = array(
-            'hook_tag' => function($e, $a=0) use ($token) {
+            'hook_tag' => function($e, $a=0) use ($target) {
                 static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
                     'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
                 if ($e == 'a' && $a) {
-                    if (isset($a['href'])
-                            && strpos($a['href'], 'l.php?') === false)
-                        $a['href'] = 'l.php?url='.urlencode($a['href'])
-                            .'&amp;auth='.$token;
-                    // ALL link targets open in a new tab
-                    $a['target'] = '_blank';
+                    $a['target'] = $target;
+                    $a['class'] = 'no-pjax';
                 }
-                // Images which are external are rewritten to <div
-                // data-src='url...'/>
-                elseif ($e == 'div' && $a && isset($a['data-src']))
-                    $a['data-src'] = 'l.php?url='.urlencode($a['data-src'])
-                        .'&amp;auth='.$token;
-                // URLs for videos need to route too
-                elseif ($e == 'iframe' && $a && isset($a['src']))
-                    $a['src'] = 'l.php?url='.urlencode($a['src'])
-                        .'&amp;auth='.$token;
+
                 $at = '';
                 if (is_array($a)) {
                     foreach ($a as $k=>$v)
                         $at .= " $k=\"$v\"";
                     return "<{$e}{$at}".(isset($eE[$e])?" /":"").">";
-                }
-                else {
+                } else {
                     return "</{$e}>";
                 }
             },
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'elements' => '*+iframe',
-            'spec' => 'div=data-src,width,height',
+            'spec' => 'span=data-src,width,height',
         );
         return Format::html($text, $config);
     }
 
     function stripEmptyLines($string) {
-        //return preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $string);
-        //return preg_replace('/\s\s+/',"\n",$string); //Too strict??
-        return preg_replace("/\n{3,}/", "\n\n", $string);
+        return preg_replace("/\n{3,}/", "\n\n", trim($string));
     }
 
 
-    function linebreaks($string) {
-        return urldecode(ereg_replace("%0D", " ", urlencode($string)));
-    }
-
-    function viewableImages($html, $script='image.php') {
-        return preg_replace_callback('/"cid:([\\w.-]{32})"/',
+    function viewableImages($html, $script=false) {
+        return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($script) {
             $hash = $match[1];
             if (!($file = AttachmentFile::lookup($hash)))
                 return $match[0];
-            return sprintf('"%s?h=%s" data-cid="%s"',
-                $script, $file->getDownloadHash(), $match[1]);
+            return sprintf('"%s" data-cid="%s"',
+                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
         }, $html);
     }
 
@@ -530,7 +522,7 @@ class Format {
                 $contents = base64_decode($contents);
         }
         if ($output_encoding && $charset)
-            $contents = Format::encode($contents, $charset, $output_encoding);
+            $contents = Charset::transcode($contents, $charset, $output_encoding);
 
         return array(
             'data' => $contents,
@@ -538,5 +530,65 @@ class Format {
         );
     }
 
+    // Performs Unicode normalization (where possible) and splits words at
+    // difficult word boundaries (for far eastern languages)
+    function searchable($text, $lang=false) {
+        global $cfg;
+
+        if (function_exists('normalizer_normalize')) {
+            // Normalize text input :: remove diacritics and such
+            $text = normalizer_normalize($text, Normalizer::FORM_C);
+        }
+        else {
+            // As a lightweight compatiblity, use a lightweight C
+            // normalizer with diacritic removal, thanks
+            // http://ahinea.com/en/tech/accented-translate.html
+            $tr = array(
+                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
+            );
+            $text = strtr($text, $tr);
+        }
+        // Decompose compatible versions of characters (ä => ae)
+        $tr = array(
+            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
+            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
+            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
+            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
+            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
+            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
+            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
+            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
+        );
+        $text = strtr($text, $tr);
+
+        // Drop separated diacritics
+        $text = preg_replace('/\p{M}/u', '', $text);
+
+        // Drop extraneous whitespace
+        $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+        // Drop leading and trailing whitespace
+        $text = trim($text);
+
+        if (false && class_exists('IntlBreakIterator')) {
+            // Split by word boundaries
+            if ($tokenizer = IntlBreakIterator::createWordInstance(
+                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+            ) {
+                $tokenizer->setText($text);
+                $tokens = array();
+                foreach ($tokenizer as $token)
+                    $tokens[] = $token;
+                $text = implode(' ', $tokens);
+            }
+        }
+        else {
+            // Approximate word boundaries from Unicode chart at
+            // http://www.unicode.org/reports/tr29/#Word_Boundaries
+
+            // Punt for now
+        }
+        return $text;
+    }
 }
 ?>

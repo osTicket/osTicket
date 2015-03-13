@@ -41,7 +41,6 @@
         size: 40
         length: 64
         validator: email # notrans
-
     - type: text # notrans
       name: name # notrans
       label: Full Name
@@ -51,13 +50,11 @@
       configuration:
         size: 40
         length: 64
-
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
       required: false
       sort: 3
-
     - type: memo # notrans
       name: notes
       label: Internal Notes
@@ -67,7 +64,6 @@
       configuration:
         rows: 4
         cols: 40
-
 - id: 2
   type: T # notrans
   title: Ticket Details
@@ -78,7 +74,8 @@
       tickets, and will be searchable with advanced search and filterable.
   deletable: false
   fields:
-    - type: text # notrans
+    - id: 20
+      type: text # notrans
       name: subject # notrans
       label: Issue Summary
       required: true
@@ -87,23 +84,22 @@
       configuration:
         size: 40
         length: 50
-
-    - type: thread # notrans
+    - id: 21
+      type: thread # notrans
       name: message # notrans
       label: Issue Details
       hint: Details on the reason(s) for opening the ticket.
       required: true
       edit_mask: 15
       sort: 2
-
-    - type: priority # notrans
+    - id: 22
+      type: priority # notrans
       name: priority # notrans
       label: Priority Level
       required: false
       private: true
       edit_mask: 3
       sort: 3
-
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates
@@ -118,7 +114,6 @@
       configuration:
         size: 40
         length: 64
-
     - type: text # notrans
       name: website # notrans
       label: Website
@@ -126,7 +121,6 @@
       configuration:
         size: 40
         length: 64
-
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
@@ -134,7 +128,6 @@
       sort: 3
       configuration:
         ext: false
-
     - type: memo # notrans
       name: address
       label: Address
@@ -144,5 +137,49 @@
         rows: 2
         cols: 40
         html: false
-        maxlength: 100
-
+        length: 100
+- type: O # notrans
+  title: Organization Information
+  instructions: Details on user organization
+  deletable: false
+  fields:
+    - type: text # notrans
+      name: name # notrans
+      label: Name
+      required: true
+      sort: 1
+      edit_mask: 15
+      configuration:
+        size: 40
+        length: 64
+    - type: memo
+      name: address
+      label: Address
+      required: false
+      sort: 2
+      configuration:
+        rows: 2
+        cols: 40
+        length: 100
+        html: false
+    - type: phone
+      name: phone
+      label: Phone
+      required: false
+      sort: 3
+    - type: text
+      name: website
+      label: Website
+      required: false
+      sort: 4
+      configuration:
+        size: 40
+        length: 0
+    - type: memo # notrans
+      name: notes
+      label: Internal Notes
+      required: false
+      sort: 5
+      configuration:
+        rows: 4
+        cols: 40

@@ -63,11 +63,15 @@ class VariableReplacer {
 
         if(!$obj) return "";
 
-        if(!$var && is_callable(array($obj, 'asVar')))
-            return call_user_func(array($obj, 'asVar'));
+        if (!$var) {
+            if (method_exists($obj, 'asVar'))
+                return call_user_func(array($obj, 'asVar'));
+            elseif (method_exists($obj, '__toString'))
+                return (string) $obj;
+        }
 
         list($v, $part) = explode('.', $var, 2);
-        if($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
+        if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
             $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
             if(!$rv || !is_object($rv))
                 return $rv;
@@ -75,19 +79,17 @@ class VariableReplacer {
             return $this->getVar($rv, $part);
         }
 
-        if(!$var || !is_callable(array($obj, 'getVar')))
+        if (!$var || !method_exists($obj, 'getVar'))
             return "";
 
-        $parts = explode('.', $var);
-        if(($rv = call_user_func(array($obj, 'getVar'), $parts[0]))===false)
+        list($tag, $remainder) = explode('.', $var, 2);
+        if(($rv = call_user_func(array($obj, 'getVar'), $tag))===false)
             return "";
 
         if(!is_object($rv))
             return $rv;
 
-        list(, $part) = explode('.', $var, 2);
-
-        return $this->getVar($rv, $part);
+        return $this->getVar($rv, $remainder);
     }
 
     function replaceVars($input) {
@@ -114,7 +116,7 @@ class VariableReplacer {
             return $this->variables[$parts[0]];
 
         //Unknown object or variable - leavig it alone.
-        $this->setError('Unknown obj for "'.$var.'" tag ');
+        $this->setError(sprintf(__('Unknown object for "%s" tag'), $var));
         return false;
     }
 

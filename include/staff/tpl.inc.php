@@ -34,14 +34,15 @@ if (is_a($template, EmailTemplateGroup)) {
 $tpl=$msgtemplates[$selected];
 
 ?>
-<h2>Email Template Message - <span><?php echo $name; ?></span></h2>
-<div style="padding-top:10px;padding-bottom:5px;">
-    <form method="get" action="templates.php?">
+<form method="get" action="templates.php?">
+<h2><span><?php echo __('Email Template Set');
+    ?> &nbsp;/&nbsp; <span><a href="templates.php?tpl_id=<?php echo $tpl_id; ?>"><?php echo $name; ?></a>
     <input type="hidden" name="a" value="manage">
     <input type="hidden" name="tpl_id" value="<?php echo $tpl_id; ?>">
-    Message Template:
+<div class="pull-right">
+    <span style="font-size:10pt"><?php echo __('Viewing'); ?>:</span>
     <select id="tpl_options" name="id" style="width:300px;">
-        <option value="">&mdash; Select Setting Group &mdash;</option>
+        <option value="">&mdash; <?php echo __('Select Setting Group'); ?> &mdash;</option>
         <?php
         $impl = $group->getTemplates();
         $current_group = false;
@@ -58,64 +59,65 @@ $tpl=$msgtemplates[$selected];
                     echo "</optgroup>";
                 $current_group = $nfo['group']; ?>
                 <optgroup label="<?php echo isset($_groups[$current_group])
-                    ? $_groups[$current_group] : $current_group; ?>">
+                    ? __($_groups[$current_group]) : $current_group; ?>">
             <?php }
             $sel=($selected==$cn)?'selected="selected"':'';
             echo sprintf('<option value="%s" %s>%s</option>',
                 isset($impl[$cn]) ? $impl[$cn]->getId() : $cn,
-                $sel,$nfo['name']);
+                $sel,__($nfo['name']));
         }
         if ($current_group)
             echo "</optgroup>";
         ?>
     </select>
     <input type="submit" value="Go">
-    &nbsp;&nbsp;&nbsp;<font color="red"><?php echo $errors['tpl']; ?></font>
-    </form>
-</div>
+    </div>
+</h2>
+</form>
+<hr/>
 <form action="templates.php?id=<?php echo $id; ?>&amp;a=manage" method="post" id="save">
 <?php csrf_token(); ?>
 <?php foreach ($extras as $k=>$v) { ?>
-    <input type="hidden" name="<?php echo $k; ?>" value="<?php echo $v; ?>" />
+    <input type="hidden" name="<?php echo $k; ?>" value="<?php echo Format::htmlchars($v); ?>" />
 <?php } ?>
 <input type="hidden" name="id" value="<?php echo $id; ?>">
 <input type="hidden" name="a" value="manage">
 <input type="hidden" name="do" value="<?php echo $action; ?>">
 
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
-   <thead>
-     <tr>
-        <th colspan="2">
-            <h4><?php echo Format::htmlchars($desc['desc']); ?></h4>
-            <em>Subject and body required.  <a class="tip" href="ticket_variables.txt">Supported Variables</a>.</em>
-        </th>
-     </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td colspan=2>
-                <strong>Message Subject:</strong> <em>Email message subject</em> <font class="error">*&nbsp;<?php echo $errors['subject']; ?></font><br>
-                <input type="text" name="subject" size="60" value="<?php echo $info['subject']; ?>" >
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <div style="margin-bottom:0.5em;margin-top:0.5em">
-                <strong>Message Body:</strong> <em>Email message body.</em> <font class="error">*&nbsp;<?php echo $errors['body']; ?></font>
-                </div>
-                <input type="hidden" name="draft_id" value=""/>
-                <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
-                    class="richtext draft" data-draft-namespace="tpl.<?php echo $selected; ?>"
-                    data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<p style="padding-left:210px;">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes" onclick="javascript:
+<div style="border:1px solid #ccc;background:#f0f0f0;padding:5px 10px;
+    margin:10px 0;">
+<h3 style="font-size:12pt;margin:0"><?php echo __($desc['name']); ?>
+    &nbsp;<i class="help-tip icon-question-sign"
+        data-content="<?php echo Format::htmlchars(__($desc['desc'])); ?>"
+        data-title="<?php echo Format::htmlchars(__($desc['name'])); ?>"></i>
+    <a style="font-size:10pt" class="tip pull-right" href="#ticket_variables.txt">
+    <i class="icon-tags"></i>
+    <?php echo __('Supported Variables'); ?></a>
+    </h3>
+<?php if ($errors) { ?>
+    <font class="error"><?php echo $errors['subject']; ?>&nbsp;<?php echo $errors['body']; ?></font>
+<?php } ?>
+</div>
+
+<div style="padding-bottom:3px;" class="faded"><strong><?php echo __('Email Subject and Body'); ?>:</strong></div>
+<div id="toolbar"></div>
+<div id="save" style="padding-top:5px;">
+    <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
+    style="font-size:14pt;width:100%;box-sizing:border-box">
+    <div style="margin-bottom:0.5em;margin-top:0.5em">
+    </div>
+    <input type="hidden" name="draft_id" value=""/>
+    <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
+        data-toolbar-external="#toolbar"
+        class="richtext draft" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>"
+        data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
+</div>
+
+<p style="text-align:center">
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>" onclick="javascript:
         setTimeout('location.reload()', 25);" />
-    <input class="button" type="button" name="cancel" value="Cancel Changes"
+    <input class="button" type="button" name="cancel" value="<?php echo __('Cancel Changes'); ?>"
         onclick='window.location.href="templates.php?tpl_id=<?php echo $tpl_id; ?>"'>
 </p>
 </form>

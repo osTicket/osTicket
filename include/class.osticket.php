@@ -20,6 +20,7 @@
 
 require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
+require_once(INCLUDE_DIR.'class.plugin.php');
 
 define('LOG_WARN',LOG_WARNING);
 
@@ -41,11 +42,13 @@ class osTicket {
 
     var $title; //Custom title. html > head > title.
     var $headers;
+    var $pjax_extra;
 
     var $config;
     var $session;
     var $csrf;
     var $company;
+    var $plugins;
 
     function osTicket() {
 
@@ -59,6 +62,8 @@ class osTicket {
         $this->csrf = new CSRF('__CSRFToken__');
 
         $this->company = new Company();
+
+        $this->plugins = new PluginManager();
     }
 
     function isSystemOnline() {
@@ -106,7 +111,6 @@ class osTicket {
     }
 
     function checkCSRFToken($name='') {
-
         $name = $name?$name:$this->getCSRF()->getTokenName();
         if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
             return true;
@@ -114,9 +118,9 @@ class osTicket {
         if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
             return true;
 
-        $msg=sprintf('Invalid CSRF token [%s] on %s',
+        $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
                 ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
-        $this->logWarning('Invalid CSRF Token '.$name, $msg, false);
+        $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
     }
@@ -127,24 +131,6 @@ class osTicket {
 
     function validateLinkToken($token) {
             return ($token && !strcasecmp($token, $this->getLinkToken()));
-    }
-
-    function isFileTypeAllowed($file, $mimeType='') {
-
-        if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
-            return false;
-
-        //Return true if all file types are allowed (.*)
-        if(trim($allowedFileTypes)=='.*') return true;
-
-        $allowed = array_map('trim', explode(',', strtolower($allowedFileTypes)));
-        $filename = is_array($file)?$file['name']:$file;
-
-        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
-
-        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
-
-        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
     /* Replace Template Variables */
@@ -159,12 +145,16 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
-    function addExtraHeader($header) {
+    function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
+        $this->pjax_extra[md5($header)] = $pjax_script;
     }
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+    function getExtraPjax() {
+        return $this->pjax_extra;
     }
 
     function setPageTitle($title) {
@@ -236,9 +226,9 @@ class osTicket {
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
-            $email->sendAlert($to, $subject, $message, null, array('text'=>true));
+            $email->sendAlert($to, $subject, $message, null, array('text'=>true, 'reply-tag'=>false));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
+            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -269,8 +259,9 @@ class osTicket {
             $alert =false;
 
         $e = new Exception();
-        $bt = str_replace(ROOT_DIR, '(root)/', $e->getTraceAsString());
-        $error .= nl2br("\n\n---- Backtrace ----\n".$bt);
+        $bt = str_replace(ROOT_DIR, _S(/* `root` is a root folder */ '(root)').'/',
+            $e->getTraceAsString());
+        $error .= nl2br("\n\n---- "._S('Backtrace')." ----\n".$bt);
 
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
@@ -296,6 +287,16 @@ class osTicket {
                 $level=3; //Debug
         }
 
+        $loglevel=array(1=>'Error','Warning','Debug');
+
+        $info = array(
+            'title' => &$title,
+            'level' => $loglevel[$level],
+            'level_id' => $level,
+            'body' => &$message,
+        );
+        Signal::send('syslog', null, $info);
+
         //Logging everything during upgrade.
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
@@ -305,7 +306,6 @@ class osTicket {
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.
-        $loglevel=array(1=>'Error','Warning','Debug');
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
             .',log_type='.db_input($loglevel[$level])
@@ -426,6 +426,8 @@ class osTicket {
 
     /**** static functions ****/
     function start() {
+        // Prep basic translation support
+        Internationalization::bootstrap();
 
         if(!($ost = new osTicket()))
             return null;
@@ -433,6 +435,12 @@ class osTicket {
         //Set default time zone... user/staff settting will override it (on login).
         $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
         $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
+
+        // Bootstrap installed plugins
+        $ost->plugins->bootstrap();
+
+        // Mirror content updates to the search backend
+        $ost->searcher = new SearchInterface();
 
         return $ost;
     }

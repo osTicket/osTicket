@@ -1,4 +1,4 @@
-Customizng Your Theme
+Customizing Your Theme
 ====
 
 When modifying the default theme, it is recommended that you do not

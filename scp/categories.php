@@ -25,44 +25,49 @@ if(!$thisstaff || !$thisstaff->canManageFAQ()) {
 
 $category=null;
 if($_REQUEST['id'] && !($category=Category::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid category ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('category'));
 
 if($_POST){
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$category) {
-                $errors['err']='Unknown or invalid category.';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('category'));
             } elseif($category->update($_POST,$errors)) {
-                $msg='Category updated successfully';
+                $msg=sprintf(__('Successfully updated %s'),
+                    __('this category'));
             } elseif(!$errors['err']) {
-                $errors['err']='Error updating category. Try again!';
+                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'), __('this category'));
             }
             break;
         case 'create':
             if(($id=Category::create($_POST,$errors))) {
-                $msg='Category added successfully';
+                $msg=sprintf(__('Successfull added %s'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
-                $errors['err']='Unable to add category. Correct error(s) below and try again.';
+                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                    __('this category'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one category';
+                $errors['err']=sprintf(__('You must select at least %s'), __('one category'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'make_public':
                         $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 '
                             .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
-                    
+
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected categories made PUBLIC';
+                                $msg = sprintf(__('Successfully made %s PUBLIC'),
+                                    _N('selected category', 'selected categories', $count));
                             else
-                                $warn = "$num of $count selected categories made PUBLIC";
+                                $warn = sprintf(__('%1$d of %2$d %3$s made PUBLIC'), $num, $count,
+                                    _N('selected category', 'selected categories', $count));
                         } else {
-                            $errors['err'] = 'Unable to enable selected categories public.';
+                            $errors['err'] = sprintf(__('Unable to make %s PUBLIC.'),
+                                _N('selected category', 'selected categories', $count));
                         }
                         break;
                     case 'make_private':
@@ -71,11 +76,14 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected categories made PRIVATE';
+                                $msg = sprintf(__('Successfully made %s PRIVATE'),
+                                    _N('selected category', 'selected categories', $count));
                             else
-                                $warn = "$num of $count selected categories made PRIVATE";
+                                $warn = sprintf(__('%1$d of %2$d %3$s made PRIVATE'), $num, $count,
+                                    _N('selected category', 'selected categories', $count));
                         } else {
-                            $errors['err'] = 'Unable to disable selected categories PRIVATE';
+                            $errors['err'] = sprintf(__('Unable to make %s PRIVATE'),
+                                _N('selected category', 'selected categories', $count));
                         }
                         break;
                     case 'delete':
@@ -86,28 +94,35 @@ if($_POST){
                         }
 
                         if($i==$count)
-                            $msg = 'Selected categories deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s'),
+                                _N('selected category', 'selected categories', $count));
                         elseif($i>0)
-                            $warn = "$i of $count selected categories deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected category', 'selected categories', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected categories';
+                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                                _N('selected category', 'selected categories', $count));
                         break;
                     default:
-                        $errors['err']='Unknown action/command';
+                        $errors['err']=__('Unknown action - get technical help.');
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action';
+            $errors['err']=__('Unknown action');
             break;
     }
 }
 
 $page='categories.inc.php';
-if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'knowledgebase.category';
+if($category || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='category.inc.php';
+}
 
 $nav->setTabActive('kbase');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

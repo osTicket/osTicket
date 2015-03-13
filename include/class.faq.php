@@ -61,7 +61,11 @@ class FAQ {
     function getQuestion() { return $this->ht['question']; }
     function getAnswer() { return $this->ht['answer']; }
     function getAnswerWithImages() {
-        return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
+        return Format::viewableImages($this->ht['answer']);
+    }
+    function getSearchableAnswer() {
+        return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
+            ->getSearchable();
     }
     function getNotes() { return $this->ht['notes']; }
     function getNumAttachments() { return $this->ht['attachments']; }
@@ -153,9 +157,10 @@ class FAQ {
         if($ids)
             $sql.=' AND topic_id NOT IN('.implode(',', db_input($ids)).')';
 
-        db_query($sql);
+        if (!db_query($sql))
+            return false;
 
-        return true;
+        Signal::send('model.updated', $this);
     }
 
     function update($vars, &$errors) {
@@ -166,7 +171,7 @@ class FAQ {
         $this->updateTopics($vars['topics']);
 
         //Delete removed attachments.
-        $keepers = $vars['files']?$vars['files']:array();
+        $keepers = $vars['files'];
         if(($attachments = $this->attachments->getSeparates())) {
             foreach($attachments as $file) {
                 if($file['id'] && !in_array($file['id'], $keepers))
@@ -174,18 +179,16 @@ class FAQ {
             }
         }
 
-        //Upload new attachments IF any.
-        if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-            $this->attachments->upload($files);
+        // Upload new attachments IF any.
+        $this->attachments->upload($keepers);
 
         // Inline images (attached to the draft)
         $this->attachments->deleteInlines();
-        if (isset($vars['draft_id']) && $vars['draft_id'])
-            if ($draft = Draft::lookup($vars['draft_id']))
-                $this->attachments->upload($draft->getAttachmentIds(), true);
+        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
 
         $this->reload();
 
+        Signal::send('model.updated', $this);
         return true;
     }
 
@@ -195,12 +198,11 @@ class FAQ {
         if(($attachments=$this->attachments->getSeparates())) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
-            $hash=$attachment['hash'].md5($attachment['id'].session_id().$attachment['hash']);
             if($attachment['size'])
                 $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
 
             }
         }
@@ -287,18 +289,18 @@ class FAQ {
 
         //validate
         if($id && $id!=$vars['id'])
-            $errors['err'] = 'Internal error. Try again';
+            $errors['err'] = __('Internal error. Try again');
 
         if(!$vars['question'])
-            $errors['question'] = 'Question required';
+            $errors['question'] = __('Question required');
         elseif(($qid=self::findIdByQuestion($vars['question'])) && $qid!=$id)
-            $errors['question'] = 'Question already exists';
+            $errors['question'] = __('Question already exists');
 
         if(!$vars['category_id'] || !($category=Category::lookup($vars['category_id'])))
-            $errors['category_id'] = 'Category is required';
+            $errors['category_id'] = __('Category is required');
 
         if(!$vars['answer'])
-            $errors['answer'] = 'FAQ answer is required';
+            $errors['answer'] = __('FAQ answer is required');
 
         if($errors || $validation) return (!$errors);
 
@@ -315,14 +317,17 @@ class FAQ {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update FAQ.';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ article'));
 
         } else {
             $sql='INSERT INTO '.FAQ_TABLE.' SET '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
+            if (db_query($sql) && ($id=db_insert_id())) {
+                Signal::send('model.created', FAQ::lookup($id));
                 return $id;
+            }
 
-            $errors['err']='Unable to create FAQ. Internal error';
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ article'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

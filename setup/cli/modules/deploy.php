@@ -87,6 +87,50 @@ class Deployment extends Unpacker {
         }
     }
 
+    function copyFile($src, $dest) {
+        static $short = false;
+        static $version = false;
+
+        if (substr($src, -4) != '.php')
+            return parent::copyFile($src, $dest);
+
+        if (!$short) {
+            $hash = exec('git rev-parse HEAD');
+            $short = substr($hash, 0, 7);
+        }
+
+        if (!$version)
+            $version = exec('git describe');
+
+        if (!$short || !$version)
+            return parent::copyFile($src, $dest);
+
+        $source = file_get_contents($src);
+        $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
+            '<script$1 src="$2.js?'.$short.'"></script>',
+            $source);
+        $source = preg_replace(':<link(.*) href="([^"]+)\.css"([^/>]*)/?>:', # <?php
+            '<link$1 href="$2.css?'.$short.'"$3/>',
+            $source);
+        // Set THIS_VERSION
+        $source = preg_replace("/^(\s*)define\s*\(\s*'THIS_VERSION'.*$/m",
+            "$1define('THIS_VERSION', '".$version."'); // Set by installer",
+            $source);
+        // Set GIT_VERSION
+        $source = preg_replace("/^(\s*)define\s*\(\s*'GIT_VERSION'.*$/m",
+            "$1define('GIT_VERSION', '".$short."'); // Set by installer",
+            $source);
+        // Disable error display
+        $source = preg_replace("/^(\s*)ini_set\s*\(\s*'(display_errors|display_startup_errors)'.*$/m",
+            "$1ini_set('$2', '0'); // Set by installer",
+            $source);
+
+        if (!file_put_contents($dest, $source))
+            die("Unable to apply rewrite rules to ".$dest);
+
+        return true;
+    }
+
     function run($args, $options) {
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
@@ -99,10 +143,10 @@ class Deployment extends Unpacker {
         $upgrade = file_exists("{$this->destination}/main.inc.php");
 
         # Get the current value of the INCLUDE_DIR before overwriting
-        # main.inc.php
+        # bootstrap.php
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
-                : "{$this->destination}/include");
+                : rtrim($this->destination, '/')."/include");
         $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
@@ -119,9 +163,10 @@ class Deployment extends Unpacker {
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php"));
-        if (!$options['dry-run']
-                && $include != "{$this->destination}/include")
-            $this->change_include_dir($include);
+        if (!$options['dry-run']) {
+            if ($include != "{$this->destination}/include/")
+                $this->change_include_dir($include);
+        }
 
         if ($options['clean']) {
             // Clean everything but include folder first

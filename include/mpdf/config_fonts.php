@@ -129,7 +129,7 @@ $this->fontdata = array(
 		'R' => "ocrb10.ttf",
 		),
 
-/* Thai fonts */
+/* Thai fonts
 	"garuda" => array(
 		'R' => "Garuda.ttf",
 		'B' => "Garuda-Bold.ttf",
@@ -301,4 +301,12 @@ $this->mono_fonts = array('dejavusansmono','freemono','liberationmono','courier'
 				'couriernew','monotypecorsiva'
 );
 
+// Add fonts from language packs
+
+list($phar_fonts, $phar_subs) = Internationalization::getTtfFonts();
+$this->fontdata += $phar_fonts;
+foreach ($phar_subs as $simple) {
+    if (!in_array($simple, $this->backupSubsFont))
+        $this->backupSubsFont[] = $simple;
+}
 ?>

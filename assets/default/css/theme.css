@@ -127,9 +127,9 @@ h1 {
 h3 {
   font-size: 16px;
 }
-h2 {
+h2, .subject {
   font-size: 16px;
-  color: #999;
+  color: black;
 }
 /* Helpers */
 .centered {
@@ -219,6 +219,7 @@ h2 {
   border: 1px solid #a00;
   background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0;
 }
+#msg_info { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 .warning {
   background: #ffc;
   font-style: italic;
@@ -240,7 +241,7 @@ h2 {
   display: inline-block;
   font-size: 16px;
   padding: 8px 16px 6px 16px;
-  width: 160px;
+  max-width: 220px;
   text-align: center;
   color: #fff;
   font-weight: bold;
@@ -299,17 +300,25 @@ body {
   height: 71px;
   padding: 0 20px;
 }
-#header #logo {
-  width: 220px;
-  height: 71px;
-  float: left;
+#logo {
+    height: 100%;
+}
+#header #logo img {
+  max-height: 65px;
+  max-width: 380px;
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+}
+.valign-helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
 }
 #header p {
   width: 400px;
-  text-align: right;
   margin: 0;
-  padding: 10px 0;
-  float: right;
+  padding: 10px 0 0;
 }
 #nav {
   margin: 0 20px;
@@ -328,9 +337,8 @@ body {
   display: inline;
 }
 #nav li a {
-  display: block;
+  display: inline-block;
   width: auto;
-  float: left;
   height: 20px;
   line-height: 20px;
   text-align: center;
@@ -342,6 +350,14 @@ body {
   -moz-border-radius: 20px;
   background-position: 10px 50%;
   background-repeat: no-repeat;
+}
+.rtl #nav li a {
+  background-position: right center;
+  background-position: calc(100% - 10px) center;
+  padding-left: 10px;
+  padding-right: 32px;
+  margin-right: 10px;
+  margin-left: 0;
 }
 #nav li a.active,
 #nav li a:hover {
@@ -393,20 +409,30 @@ body {
   text-indent: -9999px;
   margin: 0 auto;
   background: url('../images/poweredby.png') top left no-repeat;
+  background-size: auto 20px;
+}
+.front-page-button {
 }
 #landing_page #new_ticket {
   margin-top: 40px;
+  background: url('../images/new_ticket_icon.png') top left no-repeat;
+}
+#landing_page #new_ticket,
+#landing_page #check_status,
+.front-page-button {
   width: 295px;
   padding-left: 75px;
-  float: left;
-  background: url('../images/new_ticket_icon.png') top left no-repeat;
 }
 #landing_page #check_status {
   margin-top: 40px;
-  width: 295px;
-  padding-left: 75px;
-  float: right;
   background: url('../images/check_status_icon.png') top left no-repeat;
+}
+.rtl #landing_page #new_ticket,
+.rtl #landing_page #check_status,
+.rtl .front-page-button {
+  padding-left: 0;
+  padding-right: 75px;
+  background-position: top right;
 }
 /* Landing page FAQ not yet implemented. */
 #faq {
@@ -521,7 +547,7 @@ body {
   color: #555;
 }
 #ticketForm div.clear,
-#clientLogin div {
+#clientLogin div.clear {
   clear: both;
   padding: 3px 0;
   overflow: hidden;
@@ -529,8 +555,6 @@ body {
 #ticketForm div label,
 #clientLogin div label {
   display: block;
-  width: 140px;
-  float: left;
 }
 label.required {
   font-weight: bold;
@@ -546,9 +570,7 @@ label.required {
   width: auto;
   border: 1px solid #aaa;
   background: #fff;
-  margin-right: 10px;
   display: block;
-  float: left;
 }
 #ticketForm div input[type=file],
 #clientLogin div input[type=file] {
@@ -626,29 +648,49 @@ label.required {
   text-align: left;
 }
 #clientLogin {
-  width: 400px;
+    display: block;
   margin-top: 20px;
-  padding: 10px 100px 10px 10px;
+  padding: 20px;
   border: 1px solid #ccc;
-  background: url('../images/lock.png?1319655200') 440px 50% no-repeat #f6f6f6;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
+}
+.rtl #clientLogin {
+    background-position: 5% 50%;
+}
+#clientLogin .instructions {
+    display:table-cell;
+    padding-left: 2em;
+    padding-right:90px;
+}
+.rtl #clientLogin .instructions {
+    padding-left: 0;
+    padding-right:0;
+    padding-right: 2em;
+    padding-left:90px;
 }
 #clientLogin p {
   clear: both;
-  text-align: center;
 }
 #clientLogin strong {
   font-size: 11px;
   color: #d00;
   display: block;
-  padding-left: 140px;
 }
-#clientLogin #email {
-  width: 250px;
-  margin-right: 0;
-}
+#clientLogin #email,
 #clientLogin #ticketno {
-  width: 120px;
   margin-right: 0;
+}
+#clientLogin input[type=text],
+#clientLogin input[type=password] {
+    padding: 5px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+#clientLogin input[type=submit] {
+    padding: 3px 10px;
+    border-radius: 4px;
 }
 #reply {
   margin-top: 20px;
@@ -672,25 +714,6 @@ label.required {
 #reply #response_options textarea {
   border: 1px solid #aaa;
   background: #fff;
-}
-#reply .attachments .uploads div {
-  display: inline-block;
-  padding-right: 20px;
-}
-#reply .file {
-  display: inline-block;
-  padding-left: 20px;
-  margin-right: 20px;
-  background: url('../images/icons/file.gif') 0 50% no-repeat;
-}
-.uploads {
-  display: inline-block;
-  padding-right: 20px;
-}
-.uploads label {
-  padding: 3px;
-  padding-right: 10px;
-  width: auto !important;
 }
 /* Ticket icons */
 .Icon {
@@ -869,4 +892,58 @@ a.refresh {
 .action-button a {
   color: #777;
   text-decoration: none;
+}
+table.padded tr > td,
+table.padded tr > th {
+  height: 20px;
+  padding-bottom: 5px;
+}
+
+.external-auth + .external-auth {
+    margin-top: 4px;
+}
+
+a.external-sign-in {
+    text-decoration: none;
+}
+.external-auth-box {
+    vertical-align: middle;
+    border-radius: 4px;
+    border: 1px solid #777;
+}
+.external-auth-icon {
+    display: inline-block;
+    color: #333;
+    width: 30px;
+    padding: 5px 10px;
+    border-right: 1px solid #ddd;
+}
+.external-auth-name {
+    color: #333;
+    width: 100px;
+    padding: 5px 10px;
+    line-height:30px;
+    font-size: 11pt;
+}
+img.sign-in-image {
+    border: none;
+    max-height: 40px;
+    max-width: 200px;
+    width: auto;
+    height: auto;
+}
+.login-box {
+    width:40%;
+    display:table-cell;
+    box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);
+    padding:15px;
+}
+.rtl .login-box {
+    box-shadow: -12px 0 15px -15px rgba(0,0,0,0.4);
+}
+.flush-right {
+    text-align: right;
+}
+.flush-left {
+    text-align: left;
 }

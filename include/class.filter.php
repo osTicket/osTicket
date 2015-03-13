@@ -13,19 +13,25 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class Filter {
 
     var $id;
     var $ht;
 
     static $match_types = array(
-        'Basic Fields' => array(
-            'name'      => 'Name',
-            'email'     => 'Email',
-            'subject'   => 'Subject',
-            'body'      => 'Body/Text',
-            'reply-to'  => 'Reply-To Email',
-            'reply-to-name' => 'Reply-To Name',
+        /* @trans */ 'User Information' => array(
+            array('name'      =>    /* @trans */ 'Name',
+                'email'     =>      /* @trans */ 'Email',
+            ),
+            900
+        ),
+        /* @trans */ 'Email Meta-Data' => array(
+            array('reply-to'  =>    /* @trans */ 'Reply-To Email',
+                'reply-to-name' =>  /* @trans */ 'Reply-To Name',
+                'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
+            ),
+            200
         ),
     );
 
@@ -102,6 +108,10 @@ class Filter {
         return $this->ht['dept_id'];
     }
 
+    function getStatusId() {
+        return $this->ht['status_id'];
+    }
+
     function getPriorityId() {
         return $this->ht['priority_id'];
     }
@@ -122,8 +132,12 @@ class Filter {
         return $this->ht['canned_response_id'];
     }
 
+    function getHelpTopic() {
+        return $this->ht['topic_id'];
+    }
+
     function stopOnMatch() {
-        return ($this->ht['stop_on_match']);
+        return ($this->ht['stop_onmatch']);
     }
 
     function matchAllRules() {
@@ -242,12 +256,14 @@ class Filter {
 
         $how = array(
             # how => array(function, null or === this, null or !== this)
-            'equal'     => array('strcmp', 0),
-            'not_equal' => array('strcmp', null, 0),
-            'contains'  => array('strpos', null, false),
-            'dn_contain'=> array('strpos', false),
-            'starts'    => array('strpos', 0),
-            'ends'      => array('endsWith', true)
+            'equal'     => array('strcasecmp', 0),
+            'not_equal' => array('strcasecmp', null, 0),
+            'contains'  => array('stripos', null, false),
+            'dn_contain'=> array('stripos', false),
+            'starts'    => array('stripos', 0),
+            'ends'      => array('iendsWith', true),
+            'match'     => array('pregMatchB', 1),
+            'not_match' => array('pregMatchB', null, 0),
         );
 
         $match = false;
@@ -260,12 +276,8 @@ class Filter {
         foreach ($this->getRules() as $rule) {
             if (!isset($how[$rule['h']])) continue;
             list($func, $pos, $neg) = $how[$rule['h']];
-            # TODO: convert $what and $rule['v'] to mb_strtoupper and do
-            #       case-sensitive, binary-safe comparisons. Would be really
-            #       nice to do $rule['v'] on the database side for
-            #       performance -- but ::getFlatRules() is a blocker
-            $result = call_user_func($func, strtoupper($what[$rule['w']]),
-                strtoupper($rule['v']));
+
+            $result = call_user_func($func, $what[$rule['w']], $rule['v']);
             if (($pos === null && $result !== $neg) or ($result === $pos)) {
                 # Match.
                 $match = true;
@@ -295,6 +307,8 @@ class Filter {
         if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
         #       Set SLA plan (?)
         if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
+        #       Set status
+        if ($this->getStatusId())   $ticket['statusId']=$this->getStatusId();
         #       Auto-assign to (?)
         #       XXX: Unset the other (of staffId or teamId) (?)
         if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
@@ -302,26 +316,36 @@ class Filter {
         #       Override name with reply-to information from the TicketFilter
         #       match
         if ($this->useReplyToEmail() && $info['reply-to']) {
+            $changed = $info['reply-to'] != $ticket['email']
+                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
             $ticket['email'] = $info['reply-to'];
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
+            if ($changed)
+                throw new FilterDataChanged($ticket);
+
         }
 
         # Use canned response.
         if ($this->getCannedResponse())
             $ticket['cannedResponseId'] = $this->getCannedResponse();
+
+        # Apply help topic
+        if ($this->getHelpTopic())
+            $ticket['topicId'] = $this->getHelpTopic();
     }
-    /* static */ function getSupportedMatches() {
+     static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
-            if (is_callable($v))
-                $v = $v();
+            if (is_callable($v[0]))
+                $v[0] = $v[0]();
         }
         unset($v);
-        return static::$match_types;
+        uasort(static::$match_types, function($a, $b) { return $a[1] - $b[1]; });
+        return array_map(function($a) { return $a[0]; }, static::$match_types);
     }
 
-    static function addSupportedMatches($group, $callable) {
-        static::$match_types[$group] = $callable;
+    static function addSupportedMatches($group, $callable, $order=10) {
+        static::$match_types[$group] = array($callable, $order);
     }
 
     static function getSupportedMatchFields() {
@@ -336,12 +360,14 @@ class Filter {
 
     /* static */ function getSupportedMatchTypes() {
         return array(
-            'equal'=>       'Equal',
-            'not_equal'=>   'Not Equal',
-            'contains'=>    'Contains',
-            'dn_contain'=>  'Does Not Contain',
-            'starts'=>      'Starts With',
-            'ends'=>        'Ends With'
+            'equal'=>       __('Equal'),
+            'not_equal'=>   __('Not Equal'),
+            'contains'=>    __('Contains'),
+            'dn_contain'=>  __('Does Not Contain'),
+            'starts'=>      __('Starts With'),
+            'ends'=>        __('Ends With'),
+            'match'=>       __('Matches Regex'),
+            'not_match'=>   __('Does Not Match Regex'),
         );
     }
 
@@ -369,10 +395,10 @@ class Filter {
     /** static functions **/
     function getTargets() {
         return array(
-                'Any' => 'Any',
-                'Web' => 'Web Forms',
-                'API' => 'API Calls',
-                'Email' => 'Emails');
+                'Any' => __('Any'),
+                'Web' => __('Web Forms'),
+                'API' => __('API Calls'),
+                'Email' => __('Emails'));
     }
 
     function create($vars,&$errors) {
@@ -404,21 +430,35 @@ class Filter {
         $rules=array();
         for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
             if($vars["rule_w$i"] || $vars["rule_h$i"]) {
+                // Check for REGEX compile errors
+                if (in_array($vars["rule_h$i"], array('match','not_match'))) {
+                    $wrapped = "/".$vars["rule_v$i"]."/iu";
+                    if (false === @preg_match($vars["rule_v$i"], ' ')
+                            && (false !== @preg_match($wrapped, ' ')))
+                        $vars["rule_v$i"] = $wrapped;
+                }
+
                 if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
-                    $errors["rule_$i"]='Invalid match selection';
+                    $errors["rule_$i"]=__('Invalid match selection');
                 elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
-                    $errors["rule_$i"]='Invalid match type selection';
+                    $errors["rule_$i"]=__('Invalid match type selection');
                 elseif(!$vars["rule_v$i"])
-                    $errors["rule_$i"]='Value required';
+                    $errors["rule_$i"]=__('Value required');
                 elseif($vars["rule_w$i"]=='email'
                         && $vars["rule_h$i"]=='equal'
                         && !Validator::is_email($vars["rule_v$i"]))
-                    $errors["rule_$i"]='Valid email required for the match type';
+                    $errors["rule_$i"]=__('Valid email required for the match type');
+                elseif (in_array($vars["rule_h$i"], array('match','not_match'))
+                        && (false === @preg_match($vars["rule_v$i"], ' ')))
+                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                        preg_last_error());
+
+
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('what'=>$vars["rule_w$i"],
                         'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
             }elseif($vars["rule_v$i"]) {
-                $errors["rule_$i"]='Incomplete selection';
+                $errors["rule_$i"]=__('Incomplete selection');
             }
         }
 
@@ -426,7 +466,7 @@ class Filter {
             # XXX: Validation bypass
             $rules = $vars["rules"];
         elseif(!$rules && !$errors)
-            $errors['rules']='You must set at least one rule.';
+            $errors['rules']=__('You must set at least one rule.');
 
         if($errors) return false;
 
@@ -446,25 +486,24 @@ class Filter {
 
     function save($id,$vars,&$errors) {
 
-
         if(!$vars['execorder'])
-            $errors['execorder'] = 'Order required';
+            $errors['execorder'] = __('Order required');
         elseif(!is_numeric($vars['execorder']))
-            $errors['execorder'] = 'Must be numeric value';
+            $errors['execorder'] = __('Must be numeric value');
 
         if(!$vars['name'])
-            $errors['name'] = 'Name required';
+            $errors['name'] = __('Name required');
         elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name'] = 'Name already in use';
+            $errors['name'] = __('Name already in use');
 
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
-            $errors['rules'] = 'Unable to validate rules as entered';
+            $errors['rules'] = __('Unable to validate rules as entered');
 
         $targets = self::getTargets();
         if(!$vars['target'])
-            $errors['target'] = 'Target required';
+            $errors['target'] = __('Target required');
         else if(!is_numeric($vars['target']) && !$targets[$vars['target']])
-            $errors['target'] = 'Unknown or invalid target';
+            $errors['target'] = __('Unknown or invalid target');
 
         if($errors) return false;
 
@@ -481,8 +520,10 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',dept_id='.db_input($vars['dept_id'])
+            .',status_id='.db_input($vars['status_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
+            .',topic_id='.db_input($vars['topic_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
             .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
@@ -503,11 +544,13 @@ class Filter {
         if($id) {
             $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
             if(!db_query($sql))
-                $errors['err']='Unable to update the filter. Internal error occurred';
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this ticket filter'))
+                   .' '.__('Internal error occurred');
         }else{
             $sql='INSERT INTO '.FILTER_TABLE.' SET '.$sql.',created=NOW() ';
             if(!db_query($sql) || !($id=db_insert_id()))
-                $errors['err']='Unable to add filter. Internal error';
+                $errors['err']=sprintf(__('Unable to add %s.'), __('this ticket filter'))
+                   .' '.__('Internal error occurred');
         }
 
         if($errors || !$id) return false;
@@ -605,9 +648,8 @@ class FilterRule {
     }
 
     /* static private */ function save($id,$vars,&$errors) {
-
         if(!$vars['filter_id'])
-            $errors['err']='Parent filter ID required';
+            $errors['err']=__('Parent filter ID required');
 
 
         if($errors) return false;
@@ -679,6 +721,13 @@ class TicketFilter {
             if (in_array($k, $interest))
                 $this->vars[$k] = trim($v);
         }
+        if (isset($vars['recipients']) && $vars['recipients']) {
+            foreach ($vars['recipients'] as $r) {
+                $this->vars['addressee'][] = $r['name'];
+                $this->vars['addressee'][] = $r['email'];
+            }
+            $this->vars['addressee'] = implode(' ', $this->vars['addressee']);
+        }
 
          //Init filters.
         $this->build();
@@ -694,7 +743,7 @@ class TicketFilter {
         $res = $this->getAllActive();
         if($res) {
             while (list($id) = db_fetch_row($res))
-                array_push($this->filters, new Filter($id));
+                $this->filters[] = new Filter($id);
         }
 
         return $this->filters;
@@ -721,35 +770,24 @@ class TicketFilter {
         return $this->short_list;
     }
     /**
-     * Determine if the filters that match the received vars indicate that
-     * the email should be rejected
-     *
-     * Returns FALSE if the email should be acceptable. If the email should
-     * be rejected, the first filter that matches and has reject ticket set is
-     * returned.
-     */
-    function shouldReject() {
-        foreach ($this->getMatchingFilterList() as $filter) {
-            # Set reject if this filter indicates that the email should
-            # be blocked; however, don't unset $reject, because if it
-            # was set by another rule that did not set stopOnMatch(), we
-            # should still honor its configuration
-            if ($filter->rejectOnMatch()) return $filter;
-        }
-        return false;
-    }
-    /**
      * Determine if any filters match the received email, and if so, apply
      * actions defined in those filters to the ticket-to-be-created.
+     *
+     * Throws:
+     * RejectedException if the email should not be acceptable. If the email
+     * should be rejected, the first filter that matches and has reject
+     * ticket set is returned.
      */
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
+            if ($filter->rejectOnMatch())
+                throw new RejectedException($filter, $ticket);
             $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
     }
 
-    /* static */ function getAllActive() {
+    function getAllActive() {
 
         $sql='SELECT id FROM '.FILTER_TABLE
             .' WHERE isactive=1 '
@@ -818,19 +856,23 @@ class TicketFilter {
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
     /* static */
-    function isAutoResponse($headers) {
+    function isAutoReply($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $auto_headers = array(
-            'Auto-Submitted'    => 'AUTO-REPLIED',
+            'Auto-Submitted'    => array('AUTO-REPLIED', 'AUTO-GENERATED'),
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
-            'Subject'           => array('OUT OF OFFICE', 'AUTO-REPLY:', 'AUTORESPONSE'),
+            'X-Precedence'      => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Autoreply'       => 'YES',
             'X-Auto-Response-Suppress' => array('ALL', 'DR', 'RN', 'NRN', 'OOF', 'AutoReply'),
-            'X-Autoresponse'    => '',
-            'X-Auto-Reply-From' => ''
+            'X-Autoresponse'    => '*',
+            'X-AutoReply-From'  => '*',
+            'X-Autorespond'     => '*',
+            'X-Mail-Autoreply'  => '*',
+            'X-Autogenerated'   => 'REPLY',
+            'X-AMAZON-MAIL-RELAY-TYPE' => 'NOTIFICATION',
         );
 
         foreach ($auto_headers as $header=>$find) {
@@ -846,39 +888,44 @@ class TicketFilter {
                 foreach ($find as $f)
                     if (strpos($value, $f) === 0)
                         return true;
+            } elseif ($find === '*') {
+                return true;
             } elseif (strpos($value, $find) === 0) {
                 return true;
             }
         }
 
-        # Bounces also counts as auto-responses.
-        if(self::isAutoBounce($headers))
-            return true;
-
         return false;
     }
 
-    function isAutoBounce($headers) {
+    static function isBounce($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
-            'From'          => array('<MAILER-DAEMON@MAILER-DAEMON>', 'MAILER-DAEMON', '<>'),
-            'Subject'       => array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'),
+            'From'  => array('stripos',
+                        array('MAILER-DAEMON', '<>'), null, false),
+            'Subject'   => array('stripos',
+                array('DELIVERY FAILURE', 'DELIVERY STATUS',
+                    'UNDELIVERABLE:', 'Undelivered Mail Returned'), 0),
+            'Return-Path'   => array('strcmp', array('<>'), 0),
+            'Content-Type'  => array('stripos', array('report-type=delivery-status'), null, false),
+            'X-Failed-Recipients' => array('strpos', array('@'), null, false)
         );
 
         foreach ($bounce_headers as $header => $find) {
             if(!isset($headers[$header])) continue;
 
-            $value = strtoupper($headers[$header]);
+            @list($func, $searches, $pos, $neg) = $find;
 
-            if (is_array($find)) {
-                foreach ($find as $f)
-                    if (strpos($value, $f) === 0)
-                        return true;
-            } elseif (strpos($value, $find) === 0) {
-                return true;
+            if(!($value = $headers[$header]) || !is_array($searches))
+                continue;
+
+            foreach ($searches as $f) {
+                $result = call_user_func($func, $value, $f);
+                if (($pos === null && $result !== $neg) or ($result === $pos))
+                    return true;
             }
         }
 
@@ -896,19 +943,55 @@ class TicketFilter {
     }
 }
 
+class RejectedException extends Exception {
+    var $filter;
+    var $vars;
+
+    function __construct(Filter $filter, $vars) {
+        parent::__construct('Ticket rejected by a filter');
+        $this->filter = $filter;
+        $this->vars = $vars;
+    }
+
+    function getRejectingFilter() {
+        return $this->filter;
+    }
+
+    function get($what) {
+        return $this->vars[$what];
+    }
+}
+
+class FilterDataChanged extends Exception {
+    var $data;
+
+    function __construct($data) {
+         parent::__construct('Ticket filter data changed');
+         $this->data = $data;
+    }
+
+    function getData() {
+        return $this->data;
+    }
+}
+
 /**
  * Function: endsWith
  *
  * Returns TRUE if the haystack ends with needle and FALSE otherwise.
  * Thanks, http://stackoverflow.com/a/834355
  */
-function endsWith($haystack, $needle)
+function iendsWith($haystack, $needle)
 {
-    $length = strlen($needle);
+    $length = mb_strlen($needle);
     if ($length == 0) {
         return true;
     }
 
-    return (substr($haystack, -$length) === $needle);
+    return (strcasecmp(mb_substr($haystack, -$length), $needle) === 0);
+}
+
+function pregMatchB($subject, $pattern) {
+    return preg_match($pattern, $subject);
 }
 ?>

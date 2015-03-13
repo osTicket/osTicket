@@ -2,7 +2,10 @@
 /*********************************************************************
     login.php
 
-    Client Login
+    User access link recovery
+
+    TODO: This is a temp. fix to allow for collaboration in lieu of real
+    username and password coming in 1.8.2
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -21,21 +24,115 @@ define('OSTCLIENTINC',TRUE); //make includes happy
 require_once(INCLUDE_DIR.'class.client.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-if($_POST) {
+if ($cfg->getClientRegistrationMode() == 'disabled'
+        || isset($_POST['lticket']))
+    $inc = 'accesslink.inc.php';
+else
+    $inc = 'login.inc.php';
 
-    if(($user=Client::login(trim($_POST['lticket']), trim($_POST['lemail']), null, $errors))) {
-        //XXX: Ticket owner is assumed.
-        @header('Location: tickets.php?id='.$user->getTicketID());
-        require_once('tickets.php'); //Just in case of 'header already sent' error.
-        exit;
+$suggest_pwreset = false;
+
+// Check the CSRF token, and ensure that future requests will have to use a
+// different CSRF token. This will help ward off both parallel and serial
+// brute force attacks, because new tokens will have to be requested for
+// each attempt.
+if ($_POST) {
+    // Check CSRF token
+    if (!$ost->checkCSRFToken())
+        Http::response(400, __('Valid CSRF Token Required'));
+
+    // Rotate the CSRF token (original cannot be reused)
+    $ost->getCSRF()->rotate();
+}
+
+if ($_POST && isset($_POST['luser'])) {
+    if (!$_POST['luser'])
+        $errors['err'] = __('Valid username or email address is required');
+    elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
+            $_POST['lpasswd'], $errors))) {
+        if ($user instanceof ClientCreateRequest) {
+            if ($cfg && $cfg->isClientRegistrationEnabled()) {
+                // Attempt to automatically register
+                if ($user->attemptAutoRegister())
+                    Http::redirect('tickets.php');
+
+                // Auto-registration failed. Show the user the info we have
+                $inc = 'register.inc.php';
+                $user_form = UserForm::getUserForm()->getForm($user->getInfo());
+            }
+            else {
+                $errors['err'] = __('Access Denied. Contact your help desk administrator to have an account registered for you');
+                // fall through to show login page again
+            }
+        }
+        else {
+            Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
+        }
     } elseif(!$errors['err']) {
-        $errors['err'] = 'Authentication error - try again!';
+        $errors['err'] = __('Invalid username or password - try again!');
+    }
+    $suggest_pwreset = true;
+}
+elseif ($_POST && isset($_POST['lticket'])) {
+    if (!Validator::is_email($_POST['lemail']))
+        $errors['err'] = __('Valid email address and ticket number required');
+    elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
+            $_POST['lticket'], $errors))) {
+
+        // If email address verification is not required, then provide
+        // immediate access to the ticket!
+        if (!$cfg->isClientEmailVerificationRequired())
+            Http::redirect('tickets.php');
+
+        // We're using authentication backend so we can guard aganist brute
+        // force attempts (which doesn't buy much since the link is emailed)
+        $user->sendAccessLink();
+        $msg = sprintf(__("%s - access link sent to your email!"),
+            Format::htmlchars($user->getName()->getFirst()));
+        $_POST = null;
+    } elseif(!$errors['err']) {
+        $errors['err'] = __('Invalid email or ticket number - try again!');
+    }
+}
+elseif (isset($_GET['do'])) {
+    switch($_GET['do']) {
+    case 'ext':
+        // Lookup external backend
+        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk']))
+            $bk->triggerAuth();
+    }
+}
+elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
+    // Users from the ticket access link
+    if ($user && $user instanceof TicketUser && $user->getTicketId())
+        Http::redirect('tickets.php?id='.$user->getTicketId());
+    // Users imported from an external auth backend
+    elseif ($user instanceof ClientCreateRequest) {
+        if ($cfg && $cfg->isClientRegistrationEnabled()) {
+            // Attempt to automatically register
+            if ($user->attemptAutoRegister())
+                Http::redirect('tickets.php');
+
+            // Unable to auto-register. Fill in what we have and let the
+            // user complete the info
+            $inc = 'register.inc.php';
+        }
+        else {
+            $errors['err'] = __('Access Denied. Contact your help desk administrator to have an account registered for you');
+            // fall through to show login page again
+        }
+    }
+    elseif ($user instanceof AuthenticatedUser) {
+        Http::redirect('tickets.php');
     }
 }
 
-$nav = new UserNav();
-$nav->setActiveNav('status');
-require(CLIENTINC_DIR.'header.inc.php');
-require(CLIENTINC_DIR.'login.inc.php');
-require(CLIENTINC_DIR.'footer.inc.php');
+if (!$nav) {
+    $nav = new UserNav();
+    $nav->setActiveNav('status');
+}
+require CLIENTINC_DIR.'header.inc.php';
+require CLIENTINC_DIR.$inc;
+require CLIENTINC_DIR.'footer.inc.php';
 ?>

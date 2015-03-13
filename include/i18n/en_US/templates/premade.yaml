@@ -2,7 +2,8 @@
 # Canned response templates
 #
 ---
-- title: What is osTicket (sample)?
+- isenabled: 1
+  title: What is osTicket (sample)?
   response: |
     osTicket is a widely-used open source support ticket system, an
     attractive alternative to higher-cost and complex customer support
@@ -15,7 +16,8 @@
       type: text/plain
       data: Canned Attachments Rock!
 
-- title: Sample (with variables)
+- isenabled: 1
+  title: Sample (with variables)
   response: |
     Hi %{ticket.name.first},
     <br>

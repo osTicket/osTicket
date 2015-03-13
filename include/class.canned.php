@@ -86,6 +86,60 @@ class Canned {
         return $this->getResponse();
     }
 
+    function getHtml() {
+        return $this->getFormattedResponse('html');
+    }
+
+    function getPlainText() {
+        return $this->getFormattedResponse('text.plain');
+    }
+
+    function getFormattedResponse($format='text', $cb=null) {
+
+        $resp = array();
+        $html = true;
+        switch($format) {
+            case 'json.plain':
+                $html = false;
+                // fall-through
+            case 'json':
+                $resp['id'] = $this->getId();
+                $resp['title'] = $this->getTitle();
+                $resp['response'] = $this->getResponseWithImages();
+
+                // Callback to strip or replace variables!
+                if ($cb && is_callable($cb))
+                    $resp = $cb($resp);
+
+                $resp['files'] = $this->attachments->getSeparates();
+                // strip html
+                if (!$html) {
+                    $resp['response'] = Format::html2text($resp['response'], 90);
+                    $resp['files'] += $this->attachments->getInlines();
+                }
+                return Format::json_encode($resp);
+                break;
+            case 'html':
+            case 'text.html':
+                $response = $this->getResponseWithImages();
+                break;
+            case 'text.plain':
+                $html = false;
+            case 'text':
+            default:
+                $response = $this->getResponse();
+                if (!$html)
+                    $response = Format::html2text($response, 90);
+                break;
+        }
+
+        // Callback to strip or replace variables!
+        if ($response && $cb && is_callable($cb))
+            $response = $cb($response);
+
+        return $response;
+    }
+
     function getNotes() {
         return $this->ht['notes'];
     }
@@ -188,23 +242,23 @@ class Canned {
         $vars['title']=Format::striptags(trim($vars['title']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Internal error. Try again';
+            $errors['err']=__('Internal error. Try again');
 
         if(!$vars['title'])
-            $errors['title']='Title required';
+            $errors['title']=__('Title required');
         elseif(strlen($vars['title'])<3)
-            $errors['title']='Title is too short. 3 chars minimum';
+            $errors['title']=__('Title is too short. 3 chars minimum');
         elseif(($cid=self::getIdByTitle($vars['title'])) && $cid!=$id)
-            $errors['title']='Title already exists';
+            $errors['title']=__('Title already exists');
 
         if(!$vars['response'])
-            $errors['response']='Response text required';
+            $errors['response']=__('Response text is required');
 
         if($errors) return false;
 
         $sql=' updated=NOW() '.
-             ',dept_id='.db_input($vars['dept_id']?$vars['dept_id']:0).
-             ',isenabled='.db_input($vars['isenabled']?$vars['isenabled']:1).
+             ',dept_id='.db_input($vars['dept_id']?:0).
+             ',isenabled='.db_input($vars['isenabled']).
              ',title='.db_input($vars['title']).
              ',response='.db_input(Format::sanitize($vars['response'])).
              ',notes='.db_input(Format::sanitize($vars['notes']));
@@ -214,14 +268,15 @@ class Canned {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update canned response.';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this canned response'));
 
         } else {
             $sql='INSERT INTO '.CANNED_TABLE.' SET '.$sql.',created=NOW()';
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']='Unable to create the canned response. Internal error';
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this canned response'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

@@ -3,16 +3,30 @@ jQuery(function() {
 
             var pos = elem.offset();
             var y_pos = pos.top - 12;
-            var x_pos = pos.left + (xoffset || ((elem.width()/2) + 20));
+            var x_pos = pos.left + (xoffset || (elem.width() + 16));
 
             var tip_arrow = $('<img>').attr('src', './images/tip_arrow.png').addClass('tip_arrow');
             var tip_box = $('<div>').addClass('tip_box');
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
-                tip_content.prepend('<a href="#" class="tip_close">x</a>');
+                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
+            var width = $(window).width(),
+                rtl = $('html').hasClass('rtl'),
+                size = tip_content.outerWidth(),
+                left = the_tip.position().left,
+                left_room = left - size,
+                right_room = width - size - left,
+                flip = rtl
+                    ? (left_room > 0 && left_room > right_room)
+                    : (right_room < 0 && left_room > right_room);
+                if (flip) {
+                    the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
+                    tip_box.addClass('right');
+                    tip_arrow.addClass('flip-x');
+                }
             });
 
-            var the_tip = tip_box.append(tip_arrow).append(tip_content).prepend(tip_shadow);
+            var the_tip = tip_box.append(tip_content).prepend(tip_shadow);
             the_tip.css({
                 "top":y_pos + "px",
                 "left":x_pos + "px"
@@ -24,31 +38,37 @@ jQuery(function() {
             });
     },
     getHelpTips = (function() {
-        var dfd = $.Deferred(),
-            requested = false,
-            namespace = $('meta[name=tip-namespace]').attr('content');
-        return function() {
-            if (namespace && dfd.state() != 'resolved' && !requested)
-                requested = $.ajax({
+        var dfd, cache = {};
+        return function(namespace) {
+            var namespace = namespace
+                || $('#content').data('tipNamespace')
+                || $('meta[name=tip-namespace]').attr('content');
+            if (!namespace)
+                return $.Deferred().resolve().promise();
+            else if (!cache[namespace])
+                cache[namespace] = {
+                  dfd: dfd = $.Deferred(),
+                  ajax: $.ajax({
                     url: "ajax.php/help/tips/" + namespace,
                     dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
+                    success: $.proxy(function (json_config) {
+                        this.resolve(json_config);
+                    }, dfd)
+                  })
+                }
+            return cache[namespace].dfd;
+        };
     })();
 
+    var tip_id = 1;
     //Generic tip.
     $('.tip')
-    .each(function(i, e) {
-        e.rel = 'tip-' + i;
-    })
     .live('click mouseover', function(e) {
         e.preventDefault();
-        var id = this.rel;
-        var elem = $(this);
+        if (!this.rel)
+            this.rel = 'tip-' + (tip_id++);
+        var id = this.rel,
+            elem = $(this);
 
         elem.data('id',id);
         elem.data('timer',0);
@@ -57,10 +77,10 @@ jQuery(function() {
                 // wait about 1 sec - before showing the tip - mouseout kills
                 // the timeout
                 elem.data('timer',setTimeout(function() {
-                    showtip('ajax.php/content/'+elem.attr('href'),elem);i
+                    showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
                 },750));
             } else {
-                showtip('ajax.php/content/'+elem.attr('href'),elem);
+                showtip('ajax.php/content/'+elem.attr('href').substr(1),elem);
             }
         }
     })
@@ -93,7 +113,16 @@ jQuery(function() {
             tip_timer = setTimeout(function() {
                 $('.tip_box').remove();
                 $('body').append(the_tip.hide().fadeIn());
-                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
+                var width = $(window).width(),
+                    rtl = $('html').hasClass('rtl'),
+                    size = tip_content.outerWidth(),
+                    left = the_tip.position().left,
+                    left_room = left - size,
+                    right_room = width - size - left,
+                    flip = rtl
+                        ? (left_room > 0 && left_room > right_room)
+                        : (right_room < 0 && left_room > right_room);
+                if (flip) {
                     the_tip.css({'left':x_pos-tip_content.outerWidth()-40+'px'});
                     tip_box.addClass('right');
                     tip_arrow.addClass('flip-x');
@@ -105,12 +134,20 @@ jQuery(function() {
         });
 
         getHelpTips().then(function(tips) {
-            var section = tips[elem.attr('href').substr(1)];
-            if (!section) {
+            var href = elem.attr('href');
+            if (href) {
+                section = tips[elem.attr('href').substr(1)];
+            }
+            else if (elem.data('content')) {
+                section = {title: elem.data('title'), content: elem.data('content')};
+            }
+            else {
                 elem.remove();
                 clearTimeout(tip_timer);
                 return;
             }
+            if (!section)
+                return;
             tip_content.append(
                 $('<h1>')
                     .append('<i class="icon-info-sign faded"> ')
@@ -160,6 +197,28 @@ jQuery(function() {
         clearTimeout($(this).data('timer'));
     });
 
+
+    $('a.collaborators.preview').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var url = 'ajax.php/'+elem.attr('href').substr(1)+'/preview';
+        var xoffset = 100;
+        elem.data('timer', 0);
+
+        if (e.type=='mouseover') {
+            elem.data('timer',setTimeout(function() { showtip(url, elem, xoffset);},750))
+        } else {
+            showtip(url,elem,xoffset);
+        }
+    }).live('mouseout', function(e) {
+        clearTimeout($(this).data('timer'));
+    }).live('click', function(e) {
+        clearTimeout($(this).data('timer'));
+        $('.tip_box').remove();
+    });
+
+
     //Ticket preview
     $('.ticketPreview').live('mouseover', function(e) {
         e.preventDefault();
@@ -170,18 +229,45 @@ jQuery(function() {
         var id='t'+vars[1];
         var xoffset = 80;
 
-
-        elem.data('id',id);
-        elem.data('timer',0);
-        if($('.' + id).length == 0) {
+        elem.data('timer', 0);
+        if(!elem.data('id')) {
+            elem.data('id', id);
             if(e.type=='mouseover') {
                  /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
                  elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
             }else{
+                clearTimeout(elem.data('timer'));
                 showtip(url,elem,xoffset);
             }
         }
     }).live('mouseout', function(e) {
+        $(this).data('id', 0);
+        clearTimeout($(this).data('timer'));
+    });
+
+    //User preview
+    $('.userPreview').live('mouseover', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var vars = elem.attr('href').split('=');
+        var url = 'ajax.php/users/'+vars[1]+'/preview';
+        var id='u'+vars[1];
+        var xoffset = 80;
+
+        elem.data('timer', 0);
+        if(!elem.data('id')) {
+            elem.data('id', id);
+            if(e.type=='mouseover') {
+                 /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
+                 elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
+            }else{
+                clearTimeout(elem.data('timer'));
+                showtip(url, elem, xoffset);
+            }
+        }
+    }).live('mouseout', function(e) {
+        $(this).data('id', 0);
         clearTimeout($(this).data('timer'));
     });
 
@@ -189,5 +275,13 @@ jQuery(function() {
     .delegate('.tip_close', 'click', function(e) {
         e.preventDefault();
         $(this).parent().parent().remove();
+    });
+
+    $(document).live('mouseup', function (e) {
+        var container = $('.tip_box');
+        if (!container.is(e.target)
+            && container.has(e.target).length === 0) {
+            container.remove();
+        }
     });
 });

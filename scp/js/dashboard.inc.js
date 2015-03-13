@@ -140,7 +140,7 @@
             method:     'GET',
             dataType:   'json',
             url:        'ajax.php/report/overview/table',
-            data:       {group: group, start: start, stop: stop},
+            data:       {group: group, start: start, period: stop},
             success:    function(json) {
                 var q = $('<table>').attr({'class':'table table-condensed table-striped'}),
                     h = $('<tr>').appendTo($('<thead>').appendTo(q)),
@@ -250,6 +250,7 @@
                 // ------------------------> Export <-----------------------
                 $('<a>').attr({'href':'ajax.php/report/overview/table/export?group='
                         +group+'&start='+start+'&stop='+stop}).append('Export')
+                    .addClass('no-pjax')
                     .appendTo($('<li>')
                     .appendTo(p));
 
