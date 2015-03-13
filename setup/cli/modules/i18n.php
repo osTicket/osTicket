@@ -18,6 +18,10 @@ class i18n_Compiler extends Module {
                 'sign' =>       'Sign a language pack',
             ),
         ),
+        'file(s)' => array(
+            'required' => false,
+            'help' => 'File(s) to be signed, used with `sign`',
+        ),
     );
 
     var $options = array(
@@ -35,7 +39,14 @@ class i18n_Compiler extends Module {
         'domain' => array('-D', '--domain', 'metavar'=>'name',
             'default' => '',
             'help' => 'Add a domain to the path/context of PO strings'),
+        'dns' => array('-d', '--dns', 'default' => false, 'metavar' => 'zone-id',
+            'help' => 'Write signature to DNS (via this AWS HostedZoneId)'),
     );
+
+    var $epilog = "Note: If updating DNS, you will need to set
+        AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the AWS credentials
+        profile in your home folder or in your environment. See AWS
+        configuration  docs for more information";
 
     static $project = 'osticket-official';
     static $crowdin_api_url = 'http://i18n.osticket.com/api/project/{project}/{command}';
@@ -96,9 +107,14 @@ class i18n_Compiler extends Module {
             $this->_make_pot($options);
             break;
         case 'sign':
-            if (!$options['file'] || !file_exists($options['file']))
-                $this->fail('Specify a language pack to sign with --file=');
-            $this->_sign($options['file'], $options);
+            if (count($args) < 2)
+                $this->fail('Specify a language pack to sign');
+            foreach (range(1, count($args)-1, 1) as $i) {
+                $plugin = $args[$i];
+                if (!is_file($args[$i]))
+                    $this->fail($args[$i].': No such file');
+                $this->_sign($args[$i], $options);
+            }
             break;
         }
     }
@@ -303,9 +319,50 @@ class i18n_Compiler extends Module {
 
         $this->stdout->write(sprintf("Signature: %s\n",
             strtolower($signature['hash'])));
-        $this->stdout->write(
-            sprintf("Seal: \"v=1; i=%s; s=%s; V=%s;\"\n",
-            $info['Id'], base64_encode($seal), $info['Version']));
+        $seal =
+            sprintf('"v=1; i=%s; s=%s; V=%s;"',
+            $info['Id'], base64_encode($seal), $info['Version']);
+
+        if ($options['dns']) {
+            if (!is_file(INCLUDE_DIR . 'aws.phar'))
+                $this->fail('Unable to include AWS phar file. Download to INCLUDE_DIR');
+            require_once INCLUDE_DIR . 'aws.phar';
+
+            $aws = Aws\Common\Aws::factory(array());
+            $client = $aws->get('Route53');
+
+            try {
+            $resp = $client->changeResourceRecordSets(array(
+                'HostedZoneId' => $options['dns'],
+                'ChangeBatch' => array(
+                    'Changes' => array(
+                        array(
+                            'Action' => 'CREATE',
+                            'ResourceRecordSet' => array(
+                                'Name' => "{$signature['hash']}.updates.osticket.com.",
+                                'Type' => 'TXT',
+                                'TTL' => 172800,
+                                'ResourceRecords' => array(
+                                    array(
+                                        'Value' => $seal,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ));
+            $this->stdout->write(sprintf('%s: %s', $resp['ChangeInfo']['Comment'],
+                $resp['ChangeInfo']['Status']));
+            }
+            catch (Exception $ex) {
+                $this->stdout->write("Seal: $seal\n");
+                $this->fail('!! AWS Update Failed: '.$ex->getMessage());
+            }
+        }
+        else {
+            $this->stdout->write("Seal: $seal\n");
+        }
     }
 
     function __read_next_string($tokens) {
