@@ -322,7 +322,8 @@ class Filter {
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
             if ($changed)
-                throw new FilterDataChanged();
+                throw new FilterDataChanged($ticket);
+
         }
 
         # Use canned response.
@@ -961,7 +962,18 @@ class RejectedException extends Exception {
     }
 }
 
-class FilterDataChanged extends Exception {}
+class FilterDataChanged extends Exception {
+    var $data;
+
+    function __construct($data) {
+         parent::__construct('Ticket filter data changed');
+         $this->data = $data;
+    }
+
+    function getData() {
+        return $this->data;
+    }
+}
 
 /**
  * Function: endsWith
