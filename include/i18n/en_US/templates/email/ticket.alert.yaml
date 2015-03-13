@@ -12,7 +12,7 @@ notes: |
 subject: |
     New Ticket Alert
 body: |
-    <h2>Hi %{recipient},</h2>
+    <h2>Hi %{recipient.name},</h2>
     New ticket #%{ticket.number} created
     <br>
     <br>

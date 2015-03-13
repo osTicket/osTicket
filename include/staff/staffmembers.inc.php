@@ -1,6 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$qstr='';
+$qs = array();
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name, grp.group_name, dept.dept_name as dept,count(m.team_id) as teams ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.GROUP_TABLE.' grp ON(staff.group_id=grp.group_id) '.
@@ -10,17 +10,17 @@ $where='WHERE 1 ';
 
 if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $where.=' AND staff.dept_id='.db_input($_REQUEST['did']);
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 if($_REQUEST['gid'] && is_numeric($_REQUEST['gid'])) {
     $where.=' AND staff.group_id='.db_input($_REQUEST['gid']);
-    $qstr.='&gid='.urlencode($_REQUEST['gid']);
+    $qs += array('gid' => $_REQUEST['gid']);
 }
 
 if($_REQUEST['tid'] && is_numeric($_REQUEST['tid'])) {
     $where.=' AND m.team_id='.db_input($_REQUEST['tid']);
-    $qstr.='&tid='.urlencode($_REQUEST['tid']);
+    $qs += array('tid' => $_REQUEST['tid']);
 }
 
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','username'=>'staff.username','status'=>'isactive',
@@ -48,18 +48,20 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT staff.staff_id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$pageNav->setURL('staff.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-//Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+
+$pageNav->setURL('staff.php', $qs);
+$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Staff Members</h2>
-<div style="width:700px; float:left;">
+<h2><?php echo __('Agents');?></h2>
+<div class="pull-left" style="width:700px;">
     <form action="staff.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
         <select name="did" id="did">
-             <option value="0">&mdash; All Departments &mdash;</option>
+             <option value="0">&mdash; <?php echo __('All Department');?> &mdash;</option>
              <?php
              $sql='SELECT dept.dept_id, dept.dept_name,count(staff.staff_id) as users  '.
                   'FROM '.DEPT_TABLE.' dept '.
@@ -74,7 +76,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         <select name="gid" id="gid">
-            <option value="0">&mdash; All Groups &mdash;</option>
+            <option value="0">&mdash; <?php echo __('All Groups');?> &mdash;</option>
              <?php
              $sql='SELECT grp.group_id, group_name,count(staff.staff_id) as users '.
                   'FROM '.GROUP_TABLE.' grp '.
@@ -89,7 +91,7 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         <select name="tid" id="tid">
-            <option value="0">&mdash; All Teams &mdash;</option>
+            <option value="0">&mdash; <?php echo __('All Teams');?> &mdash;</option>
              <?php
              $sql='SELECT team.team_id, team.name, count(member.staff_id) as users FROM '.TEAM_TABLE.' team '.
                   'INNER JOIN '.TEAM_MEMBER_TABLE.' member ON(member.team_id=team.team_id) '.
@@ -103,17 +105,17 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         &nbsp;&nbsp;
-        <input type="submit" name="submit" value="Apply"/>
+        <input type="submit" name="submit" value="<?php echo __('Apply');?>"/>
     </form>
  </div>
-<div style="float:right;text-align:right;padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff">Add New Staff</a></b></div>
+<div class="pull-right flush-right" style="padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Agent');?></a></b></div>
 <div class="clear"></div>
 <?php
 $res=db_query($query);
-if($res && ($num=db_num_rows($res)))        
-    $showing=$pageNav->showing();
+if($res && ($num=db_num_rows($res)))
+    $showing=$pageNav->showing() . ' ' . _N('agent', 'agents', $num);
 else
-    $showing='No staff found!';
+    $showing=__('No agents found!');
 ?>
 <form action="staff.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
@@ -123,14 +125,14 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>        
-            <th width="200"><a <?php echo $name_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="100"><a <?php echo $username_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=username">UserName</a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
-            <th width="120"><a  <?php echo $group_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=group">Group</a></th>
-            <th width="150"><a  <?php echo $dept_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="100"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created">Created</a></th>
-            <th width="145"><a <?php echo $login_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=login">Last Login</a></th>
+            <th width="7px">&nbsp;</th>
+            <th width="200"><a <?php echo $name_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="100"><a <?php echo $username_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=username"><?php echo __('Username');?></a></th>
+            <th width="100"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="120"><a  <?php echo $group_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=group"><?php echo __('Group');?></a></th>
+            <th width="150"><a  <?php echo $dept_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="100"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
+            <th width="145"><a <?php echo $login_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=login"><?php echo __('Last Login');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -147,7 +149,7 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['staff_id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 <td><a href="staff.php?id=<?php echo $row['staff_id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>&nbsp;</td>
                 <td><?php echo $row['username']; ?></td>
-                <td><?php echo $row['isactive']?'Active':'<b>Locked</b>'; ?>&nbsp;<?php echo $row['onvacation']?'<small>(<i>vacation</i>)</small>':''; ?></td>
+                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php echo $row['onvacation']?'<small>(<i>'.__('vacation').'</i>)</small>':''; ?></td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo Format::htmlchars($row['group_name']); ?></a></td>
                 <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo Format::htmlchars($row['dept']); ?></a></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
@@ -160,12 +162,12 @@ else
      <tr>
         <td colspan="8">
             <?php if($res && $num){ ?>
-            Select:&nbsp;
-            <a id="selectAll" href="#ckb">All</a>&nbsp;&nbsp;
-            <a id="selectNone" href="#ckb">None</a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#ckb">Toggle</a>&nbsp;&nbsp;
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo 'No staff members found!';
+                echo __('No agents found!');
             } ?>
         </td>
      </tr>
@@ -173,14 +175,14 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 <p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="Enable" >
+    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="disable" value="Lock" >
+    <input class="button" type="submit" name="disable" value="<?php echo __('Lock');?>" >
     &nbsp;&nbsp;
-    <input class="button" type="submit" name="delete" value="Delete">
+    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>">
 </p>
 <?php
 endif;
@@ -188,28 +190,31 @@ endif;
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3>Please Confirm</h3>
+    <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        Are you sure want to <b>enable</b> (unlock) selected staff?
+        <?php echo sprintf(__('Are you sure want to <b>enable</b> (unlock) %s?'),
+            _N('selected agent', 'selected agents', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        Are you sure want to <b>disable</b> (lock) selected staff?
-        <br><br>Locked staff won't be able to login to Staff Control Panel.
+        <?php echo sprintf(__('Are you sure want to <b>disable</b> (lock) %s?'),
+            _N('selected agent', 'selected agents', 2));?>
+        <br><br><?php echo __("Locked staff won't be able to login to Staff Control Panel.");?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
-        <font color="red"><strong>Are you sure you want to DELETE selected staff?</strong></font>
-        <br><br>Deleted staff CANNOT be recovered.
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected agent', 'selected agents', 2));?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.');?>
     </p>
-    <div>Please confirm to continue.</div>
+    <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons" style="float:left">
-            <input type="button" value="No, Cancel" class="close">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
-        <span class="buttons" style="float:right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

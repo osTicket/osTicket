@@ -1,6 +1,6 @@
 <?php
 if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
-$qstr='';
+$qs = array();
 $select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.dept_name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) ';
@@ -11,7 +11,7 @@ if($_REQUEST['q']) {
     if($searchTerm){
         $query=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if(is_numeric($searchTerm)){
-            $where.=" AND (staff.phone LIKE '%$query%' OR staff.phone_ext LIKE '%$query%' staff.mobile LIKE '%$query%') ";
+            $where.=" AND (staff.phone LIKE '%$query%' OR staff.phone_ext LIKE '%$query%' OR staff.mobile LIKE '%$query%') ";
         }elseif(strpos($searchTerm,'@') && Validator::is_email($searchTerm)){
             $where.=" AND staff.email='$query'";
         }else{
@@ -25,7 +25,7 @@ if($_REQUEST['q']) {
 
 if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $where.=' AND staff.dept_id='.db_input($_REQUEST['did']);
-    $qstr.='&did='.urlencode($_REQUEST['did']);
+    $qs += array('did' => $_REQUEST['did']);
 }
 
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','email'=>'staff.email','dept'=>'dept.dept_name',
@@ -54,18 +54,21 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT staff.staff_id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('directory.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+$qstr = '&amp;'. Http::build_query($qs);
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('directory.php', $qs);
 //Ok..lets roll...create the actual query
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
 ?>
-<h2>Staff Members</h2>
-<div style="width:700px; float:left;">
+<h2><?php echo __('Agents');?>
+&nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i></h2>
+<div class="pull-left" style="width:700px">
     <form action="directory.php" method="GET" name="filter">
        <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
         <select name="did" id="did">
-             <option value="0">&mdash; All Departments &mdash;</option>
+             <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
              <?php
              $sql='SELECT dept.dept_id, dept.dept_name,count(staff.staff_id) as users  '.
                   'FROM '.DEPT_TABLE.' dept '.
@@ -80,27 +83,28 @@ $query="$select $from $where GROUP BY staff.staff_id ORDER BY $order_by LIMIT ".
              ?>
         </select>
         &nbsp;&nbsp;
-        <input type="submit" name="submit" value="Filter"/>
+        <input type="submit" name="submit" value="<?php echo __('Filter');?>"/>
+        &nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
     </form>
  </div>
 <div class="clear"></div>
 <?php
 $res=db_query($query);
-if($res && ($num=db_num_rows($res)))        
+if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing();
 else
-    $showing='No staff members found!';
+    $showing=__('No agents found!');
 ?>
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
-            <th width="150"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept">Department</a></th>
-            <th width="180"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email">Email Address</a></th>
-            <th width="120"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone">Phone Number</a></th>
-            <th width="80"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext">Phone Ext</a></th>
-            <th width="120"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile">Mobile Number</a></th>
+            <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="150"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="180"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+            <th width="120"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone"><?php echo __('Phone Number');?></a></th>
+            <th width="80"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext"><?php echo __(/* As in a phone number `extension` */ 'Extension');?></a></th>
+            <th width="120"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile"><?php echo __('Mobile Number');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -123,10 +127,10 @@ else
      <tr>
         <td colspan="6">
             <?php if($res && $num) {
-                echo '<div>&nbsp;Page:'.$pageNav->getPageLinks().'&nbsp;</div>';
+                echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
                 ?>
             <?php } else {
-                echo 'No staff members found!';
+                echo __('No agents found!');
             } ?>
         </td>
      </tr>

@@ -30,14 +30,15 @@ Class SetupWizard {
 
     function SetupWizard(){
         $this->errors=array();
-        $this->version_verbose = ('osTicket '. strtoupper(THIS_VERSION));
+        $this->version_verbose = sprintf(__('osTicket %s' /* <%s> is for the version */),
+            THIS_VERSION);
 
     }
 
     function load_sql_file($file, $prefix, $abort=true, $debug=false) {
 
         if(!file_exists($file) || !($schema=file_get_contents($file)))
-            return $this->abort('Error accessing SQL file '.basename($file), $debug);
+            return $this->abort(sprintf(__('Error accessing SQL file %s'),basename($file)), $debug);
 
         return $this->load_sql($schema, $prefix, $abort, $debug);
     }
@@ -46,7 +47,6 @@ Class SetupWizard {
         load SQL schema - assumes MySQL && existing connection
         */
     function load_sql($schema, $prefix, $abort=true, $debug=false) {
-
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m', '', $schema);
         # Replace table prefix
@@ -55,7 +55,7 @@ Class SetupWizard {
         if(!($statements = array_filter(array_map('trim',
                 // Thanks, http://stackoverflow.com/a/3147901
                 preg_split("/;(?=(?:[^']*'[^']*')*[^']*$)/", $schema)))))
-            return $this->abort('Error parsing SQL schema', $debug);
+            return $this->abort(__('Error parsing SQL schema'), $debug);
 
 
         db_query('SET SESSION SQL_MODE =""', false);

@@ -25,6 +25,8 @@
  * the codebase there exists a Signal::send() for the same named signal.
  */
 class Signal {
+    static private $subscribers = array();
+
     /**
      * Subscribe to a signal.
      *
@@ -51,18 +53,17 @@ class Signal {
      * signal handler. The function will receive the signal data and should
      * return true if the signal handler should be called.
      */
-    /*static*/ function connect($signal, $callable, $object=null,
+    static function connect($signal, $callable, $object=null,
             $check=null) {
-        global $_subscribers;
-        if (!isset($_subscribers[$signal])) $_subscribers[$signal] = array();
+        if (!isset(self::$subscribers[$signal])) self::$subscribers[$signal] = array();
         // XXX: Ensure $object if set is a class
         if ($object && !is_string($object))
-            trigger_error("Invalid object: $object: Expected class");
+            trigger_error(sprintf(_S("Invalid object: %s: Expected class"), $object));
         elseif ($check && !is_callable($check)) {
-            trigger_error("Invalid check function: Must be callable");
+            trigger_error(_S("Invalid check function: Must be callable"));
             $check = null;
         }
-        $_subscribers[$signal][] = array($object, $callable, $check);
+        self::$subscribers[$signal][] = array($object, $callable, $check);
     }
 
     /**
@@ -85,20 +86,17 @@ class Signal {
      * possible to propogate changes in the signal handlers back to the
      * originating context.
      */
-    /*static*/ function send($signal, $object, &$data=null) {
-        global $_subscribers;
-        if (!isset($_subscribers[$signal]))
+    static function send($signal, $object, &$data=null) {
+        if (!isset(self::$subscribers[$signal]))
             return;
-        foreach ($_subscribers[$signal] as $sub) {
+        foreach (self::$subscribers[$signal] as $sub) {
             list($s, $callable, $check) = $sub;
             if ($s && !is_a($object, $s))
                 continue;
-            elseif ($check && !call_user_func($check, $object, $data))
+            elseif ($check && !call_user_func_array($check, array($object, $data)))
                 continue;
-            call_user_func($callable, $object, $data);
+            call_user_func_array($callable, array($object, $data));
         }
     }
 }
-
-$_subscribers = array();
 ?>

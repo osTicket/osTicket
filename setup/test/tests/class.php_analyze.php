@@ -73,13 +73,19 @@ class SourceAnalyzer extends Test {
         $scope = array();
         while ($token != "{") {
             list(,$token) = each($this->tokens);
-            if (!is_array($token)
-                    || $token[0] == T_WHITESPACE)
+            switch ($token[0]) {
+            case T_WHITESPACE:
                 continue;
-            if ($token[0] == T_STRING)
+            case T_STRING:
                 $function['name'] = $token[1];
-            elseif ($token[0] == T_VARIABLE)
+                break;
+            case T_VARIABLE:
                 $scope[$token[1]] = 1;
+                break;
+            case ';':
+                // Abstract function -- no body will follow
+                return;
+            }
         }
         // Start inside a block -- we've already consumed the {
         $this->checkVariableUsage($function, $scope, 1, $options);

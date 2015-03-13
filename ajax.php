@@ -31,13 +31,20 @@ $dispatcher = patterns('',
     )),
     url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
         url_post('^(?P<id>\d+)$', 'updateDraftClient'),
+        url_delete('^(?P<id>\d+)$', 'deleteDraftClient'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImageClient'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraftClient'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraftClient')
     )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
-        url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic')
+        url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic'),
+        url_post('^upload/(\d+)?$', 'upload'),
+        url_post('^upload/(\w+)?$', 'attach')
+    )),
+    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('(?P<tag>\w+)$', 'getLanguageFile')
     ))
 );
+Signal::send('ajax.client', $dispatcher);
 print $dispatcher->resolve($ost->get_path_info());
 ?>

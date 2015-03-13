@@ -26,6 +26,12 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Content-Length: '.strlen($data));
 header('Connection: Close');
 print $data;
+// Flush the request buffer
+while(@ob_end_flush());
+flush();
+//Terminate the request
+if (function_exists('fastcgi_finish_request'))
+    fastcgi_finish_request();
 
 ob_start(); //Keep the image output clean. Hide our dirt.
 //TODO: Make cron DB based to allow for better time limits. Direct calls for now sucks big time.
@@ -37,14 +43,21 @@ if($sec>180 && $ost && !$ost->isUpgradePending()): //user can call cron once eve
 require_once(INCLUDE_DIR.'class.cron.php');
 
 $thisstaff = null; //Clear staff obj to avoid false credit internal notes & auto-assignment
-Cron::TicketMonitor(); //Age tickets: We're going to age tickets regardless of cron settings. 
+Cron::TicketMonitor(); //Age tickets: We're going to age tickets regardless of cron settings.
+
+// Run file purging about every 30 minutes
+if (mt_rand(1, 9) == 4)
+    Cron::CleanOrphanedFiles();
+
 if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
-    $ost->logDebug('Auto Cron', 'Mail fetcher cron call ['.$caller.']');
+    $ost->logDebug(_S('Auto Cron'), sprintf(_S('Mail fetcher cron call [%s]'), $caller));
 }
+
+$data = array('autocron'=>true);
+Signal::send('cron', $data);
 
 $_SESSION['lastcroncall']=time();
 endif;
-$output = ob_get_contents();
 ob_end_clean();
 ?>

@@ -104,7 +104,6 @@
   padding: 0 5px;
   text-decoration: none !important;
   line-height:18px;
-  float:right;
   margin-left:5px;
 }
 .action-button span,
@@ -121,7 +120,6 @@
   background-image: -ms-linear-gradient(top, #efefef 0%, #dddddd 100%);
   background-image: -o-linear-gradient(top, #efefef 0%, #dddddd 100%);
   background-image: linear-gradient(top, #efefef 0%, #dddddd 100%);
-  float: right;
   height: 18px;
   line-height: 18px;
   margin-right: 0;

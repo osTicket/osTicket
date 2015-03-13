@@ -72,7 +72,7 @@ class Unpacker extends Module {
             }
         }
         if (!file_put_contents($bootstrap_php, implode("\n", $lines)))
-            die("Unable to configure location of INCLUDE_DIR in main.inc.php\n");
+            die("Unable to configure location of INCLUDE_DIR in bootstrap.php\n");
     }
 
     function exclude($pattern, $match) {
@@ -86,6 +86,10 @@ class Unpacker extends Module {
             return fnmatch($pattern, $match);
         }
         return false;
+    }
+
+    function copyFile($src, $dest) {
+        return copy($src, $dest);
     }
 
     /**
@@ -120,7 +124,7 @@ class Unpacker extends Module {
                 if ($verbose)
                     $this->stdout->write($target."\n");
                 if (!$dryrun)
-                    copy($file, $target);
+                    $this->copyFile($file, $target);
             }
         }
         if ($recurse) {

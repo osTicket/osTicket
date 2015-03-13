@@ -277,6 +277,7 @@
   padding: 10px 20px;
   margin: 0 0 20px;
   border-left: 5px solid #eeeeee;
+  color: #777;
 }
 .thread-body blockquote p {
   font-weight: 300;
@@ -393,7 +394,7 @@
 .thread-body blockquote,
 .thread-body pre {
 	font-size: 14px;
-	line-height: 1.25rem;
+	line-height: 1.4rem;
 }
 
 /* Adjust plain/text messages posted as <pre> in the thread body to show in
@@ -410,16 +411,14 @@
     margin-bottom: 0 !important;
 }
 
-.thread-body > div div:not(.caption),
 .thread-body p,
 .thread-body ul,
 .thread-body ol,
 .thread-body table,
 .thread-body dl,
-.thread-body blockquote,
 .thread-body pre {
 	margin: 0;
-	margin-bottom: 10px !important;
+	margin-bottom: 10px;
 	border: none;
 	background: none !important;
 	box-shadow: none !important;

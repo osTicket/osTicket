@@ -16,12 +16,20 @@
 
 class Export {
 
-    /* static */ function dumpQuery($sql, $headers, $how='csv', $filter=false) {
+    // XXX: This may need to be moved to a print-specific class
+    static $paper_sizes = array(
+        /* @trans */ 'Letter',
+        /* @trans */ 'Legal',
+        'A4',
+        'A3',
+    );
+
+    static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
             'csv' => CsvResultsExporter,
             'json' => JsonResultsExporter
         );
-        $exp = new $exporters[$how]($sql, $headers, $filter);
+        $exp = new $exporters[$how]($sql, $headers, $options);
         return $exp->dump();
     }
 
@@ -32,29 +40,57 @@ class Export {
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
     #      attachments associated with each, ...
-    /* static */ function dumpTickets($sql, $how='csv') {
+    static function dumpTickets($sql, $how='csv') {
+        // Add custom fields to the $sql statement
+        $cdata = $fields = $select = array();
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            // Ignore core fields
+            if (in_array($f->get('name'), array('subject','priority')))
+                continue;
+            // Ignore non-data fields
+            elseif (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
+            $key = '__field_'.$f->get('id');
+            $cdata[$key] = $f->get('label');
+            $fields[$key] = $f;
+            $select[] = "cdata.`$name` AS __field_".$f->get('id');
+        }
+        if ($select)
+            $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
         return self::dumpQuery($sql,
             array(
-                'ticketID' =>       'Ticket Id',
-                'created' =>        'Date',
-                'subject' =>        'Subject',
-                'name' =>           'From',
-                'priority_desc' =>  'Priority',
-                'dept_name' =>      'Department',
-                'helptopic' =>      'Help Topic',
-                'source' =>         'Source',
-                'status' =>         'Current Status',
-                'effective_date' => 'Last Updated',
-                'duedate' =>        'Due Date',
-                'isoverdue' =>      'Overdue',
-                'isanswered' =>     'Answered',
-                'assigned' =>       'Assigned To',
-                'staff' =>          'Staff Assigned',
-                'team' =>           'Team Assigned',
-                'thread_count' =>   'Thread Count',
-                'attachments' =>    'Attachment Count',
-            ),
-            $how);
+                'number' =>         __('Ticket Number'),
+                'ticket_created' => __('Date'),
+                'subject' =>        __('Subject'),
+                'name' =>           __('From'),
+                'email' =>          __('From Email'),
+                'priority_desc' =>  __('Priority'),
+                'dept_name' =>      __('Department'),
+                'helptopic' =>      __('Help Topic'),
+                'source' =>         __('Source'),
+                'status' =>         __('Current Status'),
+                'effective_date' => __('Last Updated'),
+                'duedate' =>        __('Due Date'),
+                'isoverdue' =>      __('Overdue'),
+                'isanswered' =>     __('Answered'),
+                'assigned' =>       __('Assigned To'),
+                'staff' =>          __('Agent Assigned'),
+                'team' =>           __('Team Assigned'),
+                'thread_count' =>   __('Thread Count'),
+                'attachments' =>    __('Attachment Count'),
+            ) + $cdata,
+            $how,
+            array('modify' => function(&$record, $keys) use ($fields) {
+                foreach ($fields as $k=>$f) {
+                    if (($i = array_search($k, $keys)) !== false) {
+                        $record[$i] = $f->export($f->to_php($record[$i]));
+                    }
+                }
+                return $record;
+            })
+            );
     }
 
     /* static */ function saveTickets($sql, $filename, $how='csv') {
@@ -67,15 +103,121 @@ class Export {
 
         return false;
     }
+
+    static function saveUsers($sql, $filename, $how='csv') {
+
+        $exclude = array('name', 'email');
+        $form = UserForm::getUserForm();
+        $fields = $form->getExportableFields($exclude);
+
+        // Field selection callback
+        $fname = function ($f) {
+            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
+        };
+
+        $sql = substr_replace($sql,
+                ','.implode(',', array_map($fname, $fields)).' ',
+                strpos($sql, 'FROM '), 0);
+
+        $sql = substr_replace($sql,
+                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).') cdata
+                    ON (cdata.user_id = user.id) ',
+                strpos($sql, 'WHERE '), 0);
+
+        $cdata = array_combine(array_keys($fields),
+                array_values(array_map(
+                        function ($f) { return $f->get('label'); }, $fields)));
+
+        ob_start();
+        echo self::dumpQuery($sql,
+                array(
+                    'name'  =>          __('Name'),
+                    'organization' =>   __('Organization'),
+                    'email' =>          __('Email'),
+                    ) + $cdata,
+                $how,
+                array('modify' => function(&$record, $keys) use ($fields) {
+                    foreach ($fields as $k=>$f) {
+                        if ($f && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $f->export($f->to_php($record[$i]));
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        $stuff = ob_get_contents();
+        ob_end_clean();
+
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
+        return false;
+    }
+
+    static function saveOrganizations($sql, $filename, $how='csv') {
+
+        $exclude = array('name');
+        $form = OrganizationForm::getDefaultForm();
+        $fields = $form->getExportableFields($exclude);
+
+        // Field selection callback
+        $fname = function ($f) {
+            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
+        };
+
+        $sql = substr_replace($sql,
+                ','.implode(',', array_map($fname, $fields)).' ',
+                strpos($sql, 'FROM '), 0);
+
+        $sql = substr_replace($sql,
+                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, '_org_id', $exclude).') cdata
+                    ON (cdata._org_id = org.id) ',
+                strpos($sql, 'WHERE '), 0);
+
+        $cdata = array_combine(array_keys($fields),
+                array_values(array_map(
+                        function ($f) { return $f->get('label'); }, $fields)));
+
+        $cdata += array('account_manager' => 'Account Manager', 'users' => 'Users');
+
+        ob_start();
+        echo self::dumpQuery($sql,
+                array(
+                    'name'  =>  'Name',
+                    ) + $cdata,
+                $how,
+                array('modify' => function(&$record, $keys) use ($fields) {
+                    foreach ($fields as $k=>$f) {
+                        if ($f && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $f->export($f->to_php($record[$i]));
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        $stuff = ob_get_contents();
+        ob_end_clean();
+
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
+        return false;
+    }
+
 }
 
 class ResultSetExporter {
-    function ResultSetExporter($sql, $headers, $filter=false) {
+    var $output;
+
+    function ResultSetExporter($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
         if ($s = strpos(strtoupper($sql), ' LIMIT '))
             $sql = substr($sql, 0, $s);
         # TODO: If $filter, add different LIMIT clause to query
-        $this->_res = db_query($sql);
+        $this->options = $options;
+        $this->output = $options['output'] ?: fopen('php://output', 'w');
+
+        $this->_res = db_query($sql, true, true);
         if ($row = db_fetch_array($this->_res)) {
             $query_fields = array_keys($row);
             $this->headers = array();
@@ -106,6 +248,10 @@ class ResultSetExporter {
         $record = array();
         foreach ($this->lookups as $idx)
             $record[] = $row[$idx];
+
+        if (isset($this->options['modify']) && is_callable($this->options['modify']))
+            $record = $this->options['modify']($record, $this->keys);
+
         return $record;
     }
 
@@ -124,14 +270,17 @@ class ResultSetExporter {
 }
 
 class CsvResultsExporter extends ResultSetExporter {
+
     function dump() {
-        echo '"' . implode('","', $this->getHeaders()) . "\"\n";
-        while ($row=$this->next()) {
-            foreach ($row as &$val)
-                # Escape enclosed double-quotes
-                $val = str_replace('"','""',$val);
-            echo '"' . implode('","', $row) . "\"\n";
-        }
+
+        if (!$this->output)
+             $this->output = fopen('php://output', 'w');
+
+        fputcsv($this->output, $this->getHeaders());
+        while ($row=$this->next())
+            fputcsv($this->output, $row);
+
+        fclose($this->output);
     }
 }
 
@@ -151,9 +300,13 @@ require_once INCLUDE_DIR . 'class.json.php';
 require_once INCLUDE_DIR . 'class.migrater.php';
 require_once INCLUDE_DIR . 'class.signal.php';
 
+define('OSTICKET_BACKUP_SIGNATURE', 'osTicket-Backup');
+define('OSTICKET_BACKUP_VERSION', 'B');
+
 class DatabaseExporter {
 
     var $stream;
+    var $options;
     var $tables = array(CONFIG_TABLE, SYSLOG_TABLE, FILE_TABLE,
         FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
         GROUP_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
@@ -166,21 +319,21 @@ class DatabaseExporter {
         TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE,
         FORM_SEC_TABLE, FORM_FIELD_TABLE, LIST_TABLE, LIST_ITEM_TABLE,
         FORM_ENTRY_TABLE, FORM_ANSWER_TABLE, USER_TABLE, USER_EMAIL_TABLE,
+        PLUGIN_TABLE, TICKET_COLLABORATOR_TABLE,
+        USER_ACCOUNT_TABLE, ORGANIZATION_TABLE, NOTE_TABLE
     );
 
-    function DatabaseExporter($stream) {
+    function DatabaseExporter($stream, $options=array()) {
         $this->stream = $stream;
+        $this->options = $options;
     }
 
     function write_block($what) {
         fwrite($this->stream, JsonDataEncoder::encode($what));
-        fwrite($this->stream, "\x1e");
+        fwrite($this->stream, "\n");
     }
 
-    function dump($error_stream) {
-        // Allow plugins to change the tables exported
-        Signal::send('export.tables', $this, $this->tables);
-
+    function dump_header() {
         $header = array(
             array(OSTICKET_BACKUP_SIGNATURE, OSTICKET_BACKUP_VERSION),
             array(
@@ -193,30 +346,32 @@ class DatabaseExporter {
             ),
         );
         $this->write_block($header);
+    }
+
+    function dump($error_stream) {
+        // Allow plugins to change the tables exported
+        Signal::send('export.tables', $this, $this->tables);
+        $this->dump_header();
 
         foreach ($this->tables as $t) {
             if ($error_stream) $error_stream->write("$t\n");
+
             // Inspect schema
-            $table = $indexes = array();
-            $res = db_query("show columns from $t");
-            while ($field = db_fetch_array($res))
+            $table = array();
+            $res = db_query("select column_name from information_schema.columns
+                where table_schema=DATABASE() and table_name='$t'");
+            while (list($field) = db_fetch_row($res))
                 $table[] = $field;
-
-            $res = db_query("show indexes from $t");
-            while ($col = db_fetch_array($res))
-                $indexes[] = $col;
-
-            $res = db_query("select * from $t");
-            $types = array();
 
             if (!$table) {
                 if ($error_stream) $error_stream->write(
-                    $t.': Cannot export table with no fields'."\n");
+                    sprintf(__("%s: Cannot export table with no fields\n"), $t));
                 die();
             }
             $this->write_block(
-                array('table', substr($t, strlen(TABLE_PREFIX)), $table,
-                    $indexes));
+                array('table', substr($t, strlen(TABLE_PREFIX)), $table));
+
+            db_query("select * from $t");
 
             // Dump row data
             while ($row = db_fetch_row($res))
@@ -224,5 +379,33 @@ class DatabaseExporter {
 
             $this->write_block(array('end-table'));
         }
+    }
+
+    function transfer($destination, $query, $callback=false, $options=array()) {
+        $header_out = false;
+        $res = db_query($query, true, false);
+        $i = 0;
+        while ($row = db_fetch_array($res)) {
+            if (is_callable($callback))
+                $callback($row);
+            if (!$header_out) {
+                $fields = array_keys($row);
+                $this->write_block(
+                    array('table', $destination, $fields, $options));
+                $header_out = true;
+
+            }
+            $this->write_block(array_values($row));
+        }
+        $this->write_block(array('end-table'));
+    }
+
+    function transfer_array($destination, $array, $keys, $options=array()) {
+        $this->write_block(
+            array('table', $destination, $keys, $options));
+        foreach ($array as $row) {
+            $this->write_block(array_values($row));
+        }
+        $this->write_block(array('end-table'));
     }
 }

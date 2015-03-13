@@ -115,7 +115,7 @@ mkdir("$stage_path/scripts/");
 package("setup/scripts/*", "scripts/", -1, "*stage");
 
 # Load the heart of the system
-package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]'));
+package("include/{,.}*", "upload/include", -1, array('*ost-config.php', '*.sw[a-z]','plugins/*'));
 
 # Include the installer
 package("setup/*.{php,txt,html}", "upload/setup", -1, array("*scripts","*test","*stage"));
@@ -134,6 +134,8 @@ if(($mds = glob("$stage_path/*.md"))) {
 
 # Make an archive of the stage folder
 $version = exec('git describe');
+$hash = exec('git rev-parse HEAD');
+$short = substr($hash, 0, 7);
 
 $pwd = getcwd();
 chdir($stage_path);
@@ -142,10 +144,15 @@ chdir($stage_path);
 
 shell_exec("sed -ri -e \"
     s/( *)define\('THIS_VERSION'.*/\\1define('THIS_VERSION', '$version');/
+    s/( *)define\('GIT_VERSION'.*/\\1define('GIT_VERSION', '$short');/
     \" upload/bootstrap.php");
-shell_exec("find . -name '*.inc.php' -print0 | xargs -0 sed -ri -e \"
-    s/( *)ini_set\( *'display_errors'[^)]+\);/\\1ini_set('display_errors', 0);/
-    s/( *)ini_set\( *'display_startup_errors'[^)]+\);/\\1ini_set('display_startup_errors', 0);/
+shell_exec("find upload -name '*.php' -print0 | xargs -0 sed -i -e '
+    s:<script\(.*\) src=\"\(.*\).js\"></script>:<script\\1 src=\"\\2.js?$short\"></script>:
+    s:<link\(.*\) href=\"\(.*\)\.css\"\(.*\)*/*>:<link\\1 href=\"\\2.css?$short\"\\3>:
+   '");
+shell_exec("find upload -name '*.php' -print0 | xargs -0 sed -i -e \"
+    s/\( *\)ini_set( *'display_errors'[^])]*);/\\1ini_set('display_errors', 0);/
+    s/\( *\)ini_set( *'display_startup_errors'[^])]*);/\\1ini_set('display_startup_errors', 0);/
     \"");
 
 shell_exec("tar cjf '$pwd/osTicket-$version.tar.bz2' *");

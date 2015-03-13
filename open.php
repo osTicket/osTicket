@@ -17,69 +17,65 @@ require('client.inc.php');
 define('SOURCE','Web'); //Ticket source.
 $ticket = null;
 $errors=array();
-if($_POST):
+if ($_POST) {
     $vars = $_POST;
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
-    if($thisclient) {
-        $vars['name']=$thisclient->getName();
-        $vars['email']=$thisclient->getEmail();
+    if ($thisclient) {
+        $vars['uid']=$thisclient->getId();
     } elseif($cfg->isCaptchaEnabled()) {
         if(!$_POST['captcha'])
-            $errors['captcha']='Enter text shown on the image';
+            $errors['captcha']=__('Enter text shown on the image');
         elseif(strcmp($_SESSION['captcha'], md5(strtoupper($_POST['captcha']))))
-            $errors['captcha']='Invalid - try again!';
+            $errors['captcha']=__('Invalid - try again!');
     }
 
-    $form = false;
-    if ($topic = Topic::lookup($vars['topicId'])) {
-        if ($form = DynamicForm::lookup($topic->ht['form_id'])) {
-            $form = $form->instanciate();
-            // Don't require internal fields (they're not shown)
-            if (!$form->isValid(function($f) { return !$f->get('private'); }))
-                $errors += $form->errors();
-        }
-    }
+    $tform = TicketForm::objects()->one()->getForm($vars);
+    $messageField = $tform->getField('message');
+    $attachments = $messageField->getWidget()->getAttachments();
+    if (!$errors && $messageField->isAttachmentsEnabled())
+        $vars['cannedattachments'] = $attachments->getClean();
 
-    if (!$errors && $cfg->allowOnlineAttachments() && $_FILES['attachments'])
-        $vars['files'] = AttachmentFile::format($_FILES['attachments'], true);
-
+    // Drop the draft.. If there are validation errors, the content
+    // submitted will be displayed back to the user
+    Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
     //Ticket::create...checks for errors..
     if(($ticket=Ticket::create($vars, $errors, SOURCE))){
-        $msg='Support ticket request created';
-        Draft::deleteForNamespace('ticket.client.'.substr(session_id(), -12));
-        // Save the form data from the help-topic form, if any
-        if ($form) {
-            $form->setTicketId($ticket->getId());
-            $form->save();
-        }
+        $msg=__('Support ticket request created');
+        // Drop session-backed form data
+        unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
         if($thisclient && $thisclient->isValid()) {
-            if(!$cfg->showRelatedTickets())
-                $_SESSION['_client']['key']= $ticket->getExtId(); //Resetting login Key to the current ticket!
             session_write_close();
             session_regenerate_id();
-            @header('Location: tickets.php?id='.$ticket->getExtId());
+            @header('Location: tickets.php?id='.$ticket->getId());
         }
     }else{
-        $errors['err']=$errors['err']?$errors['err']:'Unable to create a ticket. Please correct errors below and try again!';
+        $errors['err']=$errors['err']?$errors['err']:__('Unable to create a ticket. Please correct errors below and try again!');
     }
-endif;
+}
 
 //page
 $nav->setActiveNav('new');
+if ($cfg->isClientLoginRequired()) {
+    if (!$thisclient) {
+        require_once 'secure.inc.php';
+    }
+    elseif ($thisclient->isGuest()) {
+        require_once 'login.php';
+        exit();
+    }
+}
+
 require(CLIENTINC_DIR.'header.inc.php');
 if($ticket
         && (
             (($topic = $ticket->getTopic()) && ($page = $topic->getPage()))
             || ($page = $cfg->getThankYouPage())
-            )) { //Thank the user and promise speedy resolution!
-    //Hide ticket number -  it should only be delivered via email for security reasons.
-    echo Format::safe_html($ticket->replaceVars(str_replace(
-                    array('%{ticket.number}', '%{ticket.extId}', '%{ticket}'), //ticket number vars.
-                    array_fill(0, 3, 'XXXXXX'),
-                    $page->getBody()
-                    )));
-} else {
+        )) {
+    // Thank the user and promise speedy resolution!
+    echo Format::viewableImages($ticket->replaceVars($page->getBody()));
+}
+else {
     require(CLIENTINC_DIR.'open.inc.php');
 }
 require(CLIENTINC_DIR.'footer.inc.php');

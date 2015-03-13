@@ -19,13 +19,13 @@ class Page {
     var $ht;
     var $attachments;
 
-    function Page($id) {
+    function Page($id, $lang=false) {
         $this->id=0;
         $this->ht = array();
-        $this->load($id);
+        $this->load($id, $lang);
     }
 
-    function load($id=0) {
+    function load($id=0, $lang=false) {
 
         if(!$id && !($id=$this->getId()))
             return false;
@@ -33,7 +33,8 @@ class Page {
         $sql='SELECT page.*, count(topic.page_id) as topics '
             .' FROM '.PAGE_TABLE.' page '
             .' LEFT JOIN '.TOPIC_TABLE. ' topic ON(topic.page_id=page.id) '
-            .' WHERE page.id='.db_input($id)
+            . ' WHERE page.content_id='.db_input($id)
+            . ($lang ? ' AND lang='.db_input($lang) : '')
             .' GROUP By page.id';
 
         if (!($res=db_query($sql)) || !db_num_rows($res))
@@ -70,7 +71,7 @@ class Page {
         return $this->ht['body'];
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getBody(), ROOT_PATH.'image.php');
+        return Format::viewableImages($this->getBody());
     }
 
     function getNotes() {
@@ -104,8 +105,8 @@ class Page {
     function update($vars, &$errors) {
 
         if(!$vars['isactive'] && $this->isInUse()) {
-            $errors['err'] = 'A page currently in-use CANNOT be disabled!';
-            $errors['isactive'] = 'Page is in-use!';
+            $errors['err'] = __('A page currently in-use CANNOT be disabled!');
+            $errors['isactive'] = __('Page is in-use!');
         }
 
         if($errors || !$this->save($this->getId(), $vars, $errors))
@@ -195,10 +196,25 @@ class Page {
         return self::getActivePages(array('type' => 'thank-you'));
     }
 
-    function getIdByName($name) {
+    function getIdByName($name, $lang=false) {
 
         $id = 0;
         $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE name='.db_input($name);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($id) = db_fetch_row($res);
+
+        return $id;
+    }
+
+    function getIdByType($type, $lang=false) {
+        $id = 0;
+        $sql = ' SELECT id FROM '.PAGE_TABLE.' WHERE `type`='.db_input($type);
+        if ($lang)
+            $sql .= ' AND lang='.db_input($lang);
+
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
 
@@ -213,27 +229,25 @@ class Page {
             ? $p : null;
     }
 
-    function save($id, $vars, &$errors) {
+    function save($id, $vars, &$errors, $allowempty=false) {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
 
         //validate
         if($id && $id!=$vars['id'])
-            $errors['err'] = 'Internal error. Try again';
+            $errors['err'] = __('Internal error. Try again');
 
         if(!$vars['type'])
-            $errors['type'] = 'Type required';
-        elseif(!in_array($vars['type'], array('landing', 'offline', 'thank-you', 'other')))
-            $errors['type'] = 'Invalid selection';
+            $errors['type'] = __('Type is required');
 
         if(!$vars['name'])
-            $errors['name'] = 'Name required';
+            $errors['name'] = __('Name is required');
         elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$id)
-            $errors['name'] = 'Name already exists';
+            $errors['name'] = __('Name already exists');
 
-        if(!$vars['body'])
-            $errors['body'] = 'Page body is required';
+        if(!$vars['body'] && !$allowempty)
+            $errors['body'] = __('Page body is required');
 
         if($errors) return false;
 
@@ -250,14 +264,22 @@ class Page {
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update page.';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
 
         } else {
             $sql='INSERT INTO '.PAGE_TABLE.' SET '.$sql.', created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
+            if (!db_query($sql) || !($id=db_insert_id())) {
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this site page'))
+                   .' '.__('Internal error occurred');
+                return false;
+            }
 
-            $errors['err']='Unable to create page. Internal error';
+            $sql = 'UPDATE '.PAGE_TABLE.' SET `content_id`=`id`'
+                .' WHERE id='.db_input($id);
+            if (!db_query($sql))
+                return false;
+
+            return $id;
         }
 
         return false;

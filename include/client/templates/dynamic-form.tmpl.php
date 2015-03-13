@@ -5,6 +5,8 @@
     ?>
     <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
+    <?php print ($form instanceof DynamicFormEntry) 
+        ? $form->getForm()->getMedia() : $form->getMedia(); ?>
     <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
     <em><?php echo Format::htmlchars($form->getInstructions()); ?></em>
     </div>
@@ -14,7 +16,7 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if ($field->get('private'))
+        if (!$field->isVisibleToUsers())
             continue;
         ?>
         <tr>

@@ -14,8 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(INCLUDE_DIR.'class.email.php');
-
 class Config {
     var $config = array();
 
@@ -105,7 +103,9 @@ class Config {
     }
 
     function update($key, $value) {
-        if (!isset($this->config[$key]))
+        if (!$key)
+            return false;
+        elseif (!isset($this->config[$key]))
             return $this->create($key, $value);
 
         $setting = &$this->config[$key];
@@ -126,6 +126,15 @@ class Config {
                 return false;
         return true;
     }
+
+    function destroy() {
+
+        $sql='DELETE FROM '.$this->table
+            .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
+
+        db_query($sql);
+        unset($this->session);
+    }
 }
 
 class OsticketConfig extends Config {
@@ -143,11 +152,19 @@ class OsticketConfig extends Config {
         'pw_reset_window' =>    30,
         'enable_html_thread' => true,
         'allow_attachments' =>  true,
-        'allow_email_attachments' => true,
-        'allow_online_attachments' => true,
-        'allow_online_attachments_onlogin' => false,
         'name_format' =>        'full', # First Last
         'auto_claim_tickets'=>  true,
+        'system_language' =>    'en_US',
+        'default_storage_bk' => 'D',
+        'allow_client_updates' => false,
+        'message_autoresponder_collabs' => true,
+        'add_email_collabs' => true,
+        'clients_only' => false,
+        'client_registration' => 'closed',
+        'accept_unregistered_email' => true,
+        'default_help_topic' => 0,
+        'help_topic_sort_mode' => 'a',
+        'client_verify_email' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -175,7 +192,7 @@ class OsticketConfig extends Config {
         return true;
     }
 
-    function lastModified() {
+    function lastModified($key=false) {
         return max(array_map(array('parent', 'lastModified'),
             array_keys($this->config)));
     }
@@ -195,6 +212,10 @@ class OsticketConfig extends Config {
     function isKnowledgebaseEnabled() {
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
+    }
+
+    function isCannedResponseEnabled() {
+        return $this->get('enable_premade');
     }
 
     function getVersion() {
@@ -232,6 +253,10 @@ class OsticketConfig extends Config {
                 $this->persist('db_tz_offset', db_result($res));
         }
         return $this->get('db_tz_offset');
+    }
+
+    function getDefaultTimezoneId() {
+        return $this->get('default_timezone_id');
     }
 
     /* Date & Time Formats */
@@ -285,12 +310,12 @@ class OsticketConfig extends Config {
         return $this->get('passwd_reset_period');
     }
 
-    function showRelatedTickets() {
-        return $this->get('show_related_tickets');
-    }
-
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
+    }
+
+    function allowClientUpdates() {
+        return $this->get('allow_client_updates');
     }
 
     function getClientTimeout() {
@@ -352,14 +377,17 @@ class OsticketConfig extends Config {
     function getDefaultEmail() {
 
         if(!$this->defaultEmail && $this->getDefaultEmailId())
-            $this->defaultEmail=Email::lookup($this->getDefaultEmailId());
+            $this->defaultEmail = Email::lookup($this->getDefaultEmailId());
 
         return $this->defaultEmail;
     }
 
     function getDefaultEmailAddress() {
-        $email=$this->getDefaultEmail();
-        return $email?$email->getAddress():null;
+        return ($email=$this->getDefaultEmail()) ? $email->getAddress() : null;
+    }
+
+    function getDefaultTicketStatusId() {
+        return $this->get('default_ticket_status_id', 1);
     }
 
     function getDefaultSLAId() {
@@ -369,7 +397,7 @@ class OsticketConfig extends Config {
     function getDefaultSLA() {
 
         if(!$this->defaultSLA && $this->getDefaultSLAId())
-            $this->defaultSLA=SLA::lookup($this->getDefaultSLAId());
+            $this->defaultSLA = SLA::lookup($this->getDefaultSLAId());
 
         return $this->defaultSLA;
     }
@@ -380,20 +408,58 @@ class OsticketConfig extends Config {
 
     function getAlertEmail() {
 
-        if(!$this->alertEmail && $this->get('alert_email_id'))
-            $this->alertEmail= new Email($this->get('alert_email_id'));
+        if(!$this->alertEmail)
+            if(!($this->alertEmail = Email::lookup($this->getAlertEmailId())))
+                $this->alertEmail = $this->getDefaultEmail();
+
         return $this->alertEmail;
     }
 
     function getDefaultSMTPEmail() {
 
         if(!$this->defaultSMTPEmail && $this->get('default_smtp_id'))
-            $this->defaultSMTPEmail= new Email($this->get('default_smtp_id'));
+            $this->defaultSMTPEmail = Email::lookup($this->get('default_smtp_id'));
+
         return $this->defaultSMTPEmail;
     }
 
     function getDefaultPriorityId() {
         return $this->get('default_priority_id');
+    }
+
+    function getDefaultPriority() {
+        if (!isset($this->defaultPriority))
+            $this->defaultPriority = Priority::lookup($this->getDefaultPriorityId());
+
+        return $this->defaultPriority;
+    }
+
+    function getDefaultTopicId() {
+        return $this->get('default_help_topic');
+    }
+
+    function getDefaultTopic() {
+        return Topic::lookup($this->getDefaultTopicId());
+    }
+
+    function getTopicSortMode() {
+        return $this->get('help_topic_sort_mode');
+    }
+
+    function setTopicSortMode($mode) {
+        $modes = static::allTopicSortModes();
+        if (!isset($modes[$mode]))
+            throw new InvalidArgumentException(sprintf(
+                '%s: Unsupported help topic sort mode', $mode));
+
+        $this->update('help_topic_sort_mode', $mode);
+    }
+
+    static function allTopicSortModes() {
+        return array(
+            'a' => __('Alphabetically'),
+            'm' => __('Manually'),
+        );
     }
 
     function getDefaultTemplateId() {
@@ -461,15 +527,6 @@ class OsticketConfig extends Config {
         return $this->get('max_file_size');
     }
 
-    function getStaffMaxFileUploads() {
-        return $this->get('max_staff_file_uploads');
-    }
-
-    function getClientMaxFileUploads() {
-        //TODO: change max_user_file_uploads to max_client_file_uploads
-        return $this->get('max_user_file_uploads');
-    }
-
     function getLogLevel() {
         return $this->get('log_level');
     }
@@ -506,6 +563,23 @@ class OsticketConfig extends Config {
         return $this->get('pw_reset_window') * 60;
     }
 
+    function isClientLoginRequired() {
+        return $this->get('clients_only');
+    }
+
+    function isClientRegistrationEnabled() {
+        return in_array($this->getClientRegistrationMode(),
+            array('public', 'auto'));
+    }
+
+    function getClientRegistrationMode() {
+        return $this->get('client_registration');
+    }
+
+    function isClientEmailVerificationRequired() {
+        return $this->get('client_verify_email');
+    }
+
     function isCaptchaEnabled() {
         return (extension_loaded('gd') && function_exists('gd_info') && $this->get('enable_captcha'));
     }
@@ -520,6 +594,14 @@ class OsticketConfig extends Config {
 
     function useEmailPriority() {
         return ($this->get('use_email_priority'));
+    }
+
+    function acceptUnregisteredEmail() {
+        return $this->get('accept_unregistered_email');
+    }
+
+    function addCollabsViaEmail() {
+        return ($this->get('add_email_collabs'));
     }
 
     function getAdminEmail() {
@@ -538,8 +620,20 @@ class OsticketConfig extends Config {
         return true; //No longer an option...hint: big plans for headers coming!!
     }
 
-    function useRandomIds() {
-        return ($this->get('random_ticket_ids'));
+    function getDefaultSequence() {
+        if ($this->get('sequence_id'))
+            $sequence = Sequence::lookup($this->get('sequence_id'));
+        if (!$sequence)
+            $sequence = new RandomSequence();
+        return $sequence;
+    }
+    function getDefaultNumberFormat() {
+        return $this->get('number_format');
+    }
+    function getNewTicketNumber() {
+        $s = $this->getDefaultSequence();
+        return $s->next($this->getDefaultNumberFormat(),
+            array('Ticket', 'isTicketNumberUnique'));
     }
 
     /* autoresponders  & Alerts */
@@ -549,6 +643,10 @@ class OsticketConfig extends Config {
 
     function autoRespONNewMessage() {
         return ($this->get('message_autoresponder'));
+    }
+
+    function notifyCollabsONNewMessage() {
+        return ($this->get('message_autoresponder_collabs'));
     }
 
     function notifyONNewStaffTicket() {
@@ -569,6 +667,10 @@ class OsticketConfig extends Config {
 
     function alertDeptManagerONNewMessage() {
         return ($this->get('message_alert_dept_manager'));
+    }
+
+    function alertAcctManagerONNewMessage() {
+        return ($this->get('message_alert_acct_manager'));
     }
 
     function alertONNewNote() {
@@ -601,6 +703,10 @@ class OsticketConfig extends Config {
 
     function alertDeptMembersONNewTicket() {
         return ($this->get('ticket_alert_dept_members'));
+    }
+
+    function alertAcctManagerONNewTicket() {
+        return ($this->get('ticket_alert_acct_manager'));
     }
 
     function alertONTransfer() {
@@ -695,27 +801,17 @@ class OsticketConfig extends Config {
         return ($this->get('allow_attachments'));
     }
 
-    function allowOnlineAttachments() {
-        return ($this->allowAttachments() && $this->get('allow_online_attachments'));
-    }
-
-    function allowAttachmentsOnlogin() {
-        return ($this->allowOnlineAttachments() && $this->get('allow_online_attachments_onlogin'));
-    }
-
-    function allowEmailAttachments() {
-        return ($this->allowAttachments() && $this->get('allow_email_attachments'));
-    }
-
-    //TODO: change db field to allow_api_attachments - which will include  email/json/xml attachments
-    //       terminology changed on the UI
-    function allowAPIAttachments() {
-        return $this->allowEmailAttachments();
+    function getSystemLanguage() {
+        return $this->get('system_language');
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
     function getUploadDir() {
         return $this->get('upload_dir');
+    }
+
+    function getDefaultStorageBackendChar() {
+        return $this->get('default_storage_bk');
     }
 
     function getVar($name) {
@@ -740,7 +836,10 @@ class OsticketConfig extends Config {
             case 'pages':
                 return $this->updatePagesSettings($vars, $errors);
                 break;
-           case 'autoresp':
+            case 'access':
+                return $this->updateAccessSettings($vars, $errors);
+                break;
+            case 'autoresp':
                 return $this->updateAutoresponderSettings($vars, $errors);
                 break;
             case 'alerts':
@@ -750,7 +849,7 @@ class OsticketConfig extends Config {
                 return $this->updateKBSettings($vars, $errors);
                 break;
             default:
-                $errors['err']='Unknown setting option. Get technical support.';
+                $errors['err']=__('Unknown setting option. Get technical support.');
         }
 
         return false;
@@ -759,20 +858,15 @@ class OsticketConfig extends Config {
     function updateSystemSettings($vars, &$errors) {
 
         $f=array();
-        $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk URl required');
-        $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>'Helpdesk title required');
-        $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Dept. required');
-        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
-        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk URL is required'));
+        $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
+        $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
         //Date & Time Options
-        $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>'Time format required');
-        $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>'Date format required');
-        $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Datetime format required');
-        $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>'Day, Datetime format required');
-        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default Timezone required');
-        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
-            'error'=>'Valid password reset window required');
-
+        $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
+        $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
+        $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Datetime format is required'));
+        $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Day, Datetime format is required'));
+        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Timezone is required'));
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -786,6 +880,27 @@ class OsticketConfig extends Config {
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],
+            'time_format'=>$vars['time_format'],
+            'date_format'=>$vars['date_format'],
+            'datetime_format'=>$vars['datetime_format'],
+            'daydatetime_format'=>$vars['daydatetime_format'],
+            'default_timezone_id'=>$vars['default_timezone_id'],
+            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+        ));
+    }
+
+    function updateAccessSettings($vars, &$errors) {
+        $f=array();
+        $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+        $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>__('Valid password reset window required'));
+
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
             'passwd_reset_period'=>$vars['passwd_reset_period'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
@@ -796,98 +911,77 @@ class OsticketConfig extends Config {
             'client_session_timeout'=>$vars['client_session_timeout'],
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
-            'time_format'=>$vars['time_format'],
-            'date_format'=>$vars['date_format'],
-            'datetime_format'=>$vars['datetime_format'],
-            'daydatetime_format'=>$vars['daydatetime_format'],
-            'default_timezone_id'=>$vars['default_timezone_id'],
-            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+            'clients_only'=>isset($vars['clients_only'])?1:0,
+            'client_registration'=>$vars['client_registration'],
+            'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
         ));
     }
 
     function updateTicketsSettings($vars, &$errors) {
-
-
         $f=array();
-        $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
-        $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
-        $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>'Enter valid numeric value');
-        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>'Enter lock time in minutes');
+        $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+        $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+        $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+        $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
+        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
 
 
         if($vars['enable_captcha']) {
             if (!extension_loaded('gd'))
-                $errors['enable_captcha']='The GD extension required';
+                $errors['enable_captcha']=__('The GD extension is required');
             elseif(!function_exists('imagepng'))
-                $errors['enable_captcha']='PNG support required for Image Captcha';
+                $errors['enable_captcha']=__('PNG support is required for Image Captcha');
         }
 
-        if($vars['allow_attachments']) {
-
-            if(!ini_get('file_uploads'))
-                $errors['err']='The \'file_uploads\' directive is disabled in php.ini';
-
-            if(!is_numeric($vars['max_file_size']))
-                $errors['max_file_size']='Maximum file size required';
-
-            if(!$vars['allowed_filetypes'])
-                $errors['allowed_filetypes']='Allowed file extentions required';
-
-            if(!($maxfileuploads=ini_get('max_file_uploads')))
-                $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
-
-            if(!$vars['max_user_file_uploads'] || $vars['max_user_file_uploads']>$maxfileuploads)
-                $errors['max_user_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
-
-            if(!$vars['max_staff_file_uploads'] || $vars['max_staff_file_uploads']>$maxfileuploads)
-                $errors['max_staff_file_uploads']='Invalid selection. Must be less than '.$maxfileuploads;
+        if ($vars['default_help_topic']
+                && ($T = Topic::lookup($vars['default_help_topic']))
+                && !$T->isActive()) {
+            $errors['default_help_topic'] = __('Default help topic must be set to active');
         }
 
-
+        if (!preg_match('`(?!<\\\)#`', $vars['number_format']))
+            $errors['number_format'] = 'Ticket number format requires at least one hash character (#)';
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
+        if (isset($vars['default_storage_bk']))
+            $this->update('default_storage_bk', $vars['default_storage_bk']);
+
         return $this->updateAll(array(
-            'random_ticket_ids'=>$vars['random_ticket_ids'],
+            'number_format'=>$vars['number_format'] ?: '######',
+            'sequence_id'=>$vars['sequence_id'] ?: 0,
             'default_priority_id'=>$vars['default_priority_id'],
+            'default_help_topic'=>$vars['default_help_topic'],
+            'default_ticket_status_id'=>$vars['default_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
-            'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
-            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?1:0,
-            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?1:0,
+            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
+            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
-            'allow_attachments'=>isset($vars['allow_attachments'])?1:0,
-            'allowed_filetypes'=>strtolower(preg_replace("/\n\r|\r\n|\n|\r/", '',trim($vars['allowed_filetypes']))),
+            'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
-            'max_user_file_uploads'=>$vars['max_user_file_uploads'],
-            'max_staff_file_uploads'=>$vars['max_staff_file_uploads'],
-            'email_attachments'=>isset($vars['email_attachments'])?1:0,
-            'allow_email_attachments'=>isset($vars['allow_email_attachments'])?1:0,
-            'allow_online_attachments'=>isset($vars['allow_online_attachments'])?1:0,
-            'allow_online_attachments_onlogin'=>isset($vars['allow_online_attachments_onlogin'])?1:0,
         ));
     }
 
 
     function updateEmailsSettings($vars, &$errors) {
-
         $f=array();
-        $f['default_template_id']=array('type'=>'int',   'required'=>1, 'error'=>'You must select template.');
-        $f['default_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Default email required');
-        $f['alert_email_id']=array('type'=>'int',   'required'=>1, 'error'=>'Selection required');
-        $f['admin_email']=array('type'=>'email',   'required'=>1, 'error'=>'System admin email required');
+        $f['default_template_id']=array('type'=>'int',   'required'=>1, 'error'=>__('You must select template'));
+        $f['default_email_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default email is required'));
+        $f['alert_email_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+        $f['admin_email']=array('type'=>'email',   'required'=>1, 'error'=>__('System admin email is required'));
 
         if($vars['strip_quoted_reply'] && !trim($vars['reply_separator']))
-            $errors['reply_separator']='Reply separator required to strip quoted reply.';
+            $errors['reply_separator']=__('Reply separator is required to strip quoted reply.');
 
         if($vars['admin_email'] && Email::getIdByEmail($vars['admin_email'])) //Make sure admin email is not also a system email.
-            $errors['admin_email']='Email already setup as system email';
+            $errors['admin_email']=__('Email already setup as system email');
 
         if(!Validator::process($f,$vars,$errors) || $errors)
             return false;
@@ -901,7 +995,11 @@ class OsticketConfig extends Config {
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
+            'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
+            'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
+            'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
          ));
     }
 
@@ -917,6 +1015,13 @@ class OsticketConfig extends Config {
     }
     function getClientLogoId() {
         return $this->getLogoId('client');
+    }
+
+    function getStaffLogoId() {
+        return $this->getLogoId('staff');
+    }
+    function getStaffLogo() {
+        return $this->getLogo('staff');
     }
 
     function updatePagesSettings($vars, &$errors) {
@@ -935,11 +1040,12 @@ class OsticketConfig extends Config {
             elseif ($logo['error'])
                 $errors['logo'] = $logo['error'];
             elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
-                $errors['logo'] = 'Unable to upload logo image. '.$error;
+                $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 
         $company = $ost->company;
         $company_form = $company->getForm();
+        $company_form->setSource($_POST);
         if (!$company_form->isValid())
             $errors += $company_form->errors();
 
@@ -961,6 +1067,9 @@ class OsticketConfig extends Config {
             'client_logo_id' => (
                 (is_numeric($vars['selected-logo']) && $vars['selected-logo'])
                 ? $vars['selected-logo'] : false),
+            'staff_logo_id' => (
+                (is_numeric($vars['selected-logo-scp']) && $vars['selected-logo-scp'])
+                ? $vars['selected-logo-scp'] : false),
            ));
     }
 
@@ -969,10 +1078,11 @@ class OsticketConfig extends Config {
         if($errors) return false;
 
         return $this->updateAll(array(
-            'ticket_autoresponder'=>$vars['ticket_autoresponder'],
-            'message_autoresponder'=>$vars['message_autoresponder'],
-            'ticket_notice_active'=>$vars['ticket_notice_active'],
-            'overlimit_notice_active'=>$vars['overlimit_notice_active'],
+            'ticket_autoresponder'=>isset($vars['ticket_autoresponder']) ? 1 : 0,
+            'message_autoresponder'=>isset($vars['message_autoresponder']) ? 1 : 0,
+            'message_autoresponder_collabs'=>isset($vars['message_autoresponder_collabs']) ? 1 : 0,
+            'ticket_notice_active'=>isset($vars['ticket_notice_active']) ? 1 : 0,
+            'overlimit_notice_active'=>isset($vars['overlimit_notice_active']) ? 1 : 0,
         ));
     }
 
@@ -990,46 +1100,47 @@ class OsticketConfig extends Config {
 
     function updateAlertsSettings($vars, &$errors) {
 
-
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
                     && !isset($vars['ticket_alert_dept_manager'])
-                    && !isset($vars['ticket_alert_dept_members']))) {
-            $errors['ticket_alert_active']='Select recipient(s)';
+                    && !isset($vars['ticket_alert_dept_members'])
+                    && !isset($vars['ticket_alert_acct_manager']))) {
+            $errors['ticket_alert_active']=__('Select recipient(s)');
         }
         if($vars['message_alert_active']
                 && (!isset($vars['message_alert_laststaff'])
                     && !isset($vars['message_alert_assigned'])
-                    && !isset($vars['message_alert_dept_manager']))) {
-            $errors['message_alert_active']='Select recipient(s)';
+                    && !isset($vars['message_alert_dept_manager'])
+                    && !isset($vars['message_alert_acct_manager']))) {
+            $errors['message_alert_active']=__('Select recipient(s)');
         }
 
         if($vars['note_alert_active']
                 && (!isset($vars['note_alert_laststaff'])
                     && !isset($vars['note_alert_assigned'])
                     && !isset($vars['note_alert_dept_manager']))) {
-            $errors['note_alert_active']='Select recipient(s)';
+            $errors['note_alert_active']=__('Select recipient(s)');
         }
 
         if($vars['transfer_alert_active']
                 && (!isset($vars['transfer_alert_assigned'])
                     && !isset($vars['transfer_alert_dept_manager'])
                     && !isset($vars['transfer_alert_dept_members']))) {
-            $errors['transfer_alert_active']='Select recipient(s)';
+            $errors['transfer_alert_active']=__('Select recipient(s)');
         }
 
         if($vars['overdue_alert_active']
                 && (!isset($vars['overdue_alert_assigned'])
                     && !isset($vars['overdue_alert_dept_manager'])
                     && !isset($vars['overdue_alert_dept_members']))) {
-            $errors['overdue_alert_active']='Select recipient(s)';
+            $errors['overdue_alert_active']=__('Select recipient(s)');
         }
 
         if($vars['assigned_alert_active']
                 && (!isset($vars['assigned_alert_staff'])
                     && !isset($vars['assigned_alert_team_lead'])
                     && !isset($vars['assigned_alert_team_members']))) {
-            $errors['assigned_alert_active']='Select recipient(s)';
+            $errors['assigned_alert_active']=__('Select recipient(s)');
         }
 
         if($errors) return false;
@@ -1039,10 +1150,12 @@ class OsticketConfig extends Config {
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
+            'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,
             'message_alert_active'=>$vars['message_alert_active'],
             'message_alert_laststaff'=>isset($vars['message_alert_laststaff'])?1:0,
             'message_alert_assigned'=>isset($vars['message_alert_assigned'])?1:0,
             'message_alert_dept_manager'=>isset($vars['message_alert_dept_manager'])?1:0,
+            'message_alert_acct_manager'=>isset($vars['message_alert_acct_manager'])?1:0,
             'note_alert_active'=>$vars['note_alert_active'],
             'note_alert_laststaff'=>isset($vars['note_alert_laststaff'])?1:0,
             'note_alert_assigned'=>isset($vars['note_alert_assigned'])?1:0,

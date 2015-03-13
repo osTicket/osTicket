@@ -3,7 +3,7 @@
     class.cron.php
 
     Nothing special...just a central location for all cron calls.
-    
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -12,10 +12,12 @@
     See LICENSE.TXT for details.
 
     TODO: The plan is to make cron jobs db based.
-    
+
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 //TODO: Make it DB based!
+require_once INCLUDE_DIR.'class.signal.php';
+
 class Cron {
 
     function MailFetcher() {
@@ -27,7 +29,7 @@ class Cron {
         require_once(INCLUDE_DIR.'class.ticket.php');
         require_once(INCLUDE_DIR.'class.lock.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
-        TicketLock::cleanup(); //Remove expired locks 
+        TicketLock::cleanup(); //Remove expired locks
     }
 
     function PurgeLogs() {
@@ -96,9 +98,14 @@ class Cron {
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
-        self::CleanOrphanedFiles();
+        // Run file purging about every 10 cron runs
+        if (mt_rand(1, 9) == 4)
+            self::CleanOrphanedFiles();
         self::PurgeDrafts();
         self::MaybeOptimizeTables();
+
+        $data = array('autocron'=>false);
+        Signal::send('cron', $data);
     }
 }
 ?>

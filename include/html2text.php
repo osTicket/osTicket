@@ -49,7 +49,7 @@ function convert_html_to_text($html, $width=74) {
         HtmlStylesheet::fromArray(array(
             'html' => array('white-space' => 'pre'), # Don't wrap footnotes
             'p' => array('margin-bottom' => '1em'),
-            'pre' => array('border-width' => '1em', 'white-space' => 'pre'),
+            'pre' => array('white-space' => 'pre'),
         ))
     );
     $options = array();
@@ -201,7 +201,7 @@ class HtmlInlineElement {
                 case 'normal':
                 default:
                     if ($after_block) $more = ltrim($more);
-                    $more = preg_replace('/\s+/m', ' ', $more);
+                    $more = preg_replace('/[ \r\n\t\f]+/mu', ' ', $more);
                 }
             }
             elseif ($c instanceof HtmlInlineElement) {
@@ -218,8 +218,9 @@ class HtmlInlineElement {
         }
         if ($this->footnotes) {
             $output .= "\n\n" . str_repeat('-', $width/2) . "\n";
+            $id = 1;
             foreach ($this->footnotes as $name=>$content)
-                $output .= "[$name] ".$content."\n";
+                $output .= sprintf("[%d] %s\n", $id++, $content);
         }
         return $output;
     }
@@ -276,7 +277,8 @@ class HtmlInlineElement {
     }
 
     function addFootNote($name, $content) {
-        $this->footnotes[$name] = $content;
+        $this->footnotes[$content] = $content;
+        return count($this->footnotes);
     }
 }
 
@@ -446,9 +448,14 @@ class HtmlAElement extends HtmlInlineElement {
             $href = substr($href, 7);
             $output = (($href != $output) ? "$href " : '') . "<$output>";
         } elseif (mb_strwidth($href) > $width / 2) {
+            if (mb_strwidth($output) > $width / 2) {
+                // Parse URL and use relative path part
+                if ($PU = parse_url($output))
+                    $output = $PU['host'] . $PU['path'];
+            }
             if ($href != $output)
-                $this->getRoot()->addFootnote($output, $href);
-            $output = "[$output]";
+                $id = $this->getRoot()->addFootnote($output, $href);
+            $output = "[$output][$id]";
         } elseif ($href != $output) {
             $output = "[$output]($href)";
         }

@@ -15,32 +15,36 @@
 **********************************************************************/
 
 require_once('staff.inc.php');
+require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
+
 $msg='';
 $staff=Staff::lookup($thisstaff->getId());
 if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the form.
- $errors['err']='Internal Error. Action Denied';
+ $errors['err']=__('Internal Error. Action Denied');
 } elseif(!$errors && $_POST) { //Handle post
 
     if(!$staff)
-        $errors['err']='Unknown or invalid staff';
+        $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
     elseif($staff->updateProfile($_POST,$errors)){
-        $msg='Profile updated successfully';
+        $msg=__('Profile updated successfully');
         $thisstaff->reload();
         $staff->reload();
         $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
         $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
     }elseif(!$errors['err'])
-        $errors['err']='Profile update error. Try correcting the errors below and try again!';
+        $errors['err']=__('Profile update error. Try correcting the errors below and try again!');
 }
 
 //Forced password Change.
 if($thisstaff->forcePasswdChange() && !$errors['err'])
-    $errors['err']=sprintf('<b>Hi %s</b> - You must change your password to continue!',$thisstaff->getFirstName());
+    $errors['err']=sprintf(__('<b>Hi %s</b> - You must change your password to continue!'),$thisstaff->getFirstName());
 elseif($thisstaff->onVacation() && !$warn)
-    $warn=sprintf('<b>Welcome back %s</b>! You are listed as \'on vacation\' Please let your manager know that you are back.',$thisstaff->getFirstName());
+    $warn=sprintf(__("<b>Welcome back %s</b>! You are listed as 'on vacation' Please let your manager know that you are back."),$thisstaff->getFirstName());
 
 $inc='profile.inc.php';
 $nav->setTabActive('dashboard');
+$ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.my_profile" />',
+    "$('#content').data('tipNamespace', 'dashboard.my_profile');");
 require_once(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$inc);
 require_once(STAFFINC_DIR.'footer.inc.php');

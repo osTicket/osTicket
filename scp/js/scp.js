@@ -13,26 +13,31 @@ function checkbox_checker(formObj, min, max) {
     var checked=$('input:checkbox:checked', formObj).length;
     var action= action?action:"process";
     if (max>0 && checked > max ){
-        msg="You're limited to only " + max + " selections.\n"
-        msg=msg + "You have made " + checked + " selections.\n"
-        msg=msg + "Please remove " + (checked-max) + " selection(s)."
-        alert(msg)
+        msg=__("You're limited to only {0} selections.\n") .replace('{0}', max);
+        msg=msg + __("You have made {0} selections.\n").replace('{0}', checked);
+        msg=msg + __("Please remove {0} selection(s).").replace('{0}', checked-max);
+        $.sysAlert(__('Alert'), msg);
+
         return (false);
     }
 
     if (checked< min ){
-        alert("Please make at least " + min + " selections. " + checked + " checked so far.")
+        $.sysAlert( __('Alert'),
+                __("Please make at least {0} selections. {1} checked so far.")
+                .replace('{0}', min)
+                .replace('{1}', checked)
+                );
+
         return (false);
     }
 
-    return (true);
+    return checked;
 }
 
 
-$(document).ready(function(){
+var scp_prep = function() {
 
     $("input:not(.dp):visible:enabled:first").focus();
-    $('table.list tbody tr:odd').addClass('odd');
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
@@ -76,7 +81,7 @@ $(document).ready(function(){
         return false;
      });
 
-    $('#actions input:submit.button').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
 
         var formObj = $(this).closest('form');
         e.preventDefault();
@@ -88,12 +93,12 @@ $(document).ready(function(){
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
                 $('.dialog#confirm-action').hide();
-                $('#overlay').hide();
+                $.toggleOverlay(false);
                 $('input#action', formObj).val(action);
                 formObj.submit();
                 return false;
              });
-            $('#overlay').show();
+            $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
             $('.dialog#confirm-action p#'+this.name+'-confirm')
             .show()
@@ -102,6 +107,24 @@ $(document).ready(function(){
 
         return false;
      });
+
+    $('a.confirm-action').click(function(e) {
+        $dialog = $('.dialog#confirm-action');
+        if ($($(this).attr('href')+'-confirm', $dialog).length) {
+            e.preventDefault();
+            var action = $(this).attr('href').substr(1, $(this).attr('href').length);
+
+            $('input#action', $dialog).val(action);
+            $.toggleOverlay(true);
+            $('.confirm-action', $dialog).hide();
+            $('p'+$(this).attr('href')+'-confirm', $dialog)
+            .show()
+            .parent('div').show().trigger('click');
+
+            return false;
+        }
+     });
+
 
     if($.browser.msie) {
         $('.inactive').mouseenter(function() {
@@ -121,8 +144,11 @@ $(document).ready(function(){
             fObj.data('changed', true);
             $('input[type=submit]', fObj).css('color', 'red');
             $(window).bind('beforeunload', function(e) {
-                return 'Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!';
-             });
+                return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
+            });
+            $(document).on('pjax:beforeSend.changed', function(e) {
+                return confirm(__('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!'));
+            });
         }
     };
 
@@ -165,7 +191,7 @@ $(document).ready(function(){
     //Canned attachments.
     $('.canned_attachments, .faq_attachments').delegate('input:checkbox', 'click', function(e) {
         var elem = $(this);
-        if(!$(this).is(':checked') && confirm("Are you sure you want to remove this attachment?")==true) {
+        if(!$(this).is(':checked') && confirm(__("Are you sure you want to remove this attachment?"))==true) {
             elem.parent().addClass('strike');
         } else {
             elem.attr('checked', 'checked');
@@ -175,16 +201,18 @@ $(document).ready(function(){
 
     $('form select#cannedResp').change(function() {
 
-        var fObj=$(this).closest('form');
-        var cannedId = $(this).val();
-        var ticketId = $(':input[name=id]',fObj).val();
-
+        var fObj = $(this).closest('form');
+        var cid = $(this).val();
+        var tid = $(':input[name=id]',fObj).val();
         $(this).find('option:first').attr('selected', 'selected').parent('select');
+
+        var $url = 'ajax.php/kb/canned-response/'+cid+'.json';
+        if (tid)
+            $url =  'ajax.php/tickets/'+tid+'/canned-resp/'+cid+'.json';
 
         $.ajax({
                 type: "GET",
-                url: 'ajax.php/kb/canned-response/'+cannedId+'.json',
-                data: 'tid='+ticketId,
+                url: $url,
                 dataType: 'json',
                 cache: false,
                 success: function(canned){
@@ -192,107 +220,32 @@ $(document).ready(function(){
                     var box = $('#response',fObj),
                         redactor = box.data('redactor');
                     if(canned.response) {
-                        if($('#append',fObj).is(':checked') &&  $('#response',fObj).val()) {
-                            if (redactor)
-                                redactor.insertHtml(canned.response);
-                            else
-                                box.val(canned.response);
-                        }
-                        else {
-                            if (redactor)
-                                redactor.set(canned.response);
-                            else
-                                box.val(canned.response);
-                        }
+                        if (redactor)
+                            redactor.insertHtml(canned.response);
+                        else
+                            box.val(box.val() + canned.response);
+
                         if (redactor)
                             redactor.observeStart();
                     }
                     //Canned attachments.
-                    if(canned.files && $('.canned_attachments',fObj).length) {
+                    var ca = $('.attachments', fObj);
+                    if(canned.files && ca.length) {
+                        var fdb = ca.find('.dropzone').data('dropbox');
                         $.each(canned.files,function(i, j) {
-                            if(!$('.canned_attachments #f'+j.id,fObj).length) {
-                                var file='<span><label><input type="checkbox" name="cannedattachments[]" value="' + j.id+'" id="f'+j.id+'" checked="checked">';
-                                    file+= ' '+ j.name + '</label>';
-                                    file+= ' (<a href="file.php?h=' + j.hash + j.key+ '">view</a>) </span>';
-                                $('.canned_attachments', fObj).append(file);
-                            }
-
-                         });
+                          fdb.addNode(j);
+                        });
                     }
                 }
             })
             .done(function() { })
             .fail(function() { });
-     });
+    });
 
-
-
-
-    /************ global inits *****************/
-
-    //Add CSRF token to the ajax requests.
-    // Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
-    $(document).ajaxSend(function(event, xhr, settings) {
-
-        function sameOrigin(url) {
-            // url could be relative or scheme relative or absolute
-            var host = document.location.host; // host + port
-            var protocol = document.location.protocol;
-            var sr_origin = '//' + host;
-            var origin = protocol + sr_origin;
-            // Allow absolute or scheme relative URLs to same origin
-            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                // or any other URL that isn't scheme relative or absolute i.e
-                // relative.
-                !(/^(\/\/|http:|https:).*/.test(url));
-        }
-
-        function safeMethod(method) {
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
-        }
-
-       });
 
     /* Get config settings from the backend */
-    jQuery.fn.exists = function() { return this.length>0; };
-
-    /* Multifile uploads */
-    var elems = $('.multifile');
-    if (elems.exists()) {
-        /* Get config settings from the backend */
-        getConfig().then(function(c) {
-            elems.multifile({
-                container:   '.uploads',
-                max_uploads: c.max_file_uploads || 1,
-                file_types:  c.file_types || ".*",
-                max_file_size: c.max_file_size || 0
-            });
-        });
-    }
-
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
-
-    /* Datepicker */
     getConfig().then(function(c) {
+        // Datepicker
         $('.dp').datepicker({
             numberOfMonths: 2,
             showButtonPanel: true,
@@ -300,22 +253,15 @@ $(document).ready(function(){
             showOn:'both',
             dateFormat: $.translate_format(c.date_format||'m/d/Y')
         });
-        $(document).on('submit', 'form', function() {
-            $('.dp', $(this)).each(function(i, e) {
-                var $e = $(e),
-                    d = $e.datepicker('getDate'),
-                    day = ('0'+d.getDate()).substr(-2),
-                    month = ('0'+(d.getMonth()+1)).substr(-2),
-                    year = d.getFullYear();
-                $e.val(year+'-'+month+'-'+day);
-            });
-        });
+
     });
 
     /* Typeahead tickets lookup */
+    var last_req;
     $('#basic-ticket-search').typeahead({
         source: function (typeahead, query) {
-            $.ajax({
+            if (last_req) last_req.abort();
+            last_req = $.ajax({
                 url: "ajax.php/tickets/lookup?q="+query,
                 dataType: 'json',
                 success: function (data) {
@@ -334,7 +280,8 @@ $(document).ready(function(){
     $('.email.typeahead').typeahead({
         source: function (typeahead, query) {
             if(query.length > 2) {
-                $.ajax({
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
                     url: "ajax.php/users?q="+query,
                     dataType: 'json',
                     success: function (data) {
@@ -351,11 +298,26 @@ $(document).ready(function(){
         property: "email"
     });
 
-    //Overlay
-    $('#overlay').css({
-        opacity : 0.3,
-        top     : 0,
-        left    : 0
+    $('.staff-username.typeahead').typeahead({
+        source: function (typeahead, query) {
+            if(query.length > 2) {
+                if (last_req) last_req.abort();
+                last_req = $.ajax({
+                    url: "ajax.php/users/staff?q="+query,
+                    dataType: 'json',
+                    success: function (data) {
+                        typeahead.process(data);
+                    }
+                });
+            }
+        },
+        onselect: function (obj) {
+            var fObj=$('.staff-username.typeahead').closest('form');
+            $.each(['first','last','email','phone','mobile'], function(i,k) {
+                if (obj[k]) $('.auto.'+k, fObj).val(obj[k]);
+            });
+        },
+        property: "username"
     });
 
     //Dialog
@@ -371,7 +333,7 @@ $(document).ready(function(){
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
         $(this).parents('div.dialog').hide()
-        $('#overlay').hide();
+        $.toggleOverlay(false);
 
         return false;
     });
@@ -391,62 +353,36 @@ $(document).ready(function(){
     $('#go-advanced').click(function(e) {
         e.preventDefault();
         $('#result-count').html('');
-        $('#overlay').show();
+        $.toggleOverlay(true);
         $('#advanced-search').show();
     });
 
-    $.userLookup = function (url, callback) {
 
-        $('.dialog#popup .body').load(url, function () {
-            $('#overlay').show();
-            $('.dialog#popup').show();
-            $(document).off('.user');
-            $(document).on('submit.user', '.dialog#popup form.user',function(e) {
-                e.preventDefault();
-                var $form = $(this);
-                var $dialog = $form.closest('.dialog');
-                $.ajax({
-                    type:  $form.attr('method'),
-                    url: 'ajax.php/'+$form.attr('action').substr(1),
-                    data: $form.serialize(),
-                    cache: false,
-                    success: function(resp, status, xhr) {
-                        if (xhr && xhr.status == 201) {
-                            var user = $.parseJSON(xhr.responseText);
-                            $('div.body', $dialog).empty();
-                            $dialog.hide();
-                            $('#overlay').hide();
-                            if(callback) callback(user);
-                        } else {
-                            $('div.body', $dialog).html(resp);
-                            $('#msg_notice, #msg_error', $dialog).delay(5000).slideUp();
-                        }
-                    }
-                })
-                .done(function() { })
-                .fail(function() { });
-                return false;
-            });
-         });
-     };
-
-    $('#advanced-search').delegate('#status', 'change', function() {
-        switch($(this).val()) {
+    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
+        switch($(this).children('option:selected').data('state')) {
             case 'closed':
-                $('select#assignee').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#assignee').attr('disabled','disabled');
+                $('select#assignee')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
+                $('select#flag')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#staffId').removeAttr('disabled');
                 break;
             case 'open':
-            case 'overdue':
-            case 'answered':
-                $('select#staffId').find('option:first').attr('selected', 'selected').parent('select');
-                $('select#staffId').attr('disabled','disabled');
+                $('select#staffId')
+                .attr('disabled','disabled')
+                .find('option:first')
+                .attr('selected', 'selected');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
                 break;
             default:
                 $('select#staffId').removeAttr('disabled');
                 $('select#assignee').removeAttr('disabled');
+                $('select#flag').removeAttr('disabled');
         }
     });
 
@@ -478,7 +414,8 @@ $(document).ready(function(){
             .done( function () {
              })
             .fail( function () {
-                $('#result-count').html('<div class="fail">Advanced search failed - try again!</div>');
+                $('#result-count').html('<div class="fail">'
+                    + __('Advanced search failed - try again!') + '</div>');
             })
             .always( function () {
                 $('.spinner', elem).hide();
@@ -493,9 +430,11 @@ $(document).ready(function(){
       });
       return ui;
    };
+
    // Sortable tables for dynamic forms objects
    $('.sortable-rows').sortable({
        'helper': fixHelper,
+       'cursor': 'move',
        'stop': function(e, ui) {
            var attr = ui.item.parent('tbody').data('sort');
            warnOnLeave(ui.item);
@@ -504,7 +443,209 @@ $(document).ready(function(){
            });
        }
    });
+};
+
+$(document).ready(scp_prep);
+$(document).on('pjax:end', scp_prep);
+$(document).on('submit', 'form', function() {
+    // Reformat dates
+    $('.dp', $(this)).each(function(i, e) {
+        var $e = $(e),
+            d = $e.datepicker('getDate');
+        if (!d) return;
+        var day = ('0'+d.getDate()).substr(-2),
+            month = ('0'+(d.getMonth()+1)).substr(-2),
+            year = d.getFullYear();
+        $e.val(year+'-'+month+'-'+day);
+    });
 });
+
+    /************ global inits *****************/
+
+//Add CSRF token to the ajax requests.
+// Many thanks to https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ + jared.
+$(document).ajaxSend(function(event, xhr, settings) {
+
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e
+            // relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", $("meta[name=csrf_token]").attr("content"));
+    }
+
+});
+
+/* Get config settings from the backend */
+jQuery.fn.exists = function() { return this.length>0; };
+
+$.translate_format = function(str) {
+    var translation = {
+        'd':'dd',
+        'j':'d',
+        'z':'o',
+        'm':'mm',
+        'F':'MM',
+        'n':'m',
+        'Y':'yy'
+    };
+    // Change PHP formats to datepicker ones
+    $.each(translation, function(php, jqdp) {
+        str = str.replace(php, jqdp);
+    });
+    return str;
+};
+$(document).keydown(function(e) {
+
+    if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
+        $('div.dialog').hide();
+        $.toggleOverlay(false);
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
+$.toggleOverlay = function (show) {
+  if (typeof(show) === 'undefined') {
+    return $.toggleOverlay(!$('#overlay').is(':visible'));
+  }
+  if (show) {
+    $('#overlay').fadeIn();
+    $('body').css('overflow', 'hidden');
+  }
+  else {
+    $('#overlay').fadeOut();
+    $('body').css('overflow', 'auto');
+  }
+};
+
+$.dialog = function (url, codes, cb, options) {
+    options = options||{};
+
+    if (codes && !$.isArray(codes))
+        codes = [codes];
+
+    var $popup = $('.dialog#popup');
+
+    $.toggleOverlay(true);
+    $('div.body', $popup).empty().hide();
+    $('div#popup-loading', $popup).show()
+        .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
+    $popup.show();
+    $('div.body', $popup).load(url, function () {
+        $('div#popup-loading', $popup).hide();
+        $('div.body', $popup).slideDown({
+            duration: 300,
+            queue: false,
+            complete: function() { if (options.onshow) options.onshow(); }
+        });
+        $(document).off('.dialog');
+        $(document).on('submit.dialog', '.dialog#popup form', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+            $('div#popup-loading', $popup).show()
+                .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
+            $.ajax({
+                type:  $form.attr('method'),
+                url: 'ajax.php/'+$form.attr('action').substr(1),
+                data: $form.serialize(),
+                cache: false,
+                success: function(resp, status, xhr) {
+                    if (xhr && xhr.status && codes
+                        && $.inArray(xhr.status, codes) != -1) {
+                        $.toggleOverlay(false);
+                        $popup.hide();
+                        $('div.body', $popup).empty();
+                        if(cb) cb(xhr);
+                    } else {
+                        $('div.body', $popup).html(resp);
+                        $popup.effect('shake');
+                        $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
+                    }
+                }
+            })
+            .done(function() {
+                $('div#popup-loading', $popup).hide();
+            })
+            .fail(function() { });
+            return false;
+        });
+     });
+    if (options.onload) { options.onload(); }
+ };
+
+$.sysAlert = function (title, msg, cb) {
+    var $dialog =  $('.dialog#alert');
+    if ($dialog.length) {
+        $.toggleOverlay(true);
+        $('#title', $dialog).html(title);
+        $('#body', $dialog).html(msg);
+        $dialog.show();
+    } else {
+        alert(msg);
+    }
+};
+
+$.userLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var user = $.parseJSON(xhr.responseText);
+        if (cb) cb(user);
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+};
+
+$.orgLookup = function (url, cb) {
+    $.dialog(url, 201, function (xhr) {
+        var org = $.parseJSON(xhr.responseText);
+        if (cb) cb(org);
+    }, {
+        onshow: function() { $('#org-search').focus(); }
+    });
+};
+
+$.uid = 1;
+
+//Tabs
+$(document).on('click.tab', 'ul.tabs li a', function(e) {
+    e.preventDefault();
+    if ($('.tab_content'+$(this).attr('href')).length) {
+        var ul = $(this).closest('ul');
+        $('ul.tabs li a', ul.parent()).removeClass('active');
+        $(this).addClass('active');
+        $('.tab_content', ul.parent()).hide();
+        $('.tab_content'+$(this).attr('href')).show();
+    }
+});
+
+//Collaborators
+$(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+    e.preventDefault();
+    var url = 'ajax.php/'+$(this).attr('href').substr(1);
+    $.dialog(url, 201, function (xhr) {
+       $('input#emailcollab').show();
+       $('#recipients').text(xhr.responseText);
+       $('.tip_box').remove();
+    }, {
+        onshow: function() { $('#user-search').focus(); }
+    });
+    return false;
+ });
 
 // NOTE: getConfig should be global
 getConfig = (function() {
@@ -517,8 +658,153 @@ getConfig = (function() {
                 dataType: 'json',
                 success: function (json_config) {
                     dfd.resolve(json_config);
+                },
+                error: function() {
+                    requested = null;
                 }
             });
         return dfd;
     }
 })();
+
+$(document).on('pjax:click', function(options) {
+    clearTimeout(window.ticket_refresh);
+    // Release ticket lock (maybe)
+    if ($.autoLock !== undefined)
+        $.autoLock.releaseLock();
+    // Stop all animations
+    $(document).stop(false, true);
+
+    // Remove tips and clear any pending timer
+    $('.tip, .help-tips, .userPreview, .ticketPreview, .previewfaq').each(function() {
+        if ($(this).data('timer'))
+            clearTimeout($(this).data('timer'));
+    });
+    $('.tip_box').remove();
+});
+
+$(document).on('pjax:start', function() {
+    // Cancel save-changes warning banner
+    $(document).unbind('pjax:beforeSend.changed');
+    $(window).unbind('beforeunload');
+    // Close popups
+    $('.dialog .body').empty().parent().hide();
+    // Close tooltips
+    $('.tip_box').remove();
+});
+
+$(document).on('pjax:send', function(event) {
+
+    if ($('#loadingbar').length !== 0) {
+        $('#loadingbar').remove();
+    }
+
+    $("body").append("<div id='loadingbar'></div>");
+    $("#loadingbar").addClass("waiting").append($("<dt/><dd/>"));
+
+    // right
+    $('#loadingbar').stop(false, true).width((50 + Math.random() * 30) + "%");
+    $('#overlay').css('background-color','white').fadeIn();
+});
+
+$(document).on('pjax:complete', function() {
+    // right
+    $("#loadingbar").width("101%").delay(200).fadeOut(400, function() {
+        $(this).remove();
+    });
+    $.toggleOverlay(false);
+    $('#overlay').removeAttr('style');
+});
+
+// Quick note interface
+$('.quicknote .action.edit-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        body = note.find('.body'),
+        T = $('<textarea>').text(body.html());
+    if (note.closest('.dialog, .tip_box').length)
+        T.addClass('no-bar small');
+    body.replaceWith(T);
+    $.redact(T);
+    $(T).redactor('focus');
+    note.find('.action.edit-note').hide();
+    note.find('.action.save-note').show();
+    note.find('.action.cancel-edit').show();
+    $('#new-note-box').hide();
+    return false;
+});
+$('.quicknote .action.cancel-edit').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea'),
+        body = $('<div class="body">');
+    body.load('ajax.php/note/' + note.data('id'), function() {
+      try { T.redactor('destroy'); } catch (e) {}
+      T.replaceWith(body);
+      note.find('.action.save-note').hide();
+      note.find('.action.cancel-edit').hide();
+      note.find('.action.edit-note').show();
+      $('#new-note-box').show();
+    });
+    return false;
+});
+$('.quicknote .action.save-note').live('click.note', function() {
+    var note = $(this).closest('.quicknote'),
+        T = note.find('textarea');
+    $.post('ajax.php/note/' + note.data('id'),
+      { note: T.redactor('get') },
+      function(html) {
+        var body = $('<div class="body">').html(html);
+        try { T.redactor('destroy'); } catch (e) {}
+        T.replaceWith(body);
+        note.find('.action.save-note').hide();
+        note.find('.action.cancel-edit').hide();
+        note.find('.action.edit-note').show();
+        $('#new-note-box').show();
+      },
+      'html'
+    );
+    return false;
+});
+$('.quicknote .delete').live('click.note', function() {
+  var that = $(this),
+      id = $(this).closest('.quicknote').data('id');
+  $.ajax('ajax.php/note/' + id, {
+    type: 'delete',
+    success: function() {
+      that.closest('.quicknote').animate(
+        {height: 0, opacity: 0}, 'slow', function() {
+          $(this).remove();
+      });
+    }
+  });
+  return false;
+});
+$('#new-note').live('click', function() {
+  var note = $(this).closest('.quicknote'),
+    T = $('<textarea>'),
+    button = $('<input type="button">').val(__('Create'));
+    button.click(function() {
+      $.post('ajax.php/' + note.data('url'),
+        { note: T.redactor('get'), no_options: note.hasClass('no-options') },
+        function(response) {
+          $(T).redactor('destroy').replaceWith(note);
+          $(response).show('highlight').insertBefore(note.parent());
+          $('.submit', note.parent()).remove();
+        },
+        'html'
+      );
+    });
+    if (note.closest('.dialog, .tip_box').length)
+        T.addClass('no-bar small');
+    note.replaceWith(T);
+    $('<p>').addClass('submit').css('text-align', 'center')
+        .append(button).appendTo(T.parent());
+    $.redact(T);
+    $(T).redactor('focus');
+    return false;
+});
+
+function __(s) {
+  if ($.oststrings && $.oststrings[s])
+    return $.oststrings[s];
+  return s;
+}

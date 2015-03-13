@@ -1,12 +1,12 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-?>    
+?>
 <div id="upgrader">
    <div id="main">
-    <h1 style="color:#FF7700;">Upgrade Aborted!</h1>
+    <h1 style="color:#FF7700;"><?php echo __('Upgrade Aborted!');?></h1>
     <div id="intro">
-        <p><strong>Upgrade aborted due to errors. Any errors at this stage are fatal.</strong></p>
-        <p>Please note the error(s), if any, when <a target="_blank" href="http://osticket.com/support/">seeking help</a>.<p>
+        <p><strong><?php echo __('Upgrade aborted due to errors. Any errors at this stage are fatal.');?></strong></p>
+        <p><?php echo sprintf(__('Please note the error(s), if any, when %1$s seeking help %2$s.'),'<a target="_blank" href="http://osticket.com/support/">','</a>');?><p>
         <?php
         if($upgrader && ($errors=$upgrader->getErrors())) {
             if($errors['err'])
@@ -17,18 +17,19 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 echo sprintf('<li>%s</li>',$error);
             echo '</ul>';
         } else {
-            echo '<b><font color="red">Internal error occurred - get technical help.</font></b>';
+            echo '<b><font color="red">'.__('Internal error occurred - get technical help.').'</font></b>';
         }
         ?>
-        <p><b>For more detailed information, please view <a href="logs.php">system logs</a> or check your email.</b></p>
+        <p><b><?php echo sprintf(__('For details - please view %s or check your email.'),
+            sprintf('<a href="logs.php">%s</a>', __('System Logs')));?></b></p>
         <br>
-        <p>Please, refer to the <a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">Upgrade Guide</a> on the wiki for more information.</p>
+        <p><?php echo sprintf(__('Please refer to the %1$s Upgrade Guide %2$s for more information.'), '<a target="_blank" href="http://osticket.com/wiki/Upgrade_and_Migration">', '</a>');?></p>
     </div>
-    <p><strong>Need Help?</strong> We provide <a target="_blank" href="http://osticket.com/support/professional_services.php"><u>professional upgrade services</u></a> and commercial support. <a target="_blank" href="http://osticket.com/support/">Contact us</a> today for <u>expedited</u> help.</p>
-  </div>    
+    <p><strong><?php echo __('Need Help?');?></strong> <?php echo sprintf(__('We provide %1$s professional upgrade services %2$s and commercial support.'), '<a target="_blank" href="http://osticket.com/support/professional_services.php"><u>','</u></a>'); echo sprintf(__('%1$s Contact us %2$s today for <u>expedited</u> help.'), '<a target="_blank" href="http://osticket.com/support/">','</a>');?></p>
+  </div>
   <div id="sidebar">
-    <h3>What to do?</h3>
-    <p>Restore your previous version from backup and try again or <a target="_blank" href="http://osticket.com/support/">seek help</a>.</p>
+    <h3><?php echo __('What to do?');?></h3>
+    <p><?php echo sprintf(__('Restore your previous version from backup and try again or %1$s seek help %2$s.'), '<a target="_blank" href="http://osticket.com/support/">','</a>');?></p>
   </div>
   <div class="clear"></div>
 </div>

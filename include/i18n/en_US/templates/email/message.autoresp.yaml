@@ -14,9 +14,9 @@ notes: |
 subject: |
     Message Confirmation
 body: |
-    <h3><strong>Dear %{ticket.name.first},</strong></h3>
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
     Your reply to support request <a
-    href="%{ticket.client_link}">#%{ticket.number}</a> has been noted
+    href="%{recipient.ticket_link}">#%{ticket.number}</a> has been noted
     <br>
     <br>
     <div style="color: rgb(127, 127, 127); ">
@@ -26,7 +26,5 @@ body: |
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small; text-align:
     center"><em>You can view the support request progress <a
-    href="%{ticket.client_link}">online here</a></em><br>
-    <a href="http://osticket.com/"><img
-    src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" alt="Powered by osTicket"
-    width="126" height="19" style="width: 126px;"></a></div>
+    href="%{recipient.ticket_link}">online here</a></em>
+    </div>

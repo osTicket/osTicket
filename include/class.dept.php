@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+
 class Dept {
     var $id;
 
@@ -24,6 +25,10 @@ class Dept {
     var $config;
 
     var $ht;
+
+    const ALERTS_DISABLED = 2;
+    const ALERTS_DEPT_AND_GROUPS = 1;
+    const ALERTS_DEPT_ONLY = 0;
 
     function Dept($id) {
         $this->id=0;
@@ -51,6 +56,7 @@ class Dept {
         $this->id=$this->ht['dept_id'];
         $this->email=$this->sla=$this->manager=null;
         $this->getEmail(); //Auto load email struct.
+        $this->config = new Config('dept.'.$this->id);
         $this->members=$this->groups=array();
 
         return true;
@@ -78,10 +84,30 @@ class Dept {
     }
 
     function getEmail() {
+        global $cfg;
 
-        if(!$this->email && $this->getEmailId())
-            $this->email=Email::lookup($this->getEmailId());
+        if(!$this->email)
+            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
+                $this->email = $cfg->getDefaultEmail();
 
+        return $this->email;
+    }
+
+    /**
+     * getAlertEmail
+     *
+     * Fetches either the department email (for replies) if configured.
+     * Otherwise, the system alert email address is used.
+     */
+    function getAlertEmail() {
+        global $cfg;
+
+        if (!$this->email && ($id = $this->getEmailId())) {
+            $this->email = Email::lookup($id);
+        }
+        if (!$this->email && $cfg) {
+            $this->email = $cfg->getAlertEmail();
+        }
         return $this->email;
     }
 
@@ -98,29 +124,58 @@ class Dept {
         return count($this->getMembers());
     }
 
-    function getMembers() {
+    function getMembers($criteria=null) {
 
-        if(!$this->members) {
-            $this->members = array();
+        if(!$this->members || $criteria) {
+            $members = array();
             $sql='SELECT DISTINCT s.staff_id FROM '.STAFF_TABLE.' s '
-                .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON(s.group_id=g.group_id) '
+                .' LEFT JOIN '.GROUP_TABLE.' g ON (g.group_id=s.group_id) '
+                .' LEFT JOIN '.GROUP_DEPT_TABLE.' gd ON(s.group_id=gd.group_id) '
                 .' INNER JOIN '.DEPT_TABLE.' d
-                       ON(d.dept_id=s.dept_id
+                       ON ( d.dept_id=s.dept_id
                             OR d.manager_id=s.staff_id
-                            OR (d.dept_id=g.dept_id AND d.group_membership=1)
+                            OR (d.dept_id=gd.dept_id AND d.group_membership='.
+                                self::ALERTS_DEPT_AND_GROUPS.')
                         ) '
-                .' WHERE d.dept_id='.db_input($this->getId())
-                .' ORDER BY s.lastname, s.firstname';
+                .' WHERE d.dept_id='.db_input($this->getId());
+
+            if ($criteria && $criteria['available'])
+                $sql .= ' AND
+                        ( g.group_enabled=1
+                          AND s.isactive=1
+                          AND s.onvacation=0 ) ';
+
+            $sql.=' ORDER BY s.lastname, s.firstname';
 
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
-                    $this->members[] = Staff::lookup($id);
+                    $members[$id] = Staff::lookup($id);
             }
+
+            if ($criteria)
+                return $members;
+
+            $this->members = $members;
+
         }
 
         return $this->members;
     }
 
+    function getAvailableMembers() {
+        return $this->getMembers(array('available'=>1));
+    }
+
+    function getMembersForAlerts() {
+        if ($this->isGroupMembershipEnabled() == self::ALERTS_DISABLED) {
+            // Disabled for this department
+            $rv = array();
+        }
+        else {
+            $rv = $this->getAvailableMembers();
+        }
+        return $rv;
+    }
 
     function getSLAId() {
         return $this->ht['sla_id'];
@@ -139,19 +194,23 @@ class Dept {
     }
 
     function getTemplate() {
+        global $cfg;
 
-        if(!$this->template && $this->getTemplateId())
-            $this->template = EmailTemplateGroup::lookup($this->getTemplateId());
+        if (!$this->template) {
+            if (!($this->template = EmailTemplateGroup::lookup($this->getTemplateId())))
+                $this->template = $cfg->getDefaultTemplate();
+        }
 
         return $this->template;
     }
 
     function getAutoRespEmail() {
 
-        if(!$this->autorespEmail && $this->ht['autoresp_email_id'] && ($email=Email::lookup($this->ht['autoresp_email_id'])))
-            $this->autorespEmail=$email;
-        else // Defualt to dept email if autoresp is not specified or deleted.
-            $this->autorespEmail=$this->getEmail();
+        if (!$this->autorespEmail) {
+            if (!$this->ht['autoresp_email_id']
+                    || !($this->autorespEmail = Email::lookup($this->ht['autoresp_email_id'])))
+                $this->autorespEmail = $this->getEmail();
+        }
 
         return $this->autorespEmail;
     }
@@ -205,6 +264,9 @@ class Dept {
          return ($this->ht['noreply_autoresp']);
     }
 
+    function assignMembersOnly() {
+        return ($this->config->get('assign_members_only', 0));
+    }
 
     function isGroupMembershipEnabled() {
         return ($this->ht['group_membership']);
@@ -215,9 +277,10 @@ class Dept {
     }
 
     function getInfo() {
-        return $this->getHashtable();
+        return $this->config->getInfo() + $this->getHashtable();
     }
 
+<<<<<<< HEAD
     function getConfig() {
         if (!isset($this->config))
             $this->config = new DeptConfig($this->getId());
@@ -256,25 +319,26 @@ class Dept {
         return $this->groups;
     }
 
-    function updateAllowedGroups($groups) {
+    function updateSettings($vars) {
 
-        if($groups && is_array($groups)) {
-            foreach($groups as $k=>$id) {
+        // Groups allowes to access department
+        if($vars['groups'] && is_array($vars['groups'])) {
+            foreach($vars['groups'] as $k=>$id) {
                 $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
                     .' SET dept_id='.db_input($this->getId()).', group_id='.db_input($id);
                 db_query($sql);
             }
         }
-
-
         $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($this->getId());
-        if($groups && is_array($groups))
-            $sql.=' AND group_id NOT IN('.implode(',', db_input($groups)).')';
+        if($vars['groups'] && is_array($vars['groups']))
+            $sql.=' AND group_id NOT IN ('.implode(',', db_input($vars['groups'])).')';
 
         db_query($sql);
 
-        return true;
+        // Misc. config settings
+        $this->config->set('assign_members_only', $vars['assign_members_only']);
 
+        return true;
     }
 
     function update($vars, &$errors) {
@@ -282,7 +346,7 @@ class Dept {
         if(!$this->save($this->getId(), $vars, $errors))
             return false;
 
-        $this->updateAllowedGroups($vars['groups']);
+        $this->updateSettings($vars);
         $this->reload();
 
         $this->getConfig()->set('start_time', isset($vars['start_time']) ? $vars['start_time'] : null);
@@ -295,7 +359,11 @@ class Dept {
     function delete() {
         global $cfg;
 
-        if(!$cfg || $this->getId()==$cfg->getDefaultDeptId() || $this->getNumUsers())
+        if(!$cfg
+                // Default department cannot be deleted
+                || $this->getId()==$cfg->getDefaultDeptId()
+                // Department  with users cannot be deleted
+                || $this->getNumUsers())
             return 0;
 
         $id=$this->getId();
@@ -306,13 +374,24 @@ class Dept {
             db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
             //Move Dept members: This should never happen..since delete should be issued only to empty Depts...but check it anyways
             db_query('UPDATE '.STAFF_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
-            //make help topic using the dept default to default-dept.
-            db_query('UPDATE '.TOPIC_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
+
+            // Clear any settings using dept to default back to system default
+            db_query('UPDATE '.TOPIC_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            db_query('UPDATE '.EMAIL_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            db_query('UPDATE '.FILTER_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+
             //Delete group access
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
+
+            // Destrory config settings
+            $this->config->destroy();
         }
 
         return $num;
+    }
+
+    function __toString() {
+        return $this->getName();
     }
 
     /*----Static functions-------*/
@@ -352,6 +431,8 @@ class Dept {
         if(($manager=$criteria['manager']))
             $sql.=' AND manager_id='.db_input(is_object($manager)?$manager->getId():$manager);
 
+        $sql.=' ORDER BY dept_name';
+
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id, $name)=db_fetch_row($res))
                 $depts[$id] = $name;
@@ -373,6 +454,13 @@ class Dept {
                 isset($vars['end_time']) ? $vars['end_time'] : null);
             $dept->getConfig()->set('work_days',
                 isset($vars['work_days']) && !empty($vars['work_days']) ? implode(',', $vars['work_days']) : null);
+
+        if(!($id=self::save(0, $vars, $errors)))
+            return null;
+
+        if (($dept=self::lookup($id)))
+            $dept->updateSettings($vars);
+
         return $id;
     }
 
@@ -380,25 +468,18 @@ class Dept {
         global $cfg;
 
         if($id && $id!=$vars['id'])
-            $errors['err']='Missing or invalid Dept ID (internal error).';
-
-        if(!isset($vars['id'])
-                && (!$vars['email_id'] || !is_numeric($vars['email_id'])))
-            $errors['email_id']='Email selection required';
-
-        if(isset($vars['tpl_id']) && !is_numeric($vars['tpl_id']))
-            $errors['tpl_id']='Template selection required';
+            $errors['err']=__('Missing or invalid Dept ID (internal error).');
 
         if(!$vars['name']) {
-            $errors['name']='Name required';
+            $errors['name']=__('Name required');
         } elseif(strlen($vars['name'])<4) {
-            $errors['name']='Name is too short.';
+            $errors['name']=__('Name is too short.');
         } elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id) {
-            $errors['name']='Department already exists';
+            $errors['name']=__('Department already exists');
         }
 
         if(!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
-            $errors['ispublic']='System default department cannot be private';
+            $errors['ispublic']=__('System default department cannot be private');
 
         if($errors) return false;
 
@@ -412,7 +493,7 @@ class Dept {
             .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
             .' ,dept_name='.db_input(Format::striptags($vars['name']))
             .' ,dept_signature='.db_input(Format::sanitize($vars['signature']))
-            .' ,group_membership='.db_input(isset($vars['group_membership'])?1:0)
+            .' ,group_membership='.db_input($vars['group_membership'])
             .' ,ticket_auto_response='.db_input(isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1)
             .' ,message_auto_response='.db_input(isset($vars['message_auto_response'])?$vars['message_auto_response']:1);
 
@@ -422,7 +503,8 @@ class Dept {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']='Unable to update '.Format::htmlchars($vars['name']).' Dept. Error occurred';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
+               .' '.__('Internal error occurred');
 
         } else {
             if (isset($vars['id']))
@@ -433,7 +515,8 @@ class Dept {
                 return $id;
 
 
-            $errors['err']='Unable to create department. Internal error';
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this department'))
+               .' '.__('Internal error occurred');
 
         }
 

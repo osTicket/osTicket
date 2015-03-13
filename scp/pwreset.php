@@ -24,66 +24,62 @@
 require_once('../main.inc.php');
 if(!defined('INCLUDE_DIR')) die('Fatal Error. Kwaheri!');
 
+// Bootstrap gettext translations. Since no one is yet logged in, use the
+// system or browser default
+TextDomain::configureForUser();
+
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 $tpl = 'pwreset.php';
 if($_POST) {
     if (!$ost->checkCSRFToken()) {
-        Http::response(400, 'Valid CSRF Token Required');
+        Http::response(400, __('Valid CSRF Token Required'));
         exit;
     }
     switch ($_POST['do']) {
         case 'sendmail':
             if (($staff=Staff::lookup($_POST['userid']))) {
-                if (!$staff->sendResetEmail()) {
+                if (!$staff->hasPassword()) {
+                    $msg = __('Unable to reset password. Contact your administrator');
+                }
+                elseif (!$staff->sendResetEmail()) {
                     $tpl = 'pwreset.sent.php';
                 }
             }
             else
-                $msg = 'Unable to verify username '
-                    .Format::htmlchars($_POST['userid']);
+                $msg = sprintf(__('Unable to verify username %s'),
+                    Format::htmlchars($_POST['userid']));
             break;
         case 'newpasswd':
             // TODO: Compare passwords
             $tpl = 'pwreset.login.php';
-            $_config = new Config('pwreset');
-            if (($staff = new StaffSession($_POST['userid'])) &&
-                    !$staff->getId())
-                $msg = 'Invalid user-id given';
-            elseif (!($id = $_config->get($_POST['token']))
-                    || $id != $staff->getId())
-                $msg = 'Invalid reset token';
-            elseif (!($ts = $_config->lastModified($_POST['token']))
-                    && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
-                $msg = 'Invalid reset token';
-            elseif (!$staff->forcePasswdRest())
-                $msg = 'Unable to reset password';
-            else {
+            $errors = array();
+            if ($staff = StaffAuthenticationBackend::processSignOn($errors)) {
                 $info = array('page' => 'index.php');
-                Signal::send('auth.pwreset.login', $staff, $info);
-                Staff::_do_login($staff, $_POST['userid']);
-                $_SESSION['_staff']['reset-token'] = $_POST['token'];
-                header('Location: '.$info['page']);
-                exit();
+                Http::redirect($info['page']);
+            }
+            elseif (isset($errors['msg'])) {
+                $msg = $errors['msg'];
             }
             break;
     }
 }
 elseif ($_GET['token']) {
-    $msg = 'Re-enter your username or email';
+    $msg = __('Please enter your username or email');
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
             && ($staff = Staff::lookup($id)))
+        // TODO: Detect staff confirmation (for welcome email)
         $tpl = 'pwreset.login.php';
     else
         header('Location: index.php');
 }
 elseif ($cfg->allowPasswordReset()) {
-    $msg = 'Enter your username or email address below';
+    $msg = __('Enter your username or email address below');
 }
 else {
-    $_SESSION['_staff']['auth']['msg']='Password resets are disabled';
+    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
     return header('Location: index.php');
 }
 define("OSTSCPINC",TRUE); //Make includes happy!

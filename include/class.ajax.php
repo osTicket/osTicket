@@ -31,16 +31,14 @@ class AjaxController extends ApiController {
     function staffOnly() {
         global $thisstaff;
         if(!$thisstaff || !$thisstaff->isValid()) {
-            Http::response(401,'Access Denied. IP '.$_SERVER['REMOTE_ADDR']);
+            Http::response(401,sprintf(__('Access Denied. IP %s'),$_SERVER['REMOTE_ADDR']));
         }
     }
     /**
      * Convert a PHP array into a JSON-encoded string
      */
     function json_encode($what) {
-        require_once (INCLUDE_DIR.'class.json.php');
-        $encoder = new JsonDataEncoder();
-        return $encoder->encode($what);
+        return Format::json_encode($what);
     }
 
     function encode($what) {

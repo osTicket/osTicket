@@ -16,7 +16,6 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.error.php';
 require_once INCLUDE_DIR.'class.yaml.php';
-require_once INCLUDE_DIR.'class.config.php';
 
 class Internationalization {
 
@@ -25,8 +24,15 @@ class Internationalization {
     var $langs = array('en_US');
 
     function Internationalization($language=false) {
-        if ($language)
+        global $cfg;
+
+        if ($cfg && ($lang = $cfg->getSystemLanguage()))
             array_unshift($this->langs, $language);
+
+        // Detect language filesystem path, case insensitively
+        if ($language && ($info = self::getLanguageInfo($language))) {
+            array_unshift($this->langs, $info['code']);
+        }
     }
 
     function getTemplate($path) {
@@ -43,33 +49,44 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'email_template_group.yaml' => 'EmailTemplateGroup',
-            'department.yaml' =>    'Dept',
-            'sla.yaml' =>           'SLA',
-            'form.yaml' =>          'DynamicForm',
+            'department.yaml' =>    'Dept::create',
+            'sla.yaml' =>           'SLA::create',
+            'form.yaml' =>          'DynamicForm::create',
+            'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic',
-            'filter.yaml' =>        'Filter',
-            'team.yaml' =>          'Team',
+            'help_topic.yaml' =>    'Topic::create',
+            'filter.yaml' =>        'Filter::create',
+            'team.yaml' =>          'Team::create',
+            // Organization
+            'organization.yaml' =>  'Organization::__create',
+            // Ticket
+            'ticket_status.yaml' =>  'TicketStatus::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group',
-            'file.yaml' =>          'AttachmentFile',
+            'group.yaml' =>         'Group::create',
+            'file.yaml' =>          'AttachmentFile::create',
+            'sequence.yaml' =>      'Sequence::__create',
         );
 
         $errors = array();
-        foreach ($models as $yaml=>$m)
-            if ($objects = $this->getTemplate($yaml)->getData())
-                foreach ($objects as $o)
-                    // Model::create($o)
-                    call_user_func_array(
-                        array($m, 'create'), array($o, &$errors));
+        foreach ($models as $yaml=>$m) {
+            if ($objects = $this->getTemplate($yaml)->getData()) {
+                foreach ($objects as $o) {
+                    if ($m && is_callable($m))
+                        @call_user_func_array($m, array($o, &$errors));
+                    // TODO: Add a warning to the success page for errors
+                    //       found here
+                    $errors = array();
+                }
+            }
+        }
 
         // Priorities
         $priorities = $this->getTemplate('priority.yaml')->getData();
         foreach ($priorities as $name=>$info) {
             $sql = 'INSERT INTO '.PRIORITY_TABLE
                 .' SET priority='.db_input($name)
+                .', priority_id='.db_input($info['priority_id'])
                 .', priority_desc='.db_input($info['priority_desc'])
                 .', priority_color='.db_input($info['priority_color'])
                 .', priority_urgency='.db_input($info['priority_urgency']);
@@ -77,6 +94,7 @@ class Internationalization {
         }
 
         // Configuration
+        require_once INCLUDE_DIR.'class.config.php';
         if (($tpl = $this->getTemplate('config.yaml'))
                 && ($data = $tpl->getData())) {
             foreach ($data as $section=>$items) {
@@ -86,9 +104,23 @@ class Internationalization {
             }
         }
 
-        // Pages
+        // Load core config
         $_config = new OsticketConfig();
-        foreach (array('landing','thank-you','offline') as $type) {
+
+        // Determine reasonable default max_file_size
+        $max_size = Format::filesize2bytes(strtoupper(ini_get('upload_max_filesize')));
+        $val = ((int) $max_size/2);
+        $po2 = 1;
+        while( $po2 < $val ) $po2 <<= 1;
+
+        $_config->set('max_file_size', $po2);
+
+        // Pages and content
+        foreach (array('landing','thank-you','offline',
+                'registration-staff', 'pwreset-staff', 'banner-staff',
+                'registration-client', 'pwreset-client', 'banner-client',
+                'registration-confirm', 'registration-thanks',
+                'access-link') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;
@@ -98,9 +130,15 @@ class Internationalization {
                 .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
-            if (db_query($sql) && ($id = db_insert_id()))
+            if (db_query($sql) && ($id = db_insert_id())
+                    && in_array($type, array('landing', 'thank-you', 'offline')))
                 $_config->set("{$type}_page_id", $id);
         }
+        // Default Language
+        $_config->set('system_language', $this->langs[0]);
+
+        // content_id defaults to the `id` field value
+        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
 
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
@@ -118,6 +156,13 @@ class Internationalization {
 
         // Email templates
         // TODO: Lookup tpl_id
+        if ($objects = $this->getTemplate('email_template_group.yaml')->getData()) {
+            foreach ($objects as $o) {
+                $o['lang_id'] = $this->langs[0];
+                $tpl = EmailTemplateGroup::create($o, $errors);
+            }
+        }
+        // This shouldn't be necessary
         $tpl = EmailTemplateGroup::lookup(1);
         foreach ($tpl::$all_names as $name=>$info) {
             if (($tp = $this->getTemplate("templates/email/$name.yaml"))
@@ -129,6 +174,238 @@ class Internationalization {
                         && ($ids = Draft::getAttachmentIds($t['body'])))
                     $template->attachments->upload($ids, true);
             }
+        }
+    }
+
+    static function getLanguageDescription($lang) {
+        global $thisstaff, $thisclient;
+
+        $langs = self::availableLanguages();
+        $lang = strtolower($lang);
+        if (isset($langs[$lang])) {
+            $info = &$langs[$lang];
+            if (!isset($info['desc'])) {
+                if (extension_loaded('intl')) {
+                    $lang = self::getCurrentLanguage();
+                    list($simple_lang,) = explode('_', $lang);
+                    $info['desc'] = sprintf("%s%s",
+                        // Display the localized name of the language
+                        Locale::getDisplayName($info['code'], $info['code']),
+                        // If the major language differes from the user's,
+                        // display the language in the user's language
+                        (strpos($simple_lang, $info['lang']) === false
+                            ? sprintf(' (%s)', Locale::getDisplayName($info['code'], $lang)) : '')
+                    );
+                }
+                else {
+                    $info['desc'] = sprintf("%s%s (%s)",
+                        $info['nativeName'],
+                        $info['locale'] ? sprintf(' - %s', $info['locale']) : '',
+                        $info['name']);
+                }
+            }
+            return $info['desc'];
+        }
+        else
+            return $lang;
+    }
+
+    static function getLanguageInfo($lang) {
+        $langs = self::availableLanguages();
+        return @$langs[strtolower($lang)] ?: array();
+    }
+
+    static function availableLanguages($base=I18N_DIR) {
+        static $cache = false;
+        if ($cache) return $cache;
+
+        $langs = (include I18N_DIR . 'langs.php');
+
+        // Consider all subdirectories and .phar files in the base dir
+        $dirs = glob(I18N_DIR . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+        $phars = glob(I18N_DIR . '*.phar', GLOB_NOSORT) ?: array();
+
+        $installed = array();
+        foreach (array_merge($dirs, $phars) as $f) {
+            $base = basename($f, '.phar');
+            @list($code, $locale) = explode('_', $base);
+            if (isset($langs[$code])) {
+                $installed[strtolower($base)] =
+                    $langs[$code] + array(
+                    'lang' => $code,
+                    'locale' => $locale,
+                    'path' => $f,
+                    'phar' => substr($f, -5) == '.phar',
+                    'code' => $base,
+                );
+            }
+        }
+        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+
+        return $cache = $installed;
+    }
+
+    // TODO: Move this to the REQUEST class or some middleware when that
+    // exists.
+    // Algorithm borrowed from Drupal 7 (locale.inc)
+    static function getDefaultLanguage() {
+        global $cfg;
+
+        if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+            return $cfg->getSystemLanguage();
+
+        $languages = self::availableLanguages();
+
+        // The Accept-Language header contains information about the
+        // language preferences configured in the user's browser / operating
+        // system. RFC 2616 (section 14.4) defines the Accept-Language
+        // header as follows:
+        //   Accept-Language = "Accept-Language" ":"
+        //                  1#( language-range [ ";" "q" "=" qvalue ] )
+        //   language-range  = ( ( 1*8ALPHA *( "-" 1*8ALPHA ) ) | "*" )
+        // Samples: "hu, en-us;q=0.66, en;q=0.33", "hu,en-us;q=0.5"
+        $browser_langcodes = array();
+        $matches = array();
+        if (preg_match_all('@(?<=[, ]|^)([a-zA-Z-]+|\*)(?:;q=([0-9.]+))?(?:$|\s*,\s*)@',
+            trim($_SERVER['HTTP_ACCEPT_LANGUAGE']), $matches, PREG_SET_ORDER)) {
+          foreach ($matches as $match) {
+            // We can safely use strtolower() here, tags are ASCII.
+            // RFC2616 mandates that the decimal part is no more than three
+            // digits, so we multiply the qvalue by 1000 to avoid floating
+            // point comparisons.
+            $langcode = strtolower($match[1]);
+            $qvalue = isset($match[2]) ? (float) $match[2] : 1;
+            $browser_langcodes[$langcode] = (int) ($qvalue * 1000);
+          }
+        }
+
+        // We should take pristine values from the HTTP headers, but
+        // Internet Explorer from version 7 sends only specific language
+        // tags (eg. fr-CA) without the corresponding generic tag (fr)
+        // unless explicitly configured. In that case, we assume that the
+        // lowest value of the specific tags is the value of the generic
+        // language to be as close to the HTTP 1.1 spec as possible.
+        //
+        // References:
+        // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+        // http://blogs.msdn.com/b/ie/archive/2006/10/17/accept-language-header-for-internet-explorer-7.aspx
+        asort($browser_langcodes);
+        foreach ($browser_langcodes as $langcode => $qvalue) {
+          $generic_tag = strtok($langcode, '-');
+          if (!isset($browser_langcodes[$generic_tag])) {
+            $browser_langcodes[$generic_tag] = $qvalue;
+          }
+        }
+
+        // Find the enabled language with the greatest qvalue, following the rules
+        // of RFC 2616 (section 14.4). If several languages have the same qvalue,
+        // prefer the one with the greatest weight.
+        $best_match_langcode = FALSE;
+        $max_qvalue = 0;
+        foreach ($languages as $langcode => $language) {
+          // Language tags are case insensitive (RFC2616, sec 3.10).
+          // We use _ as the location separator
+          $langcode = str_replace('_','-',strtolower($langcode));
+
+          // If nothing matches below, the default qvalue is the one of the wildcard
+          // language, if set, or is 0 (which will never match).
+          $qvalue = isset($browser_langcodes['*']) ? $browser_langcodes['*'] : 0;
+
+          // Find the longest possible prefix of the browser-supplied language
+          // ('the language-range') that matches this site language ('the language tag').
+          $prefix = $langcode;
+          do {
+            if (isset($browser_langcodes[$prefix])) {
+              $qvalue = $browser_langcodes[$prefix];
+              break;
+            }
+          } while ($prefix = substr($prefix, 0, strrpos($prefix, '-')));
+
+          // Find the best match.
+          if ($qvalue > $max_qvalue) {
+            $best_match_langcode = $language['code'];
+            $max_qvalue = $qvalue;
+          }
+        }
+
+        return $best_match_langcode;
+    }
+
+    static function getCurrentLanguage($user=false) {
+        global $thisstaff, $thisclient;
+
+        $user = $user ?: $thisstaff ?: $thisclient;
+        if ($user && method_exists($user, 'getLanguage'))
+            return $user->getLanguage();
+        if (isset($_SESSION['client:lang']))
+            return $_SESSION['client:lang'];
+        return self::getDefaultLanguage();
+    }
+
+    static function getTtfFonts() {
+        if (!class_exists('Phar'))
+            return;
+        $fonts = $subs = array();
+        foreach (self::availableLanguages() as $code=>$info) {
+            if (!$info['phar'] || !isset($info['fonts']))
+                continue;
+            foreach ($info['fonts'] as $simple => $collection) {
+                foreach ($collection as $type => $name) {
+                    list($name, $url) = $name;
+                    $ttffile = 'phar://' . $info['path'] . '/fonts/' . $name;
+                    if (file_exists($ttffile))
+                        $fonts[$simple][$type] = $ttffile;
+                }
+                if (@$collection[':sub'])
+                    $subs[] = $simple;
+            }
+        }
+        $rv = array($fonts, $subs);
+        Signal::send('config.ttfonts', null, $rv);
+        return $rv;
+    }
+
+    static function bootstrap() {
+
+        require_once INCLUDE_DIR . 'class.translation.php';
+
+        $domain = 'messages';
+        TextDomain::setDefaultDomain($domain);
+        TextDomain::lookup()->setPath(I18N_DIR);
+
+        // User-specific translations
+        function _N($msgid, $plural, $n) {
+            return TextDomain::lookup()->getTranslation()
+                ->ngettext($msgid, $plural, is_numeric($n) ? $n : 1);
+        }
+
+        // System-specific translations
+        function _S($msgid) {
+            global $cfg;
+            return __($msgid);
+        }
+        function _NS($msgid, $plural, $count) {
+            global $cfg;
+        }
+
+        // Phrases with separate contexts
+        function _P($context, $msgid) {
+            return TextDomain::lookup()->getTranslation()
+                ->pgettext($context, $msgid);
+        }
+        function _NP($context, $singular, $plural, $n) {
+            return TextDomain::lookup()->getTranslation()
+                ->npgettext($context, $singular, $plural, is_numeric($n) ? $n : 1);
+        }
+
+        // Language-specific translations
+        function _L($msgid, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->translate($msgid);
+        }
+        function _NL($msgid, $plural, $n, $locale) {
+            return TextDomain::lookup()->getTranslation($locale)
+                ->ngettext($msgid, $plural, is_numeric($n) ? $n : 1);
         }
     }
 }
@@ -153,6 +430,13 @@ class DataTemplate {
                 $this->filepath = Misc::realpath("{$this->base}/$l/$path");
                 break;
             }
+            elseif (class_exists('Phar')
+                    && Phar::isValidPharFilename("{$this->base}/$l.phar")
+                    && file_exists("phar://{$this->base}/$l.phar/$path")) {
+                $this->lang = $l;
+                $this->filepath = "phar://{$this->base}/$l.phar/$path";
+                break;
+            }
         }
     }
 
@@ -162,6 +446,14 @@ class DataTemplate {
             // TODO: If there was a parsing error, attempt to try the next
             //       language in the list of requested languages
         return $this->data;
+    }
+
+    function getRawData() {
+        if (!isset($this->data) && $this->filepath)
+            return file_get_contents($this->filepath);
+            // TODO: If there was a parsing error, attempt to try the next
+            //       language in the list of requested languages
+        return false;
     }
 
     function getLang() {

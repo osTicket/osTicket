@@ -22,17 +22,19 @@ class osTicketSession {
     var $id = '';
 
     function osTicketSession($ttl=0){
-        $this->ttl =$ttl?$ttl:get_cfg_var('session.gc_maxlifetime');
-        if(!$this->ttl)
-            $this->ttl=SESSION_TTL;
+        $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
 
+        // Set osTicket specific session name.
         session_name('OSTSESSID');
+
+        // Forced cleanup on shutdown
+        register_shutdown_function('session_write_close');
+
+        // Set session cleanup time to match TTL
+        ini_set('session.gc_maxlifetime', $ttl);
 
         if (OsticketConfig::getDBVersion())
             return session_start();
-
-        elseif (defined('DISABLE_SESSION'))
-            return;
 
         # Cookies
         // Avoid setting a cookie domain without a dot, thanks
@@ -44,7 +46,7 @@ class osTicketSession {
             // Remote port specification, as it will make an invalid domain
             list($domain) = explode(':', $_SERVER['HTTP_HOST']);
 
-        session_set_cookie_params(86400, ROOT_PATH, $domain,
+        session_set_cookie_params($ttl, ROOT_PATH, $domain,
             osTicket::is_https());
 
         //Set handlers.
@@ -56,8 +58,6 @@ class osTicketSession {
             array(&$this, 'destroy'),
             array(&$this, 'gc')
         );
-        //Forced cleanup.
-        register_shutdown_function('session_write_close');
 
         //Start the session.
         session_start();
@@ -69,6 +69,23 @@ class osTicketSession {
         $this->destroy($oldId);
     }
 
+    static function destroyCookie() {
+        setcookie(session_name(), 'deleted', 1,
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
+    }
+
+    static function renewCookie($baseTime=false, $window=false) {
+        setcookie(session_name(), session_id(),
+            ($baseTime ?: time()) + ($window ?: SESSION_TTL),
+            ini_get('session.cookie_path'),
+            ini_get('session.cookie_domain'),
+            ini_get('session.cookie_secure'),
+            ini_get('session.cookie_httponly'));
+    }
+
     function open($save_path, $session_name){
         return (true);
     }
@@ -78,6 +95,7 @@ class osTicketSession {
     }
 
     function read($id){
+        $this->isnew = false;
         if (!$this->data || $this->id != $id) {
             $sql='SELECT session_data FROM '.SESSION_TABLE
                 .' WHERE session_id='.db_input($id)
@@ -86,16 +104,22 @@ class osTicketSession {
                 return false;
             elseif (db_num_rows($res))
                 list($this->data)=db_fetch_row($res);
+            else
+                // No session data on record -- new session
+                $this->isnew = true;
             $this->id = $id;
         }
-        $this->data_hash = md5($this->data);
+        $this->data_hash = md5($id.$this->data);
         return $this->data;
     }
 
     function write($id, $data){
         global $thisstaff;
 
-        if (md5($data) == $this->data_hash)
+        if (md5($id.$data) == $this->data_hash)
+            return;
+
+        elseif (defined('DISABLE_SESSION') && $this->isnew)
             return;
 
         $ttl = ($this && get_class($this) == 'osTicketSession')

@@ -1,0 +1,24 @@
+#
+# registration-staff.yaml
+#
+# Initial (optional) email sent to staff members when accounts are created
+# for them in the staff control panel
+#
+---
+notes: >
+    This template defines the initial email (optional) sent to Agents when an account
+    is created on their behalf.
+name: "Welcome to osTicket"
+body: >
+    <h3><strong>Hi %{recipient.name.first},</strong></h3>
+    <div>
+    We've created an account for you at our help desk at %{url}.<br />
+    <br />
+    Please follow the link below to confirm your account and gain access to
+    your tickets.<br />
+    <br />
+    <a href="%{link}">%{link}</a><br />
+    <br />
+    <em style="font-size: small">Your friendly Customer Support System<br />
+    %{company.name}</em>
+    </div>

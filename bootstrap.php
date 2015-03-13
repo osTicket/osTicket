@@ -63,13 +63,17 @@ class Bootstrap {
         define('CONFIG_TABLE',$prefix.'config');
 
         define('CANNED_TABLE',$prefix.'canned_response');
-        define('PAGE_TABLE', $prefix.'page');
+        define('PAGE_TABLE', $prefix.'content');
         define('FILE_TABLE',$prefix.'file');
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
         define('USER_TABLE',$prefix.'user');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
+        define('USER_ACCOUNT_TABLE',$prefix.'user_account');
+
+        define('ORGANIZATION_TABLE', $prefix.'organization');
+        define('NOTE_TABLE', $prefix.'note');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
@@ -89,8 +93,12 @@ class Bootstrap {
         define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
         define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
+        define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
+
 
         define('FORM_SEC_TABLE',$prefix.'form');
         define('FORM_FIELD_TABLE',$prefix.'form_field');
@@ -111,6 +119,9 @@ class Bootstrap {
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
 
+        define('PLUGIN_TABLE', $prefix.'plugin');
+        define('SEQUENCE_TABLE', $prefix.'sequence');
+
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
     }
@@ -127,8 +138,7 @@ class Bootstrap {
             //Die gracefully on upgraded v1.6 RC5 installation - otherwise script dies with confusing message.
             if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']), 'settings.php'))
                 Http::response(500,
-                    'Please rename config file include/settings.php to '
-                   .'include/ost-config.php to continue!');
+                    'Please rename config file include/settings.php to include/ost-config.php to continue!');
         } elseif(file_exists(ROOT_DIR.'setup/'))
             Http::redirect(ROOT_PATH.'setup/');
 
@@ -158,9 +168,9 @@ class Bootstrap {
             );
 
         if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror='Unable to connect to the database -'.db_connect_error();
+            $ferror=sprintf('Unable to connect to the database — %s',db_connect_error());
         }elseif(!db_select_database(DBNAME)) {
-            $ferror='Unknown or invalid database '.DBNAME;
+            $ferror=sprintf('Unknown or invalid database: %s',DBNAME);
         }
 
         if($ferror) //Fatal error
@@ -169,8 +179,10 @@ class Bootstrap {
 
     function loadCode() {
         #include required files
-        require(INCLUDE_DIR.'class.ostsession.php');
-        require(INCLUDE_DIR.'class.usersession.php');
+        require_once INCLUDE_DIR.'class.util.php';
+        require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.user.php');
+        require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
@@ -182,6 +194,8 @@ class Bootstrap {
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
+        require_once INCLUDE_DIR.'class.i18n.php';
+        require_once INCLUDE_DIR.'class.search.php';
     }
 
     function i18n_prep() {
@@ -196,9 +210,18 @@ class Bootstrap {
                     return iconv($from, $to, $str); }
             }
             else {
-                function mb_strpos($a, $b) { return strpos($a, $b); }
-                function mb_strlen($str) { return strlen($str); }
-                function mb_substr($a, $b, $c=null) { return substr($a, $b, $c); }
+                function mb_strpos($a, $b) {
+                    $c = preg_replace('/^(\X*)'.preg_quote($b).'.*$/us', '$1', $a);
+                    return ($c===$a) ? false : mb_strlen($c);
+                }
+                function mb_strlen($str) {
+                    $a = array();
+                    return preg_match_all('/\X/u', $str, $a);
+                }
+                function mb_substr($a, $b, $c=null) {
+                    return preg_replace(
+                        "/^\X{{$b}}(\X".($c ? "{{$c}}" : "*").").*/us",'$1',$a);
+                }
                 function mb_convert_encoding($str, $to, $from='utf-8') {
                     if (strcasecmp($to, $from) == 0)
                         return $str;
@@ -277,6 +300,7 @@ define('I18N_DIR', INCLUDE_DIR.'i18n/');
 
 #Current version && schema signature (Changes from version to version)
 define('THIS_VERSION','1.8-git'); //Shown on admin panel
+define('GIT_VERSION','$git');
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))
@@ -304,8 +328,6 @@ define('THISPAGE', Misc::currentURL());
 
 define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
 define('DEFAULT_PRIORITY_ID',1);
-
-define('EXT_TICKET_ID_LEN',6); //Ticket create. when you start getting collisions. Applies only on random ticket ids.
 
 #Global override
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))

@@ -3,7 +3,6 @@
     view.php
 
     Ticket View.
-    TODO: Support different views based on auth_token - e.g for BCC'ed users vs. Ticket owner.
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2010 osTicket
@@ -17,20 +16,35 @@
 **********************************************************************/
 require_once('client.inc.php');
 
-//If the user is NOT logged in - try auto-login (if params exists).
-if(!$thisclient || !$thisclient->isValid()) {
-    // * On login Client::login will redirect the user to tickets.php view.
-    // * See TODO above for planned multi-view.
-    $user = null;
-    if($_GET['t'] && $_GET['e'] && $_GET['a'])
-        $user = Client::login($_GET['t'], $_GET['e'], $_GET['a'], $errors);
-
-    //XXX: For now we're assuming the user is the ticket owner
-    // (multi-view based on auth token will come later).
-    if($user && $user->getTicketID()==trim($_GET['t']))
-        @header('Location: tickets.php?id='.$user->getTicketID());
+$errors = array();
+// Check if the client is already signed in. Don't corrupt their session!
+if ($_GET['auth']
+        && $thisclient
+        && ($u = TicketUser::lookupByToken($_GET['auth']))
+        && ($u->getUserId() == $thisclient->getId())
+) {
+    // Switch auth keys ? (Otherwise the user can never use links for two
+    // different tickets)
+    if (($bk = $thisclient->getAuthBackend()) instanceof AuthTokenAuthentication) {
+        $bk->setAuthKey($u, $bk);
+    }
+    Http::redirect('tickets.php?id='.$u->getTicketId());
+}
+// Try autologin the user
+// Authenticated user can be of type ticket owner or collaborator
+elseif (isset($_GET['auth']) || isset($_GET['t'])) {
+    // TODO: Consider receiving an AccessDenied object
+    $user =  UserAuthenticationBackend::processSignOn($errors, false);
 }
 
-//Simply redirecting to tickets.php until multiview is implemented.
-require('tickets.php');
+if (@$user && is_object($user) && $user->getTicketId())
+    Http::redirect('tickets.php?id='.$user->getTicketId());
+
+$nav = new UserNav();
+$nav->setActiveNav('status');
+
+$inc = 'accesslink.inc.php';
+require CLIENTINC_DIR.'header.inc.php';
+require CLIENTINC_DIR.$inc;
+require CLIENTINC_DIR.'footer.inc.php';
 ?>

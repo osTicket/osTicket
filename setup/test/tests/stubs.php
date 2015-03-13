@@ -10,6 +10,7 @@ class mysqli {
     function real_connect() {}
     function select_db() {}
     function set_charset() {}
+    function autocommit() {}
 }
 
 class mysqli_stmt {
@@ -26,8 +27,14 @@ class mysqli_stmt {
     function free() {}
 }
 
+class mysqli_result {
+    function free() {}
+    function free_result() {}
+}
+
 class ReflectionClass {
     function getMethods() {}
+    function getConstants() {}
 }
 
 class DomNode {
@@ -45,6 +52,7 @@ class DomElement {
 
 class DomDocument {
     function loadHTML() {}
+    function loadXML() {}
 }
 
 class Exception {
@@ -83,4 +91,35 @@ class DateTimeZone {
     static function listIdentifiers() {}
 }
 
+class Phar {
+    static function isValidPharFilename() {}
+    function setStub() {}
+    function startBuffering() {}
+    function stopBuffering() {}
+    function setSignatureAlgorithm() {}
+}
+
+class ZipArchive {
+    function statIndex() {}
+    function addFromString() {}
+    function getFromIndex() {}
+    function setCommentName() {}
+}
+
+class finfo {
+    function file() {}
+    function buffer() {}
+}
+
+class Locale {
+    function getDisplayName() {}
+}
+class IntlBreakIterator {
+    static function createWordInstance() {}
+    function setText() {}
+}
+
+class SqlFunction {
+    static function NOW() {}
+}
 ?>
