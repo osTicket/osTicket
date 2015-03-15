@@ -2378,7 +2378,7 @@ class Ticket {
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
-            return self::filterTicketData($origin, $vars, $forms);
+            return self::filterTicketData($origin, $ex->getData(), $forms);
         }
         return $vars;
     }
