@@ -17,7 +17,7 @@ if($staff && $_REQUEST['a']!='add'){
     $title=__('Add New Agent');
     $action='create';
     $submit_text=__('Add Agent');
-    $passwd_text=__('Temporary password required only for "Local" authenication');
+    $passwd_text=__('Temporary password required only for "Local" authentication');
     //Some defaults for new staff.
     $info['change_passwd']=1;
     $info['welcome_email']=1;
