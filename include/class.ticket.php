@@ -2060,6 +2060,11 @@ class Ticket {
 
         $this->deleteDrafts();
 
+        $sql = 'DELETE FROM '.TICKET_TABLE.'__cdata WHERE `ticket_id`='
+            .db_input($this->getId());
+        // If the CDATA table doesn't exist, that's not an error
+        db_query($sql, false);
+
         // Log delete
         $log = sprintf(__('Ticket #%1$s deleted by %2$s'),
                 $this->getNumber(),
