@@ -1708,6 +1708,9 @@ class Ticket {
         if(!$vars['staffId'] && $thisstaff)
             $vars['staffId'] = $thisstaff->getId();
 
+        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
+
         if(!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
@@ -1826,6 +1829,8 @@ class Ticket {
         }elseif($poster) { //string
             $vars['poster'] = $poster;
         }
+        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
