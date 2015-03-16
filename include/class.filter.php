@@ -456,7 +456,7 @@ class Filter {
 
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('what'=>$vars["rule_w$i"],
-                        'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
+                        'how'=>$vars["rule_h$i"],'val'=>trim($vars["rule_v$i"]));
             }elseif($vars["rule_v$i"]) {
                 $errors["rule_$i"]=__('Incomplete selection');
             }
