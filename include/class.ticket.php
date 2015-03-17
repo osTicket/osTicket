@@ -1718,8 +1718,7 @@ class Ticket {
                 $recipients[]=$this->getLastRespondent();
 
             //Assigned staff if any...could be the last respondent
-
-            if ($this->isAssigned()) {
+            if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
                 if ($staff = $this->getStaff())
                     $recipients[] = $staff;
                 elseif ($team = $this->getTeam())
