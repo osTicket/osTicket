@@ -17,9 +17,10 @@ if ($content) {
 ?>
 <h1><?php echo Format::display($title); ?></h1>
 <p><?php echo Format::display($body); ?></p>
-<form action="login.php" method="post" id="clientLogin">
+<form action="login.php" method="post" id="clientLogin" class="well">
     <?php csrf_token(); ?>
-<div style="display:table-row">
+<div class="row">
+<div class="col-sm-6">
     <div class="login-box">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
@@ -35,7 +36,8 @@ if ($content) {
 <?php } ?>
     </p>
     </div>
-    <div style="display:table-cell;padding: 15px;vertical-align:top">
+</div>
+    <div class="col-sm-6">
 <?php
 
 $ext_bks = array();

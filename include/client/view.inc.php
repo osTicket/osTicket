@@ -27,7 +27,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <?php } ?>
 
-<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
+<table cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
             <h1>
@@ -43,8 +43,10 @@ if ($thisclient && $thisclient->isGuest()
         </td>
     </tr>
     <tr>
-        <td width="50%">
-            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+        <td colspan="2">
+          <div class="row">
+            <div class="col-sm-6">
+              <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
                     <th width="100"><?php echo __('Ticket Status');?>:</th>
                     <td><?php echo $ticket->getStatus(); ?></td>
@@ -57,10 +59,10 @@ if ($thisclient && $thisclient->isGuest()
                     <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
                 </tr>
-           </table>
-       </td>
-       <td width="50%">
-           <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+             </table>
+           </div>
+           <div class="col-sm-6">
+             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                <tr>
                    <th width="100"><?php echo __('Name');?>:</th>
                    <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
@@ -74,6 +76,8 @@ if ($thisclient && $thisclient->isGuest()
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
             </table>
+          </div>
+        </div>
        </td>
     </tr>
     <tr>
@@ -115,7 +119,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         if($entry['thread_type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" border="0">
             <tr><th><div>
 <?php echo Format::db_datetime($entry['created']); ?>
                 &nbsp;&nbsp;<span class="textra"></span>
@@ -186,9 +190,9 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
         </tr>
     </table>
     <p style="padding-left:165px;">
-        <input type="submit" value="<?php echo __('Post Reply');?>">
-        <input type="reset" value="<?php echo __('Reset');?>">
-        <input type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
+        <input type="submit" class="btn btn-primary" value="<?php echo __('Post Reply');?>">
+        <input type="reset" class="btn btn-warning" value="<?php echo __('Reset');?>">
+        <input type="button" class="btn btn-default" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
     </p>
 </form>
 <?php

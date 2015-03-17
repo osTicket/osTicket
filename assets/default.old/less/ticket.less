@@ -29,7 +29,9 @@
 
 
 #ticketTable {
-  width: 100%;
+  border: 1px solid #aaa;
+  border-left: none;
+  border-bottom: none;
 
   caption {
     padding: 5px;
@@ -44,6 +46,10 @@
   th {
     height: 24px;
     line-height: 24px;
+    background: #e1f2ff;
+    border: 1px solid #aaa;
+    border-right: none;
+    border-top: none;
 
     a {
       color: #000;
@@ -52,8 +58,14 @@
 
   td {
     padding: 2px;
+    border: 1px solid #aaa;
+    border-right: none;
+    border-top: none;
   }
 
+  tr.alt td {
+    background: #f9f9f9;
+  }
 }
 
 #ticketSearchForm {
@@ -87,7 +99,6 @@ a.refresh {
 
 #ticketThread {
   table {
-    width: 100%;
     margin-top: 10px;
     border: 1px solid #aaa;
     border-bottom: 2px solid #aaa;
