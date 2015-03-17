@@ -136,6 +136,8 @@
         }
 
         var group = current_tab.attr('table-group');
+        var pagesize = 25;
+        getConfig().then(function(c) { if (c.page_size) pagesize = c.page_size; });
         $.ajax({
             method:     'GET',
             dataType:   'json',
@@ -144,7 +146,6 @@
             success:    function(json) {
                 var q = $('<table>').attr({'class':'table table-condensed table-striped'}),
                     h = $('<tr>').appendTo($('<thead>').appendTo(q)),
-                    pagesize = 25,
                     max = [];
                 for (var c in json.columns) {
                     h.append($('<th>').append(json.columns[c]));
@@ -158,7 +159,7 @@
                 }
                 for (var i in json.data) {
                     if (i % pagesize === 0)
-                        b = $('<tbody>').attr({'page':i/pagesize+1}).appendTo(q);
+                        b = $('<tbody>').attr({'page':i/pagesize+1}).addClass('hidden').appendTo(q);
                     row = json.data[i];
                     tr = $('<tr>').appendTo(b);
                     for (var j in row) {
@@ -194,30 +195,31 @@
                         $('<td>').attr('colspan','8').append(
                             'No data for this timeframe found'))).appendTo(q);
                 }
+                $('tbody[page=1]', q).removeClass('hidden');
                 $('#table-here').empty().append(q);
 
                 // ----------------------> Pagination <---------------------
                 function goabs(e) {
-                    $('tbody', q).addClass('hide');
+                    $('tbody', q).addClass('hidden');
                     if (e.target) {
                         page = e.target.text;
-                        $('tbody[page='+page+']', q).removeClass('hide');
+                        $('tbody[page='+page+']', q).removeClass('hidden');
                     } else {
-                        e.removeClass('hide');
+                        e.removeClass('hidden');
                         page = e.attr('page')
                     }
-                    enable_next_prev(page);
+                    return enable_next_prev(page);
                 }
                 function goprev() {
-                    current = $('tbody:not(.hide)', q).attr('page');
+                    current = $('tbody:not(.hidden)', q).attr('page');
                     page = Math.max(1, parseInt(current) - 1);
-                    goabs($('tbody[page='+page+']', q));
+                    return goabs($('tbody[page='+page+']', q));
                 }
                 function gonext() {
-                    current = $('tbody:not(.hide)', q).attr('page');
+                    current = $('tbody:not(.hidden)', q).attr('page');
                     page = Math.min(Math.floor(json.data.length / pagesize) + 1,
                         parseInt(current) + 1);
-                    goabs($('tbody[page='+page+']', q));
+                    return goabs($('tbody[page='+page+']', q));
                 }
                 function enable_next_prev(page) {
                     $('#table-here div.pagination li[page]').removeClass('active');
@@ -229,6 +231,7 @@
                     if (page == Math.floor(json.data.length / pagesize) + 1)
                                     $('#report-page-next').addClass('disabled');
                     else            $('#report-page-next').removeClass('disabled');
+                    return false;
                 }
 
                 var p = $('<ul>')
@@ -254,7 +257,7 @@
                     .appendTo($('<li>')
                     .appendTo(p));
 
-                gonext();
+                goprev();
             }
         });
         return false;
