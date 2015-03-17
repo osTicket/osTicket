@@ -598,7 +598,7 @@ if ($results) {
             <label for="assignee"><?php echo __('Assigned To');?>:</label>
             <select id="assignee" name="assignee">
                 <option value="">&mdash; <?php echo __('Anyone');?> &mdash;</option>
-                <option value="0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
+                <option value="s0">&mdash; <?php echo __('Unassigned');?> &mdash;</option>
                 <option value="s<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
