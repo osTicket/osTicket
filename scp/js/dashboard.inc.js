@@ -1,5 +1,5 @@
 (function ($) {
-    var current_tab;
+    var current_tab = null;
     function refresh(e) {
         $('#line-chart-here').empty();
         $('#line-chart-legend').empty();
@@ -135,6 +135,9 @@
             stop = this.period.value || 'now';
         }
 
+        if (!current_tab)
+            current_tab = $('#tabular-navigation li:first-child a');
+
         var group = current_tab.attr('table-group');
         var pagesize = 25;
         getConfig().then(function(c) { if (c.page_size) pagesize = c.page_size; });
@@ -262,10 +265,11 @@
         });
         return false;
     }
-   
-    $(function() { 
-        $('#timeframe-form').submit(refresh);
+
+    $(function() {
+        var form = $('#timeframe-form');
+        form.submit(refresh);
         //Trigger submit now...init.
-        $('#timeframe-form').submit(); 
-        });
+        form.submit();
+    });
 })(window.jQuery);
