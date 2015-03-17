@@ -1625,8 +1625,12 @@ class Ticket {
 
             //Assigned staff if any...could be the last respondent
 
-            if($this->isAssigned() && ($staff=$this->getStaff()))
-                $recipients[]=$staff;
+            if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
+                if ($staff = $this->getStaff())
+                    $recipients[] = $staff;
+                elseif ($team = $this->getTeam())
+                    $recipients = array_merge($recipients, $team->getMembers());
+            }
 
             //Dept manager
             if($cfg->alertDeptManagerONNewMessage() && $dept && ($manager=$dept->getManager()))
