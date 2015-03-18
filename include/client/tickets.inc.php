@@ -146,13 +146,13 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
             <th class="hidden-xs">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
             </th>
-            <th>
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
             </th>
             <th>
                 <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
             </th>
-            <th>
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
             </th>
         </tr>
@@ -182,11 +182,11 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td class="hidden-xs">&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo $row['status']; ?></td>
+                <td class="hidden-xs">&nbsp;<?php echo $row['status']; ?></td>
                 <td>
                     <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
+                <td class="hidden-xs">&nbsp;<?php echo Format::truncate($dept,30); ?></td>
             </tr>
         <?php
         }
