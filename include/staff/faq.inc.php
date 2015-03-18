@@ -64,7 +64,7 @@ $qstr = Http::build_query($qs);
                                     $row['category_id'],
                                     (($info['category_id']==$row['category_id'])?'selected="selected"':''),
                                     $row['name'],
-                                    ($info['ispublic']?__('Public'):__('Internal')));
+                                    ($row['ispublic']?__('Public'):__('Internal')));
                         }
                     }
                    ?>
