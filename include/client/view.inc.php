@@ -119,28 +119,31 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         if($entry['thread_type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" border="0">
-            <tr><th><div>
-<?php echo Format::db_datetime($entry['created']); ?>
-                &nbsp;&nbsp;<span class="textra"></span>
-                <span><?php echo $poster; ?></span>
-            </div>
-            </th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
-            <?php
-            if($entry['attachments']
-                    && ($tentry=$ticket->getThreadEntry($entry['id']))
-                    && ($urls = $tentry->getAttachmentUrls())
-                    && ($links=$tentry->getAttachmentsLinks())) { ?>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-<?php       }
-            if ($urls) { ?>
-                <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
-                </script>
-<?php       } ?>
-        </table>
+<div class="panel panel-<?php echo $threadType[$entry['thread_type']] == 'message' ? 'default' : 'warning'; ?>">
+  <div class="panel-heading">
+    <?php echo Format::db_datetime($entry['created']); ?>
+    &nbsp;&nbsp;<span class="textra"></span>
+    <span><?php echo $poster; ?></span>
+  </div>
+  <div class="panel-body">
+    <?php echo Format::clickableurls($entry['body']->toHtml()); ?>
+  </div>
+  <?php
+        if($entry['attachments']
+        && ($tentry=$ticket->getThreadEntry($entry['id']))
+        && ($urls = $tentry->getAttachmentUrls())
+        && ($links=$tentry->getAttachmentsLinks())) { ?>
+          <div class="panel-footer">
+            <?php echo $links; ?> 
+          </div>
+          <?php       }
+          if ($urls) { ?>
+            <script type="text/javascript">
+            $(function() { showImagesInline(<?php echo
+              JsonDataEncoder::encode($urls); ?>); });
+              </script>
+              <?php       } ?>
+</div>
     <?php
     }
 }
