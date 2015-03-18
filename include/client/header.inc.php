@@ -50,7 +50,7 @@ if (($lang = Internationalization::getCurrentLanguage())
 </head>
 <body>
  <div id="container" class="container-fluid well">
-  <nav class="navbar navbar-default">
+  <nav class="navbar">
     <div class="container-fluid">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
