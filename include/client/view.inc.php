@@ -189,7 +189,7 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
             </td>
         </tr>
     </table>
-    <p style="padding-left:165px;">
+    <p class="text-center">
         <input type="submit" class="btn btn-primary" value="<?php echo __('Post Reply');?>">
         <input type="reset" class="btn btn-warning" value="<?php echo __('Reset');?>">
         <input type="button" class="btn btn-default" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">

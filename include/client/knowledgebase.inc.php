@@ -5,8 +5,11 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 <h1><?php echo __('Frequently Asked Questions');?></h1>
 <form action="index.php" method="get" id="kb-search">
     <input type="hidden" name="a" value="search">
-    <div>
+    <div class="row">
+      <div class="col-sm-6">
         <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+      </div>
+      <div class="col-sm-6">
         <select name="cid" id="cid">
             <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php
@@ -27,9 +30,10 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
             }
             ?>
         </select>
-        <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
+        </div>
     </div>
-    <div>
+    <div class="row">
+      <div class="col-sm-6">
         <select name="topicId" id="topic-id">
             <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
             <?php
@@ -50,6 +54,10 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
             }
             ?>
         </select>
+      </div>
+      <div class="col-sm-6">
+        <input id="searchSubmit" class="btn btn-primary" type="submit" value="<?php echo __('Search');?>">
+      </div>  
     </div>
 </form>
 <hr>
