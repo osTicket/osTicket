@@ -1260,6 +1260,7 @@ class Ticket {
 
         $msg = $this->replaceVars($msg->asArray(),
                 array(
+                    'note' => $vars['threadentry'], // For compatibility
                     'activity' => $vars['activity'],
                     'comments' => $vars['comments']));
 

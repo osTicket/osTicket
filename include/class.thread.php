@@ -237,7 +237,7 @@ class Thread {
 }
 
 
-Class ThreadEntry {
+class ThreadEntry {
 
     var $id;
     var $ht;
@@ -339,6 +339,10 @@ Class ThreadEntry {
             .',body='.db_input((string) $body)
             .' WHERE id='.db_input($this->getId());
         return db_query($sql) && db_affected_rows();
+    }
+
+    function getMessage() {
+        return $this->getBody();
     }
 
     function getCreateDate() {
@@ -1260,10 +1264,6 @@ class Note extends ThreadEntry {
 
     function Note($id, $ticketId=0) {
         parent::ThreadEntry($id, 'N', $ticketId);
-    }
-
-    function getMessage() {
-        return $this->getBody();
     }
 
     /* static */

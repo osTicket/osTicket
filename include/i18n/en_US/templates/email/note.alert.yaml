@@ -6,14 +6,14 @@
 #
 ---
 notes: |
-    Sent to staff members when a new internal note is appended to a ticket.
-    Internal notes can only be added by staff members.
+    Alert sent out to Agents when internal activity such as an internal
+    note or an agent reply is appended to a ticket.
 
 subject: |
-    New Internal Note Alert
+    New Internal Activity Alert
 body: |
     <h3><strong>Hi %{recipient.name},</strong></h3>
-    An internal note has been appended to ticket <a
+    An agent has logged activity on ticket <a
     href="%{ticket.staff_link}">#%{ticket.number}</a>
     <br>
     <br>
