@@ -99,7 +99,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         echo '  </ol>
              </div>';
     } else {
-        echo '<strong class="faded">'.__('The search did not match any FAQs.').'</strong>';
+        echo '<strong class="text-muted">'.__('The search did not match any FAQs.').'</strong>';
     }
 } else { //Category Listing.
     $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '

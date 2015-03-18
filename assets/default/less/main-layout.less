@@ -2,12 +2,7 @@ body {
   margin: 0;
   height: 100%;
   width: 100%;
-  background-color: #366fcd;
-  background: -moz-linear-gradient(#ffffff, #c8c8c8);
-  background: -o-linear-gradient(#ffffff, #c8c8c8);  
-  background: linear-gradient(#ffffff, #c8c8c8);  
-  background: -webkit-gradient(#ffffff, #c8c8c8);  
-  background-attachment: fixed;
+  background-color: #c8c8c8;
 }
 
 #container {
@@ -22,17 +17,19 @@ body {
 
 #nav {
   li {
-    a {
-      padding-left: 2.5em;
-      background-position: 10px 50%;
-      background-repeat: no-repeat;
-    }
-
-    a.home    { background-image: url('../images/icons/home.png'); }
-    a.kb      { background-image: url('../images/icons/kb.png'); }
-    a.new     {  background-image: url('../images/icons/new.png'); }
-    a.status  { background-image: url('../images/icons/status.png'); }
-    a.tickets { background-image: url('../images/icons/tix.png'); }
+    white-space: nowrap;
+    a:before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    float: left;
+  }
+    a.home:before    { background: url('../images/icons/home.png') no-repeat;}
+    a.kb:before      { background: url('../images/icons/kb.png') no-repeat;}
+    a.new:before     { background: url('../images/icons/new.png') no-repeat; }
+    a.status:before  { background: url('../images/icons/status.png') no-repeat; }
+    a.tickets:before { background: url('../images/icons/tix.png') no-repeat; }
   }
 }
 

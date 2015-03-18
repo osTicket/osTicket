@@ -16,15 +16,15 @@ $category=$faq->getCategory();
   <div class="panel-body">
     <?php echo Format::safe_html($faq->getAnswerWithImages()); 
     if($faq->getNumAttachments()) { ?>
-      <div><span class="faded"><b><?php echo __('Attachments');?>:</b></span>  <?php echo $faq->getAttachmentsLinks(); ?></div>
+      <div><span class="text-muted"><b><?php echo __('Attachments');?>:</b></span>  <?php echo $faq->getAttachmentsLinks(); ?></div>
       <?php
     } ?>
   </div>
   <div class="panel-footer clearfix">
     <div class="article-meta pull-left">
-      <span class="faded"><b><?php echo __('Help Topics');?>:</b></span>
+      <span class="text-muted"><b><?php echo __('Help Topics');?>:</b></span>
       <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
     </div>
-    <div class="faded pull-right">&nbsp;<?php echo __('Last updated').' '.Format::db_daydatetime($category->getUpdateDate()); ?></div>
+    <div class="text-muted pull-right">&nbsp;<?php echo __('Last updated').' '.Format::db_daydatetime($category->getUpdateDate()); ?></div>
   </div>
 </div>

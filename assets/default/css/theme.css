@@ -19,16 +19,8 @@ h2 {
 .centered {
   text-align: center;
 }
-.clear {
-  clear: both;
-  height: 1px;
-  visibility: none;
-}
 .hidden {
   display: none;
-}
-.faded {
-  color: #666;
 }
 /* Pagination */
 #pagination {
@@ -122,12 +114,7 @@ body {
   margin: 0;
   height: 100%;
   width: 100%;
-  background-color: #366fcd;
-  background: -moz-linear-gradient(#ffffff, #c8c8c8);
-  background: -o-linear-gradient(#ffffff, #c8c8c8);
-  background: linear-gradient(#ffffff, #c8c8c8);
-  background: -webkit-gradient(#ffffff, #c8c8c8);
-  background-attachment: fixed;
+  background-color: #c8c8c8;
 }
 #container {
   max-width: 840px;
@@ -137,25 +124,30 @@ body {
   height: 50px;
   margin-top: -1em;
 }
-#nav li a {
-  padding-left: 2.5em;
-  background-position: 10px 50%;
-  background-repeat: no-repeat;
+#nav li {
+  white-space: nowrap;
 }
-#nav li a.home {
-  background-image: url('../images/icons/home.png');
+#nav li a:before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  float: left;
 }
-#nav li a.kb {
-  background-image: url('../images/icons/kb.png');
+#nav li a.home:before {
+  background: url('../images/icons/home.png') no-repeat;
 }
-#nav li a.new {
-  background-image: url('../images/icons/new.png');
+#nav li a.kb:before {
+  background: url('../images/icons/kb.png') no-repeat;
 }
-#nav li a.status {
-  background-image: url('../images/icons/status.png');
+#nav li a.new:before {
+  background: url('../images/icons/new.png') no-repeat;
 }
-#nav li a.tickets {
-  background-image: url('../images/icons/tix.png');
+#nav li a.status:before {
+  background: url('../images/icons/status.png') no-repeat;
+}
+#nav li a.tickets:before {
+  background: url('../images/icons/tix.png') no-repeat;
 }
 .navbar-toggle {
   border: solid gray 1px;
