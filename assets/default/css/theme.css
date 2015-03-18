@@ -332,9 +332,7 @@ a.refresh {
   line-height: 20px;
   text-align: center;
   padding: 0 10px 0 28px;
-  border: 1px solid #aaa;
   margin-left: 10px;
-  color: #333;
   background-position: 5px 50%;
   background-repeat: no-repeat;
   background-image: url('../images/icons/refresh.png');
