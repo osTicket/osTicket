@@ -118,20 +118,16 @@ h2 {
 .error input {
   border: 1px solid #f00;
 }
-html {
-  height: 100%;
-}
 body {
-  height: 100%;
   margin: 0;
-  background: -webkit-linear-gradient(#ffffff, #c8c8c8);
-  /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#ffffff, #c8c8c8);
-  /* For Opera 11.1 to 12.0 */
+  height: 100%;
+  width: 100%;
+  background-color: #366fcd;
   background: -moz-linear-gradient(#ffffff, #c8c8c8);
-  /* For Firefox 3.6 to 15 */
+  background: -o-linear-gradient(#ffffff, #c8c8c8);
   background: linear-gradient(#ffffff, #c8c8c8);
-  /* Standard syntax */
+  background: -webkit-gradient(#ffffff, #c8c8c8);
+  background-attachment: fixed;
 }
 #container {
   max-width: 840px;
