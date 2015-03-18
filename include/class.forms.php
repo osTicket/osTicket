@@ -1948,8 +1948,11 @@ class CheckboxWidget extends Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (count($data))
+        if (count($data)) {
+            if (!isset($data[$this->name]))
+                return false;
             return @in_array($this->field->get('id'), $data[$this->name]);
+        }
         return parent::getValue();
     }
 
