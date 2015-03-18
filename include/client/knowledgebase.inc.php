@@ -87,7 +87,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 
     $sql.=' GROUP BY faq.faq_id ORDER BY question';
-    echo "<div><strong>".__('Search Results').'</strong></div><div class="clear"></div>';
+    echo '<div class="clearfix"><strong>'.__('Search Results').'</strong></div>';
     if(($res=db_query($sql)) && ($num=db_num_rows($res))) {
         echo '<div id="faq">'.sprintf(__('%d FAQs matched your search criteria.'),$num).'
                 <ol>';
