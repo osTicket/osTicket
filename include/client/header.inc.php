@@ -24,7 +24,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/bootstrap-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
-    <!-- Uncomment to use custom bootstrap theme <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-custom.css" media="screen">-->
+    <!--<link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-custom.css" media="screen">-->
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css" media="screen" />
     <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
@@ -114,9 +114,9 @@ if (($lang = Internationalization::getCurrentLanguage())
           <div id="content" class="container-fluid">
             
             <?php if($errors['err']) { ?>
-              <div id="msg_error"><?php echo $errors['err']; ?></div>
-              <?php }elseif($msg) { ?>
-                <div id="msg_notice"><?php echo $msg; ?></div>
+              <div id="msg_error" class="alert alert-danger"><?php echo $errors['err']; ?></div>
+              <?php }elseif($msig) { ?>
+                <div id="msg_notice" class="alert alert-info"><?php echo $msg; ?></div>
                 <?php }elseif($warn) { ?>
-                  <div id="msg_warning"><?php echo $warn; ?></div>
+                  <div id="msg_warning" class="alert alert-warning"><?php echo $warn; ?></div>
                   <?php } ?>

@@ -15,13 +15,6 @@ h2 {
   font-size: 16px;
   color: #999;
 }
-/* Helpers */
-.centered {
-  text-align: center;
-}
-.hidden {
-  display: none;
-}
 /* Pagination */
 #pagination {
   border: 0;
@@ -69,46 +62,19 @@ h2 {
 }
 /* Alerts & Notices */
 #msg_notice {
-  margin: 0;
+  margin-top: 1em;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #0a0;
   background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0;
 }
 #msg_warning {
-  margin: 0;
+  margin-top: 1em;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #f26522;
   background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
 }
 #msg_error {
-  margin: 0;
+  margin-top: 1em;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #a00;
   background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0;
-}
-.warning {
-  background: #ffc;
-  font-style: italic;
-}
-.warning strong {
-  text-transform: uppercase;
-  color: #a00;
-  font-style: normal;
-}
-.error {
-  color: #f00;
-}
-.error input {
-  border: 1px solid #f00;
 }
 body {
   margin: 0;
@@ -233,120 +199,31 @@ body {
   width: 100%;
   margin-bottom: .5em;
 }
-/* Alerts & Notices */
-#msg_notice {
-  margin: 0;
-  padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #0a0;
-  background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0;
-}
-#msg_warning {
-  margin: 0;
-  padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #f26522;
-  background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
-}
-#msg_error {
-  margin: 0;
-  padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #a00;
-  background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0;
-}
-.warning {
-  background: #ffc;
-  font-style: italic;
-}
-.warning strong {
-  text-transform: uppercase;
-  color: #a00;
-  font-style: normal;
-}
-.error {
-  color: #f00;
-}
-.error input {
-  border: 1px solid #f00;
-}
-#ticketForm table,
-#clientLogin table {
-  width: 100%;
-}
-#ticketForm table label,
-#clientLogin table label {
-  white-space: nowrap;
-}
-#ticketForm table span input,
-#clientLogin table span input {
-  width: 100%;
-}
-#ticketForm div,
-#clientLogin div {
-  padding: 3px 0;
-  overflow: hidden;
-}
-#ticketForm div label,
-#clientLogin div label {
-  display: block;
-  width: 140px;
-  float: left;
-}
-#ticketForm div label.required,
-#clientLogin div label.required {
+#ticketForm label.required,
+#clientLogin label.required {
   font-weight: bold;
   text-align: left;
 }
-#ticketForm div input,
-#clientLogin div input,
-#ticketForm div textarea,
-#clientLogin div textarea {
-  width: auto;
-  margin-right: 10px;
-  display: block;
-  float: left;
-}
-#ticketForm div input[type=file],
-#clientLogin div input[type=file] {
+#ticketForm input[type=file],
+#clientLogin input[type=file] {
   border: 0;
 }
-#ticketForm div select,
-#clientLogin div select {
-  display: block;
-  float: left;
-}
-#ticketForm div div.captchaRow,
-#clientLogin div div.captchaRow {
+#ticketForm div.captchaRow,
+#clientLogin div.captchaRow {
   line-height: 31px;
 }
-#ticketForm div div.captchaRow input,
-#clientLogin div div.captchaRow input {
+#ticketForm div.captchaRow input,
+#clientLogin div.captchaRow input {
   position: relative;
   top: 6px;
 }
-#ticketForm td textarea,
-#clientLogin td textarea,
-#ticketForm div textarea,
-#clientLogin div textarea {
+div textarea {
   width: 600px;
 }
-#ticketForm td em,
-#clientLogin td em,
-#ticketForm div em,
-#clientLogin div em {
+div em {
   color: #777;
 }
-#ticketForm td .captcha,
-#clientLogin td .captcha,
-#ticketForm div .captcha,
-#clientLogin div .captcha {
+div .captcha {
   width: 88px;
   height: 31px;
   background: #000;
@@ -354,19 +231,14 @@ body {
   float: left;
   margin-right: 20px;
 }
-#ticketForm td label.inline,
-#clientLogin td label.inline,
-#ticketForm div label.inline,
-#clientLogin div label.inline {
+div label.inline {
   width: auto;
   padding: 0 10px;
 }
-#ticketForm div.error input,
-#clientLogin div.error input {
+div.error input {
   border: 1px solid #a00;
 }
-#ticketForm div.error label,
-#clientLogin div.error label {
+div.error label {
   color: #a00;
 }
 #ticketTable th {
