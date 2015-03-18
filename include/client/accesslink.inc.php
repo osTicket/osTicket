@@ -17,23 +17,27 @@ if ($cfg->isClientEmailVerificationRequired())
 else
     echo ' '.__('This will sign you in to view your ticket.');
 ?></p>
-<form action="login.php" method="post" id="clientLogin">
+<form action="login.php" method="post" id="clientLogin" class="form-horizontal">
     <?php csrf_token(); ?>
-<div style="display:table-row">
+<div>
     <div class="login-box">
     <div><strong><?php echo Format::htmlchars($errors['login']); ?></strong></div>
-    <div>
-        <label for="email"><?php echo __('E-Mail Address'); ?>:
-        <input id="email" placeholder="<?php echo __('e.g. john.doe@osticket.com'); ?>" type="text"
-            name="lemail" size="30" value="<?php echo $email; ?>"></label>
+    <div class="form-group">
+      <label for="email" class="col-sm-2 control-label"><?php echo __('E-Mail Address'); ?>:</label>
+      <div class="col-sm-10">
+         <input id="email" placeholder="<?php echo __('e.g. john.doe@osticket.com'); ?>" type="text"
+            name="lemail" size="30" value="<?php echo $email; ?>">
+      </div>
     </div>
-    <div>
-        <label for="ticketno"><?php echo __('Ticket Number'); ?>:
+    <div class="form-group">
+      <label for="ticketno" class="col-sm-2 control-label"><?php echo __('Ticket Number'); ?>:</label>
+      <div class="col-sm-10">
         <input id="ticketno" type="text" name="lticket" placeholder="<?php echo __('e.g. 051243'); ?>"
-            size="30" value="<?php echo $ticketid; ?>"></label>
+            size="30" value="<?php echo $ticketid; ?>">
+      </div>
     </div>
     <p>
-        <input class="btn" type="submit" value="<?php echo $button; ?>">
+        <input class="btn btn-primary" type="submit" value="<?php echo $button; ?>">
     </p>
     </div>
     <div class="instructions">
