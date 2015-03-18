@@ -24,7 +24,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/bootstrap-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
-    <!--Uncomment to use custom bootstrap theme <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-custom.css" media="screen">-->
+    <!-- Uncomment to use custom bootstrap theme <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-custom.css" media="screen">-->
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css" media="screen" />
     <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
@@ -49,77 +49,74 @@ if (($lang = Internationalization::getCurrentLanguage())
     ?>
 </head>
 <body>
-    <div id="container" class="container-fluid">
-        <nav class="navbar">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <?php
-                        if (($all_langs = Internationalization::availableLanguages())
-                        && (count($all_langs) > 1)
-                    ) {
-                        foreach ($all_langs as $code=>$info) {
-                            list($lang, $locale) = explode('_', $code);
-                    ?>
-                        <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
-                        href="?<?php echo urlencode($_GET['QUERY_STRING']); ?>&amp;lang=<?php echo $code; ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
-                    <?php }
-                    } ?>
-                    <a class="navbar-brand" href="<?php echo ROOT_PATH; ?>index.php" title="<?php echo __('Support Center'); ?>">
-                        <img id="logo" src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php echo $ost->getConfig()->getTitle(); ?>">
-                    </a>
-                </div>
-                <div id="navbar" class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php
-                        if ($thisclient && is_object($thisclient) && $thisclient->isValid()
-                        && !$thisclient->isGuest()) {
-                            echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
-                        ?>
-                           <a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a> |
-                           <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
-                           <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a>
+ <div id="container" class="container-fluid well">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand pull-left" href="<?php echo ROOT_PATH; ?>index.php" title="<?php echo __('Support Center'); ?>">
+          <img id="logo" src="<?php echo ROOT_PATH; ?>logo.php" alt="<?php echo $ost->getConfig()->getTitle(); ?>">
+        </a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <?php
+          if (($all_langs = Internationalization::availableLanguages()) && (count($all_langs) > 1)) {
+            foreach ($all_langs as $code=>$info) {
+              list($lang, $locale) = explode('_', $code);
+          ?>
+              <li><a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
+              href="?<?php echo urlencode($_GET['QUERY_STRING']); ?>&amp;lang=<?php echo $code; ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a></li>
+            <?php }
+          } ?>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <?php
+          if ($thisclient && is_object($thisclient) && $thisclient->isValid()
+          && !$thisclient->isGuest()) {
+            echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
+            ?>
+            <a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a> |
+            <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
+            <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a>
             <?php
-            } elseif($nav) {
-                if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
-                    <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li><?php
-                }
-                elseif ($cfg->getClientRegistrationMode() != 'disabled') {
-                    if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                        <li><p class="navbar-text navbar-right">Guest User | <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a></p></li>
-                    <?php } else { ?>
-                        <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a>
-                    <?php }
-                    } }?>
-                </ul>
+          } elseif($nav) {
+            if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
+              <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li><?php
+            }
+            elseif ($cfg->getClientRegistrationMode() != 'disabled') {
+              if ($cfg->getClientRegistrationMode() == 'public') { ?>
+                <li><p class="navbar-text navbar-right">Guest User | <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a></p></li>
+                <?php } else { ?>
+                  <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a>
+                  <?php }
+                } }?>
+              </ul>
             </div>
-            </div>
-            </nav>
-
+          </div>
+        </nav>
         <?php
         if($nav){ ?>
-        <nav class="navbar navbar-default">
-        <ul id="nav" class="nav nav-pills">
+          <ul id="nav" class="nav nav-pills nav-justified">
             <?php
             if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
-                foreach($navs as $name =>$nav) {
-                    echo sprintf('<li role="presentation" class="%s"><a class="%s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
-                }
+              foreach($navs as $name =>$nav) {
+                echo sprintf('<li role="presentation" class="%s"><a class="%s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
+              }
             } ?>
-        </ul>
-	</nav>
-        <?php } ?>
-        <div id="content" class="container-fluid">
-
-         <?php if($errors['err']) { ?>
-            <div id="msg_error"><?php echo $errors['err']; ?></div>
-         <?php }elseif($msg) { ?>
-            <div id="msg_notice"><?php echo $msg; ?></div>
-         <?php }elseif($warn) { ?>
-            <div id="msg_warning"><?php echo $warn; ?></div>
-         <?php } ?>
+          </ul>
+          <?php } ?>
+          <div id="content" class="container-fluid">
+            
+            <?php if($errors['err']) { ?>
+              <div id="msg_error"><?php echo $errors['err']; ?></div>
+              <?php }elseif($msg) { ?>
+                <div id="msg_notice"><?php echo $msg; ?></div>
+                <?php }elseif($warn) { ?>
+                  <div id="msg_warning"><?php echo $warn; ?></div>
+                  <?php } ?>

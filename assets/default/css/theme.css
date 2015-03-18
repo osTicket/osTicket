@@ -1,119 +1,3 @@
-html {
-  font-size: 100%;
-  overflow-y: scroll;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-}
-body {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.231;
-  padding: 0;
-}
-body,
-input,
-select,
-textarea {
-  font-family: sans-serif;
-  color: #000;
-}
-b,
-strong {
-  font-weight: bold;
-}
-blockquote {
-  margin: 1em 40px;
-}
-hr {
-  display: block;
-  height: 1px;
-  border: 0;
-  border-top: 1px solid #ccc;
-  margin: 1em 0;
-  padding: 0;
-}
-small {
-  font-size: 85%;
-}
-ul,
-ol {
-  margin: 1em 0;
-  padding: 0 0 0 30px;
-}
-img {
-  border: 0;
-  vertical-align: middle;
-}
-form {
-  margin: 0;
-}
-fieldset {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-label {
-  cursor: pointer;
-}
-input,
-select,
-textarea {
-  font-size: 100%;
-  margin: 0;
-  vertical-align: baseline;
-  *vertical-align: middle;
-}
-input {
-  line-height: normal;
-  *overflow: visible;
-}
-table input {
-  *overflow: auto;
-}
-input[type="button"],
-input[type="reset"],
-input[type="submit"] {
-  cursor: pointer;
-  -webkit-appearance: button;
-}
-input[type="checkbox"],
-input[type="radio"] {
-  box-sizing: border-box;
-}
-input[type="search"] {
-  -webkit-appearance: textfield;
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-}
-textarea {
-  overflow: auto;
-  vertical-align: top;
-  resize: vertical;
-}
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-th,
-td {
-  vertical-align: top;
-}
-th {
-  text-align: left;
-  font-weight: normal;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-form,
-fieldset {
-  margin: 0;
-  padding: 0;
-}
 /* Typography */
 a {
   color: #0072bc;
@@ -234,29 +118,16 @@ h2 {
 .error input {
   border: 1px solid #f00;
 }
-body {
-  background: url('../images/page_bg.png') top left repeat-x #c8c8c8;
-}
 #container {
-  background: #fff;
   max-width: 840px;
   margin: 0 auto;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
-#logo {
-  width: 220px;
-  height: auto;
-}
-.navbar {
-  min-height: 20px;
-}
-#nav {
-  margin: 0;
+.navbar img {
+  height: 50px;
+  margin-top: -1em;
 }
 #nav li a {
-  padding: .3em 1em .3em 2.5em;
+  padding-left: 2.5em;
   background-position: 10px 50%;
   background-repeat: no-repeat;
 }
@@ -281,20 +152,8 @@ body {
 .navbar-toggle span {
   border: solid gray 1px;
 }
-#content {
-  padding: 20px 0;
-  margin: 0 20px;
-  height: auto !important;
-  height: 350px;
-  min-height: 350px;
-}
 #footer {
   text-align: center;
-  font-size: 11px;
-  color: #333;
-}
-#footer a {
-  color: #333;
 }
 #footer p {
   margin: 10px 0 0 0;
@@ -309,35 +168,25 @@ body {
   background: url('../images/poweredby.png') top left no-repeat;
   background-size: contain;
 }
-#landing_page #new_ticket {
-  margin-top: 40px;
-  padding-left: 75px;
-  background: url('../images/new_ticket_icon.png') top left no-repeat;
-}
-#landing_page #new_ticket h3 {
-  margin-bottom: 1em;
-}
-#landing_page #new_ticket div {
-  height: 50px;
-  margin-bottom: 1em;
-}
-#landing_page #new_ticket .button {
-  width: 100%;
-}
+#landing_page #new_ticket,
 #landing_page #check_status {
   margin-top: 40px;
   padding-left: 75px;
-  background: url('../images/check_status_icon.png') top left no-repeat;
 }
+#landing_page #new_ticket h3,
 #landing_page #check_status h3 {
   margin-bottom: 1em;
 }
+#landing_page #new_ticket div,
 #landing_page #check_status div {
   height: 50px;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 }
-#landing_page #check_status .button {
-  width: 100%;
+#landing_page #new_ticket {
+  background: url('../images/new_ticket_icon.png') top left no-repeat;
+}
+#landing_page #check_status {
+  background: url('../images/check_status_icon.png') top left no-repeat;
 }
 /* Landing page FAQ not yet implemented. */
 #faq {
