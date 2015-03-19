@@ -131,7 +131,7 @@ if($_POST && !$errors):
                     $msg = sprintf(__('Ticket transferred successfully to %s'),$ticket->getDeptName());
 
                     //unassign ticket
-                    if($dept->unassignTicketsDept()=="on") {
+                    if($dept->unassignTicketsDept()) {
                         $ticket->unassign();
                     }
 

@@ -317,7 +317,7 @@ class Dept {
         // Misc. config settings
         $this->config->set('assign_members_only', $vars['assign_members_only']);
 
-        $this->config->set('unassign_tickets_dept', $vars['unassign_tickets_dept']);
+        $this->config->set('unassign_tickets_dept', isset($vars['unassign_tickets_dept']) ? 1 : 0)
 
         return true;
     }

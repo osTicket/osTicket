@@ -117,12 +117,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
 
         <tr>
-            <td><?php echo __('Ticket Unassignment'); ?>:</td>
+            <td><?php echo __('Unassign ticket when transferring to another department'); ?>:</td>
             <td>
                 <span>
                 <input type="checkbox" name="unassign_tickets_dept" <?php echo
                 $info['unassign_tickets_dept']?'checked="checked"':''; ?>>
-                <?php echo __('Unassign ticket assignment on department transfer'); ?>
+                <?php echo __('Unassign ticket when transferring to another department'); ?>
                 <i class="help-tip icon-question-sign" href="#sandboxing"></i>
                 </span>
             </td>
