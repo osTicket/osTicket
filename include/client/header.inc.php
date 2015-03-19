@@ -53,9 +53,8 @@ if (($lang = Internationalization::getCurrentLanguage())
     ?>
 </head>
 <body>
-<div id="container" class="container-fluid well">
+<div id="container" class="container well">
   <nav class="navbar">
-    <div class="container-fluid">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav">
           <span class="sr-only">Toggle navigation</span>
@@ -132,7 +131,6 @@ if (($lang = Internationalization::getCurrentLanguage())
           } ?>
         </ul>
       </div>
-   </div>
   </nav>
   <div class="clearfix"><br/></div>
   <div id="content">
