@@ -85,7 +85,7 @@ require(CLIENTINC_DIR.'header.inc.php');
   </div>
 </div>
 <div class="row">
-  <div class="col-xs-12">
+  <div class="col-xs-12 col-sm-6">
     <?php
     if($cfg && $cfg->isKnowledgebaseEnabled()){
         //FIXME: provide ability to feature or select random FAQs ??
@@ -100,26 +100,27 @@ require(CLIENTINC_DIR.'header.inc.php');
     <h1>Featured Knowledge Base Articles</h1>
     <?php
     }
-    
         foreach ($cats as $C) { ?>
-        <div class="featured-category front-page">
-            <i class="icon-folder-open icon-2x"></i>
-            <div class="category-name">
-                <?php echo $C->getName(); ?>
+        <ul class="media-list">
+          <li class="media">
+            <div class="media-left">
+              <i class="icon-folder-open icon-2x"></i>
             </div>
-    <?php foreach ($C->getTopArticles() as $F) { ?>
-            <div class="article-headline">
-                <div class="article-title"><a href="<?php echo ROOT_PATH;
+            <div class="media-body category-name">
+              <?php echo $C->getName(); ?>
+              <?php foreach ($C->getTopArticles() as $F) { ?>
+                <div class="media">
+                  <div class="article-headline">
+                    <div class="article-title"><a href="<?php echo ROOT_PATH;
                     ?>kb/faq.php?id=<?php echo $F->getId(); ?>"><?php
                     echo $F->getQuestion(); ?></a></div>
-                <div class="article-teaser"><?php echo $F->getTeaser(); ?></div>
+                    <div class="article-teaser"><?php echo $F->getTeaser(); ?></div>
+                  </div>
+                </div>
+                <?php } ?>
             </div>
-    <?php } ?>
-        </div>
-    <?php
-        }
-    }
-    ?>
+      <?php }
+    } ?>
   </div>
 </div>
 <?php require(CLIENTINC_DIR.'footer.inc.php'); ?>
