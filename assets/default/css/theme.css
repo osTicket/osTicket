@@ -314,6 +314,10 @@ a.navbar-brand img {
 #kb-search #breadcrumbs #breadcrumbs a {
   color: #555;
 }
+#ticketForm table,
+#clientLogin table {
+  width: 100%;
+}
 #ticketForm input[type=file],
 #clientLogin input[type=file] {
   border: 0;

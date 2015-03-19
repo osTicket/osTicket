@@ -323,17 +323,6 @@ class UserNav {
             if($cfg && $cfg->isKnowledgebaseEnabled())
                 $navs['kb']=array('desc'=>__('Knowledgebase'),'href'=>'kb/index.php','title'=>'');
 
-            if($user && $user->isValid()) {
-                if(!$user->isGuest()) {
-                    $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets()),
-                                           'href'=>'tickets.php',
-                                            'title'=>__('Show all tickets'));
-                } else {
-                    $navs['tickets']=array('desc'=>__('View Ticket Thread'),
-                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketId()),
-                                           'title'=>__('View ticket status'));
-                }
-            }
             $this->navs=$navs;
         }
 
