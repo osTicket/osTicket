@@ -462,43 +462,59 @@ class Mail_Parse {
         return $files;
     }
 
-    function getPriority(){
-        if ($this->tnef && isset($this->tnef->Importance))
-            // PidTagImportance is 0, 1, or 2
+    function getPriority() {
+        if ($this->tnef && isset($this->tnef->Importance)) {
+            // PidTagImportance is 0, 1, or 2, 2 is high
             // http://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
-            return $this->tnef->Importance + 1;
-
-        return Mail_Parse::parsePriority($this->getHeader());
+            $urgency = 4 - $this->tnef->Importance;
+        }
+        elseif ($priority = Mail_Parse::parsePriority($this->getHeader())) {
+            $urgency = $priority + 1;
+        }
+        if ($urgency) {
+            $sql = 'SELECT `priority_id` FROM '.PRIORITY_TABLE
+                .' WHERE `priority_urgency`='.db_input($urgency)
+                .' LIMIT 1';
+            $id = db_result(db_query($sql));
+            return $id;
+        }
     }
 
+    /**
+     * Return a normalized priority urgency from the email headers received.
+     *
+     * Returns:
+     * (int) priority urgency, {1,2,3}, where 1 is high. Returns 0 if no
+     * priority could be inferred from the headers.
+     *
+     * References:
+     * https://github.com/osTicket/osTicket-1.8/issues/1674
+     * http://stackoverflow.com/questions/15568583/php-mail-priority-types
+     */
     static function parsePriority($header=null){
 
-    	if (! $header)
-    		return 0;
-    	// Test for normal "X-Priority: INT" style header & stringy version.
-    	// Allows for Importance possibility.
-    	$matching_char = '';
-    	if (preg_match ( '/priority: (\d|\w)/i', $header, $matching_char )
-    			|| preg_match ( '/importance: (\d|\w)/i', $header, $matching_char )) {
-    		switch ($matching_char[1]) {
-    			case 'h' :
-    			case 'H' :// high
-    			case 'u':
-    			case 'U': //Urgent
-    			case 6 :
-    			case 5 :
-    				return 1;
-    			case 'n' : // normal
-    			case 'N' :
-    			case 4 :
-    			case 3 :
-    				return 2;
-    			case 'l' : // low
-    			case 'L' :
-    			case 2 :
-    			case 1 :
-    				return 3;
-    		}
+        if (!$header)
+            return 0;
+
+        // Test for normal "X-Priority: INT" style header & stringy version.
+        // Allows for Importance possibility.
+        $matching_char = '';
+        if (preg_match('/(?:priority|importance): (\w)/i', $header, $matching_char)) {
+            switch (strtoupper($matching_char[1])) {
+            case 'H' :// high
+            case 'U': //Urgent
+            case '2' :
+            case '1' :
+                return 1;
+            case 'N' :
+            case '4' :
+            case '3' :
+                return 2;
+            case 'L' :
+            case '6' :
+            case '5' :
+                return 3;
+            }
     	}
     	return 0;
     }
