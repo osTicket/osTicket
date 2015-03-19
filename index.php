@@ -60,8 +60,8 @@ require(CLIENTINC_DIR.'header.inc.php');
                     <div class="panel-heading"><?php echo __('Featured Questions'); ?></div>
                       <ul class="list-group">
       <?php   foreach ($faqs as $F) { ?>
-                  <li class="list-group-item"><a href="<?php echo ROOT_PATH; ?>/kb/faq.php?id=<?php
-                      echo urlencode($F->getId());
+                  <li class="list-group-item"><a href="<?php echo ROOT_PATH;
+                    ?>kb/faq.php?id=<?php echo $F->getId();
                       ?>"><?php echo $F->getLocalQuestion(); ?></a></li>
       <?php   } ?>
                      </ul>

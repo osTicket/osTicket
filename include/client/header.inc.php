@@ -109,6 +109,7 @@ if (($lang = Internationalization::getCurrentLanguage())
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                   <?php echo Format::htmlchars($thisclient->getName()); ?> <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
+                <li><a href="<?php echo ROOT_PATH; ?>open.php"><?php echo __('Open a New Ticket');?></a></li>
                 <li><a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a></li>
                 <li><a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a></li>
                 <li class="divider"></li>

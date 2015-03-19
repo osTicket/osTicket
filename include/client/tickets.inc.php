@@ -89,45 +89,62 @@ $tickets->values(
 );
 
 ?>
-<h1><?php echo __('Tickets');?></h1>
+<div class="row">
+  <div class="col-xs-9">
+    <h1><?php echo __('Tickets');?></h1>
+  </div>
+  <div class="col-xs-2">
+    <a class="refresh btn btn-success" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
+  </div>
+</div>
+    
 <br>
 <form action="tickets.php" method="get" id="ticketSearchForm">
-    <input type="hidden" name="a"  value="search">
-    <input type="text" name="q" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-    <select name="status">
-        <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
-        <option value="open"
-            <?php echo ($status=='open') ? 'selected="selected"' : '';?>>
-            <?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
-        <?php
-        if($thisclient->getNumClosedTickets()) {
-            ?>
-        <option value="closed"
-            <?php echo ($status=='closed') ? 'selected="selected"' : '';?>>
-            <?php echo __('Closed');?> (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
-        <?php
-        } ?>
-    </select>
-    <input type="submit" value="<?php echo __('Go');?>">
+  <div class="row">
+    <div class="col-xs-12">
+     <div class="input-group">
+        <input type="hidden" name="a"  value="search">
+        <input type="text" class="form-control" name="q" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+        <span class="input-group-btn">
+          <select name="status" class="btn">
+            <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
+            <option value="open"
+              <?php echo ($status=='open') ? 'selected="selected"' : '';?>>
+              <?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
+            <?php
+            if($thisclient->getNumClosedTickets()) {
+              ?>
+            <option value="closed"
+              <?php echo ($status=='closed') ? 'selected="selected"' : '';?>>
+              <?php echo __('Closed');?> (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
+            <?php
+            } ?>
+          </select>
+        </span>
+        <span class="input-group-btn">
+          <input type="submit" class="btn btn-default" value="<?php echo __('Go');?>">
+        </span>
+      </div>
+   </div>
 </form>
-<a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
-<table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
+<div class="clearfix"></div>
+<table id="ticketTable" class="table table-striped table-hover table-condensed">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th nowrap>
+            <th class="text-nowrap">
                 <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
             </th>
-            <th width="120">
+            <th class="text-nowrap">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
             </th>
-            <th width="100">
+            <th>
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
             </th>
-            <th width="320">
+            <th>
                 <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
             </th>
-            <th width="120">
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
             </th>
         </tr>
@@ -155,16 +172,16 @@ $tickets->values(
             }
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
-                <td>
+                <td class="text-nowrap">
                 <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
+                <td class="text-nowrap">&nbsp;<?php echo Format::date($T['created']); ?></td>
                 <td>&nbsp;<?php echo $status; ?></td>
                 <td>
                     <a class="truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
+                <td class="hidden-xs">&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
             </tr>
         <?php
         }
