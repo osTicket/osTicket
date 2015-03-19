@@ -380,6 +380,33 @@ Class ThreadEntry {
         return $references;
     }
 
+    /**
+     * Retrieve a list of all the recients of this message if the message
+     * was received via email.
+     *
+     * Returns:
+     * (array<RFC_822>) list of recipients parsed with the Mail/RFC822
+     * address parsing utility. Returns an empty array if the message was
+     * not received via email.
+     */
+    function getAllEmailRecipients() {
+        $headers = self::getEmailHeaderArray();
+        $recipients = array();
+        if (!$headers)
+            return $recipients;
+
+        foreach (array('To', 'Cc') as $H) {
+            if (!isset($headers[$H]))
+                continue;
+
+            if (!($all = Mail_Parse::parseAddressList($headers[$H])))
+                continue;
+
+            $recipients = array_merge($recipients, $all);
+        }
+        return $recipients;
+    }
+
     function getUIDFromEmailReference($ref) {
 
         $info = unpack('Vtid/Vuid',

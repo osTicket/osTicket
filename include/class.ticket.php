@@ -1102,15 +1102,24 @@ class Ticket {
             return;
 
         //Who posted the entry?
-        $uid = 0;
+        $skip = array();
         if ($entry instanceof Message) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
-            $uid = $entry->getUserId();
+            $skip[$entry->getUserId()] = 1;
+            // Skip all the other recipients of the message
+            foreach ($entry->getEmailAllRecipients() as $R) {
+                foreach ($recipients as $R2) {
+                    if ($R2->getEmail() == ($R->mailbox.'@'.$R->hostname)) {
+                        $skip[$R2->getUserId()] = true;
+                        break;
+                    }
+                }
+            }
         } else {
             $poster = $entry->getStaff();
             // Skip the ticket owner
-            $uid = $this->getUserId();
+            $skip[$this->getUserId()] = 1;
         }
 
         $vars = array_merge($vars, array(
@@ -1125,7 +1134,10 @@ class Ticket {
         $options = array('inreplyto' => $entry->getEmailMessageId(),
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
-            if ($uid == $recipient->getUserId()) continue;
+            // Skip folks who have already been included on this part of
+            // the conversation
+            if (isset($skip[$recipient->getUserId()]))
+                continue;
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
