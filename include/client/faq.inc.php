@@ -5,7 +5,7 @@ $category=$faq->getCategory();
 
 ?>
 <div class="row">
-<div class="span8">
+<div class="col-xs-12 col-sm-8">
 
 <h1><?php echo __('Frequently Asked Questions');?></h1>
 <div id="breadcrumbs">
@@ -13,28 +13,32 @@ $category=$faq->getCategory();
     &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
 </div>
 
-<div class="faq-content">
-<div class="article-title flush-left">
-<?php echo $faq->getLocalQuestion() ?>
-</div>
-<div class="faded"><?php echo __('Last updated').' '.Format::daydatetime($category->getUpdateDate()); ?></div>
-<br/>
-<div class="thread-body bleed">
-<?php echo Format::safe_html($faq->getLocalAnswerWithImages()); ?>
-</div>
+<div class="faq-content panel panel-default">
+  <div class="panel-heading">
+    <?php echo $faq->getLocalQuestion() ?>
+  </div>
+  <div class="panel-body">
+    <?php echo Format::safe_html($faq->getLocalAnswerWithImages()); ?>
+  </div>
+  <div class="panel-footer text-muted">
+    <?php echo __('Last updated').' '.Format::daydatetime($category->getUpdateDate()); ?>
+  </div>
 </div>
 </div>
 
-<div class="span4 pull-right">
-<div class="sidebar">
-<div class="searchbar">
+<div class="col-xs-12 col-sm-4">
+  <div class="searchbar">
     <form method="get" action="faq.php">
-    <input type="hidden" name="a" value="search"/>
-    <input type="text" name="q" class="search" placeholder="<?php
+    <div class="input-group">
+      <input type="hidden" name="a" value="search"/>
+      <input type="text" class="form-control" name="q" class="search" placeholder="<?php
         echo __('Search our knowledge base'); ?>"/>
-    <input type="submit" style="display:none" value="search"/>
+      <span class="input-group-btn">
+        <input type="submit" class="btn btn-default" style="display:none" value="search"/>
+      </span>
+    </div>
     </form>
-</div>
+ </div>
 <div class="content">
 <?php if ($attachments = $faq->getVisibleAttachments()) { ?>
 <section>
@@ -58,7 +62,6 @@ $category=$faq->getCategory();
 <?php } ?>
 </section>
 <?php } ?>
-</div>
 </div>
 </div>
 

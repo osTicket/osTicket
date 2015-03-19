@@ -53,6 +53,7 @@ require(CLIENTINC_DIR.'header.inc.php');
       <a href="open.php" style="display:block" class="btn btn-primary btn-lg">
         <?php echo __('Open a New Ticket');?>
       </a>
+      <br/>
       <?php
           $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
           if ($faqs->all()) { ?>
