@@ -21,7 +21,9 @@ if (($lang = Internationalization::getCurrentLanguage())
     <meta name="description" content="customer support platform">
     <meta name="keywords" content="osTicket, Customer support system, support ticket system">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
+    <!--Bootstrap loading via CDN until we can load assets during packaging-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css"
@@ -34,7 +36,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/chosen.min.css">
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>

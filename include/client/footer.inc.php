@@ -21,5 +21,7 @@ if (($lang = Internationalization::getCurrentLanguage()) && $lang != 'en_US') { 
         print $api->client(false);
     ?>);
 </script>
+<!--Bootstrap loading via CDN until we can load assets during packaging-->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 </body>
 </html>
