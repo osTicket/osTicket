@@ -27,7 +27,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <?php } ?>
 
-<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
+<table cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
             <h1>
@@ -47,37 +47,41 @@ if ($thisclient && $thisclient->isGuest()
         </td>
     </tr>
     <tr>
-        <td width="50%">
-            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+        <td colspan="2">
+          <div class="row">
+            <div class="col-sm-6">
+              <table class="infoTable table table-condensed">
                 <tr>
-                    <th width="100"><?php echo __('Ticket Status');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Ticket Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
-                    <th><?php echo __('Department');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Department');?>:</th>
                     <td><?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?></td>
                 </tr>
                 <tr>
-                    <th><?php echo __('Create Date');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
-           </table>
-       </td>
-       <td width="50%">
-           <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+             </table>
+           </div>
+           <div class="col-sm-6">
+             <table class="infoTable table table-condensed">
                <tr>
-                   <th width="100"><?php echo __('Name');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Name');?>:</th>
                    <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
                </tr>
                <tr>
-                   <th width="100"><?php echo __('Email');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Email');?>:</th>
                    <td><?php echo Format::htmlchars($ticket->getEmail()); ?></td>
                </tr>
                <tr>
-                   <th><?php echo __('Phone');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
-            </table>
+              </table>
+            </div>
+          </div>
        </td>
     </tr>
     <tr>
@@ -107,7 +111,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
 </table>
 <br>
 <div class="subject"><?php echo __('Subject'); ?>: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
-<div id="ticketThread">
+<div id="ticketThread" class="clearfix">
 <?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     $threadType=array('M' => 'message', 'R' => 'response');
@@ -119,39 +123,40 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
         if($entry->type=='R' && ($cfg->hideStaffName() || !$entry->staff_id))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
-            <tr><th><div>
-<?php echo Format::datetime($entry->created); ?>
-                &nbsp;&nbsp;<span class="textra"></span>
-                <span><?php echo $poster; ?></span>
-            </div>
-            </th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
-            <?php
-            if($entry->has_attachments
-                    && ($urls = $entry->getAttachmentUrls())
-                    && ($links = $entry->getAttachmentsLinks())) { ?>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-<?php       }
-            if ($urls) { ?>
-                <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
-                </script>
-<?php       } ?>
-        </table>
+        <div class="panel panel-<?php echo $threadType[$entry->type] == 'message' ? 'info' : 'warning'; ?>">
+          <div class="panel-heading">
+            <?php echo Format::datetime($entry->created); ?>
+            &nbsp;&nbsp;<span class="textra"></span>
+            <span><?php echo $poster; ?></span> 
+          </div>
+          <div class="panel-body">
+            <?php echo Format::clickableurls($entry->getBody()->toHtml()); ?>
+          </div>
+          <?php
+          if($entry->has_attachments
+                  && ($urls = $entry->getAttachmentUrls())
+                  && ($links = $entry->getAttachmentsLinks())) { ?>
+              <div class="panel-footer"><?php echo $links; ?></div>
+<?php     }
+          if ($urls) { ?>
+              <script type="text/javascript">
+                  $(function() { showImagesInline(<?php echo
+                      JsonDataEncoder::encode($urls); ?>); });
+              </script>
+<?php     } ?>
+        </div>
     <?php
     }
 }
 ?>
 </div>
-<div class="clear" style="padding-bottom:10px;"></div>
+<div class="clearfix"></div>
 <?php if($errors['err']) { ?>
-    <div id="msg_error"><?php echo $errors['err']; ?></div>
+    <div id="msg_error" class="alert alert-danger" role="alert"><?php echo $errors['err']; ?></div>
 <?php }elseif($msg) { ?>
-    <div id="msg_notice"><?php echo $msg; ?></div>
+    <div id="msg_notice" class="alert alert-info" role="alert"><?php echo $msg; ?></div>
 <?php }elseif($warn) { ?>
-    <div id="msg_warning"><?php echo $warn; ?></div>
+    <div id="msg_warning" class="alert alert-warning" role="alert"><?php echo $warn; ?></div>
 <?php } ?>
 
 <?php
@@ -190,10 +195,10 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
             </td>
         </tr>
     </table>
-    <p style="padding-left:165px;">
-        <input type="submit" value="<?php echo __('Post Reply');?>">
-        <input type="reset" value="<?php echo __('Reset');?>">
-        <input type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
+    <p class="text-center">
+        <input type="submit" class="btn btn-success" value="<?php echo __('Post Reply');?>">
+        <input type="reset" class="btn btn-warning" value="<?php echo __('Reset');?>">
+        <input type="button" class="btn btn-default" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
     </p>
 </form>
 <?php

@@ -135,10 +135,10 @@ if (($lang = Internationalization::getCurrentLanguage())
   </nav>
   <div class="clearfix"><br/></div>
   <div id="content">
-    <?php if($errors['err']) { ?>
-      <div id="msg_error"><?php echo $errors['err']; ?></div>
-    <?php }elseif($msg) { ?>
-      <div id="msg_notice"><?php echo $msg; ?></div>
-    <?php }elseif($warn) { ?>
-      <div id="msg_warning"><?php echo $warn; ?></div>
-    <?php } ?>
+  <?php if($errors['err']) { ?>
+    <div id="msg_error" class="alert alert-danger"><?php echo $errors['err']; ?></div>
+  <?php }elseif($msg) { ?>
+    <div id="msg_notice" class="alert alert-info"><?php echo $msg; ?></div>
+  <?php }elseif($warn) { ?>
+    <div id="msg_warning" class="alert alert-warning"><?php echo $warn; ?></div>
+  <?php } ?>
