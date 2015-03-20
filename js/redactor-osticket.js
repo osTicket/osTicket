@@ -156,10 +156,10 @@ RedactorPlugins.signature = function() {
             else
                 this.$signatureBox.hide();
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                .on('change', false, false, $.proxy(this.updateSignature, this));
+                .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             if ($el.data('deptField'))
                 $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this));
+                    .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),

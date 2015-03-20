@@ -429,7 +429,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     ?>" href="#" onclick="javascript:
                         if ($(this).hasClass('disabled')) return false;
                         <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
-                        <i class="<?php echo $action->getIcon(); ?>"></i> <?php
+                        <i class="icon-fixed-width <?php echo $action->getIcon(); ?>"></i> <?php
                             echo $action->getName();
                 ?></a></li>
 <?php                   }

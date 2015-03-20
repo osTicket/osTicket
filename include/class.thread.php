@@ -435,6 +435,7 @@ class ThreadEntry extends VerySimpleModel {
     const FLAG_ORIGINAL_MESSAGE         = 0x0001;
     const FLAG_EDITED                   = 0x0002;
     const FLAG_HIDDEN                   = 0x0004;
+    const FLAG_GUARDED                  = 0x0008;   // No replace on edit
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -471,8 +472,7 @@ class ThreadEntry extends VerySimpleModel {
     }
 
     function getParent() {
-        if ($this->getPid())
-            return ThreadEntry::lookup($this->getPid());
+        return $this->parent;
     }
 
     function getType() {
@@ -577,6 +577,21 @@ class ThreadEntry extends VerySimpleModel {
             $recipients = array_merge($recipients, $all);
         }
         return $recipients;
+    }
+
+    /**
+     * Recurse through the ancestry of this thread entry to find the first
+     * thread entry which cites a email Message-ID field.
+     *
+     * Returns:
+     * <ThreadEntry> or null if neither this thread entry nor any of its
+     * ancestry contains an email header with an email Message-ID header.
+     */
+    function findOriginalEmailMessage() {
+        $P = $this;
+        while (!$P->getEmailMessageId()
+            && ($P = $P->getParent()));
+        return $P;
     }
 
     function getUIDFromEmailReference($ref) {

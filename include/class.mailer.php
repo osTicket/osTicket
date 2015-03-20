@@ -361,12 +361,12 @@ class Mailer {
                     'References' => $options['thread']->getEmailReferences()
                 );
             }
-            elseif ($parent = $options['thread']->getParent()) {
+            elseif ($original = $options['thread']->findOriginalEmailMessage()) {
                 // Use the parent item as the email information source. This
                 // will apply for staff replies
                 $headers += array(
-                    'In-Reply-To' => $parent->getEmailMessageId(),
-                    'References' => $parent->getEmailReferences(),
+                    'In-Reply-To' => $original->getEmailMessageId(),
+                    'References' => $original->getEmailReferences(),
                 );
             }
 

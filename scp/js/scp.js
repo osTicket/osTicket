@@ -562,16 +562,25 @@ $.dialog = function (url, codes, cb, options) {
             queue: false,
             complete: function() { if (options.onshow) options.onshow(); }
         });
+        var submit_button = null;
         $(document).off('.dialog');
+        $(document).on('click.dialog',
+            '#popup input[type=submit], #popup button[type=submit]',
+            function(e) { submit_button = $(this); });
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
-            var $form = $(this);
+            var $form = $(this),
+                data = $form.serialize();
+            if (submit_button) {
+                data += '&' + escape(submit_button.attr('name')) + '='
+                    + escape(submit_button.attr('value'));
+            }
             $('div#popup-loading', $popup).show()
                 .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
             $.ajax({
                 type:  $form.attr('method'),
                 url: 'ajax.php/'+$form.attr('action').substr(1),
-                data: $form.serialize(),
+                data: data,
                 cache: false,
                 success: function(resp, status, xhr) {
                     if (xhr && xhr.status && codes

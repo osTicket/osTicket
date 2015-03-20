@@ -60,7 +60,8 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
 
     function isVisible() {
         // Can't edit system posts
-        return $this->entry->staff_id || $this->entry->user_id;
+        return ($this->entry->staff_id || $this->entry->user_id)
+            && $this->entry->type != 'R';
     }
 
     function isEnabled() {
@@ -108,15 +109,13 @@ JS
         }
     }
 
-    private function trigger__get() {
-        global $cfg;
+    protected function trigger__get() {
+        global $cfg, $thisstaff;
 
         include STAFFINC_DIR . 'templates/thread-entry-edit.tmpl.php';
     }
 
-    private function trigger__post() {
-        global $thisstaff;
-
+    function updateEntry($guard=false) {
         $old = $this->entry;
         $type = ($old->format == 'html')
             ? 'HtmlThreadEntryBody' : 'TextThreadEntryBody';
@@ -124,7 +123,7 @@ JS
 
         if ($new->getClean() == $old->body)
             // No update was performed
-            Http::response(201);
+            return $old;
 
         $entry = ThreadEntry::create(array(
             // Copy most information from the old entry
@@ -134,6 +133,9 @@ JS
             'type' => $old->type,
             'threadId' => $old->thread_id,
 
+            // Connect the new entry to be a child of the previous
+            'pid' => $old->id,
+
             // Add in new stuff
             'title' => $_POST['title'],
             'body' => $new,
@@ -141,30 +143,48 @@ JS
         ));
 
         if (!$entry)
-            return $this->trigger__get();
+            return false;
 
         // Note, anything that points to the $old entry as PID should remain
         // that way for email header lookups and such to remain consistent
 
-        if ($old->flags & ThreadEntry::FLAG_EDITED) {
-            // Second and further edit ---------------
-            $original = ThreadEntry::lookup(array('pid'=>$old->id));
+        if ($old->flags & ThreadEntry::FLAG_EDITED
+            and !($old->flags & ThreadEntry::FLAG_GUARDED)
+        ) {
+            // Replace previous edit --------------------------
+            $original = $old->getParent();
             // Drop the previous edit, and base this edit off the original
             $old->delete();
             $old = $original;
         }
 
-        // Mark the new entry as editited (but not hidden)
+        // Mark the new entry as edited (but not hidden)
         $entry->flags = ($old->flags & ~ThreadEntry::FLAG_HIDDEN)
             | ThreadEntry::FLAG_EDITED;
+
+        // Guard against deletes on future edit if requested. This is done
+        // if an email was triggered by the last edit. In such a case, it
+        // should not be replace by a subsequent edit.
+        if ($guard)
+            $entry->flags |= ThreadEntry::FLAG_GUARDED;
+
+        // Sort in the same place in the thread — XXX: Add a `sequence` id
         $entry->created = $old->created;
         $entry->updated = SqlFunction::NOW();
         $entry->save();
 
         // Hide the old entry from the object thread
-        $old->pid = $entry->id;
         $old->flags |= ThreadEntry::FLAG_HIDDEN;
         $old->save();
+
+        return $entry;
+    }
+
+    protected function trigger__post() {
+        global $thisstaff;
+
+        if (!($entry = $this->updateEntry()))
+            return $this->trigger__get();
 
         Http::response('201', JsonDataEncoder::encode(array(
             'thread_id' => $this->entry->id,
@@ -177,8 +197,8 @@ ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_EditThreadEntry');
 
 class TEA_OrigThreadEntry extends ThreadEntryAction {
     static $id = 'previous';
-    static $name = /* trans */ 'View Original';
-    static $icon = 'undo';
+    static $name = /* trans */ 'View History';
+    static $icon = 'copy';
 
     function isVisible() {
         // Can't edit system posts
@@ -199,8 +219,76 @@ class TEA_OrigThreadEntry extends ThreadEntryAction {
     }
 
     private function trigger__get() {
-        $entry = ThreadEntry::lookup(array('pid'=>$this->entry->getId()));
+        $entry = $this->entry->getParent();
+        if (!$entry)
+            Http::response(404, 'No history for this entry');
         include STAFFINC_DIR . 'templates/thread-entry-view.tmpl.php';
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_OrigThreadEntry');
+
+class TEA_ResendThreadEntry extends TEA_EditThreadEntry {
+    static $id = 'resend';
+    static $name = /* trans */ 'Edit and Resend';
+    static $icon = 'reply-all';
+
+    function isVisible() {
+        // Can only resend replies
+        return $this->entry->staff_id && $this->entry->type == 'R';
+    }
+
+    protected function trigger__post() {
+        $resend = @$_POST['commit'] == 'resend';
+
+        if (!($entry = $this->updateEntry($resend)))
+            return $this->trigger__get();
+
+        if (@$_POST['commit'] == 'resend')
+            $this->resend($entry);
+
+        Http::response('201', JsonDataEncoder::encode(array(
+            'thread_id' => $this->entry->id,
+            'new_id' => $entry->id,
+            'body' => $entry->getBody()->toHtml(),
+        )));
+    }
+
+    function resend($response) {
+        global $cfg, $thisstaff;
+
+        $vars = $_POST;
+        $ticket = $response->getThread()->getObject();
+
+        $dept = $ticket->getDept();
+
+        if ($thisstaff && $vars['signature'] == 'mine')
+            $signature = $thisstaff->getSignature();
+        elseif ($vars['signature'] == 'dept' && $dept && $dept->isPublic())
+            $signature = $dept->getSignature();
+        else
+            $signature = '';
+
+        $variables = array(
+            'response' => $response,
+            'signature' => $signature,
+            'staff' => $response->getStaff(),
+            'poster' => $response->getStaff());
+        $options = array('thread' => $response);
+
+        if (($email=$dept->getEmail())
+            && ($tpl = $dept->getTemplate())
+            && ($msg=$tpl->getReplyMsgTemplate())
+        ) {
+            $msg = $ticket->replaceVars($msg->asArray(),
+                $variables + array('recipient' => $ticket->getOwner()));
+
+            $attachments = $cfg->emailAttachments()
+                ? $response->getAttachments() : array();
+            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'],
+                $attachments, $options);
+        }
+        // TODO: Add an option to the dialog
+        $ticket->notifyCollaborators($response, array('signature' => $signature));
+    }
+}
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_ResendThreadEntry');
