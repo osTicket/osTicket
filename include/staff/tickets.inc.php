@@ -59,12 +59,7 @@ case 'search':
             )));
         }
         break;
-    }
-    elseif (isset($_GET['uid'])) {
-        // Apply user filter
-        $tickets->filter(array('user__id'=>$_GET['uid']));
-    }
-    elseif (isset($_SESSION['advsearch'])) {
+    } elseif (isset($_SESSION['advsearch'])) {
         // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
         $form->loadState($_SESSION['advsearch']);
@@ -86,6 +81,12 @@ case 'open':
         $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     break;
 }
+
+// Apply user filter
+if (isset($_GET['uid'])) {
+    $tickets->filter(array('user__id'=>$_GET['uid']));
+}
+
 
 // Apply primary ticket status
 if ($status)
