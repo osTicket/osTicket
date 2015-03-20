@@ -251,7 +251,8 @@ $(function() {
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
                 'buttonSource': !el.hasClass('no-bar'),
-                'autoresize': !el.hasClass('no-bar'),
+                'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
+                'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')

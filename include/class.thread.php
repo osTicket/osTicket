@@ -82,6 +82,7 @@ class Thread extends VerySimpleModel {
             'has_attachments' => SqlAggregate::COUNT('attachments', false,
                 new Q(array('attachments__inline'=>0)))
         ));
+        $base->exclude(array('flags__hasbit'=>ThreadEntry::FLAG_HIDDEN));
         if ($criteria)
             $base->filter($criteria);
         return $base;
@@ -398,7 +399,8 @@ class ThreadEntry extends VerySimpleModel {
     static $meta = array(
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
-        'select_related' => array('staff', 'user'),
+        'select_related' => array('staff', 'user', 'email_info'),
+        'ordering' => array('created'),
         'joins' => array(
             'thread' => array(
                 'constraint' => array('thread_id' => 'Thread.id'),
@@ -430,6 +432,8 @@ class ThreadEntry extends VerySimpleModel {
     );
 
     const FLAG_ORIGINAL_MESSAGE         = 0x0001;
+    const FLAG_EDITED                   = 0x0002;
+    const FLAG_HIDDEN                   = 0x0004;
 
     var $_headers;
     var $_thread;
@@ -1734,7 +1738,7 @@ abstract class ThreadEntryAction {
     static $id;                 // Unique identifier used for plumbing
     static $icon = 'cog';
 
-    var $thread;
+    var $entry;
 
     function getName() {
         $class = get_class($this);
@@ -1751,13 +1755,13 @@ abstract class ThreadEntryAction {
     }
 
     function __construct(ThreadEntry $thread) {
-        $this->thread = $thread;
+        $this->entry = $thread;
     }
 
     abstract function trigger();
 
     function getTicket() {
-        return $this->thread->getTicket();
+        return $this->entry->getObject();
     }
 
     function isEnabled() {
@@ -1791,8 +1795,8 @@ abstract class ThreadEntryAction {
     function getAjaxUrl($dialog=false) {
         return sprintf('%stickets/%d/thread/%d/%s',
             $dialog ? '#' : 'ajax.php/',
-            $this->thread->getThread()->getObjectId(),
-            $this->thread->getId(),
+            $this->entry->getThread()->getObjectId(),
+            $this->entry->getId(),
             static::getId()
         );
     }
