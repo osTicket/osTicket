@@ -42,6 +42,11 @@
   color: #FFF !important;
   cursor: pointer;
 }
+.action-dropdown ul li > a.disabled {
+  pointer-events: none;
+  color: #999;
+  color: rgba(85,85,85,0.5);
+}
 .action-dropdown hr {
   height: 1px;
   border: none;

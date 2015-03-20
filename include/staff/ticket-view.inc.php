@@ -423,8 +423,12 @@ $tcount = $ticket->getThreadEntries($types)->count();
 <?php               foreach ($actions as $group => $list) {
                         foreach ($list as $id => $action) { ?>
                     <li>
-                    <a class="no-pjax" href="#" onclick="javascript:
-                            <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
+                    <a class="no-pjax <?php
+                        if (!$action->isEnabled())
+                            echo 'disabled';
+                    ?>" href="#" onclick="javascript:
+                        if ($(this).hasClass('disabled')) return false;
+                        <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
                         <i class="<?php echo $action->getIcon(); ?>"></i> <?php
                             echo $action->getName();
                 ?></a></li>

@@ -16,6 +16,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
+include_once(INCLUDE_DIR.'class.role.php');
 
 //Ticket thread.
 class Thread extends VerySimpleModel {
@@ -435,10 +436,19 @@ class ThreadEntry extends VerySimpleModel {
     const FLAG_EDITED                   = 0x0002;
     const FLAG_HIDDEN                   = 0x0004;
 
+    const PERM_EDIT     = 'thread.edit';
+
     var $_headers;
     var $_thread;
     var $_actions;
     var $_attachments;
+
+    static protected $perms = array(
+        self::PERM_EDIT => array(
+            'title' => /* @trans */ 'Edit Thread',
+            'desc'  => /* @trans */ 'Ability to edit thread items of other agents',
+        ),
+    );
 
     function postEmail($mailinfo) {
         if (!($thread = $this->getThread()))
@@ -1252,7 +1262,13 @@ class ThreadEntry extends VerySimpleModel {
 
         self::$action_registry[$group][$action::getId()] = $action;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+
+RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
 
 class ThreadEntryBody /* extends SplString */ {

@@ -66,15 +66,17 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
     function isEnabled() {
         global $thisstaff;
 
+        $T = $this->entry->getThread()->getObject();
         // You can edit your own posts or posts by your department members
         // if your a manager, or everyone's if your an admin
         return $thisstaff && (
-            $thisstaff->isAdmin()
-            || (($T = $this->entry->getThread()->getObject())
-                && $T instanceof Ticket
+            $thisstaff->getId() == $this->entry->staff_id
+            || ($T instanceof Ticket
                 && $T->getDept()->getManagerId() == $thisstaff->getId()
             )
-            || ($this->entry->getStaffId() == $thisstaff->getId())
+            || ($T instanceof Ticket
+                && $thisstaff->getRole($T->getDeptId())->hasPerm(ThreadEntry::PERM_EDIT)
+            )
         );
     }
 
