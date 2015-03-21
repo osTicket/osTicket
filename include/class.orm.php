@@ -535,14 +535,20 @@ class SqlFunction {
         $this->args = array_slice(func_get_args(), 1);
     }
 
+    function input($what, $compiler, $model) {
+        if ($what instanceof SqlFunction)
+            $A = $what->toSql($compiler, $model);
+        elseif ($what instanceof Q)
+            $A = $compiler->compileQ($what, $model);
+        else
+            $A = $compiler->input($what);
+        return $A;
+    }
+
     function toSql($compiler, $model=false, $alias=false) {
         $args = array();
         foreach ($this->args as $A) {
-            if ($A instanceof SqlFunction)
-                $A = $A->toSql($compiler, $model);
-            else
-                $A = $compiler->input($A);
-            $args[] = $A;
+            $args[] = $this->input($A, $compiler, $model);
         }
         return sprintf('%s(%s)%s', $this->func, implode(',', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
@@ -559,6 +565,40 @@ class SqlFunction {
         $I = new static($func);
         $I->args = $args;
         return $I;
+    }
+}
+
+class SqlCase extends SqlFunction {
+    var $cases = array();
+    var $else = false;
+
+    static function N() {
+        return new static('CASE');
+    }
+
+    function when($expr, $result) {
+        $this->cases[] = array($expr, $result);
+        return $this;
+    }
+    function otherwise($result) {
+        $this->else = $result;
+        return $this;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $cases = array();
+        foreach ($this->cases as $A) {
+            list($expr, $result) = $A;
+            $expr = $this->input($expr, $compiler, $model);
+            $result = $this->input($result, $compiler, $model);
+            $cases[] = "WHEN {$expr} THEN {$result}";
+        }
+        if ($this->else) {
+            $else = $this->input($this->else, $compiler, $model);
+            $cases[] = "ELSE {$else}";
+        }
+        return sprintf('CASE %s END%s', implode(' ', $cases),
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 }
 
@@ -687,7 +727,12 @@ class SqlAggregate extends SqlFunction {
 
         // For DISTINCT, require a field specification — not a relationship
         // specification.
-        list($field, $rmodel) = $compiler->getField($this->expr, $model, $options);
+        $E = $this->expr;
+        if ($E instanceof SqlFunction) {
+            $field = $E->toSql($compiler, $model, $alias);
+        }
+        else {
+        list($field, $rmodel) = $compiler->getField($E, $model, $options);
         if ($this->distinct) {
             $pk = false;
             foreach ($rmodel::$meta['pk'] as $f) {
@@ -707,6 +752,7 @@ class SqlAggregate extends SqlFunction {
                     );
                 }
             }
+        }
         }
 
         return sprintf('%s(%s%s)%s', $this->func,

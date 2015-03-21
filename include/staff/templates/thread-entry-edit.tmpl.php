@@ -34,7 +34,7 @@
 ?></textarea>
 
 <?php if ($this->entry->type == 'R') { ?>
-<div style="margin:10px 0;"><?php echo __('Signature'); ?>:
+<div style="margin:10px 0;"><strong><?php echo __('Signature'); ?>:</strong>
     <label><input type="radio" name="signature" value="none" checked="checked"> <?php echo __('None');?></label>
     <?php
     if ($thisstaff->getSignature()) {?>

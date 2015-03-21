@@ -9,14 +9,15 @@ $E = $entry;
 do { ?>
 <dt>
     <a href="#"><i class="icon-copy"></i>
-    <strong><?php echo Format::htmlchars($E->title); ?></strong>
+    <strong><?php if ($E->title)
+        echo Format::htmlchars($E->title).' — '; ?></strong>
     <em><?php if (strpos($E->updated, '0000-') === false)
         echo sprintf(__('Edited on %s'), Format::datetime($E->updated));
     else
         echo __('Original'); ?></em>
     </a>
 </dt>
-<dd class="hidden">
+<dd class="hidden" style="background-color:transparent">
     <div class="thread-body" style="background-color:transparent">
         <?php echo $E->getBody()->toHtml(); ?>
     </div>
