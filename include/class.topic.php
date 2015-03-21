@@ -256,7 +256,7 @@ class Topic {
 
     static function getHelpTopics($publicOnly=false, $disabled=false) {
         global $cfg;
-        static $topics, $names;
+        static $topics, $names = array();
 
         if (!$names) {
             $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE

@@ -61,7 +61,7 @@ class FAQ {
     function getQuestion() { return $this->ht['question']; }
     function getAnswer() { return $this->ht['answer']; }
     function getAnswerWithImages() {
-        return Format::viewableImages($this->ht['answer'], ROOT_PATH.'image.php');
+        return Format::viewableImages($this->ht['answer']);
     }
     function getSearchableAnswer() {
         return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
@@ -198,12 +198,11 @@ class FAQ {
         if(($attachments=$this->attachments->getSeparates())) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
-            $hash=$attachment['key'].md5($attachment['id'].session_id().strtolower($attachment['key']));
             if($attachment['size'])
                 $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="file.php?h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
 
             }
         }

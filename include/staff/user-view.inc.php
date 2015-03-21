@@ -94,9 +94,10 @@ $org = $user->getOrganization();
                                 echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
                                         $user->getId(), $org->getName());
                             else
-                                echo sprintf('<a href="#users/%d/org"
-                                        class="user-action">Add Organization</a>',
-                                        $user->getId());
+                                echo sprintf(
+                                    '<a href="#users/%d/org" class="user-action">%s</a>',
+                                    $user->getId(),
+                                    __('Add Organization'));
                         ?>
                         </span>
                     </td>

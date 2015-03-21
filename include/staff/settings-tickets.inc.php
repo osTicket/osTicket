@@ -214,7 +214,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
+            <td width="180"><?php echo __('EndUser Attachment Settings');?>:</td>
             <td>
 <?php
                 $tform = TicketForm::objects()->one()->getForm();
@@ -231,7 +231,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Maximum File Size');?>:</td>
+            <td width="180"><?php echo __('Agent Maximum File Size');?>:</td>
             <td>
                 <select name="max_file_size">
                     <option value="262144">&mdash; <?php echo __('Small'); ?> &mdash;</option>
@@ -266,14 +266,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 </select>
                 <i class="help-tip icon-question-sign" href="#max_file_size"></i>
                 <div class="error"><?php echo $errors['max_file_size']; ?></div>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Ticket Response Files');?>:</td>
-            <td>
-                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?>>
-                <?php echo __('Email attachments to the user'); ?>
-                <i class="help-tip icon-question-sign" href="#ticket_response_files"></i>
             </td>
         </tr>
         <?php if (($bks = FileStorageBackend::allRegistered())

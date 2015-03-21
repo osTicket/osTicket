@@ -1,8 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
-
+$qs = array();
 $sql='SELECT grp.*,count(DISTINCT staff.staff_id) as users, count(DISTINCT dept.dept_id) as depts '
      .' FROM '.GROUP_TABLE.' grp '
      .' LEFT JOIN '.STAFF_TABLE.' staff ON(staff.group_id=grp.group_id) '
@@ -30,13 +29,16 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
 $query="$sql GROUP BY grp.group_id ORDER BY $order_by";
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=sprintf(__('Showing 1-%1$d of %2$d groups'), $num, $num);
 else
     $showing=__('No groups found!');
+
+
+$qstr = '&amp;'.Http::build_query($qs);
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">

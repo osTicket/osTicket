@@ -61,8 +61,7 @@ if (($lang = Internationalization::getCurrentLanguage())
         echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
     ?>
     <div id="header">
-        <a href="index.php" class="no-pjax pull-left" id="logo">osTicket &mdash; <?php echo __('Customer Support System'); ?></a>
-        <p id="info" class="pull-right"><?php echo sprintf(__('Welcome, %s.'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?>
+        <p id="info" class="pull-right no-pjax"><?php echo sprintf(__('Welcome, %s.'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?>
            <?php
             if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
             | <a href="admin.php" class="no-pjax"><?php echo __('Admin Panel'); ?></a>
@@ -72,6 +71,10 @@ if (($lang = Internationalization::getCurrentLanguage())
             | <a href="profile.php"><?php echo __('My Preferences'); ?></a>
             | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax"><?php echo __('Log Out'); ?></a>
         </p>
+        <a href="index.php" class="no-pjax" id="logo">
+            <span class="valign-helper"></span>
+            <img src="logo.php" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/>
+        </a>
     </div>
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
 <?php } else {

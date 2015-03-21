@@ -330,9 +330,9 @@ class ApiXmlDataParser extends XmlDataParser {
             if ($key == "phone" && is_array($value)) {
                 $value = $value[":text"];
             } else if ($key == "alert") {
-                $value = (bool)$value;
+                $value = (bool) (strtolower($value) === 'false' ? false : $value);
             } else if ($key == "autorespond") {
-                $value = (bool)$value;
+                $value = (bool) (strtolower($value) === 'false' ? false : $value);
             } else if ($key == "message") {
                 if (!is_array($value)) {
                     $value = array(
@@ -345,7 +345,7 @@ class ApiXmlDataParser extends XmlDataParser {
                     unset($value[":text"]);
                 }
                 if (isset($value['encoding']))
-                    $value['body'] = Format::utf8encode($value['body'], $value['encoding']);
+                    $value['body'] = Charset::utf8($value['body'], $value['encoding']);
 
                 if (!strcasecmp($value['type'], 'text/html'))
                     $value = new HtmlThreadBody($value['body']);

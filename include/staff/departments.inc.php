@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT dept.dept_id,dept_name,email.email_id,email.email,email.name as email_name,ispublic,count(staff.staff_id) as users '.
      ',CONCAT_WS(" ",mgr.firstname,mgr.lastname) as manager,mgr.staff_id as manager_id,dept.created,dept.updated  FROM '.DEPT_TABLE.' dept '.
      ' LEFT JOIN '.STAFF_TABLE.' mgr ON dept.manager_id=mgr.staff_id '.
@@ -30,7 +30,8 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
+$qstr = '&amp;'. Http::build_query($qs);
 
 $query="$sql GROUP BY dept.dept_id ORDER BY $order_by";
 $res=db_query($query);
@@ -58,7 +59,7 @@ else
             <th width="7px">&nbsp;</th>
             <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
             <th width="80"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users');?></a></th>
+            <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Agents');?></a></th>
             <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
             <th width="200"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager"><?php echo __('Department Manager');?></a></th>
         </tr>

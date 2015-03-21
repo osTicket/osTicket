@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qstr='';
+$qs = array();
 $sql='SELECT cat.category_id, cat.name, cat.ispublic, cat.updated, count(faq.faq_id) as faqs '.
      ' FROM '.FAQ_CATEGORY_TABLE.' cat '.
      ' LEFT JOIN '.FAQ_TABLE.' faq ON (faq.category_id=cat.category_id) ';
@@ -30,8 +30,9 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(*) FROM '.FAQ_CATEGORY_TABLE.' cat ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
-$pageNav->setURL('categories.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
-$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
+$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$pageNav->setURL('categories.php', $qs);
+$qstr = '&amp;order='.($order=='DESC'?'ASC':'DESC');
 $query="$sql GROUP BY cat.category_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 $res=db_query($query);
 if($res && ($num=db_num_rows($res)))

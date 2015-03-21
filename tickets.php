@@ -123,6 +123,8 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
+if ($tform instanceof DynamicFormEntry)
+    $tform = $tform->getForm();
 print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>

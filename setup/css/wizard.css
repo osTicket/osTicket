@@ -3,7 +3,7 @@ body { background: url('../images/background.jpg?1312906017') top left repeat-x 
 
 #wizard { background: #fff; width: 800px; margin: 30px auto; padding: 10px; border: 1px solid #2a67ac; border-right: 2px solid #2a67ac; border-bottom: 3px solid #2a67ac; overflow: hidden; margin-bottom:5px;}
 
-a { color: #2a67ac; }
+a { color: #2a67ac; display: inline-block; }
 
 /* Helpers */
 .centered {text-align: center;}

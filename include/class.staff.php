@@ -22,7 +22,8 @@ include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
-class Staff extends AuthenticatedUser {
+class Staff extends AuthenticatedUser
+implements EmailContact {
 
     var $ht;
     var $id;
@@ -174,6 +175,9 @@ class Staff extends AuthenticatedUser {
 
     function getId() {
         return $this->id;
+    }
+    function getUserId() {
+        return $this->getId();
     }
 
     function getEmail() {
@@ -773,6 +777,20 @@ class Staff extends AuthenticatedUser {
 
         if(!$vars['timezone_id'])
             $errors['timezone_id']=__('Time zone selection is required');
+
+        // Ensure we will still have an administrator with access
+        if ($vars['isadmin'] !== '1' || $vars['isactive'] !== '1') {
+            $sql = 'select count(*), max(staff_id) from '.STAFF_TABLE
+                .' WHERE isadmin=1 and isactive=1';
+            if (($res = db_query($sql))
+                    && (list($count, $sid) = db_fetch_row($res))) {
+                if ($count == 1 && $sid == $id) {
+                    $errors['isadmin'] = __(
+                        'Cowardly refusing to remove or lock out the only active administrator'
+                    );
+                }
+            }
+        }
 
         if($errors) return false;
 

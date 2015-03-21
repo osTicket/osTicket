@@ -31136,6 +31136,7 @@ function purify_utf8($html,$lo=true) {
 function purify_utf8_text($txt) {
 	// For TEXT
 	// Make sure UTF-8 string of characters
+    if ($txt === null) $txt = '';
 	if (!$this->is_utf8($txt)) { $this->Error("Text contains invalid UTF-8 character(s)"); }
 
 	$txt = preg_replace("/\r/", "", $txt );

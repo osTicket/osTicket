@@ -206,9 +206,9 @@ class VerySimpleModel {
         foreach ($this->dirty as $field=>$old) {
             if ($this->__new__ or !in_array($field, $pk)) {
                 if (@get_class($this->get($field)) == 'SqlFunction')
-                    $fields[] = $field.' = '.$this->get($field)->toSql();
+                    $fields[] = "`$field` = ".$this->get($field)->toSql();
                 else
-                    $fields[] = $field.' = '.db_input($this->get($field));
+                    $fields[] = "`$field` = ".db_input($this->get($field));
             }
         }
         $sql .= ' SET '.implode(', ', $fields);

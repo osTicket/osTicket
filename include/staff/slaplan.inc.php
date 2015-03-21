@@ -1,14 +1,13 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-$info=array();
-$qstr='';
+$info = $qs = array();
 if($sla && $_REQUEST['a']!='add'){
     $title=__('Update SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='update';
     $submit_text=__('Save Changes');
     $info=$sla->getInfo();
     $info['id']=$sla->getId();
-    $qstr.='&id='.$sla->getId();
+    $qs += array('id' => $sla->getId());
 }else {
     $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='add';
@@ -16,11 +15,11 @@ if($sla && $_REQUEST['a']!='add'){
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['enable_priority_escalation']=isset($info['enable_priority_escalation'])?$info['enable_priority_escalation']:1;
     $info['disable_overdue_alerts']=isset($info['disable_overdue_alerts'])?$info['disable_overdue_alerts']:0;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="slas.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="slas.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

@@ -151,6 +151,9 @@ class Sequence extends VerySimpleModel {
      * and assured to be session-wise atomic before the value is returned.
      */
     function __next($digits=false) {
+        // Ensure this block is executed in a single transaction
+        db_autocommit(false);
+
         // Lock the database object -- this is important to handle concurrent
         // requests for new numbers
         static::objects()->filter(array('id'=>$this->id))->lock()->one();
@@ -160,6 +163,8 @@ class Sequence extends VerySimpleModel {
         $this->next += $this->increment;
         $this->updated = SqlFunction::NOW();
         $this->save();
+
+        db_autocommit(true);
 
         return $next;
     }

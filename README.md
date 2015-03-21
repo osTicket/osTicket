@@ -103,6 +103,10 @@ project and request to have your language added. Languages which reach 100%
 translated are are significantly reviewed will be made available on the
 osTicket download page.
 
+The software can also be translated in place in our [JIPT site]
+(http://jipt.i18n.osticket.com). Once you have a Crowdin account, login and
+translate the software in your browser!
+
 Localizing strings in new code requires usage of a [few rules](setup/doc/i18n.md).
 
 License

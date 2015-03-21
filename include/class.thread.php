@@ -200,8 +200,16 @@ class Thread {
             return false;
 
         $this->deleteAttachments();
+        $this->removeCollaborators();
 
         return true;
+    }
+
+    function removeCollaborators() {
+        $sql='DELETE FROM '.TICKET_COLLABORATOR_TABLE
+            .' WHERE ticket_id='.db_input($this->getTicketId());
+
+        return  (db_query($sql) && db_affected_rows());
     }
 
     /* static */
@@ -291,6 +299,11 @@ Class ThreadEntry {
         return $this->ht['pid'];
     }
 
+    function getParent() {
+        if ($this->getPid())
+            return ThreadEntry::lookup($this->getPid());
+    }
+
     function getType() {
         return $this->ht['thread_type'];
     }
@@ -362,30 +375,9 @@ Class ThreadEntry {
         $headers = self::getEmailHeaderArray();
         if (isset($headers['References']) && $headers['References'])
             $references = $headers['References']." ";
-        if ($include_mid)
-            $references .= $this->getEmailMessageId();
+        if ($include_mid && ($mid = $this->getEmailMessageId()))
+            $references .= $mid;
         return $references;
-    }
-
-    function getTaggedEmailReferences($prefix, $refId) {
-
-        $ref = "+$prefix".Base32::encode(pack('VV', $this->getId(), $refId));
-
-        $mid = substr_replace($this->getEmailMessageId(),
-                $ref, strpos($this->getEmailMessageId(), '@'), 0);
-
-        return sprintf('%s %s', $this->getEmailReferences(false), $mid);
-    }
-
-    function getEmailReferencesForUser($user) {
-        return $this->getTaggedEmailReferences('u',
-            ($user instanceof Collaborator)
-                ? $user->getUserId()
-                : $user->getId());
-    }
-
-    function getEmailReferencesForStaff($staff) {
-        return $this->getTaggedEmailReferences('s', $staff->getId());
     }
 
     function getUIDFromEmailReference($ref) {
@@ -579,7 +571,7 @@ Class ThreadEntry {
             return $this->attachments;
 
         //XXX: inner join the file table instead?
-        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.name, a.inline '
+        $sql='SELECT a.attach_id, f.id as file_id, f.size, lower(f.`key`) as file_hash, f.`signature` as file_sig, f.name, a.inline '
             .' FROM '.FILE_TABLE.' f '
             .' INNER JOIN '.TICKET_ATTACHMENT_TABLE.' a ON(f.id=a.file_id) '
             .' WHERE a.ticket_id='.db_input($this->getTicketId())
@@ -587,19 +579,21 @@ Class ThreadEntry {
 
         $this->attachments = array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($rec=db_fetch_array($res))
+            while($rec=db_fetch_array($res)) {
+                $rec['download_url'] = AttachmentFile::generateDownloadUrl(
+                    $rec['file_id'], $rec['file_hash'], $rec['file_sig']);
                 $this->attachments[] = $rec;
+            }
         }
 
         return $this->attachments;
     }
 
-    function getAttachmentUrls($script='image.php') {
+    function getAttachmentUrls() {
         $json = array();
         foreach ($this->getAttachments() as $att) {
             $json[$att['file_hash']] = array(
-                'download_url' => sprintf('attachment.php?id=%d&h=%s', $att['attach_id'],
-                    strtolower(md5($att['file_id'].session_id().$att['file_hash']))),
+                'download_url' => $att['download_url'],
                 'filename' => $att['name'],
             );
         }
@@ -612,14 +606,12 @@ Class ThreadEntry {
         foreach($this->getAttachments() as $attachment ) {
             if ($attachment['inline'])
                 continue;
-            /* The hash can be changed  but must match validation in @file */
-            $hash=md5($attachment['file_id'].session_id().$attachment['file_hash']);
             $size = '';
             if($attachment['size'])
                 $size=sprintf('<em>(%s)</em>', Format::file_size($attachment['size']));
 
-            $str.=sprintf('<a class="Icon file no-pjax" href="%s?id=%d&h=%s" target="%s">%s</a>%s&nbsp;%s',
-                    $file, $attachment['attach_id'], $hash, $target, Format::htmlchars($attachment['name']), $size, $separator);
+            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
+                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
         }
 
         return $str;
@@ -665,8 +657,8 @@ Class ThreadEntry {
         // where code is a predictable string based on the SECRET_SALT of
         // this osTicket installation. If this incoming mail matches the
         // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
+        $msgId_info = Mailer::decodeMessageId($mailinfo['mid']);
+        if ($msgId_info['loopback']) {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
@@ -734,8 +726,15 @@ Class ThreadEntry {
         else {
             //XXX: Are we potentially leaking the email address to
             // collaborators?
-            $vars['message'] = sprintf("Received From: %s\n\n%s",
-                $mailinfo['email'], $body);
+            $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
+                $mailinfo['email']);
+            if ($body instanceof HtmlThreadBody)
+                $header = nl2br(Format::htmlchars($header));
+            // Add the banner to the top of the message
+            if ($body instanceof ThreadBody)
+                $body->prepend($header);
+
+            $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             return $ticket->postMessage($vars, 'Email');
         }
@@ -896,6 +895,25 @@ Class ThreadEntry {
                         return $t;
                     }
                 }
+                // Attempt to detect the ticket and user ids from the
+                // message-id header. If the message originated from
+                // osTicket, the Mailer class can break it apart. If it came
+                // from this help desk, the 'loopback' property will be set
+                // to true.
+                $mid_info = Mailer::decodeMessageId($mid);
+                if ($mid_info['loopback'] && isset($mid_info['uid'])
+                    && @$mid_info['threadId']
+                    && ($t = ThreadEntry::lookup($mid_info['threadId']))
+                ) {
+                    if (@$mid_info['userId']) {
+                        $mailinfo['userId'] = $mid_info['userId'];
+                    }
+                    elseif (@$mid_info['staffId']) {
+                        $mailinfo['staffId'] = $mid_info['staffId'];
+                    }
+                    // ThreadEntry was positively identified
+                    return $t;
+                }
             }
             // Second best case — found a thread but couldn't identify the
             // user from the header. Return the first thread entry matched
@@ -910,7 +928,10 @@ Class ThreadEntry {
         $match = array();
         if ($subject
                 && $mailinfo['email']
-                && preg_match("/\b#(\S+)/u", $subject, $match)
+                // Required `#` followed by one or more of
+                //      punctuation (-) then letters, numbers, and symbols
+                // (Try not to match closing punctuation (`]`) in [#12345])
+                && preg_match("/#((\p{P}*[^\p{C}\p{Z}\p{P}]+)+)/u", $subject, $match)
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
@@ -1101,10 +1122,7 @@ Class ThreadEntry {
                 return false;
         }
 
-        // Email message id (required for all thread posts)
-        if (!isset($vars['mid']))
-            $vars['mid'] = sprintf('<%s@%s>', Misc::randCode(24),
-                substr(md5($cfg->getUrl()), -10));
+        // Email message id
         $entry->saveEmailInfo($vars);
 
         // Inline images (attached to the draft)
@@ -1374,6 +1392,19 @@ class ThreadBody /* extends SplString */ {
         return $this->display('html');
     }
 
+    function prepend($what) {
+        $this->body = $what . $this->body;
+    }
+
+    function append($what) {
+        $this->body .= $what;
+    }
+
+    function asVar() {
+        // Email template, assume HTML
+        return $this->display('email');
+    }
+
     function display($format=false) {
         throw new Exception('display: Abstract display() method not implemented');
     }
@@ -1407,27 +1438,24 @@ class TextThreadBody extends ThreadBody {
         if ($this->isEmpty())
             return '(empty)';
 
+        $escaped = Format::htmlchars($this->body);
         switch ($output) {
         case 'html':
             return '<div style="white-space:pre-wrap">'
-                .Format::clickableurls(Format::htmlchars($this->body)).'</div>';
+                .Format::clickableurls($escaped).'</div>';
         case 'email':
-            return '<div style="white-space:pre-wrap">'.$this->body.'</div>';
+            return '<div style="white-space:pre-wrap">'
+                .$escaped.'</div>';
         case 'pdf':
-            return nl2br($this->body);
+            return nl2br($escaped);
         default:
-            return '<pre>'.$this->body.'</pre>';
+            return '<pre>'.$escaped.'</pre>';
         }
-    }
-
-    function asVar() {
-        // Email template, assume HTML
-        return $this->display('email');
     }
 }
 class HtmlThreadBody extends ThreadBody {
     function __construct($body, $options=array()) {
-        if ($options['strip-embedded'])
+        if (!isset($options['strip-embedded']) || $options['strip-embedded'])
             $body = $this->extractEmbeddedHtmlImages($body);
         parent::__construct($body, 'html', $options);
     }
@@ -1464,7 +1492,7 @@ class HtmlThreadBody extends ThreadBody {
         case 'email':
             return $this->body;
         case 'pdf':
-            return Format::clickableurls($this->body, false);
+            return Format::clickableurls($this->body);
         default:
             return Format::display($this->body);
         }

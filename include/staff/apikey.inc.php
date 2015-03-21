@@ -1,24 +1,23 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
-$info=array();
-$qstr='';
+$info=$qs = array();
 if($api && $_REQUEST['a']!='add'){
     $title=__('Update API Key');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$api->getHashtable();
-    $qstr.='&id='.$api->getId();
+    $qs += array('id' => $api->getId());
 }else {
     $title=__('Add New API Key');
     $action='add';
     $submit_text=__('Add Key');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
-    $qstr.='&a='.urlencode($_REQUEST['a']);
+    $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="apikeys.php?<?php echo $qstr; ?>" method="post" id="save">
+<form action="apikeys.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

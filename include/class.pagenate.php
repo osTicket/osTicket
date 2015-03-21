@@ -38,14 +38,19 @@ class PageNate {
         }
         $this->setURL($url);
     }
-    function setURL($url='',$vars=''){
-        if($url){
-            if(strpos($url,'?')===false)
-                $url=$url.'?';
-        }else{
-         $url=THISPAGE.'?';
+
+    function setURL($url='',$vars='') {
+        if ($url) {
+            if (strpos($url, '?')===false)
+                $url .= '?';
+        } else {
+         $url = THISPAGE.'?';
         }
-        $this->url=$url.$vars;
+
+        if ($vars && is_array($vars))
+            $vars = Http::build_query($vars);
+
+        $this->url = $url.$vars;
     }
 
     function getStart() {

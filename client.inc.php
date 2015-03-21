@@ -29,7 +29,7 @@ define('OSTCLIENTINC',TRUE);
 define('ASSETS_PATH',ROOT_PATH.'assets/default/');
 
 //Check the status of the HelpDesk.
-if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php',))
+if (!in_array(strtolower(basename($_SERVER['SCRIPT_NAME'])), array('logo.php','file.php'))
         && !(is_object($ost) && $ost->isSystemOnline())) {
     include(ROOT_DIR.'offline.php');
     exit;
@@ -48,7 +48,8 @@ $nav=null;
 $thisclient = UserAuthenticationBackend::getUser();
 
 if (isset($_GET['lang']) && $_GET['lang']) {
-    $_SESSION['client:lang'] = $_GET['lang'];
+    if (Internationalization::getLanguageInfo($_GET['lang']))
+        $_SESSION['client:lang'] = $_GET['lang'];
 }
 
 // Bootstrap gettext translations as early as possible, but after attempting
