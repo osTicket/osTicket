@@ -71,34 +71,39 @@ class ModelMeta implements ArrayAccess {
     }
 
     function processJoin(&$j) {
+        $constraint = array();
         if (isset($j['reverse'])) {
             list($fmodel, $key) = explode('.', $j['reverse']);
             $info = $fmodel::$meta['joins'][$key];
-            $constraint = array();
             if (!is_array($info['constraint']))
                 throw new OrmConfigurationException(sprintf(__(
                     // `reverse` here is the reverse of an ORM relationship
                     '%s: Reverse does not specify any constraints'),
                     $j['reverse']));
             foreach ($info['constraint'] as $foreign => $local) {
-                list(,$field) = explode('.', $local);
-                $constraint[$field ?: $local] = "$fmodel.$foreign";
+                list($L,$field) = is_array($local) ? $local : explode('.', $local);
+                $constraint[$field ?: $L] = array($fmodel, $foreign);
             }
-            $j['constraint'] = $constraint;
             if (!isset($j['list']))
                 $j['list'] = true;
             if (!isset($j['null']))
                 // By default, reverse releationships can be empty lists
                 $j['null'] = true;
         }
-        // XXX: Make this better (ie. composite keys)
-        foreach ($j['constraint'] as $local => $foreign) {
-            list($class, $field) = explode('.', $foreign);
+        else {
+            foreach ($j['constraint'] as $local => $foreign) {
+                list($class, $field) = $constraint[$local]
+                    = explode('.', $foreign);
+            }
+        }
+        foreach ($constraint as $local => $foreign) {
+            list($class, $field) = $foreign;
             if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
                 continue;
-            $j['fkey'] = array($class, $field);
+            $j['fkey'] = $foreign;
             $j['local'] = $local;
         }
+        $j['constraint'] = $constraint;
     }
 
     function offsetGet($field) {
@@ -178,13 +183,13 @@ class VerySimpleModel {
             elseif (isset($j['fkey'])) {
                 $criteria = array();
                 foreach ($j['constraint'] as $local => $foreign) {
-                    list($klas,$F) = explode('.', $foreign);
+                    list($klas,$F) = $foreign;
                     if (class_exists($klas))
                         $class = $klas;
                     if ($local[0] == "'") {
                         $criteria[$F] = trim($local,"'");
                     }
-                    elseif ($foreign[0] == "'") {
+                    elseif ($F[0] == "'") {
                         // Does not affect the local model
                         continue;
                     }
@@ -1522,14 +1527,9 @@ class SqlCompiler {
             }
             $crumb = implode('__', $path);
             $tip = ($crumb) ? "{$crumb}__{$p}" : $p;
-            // Roll to foreign model
-            foreach ($info['constraint'] as $local => $foreign) {
-                list($rmodel, $rfield) = explode('.', $foreign);
-                if (class_exists($rmodel))
-                    break;
-            }
             $joins[] = array($crumb, $tip, $model, $info);
-            return array($rmodel, $rfield);
+            // Roll to foreign model
+            return $info['fkey'];
         };
 
         foreach ($parts as $p) {
@@ -1608,8 +1608,8 @@ class SqlCompiler {
         // coordination between the data returned from the database (where
         // table alias is available) and the corresponding data.
         $T = array('alias' => $alias);
-        $this->joins[$path] = &$T;
-        $T['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
+        $this->joins[$path] = $T;
+        $this->joins[$path]['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
         return $alias;
     }
 
@@ -1855,7 +1855,7 @@ class MySqlCompiler extends SqlCompiler {
         else
             $table = $this->quote($model::$meta['table']);
         foreach ($info['constraint'] as $local => $foreign) {
-            list($rmodel, $right) = explode('.', $foreign);
+            list($rmodel, $right) = $foreign;
             // Support a constant constraint with
             // "'constant'" => "Model.field_name"
             if ($local[0] == "'") {
@@ -1866,10 +1866,10 @@ class MySqlCompiler extends SqlCompiler {
             }
             // Support local constraint
             // field_name => "'constant'"
-            elseif ($foreign[0] == "'" && !$right) {
+            elseif ($rmodel[0] == "'" && !$right) {
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
-                    $this->input(trim($foreign, '\'"'))
+                    $this->input(trim($rmodel, '\'"'))
                 );
             }
             else {
@@ -1890,9 +1890,9 @@ class MySqlCompiler extends SqlCompiler {
             // XXX: Support parameters from the nested query
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::$meta['table']);
-        $base = "$join$table $alias";
+        $base = "{$join}{$table} {$alias}";
         if ($constraints)
-            $base .= ' ON ('.implode(' AND ', $constraints).')';
+           $base .= ' ON ('.implode(' AND ', $constraints).')';
         return $base;
     }
 
@@ -2272,7 +2272,7 @@ class MySqlExecutor {
         list($sql, $params) = $this->fixupParams();
         if (!($this->stmt = db_prepare($sql)))
             throw new InconsistentModelException(
-                'Unable to prepare query: '.db_error().' '.$this->sql);
+                'Unable to prepare query: '.db_error().' '.$sql);
         if (count($params))
             $this->_bind($params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
