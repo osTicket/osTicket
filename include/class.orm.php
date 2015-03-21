@@ -1770,12 +1770,6 @@ class DbEngine {
 
 class MySqlCompiler extends SqlCompiler {
 
-    // Consts for ::input()
-    const SLOT_JOINS = 1;
-    const SLOT_WHERE = 2;
-
-    protected $input_join_count = 0;
-
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
@@ -1867,7 +1861,7 @@ class MySqlCompiler extends SqlCompiler {
             if ($local[0] == "'") {
                 $constraints[] = sprintf("%s.%s = %s",
                     $alias, $this->quote($right),
-                    $this->input(trim($local, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($local, '\'"'))
                 );
             }
             // Support local constraint
@@ -1875,7 +1869,7 @@ class MySqlCompiler extends SqlCompiler {
             elseif ($foreign[0] == "'" && !$right) {
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
-                    $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($foreign, '\'"'))
                 );
             }
             else {
@@ -1887,7 +1881,7 @@ class MySqlCompiler extends SqlCompiler {
         }
         // Support extra join constraints
         if ($extra instanceof Q) {
-            $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
+            $constraints[] = $this->compileQ($extra, $model);
         }
         if (!isset($rmodel))
             $rmodel = $model;
@@ -1911,11 +1905,6 @@ class MySqlCompiler extends SqlCompiler {
      * Parameters:
      * $what - (mixed) value to be sent to the database. No escaping is
      *      necessary. Pass a raw value here.
-     * $slot - (int) clause location of the input in compiled SQL statement.
-     *      Currently, SLOT_JOINS and SLOT_WHERE is supported. SLOT_JOINS
-     *      inputs are inserted ahead of the SLOT_WHERE inputs as the joins
-     *      come logically before the where claused in the finalized
-     *      statement.
      *
      * Returns:
      * (string) token to be placed into the compiled SQL statement. For
@@ -1934,16 +1923,8 @@ class MySqlCompiler extends SqlCompiler {
             return 'NULL';
         }
         else {
-            switch ($slot) {
-            case self::SLOT_JOINS:
-                // This should be inserted before the WHERE inputs
-                array_splice($this->params, $this->input_join_count++, 0,
-                    array($what));
-                break;
-            default:
-                $this->params[] = $what;
-            }
-            return '?';
+            $this->params[] = $what;
+            return ':'.(count($this->params));
         }
     }
 
@@ -2251,7 +2232,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 }
 
-class MysqlExecutor {
+class MySqlExecutor {
 
     var $stmt;
     var $fields = array();
@@ -2272,17 +2253,28 @@ class MysqlExecutor {
         return $this->map;
     }
 
+    function fixupParams() {
+        $self = $this;
+        $params = array();
+        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+            $params[] = $self->params[$m[1]-1];
+            return '?';
+        }, $this->sql);
+        return array($sql, $params);
+    }
+
     function _prepare() {
         $this->execute();
         $this->_setup_output();
     }
 
     function execute() {
-        if (!($this->stmt = db_prepare($this->sql)))
+        list($sql, $params) = $this->fixupParams();
+        if (!($this->stmt = db_prepare($sql)))
             throw new InconsistentModelException(
                 'Unable to prepare query: '.db_error().' '.$this->sql);
-        if (count($this->params))
-            $this->_bind($this->params);
+        if (count($params))
+            $this->_bind($params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
@@ -2393,9 +2385,8 @@ class MysqlExecutor {
 
     function __toString() {
         $self = $this;
-        $x = 0;
-        return preg_replace_callback('/\?/', function($m) use ($self, &$x) {
-            $p = $self->params[$x++];
+        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+            $p = $self->params[$m[1]-1];
             return db_real_escape($p, is_string($p));
         }, $this->sql);
     }
