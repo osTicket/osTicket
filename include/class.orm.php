@@ -1501,23 +1501,19 @@ class SqlCompiler {
         $operator = static::$operators['exact'];
         if (!isset($options['table'])) {
             $field = array_pop($parts);
-            if (array_key_exists($field, static::$operators)) {
+            if (isset(static::$operators[$field])) {
                 $operator = static::$operators[$field];
                 $field = array_pop($parts);
             }
         }
 
         $path = array();
-
-        // Determine the alias for the root model table
-        $alias = (isset($this->joins['']))
-            ? $this->joins['']['alias']
-            : $this->quote($model::$meta['table']);
+        $rootModel = $model;
 
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
-        $self = $this;
-        $push = function($p, $path, $extra=false) use (&$model, $self) {
+        $joins = array();
+        $push = function($p, $path, $model) use (&$joins) {
             $model::_inspect();
             if (!($info = $model::$meta['joins'][$p])) {
                 throw new OrmException(sprintf(
@@ -1525,27 +1521,43 @@ class SqlCompiler {
                     $model, $p));
             }
             $crumb = implode('__', $path);
-            $path[] = $p;
-            $tip = implode('__', $path);
-            $alias = $self->pushJoin($crumb, $tip, $model, $info, $extra);
+            $tip = ($crumb) ? "{$crumb}__{$p}" : $p;
             // Roll to foreign model
             foreach ($info['constraint'] as $local => $foreign) {
-                list($model, $f) = explode('.', $foreign);
-                if (class_exists($model))
+                list($rmodel, $rfield) = explode('.', $foreign);
+                if (class_exists($rmodel))
                     break;
             }
-            return array($alias, $f);
+            $joins[] = array($crumb, $tip, $model, $info);
+            return array($rmodel, $rfield);
         };
 
-        foreach ($parts as $i=>$p) {
-            list($alias) = $push($p, $path, @$options['constraint']);
+        foreach ($parts as $p) {
+            list($model) = $push($p, $path, $model);
             $path[] = $p;
         }
 
         // If comparing a relationship, join the foreign table
         // This is a comparison with a relationship — use the foreign key
         if (isset($model::$meta['joins'][$field])) {
-            list($alias, $field) = $push($field, $path, @$options['constraint']);
+            list($model, $field) = $push($field, $path, $model);
+        }
+
+        // Add the conststraint as the last arg to the last join
+        if (isset($options['constraint'])) {
+            $joins[count($joins)-1][] = $options['constraint'];
+        }
+
+        // Apply the joins list to $this->pushJoin
+        foreach ($joins as $A) {
+            $alias = call_user_func_array(array($this, 'pushJoin'), $A);
+        }
+
+        if (!isset($alias)) {
+            // Determine the alias for the root model table
+            $alias = (isset($this->joins['']))
+                ? $this->joins['']['alias']
+                : $this->quote($rootModel::$meta['table']);
         }
 
         if (isset($options['table']) && $options['table'])
