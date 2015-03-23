@@ -16,12 +16,16 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </thead>
     <tbody>
         <tr>
-            <td width="180"><?php echo __('Knowledge Base Status'); ?>:</td>
+            <td width="180" valign="top"><?php echo __('Knowledge Base Status'); ?>:</td>
             <td>
                 <input type="checkbox" name="enable_kb" value="1" <?php echo $config['enable_kb']?'checked="checked"':''; ?>>
                 <?php echo __('Enable Knowledge Base'); ?>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_kb']; ?></font>
                 <i class="help-tip icon-question-sign" href="#knowledge_base_status"></i>
+                <div class="error"><?php echo $errors['enable_kb']; ?></div>
+                <input type="checkbox" name="restrict_kb" value="1" <?php echo $config['restrict_kb']?'checked="checked"':''; ?> >
+                <?php echo __('Require Client Login'); ?>
+                <i class="help-tip icon-question-sign" href="#restrict_kb"></i>
+                <div class="error"><?php echo $errors['restrict_kb']; ?></div>
             </td>
         </tr>
         <tr>
