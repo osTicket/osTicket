@@ -941,7 +941,7 @@ class UserAccount extends UserAccountModel {
     }
 
     function setPassword($new) {
-        $this->set('passwd', Passwd::hash($vars['passwd1']));
+        $this->set('passwd', Passwd::hash($new));
     }
 
     protected function sendUnlockEmail($template) {
