@@ -777,6 +777,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function models() {
+        $this->iterator = 'ModelInstanceManager';
+        $this->values = $this->related = array();
+        return $this;
+    }
+
     function values() {
         foreach (func_get_args() as $A)
             $this->values[$A] = $A;

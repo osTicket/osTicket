@@ -248,6 +248,7 @@ case 'updated':
 //
 // ATM, advanced search with keywords doesn't support the subquery approach
 if ($use_subquery) {
+    $orig_tickets = clone $tickets;
     $tickets2 = TicketModel::objects();
     $tickets2->values = $tickets->values;
     $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
@@ -271,7 +272,7 @@ $tickets->annotate(array(
 ));
 
 // Save the query to the session for exporting
-$_SESSION[':Q:tickets'] = $tickets;
+$_SESSION[':Q:tickets'] = $orig_tickets;
 
 ?>
 
