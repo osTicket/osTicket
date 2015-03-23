@@ -33,7 +33,7 @@ class SequenceAjaxAPI extends AjaxController {
         elseif (!($sequence = Sequence::lookup($id)))
             Http::response(404, 'No such object');
 
-        return $sequence->current($_GET['format']);
+        return $sequence->current(Format::htmlchars($_GET['format']));
     }
 
     /**
