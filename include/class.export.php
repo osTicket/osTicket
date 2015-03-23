@@ -56,7 +56,14 @@ class Export {
             $fields[$key] = $f;
             $cdata[$key] = $f->getLocal('label');
         }
-        return self::dumpQuery($sql,
+        // Reset the $sql query
+        $tickets = TicketModel::objects()
+            ->filter($sql->constraints)
+            ->select_related('user', 'user__default_email', 'dept', 'staff',
+                'team', 'staff', 'cdata');
+        call_user_func_array(array($tickets, 'order_by'), $sql->getSortFields());
+
+        return self::dumpQuery($tickets,
             array(
                 'number' =>         __('Ticket Number'),
                 'created' =>        __('Date'),
