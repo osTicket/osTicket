@@ -39,8 +39,14 @@ class Option {
             $value = null;
         elseif ($value)
             $nargs = 1;
-        if ($this->type == 'int')
+        switch ($this->type) {
+        case 'int':
             $value = (int)$value;
+            break;
+        case 'bool':
+            $value = strcasecmp($value, 'true') === 0 || ((int) $value);
+            break;
+        }
         switch ($this->action) {
             case 'store_true':
                 $value = true;
@@ -156,7 +162,7 @@ class Module {
 
         if ($this->arguments) {
             echo "\nArguments:\n";
-            foreach ($this->arguments as $name=>$help)
+            foreach ($this->arguments as $name=>$help) {
                 $extra = '';
                 if (is_array($help)) {
                     if (isset($help['options']) && is_array($help['options'])) {
@@ -169,6 +175,7 @@ class Module {
                 echo $name . "\n    " . wordwrap(
                     preg_replace('/\s+/', ' ', $help), 76, "\n    ")
                         .$extra."\n";
+            }
         }
 
         if ($this->epilog) {

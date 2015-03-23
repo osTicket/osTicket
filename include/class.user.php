@@ -462,14 +462,22 @@ class User extends UserModel {
             $users[] = $data;
         }
 
+        db_autocommit(false);
+        $error = false;
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars))
-                return sprintf(__('Unable to import user: %s'),
+            if (!static::fromVars($vars)) {
+                $error = sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
+                break;
+            }
         }
+        if ($error)
+            db_rollback();
 
-        return count($users);
+        db_autocommit(true);
+
+        return $error ?: count($users);
     }
 
     function importFromPost($stuff, $extra=array()) {
@@ -937,6 +945,10 @@ class UserAccount extends UserAccountModel {
         return static::sendUnlockEmail('registration-client') === true;
     }
 
+    function setPassword($new) {
+        $this->set('passwd', Passwd::hash($new));
+    }
+
     protected function sendUnlockEmail($template) {
         global $ost, $cfg;
 
@@ -1021,7 +1033,7 @@ class UserAccount extends UserAccountModel {
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
-            $this->set('passwd', Passwd::hash($vars['passwd1']));
+            $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
         }
 
