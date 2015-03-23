@@ -55,44 +55,15 @@ if (($lang = Internationalization::getCurrentLanguage())
 </head>
 <body>
 <div id="container" class="container well">
-  <nav class="navbar">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" id="logo" href="<?php echo ROOT_PATH; ?>index.php" title="<?php echo __('Support Center'); ?>">
-          <img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php echo $ost->getConfig()->getTitle(); ?>">
-        </a>
-      </div>
-      <div class="collapse navbar-collapse" id="nav">
-        <?php
-        if (($all_langs = Internationalization::getConfiguredSystemLanguages())
-            && (count($all_langs) > 1)
-        ) {
-          ?>
-          <ul class="nav navbar-nav">
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Language <span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-          <?php
-            $qs = array();
-            parse_str($_SERVER['QUERY_STRING'], $qs);
-            foreach ($all_langs as $code=>$info) {
-                list($lang, $locale) = explode('_', $code);
-                $qs['lang'] = $code;
-        ?>
-                <li><a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
-                    href="?<?php echo http_build_query($qs);
-                    ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a></li>
-        <?php } ?>
-        </ul>
-        </li>
-        </ul>
-        <?php } ?>
-        <ul class="nav nav-pills navbar-right nav-justified">
+  <div class="row">
+    <div class="col-xs-12 col-sm-3">
+      <a href="<?php echo ROOT_PATH; ?>index.php" title="<?php echo __('Support Center'); ?>">
+        <img class="img-responsive" src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php echo $ost->getConfig()->getTitle(); ?>">
+      </a>
+    </div>
+    <div class="col-xs-12 col-sm-9" id="nav">
+      <nav>
+        <ul class="nav nav-pills nav-justified">
           <?php
           if($nav){ ?>
             <?php
@@ -103,37 +74,62 @@ if (($lang = Internationalization::getCurrentLanguage())
             }
           } ?>
           <?php
-          if ($thisclient && is_object($thisclient) && $thisclient->isValid()
-            && !$thisclient->isGuest()) { ?>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                  <?php echo Format::htmlchars($thisclient->getName()); ?> <span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="<?php echo ROOT_PATH; ?>open.php"><?php echo __('Open a New Ticket');?></a></li>
-                <li><a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a></li>
-                <li><a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a></li>
-                <li class="divider"></li>
-                <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li>
-              </ul>
-            </li>
-          <?php } elseif($nav) {
-             if ($cfg->getClientRegistrationMode() == 'public') { ?>
-               <li class="dropdown">
-                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                   <?php echo __('Guest User'); ?><span class="caret"></span></a>
-                 <ul class="dropdown-menu" role="menu"><?php
-             }
-             if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
-               <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li></ul><?php
-             }
-             elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-               <li><a class="status" href="../view.php"><?php echo __('Check Ticket Status'); ?></a></li>
-               <li><a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a></li></ul>
-             <?php }
-          } ?>
+          if ($thisclient && is_object($thisclient) && $thisclient->isValid() && !$thisclient->isGuest()) { ?>
+           <li class="dropdown">
+             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+               <?php echo Format::htmlchars($thisclient->getName()); ?> <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="<?php echo ROOT_PATH; ?>open.php"><?php echo __('Open a New Ticket');?></a></li>
+                  <li><a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a></li>
+                  <li><a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a></li>
+                  <li class="divider"></li>
+                  <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li>
+                </ul>
+              </li>
+              <?php } elseif($nav) {
+                if ($cfg->getClientRegistrationMode() == 'public') { ?>
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                      <?php echo __('Guest User'); ?><span class="caret"></span></a>
+                      <ul class="dropdown-menu" role="menu">
+                        <?php }
+                        if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
+                          <li><a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a></li>
+                        <?php }
+                        elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
+                          <li><a class="status" href="../view.php"><?php echo __('Check Ticket Status'); ?></a></li>
+                          <li><a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a></li>
+                      </ul>
+                  </li>
+                  <?php }
+                  if (($all_langs = Internationalization::getConfiguredSystemLanguages()) && (count($all_langs) > 1)) { ?>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        Language<span class="caret"></span>
+                      </a>
+                      <ul class="dropdown-menu" role="menu">
+                        <?php
+                        $qs = array();
+                        parse_str($_SERVER['QUERY_STRING'], $qs);
+                        foreach ($all_langs as $code=>$info) {
+                          list($lang, $locale) = explode('_', $code);
+                          $qs['lang'] = $code; ?>
+                          <li>
+                            <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
+                              href="?<?php echo http_build_query($qs);?>"
+                              title="<?php echo Internationalization::getLanguageDescription($code); ?>">
+                              <p><?php echo $locale ?: $info['flag'] ?: $lang; ?></p>
+                            </a>
+                          </li>
+                          <?php } ?>
+                        </ul>
+                      </li>
+                  <?php }
+                } ?>
         </ul>
-      </div>
-  </nav>
+      </nav>
+    </div>
+  </div>
   <div class="clearfix"><br/></div>
   <div id="content">
   <?php if($errors['err']) { ?>
