@@ -69,18 +69,20 @@ if($_POST && !$errors):
                 if(!$_POST['response'])
                     $errors['response']=__('Response required');
 
-                if (!$lock) {
-                    $errors['err'] = __('This action requires a lock. Please try again');
-                }
-                // Use locks to avoid double replies
-                elseif ($lock->getStaffId()!=$thisstaff->getId()) {
-                    $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
-                }
-                // Attempt to renew the lock if possible
-                elseif (($lock->isExpired() && !$lock->renew())
-                    ||($lock->getCode() != $_POST['lockCode'])
-                ) {
-                    $errors['err'] = __('Your lock has expired. Please try again');
+                if ($cfg->getLockTime()) {
+                    if (!$lock) {
+                        $errors['err'] = __('This action requires a lock. Please try again');
+                    }
+                    // Use locks to avoid double replies
+                    elseif ($lock->getStaffId()!=$thisstaff->getId()) {
+                        $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+                    }
+                    // Attempt to renew the lock if possible
+                    elseif (($lock->isExpired() && !$lock->renew())
+                        ||($lock->getCode() != $_POST['lockCode'])
+                    ) {
+                        $errors['err'] = __('Your lock has expired. Please try again');
+                    }
                 }
 
                 //Make sure the email is not banned
@@ -200,15 +202,17 @@ if($_POST && !$errors):
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
 
-            if (!$lock) {
-                $errors['err'] = __('This action requires a lock. Please try again');
-            }
-            // Use locks to avoid double replies
-            elseif ($lock->getStaffId()!=$thisstaff->getId()) {
-                $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
-            }
-            elseif ($lock->getCode() != $_POST['lockCode']) {
-                $errors['err'] = __('Your lock has expired. Please try again');
+            if ($cfg->getLockTime()) {
+                if (!$lock) {
+                    $errors['err'] = __('This action requires a lock. Please try again');
+                }
+                // Use locks to avoid double replies
+                elseif ($lock->getStaffId()!=$thisstaff->getId()) {
+                    $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+                }
+                elseif ($lock->getCode() != $_POST['lockCode']) {
+                    $errors['err'] = __('Your lock has expired. Please try again');
+                }
             }
 
             $wasOpen = ($ticket->isOpen());
