@@ -57,6 +57,7 @@ else
 
 ?>
 <div style="width:700px;" class="pull-left"><b><?php echo $showing; ?></b></div>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
 <div class="pull-right flush-right" style="padding-right:5px;">
     <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user"
         ><?php echo __('Add User'); ?></a></b>
@@ -65,6 +66,7 @@ else
     <i class="icon-cloud-upload icon-large"></i>
     <?php echo __('Import'); ?></a></b>
 </div>
+<?php } ?>
 <div class="clear"></div>
 <br/>
 <?php

@@ -35,6 +35,28 @@ class OrganizationModel extends VerySimpleModel {
     const COLLAB_PRIMARY_CONTACT =  0x0002;
     const ASSIGN_AGENT_MANAGER =    0x0004;
 
+    const PERM_CREATE =     'org.create';
+    const PERM_EDIT =       'org.edit';
+    const PERM_DELETE =     'org.delete';
+
+    static protected $perms = array(
+        self::PERM_CREATE => array(
+            'title' => /* @trans */ 'Create',
+            'desc' => /* @trans */ 'Ability to create new organizations',
+            'primary' => true,
+        ),
+        self::PERM_EDIT => array(
+            'title' => /* @trans */ 'Edit',
+            'desc' => /* @trans */ 'Ability to manage organizations',
+            'primary' => true,
+        ),
+        self::PERM_DELETE => array(
+            'title' => /* @trans */ 'Delete',
+            'desc' => /* @trans */ 'Ability to delete organizations',
+            'primary' => true,
+        ),
+    );
+
     var $_manager;
 
     function getId() {
@@ -101,7 +123,14 @@ class OrganizationModel extends VerySimpleModel {
     function allMembers() {
         return $this->users;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+include_once INCLUDE_DIR.'class.role.php';
+RolePermission::register(/* @trans */ 'Organizations',
+    OrganizationModel::getPermissions());
 
 class OrganizationCdata extends VerySimpleModel {
     static $meta = array(

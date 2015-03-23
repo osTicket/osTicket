@@ -266,6 +266,8 @@ class RolePermission {
     static protected $_permissions = array(
             /* @trans */ 'Tickets' => array(),
             /* @trans */ 'Tasks' => array(),
+            /* @trans */ 'Users' => array(),
+            /* @trans */ 'Organizations' => array(),
             /* @trans */ 'Knowledgebase' => array(),
             /* @trans */ 'Miscellaneous' => array(),
             );

@@ -34,7 +34,15 @@
     kb.premade,
     kb.faq,
     stats.agents,
-    emails.banlist]
+    emails.banlist,
+    user.edit,
+    user.delete,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit,
+    org.delete,
+    search.all]
 
 - id: 2
   flags: 1
@@ -58,7 +66,14 @@
     kb.premade,
     kb.faq,
     stats.agents,
-    emails.banlist]
+    emails.banlist,
+    user.edit,
+    user.delete,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit,
+    org.delete]
 
 - id: 3
   flags: 1
@@ -74,4 +89,9 @@
     task.create,
     task.assign,
     task.transfer,
-    task.reply]
+    task.reply,
+    user.edit,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit]

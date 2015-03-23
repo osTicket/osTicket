@@ -69,6 +69,40 @@ class UserModel extends VerySimpleModel {
 
     const PRIMARY_ORG_CONTACT   = 0x0001;
 
+    const PERM_CREATE =     'user.create';
+    const PERM_EDIT =       'user.edit';
+    const PERM_DELETE =     'user.delete';
+    const PERM_MANAGE =     'user.manage';
+    const PERM_DIRECTORY =  'user.dir';
+
+    static protected $perms = array(
+        self::PERM_CREATE => array(
+            'title' => /* @trans */ 'Create',
+            'desc' => /* @trans */ 'Ability to add new users',
+            'primary' => true,
+        ),
+        self::PERM_EDIT => array(
+            'title' => /* @trans */ 'Edit',
+            'desc' => /* @trans */ 'Ability to manage user information',
+            'primary' => true,
+        ),
+        self::PERM_DELETE => array(
+            'title' => /* @trans */ 'Delete',
+            'desc' => /* @trans */ 'Ability to delete users',
+            'primary' => true,
+        ),
+        self::PERM_MANAGE => array(
+            'title' => /* @trans */ 'Manage Account',
+            'desc' => /* @trans */ 'Ability to manage active user accounts',
+            'primary' => true,
+        ),
+        self::PERM_DIRECTORY => array(
+            'title' => /* @trans */ 'User Directory',
+            'desc' => /* @trans */ 'Ability to access the user directory',
+            'primary' => true,
+        ),
+    );
+
     function getId() {
         return $this->id;
     }
@@ -125,7 +159,13 @@ class UserModel extends VerySimpleModel {
         else
             $this->clearStatus(User::PRIMARY_ORG_CONTACT);
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+include_once INCLUDE_DIR.'class.role.php';
+RolePermission::register(/* @trans */ 'Users', UserModel::getPermissions());
 
 class UserCdata extends VerySimpleModel {
     static $meta = array(
@@ -146,10 +186,10 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    static function fromVars($vars) {
+    static function fromVars($vars, $create=true) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
-        if (!$user) {
+        if (!$user && $create) {
             $name = $vars['name'];
             if (!$name)
                 list($name) = explode('@', $vars['email'], 2);
@@ -184,7 +224,7 @@ class User extends UserModel {
         return $user;
     }
 
-    static function fromForm($form) {
+    static function fromForm($form, $create=true) {
         global $thisstaff;
 
         if(!$form) return null;
@@ -205,7 +245,7 @@ class User extends UserModel {
             $valid = false;
         }
 
-        return $valid ? self::fromVars($form->getClean()) : null;
+        return $valid ? self::fromVars($form->getClean(), $create) : null;
     }
 
     function getEmail() {
@@ -623,8 +663,14 @@ class PersonsName {
         elseif($cfg)
             $this->format = $cfg->getDefaultNameFormat();
 
-        $this->parts = static::splitName($name);
-        $this->name = $name;
+        if (!is_array($name)) {
+            $this->parts = static::splitName($name);
+            $this->name = $name;
+        }
+        else {
+            $this->parts = $name;
+            $this->name = implode(' ', $name);
+        }
     }
 
     function getFirst() {

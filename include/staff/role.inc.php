@@ -96,11 +96,15 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
                     (isset($setting[$k]) && $setting[$k]) ?  'checked="checked"' : '');
               ?>
               &nbsp;&nbsp;
+              <?php echo Format::htmlchars(__($v['title'])); ?>
+              —
               <?php
-                echo sprintf('%s - <em>%s</em>',
-                      Format::htmlchars(__($v['title'])),
-                    Format::htmlchars(__($v['desc'])));
-              ?>
+              if ($v['primary']) { ?>
+              <i class="icon-globe faded" title="<?php echo
+                  __('This permission only applies to the staff primary role'); ?>"></i>
+<?php         } ?>
+              <em><?php echo Format::htmlchars(__($v['desc']));
+              ?></em>
              </label>
             </td>
           </tr>

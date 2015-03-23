@@ -109,6 +109,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -125,6 +127,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -141,6 +145,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_MANAGE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -168,6 +174,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_MANAGE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -200,6 +208,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_DELETE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -240,6 +250,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function addUser() {
+        global $thisstaff;
 
         $info = array();
 
@@ -247,6 +258,9 @@ class UsersAjaxAPI extends AjaxController {
             $info['lookup'] = 'local';
 
         if ($_POST) {
+            if (!$thisstaff->getRole()->hasPerm(User::PERM_CREATE))
+                Http::response(403, 'Permission Denied');
+
             $info['title'] = __('Add New User');
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
@@ -263,6 +277,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
         elseif (!($backend = AuthenticationBackend::getSearchDirectoryBackend($bk))
@@ -284,6 +300,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
 
         $info = array(
             'title' => __('Import Users'),
@@ -304,6 +322,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function selectUser($id) {
+        global $thisstaff;
 
         if ($id)
             $user = User::lookup($id);
@@ -319,9 +338,14 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     static function _lookupform($form=null, $info=array()) {
+        global $thisstaff;
 
-        if (!$info or !$info['title'])
-            $info += array('title' => __('Lookup or create a user'));
+        if (!$info or !$info['title']) {
+            if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE))
+                $info += array('title' => __('Lookup or create a user'));
+            else
+                $info += array('title' => __('Lookup a user'));
+        }
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
@@ -422,6 +446,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required");
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($user_id)))
             Http::response(404, "No such user");
         elseif (!isset($_POST['forms']))
