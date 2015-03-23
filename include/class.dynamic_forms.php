@@ -735,7 +735,6 @@ class DynamicFormEntry extends VerySimpleModel {
             // Get all dynamic fields associated with the form
             //  even when stored elsewhere -- important during validation
             foreach ($this->getForm()->getDynamicFields() as $field) {
-                $field->setForm($this);
                 $field = $field->getImpl($field);
                 if ($field instanceof ThreadEntryField)
                     continue;
@@ -744,13 +743,11 @@ class DynamicFormEntry extends VerySimpleModel {
             // Get answers to entries
             foreach ($this->getAnswers() as $a) {
                 if (!($f = $a->getField())) continue;
-                // Perhaps an answer of deleted field
-                if (!isset($this->_fields[$f->get('id')])) {
-                    $f->setForm($this);
-                }
                 $this->_fields[$f->get('id')] = $f;
             }
         }
+        foreach ($this->_fields as $F)
+            $F->setForm($this);
 
         return $this->_fields;
     }
