@@ -1,11 +1,23 @@
+//Typography
+h1 {
+ color: @brand-primary;
+}
+
+h2 {
+
+}
+
+h3 {
+
+}
+
+
+//General styling
 body {
-  background-color: #c8c8c8;
+  background-color: @gray;
 }
 
-#container {
-  max-width: 840px;
-}
-
+//Navbar and navigation
 a.navbar-brand {
   padding: 5px;
   img {
@@ -15,9 +27,9 @@ a.navbar-brand {
 }
 
 .navbar-toggle {
-  border: solid gray 1px;
+  border: solid @gray-darker 1px;
   span {
-    border: solid gray 1px;
+    border: solid @gray-darker 1px;
   }
 }
 
@@ -44,6 +56,8 @@ a.navbar-brand {
   }
 }
 
+
+//Footer
 #footer {
   text-align: center;
 

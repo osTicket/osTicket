@@ -24,7 +24,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <!--Bootstrap loading via CDN until we can load assets during packaging-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
-    <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
+    <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-theme.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css" media="screen" />
     <!---Uncomment the following line to try another theme-->
@@ -92,13 +92,13 @@ if (($lang = Internationalization::getCurrentLanguage())
         </li>
         </ul>
         <?php } ?>
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav nav-pills navbar-right nav-justified">
           <?php
           if($nav){ ?>
             <?php
             if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
               foreach($navs as $name =>$nav) {
-                echo sprintf('<li><a class="%s %s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
+                echo sprintf('<li role="presentation" class="%s"><a class="%s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
               }
             }
           } ?>

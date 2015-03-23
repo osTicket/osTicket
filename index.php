@@ -50,15 +50,15 @@ require(CLIENTINC_DIR.'header.inc.php');
       </div>
     </div>
     <div class="sidebar col-xs-12 col-sm-4">
-      <a href="open.php" style="display:block" class="btn btn-primary btn-lg">
-        <?php echo __('Open a New Ticket');?>
-      </a>
-      <br/>
       <?php
           $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
           if ($faqs->all()) { ?>
-                  <div class="panel panel-default">
-                    <div class="panel-heading"><?php echo __('Featured Questions'); ?></div>
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">
+                        <?php echo __('Featured Questions'); ?>
+                      </h3>
+                    </div>
                       <ul class="list-group">
       <?php   foreach ($faqs as $F) { ?>
                   <li class="list-group-item"><a href="<?php echo ROOT_PATH;
@@ -82,6 +82,9 @@ require(CLIENTINC_DIR.'header.inc.php');
                 </div>
       <?php
           } ?>
+      <a href="open.php" style="display:block" class="btn btn-success btn-lg btn-block">
+        <?php echo __('Open a New Ticket');?>
+      </a>
     </div>
   </div>
 </div>
@@ -98,29 +101,36 @@ require(CLIENTINC_DIR.'header.inc.php');
     <?php
     $cats = Category::getFeatured();
     if ($cats->all()) { ?>
-    <h1>Featured Knowledge Base Articles</h1>
-    <?php
-    }
-        foreach ($cats as $C) { ?>
-        <ul class="media-list">
-          <li class="media">
-            <div class="media-left">
-              <i class="icon-folder-open icon-2x"></i>
-            </div>
-            <div class="media-body category-name">
-              <?php echo $C->getName(); ?>
-              <?php foreach ($C->getTopArticles() as $F) { ?>
-                <div class="media">
-                  <div class="article-headline">
-                    <div class="article-title"><a href="<?php echo ROOT_PATH;
-                    ?>kb/faq.php?id=<?php echo $F->getId(); ?>"><?php
-                    echo $F->getQuestion(); ?></a></div>
-                    <div class="article-teaser"><?php echo $F->getTeaser(); ?></div>
+      <h1>Featured Knowledge Base Articles</h1>
+    <?php }
+    foreach ($cats as $C) { ?>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+            &nbsp;<?php echo $C->getName(); ?>
+          </h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <?php foreach ($C->getTopArticles() as $F) { ?>
+              <div class="col-sm-6">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">
+                      <a href="<?php echo ROOT_PATH; ?>kb/faq.php?id=<?php echo $F->getId(); ?>">
+                        <?php echo $F->getQuestion(); ?>
+                      </a>
+                    </h3>
                   </div>
+                  <div class="panel-body"><?php echo $F->getTeaser(); ?></div>
                 </div>
-                <?php } ?>
-            </div>
-      <?php }
+              </div>
+            <?php } ?>
+          </div>
+        </div>
+      </div>
+    <?php }
     } ?>
   </div>
 </div>

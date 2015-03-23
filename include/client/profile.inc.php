@@ -5,7 +5,7 @@
 </p>
 <form action="profile.php" method="post">
   <?php csrf_token(); ?>
-<table width="800" class="padded">
+<table class="padded">
 <?php
 foreach ($user->getForms() as $f) {
     $f->render(false);
@@ -21,7 +21,7 @@ if ($acct = $thisclient->getAccount()) {
     </td>
 </tr>
     <tr>
-        <td width="180">
+        <td class="text-nowrap">
             <?php echo __('Time Zone');?>:
         </td>
         <td>
@@ -38,7 +38,7 @@ if ($acct = $thisclient->getAccount()) {
         </td>
     </tr>
     <tr>
-        <td width="180">
+        <td class="text-nowrap">
             <?php echo __('Preferred Language'); ?>:
         </td>
         <td>
@@ -63,7 +63,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </tr>
 <?php if (!isset($_SESSION['_client']['reset-token'])) { ?>
 <tr>
-    <td width="180">
+    <td class="text-nowrap">
         <?php echo __('Current Password'); ?>:
     </td>
     <td>
@@ -73,7 +73,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </tr>
 <?php } ?>
 <tr>
-    <td width="180">
+    <td class="text-nowrap">
         <?php echo __('New Password'); ?>:
     </td>
     <td>
@@ -82,7 +82,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
     </td>
 </tr>
 <tr>
-    <td width="180">
+    <td class="text-nowrap">
         <?php echo __('Confirm New Password'); ?>:
     </td>
     <td>
@@ -95,16 +95,15 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </table>
 <hr>
 <p style="text-align: center;">
-    <input type="submit" value="Update"/>
-    <input type="reset" value="Reset"/>
-    <input type="button" value="Cancel" onclick="javascript:
+    <input type="submit" class="btn btn-success" value="Update"/>
+    <input type="reset" class="btn btn-warning" value="Reset"/>
+    <input type="button" class="btn btn-default" value="Cancel" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>
 <script type="text/javascript">
 $('#timezone-dropdown').chosen({
     header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    allow_single_deselect: true,
-    width: '350px'
+    allow_single_deselect: true
 });
 </script>
