@@ -2274,6 +2274,30 @@ class TextboxWidget extends Widget {
     }
 }
 
+
+class TextboxSelectionWidget extends TextboxWidget {
+    //TODO: Support multi-input e.g comma separated inputs
+    function render($options=array()) {
+
+        if ($this->value && is_array($this->value))
+            $this->value = current($this->value);
+
+        parent::render($options);
+    }
+
+    function getValue() {
+
+        $value = parent::getValue();
+        if (($i=$this->field->getList()->getItem((string) $value)))
+            $value = array($i->getId() => $i->getValue());
+        elseif (($choices=$this->field->getChoices())
+                && ($k=array_search($value, $choices)))
+            $value = array($k => $choices[$k]);
+
+        return $value;
+    }
+}
+
 class PasswordWidget extends TextboxWidget {
     static $input_type = 'password';
 
