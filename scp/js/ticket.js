@@ -64,7 +64,7 @@ var autoLock = {
             autoLock.renewLock(e);
         }
 
-        if(!autoLock.lasteventTime) { //I hate nav away warnings..but
+        if(autoLock.lockId && !autoLock.lasteventTime) { //I hate nav away warnings..but
             $(window).bind('beforeunload', function(e) {
                 return "Any changes or info you've entered will be discarded!";
              });
