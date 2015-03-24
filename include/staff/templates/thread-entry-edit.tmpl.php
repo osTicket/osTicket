@@ -9,20 +9,23 @@
     echo Format::htmlchars($this->entry->title); ?>"/>
 <hr style="height:0"/>
 <textarea style="display: block; width: 100%; height: auto; min-height: 150px;"
-<?php if ($this->entry->type == 'R') {
+<?php if ($poster && $this->entry->type == 'R') {
+    $signature_type = $poster->getDefaultSignatureType();
     $signature = '';
     if (($T = $this->entry->getThread()->getObject()) instanceof Ticket)
         $dept = $T->getDept();
-    switch ($thisstaff->getDefaultSignatureType()) {
+    switch ($poster->getDefaultSignatureType()) {
     case 'dept':
         if ($dept && $dept->canAppendSignature())
            $signature = $dept->getSignature();
        break;
     case 'mine':
-        $signature = $thisstaff->getSignature();
+        $signature = $poster->getSignature();
+        $signature_type = 'theirs';
         break;
     } ?>
     data-dept-id="<?php echo $dept->getId(); ?>"
+    data-poster-id="<?php echo $this->entry->staff_id; ?>"
     data-signature-field="signature"
     data-signature="<?php echo Format::viewableImages($signature); ?>"
 <?php } ?>
@@ -37,6 +40,14 @@
 <div style="margin:10px 0;"><strong><?php echo __('Signature'); ?>:</strong>
     <label><input type="radio" name="signature" value="none" checked="checked"> <?php echo __('None');?></label>
     <?php
+    if ($poster
+        && $poster->getId() != $thisstaff->getId()
+        && $poster->getSignature()
+    ) { ?>
+    <label><input type="radio" name="signature" value="theirs"
+        <?php echo ($info['signature']=='theirs')?'checked="checked"':''; ?>> <?php echo __('Their Signature');?></label>
+    <?php
+    }
     if ($thisstaff->getSignature()) {?>
     <label><input type="radio" name="signature" value="mine"
         <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My Signature');?></label>

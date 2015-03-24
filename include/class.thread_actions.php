@@ -61,7 +61,7 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
     function isVisible() {
         // Can't edit system posts
         return ($this->entry->staff_id || $this->entry->user_id)
-            && $this->entry->type != 'R';
+            && $this->entry->type != 'R' && $this->isEnabled();
     }
 
     function isEnabled() {
@@ -111,6 +111,8 @@ JS
 
     protected function trigger__get() {
         global $cfg, $thisstaff;
+
+        $poster = $this->entry->getStaff();
 
         include STAFFINC_DIR . 'templates/thread-entry-edit.tmpl.php';
     }
@@ -227,14 +229,15 @@ class TEA_OrigThreadEntry extends ThreadEntryAction {
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_OrigThreadEntry');
 
-class TEA_ResendThreadEntry extends TEA_EditThreadEntry {
-    static $id = 'resend';
+class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
+    static $id = 'edit_resend';
     static $name = /* trans */ 'Edit and Resend';
     static $icon = 'reply-all';
 
     function isVisible() {
         // Can only resend replies
-        return $this->entry->staff_id && $this->entry->type == 'R';
+        return $this->entry->staff_id && $this->entry->type == 'R'
+            && $this->isEnabled();
     }
 
     protected function trigger__post() {
@@ -260,9 +263,12 @@ class TEA_ResendThreadEntry extends TEA_EditThreadEntry {
         $ticket = $response->getThread()->getObject();
 
         $dept = $ticket->getDept();
+        $poster = $response->getStaff();
 
         if ($thisstaff && $vars['signature'] == 'mine')
             $signature = $thisstaff->getSignature();
+        elseif ($poster && $vars['signature'] == 'theirs')
+            $signature = $poster->getSignature();
         elseif ($vars['signature'] == 'dept' && $dept && $dept->isPublic())
             $signature = $dept->getSignature();
         else
@@ -289,6 +295,39 @@ class TEA_ResendThreadEntry extends TEA_EditThreadEntry {
         }
         // TODO: Add an option to the dialog
         $ticket->notifyCollaborators($response, array('signature' => $signature));
+    }
+}
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_EditAndResendThreadEntry');
+
+class TEA_ResendThreadEntry extends TEA_EditAndResendThreadEntry {
+    static $id = 'resend';
+    static $name = /* trans */ 'Resend';
+    static $icon = 'reply-all';
+
+    function isVisible() {
+        // Can only resend replies
+        return $this->entry->staff_id && $this->entry->type == 'R'
+            && !parent::isEnabled();
+    }
+    function isEnabled() {
+        return true;
+    }
+
+    protected function trigger__get() {
+        global $cfg, $thisstaff;
+
+        $poster = $this->entry->getStaff();
+
+        include STAFFINC_DIR . 'templates/thread-entry-resend.tmpl.php';
+    }
+
+    protected function trigger__post() {
+        $resend = @$_POST['commit'] == 'resend';
+
+        if (@$_POST['commit'] == 'resend')
+            $this->resend($this->entry);
+
+        Http::response('201', 'Okee dokey');
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_ResendThreadEntry');

@@ -200,6 +200,9 @@ RedactorPlugins.signature = function() {
             else
                 return inner.empty().parent().hide();
         }
+        else if (selected == 'theirs' && $el.data('posterId')) {
+            url += 'agent/' + $el.data('posterId');
+        }
         else if (type == 'none')
            return inner.empty().parent().hide();
         else
