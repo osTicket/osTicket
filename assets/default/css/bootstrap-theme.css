@@ -23,48 +23,52 @@ a.navbar-brand img {
 .navbar-toggle span {
   border: solid #222222 1px;
 }
-#nav li {
+.nav li {
   white-space: nowrap;
 }
-#nav li a.home:before,
-#nav li a.kb:before,
-#nav li a.new:before,
-#nav li a.status:before,
-#nav li a.tickets:before {
+.nav li a.home:before,
+.nav li a.kb:before,
+.nav li a.new:before,
+.nav li a.status:before,
+.nav li a.tickets:before,
+.nav li a.lock:before {
   content: "";
   display: block;
   width: 20px;
   height: 20px;
   float: left;
 }
-#nav li a.home:before {
+.nav li a.home:before {
   background: url('../images/icons/home.png') no-repeat;
 }
-#nav li a.kb:before {
+.nav li a.lock:before {
+  background: url('../images/icons/lock.png') no-repeat;
+}
+.nav li a.kb:before {
   background: url('../images/icons/kb.png') no-repeat;
 }
-#nav li a.new:before {
+.nav li a.new:before {
   background: url('../images/icons/new.png') no-repeat;
 }
-#nav li a.status:before {
+.nav li a.status:before {
   background: url('../images/icons/status.png') no-repeat;
 }
-#nav li a.tickets:before {
+.nav li a.tickets:before {
   background: url('../images/icons/tix.png') no-repeat;
 }
-#nav .dropdown-menu > li a.home,
-#nav .dropdown-menu > li a.kb,
-#nav .dropdown-menu > li a.new,
-#nav .dropdown-menu > li a.status,
-#nav .dropdown-menu > li a.tickets {
+.nav .dropdown-menu > li a.home,
+.nav .dropdown-menu > li a.kb,
+.nav .dropdown-menu > li a.new,
+.nav .dropdown-menu > li a.status,
+.nav .dropdown-menu > li a.tickets {
   padding-right: 40px;
 }
-#nav .flag {
+.nav .flag {
   display: inline-block;
   padding: 0;
   margin-left: 1em;
 }
-#nav .flag p {
+.nav .flag p {
   margin: -4px 0 0 0;
   padding-left: 2em;
 }
