@@ -79,6 +79,8 @@ h1 {
     height: auto;
     width: auto;
     vertical-align: middle;
+    outline: none;
+    border: none;
 }
 .valign-helper {
     height: 100%;
