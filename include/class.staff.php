@@ -147,7 +147,7 @@ implements AuthenticatedUser, EmailContact {
 
     function forcePasswdRest() {
         $this->change_passwd = 1;
-        return $this->update();
+        return $this->save();
     }
 
     /* check if passwd reset is due. */
