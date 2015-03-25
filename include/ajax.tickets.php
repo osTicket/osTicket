@@ -413,7 +413,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'No such ticket/user');
 
         $errors = array();
-        if($user->updateInfo($_POST, $errors))
+        if($user->updateInfo($_POST, $errors, true))
              Http::response(201, $user->to_json());
 
         $forms = $user->getForms();

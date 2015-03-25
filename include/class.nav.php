@@ -116,7 +116,7 @@ class StaffNav {
         if(!$this->tabs) {
             $this->tabs = array();
             $this->tabs['dashboard'] = array(
-                'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard')
+                'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax"
             );
             if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) {
                 $this->tabs['users'] = array(

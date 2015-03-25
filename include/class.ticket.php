@@ -1211,6 +1211,7 @@ implements RestrictedAccess, Threadable {
                 $sql.=', closed=NOW(), lastupdate=NOW(), duedate=NULL ';
                 if ($thisstaff && $set_closing_agent)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
+                $this->clearOverdue();
 
                 $ecb = function($t) {
                     $t->reload();
@@ -1475,15 +1476,24 @@ implements RestrictedAccess, Threadable {
             return;
 
         //Who posted the entry?
-        $uid = 0;
+        $skip = array();
         if ($entry instanceof Message) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
-            $uid = $entry->getUserId();
+            $skip[$entry->getUserId()] = 1;
+            // Skip all the other recipients of the message
+            foreach ($entry->getAllEmailRecipients() as $R) {
+                foreach ($recipients as $R2) {
+                    if ($R2->getEmail() == ($R->mailbox.'@'.$R->hostname)) {
+                        $skip[$R2->getUserId()] = true;
+                        break;
+                    }
+                }
+            }
         } else {
             $poster = $entry->getStaff();
             // Skip the ticket owner
-            $uid = $this->getUserId();
+            $skip[$this->getUserId()] = 1;
         }
 
         $vars = array_merge($vars, array(
@@ -1498,7 +1508,10 @@ implements RestrictedAccess, Threadable {
         $options = array('inreplyto' => $entry->getEmailMessageId(),
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
-            if ($uid == $recipient->getUserId()) continue;
+            // Skip folks who have already been included on this part of
+            // the conversation
+            if (isset($skip[$recipient->getUserId()]))
+                continue;
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
@@ -2091,8 +2104,7 @@ implements RestrictedAccess, Threadable {
                 $recipients[]=$this->getLastRespondent();
 
             //Assigned staff if any...could be the last respondent
-
-            if ($this->isAssigned()) {
+            if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
                 if ($staff = $this->getStaff())
                     $recipients[] = $staff;
                 elseif ($team = $this->getTeam())
@@ -2195,6 +2207,9 @@ implements RestrictedAccess, Threadable {
 
         if(!$vars['staffId'] && $thisstaff)
             $vars['staffId'] = $thisstaff->getId();
+
+        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
         if(!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
@@ -2319,6 +2334,8 @@ implements RestrictedAccess, Threadable {
         elseif (!isset($vars['poster'])) {
             $vars['poster'] = 'SYSTEM';
         }
+        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
         if(!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
@@ -2449,6 +2466,11 @@ implements RestrictedAccess, Threadable {
             $form->delete();
 
         $this->deleteDrafts();
+
+        $sql = 'DELETE FROM '.TICKET_TABLE.'__cdata WHERE `ticket_id`='
+            .db_input($this->getId());
+        // If the CDATA table doesn't exist, that's not an error
+        db_query($sql, false);
 
         // Log delete
         $log = sprintf(__('Ticket #%1$s deleted by %2$s'),
@@ -2778,7 +2800,7 @@ implements RestrictedAccess, Threadable {
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
-            return self::filterTicketData($origin, $vars, $forms);
+            return self::filterTicketData($origin, $ex->getData(), $forms);
         }
         return $vars;
     }

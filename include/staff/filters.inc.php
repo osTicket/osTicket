@@ -49,7 +49,7 @@ else
  <h2><?php echo __('Ticket Filters');?></h2>
 </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
- <b><a href="filters.php?a=add" class="Icon newEmailFilter"><?php echo __('Add New Filter');?></a></b></div>
+ <b><a href="filters.php?a=add" class="Icon newTicketFilter"><?php echo __('Add New Filter');?></a></b></div>
 <div class="clear"></div>
 <form action="filters.php" method="POST" name="filters">
  <?php csrf_token(); ?>

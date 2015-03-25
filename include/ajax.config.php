@@ -21,7 +21,7 @@ class ConfigAjaxAPI extends AjaxController {
 
     //config info UI might need.
     function scp() {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         $lang = Internationalization::getCurrentLanguage();
         $info = Internationalization::getLanguageInfo($lang);
@@ -48,6 +48,7 @@ class ConfigAjaxAPI extends AjaxController {
               'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
               'primary_language' => $primary,
               'secondary_languages' => $cfg->getSecondaryLanguages(),
+              'page_size'       => $thisstaff->getPageLimit(),
         );
         return $this->json_encode($config);
     }

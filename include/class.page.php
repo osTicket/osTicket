@@ -242,7 +242,7 @@ class Page extends VerySimpleModel {
         }
     }
 
-    function update($vars, &$errors) {
+    function update($vars, &$errors, $allowempty=false) {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
@@ -264,7 +264,7 @@ class Page extends VerySimpleModel {
         elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$this->getId())
             $errors['name'] = __('Name already exists');
 
-        if(!$vars['body'])
+        if(!$vars['body'] && !$allowempty)
             $errors['body'] = __('Page body is required');
 
         if($errors) return false;

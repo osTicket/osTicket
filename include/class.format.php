@@ -690,7 +690,7 @@ class Format {
         // Drop leading and trailing whitespace
         $text = trim($text);
 
-        if (class_exists('IntlBreakIterator')) {
+        if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
                     $lang ?: ($cfg ? $cfg->getPrimaryLanguage() : 'en_US'))

@@ -189,11 +189,15 @@ class FA_UseReplyTo extends TriggerAction {
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
-        if ($config['enable'] && $info['reply-to']) {
+        $changed = $info['reply-to'] != $ticket['email']
+            || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
+        if ($info['reply-to']) {
             $ticket['email'] = $info['reply-to'];
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
         }
+        if ($changed)
+            throw new FilterDataChanged($ticket);
     }
 
     function getConfigurationOptions() {

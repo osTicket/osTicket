@@ -11,6 +11,7 @@ class mysqli {
     function select_db() {}
     function set_charset() {}
     function autocommit() {}
+    function rollback() {}
 }
 
 class mysqli_stmt {
@@ -122,6 +123,7 @@ class IntlBreakIterator {
 
 class SqlFunction {
     static function NOW() {}
+    static function COALESCE() {}
 }
 
 class SqlExpression {

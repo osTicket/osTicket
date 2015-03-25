@@ -329,7 +329,8 @@
       globalProgressUpdated: empty,
       speedUpdated: empty
       },
-      errors = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"];
+      errors = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"],
+      Blob = window.WebKitBlob || window.MozBlob || window.Blob;
 
   $.fn.filedrop = function(options) {
     var opts = $.extend({}, default_opts, options),
@@ -379,8 +380,7 @@
       var dashdash = '--',
           crlf = '\r\n',
           builder = [],
-          paramname = opts.paramname,
-          Blob = window.WebKitBlob || window.Blob;
+          paramname = opts.paramname;
 
       if (opts.data) {
         var params = $.param(opts.data).replace(/\+/g, '%20').split(/&/);
@@ -473,6 +473,10 @@
       stop_loop = false;
 
       if (!files) {
+        opts.error(errors[0]);
+        return false;
+      }
+      if (typeof Blob === "undefined") {
         opts.error(errors[0]);
         return false;
       }

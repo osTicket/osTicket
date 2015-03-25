@@ -2,6 +2,11 @@
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 
+<?php if ($errors['err']) { ?>
+<div class="error-banner">
+    <?php echo $errors['err']; ?>
+</div>
+<?php } ?>
 <form method="post" action="#content/<?php echo $content->getId(); ?>"
         style="clear:none">
 <?php
@@ -20,29 +25,32 @@ if (count($langs) > 1) { ?>
 } ?>
     <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>"
         class="tab_content left-tabs" style="padding:0" lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
+    <div class="error"><?php echo $errors['name']; ?></div>
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
-        echo Format::htmlchars($content->getName()); ?>" />
+        echo Format::htmlchars($info['title']); ?>" />
     <div style="margin-top: 5px">
+    <div class="error"><?php echo $errors['body']; ?></div>
     <textarea class="richtext no-bar" name="body"><?php
-    echo Format::htmlchars(Format::viewableImages($content->getBody()));
+    echo Format::htmlchars(Format::viewableImages($info['body']));
 ?></textarea>
     </div>
     </div>
 
 <?php foreach ($langs as $tag=>$nfo) {
         if ($tag == $cfg->getPrimaryLanguage())
-            continue; ?>
+            continue;
+        $trans = $info['trans'][$tag]; ?>
     <div id="translation-<?php echo $tag; ?>" class="tab_content left-tabs"
         style="display:none;padding:0" dir="<?php echo $nfo['direction']; ?>" lang="<?php echo $tag; ?>">
     <input type="text" style="width: 100%; font-size: 14pt"
         name="trans[<?php echo $tag; ?>][title]" value="<?php
-        echo Format::htmlchars($info['title'][$tag]); ?>"
+        echo Format::htmlchars($trans['title']); ?>"
         placeholder="<?php echo __('Title'); ?>" />
     <div style="margin-top: 5px">
     <textarea class="richtext no-bar" data-direction=<?php echo $nfo['direction']; ?>
         placeholder="<?php echo __('Message content'); ?>"
         name="trans[<?php echo $tag; ?>][body]"><?php
-    echo Format::htmlchars(Format::viewableImages($info['body'][$tag]));
+    echo Format::htmlchars(Format::viewableImages($trans['body']));
 ?></textarea>
     </div>
     </div>

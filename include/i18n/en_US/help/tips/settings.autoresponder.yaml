@@ -58,4 +58,4 @@ overlimit_notice:
         href: /scp/templates.php?default_for=ticket.overlimit
 
       - title: Set <em>Maximum Open Tickets</em>
-        href: /scp/settings?t=tickets
+        href: /scp/settings.php?t=tickets

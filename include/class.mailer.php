@@ -349,6 +349,7 @@ class Mailer {
         }
 
         // Make the best effort to add In-Reply-To and References headers
+        $reply_tag = $mid_token = '';
         if (isset($options['thread'])
             && $options['thread'] instanceof ThreadEntry
         ) {
@@ -367,6 +368,12 @@ class Mailer {
                     'References' => $parent->getEmailReferences(),
                 );
             }
+
+            // Configure the reply tag and embedded message id token
+            $mid_token = $options['thread']->asMessageId($to);
+            if ($cfg && $cfg->stripQuotedReply()
+                    && (!isset($options['reply-tag']) || $options['reply-tag']))
+                $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
         }
 
         // Use Mail_mime default initially
@@ -395,13 +402,12 @@ class Mailer {
         // body
         $isHtml = true;
         if (!(isset($options['text']) && $options['text'])) {
-            $tag = '';
-            if ($cfg && $cfg->stripQuotedReply()
-                    && (!isset($options['reply-tag']) || $options['reply-tag']))
-                $tag = '<div>'.$cfg->getReplySeparator() . '<br/><br/></div>';
             // Embed the data-mid in such a way that it should be included
             // in a response
-            $message = "<div data-mid=\"$messageId\">{$tag}{$message}</div>";
+            if ($reply_tag || $mid_token) {
+                $message = "<div style=\"display:none\"
+                    data-mid=\"$mid_token\">$reply_tag</div>$message";
+            }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($messageId ? "\nRef-Mid: $messageId\n" : '');
             $mime->setTXTBody($txtbody);

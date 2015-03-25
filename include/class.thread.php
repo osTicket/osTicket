@@ -234,7 +234,13 @@ class Thread extends VerySimpleModel {
             //XXX: Are we potentially leaking the email address to
             // collaborators?
             // Try not to destroy the format of the body
-            $body->prepend(sprintf('Received From: %s', $mailinfo['email']));
+            $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
+                $mailinfo['email']);
+            if ($body instanceof HtmlThreadBody)
+                $header = nl2br(Format::htmlchars($header));
+            // Add the banner to the top of the message
+            if ($body instanceof ThreadBody)
+                $body->prepend($header);
             $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             $vars['origin'] = 'Email';
@@ -508,6 +514,33 @@ class ThreadEntry extends VerySimpleModel {
         if ($include_mid && ($mid = $this->getEmailMessageId()))
             $references .= $mid;
         return $references;
+    }
+
+    /**
+     * Retrieve a list of all the recients of this message if the message
+     * was received via email.
+     *
+     * Returns:
+     * (array<RFC_822>) list of recipients parsed with the Mail/RFC822
+     * address parsing utility. Returns an empty array if the message was
+     * not received via email.
+     */
+    function getAllEmailRecipients() {
+        $headers = self::getEmailHeaderArray();
+        $recipients = array();
+        if (!$headers)
+            return $recipients;
+
+        foreach (array('To', 'Cc') as $H) {
+            if (!isset($headers[$H]))
+                continue;
+
+            if (!($all = Mail_Parse::parseAddressList($headers[$H])))
+                continue;
+
+            $recipients = array_merge($recipients, $all);
+        }
+        return $recipients;
     }
 
     function getUIDFromEmailReference($ref) {
@@ -979,7 +1012,7 @@ class ThreadEntry extends VerySimpleModel {
             return false;
 
         // Compute the value to be compared from $mails (which used to be in
-        // ThreadEntry::asMessageId()
+        // ThreadEntry::asMessageId() (#nolint)
         $domain = md5($ost->getConfig()->getURL());
         $ticket = $entry->getThread()->getObject();
         if (!$ticket instanceof Ticket)
@@ -1278,6 +1311,14 @@ class ThreadEntryBody /* extends SplString */ {
 
     function toHtml() {
         return $this->display('html');
+    }
+
+    function prepend($what) {
+        $this->body = $what . $this->body;
+    }
+
+    function append($what) {
+        $this->body .= $what;
     }
 
     function asVar() {

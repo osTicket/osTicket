@@ -89,7 +89,7 @@ if($_POST){
                         ));
                         if ($num > 0) {
                             if($num==$count)
-                                $msg = sprintf(__('Successfully diabled %s'),
+                                $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected help topic', 'selected help topics', $count));
                             else
                                 $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
@@ -106,7 +106,7 @@ if($_POST){
 
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s'),
-                                _N('selected help topic', 'selected elp topics', $count));
+                                _N('selected help topic', 'selected help topics', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected help topic', 'selected help topics', $count));

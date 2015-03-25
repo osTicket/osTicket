@@ -12,6 +12,7 @@ class FileManager extends Module {
                 'list' => 'List files matching criteria',
                 'export' => 'Export files from the system',
                 'import' => 'Load files exported via `export`',
+                'zip' => 'Create a zip file of the matching files',
                 'dump' => 'Dump file content to stdout',
                 'load' => 'Load file contents from stdin',
                 'migrate' => 'Migrate a file to another backend',
@@ -176,11 +177,224 @@ class FileManager extends Module {
             $this->stdout->write("Migrated $count files\n");
             break;
 
+        /**
+         * export
+         *
+         * Export file contents to a stream file. The format of the stream
+         * will be a continuous stream of file information in the following
+         * format:
+         *
+         * AFIL<meta-length><data-length><meta><data>EOF\x1c
+         *
+         * Where
+         *   A              is the version code of the export
+         *   "FIL"          is the literal text 'FIL'
+         *   meta-length    is 'V' packed header length (bytes)
+         *   data-length    is 'V' packed data length (bytes)
+         *   meta           is the %file record, php serialized
+         *   data           is the raw content of the file
+         *   "EOF"          is the literal text 'EOF'
+         *   \x1c           is an ASCII 0x1c byte (file separator)
+         *
+         * Options:
+         * --file       File to which to direct the stream output, default
+         *              is stdout
+         */
         case 'export':
-            // Create a temporary ZIP file
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
 
+            if (!$options['file'] || $options['file'] == '-')
+                $options['file'] = 'php://stdout';
+
+            if (!($stream = fopen($options['file'], 'wb')))
+                $this->fail($options['file'].': Unable to open file for export stream');
+
+            foreach ($files as $m) {
+                $f = AttachmentFile::lookup($m->id);
+                if ($options['verbose'])
+                    $this->stderr->write($m->name."\n");
+
+                // TODO: Log %attachment and %ticket_attachment entries
+                $info = array('file' => $f->getInfo());
+                $header = serialize($info);
+                fwrite($stream, 'AFIL'.pack('VV', strlen($header), $f->getSize()));
+                fwrite($stream, $header);
+                $FS = $f->open();
+                while ($block = $FS->read())
+                    fwrite($stream, $block);
+                fwrite($stream, "EOF\x1c");
+            }
+            fclose($stream);
+            break;
+
+        /**
+         * import
+         *
+         * Import a collection of file contents exported by the `export`.
+         * See the export function above for details about the stream
+         * format.
+         *
+         * Options:
+         * --file       File from which to read the export stream, default
+         *              is stdin
+         * --to         Backend to receive the contents (@see `backends`)
+         * --verbose    Show file names while importing
+         */
+        case 'import':
+            if (!$options['file'] || $options['file'] == '-')
+                $options['file'] = 'php://stdin';
+
+            if (!($stream = fopen($options['file'], 'rb')))
+                $this->fail($options['file'].': Unable to open import stream');
+
+            while (true) {
+                // Read the file header
+                // struct file_data_header {
+                //   char[4] marker; // Four chars, 'AFIL'
+                //   int     lenMeta;
+                //   int     lenData;
+                // };
+                if (!($header = fread($stream, 12)))
+                    break; // EOF
+
+                list(, $mark, $hlen, $dlen) = unpack('V3', $header);
+
+                // AFIL written as little-endian 4-byte int is 0x4c4946xx (LIFA),
+                // where 'A' is the version code of the export
+                $version = $mark & 0xff;
+                if (($mark >> 8) != 0x4c4946)
+                    $this->fail('Bad file record');
+
+                // Read the header
+                $header = fread($stream, $hlen);
+                if (strlen($header) != $hlen)
+                    $this->fail('Short read getting header info');
+
+                $header = unserialize($header);
+                if (!$header)
+                    $this->fail('Unable to decipher file header');
+
+                // Find or create the file record
+                $finfo = $header['file'];
+                // TODO: Consider the $version code
+                $f = AttachmentFile::lookup($finfo['id']);
+                if ($f) {
+                    // Verify file information
+                    if ($f->getSize() != $finfo['size']
+                        || $f->getSignature() != $finfo['signature']
+                    ) {
+                        $this->fail(sprintf(
+                            '%s: File data does not match existing file record',
+                            $finfo['name']
+                        ));
+                    }
+                    // Drop existing file contents, if any
+                    try {
+                        if ($bk = $f->open())
+                            $bk->unlink();
+                    }
+                    catch (Exception $e) {}
+                }
+                // Create a new file
+                else {
+                    $fm = FileModel::create($finfo);
+                    if (!$fm->save() || !($f = AttachmentFile::lookup($fm->id))) {
+                        $this->fail(sprintf(
+                            '%s: Unable to create new file record',
+                            $finfo['name']));
+                    }
+                }
+
+                // Determine the backend to recieve the file contents
+                if ($options['to']) {
+                    $bk = FileStorageBackend::lookup($options['to'], $f);
+                }
+                // Use the system default
+                else {
+                    $bk = AttachmentFile::getBackendForFile($f);
+                }
+
+                if ($options['verbose'])
+                    $this->stdout->write('Importing '.$f->getName()."\n");
+
+                // Write file contents to the backend
+                $md5 = hash_init('md5');
+                $sha1 = hash_init('sha1');
+                $written = 0;
+
+                // Handle exceptions by dropping imported file contents and
+                // then returning the error to the error output stream.
+                try {
+                    while ($dlen > 0) {
+                        $read_size = min($dlen, $bk->getBlockSize());
+                        $contents = '';
+                        // reading from the stream will likely return an amount of
+                        // data different from the backend requested block size. Loop
+                        // until $read_size bytes are recieved.
+                        while ($read_size > 0 && ($block = fread($stream, $read_size))) {
+                            $contents .= $block;
+                            $read_size -= strlen($block);
+                        }
+                        if ($read_size != 0) {
+                            // short read
+                            throw new Exception(sprintf(
+                                '%s: Some contents are missing from the stream',
+                                $f->getName()
+                            ));
+                        }
+                        // Calculate MD5 and SHA1 hashes of the file to verify
+                        // contents after successfully written to backend
+                        if (!$bk->write($contents))
+                            throw new Exception(
+                                'Unable to send file contents to backend');
+                        hash_update($md5, $contents);
+                        hash_update($sha1, $contents);
+                        $dlen -= strlen($contents);
+                        $written += strlen($contents);
+                    }
+                    // Some backends cannot handle flush() without a
+                    // corresponding write() call.
+                    if ($written && !$bk->flush())
+                        throw new Exception(
+                            'Unable to commit file contents to backend');
+
+                    // Check the signature hash
+                    if ($finfo['signature']) {
+                        $md5 = base64_encode(hash_final($md5, true));
+                        $sha1 = base64_encode(hash_final($sha1, true));
+                        $sig = str_replace(
+                            array('=','+','/'),
+                            array('','-','_'),
+                            substr($sha1, 0, 16) . substr($md5, 0, 16));
+                        if ($sig != $finfo['signature']) {
+                            throw new Exception(sprintf(
+                                '%s: Signature verification failed',
+                                $f->getName()
+                            ));
+                        }
+                    }
+                } // end try
+                catch (Exception $ex) {
+                    if ($bk) $bk->unlink();
+                    $this->fail($ex->getMessage());
+                }
+
+                // Read file record footer
+                $footer = fread($stream, 4);
+                if (strlen($footer) != 4)
+                    $this->fail('Unable to read file EOF marker');
+                list(, $footer) = unpack('N', $footer);
+                // Footer should be EOF\x1c as an int
+                if ($footer != 0x454f461c)
+                    $this->fail('Incorrect file EOF marker');
+            }
+            break;
+
+        case 'zip':
+            // Create a temporary ZIP file
+            $files = FileModel::objects();
+            $this->_applyCriteria($options, $files);
             if (!$options['file'])
                 $this->fail('Please specify zip file with `-f`');
 
@@ -189,30 +403,33 @@ class FileManager extends Module {
                     ZipArchive::CREATE)))
                 $this->fail($reason.': Unable to create zip file');
 
-            $manifest = array();
             foreach ($files as $m) {
                 $f = AttachmentFile::lookup($m->id);
-                $zip->addFromString($f->getId(), $f->getData());
-                $zip->setCommentName($f->getId(), $f->getName());
-                // TODO: Log %attachment and %ticket_attachment entries
-                $info = array('file' => $f->getInfo());
-                foreach ($m->tickets as $t)
-                    $info['tickets'][] = $t->ht;
-
-                $manifest[$f->getId()] = $info;
+                if ($options['verbose'])
+                    $this->stderr->write($m->name."\n");
+                $name = Format::encode(sprintf(
+                    '%d-%s', $f->getId(), $f->getName()
+                    ), 'utf-8', 'cp437');
+                $zip->addFromString($name, $f->getData());
             }
-            $zip->addFromString('MANIFEST', serialize($manifest));
             $zip->close();
             break;
 
         case 'expunge':
-            // Create a temporary ZIP file
             $files = FileModel::objects();
             $this->_applyCriteria($options, $files);
 
-            foreach ($files as $f) {
-                $f->tickets->expunge();
-                $f->unlink() && $f->delete();
+            foreach ($files as $m) {
+                // Drop associated attachment links
+                $m->tickets->expunge();
+                $f = AttachmentFile::lookup($m->id);
+
+                // Drop file contents
+                if ($bk = $f->open())
+                    $bk->unlink();
+
+                // Drop file record
+                $f->delete();
             }
         }
     }

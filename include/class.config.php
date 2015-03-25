@@ -202,6 +202,13 @@ class OsticketConfig extends Config {
     }
 
     function isKnowledgebaseEnabled() {
+        global $thisclient;
+
+        if ($this->get('restrict_kb', false)
+            && (!$thisclient || $thisclient->isGuest())
+        ) {
+            return false;
+        }
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
@@ -1168,11 +1175,16 @@ class OsticketConfig extends Config {
 
     function updateKBSettings($vars, &$errors) {
 
-        if($errors) return false;
+        if ($vars['restrict_kb'] && !$this->isClientRegistrationEnabled())
+            $errors['restrict_kb'] =
+                __('The knowledge base cannot be restricted unless client registration is enabled');
+
+        if ($errors) return false;
 
         return $this->updateAll(array(
             'enable_kb'=>isset($vars['enable_kb'])?1:0,
-               'enable_premade'=>isset($vars['enable_premade'])?1:0,
+            'restrict_kb'=>isset($vars['restrict_kb'])?1:0,
+            'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
 

@@ -438,7 +438,7 @@ class Filter {
 
                 else //for everything-else...we assume it's valid.
                     $rules[]=array('what'=>$vars["rule_w$i"],
-                        'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
+                        'how'=>$vars["rule_h$i"],'val'=>trim($vars["rule_v$i"]));
             }elseif($vars["rule_v$i"]) {
                 $errors["rule_$i"]=__('Incomplete selection');
             }
@@ -919,7 +919,18 @@ class RejectedException extends Exception {
     }
 }
 
-class FilterDataChanged extends Exception {}
+class FilterDataChanged extends Exception {
+    var $data;
+
+    function __construct($data) {
+         parent::__construct('Ticket filter data changed');
+         $this->data = $data;
+    }
+
+    function getData() {
+        return $this->data;
+    }
+}
 
 /**
  * Function: endsWith

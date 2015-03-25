@@ -110,10 +110,12 @@ if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
                             if ($org)
                                 echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
                                         $user->getId(), $org->getName());
-                            elseif ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
-                                <a href="#users/<?php echo $user->getId(); ?>/org"
-                                class="user-action"><?php echo __('Add Organization'); ?></a>
-<?php                       }
+                            elseif ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) {
+                                echo sprintf(
+                                    '<a href="#users/%d/org" class="user-action">%s</a>',
+                                    $user->getId(),
+                                    __('Add Organization'));
+                            }
                         ?>
                         </span>
                     </td>
