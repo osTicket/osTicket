@@ -245,13 +245,12 @@ class OsticketConfig extends Config {
         return md5(self::getDBVersion());
     }
 
-    function getDBTZoffset() {
-        if (!$this->exists('db_tz_offset')) {
-            $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
-            if(($res=db_query($sql)) && db_num_rows($res))
-                $this->persist('db_tz_offset', db_result($res));
+    function getDBTimezone() {
+        if (!$this->exists('db_timezone')) {
+            require_once INCLUDE_DIR . 'class.timezone.php';
+            $this->persist('db_timezone', DbTimezone::determine());
         }
-        return $this->get('db_tz_offset');
+        return $this->get('db_timezone');
     }
 
     function getDefaultTimezone() {
@@ -263,8 +262,8 @@ class OsticketConfig extends Config {
 
         $user = $user ?: $thisstaff;
 
-        if (!$user && $thisclient)
-            $user = $thisclient->getAccount();
+        if (!$user && $thisclient && is_callable(array($thisclient, 'getTimezone')))
+            $user = $thisclient;
 
         if ($user)
             $zone = $user->getTimezone();
