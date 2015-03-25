@@ -326,24 +326,12 @@ class Mailer {
                 $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
         }
 
-        // Use Mail_mime default initially
-        $eol = null;
+        // Use general failsafe default initially
+        $eol = "\n";
 
         // MAIL_EOL setting can be defined in `ost-config.php`
         if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
             $eol = MAIL_EOL;
-        }
-        // The Suhosin patch will muck up the line endings in some
-        // cases
-        //
-        // References:
-        // https://github.com/osTicket/osTicket-1.8/issues/202
-        // http://pear.php.net/bugs/bug.php?id=12032
-        // http://us2.php.net/manual/en/function.mail.php#97680
-        elseif ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
-            && !$this->getSMTPInfo()
-        ) {
-            $eol = "\n";
         }
         $mime = new Mail_mime($eol);
 
