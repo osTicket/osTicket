@@ -9,21 +9,27 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
              title="Reload"><i class="icon-refresh"></i> <?php echo $org->getName(); ?></a></h2>
         </td>
         <td width="50%" class="right_align has_bottom_border">
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_EDIT)) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
                 <span ><i class="icon-cog"></i> <?php echo __('More'); ?></span>
             </span>
+<?php } ?>
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
             <a id="org-delete" class="action-button pull-right org-action"
             href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete Organization'); ?></a>
+<?php } ?>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_EDIT)) { ?>
                 <li><a href="#ajax.php/orgs/<?php echo $org->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
+<?php } ?>
               </ul>
             </div>
         </td>
@@ -35,11 +41,17 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="150"><?php echo __('Name'); ?>:</th>
-                    <td><b><a href="#orgs/<?php echo $org->getId();
+                    <td>
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_EDIT)) { ?>
+                    <b><a href="#orgs/<?php echo $org->getId();
                     ?>/edit" class="org-action"><i
-                    class="icon-edit"></i>&nbsp;<?php echo
-                    $org->getName();
-                    ?></a></td>
+                        class="icon-edit"></i>
+<?php }
+                    echo $org->getName();
+    if ($thisstaff->getRole()->hasPerm(Organization::PERM_EDIT)) { ?>
+                    </a></b>
+<?php } ?>
+                    </td>
                 </tr>
                 <tr>
                     <th><?php echo __('Account Manager'); ?>:</th>

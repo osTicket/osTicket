@@ -2790,7 +2790,7 @@ implements RestrictedAccess, Threadable {
      */
     static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
-        global $ost, $cfg, $thisclient, $_FILES;
+        global $ost, $cfg, $thisclient, $thisstaff;
 
         // Don't enforce form validation for email
         $field_filter = function($type) use ($origin) {
@@ -2958,9 +2958,14 @@ implements RestrictedAccess, Threadable {
                 }
 
                 $user_form = UserForm::getUserForm()->getForm($vars);
+                $can_create = $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
                 if (!$user_form->isValid($field_filter('user'))
-                        || !($user=User::fromVars($user_form->getClean())))
-                    $errors['user'] = __('Incomplete client information');
+                    || !($user=User::fromVars($user_form->getClean(), $can_create))
+                ) {
+                    $errors['user'] = $can_create
+                        ? __('Incomplete client information')
+                        : __('You do not have permission to create users.');
+                }
             }
         }
 

@@ -30,6 +30,16 @@ abstract class SearchBackend {
     const SORT_RECENT = 2;
     const SORT_OLDEST = 3;
 
+    const PERM_EVERYTHING = 'search.all';
+
+    static protected $perms = array(
+        self::PERM_EVERYTHING => array(
+            'title' => /* @trans */ 'Search',
+            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access',
+            'primary' => true,
+        ),
+    );
+
     abstract function update($model, $id, $content, $new=false, $attrs=array());
     abstract function find($query, QuerySet $criteria);
 
@@ -48,7 +58,12 @@ abstract class SearchBackend {
 
         return new self::$registry[$id]();
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', SearchBackend::getPermissions());
 
 // Register signals to intercept saving of various content throughout the
 // system
@@ -289,7 +304,7 @@ class MysqlSearchBackend extends SearchBackend {
             $key = 'COALESCE(Z1.ticket_id, Z2.ticket_id)';
             $criteria->extra(array(
                 'select' => array(
-                    'key' => $key,
+                    'ticket_id' => $key,
                     'relevance'=>'`search`.`relevance`',
                 ),
                 'order_by' => array(new SqlCode('`relevance`')),
@@ -687,6 +702,7 @@ class SavedSearch extends VerySimpleModel {
     function mangleQuerySet(QuerySet $qs, $form=false) {
         $form = $form ?: $this->getForm();
         $searchable = $this->getCurrentSearchFields($form->getSource());
+        $qs = clone $qs;
 
         // Figure out fields to search on
         foreach ($form->getFields() as $f) {

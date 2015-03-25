@@ -53,9 +53,9 @@ class FAQ extends VerySimpleModel {
                 'title' =>
                 /* @trans */ 'FAQ',
                 'desc'  =>
-                /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs'),
-            );
-
+                /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs',
+                'primary' => true,
+            ));
 
     var $attachments;
     var $topics;

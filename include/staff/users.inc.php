@@ -71,12 +71,14 @@ $users->order_by($order . $order_column);
         </table>
     </form>
  </div>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE)) { ?>
  <div class="pull-right flush-right" style="padding-right:5px;">
     <b><a href="#users/add" class="Icon newstaff popup-dialog"><?php echo __('Add User'); ?></a></b>
     |
     <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i>
     <?php echo __('Import'); ?></a></b>
 </div>
+<?php } ?>
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';

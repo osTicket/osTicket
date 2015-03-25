@@ -4,9 +4,11 @@
 <hr/>
 <?php
 if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
-<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(
-'Search existing users or add a new user.'
-); ?></p></div>
+<div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo
+    $thisstaff->getRole()->hasPerm(User::PERM_CREATE)
+    ? __('Search existing users or add a new user.')
+    : __('Search existing users.');
+?></p></div>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
     placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
@@ -26,10 +28,12 @@ if ($info['error']) {
 <form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup'; ?>">
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
     <i class="icon-user icon-4x pull-left icon-border"></i>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE)) { ?>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i>
         <?php echo __('Add New User'); ?></a>
-<?php if ($user) { ?>
+<?php }
+if ($user) { ?>
     <div><strong id="user-name"><?php echo Format::htmlchars($user->getName()->getOriginal()); ?></strong></div>
     <div>&lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;</div>
     <?php
@@ -65,6 +69,7 @@ if ($info['error']) {
 </form>
 </div>
 <div id="new-user-form" style="display:<?php echo $user ? 'none' :'block'; ?>;">
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE)) { ?>
 <form method="post" class="user" action="<?php echo $info['action'] ?: '#users/lookup/form'; ?>">
     <table width="100%" class="fixed">
     <?php
@@ -82,6 +87,15 @@ if ($info['error']) {
         </span>
      </p>
 </form>
+<?php }
+else { ?>
+    <hr/>
+    <p class="full-width">
+        <span class="buttons pull-left">
+            <input type="button" name="cancel" class="<?php echo $user ?  'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
+        </span>
+     </p>
+<?php } ?>
 </div>
 <div class="clear"></div>
 </div>

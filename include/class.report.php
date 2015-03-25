@@ -9,8 +9,9 @@ class ReportModel {
                 'title' =>
                 /* @trans */ 'Stats',
                 'desc'  =>
-                /* @trans */ 'Ability to view stats of other agents in allowed departments'),
-            );
+                /* @trans */ 'Ability to view stats of other agents in allowed departments',
+                'primary' => true,
+            ));
 
     static function getPermissions() {
         return self::$perms;

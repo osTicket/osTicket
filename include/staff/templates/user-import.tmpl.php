@@ -22,12 +22,6 @@ if ($info['error']) {
         $(this).attr('action', '<?php echo $info['upload_url']; ?>');
         $(document).unbind('submit.dialog');
     }">
-<ul class="tabs">
-    <li class="active"><a href="#copy-paste"
-        ><i class="icon-edit"></i>&nbsp;<?php echo __('Copy Paste'); ?></a></li>
-    <li><a href="#upload"
-        ><i class="icon-fixed-width icon-cloud-upload"></i>&nbsp;<?php echo __('Upload'); ?></a></li>
-</ul>
 <?php echo csrf_token();
 if ($org_id) { ?>
     <input type="hidden" name="id" value="<?php echo $org_id; ?>"/>

@@ -728,8 +728,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
-    function order_by() {
-        $this->ordering = array_merge($this->ordering, func_get_args());
+    function order_by($order) {
+        $this->ordering = array_merge($this->ordering,
+            is_array($order) ?  $order : func_get_args());
         return $this;
     }
     function getSortFields() {
@@ -754,6 +755,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function isWindowed() {
+        return $this->limit || $this->offset;
+    }
+
     function select_related() {
         $this->related = array_merge($this->related, func_get_args());
         return $this;
@@ -769,6 +774,12 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function distinct() {
         foreach (func_get_args() as $D)
             $this->distinct[] = $D;
+        return $this;
+    }
+
+    function models() {
+        $this->iterator = 'ModelInstanceManager';
+        $this->values = $this->related = array();
         return $this;
     }
 
@@ -943,6 +954,30 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         $this->query = $compiler->compileSelect($query);
 
         return $this->query;
+    }
+
+    /**
+     * Fetch a model class which can be used to render the QuerySet as a
+     * subquery to be used as a JOIN.
+     */
+    function asView() {
+        $unique = spl_object_hash($this);
+        $classname = "QueryView{$unique}";
+        $class = <<<EOF
+class {$classname} extends VerySimpleModel {
+    static \$meta = array(
+        'view' => true,
+    );
+    static \$queryset;
+
+    static function getQuery(\$compiler) {
+        return ' ('.static::\$queryset->getQuery().') ';
+    }
+}
+EOF;
+        eval($class); // Ugh
+        $classname::$queryset = $this;
+        return $classname;
     }
 
     function serialize() {
@@ -1681,6 +1716,15 @@ class MySqlCompiler extends SqlCompiler {
             $vals = array_map(array($this, 'input'), $b);
             $b = implode(', ', $vals);
         }
+        // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
+        // the query as a JOIN and add the join constraint into the WHERE
+        // clause.
+        elseif ($b instanceof QuerySet && $b->isWindowed()) {
+            $f1 = $b->values[0];
+            $view = $b->asView();
+            $alias = $this->pushJoin($view, $a, $view, array('constraint'=>array()));
+            return sprintf('%s = %s.%s', $a, $alias, $this->quote($f1));
+        }
         else {
             $b = $this->input($b);
         }
@@ -1744,12 +1788,17 @@ class MySqlCompiler extends SqlCompiler {
         if ($extra instanceof Q) {
             $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
         }
+        if (!isset($rmodel))
+            $rmodel = $model;
         // Support inline views
         $table = ($rmodel::$meta['view'])
+            // XXX: Support parameters from the nested query
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::$meta['table']);
-        return $join.$table
-            .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
+        $base = "$join$table $alias";
+        if ($constraints)
+            $base .= ' ON ('.implode(' AND ', $constraints).')';
+        return $base;
     }
 
     /**
@@ -1820,7 +1869,7 @@ class MySqlCompiler extends SqlCompiler {
         }
         if (isset($queryset->extra['where'])) {
             foreach ($queryset->extra['where'] as $S) {
-                $where[] = '('.$S.')';
+                $where[] = "($S)";
             }
         }
         if ($where)
@@ -1992,7 +2041,7 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->distinct as $d)
                 list($group_by[]) = $this->getField($d, $model);
         }
-        $group_by = $group_by ? ' GROUP BY '.implode(',', $group_by) : '';
+        $group_by = $group_by ? ' GROUP BY '.implode(', ', $group_by) : '';
 
         $joins = $this->getJoins($queryset);
 

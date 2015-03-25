@@ -50,9 +50,13 @@ if ($info['error']) {
 <div id="user_tabs_container">
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
     <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
+<?php }
+      if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="<?php
         echo __('Manage User'); ?>" class="action"><i class="icon-share"></i></a>
+<?php } ?>
 </div>
     <table class="custom-info" width="100%">
 <?php foreach ($user->getDynamicData() as $entry) {
@@ -72,10 +76,12 @@ if ($info['error']) {
 
 <?php if ($org) { ?>
 <div class="hidden tab_content" id="org-tab">
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
     echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>
 </div>
+<?php } ?>
     <table class="custom-info" width="100%">
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>

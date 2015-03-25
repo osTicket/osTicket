@@ -36,7 +36,6 @@ define('KB_PREMADE_TABLE',TABLE_PREFIX.'kb_premade');
 
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.group.php');
-require_once(INCLUDE_DIR.'class.nav.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.
@@ -102,6 +101,9 @@ if ($_POST  && !$ost->checkCSRFToken()) {
 
 //Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
 $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
+
+// Load the navigation after the user in case some things are hidden
+require_once(INCLUDE_DIR.'class.nav.php');
 
 /******* SET STAFF DEFAULTS **********/
 define('PAGE_LIMIT', $thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);

@@ -86,9 +86,11 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
         </table>
     </form>
  </div>
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_CREATE)) { ?>
  <div class="pull-right flush-right">
     <b><a href="#orgs/add" class="Icon newDepartment add-org"><?php
     echo __('Add New Organization'); ?></a></b></div>
+<?php } ?>
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';

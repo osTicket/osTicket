@@ -42,8 +42,9 @@ class EmailModel extends VerySimpleModel {
                 'title' =>
                 /* @trans */ 'Banlist',
                 'desc'  =>
-                /* @trans */ 'Ability to add/remove emails from banlist via ticket interface'),
-            );
+                /* @trans */ 'Ability to add/remove emails from banlist via ticket interface',
+                'primary' => true,
+            ));
 
     function getId() {
         return $this->email_id;

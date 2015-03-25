@@ -15,6 +15,8 @@
 **********************************************************************/
 
 require 'admin.inc.php';
+include_once INCLUDE_DIR . 'class.user.php';
+include_once INCLUDE_DIR . 'class.organization.php';
 include_once INCLUDE_DIR . 'class.canned.php';
 include_once INCLUDE_DIR . 'class.faq.php';
 include_once INCLUDE_DIR . 'class.email.php';
