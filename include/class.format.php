@@ -444,10 +444,6 @@ class Format {
         if ($timestamp && $fromDb) {
             $timestamp = Misc::db2gmtime($timestamp);
         }
-        elseif (!$timestamp) {
-            $D = new DateTime();
-            $timestamp = $D->getTimestamp();
-        }
         if (class_exists('IntlDateFormatter')) {
             $formatter = new IntlDateFormatter(
                 Internationalization::getCurrentLocale(),

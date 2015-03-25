@@ -57,16 +57,19 @@ class Export {
             $cdata[$key] = $f->getLocal('label');
         }
         // Reset the $sql query
-        $tickets = TicketModel::objects()
-            ->filter($sql->constraints)
+        $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',
-                'team', 'staff', 'cdata');
-        call_user_func_array(array($tickets, 'order_by'), $sql->getSortFields());
+                'team', 'staff', 'cdata')
+            ->annotate(array(
+            'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
+            'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+            'thread_count' => SqlAggregate::COUNT('thread__entries'),
+        ));
 
         return self::dumpQuery($tickets,
             array(
                 'number' =>         __('Ticket Number'),
-                'created' =>        __('Date'),
+                'created' =>        __('Date Created'),
                 'cdata.subject' =>  __('Subject'),
                 'user.name' =>      __('From'),
                 'user.default_email.address' => __('From Email'),
@@ -75,14 +78,14 @@ class Export {
                 'topic::getName' => __('Help Topic'),
                 'source' =>         __('Source'),
                 'status::getName' =>__('Current Status'),
-                '::getEffectiveDate' => __('Last Updated'),
-                'duedate' =>        __('Due Date'),
+                'lastupdate' =>     __('Last Updated'),
+                'est_duedate' =>    __('Due Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
                 'staff::getName' => __('Agent Assigned'),
                 'team::getName' =>  __('Team Assigned'),
-                #'thread_count' =>   __('Thread Count'),
-                #'attachments' =>    __('Attachment Count'),
+                'thread_count' =>   __('Thread Count'),
+                'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
@@ -254,7 +257,7 @@ class ResultSetExporter {
                 }
             }
             // Evalutate :: function call on target current
-            if ($func && method_exists($current, $func)) {
+            if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
             $record[] = (string) $current;

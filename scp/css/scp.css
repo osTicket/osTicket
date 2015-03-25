@@ -58,6 +58,17 @@ div#header a {
 .faded {
     color:#666;
 }
+.faded-more {
+    color: #aaa;
+    color: rgba(0,0,0,0.4);
+}
+
+.small[class^="icon-"],
+.small[class*=" icon-"] {
+    vertical-align: baseline;
+    padding-left: 2px;
+    font-size: 80%;
+}
 
 .strike { text-decoration:line-through; color:red; }
 
@@ -377,6 +388,7 @@ a.lists { background:url(../images/icons/icon-list.png); background-size: 16px 1
     background-repeat: no-repeat;
     min-height: 16px;
     display: inline-block;
+    vertical-align: middle;
 }
 
 
