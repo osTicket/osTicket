@@ -2980,7 +2980,7 @@ implements RestrictedAccess, Threadable {
                 }
 
                 $user_form = UserForm::getUserForm()->getForm($vars);
-                $can_create = $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
+                $can_create = !$thisstaff || $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
                 if (!$user_form->isValid($field_filter('user'))
                     || !($user=User::fromVars($user_form->getClean(), $can_create))
                 ) {
