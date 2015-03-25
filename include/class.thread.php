@@ -257,11 +257,9 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid, info.headers '
+        $sql='SELECT thread.*'
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
-            .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id) '
@@ -357,13 +355,30 @@ Class ThreadEntry {
         return $this->ht['ticket_id'];
     }
 
+    function _deferEmailInfo() {
+        if (isset($this->ht['email_mid']))
+            return;
+
+        // Don't do this more than once
+        $this->ht['email_mid'] = false;
+
+        $sql = 'SELECT email_mid, headers FROM '.TICKET_EMAIL_INFO_TABLE
+            .' WHERE thread_id='.db_input($this->getId());
+        if (!($res = db_query($sql)))
+            return;
+
+        list($this->ht['email_mid'], $this->ht['headers']) = db_fetch_row($res);
+    }
+
     function getEmailMessageId() {
+        $this->_deferEmailInfo();
         return $this->ht['email_mid'];
     }
 
     function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
+        $this->_deferEmailInfo();
         if (!isset($this->ht['@headers']))
             $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
 
@@ -459,6 +474,7 @@ Class ThreadEntry {
     }
 
     function getEmailHeader() {
+        $this->_deferEmailInfo();
         return $this->ht['headers'];
     }
 
