@@ -290,10 +290,23 @@ class CsvResultsExporter extends ResultSetExporter {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
+        // Detect delimeter from the current locale settings. For locales
+        // which use comma (,) as the decimal separator, the semicolon (;)
+        // should be used as the field separator
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        }
+
+        // Output a UTF-8 BOM (byte order mark)
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($this->output, $this->getHeaders());
+        fputcsv($this->output, $this->getHeaders(), $delimiter);
         while ($row=$this->next())
-            fputcsv($this->output, $row);
+            fputcsv($this->output, $row, $delimiter);
 
         fclose($this->output);
     }
