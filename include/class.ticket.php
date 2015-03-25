@@ -1109,7 +1109,7 @@ class Ticket {
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
             // Skip all the other recipients of the message
-            foreach ($entry->getEmailAllRecipients() as $R) {
+            foreach ($entry->getAllEmailRecipients() as $R) {
                 foreach ($recipients as $R2) {
                     if ($R2->getEmail() == ($R->mailbox.'@'.$R->hostname)) {
                         $skip[$R2->getUserId()] = true;
