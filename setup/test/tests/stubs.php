@@ -122,4 +122,8 @@ class IntlBreakIterator {
 class SqlFunction {
     static function NOW() {}
 }
+
+class Aws_Route53_Client {
+    function changeResourceRecordSets() {}
+}
 ?>
