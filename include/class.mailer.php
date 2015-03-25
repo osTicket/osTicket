@@ -370,7 +370,7 @@ class Mailer {
             }
 
             // Configure the reply tag and embedded message id token
-            $mid_token = $options['thread']->asMessageId($to);
+            $mid_token = $messageId;
             if ($cfg && $cfg->stripQuotedReply()
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
                 $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
