@@ -986,7 +986,7 @@ implements RestrictedAccess, Threadable {
             foreach ($ids as $k => $cid) {
                 if (($c=Collaborator::lookup($cid))
                         && $c->getTicketId() == $this->getId()
-                        && $c->remove())
+                        && $c->delete())
                      $collabs[] = $c;
             }
 
@@ -2007,7 +2007,7 @@ implements RestrictedAccess, Threadable {
         $c = Collaborator::lookup(array(
                     'user_id' => $user->getId(),
                     'thread_id' => $this->getThreadId()));
-        if ($c && $c->remove())
+        if ($c && $c->delete())
             $note.= ' '._S('(removed as collaborator)');
 
         $this->logNote('Ticket ownership changed', $note);
