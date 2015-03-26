@@ -22,6 +22,7 @@ class Dept {
     var $manager;
     var $members;
     var $groups;
+    var $config;
 
     var $ht;
 
@@ -272,11 +273,35 @@ class Dept {
     }
 
     function getHashtable() {
-        return $this->ht;
+        return array_merge($this->getConfig()->getInfo(), $this->ht);
     }
 
     function getInfo() {
         return $this->config->getInfo() + $this->getHashtable();
+    }
+
+<<<<<<< HEAD
+    function getConfig() {
+        if (!isset($this->config))
+            $this->config = new DeptConfig($this->getId());
+        return $this->config;
+    }
+
+    function hasWorkingHours() {
+        if( $this->startTime() && $this->endTime() ) 
+            return true;
+    }
+
+    function startTime() {
+        return $this->getConfig()->get('start_time', null);
+    }
+    
+    function endTime() {
+        return $this->getConfig()->get('end_time', null);
+    }
+
+    function getWorkDays() {
+        return $this->getConfig()->get('work_days', null);
     }
 
     function getAllowedGroups() {
@@ -324,6 +349,10 @@ class Dept {
         $this->updateSettings($vars);
         $this->reload();
 
+        $this->getConfig()->set('start_time', isset($vars['start_time']) ? $vars['start_time'] : null);
+        $this->getConfig()->set('end_time', isset($vars['end_time']) ? $vars['end_time'] : null);
+        $this->getConfig()->set('work_days', !empty($vars['work_days']) ? implode(',', $vars['work_days']) : null);
+        
         return true;
     }
 
@@ -417,6 +446,14 @@ class Dept {
     }
 
     function create($vars, &$errors) {
+        if(($id=self::save(0, $vars, $errors)) && ($dept=self::lookup($id)))
+            $dept->updateAllowedGroups($vars['groups']);
+            $dept->getConfig()->set('start_time',
+                isset($vars['start_time']) ? $vars['start_time'] : null);
+            $dept->getConfig()->set('end_time',
+                isset($vars['end_time']) ? $vars['end_time'] : null);
+            $dept->getConfig()->set('work_days',
+                isset($vars['work_days']) && !empty($vars['work_days']) ? implode(',', $vars['work_days']) : null);
 
         if(!($id=self::save(0, $vars, $errors)))
             return null;
@@ -486,6 +523,14 @@ class Dept {
 
         return false;
     }
+}
 
+require_once(INCLUDE_DIR.'class.config.php');
+class DeptConfig extends Config {
+    var $table = CONFIG_TABLE;
+
+    function DeptConfig($id) {
+        parent::Config("dept.$id");
+    }
 }
 ?>

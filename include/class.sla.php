@@ -77,6 +77,18 @@ class SLA {
     function isActive() {
         return ($this->ht['isactive']);
     }
+   
+    function ignores_answered() {
+        return $this->getConfig()->get('ignore_unanswered', false);
+    }
+    
+    function openHoursOnly() {
+        return $this->getConfig()->get('open_hours_only', false);
+    }
+
+    function isRevolving() {
+        return $this->getConfig()->get('revolving', false);
+    }
 
     function isTransient() {
         return $this->getConfig()->get('transient', false);
@@ -101,6 +113,9 @@ class SLA {
 
         $this->reload();
         $this->getConfig()->set('transient', isset($vars['transient']) ? 1 : 0);
+        $this->getConfig()->set('revolving', isset($vars['revolving']) ? 1 : 0);
+        $this->getConfig()->set('ignore_answered', isset($vars['ignore_answered']) ? 1 : 0);
+        $this->getConfig()->set('open_hours_only', isset($vars['open_hours_only']) ? 1 : 0);
 
         return true;
     }
@@ -127,6 +142,12 @@ class SLA {
         if (($id = SLA::save(0,$vars,$errors)) && ($sla = self::lookup($id)))
             $sla->getConfig()->set('transient',
                 isset($vars['transient']) ? 1 : 0);
+            $sla->getConfig()->set('ignore_answered',
+                isset($vars['ignore_answered']) ? 1 : 0);
+            $sla->getConfig()->set('revolving',
+                isset($vars['revolving']) ? 1 : 0);
+            $sla->getConfig()->set('open_hours_only',
+                isset($vars['open_hours_only']) ? 1 : 0);
         return $id;
     }
 

@@ -294,12 +294,18 @@ if($ticket->isOverdue())
                 <?php
                 } ?>
                 <tr>
+                    <th>SLA Plan:</th>
+                    <td>
+                    <?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?>
+		    <?php echo $sla->isRevolving()?' (revolving)':''; ?>
+		    </td>
                     <th><?php echo __('SLA Plan');?>:</th>
-                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
                 </tr>
                 <?php
                 if($ticket->isOpen()){ ?>
                 <tr>
+                    <th>Due Date:</th>
+                    <td><?php echo $ticket->getDueDate() ? Format::db_datetime($ticket->getDueDate()) : $ticket->checkSLADue() ? $ticket->getSLAHours()." Hours Overdue" : $ticket->getSLAHours()." Hours Remaining"; ?></td>
                     <th><?php echo __('Due Date');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getEstDueDate()); ?></td>
                 </tr>
