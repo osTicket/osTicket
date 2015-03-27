@@ -657,7 +657,7 @@ class EmailDataParser {
                 $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $data['message'] = $parser->getDeliveryStatusMessage();
+            $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();
             $data['thread-type'] = 'N';
             $data['flags']['bounce'] = true;
         }
