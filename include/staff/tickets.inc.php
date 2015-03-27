@@ -150,10 +150,7 @@ if (!$view_all_tickets) {
     if ($teams = array_filter($thisstaff->getTeams()))
         $assigned->add(array('team_id__in' => $teams));
 
-    if ($status)
-        $visibility = Q::any(array($assigned));
-    else
-        $visibility = Q::any(array('status__state'=>'open', $assigned));
+    $visibility = Q::any(array('status__state'=>'open', $assigned));
 
     // -- Routed to a department of mine
     if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
@@ -268,13 +265,18 @@ $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_i
 
 // Add in annotations
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
-    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
+    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
+       ->when(new SqlField('thread__entries__attachments__inline'), null)
+       ->otherwise(new SqlField('thread__entries__attachments')),
+        true
+    ),
     'thread_count' => SqlAggregate::COUNT(SqlCase::N()
         ->when(
             new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
             null)
-        ->otherwise(1)
+        ->otherwise(new SqlField('thread__entries__id')),
+       true
     ),
 ));
 
