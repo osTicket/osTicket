@@ -275,10 +275,9 @@ class Mail_Parse {
             && isset($this->struct->ctype_parameters['report-type'])
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
-            return sprintf('<pre>%s</pre>',
-                Format::htmlchars(
-                    $this->getPart($this->struct, 'text/plain', 1)
-                ));
+            return new TextThreadBody(
+                $this->getPart($this->struct, 'text/plain', 1)
+            );
         }
         return false;
     }
