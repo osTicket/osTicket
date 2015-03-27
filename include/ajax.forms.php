@@ -163,7 +163,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $item->extra = $basic['extra'];
             $item->value = $basic['value'];
 
-            if ($_item = DynamicListItem::lookup(array('value'=>$item->value)))
+            if ($_item = DynamicListItem::lookup(array(
+                            'list_id' => $list->getId(), 'value'=>$item->value)))
                 if ($_item && $_item->id != $item->id)
                     $item_form->getField('value')->addError(
                         __('Value already in use'));
@@ -218,11 +219,12 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
         if ($_POST && ($valid = $item_form->isValid())) {
             $data = $item_form->getClean();
-            if ($_item = DynamicListItem::lookup(array('value'=>$data['value'])))
+            if ($_item = DynamicListItem::lookup(array(
+                            'list_id' => $list->getId(), 'value'=>$data['value'])))
                 if ($_item && $_item->id)
                     $item_form->getField('value')->addError(
                         __('Value already in use'));
-            $data['list_id'] = $list_id;
+            $data['list_id'] = $list->getId();
             $item = DynamicListItem::create($data);
             if ($item->save() && $item->setConfiguration())
                 Http::response(201, $this->encode(array('success' => true)));
