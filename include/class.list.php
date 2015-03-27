@@ -231,13 +231,15 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     function getItem($val) {
 
-        $criteria = array('list_id' => $this->getId());
-        if (is_int($val))
-            $criteria['id'] = $val;
-        else
-            $criteria['value'] = $val;
+        $items = DynamicListItem::objects()->filter(
+                array('list_id' => $this->getId()));
 
-         return DynamicListItem::lookup($criteria);
+        if (is_int($val))
+            $items->filter(array('id' => $val));
+        else
+            $items->filter(Q::any(array('value'=>$val, 'extra' => $val)));
+
+        return $items->first();
     }
 
     function addItem($vars, &$errors) {

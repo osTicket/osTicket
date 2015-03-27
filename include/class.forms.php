@@ -1219,6 +1219,10 @@ class ChoiceField extends FormField {
         return $this->_choices;
     }
 
+    function lookupChoice($value) {
+        return null;
+    }
+
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
@@ -2335,11 +2339,8 @@ class TextboxSelectionWidget extends TextboxWidget {
     function getValue() {
 
         $value = parent::getValue();
-        if (($i=$this->field->getList()->getItem((string) $value)))
-            $value = array($i->getId() => $i->getValue());
-        elseif (($choices=$this->field->getChoices())
-                && ($k=array_search($value, $choices)))
-            $value = array($k => $choices[$k]);
+        if ($value && ($item=$this->field->lookupChoice((string) $value)))
+            $value = $item;
 
         return $value;
     }
@@ -2509,6 +2510,8 @@ class ChoicesWidget extends Widget {
             foreach($value as $k => $v) {
                 if (isset($choices[$v]))
                     $values[$v] = $choices[$v];
+                elseif (($i=$this->field->lookupChoice($v)))
+                    $values += $i;
             }
         }
 
