@@ -1081,9 +1081,15 @@ class Ticket {
         return true;
     }
 
-    function onResponse() {
+    function onResponse($response, $options=array()) {
         db_query('UPDATE '.TICKET_TABLE.' SET isanswered=1, lastresponse=NOW(), updated=NOW() WHERE ticket_id='.db_input($this->getId()));
         $this->reload();
+        $vars = array_merge($options,
+                array(
+                    'activity' => _S('New Response'),
+                    'threadentry' => $response));
+
+        $this->onActivity($vars);
     }
 
     /*
@@ -1210,6 +1216,86 @@ class Ticket {
             $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
+    }
+
+    function onActivity($vars, $alert=true) {
+        global $cfg, $thisstaff;
+
+        //TODO: do some shit
+
+        if (!$alert // Check if alert is enabled
+                || !$cfg->alertONNewActivity()
+                || !($dept=$this->getDept())
+                || !($email=$cfg->getAlertEmail())
+                || !($tpl = $dept->getTemplate())
+                || !($msg=$tpl->getNoteAlertMsgTemplate()))
+            return;
+
+        // Alert recipients
+        $recipients=array();
+
+        //Last respondent.
+        if ($cfg->alertLastRespondentONNewActivity())
+            $recipients[] = $this->getLastRespondent();
+
+        // Assigned staff / team
+        if ($cfg->alertAssignedONNewActivity()) {
+
+            if (isset($vars['assignee'])
+                    && $vars['assignee'] instanceof Staff)
+                 $recipients[] = $vars['assignee'];
+            elseif ($this->isOpen() && ($assignee = $this->getStaff()))
+                $recipients[] = $assignee;
+
+            if ($team = $this->getTeam())
+                $recipients = array_merge($recipients, $team->getMembers());
+        }
+
+        // Dept manager
+        if ($cfg->alertDeptManagerONNewActivity() && $dept && $dept->getManagerId())
+            $recipients[] = $dept->getManager();
+
+        $options = array();
+        $staffId = $thisstaff ? $thisstaff->getId() : 0;
+        if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
+            $options = array(
+                'inreplyto' => $vars['threadentry']->getEmailMessageId(),
+                'references' => $vars['threadentry']->getEmailReferences(),
+                'thread' => $vars['threadentry']);
+
+            // Activity details
+            if (!$vars['comments'])
+                $vars['comments'] = $vars['threadentry'];
+
+            // Staff doing the activity
+            $staffId = $vars['threadentry']->getStaffId() ?: $staffId;
+        }
+
+        $msg = $this->replaceVars($msg->asArray(),
+                array(
+                    'note' => $vars['threadentry'], // For compatibility
+                    'activity' => $vars['activity'],
+                    'comments' => $vars['comments']));
+
+        $isClosed = $this->isClosed();
+        $sentlist=array();
+        foreach ($recipients as $k=>$staff) {
+            if (!is_object($staff)
+                    // Don't bother vacationing staff.
+                    || !$staff->isAvailable()
+                    // No need to alert the poster!
+                    || $staffId == $staff->getId()
+                    // No duplicates.
+                    || isset($sentlist[$staff->getEmail()])
+                    // Make sure staff has access to ticket
+                    || ($isClosed && !$this->checkStaffAccess($staff))
+                    )
+                continue;
+            $alert = $this->replaceVars($msg, array('recipient' => $staff));
+            $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+            $sentlist[$staff->getEmail()] = 1;
+        }
+
     }
 
     function onAssign($assignee, $comments, $alert=true) {
@@ -1841,6 +1927,7 @@ class Ticket {
         if(!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
+        $assignee = $this->getStaff();
         // Set status - if checked.
         if ($vars['reply_status_id']
                 && $vars['reply_status_id'] != $this->getStatusId())
@@ -1850,10 +1937,11 @@ class Ticket {
                 && $cfg->autoClaimTickets())
             $this->setStaffId($thisstaff->getId()); //direct assignment;
 
-        $this->onResponse(); //do house cleaning..
+
+        $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
         /* email the user??  - if disabled - then bail out */
-        if(!$alert) return $response;
+        if (!$alert) return $response;
 
         $dept = $this->getDept();
 
@@ -1979,62 +2067,12 @@ class Ticket {
                 $this->reload();
         }
 
-        // If alerts are not enabled then return a success.
-        if(!$alert || !$cfg->alertONNewNote() || !($dept=$this->getDept()))
-            return $note;
-
-        if (($email = $dept->getAlertEmail())
-                && ($tpl = $dept->getTemplate())
-                && ($msg=$tpl->getNoteAlertMsgTemplate())) {
-
-            $msg = $this->replaceVars($msg->asArray(),
-                array('note' => $note));
-
-            // Alert recipients
-            $recipients=array();
-
-            //Last respondent.
-            if ($cfg->alertLastRespondentONNewNote())
-                $recipients[] = $this->getLastRespondent();
-
-            // Assigned staff / team
-            if ($cfg->alertAssignedONNewNote()) {
-
-                if ($assignee && $assignee instanceof Staff)
-                    $recipients[] = $assignee;
-
-                if ($team = $this->getTeam())
-                    $recipients = array_merge($recipients, $team->getMembers());
-            }
-
-            // Dept manager
-            if ($cfg->alertDeptManagerONNewNote() && $dept && $dept->getManagerId())
-                $recipients[] = $dept->getManager();
-
-            $options = array(
-                'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences(),
-                'thread'=>$note);
-
-            $isClosed = $this->isClosed();
-            $sentlist=array();
-            foreach( $recipients as $k=>$staff) {
-                if(!is_object($staff)
-                        // Don't bother vacationing staff.
-                        || !$staff->isAvailable()
-                        // No duplicates.
-                        || isset($sentlist[$staff->getEmail()])
-                        // No need to alert the poster!
-                        || $note->getStaffId() == $staff->getId()
-                        // Make sure staff has access to ticket
-                        || ($isClosed && !$this->checkStaffAccess($staff))
-                        )
-                    continue;
-                $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
-                $sentlist[$staff->getEmail()] = 1;
-            }
-        }
+        $activity = $vars['activity'] ?: _S('New Internal Note');
+        $this->onActivity(array(
+            'activity' => $activity,
+            'threadentry' => $note,
+            'assignee' => $assignee
+        ), $alert);
 
         return $note;
     }
