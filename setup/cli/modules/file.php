@@ -374,6 +374,14 @@ class FileManager extends Module {
                             ));
                         }
                     }
+
+                    // Update file to record current backend
+                    $sql = 'UPDATE '.FILE_TABLE.' SET bk='
+                        .db_input($bk->getBkChar())
+                        .' WHERE id='.db_input($f->getId());
+                    if (!db_query($sql) || db_affected_rows()!=1)
+                        return false;
+
                 } // end try
                 catch (Exception $ex) {
                     if ($bk) $bk->unlink();
