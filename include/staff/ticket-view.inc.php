@@ -76,7 +76,10 @@ if($ticket->isOverdue())
                     echo __('Edit'); ?></a>
             <?php
             }
-            if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
+            if ($ticket->isOpen()
+                    && !$ticket->isAssigned()
+                    && $thisstaff->canAssignTickets()
+                    && $ticket->getDept()->isMember($thisstaff)) {?>
                 <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
@@ -803,7 +806,9 @@ print $note_form->getField('attachments')->render();
                     <select id="assignId" name="assignId">
                         <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                         <?php
-                        if($ticket->isOpen() && !$ticket->isAssigned())
+                        if ($ticket->isOpen()
+                                && !$ticket->isAssigned()
+                                && $ticket->getDept()->isMember($thisstaff))
                             echo sprintf('<option value="%d">'.__('Claim Ticket (comments optional)').'</option>', $thisstaff->getId());
 
                         $sid=$tid=0;
