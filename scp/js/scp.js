@@ -570,12 +570,14 @@ $.dialog = function (url, codes, cb, options) {
                 data: $form.serialize(),
                 cache: false,
                 success: function(resp, status, xhr) {
+                    var done = $.Event('dialog:close');
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
                         $.toggleOverlay(false);
                         $popup.hide();
                         $('div.body', $popup).empty();
-                        if(cb) cb(xhr);
+                        if(cb) cb(xhr, resp);
+                        $popup.trigger(done, [resp, status, xhr]);
                     } else {
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');

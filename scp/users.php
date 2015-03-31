@@ -111,6 +111,15 @@ if ($_POST) {
                     }
                     break;
 
+                case 'setorg':
+                    if (!($org = Organization::lookup($_POST['org_id'])))
+                        $errors['err'] = __('Unknown action - get technical help.');
+                    foreach ($users as $U) {
+                        if ($U->setOrganization($org))
+                            $count++;
+                    }
+                    break;
+
                 default:
                     $errors['err']=__('Unknown action - get technical help.');
                 }

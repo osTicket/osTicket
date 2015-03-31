@@ -840,12 +840,12 @@ class UserAccountModel extends VerySimpleModel {
 
     function lock() {
         $this->setStatus(UserAccountStatus::LOCKED);
-        $this->save();
+        return $this->save();
     }
 
     function unlock() {
         $this->clearStatus(UserAccountStatus::LOCKED);
-        $this->save();
+        return $this->save();
     }
 
     function isLocked() {
