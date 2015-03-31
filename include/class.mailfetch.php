@@ -346,10 +346,15 @@ class MailFetcher {
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
-        if (!$header['mid'] && $header['header'])
-            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
-                    'message-id')))
+        if (!$header['mid'] && $header['header']) {
+            $header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id');
+
+            if (is_array($header['mid']))
+                $header['mid'] = array_pop(array_filter($header['mid']));
+            if (!$header['mid'])
                 $header['mid'] = '<' . md5($header['header']) . '@local>';
+        }
 
         return $header;
     }

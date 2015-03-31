@@ -807,7 +807,8 @@ class ThreadEntry {
 
     function saveEmailInfo($vars) {
 
-        if(!$vars || !$vars['mid'])
+        // Don't save empty message ID
+        if (!$vars || !$vars['mid'])
             return 0;
 
         $this->ht['email_mid'] = $vars['mid'];
