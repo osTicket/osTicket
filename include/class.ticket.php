@@ -1559,10 +1559,20 @@ class Ticket {
         if($this->isClosed()) $this->reopen();
 
         $this->reload();
+        $dept = $this->getDept();
 
         // Set SLA of the new department
         if(!$this->getSLAId() || $this->getSLA()->isTransient())
             $this->selectSLAId();
+
+        // Make sure the new department allows assignment to the
+        // currently assigned agent (if any)
+        if ($this->isAssigned()
+                && ($staff=$this->getStaff())
+                && $dept->assignMembersOnly()
+                && !$dept->isMember($staff)) {
+            $this->setStaffId(0);
+        }
 
         /*** log the transfer comments as internal note - with alerts disabled - ***/
         $title=sprintf(_S('Ticket transferred from %1$s to %2$s'),
@@ -1573,7 +1583,7 @@ class Ticket {
         $this->logEvent('transferred');
 
         //Send out alerts if enabled AND requested
-        if(!$alert || !$cfg->alertONTransfer() || !($dept=$this->getDept()))
+        if (!$alert || !$cfg->alertONTransfer())
             return true; //no alerts!!
 
          if (($email = $dept->getAlertEmail())
@@ -1614,6 +1624,21 @@ class Ticket {
          }
 
          return true;
+    }
+
+    function claim() {
+        global $thisstaff;
+
+        if (!$thisstaff || !$this->isOpen() || $this->isAssigned())
+            return false;
+
+        $dept = $this->getDept();
+        if ($dept->assignMembersOnly() && !$dept->isMember($thisstaff))
+            return false;
+
+        $comments = sprintf(_S('Ticket claimed by %s'), $thisstaff->getName());
+
+        return $this->assignToStaff($thisstaff->getId(), $comments, false);
     }
 
     function assignToStaff($staff, $note, $alert=true) {
@@ -1933,6 +1958,7 @@ class Ticket {
                 && $vars['reply_status_id'] != $this->getStatusId())
             $this->setStatus($vars['reply_status_id']);
 
+        // Claim on response bypasses the department assignment restrictions
         if($thisstaff && $this->isOpen() && !$this->getStaffId()
                 && $cfg->autoClaimTickets())
             $this->setStaffId($thisstaff->getId()); //direct assignment;

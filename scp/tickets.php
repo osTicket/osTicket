@@ -147,12 +147,21 @@ if($_POST && !$errors):
 
                  $id = preg_replace("/[^0-9]/", "",$_POST['assignId']);
                  $claim = (is_numeric($_POST['assignId']) && $_POST['assignId']==$thisstaff->getId());
+                 $dept = $ticket->getDept();
 
-                 if(!$_POST['assignId'] || !$id)
+                 if (!$_POST['assignId'] || !$id)
                      $errors['assignId'] = __('Select assignee');
-                 elseif($_POST['assignId'][0]!='s' && $_POST['assignId'][0]!='t' && !$claim)
-                     $errors['assignId']=__('Invalid assignee ID - get technical support');
-                 elseif($ticket->isAssigned()) {
+                 elseif ($_POST['assignId'][0]!='s' && $_POST['assignId'][0]!='t' && !$claim)
+                     $errors['assignId']= sprintf('%s - %s',
+                             __('Invalid assignee '),
+                             __('get technical support'));
+                 elseif ($_POST['assignId'][0]!='s'
+                         && $dept->assignMembersOnly()
+                         && !$dept->isMember($id)) {
+                     $errors['assignId'] = sprintf('%s. %s',
+                             __('Invalid assignee'),
+                             __('Must be department member'));
+                 } elseif($ticket->isAssigned()) {
                      if($_POST['assignId'][0]=='s' && $id==$ticket->getStaffId())
                          $errors['assignId']=__('Ticket already assigned to the agent.');
                      elseif($_POST['assignId'][0]=='t' && $id==$ticket->getTeamId())
@@ -246,7 +255,7 @@ if($_POST && !$errors):
                         $errors['err'] = __('Only open tickets can be assigned');
                     } elseif($ticket->isAssigned()) {
                         $errors['err'] = sprintf(__('Ticket is already assigned to %s'),$ticket->getAssigned());
-                    } elseif($ticket->assignToStaff($thisstaff->getId(), (sprintf(__('Ticket claimed by %s'),$thisstaff->getName())), false)) {
+                    } elseif ($ticket->claim()) {
                         $msg = __('Ticket is now assigned to you!');
                     } else {
                         $errors['err'] = __('Problems assigning the ticket. Try again');
