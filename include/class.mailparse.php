@@ -242,8 +242,11 @@ class Mail_Parse {
     }
 
     function getMessageId(){
-        if (!($mid = $this->struct->headers['message-id']))
+        if (($mid = $this->struct->headers['message-id']) && is_array($mid))
+            $mid = array_pop(array_filter($mid));
+        if (!$mid)
             $mid = sprintf('<%s@local>', md5($this->getHeader()));
+
         return $mid;
     }
 
