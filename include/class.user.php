@@ -82,6 +82,13 @@ class UserModel extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
             ),
+            'cdata_entry' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'U'" => 'DynamicFormEntry.object_type',
+                ),
+                null => true,
+            ),
         )
     );
 
@@ -726,9 +733,9 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
-        
+
         //check if name is bad format (ex: J.Everybody), and fix them
-        if($size==1 && mb_strpos($r[0], '.') !== false) 
+        if($size==1 && mb_strpos($r[0], '.') !== false)
         {
             $r = explode('.', $name);
             $size = count($r);
@@ -833,6 +840,11 @@ class UserAccountModel extends VerySimpleModel {
 
     function lock() {
         $this->setStatus(UserAccountStatus::LOCKED);
+        $this->save();
+    }
+
+    function unlock() {
+        $this->clearStatus(UserAccountStatus::LOCKED);
         $this->save();
     }
 

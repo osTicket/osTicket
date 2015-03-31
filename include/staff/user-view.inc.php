@@ -28,7 +28,7 @@ $org = $user->getOrganization();
             <?php
             } else { ?>
             <a id="user-register" class="action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-edit"></i>
+            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-star"></i>
             <?php echo __('Register'); ?></a>
             <?php
             } ?>
