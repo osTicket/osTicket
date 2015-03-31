@@ -668,6 +668,9 @@ class DynamicFormEntry extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
+            'answers' => array(
+                'reverse' => 'DynamicFormEntryAnswer.entry'
+            ),
         ),
     );
 
