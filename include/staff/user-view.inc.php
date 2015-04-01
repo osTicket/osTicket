@@ -34,7 +34,7 @@ $org = $user->getOrganization();
             <?php
             } else { ?>
             <a id="user-register" class="action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-edit"></i>
+            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-smile"></i>
             <?php echo __('Register'); ?></a>
             <?php
             } ?>

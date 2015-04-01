@@ -741,19 +741,20 @@ class OsticketConfig extends Config {
         return ($this->get('message_alert_acct_manager'));
     }
 
-    function alertONNewNote() {
+    //TODO: change note_alert to activity_alert
+    function alertONNewActivity() {
         return ($this->get('note_alert_active'));
     }
 
-    function alertLastRespondentONNewNote() {
+    function alertLastRespondentONNewActivity() {
         return ($this->get('note_alert_laststaff'));
     }
 
-    function alertAssignedONNewNote() {
+    function alertAssignedONNewActivity() {
         return ($this->get('note_alert_assigned'));
     }
 
-    function alertDeptManagerONNewNote() {
+    function alertDeptManagerONNewActivity() {
         return ($this->get('note_alert_dept_manager'));
     }
 

@@ -71,7 +71,7 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 #
 # Mail Options
 # ---------------------------------------------------
-# Option: MAIL_EOL (default: \r\n)
+# Option: MAIL_EOL (default: \n)
 #
 # Some mail setups do not handle emails with \r\n (CRLF) line endings for
 # headers and base64 and quoted-response encoded bodies. This is an error
@@ -88,7 +88,7 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 # https://github.com/osTicket/osTicket-1.8/issues/759
 # https://github.com/osTicket/osTicket-1.8/issues/1217
 
-# define(MAIL_EOL, "\n");
+# define(MAIL_EOL, "\r\n");
 
 #
 # HTTP Server Options

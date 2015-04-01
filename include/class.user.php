@@ -64,6 +64,13 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
+            'cdata_entry' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'U'" => 'DynamicFormEntry.object_type',
+                ),
+                'null' => true,
+            ),
         )
     );
 
@@ -884,7 +891,12 @@ class UserAccountModel extends VerySimpleModel {
 
     function lock() {
         $this->setStatus(UserAccountStatus::LOCKED);
-        $this->save();
+        return $this->save();
+    }
+
+    function unlock() {
+        $this->clearStatus(UserAccountStatus::LOCKED);
+        return $this->save();
     }
 
     function isLocked() {

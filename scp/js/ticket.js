@@ -56,7 +56,7 @@ var autoLock = {
     //Incoming event...
     handleEvent: function(e) {
 
-        if(!autoLock.lasteventTime) { //I hate nav away warnings..but
+        if(autoLock.lockId && !autoLock.lasteventTime) { //I hate nav away warnings..but
             $(document).on('pjax:beforeSend.changed', function(e) {
                 return confirm(__("Any changes or info you've entered will be discarded!"));
             });

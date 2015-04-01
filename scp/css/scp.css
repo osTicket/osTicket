@@ -1095,7 +1095,7 @@ ul.tabs.vertical li a {
     display:block;
     height:30px;
     position:absolute;
-    z-index:101;
+    z-index:5;
 }
 
 .tip_arrow {

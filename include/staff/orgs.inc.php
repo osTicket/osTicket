@@ -72,7 +72,7 @@ $qhash = md5($query);
 $_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
 <h2><?php echo __('Organizations'); ?></h2>
-<div class="pull-left" style="width:700px;">
+<div class="pull-left">
     <form action="orgs.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -86,11 +86,31 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
         </table>
     </form>
  </div>
+
+<div class="pull-right">
 <?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_CREATE)) { ?>
- <div class="pull-right flush-right">
-    <b><a href="#orgs/add" class="Icon newDepartment add-org"><?php
-    echo __('Add New Organization'); ?></a></b></div>
+    <a class="action-button add-org"
+        href="#">
+        <i class="icon-plus-sign"></i>
+        <?php echo __('Add Organization'); ?>
+    </a>
+<?php }
+if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
+    <span class="action-button" data-dropdown="#action-dropdown-more"
+        style="/*DELME*/ vertical-align:top; margin-bottom:0">
+        <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul>
+            <li><a class="orgs-action" href="#delete">
+                <i class="icon-trash icon-fixed-width"></i>
+                <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
 <?php } ?>
+</div>
+
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -100,14 +120,16 @@ if($res && ($num=db_num_rows($res)))
 else
     $showing .= __('No organizations found!');
 ?>
-<form action="orgs.php" method="POST" name="staff" >
+<form id="orgs-list" action="orgs.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
- <input type="hidden" name="do" value="mass_process" >
- <input type="hidden" id="action" name="a" value="" >
+ <input type="hidden" name="a" value="mass_process" >
+ <input type="hidden" id="action" name="do" value="" >
+ <input type="hidden" id="selected-count" name="count" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
+            <th nowrap width="12"> </th>
             <th width="400"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
             <th width="100"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
             <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
@@ -125,6 +147,9 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
+                <td nowrap>
+                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
+                </td>
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>
                 <td>&nbsp;<?php echo $row['users']; ?></td>
                 <td><?php echo Format::date($row['created']); ?></td>
@@ -134,6 +159,22 @@ else
             } //end of while.
         endif; ?>
     </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="7">
+            <?php if ($res && $num) { ?>
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+            <?php }else{
+                echo '<i>';
+                echo __('Query returned 0 results.');
+                echo '</i>';
+            } ?>
+        </td>
+     </tr>
+    </tfoot>
 </table>
 <?php
 if($res && $num): //Show options..
@@ -173,5 +214,31 @@ $(function() {
 
         return false;
      });
+
+    var goBaby = function(action) {
+        var ids = [],
+            $form = $('form#orgs-list');
+        $(':checkbox.mass:checked', $form).each(function() {
+            ids.push($(this).val());
+        });
+        if (ids.length) {
+          var submit = function() {
+            $form.find('#action').val(action);
+            $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
+            $form.find('#selected-count').val(ids.length);
+            $form.submit();
+          };
+          $.confirm(__('You sure?')).then(submit);
+        }
+        else if (!ids.length) {
+            $.sysAlert(__('Oops'),
+                __('You need to select at least one item'));
+        }
+    };
+    $(document).on('click', 'a.orgs-action', function(e) {
+        e.preventDefault();
+        goBaby($(this).attr('href').substr(1));
+        return false;
+    });
 });
 </script>

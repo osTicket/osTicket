@@ -380,7 +380,7 @@ class ThreadEntry extends VerySimpleModel {
     static $meta = array(
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
-        'select_related' => array('staff', 'user', 'email_info'),
+        'select_related' => array('staff', 'user'),
         'joins' => array(
             'thread' => array(
                 'constraint' => array('thread_id' => 'Thread.id'),
@@ -476,6 +476,10 @@ class ThreadEntry extends VerySimpleModel {
         $this->format = $body->getType();
         $this->body = (string) $body;
         return $this->save();
+    }
+
+    function getMessage() {
+        return $this->getBody();
     }
 
     function getCreateDate() {
@@ -787,7 +791,8 @@ class ThreadEntry extends VerySimpleModel {
 
     function saveEmailInfo($vars) {
 
-        if(!$vars || !$vars['mid'])
+        // Don't save empty message ID
+        if (!$vars || !$vars['mid'])
             return 0;
 
         $this->ht['email_mid'] = $vars['mid'];
@@ -1019,7 +1024,7 @@ class ThreadEntry extends VerySimpleModel {
             return false;
 
         $check = sprintf('%s@%s',
-            substr(md5($to . $ticket->getNumber() . $ticket->getId()), -10),
+            substr(md5($from . $ticket->getNumber() . $ticket->getId()), -10),
             substr($domain, -10)
         );
 

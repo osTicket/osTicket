@@ -156,4 +156,7 @@ class ResourceBundle {
     function getLocales() {}
 }
 
+class Aws_Route53_Client {
+    function changeResourceRecordSets() {}
+}
 ?>
