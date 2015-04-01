@@ -1014,7 +1014,7 @@ ul.tabs li a.active {
     display:block;
     height:30px;
     position:absolute;
-    z-index:101;
+    z-index:5;
 }
 
 .tip_arrow {
