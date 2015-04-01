@@ -76,7 +76,7 @@ $_SESSION['users_qs_'.$qhash] = $query;
 
 ?>
 <h2><?php echo __('User Directory'); ?></h2>
-<div class="pull-left" style="width:700px;">
+<div class="pull-left">
     <form action="users.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -123,7 +123,7 @@ if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
                 <i class="icon-envelope icon-fixed-width"></i>
                 <?php echo __('Send Password Reset Email'); ?></a></li>
             <li><a class="users-action" href="#register">
-                <i class="icon-star icon-fixed-width"></i>
+                <i class="icon-smile icon-fixed-width"></i>
                 <?php echo __('Register'); ?></a></li>
             <li><a class="users-action" href="#lock">
                 <i class="icon-lock icon-fixed-width"></i>
@@ -189,7 +189,7 @@ else
                 ?>
                <tr id="<?php echo $row['id']; ?>">
                 <td nowrap>
-                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="mass nowarn"/>
+                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp;
                     <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php
@@ -209,6 +209,22 @@ else
             } //end of while.
         endif; ?>
     </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="7">
+            <?php if ($res && $num) { ?>
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+            <?php }else{
+                echo '<i>';
+                echo __('Query returned 0 results.');
+                echo '</i>';
+            } ?>
+        </td>
+     </tr>
+    </tfoot>
 </table>
 <?php
 if($res && $num): //Show options..
@@ -249,19 +265,25 @@ $(function() {
 
         return false;
     });
-    var goBaby = function(action) {
+    var goBaby = function(action, confirmed) {
         var ids = [],
             $form = $('form#users-list');
         $(':checkbox.mass:checked', $form).each(function() {
             ids.push($(this).val());
         });
-        if (ids.length && confirm(__('You sure?'))) {
+        if (ids.length) {
+          var submit = function() {
             $form.find('#action').val(action);
             $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
             $form.find('#selected-count').val(ids.length);
             $form.submit();
+          };
+          if (!confirmed)
+              $.confirm(__('You sure?')).then(submit);
+          else
+              submit();
         }
-        else if (!ids.length) {
+        else {
             $.sysAlert(__('Oops'),
                 __('You need to select at least one item'));
         }
@@ -276,7 +298,7 @@ $(function() {
         try {
             var json = $.parseJSON(json);
             $form.find('#org_id').val(json.id);
-            goBaby('setorg');
+            goBaby('setorg', true);
         }
         catch (e) { console.log(e); }
     });

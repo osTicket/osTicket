@@ -607,6 +607,39 @@ $.sysAlert = function (title, msg, cb) {
     }
 };
 
+$.confirm = function(message, title) {
+    title = title || __('Please Confirm');
+    var D = $.Deferred(),
+      $popup = $('.dialog#popup'),
+      hide = function() {
+          $('#overlay').hide();
+          $popup.hide();
+      };
+      $('div#popup-loading', $popup).hide();
+      $('div.body', $popup).empty()
+        .append($('<h3></h3>').text(title))
+        .append($('<a class="close" href="#"><i class="icon-remove-circle"></i></a>'))
+        .append($('<hr/>'))
+        .append($('<p class="confirm-action"></p>')
+            .text(message)
+        ).append($('<div></div>')
+            .append($('<b>').text(__('Please confirm to continue.')))
+        ).append($('<hr style="margin-top:1em"/>'))
+        .append($('<p class="full-width"></p>')
+            .append($('<span class="buttons pull-left"></span>')
+                .append($('<input type="button" class="close"/>')
+                    .attr('value', __('Cancel'))
+                    .click(function() { hide(); })
+            )).append($('<span class="buttons pull-right"></span>')
+                .append($('<input type="button"/>')
+                    .attr('value', __('OK'))
+                    .click(function() {  hide(); D.resolve(); })
+        ))).append($('<div class="clear"></div>'));
+    $('#overlay').fadeIn();
+    $popup.show();
+    return D.promise();
+};
+
 $.userLookup = function (url, cb) {
     $.dialog(url, 201, function (xhr) {
         var user = $.parseJSON(xhr.responseText);
