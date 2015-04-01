@@ -58,6 +58,39 @@ if ($_POST) {
                     _N('selected end user', 'selected end users', $count));
         }
         break;
+
+    case 'mass_process':
+        if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+            $errors['err'] = sprintf(__('You must select at least %s.'),
+                __('one organization'));
+        }
+        else {
+            $orgs = Organization::objects()->filter(
+                array('id__in' => $_POST['ids'])
+            );
+            $count = 0;
+            switch (strtolower($_POST['do'])) {
+            case 'delete':
+                foreach ($orgs as $O)
+                    if ($O->delete())
+                        $count++;
+                break;
+
+            default:
+                $errors['err']=__('Unknown action - get technical help.');
+            }
+            if (!$errors['err'] && !$count) {
+                $errors['err'] = __('Unable to manage any of the selected organizations');
+            }
+            elseif ($_POST['count'] && $count != $_POST['count']) {
+                $warn = __('Not all selected items were updated');
+            }
+            elseif ($count) {
+                $msg = __('Successfully managed selected organizations');
+            }
+        }
+        break;
+
     default:
         $errors['err'] = __('Unknown action');
     }
