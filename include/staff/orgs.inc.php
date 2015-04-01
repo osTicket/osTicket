@@ -72,7 +72,7 @@ $qhash = md5($query);
 $_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
 <h2><?php echo __('Organizations'); ?></h2>
-<div class="pull-left" style="width:700px;">
+<div class="pull-left">
     <form action="orgs.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -144,7 +144,7 @@ else
                 ?>
                <tr id="<?php echo $row['id']; ?>">
                 <td nowrap>
-                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="mass nowarn"/>
+                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>
                 <td>&nbsp;<?php echo $row['users']; ?></td>
@@ -155,6 +155,22 @@ else
             } //end of while.
         endif; ?>
     </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="7">
+            <?php if ($res && $num) { ?>
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+            <?php }else{
+                echo '<i>';
+                echo __('Query returned 0 results.');
+                echo '</i>';
+            } ?>
+        </td>
+     </tr>
+    </tfoot>
 </table>
 <?php
 if($res && $num): //Show options..
@@ -201,11 +217,14 @@ $(function() {
         $(':checkbox.mass:checked', $form).each(function() {
             ids.push($(this).val());
         });
-        if (ids.length && confirm(__('You sure?'))) {
+        if (ids.length) {
+          var submit = function() {
             $form.find('#action').val(action);
             $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
             $form.find('#selected-count').val(ids.length);
             $form.submit();
+          };
+          $.confirm(__('You sure?')).then(submit);
         }
         else if (!ids.length) {
             $.sysAlert(__('Oops'),
