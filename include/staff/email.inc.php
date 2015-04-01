@@ -218,7 +218,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
 		<span>
 			<select name="mail_proto">
-                <option value=''>&mdash; <?php __('Select protocol'); ?> &mdash;</option>
+                <option value=''>&mdash; <?php echo __('Select protocol'); ?> &mdash;</option>
 <?php
     foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
                 <option value="<?php echo $proto; ?>" <?php
