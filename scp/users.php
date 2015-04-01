@@ -101,7 +101,7 @@ if ($_POST) {
 
                 case 'register':
                     foreach ($users as $U) {
-                        if (($acct = $U->getAccount()) && $acct->setConfirmationEmail())
+                        if (($acct = $U->getAccount()) && $acct->sendConfirmEmail())
                             $count++;
                         elseif ($acct = UserAccount::register($U,
                             array('sendemail' => true), $errors
