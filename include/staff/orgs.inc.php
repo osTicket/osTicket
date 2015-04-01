@@ -86,9 +86,27 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
         </table>
     </form>
  </div>
- <div class="pull-right flush-right">
-    <b><a href="#orgs/add" class="Icon newDepartment add-org"><?php
-    echo __('Add New Organization'); ?></a></b></div>
+
+<div class="pull-right">
+    <a class="action-button add-org"
+        href="#">
+        <i class="icon-plus-sign"></i>
+        <?php echo __('Add Organization'); ?>
+    </a>
+    <span class="action-button" data-dropdown="#action-dropdown-more"
+        style="/*DELME*/ vertical-align:top; margin-bottom:0">
+        <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul>
+            <li><a class="orgs-action" href="#delete">
+                <i class="icon-trash icon-fixed-width"></i>
+                <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
+</div>
+
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -98,14 +116,16 @@ if($res && ($num=db_num_rows($res)))
 else
     $showing .= __('No organizations found!');
 ?>
-<form action="orgs.php" method="POST" name="staff" >
+<form id="orgs-list" action="orgs.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
- <input type="hidden" name="do" value="mass_process" >
- <input type="hidden" id="action" name="a" value="" >
+ <input type="hidden" name="a" value="mass_process" >
+ <input type="hidden" id="action" name="do" value="" >
+ <input type="hidden" id="selected-count" name="count" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
+            <th nowrap width="12"> </th>
             <th width="400"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
             <th width="100"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
             <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
@@ -123,6 +143,9 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
+                <td nowrap>
+                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="mass nowarn"/>
+                </td>
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>
                 <td>&nbsp;<?php echo $row['users']; ?></td>
                 <td><?php echo Format::db_date($row['created']); ?></td>
@@ -171,5 +194,28 @@ $(function() {
 
         return false;
      });
+
+    var goBaby = function(action) {
+        var ids = [],
+            $form = $('form#orgs-list');
+        $(':checkbox.mass:checked', $form).each(function() {
+            ids.push($(this).val());
+        });
+        if (ids.length && confirm(__('You sure?'))) {
+            $form.find('#action').val(action);
+            $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
+            $form.find('#selected-count').val(ids.length);
+            $form.submit();
+        }
+        else if (!ids.length) {
+            $.sysAlert(__('Oops'),
+                __('You need to select at least one item'));
+        }
+    };
+    $(document).on('click', 'a.orgs-action', function(e) {
+        e.preventDefault();
+        goBaby($(this).attr('href').substr(1));
+        return false;
+    });
 });
 </script>
