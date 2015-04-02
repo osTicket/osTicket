@@ -1,3 +1,24 @@
+osTicket v1.8.9
+===============
+### Enhancements
+  * Remote IP is logged for staff replies (#1846)
+  * Email system now uses LF instead of CRLF as the default (#1909)
+
+### Improvements
+  * Delete ticket custom data on delete (#1840)
+  * Trim whitespace from filter match data on update (#1844)
+  * Fix not considering the setting for alert assigned on new message (#1850)
+  * Fix advanced search for unassigned tickets (#1857)
+  * Fix incorrect internal/public category setting in drop down for new FAQ
+    (#1867)
+  * Fix navigation warning if not using the lock feature (#1898)
+  * Fix SQL alert with multiple Message-ID headers (#1920)
+  * Fix missing UTF-8 output encoding header for staff control panel (#1918)
+
+### Performance and Security
+  * Defer loading of thread email header information when loading ticket thread
+    (#1900)
+
 osTicket v1.8.8
 ===============
 ### Improvements
