@@ -72,7 +72,7 @@ group_membership:
 sandboxing:
     title: Ticket Assignment Restrictions
     content: >
-        Enable this to restrict ticket assignement to only include members
+        Enable this to restrict ticket assignment to include only members
         of this Department. Department membership can be extended to Groups,
         if <span class="doc-desc-title">Alerts &amp; Notices
         Recipients</span> includes groups members.

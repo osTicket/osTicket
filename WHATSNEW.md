@@ -1,3 +1,45 @@
+osTicket v1.9.7
+===============
+### Enhancements
+  * Remote IP is logged for staff replies (#1846)
+  * Add option to require client login to view knowledge base (#1851)
+  * Internal activity alert, replacing the internal note alert, includes alerts
+    of responses made by other agents (#1865)
+  * Email system now uses LF instead of CRLF as the default (#1909)
+  * Mass actions for user directory (#1924)
+  * Unassign tickets on transfer if current assignee is not a member of the new
+    department and the department has "Restrict assignment to members" enabled
+    (#1923)
+
+### Improvements
+  * Clear overdue flag when a ticket is closed, thanks @A-Lawrence (#1739)
+  * Clear attached file listing on client post (regression) (#1845)
+  * Delete ticket custom data on delete (#1840)
+  * Trim whitespace from filter match data on update (#1844)
+  * Fix dropping of custom data on API post (#1839)
+  * Fix advanced search on create date (#1848)
+  * Fix initial load and pagination of dashboard page (#1856)
+  * Fix incorrect internal/public category setting in drop down for new FAQ
+    (#1867)
+  * Add UTF-8 BOM to CSV export for correct Unicode detection (#1869)
+  * Fix not considering the setting for alert assigned on new message (#1850)
+  * Skip new activity notice if collaborator(s) included in email To or Cc
+    header (#1871)
+  * Fix inability to uncheck a custom data checkbox (#1866)
+  * Fix advanced search for unassigned tickets (#1857)
+  * Fix navigation warning if not using the lock feature (#1898)
+  * Fix detection of message of some bounce notices (#1914)
+  * Fix SQL alert with multiple Message-ID headers (#1920)
+  * Add a warning if attempting to configure archiving for POP accounts (#1921)
+  * Fix missing UTF-8 output encoding header for staff control panel (#1918)
+  * Fix z-index issue between popup previews and modal dialogs (#1919)
+  * Record imported file backend when importing files (f1e31ba)
+
+### Performance and Security
+  * Fix XSS vulnerability in sequence management (88bedbd)
+  * Defer loading of thread email header information when loading ticket thread
+    (#1900)
+
 osTicket v1.9.6
 ===============
 ### Enhancements
