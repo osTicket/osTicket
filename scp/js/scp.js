@@ -386,6 +386,7 @@ var scp_prep = function() {
         var fObj = $(this);
         var elem = $('#advanced-search');
         $('#result-count').html('');
+        fixupDatePickers.call(this);
         $.ajax({
                 url: "ajax.php/tickets/search",
                 data: fObj.serialize(),
@@ -450,18 +451,21 @@ var scp_prep = function() {
 
 $(document).ready(scp_prep);
 $(document).on('pjax:end', scp_prep);
-$(document).on('submit', 'form', function() {
+var fixupDatePickers = function() {
     // Reformat dates
     $('.dp', $(this)).each(function(i, e) {
         var $e = $(e),
             d = $e.datepicker('getDate');
-        if (!d) return;
+        if (!d || $e.data('fixed')) return;
         var day = ('0'+d.getDate()).substr(-2),
             month = ('0'+(d.getMonth()+1)).substr(-2),
             year = d.getFullYear();
         $e.val(year+'-'+month+'-'+day);
+        $e.data('fixed', true);
+        $e.on('change', function() { $(this).data('fixed', false); });
     });
-});
+};
+$(document).on('submit', 'form', fixupDatePickers);
 
     /************ global inits *****************/
 
@@ -583,12 +587,14 @@ $.dialog = function (url, codes, cb, options) {
                 data: $form.serialize(),
                 cache: false,
                 success: function(resp, status, xhr) {
+                    var done = $.Event('dialog:close');
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
                         $.toggleOverlay(false);
                         $popup.hide();
                         $('div.body', $popup).empty();
                         if(cb) cb(xhr, resp);
+                        $popup.trigger(done, [resp, status, xhr]);
                     } else {
                         try {
                             var json = $.parseJSON(resp);
@@ -623,6 +629,39 @@ $.sysAlert = function (title, msg, cb) {
     } else {
         alert(msg);
     }
+};
+
+$.confirm = function(message, title) {
+    title = title || __('Please Confirm');
+    var D = $.Deferred(),
+      $popup = $('.dialog#popup'),
+      hide = function() {
+          $('#overlay').hide();
+          $popup.hide();
+      };
+      $('div#popup-loading', $popup).hide();
+      $('div.body', $popup).empty()
+        .append($('<h3></h3>').text(title))
+        .append($('<a class="close" href="#"><i class="icon-remove-circle"></i></a>'))
+        .append($('<hr/>'))
+        .append($('<p class="confirm-action"></p>')
+            .text(message)
+        ).append($('<div></div>')
+            .append($('<b>').text(__('Please confirm to continue.')))
+        ).append($('<hr style="margin-top:1em"/>'))
+        .append($('<p class="full-width"></p>')
+            .append($('<span class="buttons pull-left"></span>')
+                .append($('<input type="button" class="close"/>')
+                    .attr('value', __('Cancel'))
+                    .click(function() { hide(); })
+            )).append($('<span class="buttons pull-right"></span>')
+                .append($('<input type="button"/>')
+                    .attr('value', __('OK'))
+                    .click(function() {  hide(); D.resolve(); })
+        ))).append($('<div class="clear"></div>'));
+    $('#overlay').fadeIn();
+    $popup.show();
+    return D.promise();
 };
 
 $.userLookup = function (url, cb) {

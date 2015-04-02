@@ -239,6 +239,16 @@ class Dept extends VerySimpleModel {
         return ($this->getManagerId() && $this->getManagerId()==$staff);
     }
 
+    function isMember($staff) {
+
+        if (is_object($staff))
+            $staff = $staff->getId();
+
+        // Members are indexed by ID
+        $members = $this->getMembers();
+
+        return ($members && isset($members[$staff]));
+    }
 
     function isPublic() {
          return $this->ispublic;

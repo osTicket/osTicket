@@ -358,8 +358,12 @@ class Email {
 
             if(!isset($vars['postfetch']))
                 $errors['postfetch']=__('Indicate what to do with fetched emails');
-            elseif(!strcasecmp($vars['postfetch'],'archive') && !$vars['mail_archivefolder'] )
-                $errors['postfetch']=__('Valid folder required');
+            elseif(!strcasecmp($vars['postfetch'],'archive')) {
+                if ($vars['mail_protocol'] == 'POP')
+                    $errors['postfetch'] =  __('POP mail servers do not support folders');
+                elseif (!$vars['mail_archivefolder'])
+                    $errors['postfetch'] = __('Valid folder required');
+            }
         }
 
         if($vars['smtp_active']) {

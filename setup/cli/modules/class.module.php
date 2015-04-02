@@ -98,11 +98,10 @@ class Option {
 class OutputStream {
     var $stream;
 
-    function OutputStream() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
     function __construct($stream) {
-        $this->stream = fopen($stream, 'w');
+        if (!($this->stream = fopen($stream, 'w')))
+            throw new Exception(sprintf('%s: Cannot open for writing',
+                $stream));
     }
 
     function write($what) {
@@ -213,8 +212,11 @@ class Module {
             $this->parseArgs(array_slice($argv, 1));
 
         foreach (array_keys($this->arguments) as $idx=>$name)
-            if (!isset($this->_args[$idx]))
-                $this->optionError($name . " is a required argument");
+            if (!isset($this->_args[$idx])) {
+                $info = $this->arguments[$name];
+                if (!is_array($info) || !isset($info['required']) || $info['required'])
+                    $this->optionError($name . " is a required argument");
+            }
             elseif (is_array($this->arguments[$name])
                     && isset($this->arguments[$name]['options'])
                     && !isset($this->arguments[$name]['options'][$this->_args[$idx]]))

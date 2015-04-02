@@ -347,10 +347,15 @@ class MailFetcher {
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
-        if (!$header['mid'] && $header['header'])
-            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
-                    'message-id')))
+        if (!$header['mid'] && $header['header']) {
+            $header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id');
+
+            if (is_array($header['mid']))
+                $header['mid'] = array_pop(array_filter($header['mid']));
+            if (!$header['mid'])
                 $header['mid'] = '<' . md5($header['header']) . '@local>';
+        }
 
         return $header;
     }
@@ -544,11 +549,21 @@ class MailFetcher {
     }
 
     function getPriority($mid) {
-        if ($this->tnef && isset($this->tnef->Importance))
-            // PidTagImportance is 0, 1, or 2
+        if ($this->tnef && isset($this->tnef->Importance)) {
+            // PidTagImportance is 0, 1, or 2, 2 is high
             // http://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
-            return $this->tnef->Importance + 1;
-        return Mail_Parse::parsePriority($this->getHeader($mid));
+            $urgency = 4 - $this->tnef->Importance;
+        }
+        elseif ($priority = Mail_Parse::parsePriority($this->getHeader($mid))) {
+            $urgency = $priority + 1;
+        }
+        if ($urgency) {
+            $sql = 'SELECT `priority_id` FROM '.PRIORITY_TABLE
+                .' WHERE `priority_urgency`='.db_input($urgency)
+                .' LIMIT 1';
+            $id = db_result(db_query($sql));
+            return $id;
+        }
     }
 
     function getBody($mid) {
@@ -643,7 +658,7 @@ class MailFetcher {
                 $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $vars['message'] = $this->getDeliveryStatusMessage($mid);
+            $data['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
             $vars['flags']['bounce'] = true;
         }

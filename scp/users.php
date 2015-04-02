@@ -75,7 +75,70 @@ if ($_POST) {
                 $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one end user'));
             } else {
-                $errors['err'] = "Coming soon!";
+                $users = User::objects()->filter(
+                    array('id__in' => $_POST['ids'])
+                );
+                $count = 0;
+                switch (strtolower($_POST['a'])) {
+                case 'lock':
+                    foreach ($users as $U)
+                        if (($acct = $U->getAccount()) && $acct->lock())
+                            $count++;
+                    break;
+
+                case 'unlock':
+                    foreach ($users as $U)
+                        if (($acct = $U->getAccount()) && $acct->unlock())
+                            $count++;
+                    break;
+
+                case 'delete':
+                    foreach ($users as $U)
+                        if ($U->delete())
+                            $count++;
+                    break;
+
+                case 'reset':
+                    foreach ($users as $U)
+                        if (($acct = $U->getAccount()) && $acct->sendResetEmail())
+                            $count++;
+                    break;
+
+                case 'register':
+                    foreach ($users as $U) {
+                        if (($acct = $U->getAccount()) && $acct->sendConfirmEmail())
+                            $count++;
+                        elseif ($acct = UserAccount::register($U,
+                            array('sendemail' => true), $errors
+                        )) {
+                            $count++;
+                        }
+                    }
+                    break;
+
+                case 'setorg':
+                    if (!($org = Organization::lookup($_POST['org_id'])))
+                        $errors['err'] = __('Unknown action - get technical help.');
+                    foreach ($users as $U) {
+                        if ($U->setOrganization($org))
+                            $count++;
+                    }
+                    break;
+
+                default:
+                    $errors['err']=__('Unknown action - get technical help.');
+                }
+                if (!$errors['err'] && !$count) {
+                    $errors['err'] = __('Unable to manage any of the selected end users');
+                }
+                elseif ($_POST['count'] && $count != $_POST['count']) {
+                    $warn = __('Not all selected items were updated');
+                }
+                elseif ($count) {
+                    $msg = __('Successfully managed selected end users');
+                }
+
+
             }
             break;
         case 'import-users':

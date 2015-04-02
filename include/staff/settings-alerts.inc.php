@@ -88,7 +88,7 @@
                 <?php echo __('Organization Account Manager'); ?>
             </td>
         </tr>
-        <tr><th><em><b><?php echo __('New Internal Note Alert'); ?></b>:
+        <tr><th><em><b><?php echo __('New Internal Activity Alert'); ?></b>:
             <i class="help-tip icon-question-sign" href="#internal_note_alert"></i>
             </em></th></tr>
         <tr>

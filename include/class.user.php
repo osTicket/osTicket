@@ -64,6 +64,13 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
+            'cdata_entry' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'U'" => 'DynamicFormEntry.object_type',
+                ),
+                'null' => true,
+            ),
         )
     );
 
@@ -378,7 +385,7 @@ class User extends UserModel {
                     }
                 }
 
-                $this->_forms[] = $cd->getForm();
+                $this->_forms[] = $cd;
             }
         }
 
@@ -541,15 +548,15 @@ class User extends UserModel {
     function updateInfo($vars, &$errors, $staff=false) {
 
         $valid = true;
-        $forms = $this->getDynamicData();
+        $forms = $this->getForms($vars);
         foreach ($forms as $cd) {
             $cd->setSource($vars);
             if ($staff && !$cd->isValidForStaff())
                 $valid = false;
-            elseif (!$cd->isValidForClient())
+            elseif (!$staff && !$cd->isValidForClient())
                 $valid = false;
-            elseif ($cd->get('type') == 'U'
-                        && ($form= $cd->getForm())
+            elseif (($form= $cd->getForm())
+                        && $form->get('type') == 'U'
                         && ($f=$form->getField('email'))
                         && $f->getClean()
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))
@@ -562,7 +569,7 @@ class User extends UserModel {
         if (!$valid)
             return false;
 
-        foreach ($this->getDynamicData() as $cd) {
+        foreach ($forms as $cd) {
             if (($f=$cd->getForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
@@ -884,7 +891,12 @@ class UserAccountModel extends VerySimpleModel {
 
     function lock() {
         $this->setStatus(UserAccountStatus::LOCKED);
-        $this->save();
+        return $this->save();
+    }
+
+    function unlock() {
+        $this->clearStatus(UserAccountStatus::LOCKED);
+        return $this->save();
     }
 
     function isLocked() {

@@ -208,6 +208,9 @@ class Bootstrap {
     }
 
     function i18n_prep() {
+        ini_set('default_charset', 'utf-8');
+        ini_set('output_encoding', 'utf-8');
+
         // MPDF requires mbstring functions
         if (!extension_loaded('mbstring')) {
             if (function_exists('iconv')) {

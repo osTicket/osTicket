@@ -12,6 +12,8 @@ if (!$info['topicId'])
 $forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     foreach ($topic->getForms() as $F) {
+        if (!$F->hasAnyVisibleFields())
+            continue;
         if ($_POST) {
             $F = $F->instanciate();
             $F->isValidForClient();
@@ -266,8 +268,6 @@ if ($_POST)
         <tbody id="dynamic-form">
         <?php
             foreach ($forms as $form) {
-                if (!$form->hasAnyVisibleFields())
-                    continue;
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }

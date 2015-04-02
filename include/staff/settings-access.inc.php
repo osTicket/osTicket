@@ -172,9 +172,14 @@ $manage_content = function($title, $content) use ($contents) {
     <i class="icon-file-text pull-left icon-2x" style="color:#bbb;margin:0 -36px"></i>
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
-        $.dialog($(this).attr('href').substr(1), 200);
-    return false;">
-<?php
+        $.dialog($(this).attr('href').substr(1), 201);
+    return false;" class="pull-left"><i class="icon-file-text icon-2x"
+        style="color:#bbb;"></i> </a>
+    <span style="display:inline-block;width:90%;padding-left:10px;line-height:1.2em">
+    <a href="#ajax.php/content/<?php echo $id; ?>/manage"
+    onclick="javascript:
+        $.dialog($(this).attr('href').substr(1), 201);
+    return false;"><?php
     echo Format::htmlchars($title); ?></a><br/>
         <span class="faded"><?php
         echo Format::display($notes); ?>

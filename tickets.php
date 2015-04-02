@@ -88,7 +88,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
                 Draft::deleteForNamespace('ticket.client.' . $ticket->getId());
                 // Drop attachments
                 $attachments->reset();
-                $tform->setSource(array());
+                $attachments->getForm()->setSource(array());
             } else {
                 $errors['err']=__('Unable to post the message. Try again');
             }
@@ -130,6 +130,8 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
+if ($tform instanceof DynamicFormEntry)
+    $tform = $tform->getForm();
 print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>
