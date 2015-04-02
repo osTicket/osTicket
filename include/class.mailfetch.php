@@ -657,7 +657,7 @@ class MailFetcher {
                 $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $data['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
+            $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
             $vars['flags']['bounce'] = true;
         }
