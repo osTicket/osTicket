@@ -50,6 +50,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function saveFieldConfiguration($field_id) {
+
         if (!($field = DynamicFormField::lookup($field_id)))
             Http::response(404, 'No such field');
 
@@ -75,13 +76,12 @@ class DynamicFormsAjaxAPI extends AjaxController {
             function($a, $b) { return $a | $b; }, 0);
         $field->flags = $flags | $preserve;
 
-        if (!$field->setConfiguration()) {
-            include STAFFINC_DIR . 'templates/dynamic-field-config.tmpl.php';
-            return;
-        }
-        else
+        if ($field->setConfiguration($_POST)) {
             $field->save();
-        Http::response(201, 'Field successfully updated');
+            Http::response(201, 'Field successfully updated');
+        }
+
+        include STAFFINC_DIR . 'templates/dynamic-field-config.tmpl.php';
     }
 
     function deleteAnswer($entry_id, $field_id) {
@@ -175,7 +175,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $icon = ($list->get('sort_mode') == 'SortCol')
             ? '<i class="icon-sort"></i>&nbsp;' : '';
 
-        if (!$valid || !$item->setConfiguration()) {
+        if (!$valid || !$item->setConfiguration($_POST)) {
             include STAFFINC_DIR . 'templates/list-item-properties.tmpl.php';
             return;
         }

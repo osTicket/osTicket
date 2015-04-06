@@ -562,6 +562,7 @@ class DynamicFormField extends VerySimpleModel {
      * configuration of this field
      *
      * Parameters:
+     * vars - POST request / data
      * errors - (OUT array) receives validation errors of the parsed
      *      configuration form
      *
@@ -570,15 +571,17 @@ class DynamicFormField extends VerySimpleModel {
      * errors. If false, the errors were written into the received errors
      * array.
      */
-    function setConfiguration(&$errors=array()) {
+    function setConfiguration($vars, &$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm($_POST)->getFields() as $name=>$field) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $name=>$field) {
             $config[$name] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
         if (count($errors) === 0)
             $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', Format::sanitize($_POST['hint']));
+
+        $this->set('hint', Format::sanitize($vars['hint']));
+
         return count($errors) === 0;
     }
 
@@ -1656,6 +1659,11 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         $data = $this->field->getSource();
         if (isset($data[$this->name]))
             return $data[$this->name];
+
+        $name = $this->field->get('name');
+        if (isset($data[$name]))
+           return $data[$name];
+
         return parent::getValue();
     }
 
@@ -1665,7 +1673,10 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         if (isset($data[$this->name.'_name'])) {
             // Drop the extra part, if any
             $v = $data[$this->name.'_name'];
-            $v = substr($v, 0, strrpos($v, ' — '));
+            $pos = strrpos($v, ' — ');
+            if ($pos !== false)
+                $v = substr($v, 0, $pos);
+
             return trim($v);
         }
         return parent::getValue();
