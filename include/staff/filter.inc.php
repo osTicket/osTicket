@@ -78,7 +78,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="target">
-                   <option value="">&mdash; <?php echo __('Select a Channel');?> &dash;</option>
+                   <option value="">&mdash; <?php echo __('Select a Channel');?> &mdash;</option>
                    <?php
                    foreach(Filter::getTargets() as $k => $v) {
                        echo sprintf('<option value="%s" %s>%s</option>',
