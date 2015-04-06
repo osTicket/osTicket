@@ -227,17 +227,18 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->_items;
     }
 
-
-
-    function getItem($val) {
+    function getItem($val, $extra=false) {
 
         $items = DynamicListItem::objects()->filter(
                 array('list_id' => $this->getId()));
 
         if (is_int($val))
             $items->filter(array('id' => $val));
+        elseif ($extra)
+            $items->filter(array('extra' => $val));
         else
-            $items->filter(Q::any(array('value'=>$val, 'extra' => $val)));
+            $items->filter(array('value' => $val));
+
 
         return $items->first();
     }
