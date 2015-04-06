@@ -1326,12 +1326,20 @@ class SelectionField extends FormField {
         $config = $this->getConfiguration();
         $choices = $this->getChoices();
         $selection = array();
+
+        if ($value && !is_array($value))
+            $value = array($value);
+
         if ($value && is_array($value)) {
             foreach ($value as $k=>$v) {
-                if (($i=$list->getItem((int) $k)))
+                if ($k && ($i=$list->getItem((int) $k)))
                     $selection[$i->getId()] = $i->getValue();
                 elseif (isset($choices[$k]))
                     $selection[$k] = $choices[$k];
+                elseif (isset($choices[$v]))
+                    $selection[$v] = $choices[$v];
+                elseif (($i=$list->getItem($v, true)))
+                    $selection[$i->getId()] = $i->getValue();
             }
         } elseif($value) {
             //Assume invalid textbox input to be validated
