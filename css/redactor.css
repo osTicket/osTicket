@@ -19,18 +19,12 @@
   overflow: visible;
   background: #fff;
 }
-.redactor-box iframe,
 .redactor-box textarea {
   display: block;
   position: relative;
   margin: 0;
   padding: 0;
   width: 100%;
-}
-.redactor-box iframe {
-  border: 1px solid #eee;
-}
-.redactor-box textarea {
   overflow: auto;
   outline: none;
   border: none;
@@ -98,7 +92,7 @@ body .redactor-box-fullscreen {
 /*
 	Utils
 */
-.body-hidden {
+.body-redactor-hidden {
   overflow: hidden;
 }
 /*
@@ -112,13 +106,15 @@ body .redactor-box-fullscreen {
   outline: none;
   white-space: normal;
   border: 1px solid #eee;
-  border-top: none;
   font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif;
   font-size: 14px;
   line-height: 1.6em;
 }
 .redactor-editor:focus {
   outline: none;
+}
+.toolbar-fixed-box + .redactor-editor {
+  padding-top: 42px !important;
 }
 /*
 	Placeholder
@@ -134,19 +130,10 @@ body .redactor-box-fullscreen {
   color: #999 !important;
   font-weight: normal !important;
 }
-.redactor-placeholder[dir=rtl]:after {
-  left: initial;
-  right: 20px;
-}
-
 /* Placeholder in linebreaks mode */
 .redactor-linebreaks.redactor-placeholder:after {
-  top: 10px;
-  left: 10px;
-}
-.redactor-linebreaks.redactor-placeholder[dir=rtl]:after {
-  left: initial;
-  right: 10px;
+  top: 20px;
+  left: 20px;
 }
 /*
 	Toolbar
@@ -163,7 +150,6 @@ body .redactor-box-fullscreen {
   background: #fff;
   border: none;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  z-index: 1;
 }
 .redactor-toolbar:after {
   content: "";
@@ -361,7 +347,7 @@ body .redactor-box-fullscreen {
 */
 .redactor-toolbar-tooltip {
   position: absolute;
-  z-index: 100;
+  z-index: 1054;
   text-align: center;
   top: 0;
   left: 0;
@@ -669,7 +655,7 @@ body .redactor-box-fullscreen {
   padding-left: 0;
   list-style: none;
   max-height: 250px;
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 #redactor-modal #redactor-modal-list li {
   border-bottom: 1px solid #ddd;
@@ -840,9 +826,6 @@ body .redactor-box-fullscreen {
 .redactor-editor hr {
   margin-bottom: 15px;
 }
-.redactor-editor iframe {
-  width: auto;
-}
 .redactor-editor blockquote {
   margin-left: 1.6em !important;
   padding-left: 0;
@@ -940,10 +923,4 @@ body .redactor-box-fullscreen {
 .redactor-editor h6 {
   font-size: 12px;
   text-transform: uppercase;
-}
-.redactor-dropdown *,
-#redactor-modal * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
 }

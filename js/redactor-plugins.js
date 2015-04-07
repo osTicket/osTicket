@@ -804,7 +804,7 @@ RedactorPlugins.imagepaste = function() {
       if (cd.items && cd.items.length)
       {
         for (i = 0, k = cd.items.length; i < k; i++) {
-          if (cd.kind == 'file' && cd.type.indexOf('image/') !== -1) {
+          if (cd.items[i].kind == 'file' && cd.items[i].type.indexOf('image/') !== -1) {
             file = cd.items[i].getAsFile();
             if (file !== null)
               files.push(file);
@@ -813,7 +813,7 @@ RedactorPlugins.imagepaste = function() {
       }
       else if (cd.files && cd.files.length)
       {
-        files = cd.files
+        files = cd.files;
       }
       else if (cd.types.length) {
         for (i = 0, k = cd.types.length; i < k; i++) {
@@ -824,14 +824,22 @@ RedactorPlugins.imagepaste = function() {
           }
         }
       }
+      var self = this, node;
+      this.opts.imageUploadCallback = function(image, json) {
+        // Redactor just has a bloody hard time inserting for some dumb
+        // reason.
+      };
+
       if (files.length) {
         // clipboard upload
-        this.selection.save();
-        this.buffer.set();
-        this.clean.singleLine = false;
-        for (i = 0, k = files.length; i < k; i++)
-          this.upload.directUpload(files[i], event);
-        return false;
+        var I = setInterval(function() {
+          if (!self.focus.isFocused())
+            return;
+          clearInterval(I);
+          self.clean.singleLine = false;
+          for (i = 0, k = files.length; i < k; i++)
+            self.upload.directUpload(files[i], e);
+        }, 5);
       }
     }
   };
@@ -1569,7 +1577,6 @@ RedactorPlugins.imageannotate = function() {
       scale = Math.max(0.7, $img.width() / I.width);
       var scaleWidth = $img.width() / scale,
           scaleHeight = $img.height() / scale;
-      console.log(I.width, scaleWidth, $img.width(), scale);
       fcanvas
         .setDimensions({width: $img.width(), height: $img.height()})
         .setZoom(scale)

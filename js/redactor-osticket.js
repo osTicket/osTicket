@@ -255,8 +255,8 @@ $(function() {
                 'minHeight': selectedSize,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
-                  ? ['imagepaste','imagemanager','definedlinks']
-                  : ['imagepaste','imagemanager','imageannotate','table','video','definedlinks','autolock'],
+                  ? ['imagemanager','definedlinks']
+                  : ['imagemanager','imageannotate','table','video','definedlinks','autolock'],
                 'imageUpload': 'tbd',
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
@@ -291,6 +291,7 @@ $(function() {
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
+            options['plugins'].push('imagepaste');
             options.draftDelete = el.hasClass('draft-delete');
         }
         if (el.hasClass('fullscreen'))
@@ -301,8 +302,8 @@ $(function() {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])
                 options['lang'] = c.short_lang;
-            if (c.has_rtl)
-                options['plugins'].push('textdirection');
+            //if (c.has_rtl)
+              //  options['plugins'].push('textdirection');
             if (el.find('rtl').length)
                 options['direction'] = 'rtl';
             el.redactor(options);
@@ -333,18 +334,6 @@ $(function() {
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
-
-    // Monkey patch paste to show the loading bar
-    var oldImagePaste = $.Redactor.fn.paste.insertFromClipboard,
-        oldImageInsert = $.Redactor.fn.image.insert;
-    $.Redactor.fn.paste.insertFromClipboard = function() {
-        this.progress.show();
-        return oldImagePaste.apply(this, arguments);
-    };
-    $.Redactor.fn.image.insert = function() {
-        this.progress.hide();
-        return oldImageInsert.apply(this, arguments);
-    };
 });
 
 $(document).ajaxError(function(event, request, settings) {

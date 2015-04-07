@@ -74,7 +74,7 @@ if(jQuery) (function($) {
 	$(function () {
 		$('body').on('click.dropdown', '[data-dropdown]', showMenu);
 		$('html').on('click.dropdown', hideDropdowns);
-		if( !$.browser.msie || ($.browser.msie && $.browser.version >= 9) ) {
+		if(document.addEventListener) {
 			$(window).on('resize.dropdown', hideDropdowns);
 		}
 	});

@@ -125,19 +125,6 @@ var scp_prep = function() {
         }
      });
 
-
-    if($.browser.msie) {
-        $('.inactive').mouseenter(function() {
-            var elem = $(this);
-            var ie_shadow = $('<div>').addClass('ieshadow').css({
-                height:$('ul', elem).height()
-            });
-            elem.append(ie_shadow);
-        }).mouseleave(function() {
-            $('.ieshadow').remove();
-        });
-    }
-
     var warnOnLeave = function (el) {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
@@ -182,7 +169,7 @@ var scp_prep = function() {
         form.submit();
      });
 
-    $(".clearrule").live('click',function() {
+    $(document).on('click', ".clearrule",function() {
         $(this).closest("tr").find(":input").val('');
         return false;
      });
@@ -831,7 +818,7 @@ $(document).on('pjax:complete', function() {
 });
 
 // Quick note interface
-$('.quicknote .action.edit-note').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.edit-note', function() {
     var note = $(this).closest('.quicknote'),
         body = note.find('.body'),
         T = $('<textarea>').text(body.html());
@@ -846,7 +833,7 @@ $('.quicknote .action.edit-note').live('click.note', function() {
     $('#new-note-box').hide();
     return false;
 });
-$('.quicknote .action.cancel-edit').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.cancel-edit', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea'),
         body = $('<div class="body">');
@@ -860,7 +847,7 @@ $('.quicknote .action.cancel-edit').live('click.note', function() {
     });
     return false;
 });
-$('.quicknote .action.save-note').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.save-note', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea');
     $.post('ajax.php/note/' + note.data('id'),
@@ -878,7 +865,7 @@ $('.quicknote .action.save-note').live('click.note', function() {
     );
     return false;
 });
-$('.quicknote .delete').live('click.note', function() {
+$(document).on('click.note', '.quicknote .delete', function() {
   var that = $(this),
       id = $(this).closest('.quicknote').data('id');
   $.ajax('ajax.php/note/' + id, {
@@ -892,7 +879,7 @@ $('.quicknote .delete').live('click.note', function() {
   });
   return false;
 });
-$('#new-note').live('click', function() {
+$(document).on('click', '#new-note', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
     button = $('<input type="button">').val(__('Create'));
