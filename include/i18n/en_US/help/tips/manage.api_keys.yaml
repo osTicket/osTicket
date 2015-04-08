@@ -28,5 +28,5 @@ api_key:
 ip_addr:
     title: IP Address
     content: >
-        Client's network IP address. Each unique client IP address will
+        Client's network IP address or IP regular expression pattern. Each unique client IP address/pattern will
         require separate API keys

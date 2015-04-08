@@ -121,8 +121,11 @@ class API {
 
     function save($id, $vars, &$errors) {
 
-        if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
-            $errors['ipaddr'] = __('Valid IP is required');
+        if (!$id && (
+                !$vars['ipaddr'] //no ip set
+                || (!$vars['ip_is_pattern'] && !Validator::is_ip($vars['ipaddr'])) //non-regex wrong ip
+                || ($vars['ip_is_pattern'] && !Validator::is_regex('/' . $vars['ipaddr'] . '/')))) //regex but not real
+            $errors['ipaddr'] = __('Valid IP or IP-pattern is required');
 
         if($errors) return false;
 
@@ -174,16 +177,16 @@ class ApiController {
 
         if(!($key=$this->getApiKey()))
             return $this->exerr(401, __('Valid API key required'));
-        elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
+        elseif (!$key->isActive() || !$this->validateIP($key->getIPAddr(), $_SERVER['REMOTE_ADDR']))
             return $this->exerr(401, __('API key not found/active or source IP not authorized'));
 
         return $key;
     }
-
+    
     function getApiKey() {
 
         if (!$this->apikey && isset($_SERVER['HTTP_X_API_KEY']) && isset($_SERVER['REMOTE_ADDR']))
-            $this->apikey = API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']);
+            $this->apikey = API::lookupByKey($_SERVER['HTTP_X_API_KEY']);
 
         return $this->apikey;
     }
@@ -277,6 +280,26 @@ class ApiController {
                 $this->getRequestStructure($format, $data),
                 "",
                 $strict);
+    }
+    
+    /**
+     * test if IP is valid
+     * @param string $IpOrPattern ip address or ip regex pattern
+     * @param string $IP ip to validate
+     * @return boolean true if valid
+     */
+    function validateIP($IpOrPattern, $IP) {
+        //if real IP
+        if (Validator::is_ip($IpOrPattern)) {
+            return $IpOrPattern != $IP;
+        }
+        //if regex pattern
+        $IpOrPattern = '/' . $IpOrPattern . '/';
+        if(Validator::is_regex($IpOrPattern)){
+            return preg_match($IpOrPattern, $IP);
+        }
+        //something wrong
+        return false;
     }
 
     /**
