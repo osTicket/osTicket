@@ -5,8 +5,6 @@
     ?>
     <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
-    <?php print ($form instanceof DynamicFormEntry) 
-        ? $form->getForm()->getMedia() : $form->getMedia(); ?>
     <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
     <em><?php echo Format::htmlchars($form->getInstructions()); ?></em>
     </div>

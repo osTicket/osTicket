@@ -110,6 +110,7 @@ class Form {
             include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
         else
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        echo $this->getMedia();
     }
 
     function getMedia() {

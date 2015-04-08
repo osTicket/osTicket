@@ -737,6 +737,9 @@ class DynamicFormEntry extends VerySimpleModel {
         }
         return $form;
     }
+    function getMedia() {
+        return $this->getForm()->getMedia();
+    }
 
     function getFields() {
         if (!isset($this->_fields)) {
