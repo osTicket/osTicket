@@ -1130,6 +1130,15 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         $v = $this->toString();
         return is_string($v) ? $v : (string) $this->getValue();
     }
+
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        // Allow the field to cleanup anything else in the database
+        $this->getField()->db_cleanup();
+        return true;
+    }
 }
 
 class SelectionField extends FormField {

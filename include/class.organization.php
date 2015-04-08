@@ -336,6 +336,15 @@ class Organization extends OrganizationModel {
         return $this->save();
     }
 
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        foreach ($this->getDynamicData(false) as $entry) {
+            $entry->delete();
+        }
+    }
+
     static function fromVars($vars) {
 
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
