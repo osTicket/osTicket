@@ -106,6 +106,8 @@ class Organization extends OrganizationModel {
 
     function addDynamicData($data) {
         $entry = $this->addForm(OrganizationForm::objects()->one(), 1, $data);
+        // FIXME: For some reason, the second save here is required or the
+        //        custom data is not properly saved
         $entry->save();
 
         return $entry;
