@@ -307,6 +307,7 @@ class Organization extends OrganizationModel {
                     $this->name = $name->getClean();
                     $this->save();
                 }
+            $cd->setSource($vars);
             $cd->save();
         }
 
