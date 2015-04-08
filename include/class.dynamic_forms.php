@@ -137,9 +137,10 @@ class DynamicForm extends VerySimpleModel {
         return $this->get('deletable');
     }
 
-    function instanciate($sort=1) {
-        return DynamicFormEntry::create(array(
-            'form_id'=>$this->get('id'), 'sort'=>$sort));
+    function instanciate($sort=1, $data=null) {
+        return DynamicFormEntry::create(
+            array('form_id'=>$this->get('id'), 'sort'=>$sort),
+            $data);
     }
 
     function data($data) {
@@ -970,9 +971,8 @@ class DynamicFormEntry extends VerySimpleModel {
         if (!parent::save($refetch || count($this->dirty)))
             return false;
 
-        foreach ($this->getFields() as $field) {
-            if (!($a = $field->getAnswer()))
-                continue;
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
 
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
@@ -1005,10 +1005,13 @@ class DynamicFormEntry extends VerySimpleModel {
         return parent::delete();
     }
 
-    static function create($ht=false) {
+    static function create($ht=false, $data=null) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        foreach ($inst->getForm()->getFields() as $f) {
+        $form = $inst->getForm();
+        if ($data)
+            $form->setSource($data);
+        foreach ($form->getFields() as $f) {
             if (!$f->hasData()) continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
