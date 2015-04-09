@@ -529,11 +529,11 @@ $.toggleOverlay = function (show) {
     return $.toggleOverlay(!$('#overlay').is(':visible'));
   }
   if (show) {
-    $('#overlay').fadeIn();
+    $('#overlay').stop().hide().fadeIn();
     $('body').css('overflow', 'hidden');
   }
   else {
-    $('#overlay').fadeOut();
+    $('#overlay').stop().fadeOut();
     $('body').css('overflow', 'auto');
   }
 };
@@ -570,13 +570,15 @@ $.dialog = function (url, codes, cb, options) {
                 data: $form.serialize(),
                 cache: false,
                 success: function(resp, status, xhr) {
-                    var done = $.Event('dialog:close');
                     if (xhr && xhr.status && codes
                         && $.inArray(xhr.status, codes) != -1) {
                         $.toggleOverlay(false);
                         $popup.hide();
                         $('div.body', $popup).empty();
-                        if(cb) cb(xhr, resp);
+                        if (cb && (false === cb(xhr, resp)))
+                            // Don't fire event if callback returns false
+                            return;
+                        var done = $.Event('dialog:close');
                         $popup.trigger(done, [resp, status, xhr]);
                     } else {
                         $('div.body', $popup).html(resp);
@@ -612,7 +614,7 @@ $.confirm = function(message, title) {
     var D = $.Deferred(),
       $popup = $('.dialog#popup'),
       hide = function() {
-          $('#overlay').hide();
+          $.toggleOverlay(false);
           $popup.hide();
       };
       $('div#popup-loading', $popup).hide();
@@ -635,7 +637,7 @@ $.confirm = function(message, title) {
                     .attr('value', __('OK'))
                     .click(function() {  hide(); D.resolve(); })
         ))).append($('<div class="clear"></div>'));
-    $('#overlay').fadeIn();
+    $.toggleOverlay(true);
     $popup.show();
     return D.promise();
 };
@@ -643,7 +645,7 @@ $.confirm = function(message, title) {
 $.userLookup = function (url, cb) {
     $.dialog(url, 201, function (xhr) {
         var user = $.parseJSON(xhr.responseText);
-        if (cb) cb(user);
+        if (cb) return cb(user);
     }, {
         onshow: function() { $('#user-search').focus(); }
     });
@@ -728,6 +730,7 @@ $(document).on('pjax:start', function() {
     $(window).unbind('beforeunload');
     // Close popups
     $('.dialog .body').empty().parent().hide();
+    $.toggleOverlay(false);
     // Close tooltips
     $('.tip_box').remove();
 });
@@ -743,7 +746,8 @@ $(document).on('pjax:send', function(event) {
 
     // right
     $('#loadingbar').stop(false, true).width((50 + Math.random() * 30) + "%");
-    $('#overlay').css('background-color','white').fadeIn();
+    $('#overlay').css('background-color','white');
+    $.toggleOverlay(true);
 });
 
 $(document).on('pjax:complete', function() {
