@@ -149,8 +149,8 @@ class FAQ extends VerySimpleModel {
     function setNotes($text) { $this->notes = $text; }
 
     /* For ->attach() and ->detach(), use $this->attachments() (nolint) */
-    function attach($file) { return $this->_attachments->add($file); }
-    function detach($file) { return $this->_attachments->remove($file); }
+    function attach($file) { return $this->attachments->add($file); }
+    function detach($file) { return $this->attachments->remove($file); }
 
     function publish() {
         $this->setPublished(1);

@@ -2087,10 +2087,10 @@ class FileUploadField extends FormField {
             $ids = array();
             // Handle deletes
             foreach ($this->attachments->getAll() as $f) {
-                if (!in_array($f['id'], $value))
-                    $this->attachments->delete($f['id']);
+                if (!in_array($f->id, $value))
+                    $this->attachments->delete($f->id);
                 else
-                    $ids[] = $f['id'];
+                    $ids[] = $f->id;
             }
             // Handle new files
             foreach ($value as $id) {
@@ -2115,7 +2115,8 @@ class FileUploadField extends FormField {
         $links = array();
         foreach ($this->getFiles() as $f) {
             $links[] = sprintf('<a class="no-pjax" href="%s">%s</a>',
-                Format::htmlchars($f['download_url']), Format::htmlchars($f['name']));
+                Format::htmlchars($f->file->getDownloadUrl()),
+                Format::htmlchars($f->file->name));
         }
         return implode('<br/>', $links);
     }
@@ -2123,7 +2124,7 @@ class FileUploadField extends FormField {
     function toString($value) {
         $files = array();
         foreach ($this->getFiles() as $f) {
-            $files[] = $f['name'];
+            $files[] = $f->file->name;
         }
         return implode(', ', $files);
     }
@@ -2714,13 +2715,7 @@ class FileUploadWidget extends Widget {
         foreach ($this->value ?: array() as $fid) {
             $found = false;
             foreach ($attachments as $f) {
-                if ($f['id'] == $fid) {
-                    $files[] = $f;
-                    $found = true;
-                    break;
-                }
-            }
-            if (!$found && ($file = AttachmentFile::lookup($fid))) {
+                $file = $f->file;
                 $files[] = array(
                     'id' => $file->getId(),
                     'name' => $file->getName(),
