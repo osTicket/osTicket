@@ -70,7 +70,7 @@ foreach ($forms as $e) { ?>
 <script type="text/javascript">
 $(function() {
     $('#ticket-entries').sortable({containment:'parent',tolerance:'pointer'});
-    $('#ticket-entries .delete a').live('click', function() {
+    $(document).on('click', '#ticket-entries .delete a', function() {
         var $div = $(this).closest('.sortable.row-item');
         $('select[name=new-form]').find('option[data-id='+$div.data('id')+']')
             .prop('disabled',false);
