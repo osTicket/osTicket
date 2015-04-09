@@ -48,7 +48,7 @@ class Company {
     }
 
     function getInfo() {
-        return $this->getForm()->getSaved();
+        return $this->getForm()->getClean();
     }
 
     function getName() {

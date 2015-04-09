@@ -185,6 +185,11 @@ UPDATE `%TABLE_PREFIX%form_field` A1 JOIN `%TABLE_PREFIX%form` A2 ON(A2.id=A1.fo
     SET A1.`flags`=3
     WHERE A2.`type`='O' AND A1.`name` IN('name');
 
+-- Thread entry field is stored externally
+UPDATE `%TABLE_PREFIX%form_field` A1 JOIN `%TABLE_PREFIX%form` A2 ON(A2.id=A1.form_id)
+    SET A1.`flags`=3
+    WHERE A2.`type`='T' AND A1.`name` IN ('message');
+
 -- Coalesce to zero here in case the config option has never been saved
 set @client_edit = coalesce(
     (select value from `%TABLE_PREFIX%config` where `key` =

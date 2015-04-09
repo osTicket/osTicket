@@ -350,10 +350,10 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     // TODO: Rewrite getAnswers() so that one could write
     //       ->getAnswers()->filter(not(array('field__name__in'=>
     //           array('email', ...))));
-    $answers = array_filter($form->getAnswers(), function ($a) {
-        return !in_array($a->getField()->get('name'),
-                array('email','subject','name','priority'));
-        });
+    $answers = $form->getAnswers()->exclude(Q::any(array(
+        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
+        'field__name__in' => array('subject', 'priority')
+    )));
     if (count($answers) == 0)
         continue;
     ?>

@@ -383,6 +383,7 @@ class VerySimpleModel {
         // First, if any foreign properties of this object are connected to
         // another *new* object, then save those objects first and set the
         // local foreign key field values
+        static::_inspect();
         foreach (static::$meta['joins'] as $prop => $j) {
             if (isset($this->ht[$prop]) 
                 && ($foreign = $this->ht[$prop])

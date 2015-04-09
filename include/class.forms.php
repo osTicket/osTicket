@@ -61,6 +61,10 @@ class Form {
             return $fields[$name];
     }
 
+    function hasField($name) {
+        return $this->getField($name);
+    }
+
     function getTitle() { return $this->title; }
     function getInstructions() { return $this->instructions; }
     function getSource() { return $this->_source; }
@@ -102,6 +106,14 @@ class Form {
             unset($this->_clean[""]);
         }
         return $this->_clean;
+    }
+
+    function disableFields(array $ids) {
+        foreach ($this->getFields() as $F) {
+            if (in_array($F->get('id'), $ids)) {
+                $F->disable();
+            }
+        }
     }
 
     function errors($formOnly=false) {

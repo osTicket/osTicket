@@ -6,7 +6,7 @@ if($form && $_REQUEST['a']!='add') {
     $action = 'update';
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text=__('Save Changes');
-    $info = $form->ht;
+    $info = $form->getInfo();
     $trans = array(
         'title' => $form->getTranslateTag('title'),
         'instructions' => $form->getTranslateTag('instructions'),
