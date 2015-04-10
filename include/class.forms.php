@@ -110,6 +110,7 @@ class Form {
             include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
         else
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        echo $this->getMedia();
     }
 
     function getMedia() {
@@ -394,6 +395,15 @@ class FormField {
 
     function __toString() {
         return $this->toString($this->value);
+    }
+
+    /**
+     * When data for this field is deleted permanently from some storage
+     * backend (like a database), other associated data may need to be
+     * cleaned as well. This hook allows fields to participate when the data
+     * for a field is cleaned up.
+     */
+    function db_cleanup() {
     }
 
     /**
@@ -1676,6 +1686,14 @@ class FileUploadField extends FormField {
             $files[] = $f['name'];
         }
         return implode(', ', $files);
+    }
+
+    function db_cleanup() {
+        // Delete associated attachments from the database, if any
+        $this->getFiles();
+        if (isset($this->attachments)) {
+            $this->attachments->deleteAll();
+        }
     }
 }
 

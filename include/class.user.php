@@ -254,12 +254,12 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'U');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function addForm($form, $sort=1, $data=null) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'U');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function to_json() {
@@ -292,14 +292,11 @@ class User extends UserModel {
     }
 
     function addDynamicData($data) {
-        $uf = UserForm::getNewInstance();
-        $uf->setClientId($this->id);
-        foreach ($uf->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-        $uf->save();
-
-        return $uf;
+        $entry = $this->addForm(UserForm::objects()->one(), 1, $data);
+        // FIXME: For some reason, the second save here is required or the
+        //        custom data is not properly saved
+        $entry->save();
+        return $entry;
     }
 
     function getDynamicData($create=true) {
