@@ -350,6 +350,9 @@ class TicketForm extends DynamicForm {
             return;
 
         $f = $answer->getField();
+        if (!$f->getFormId())
+            return;
+
         $name = $f->get('name') ?: ('field_'.$f->get('id'));
         $fields = sprintf('`%s`=', $name) . db_input(
             implode(',', $answer->getSearchKeys()));
@@ -470,6 +473,9 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function getAnswer() { return $this->answer; }
+
+    function getForm() { return $this->form; }
+    function getFormId() { return $this->form_id; }
 
     /**
      * setConfiguration
