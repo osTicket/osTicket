@@ -117,6 +117,7 @@ if($_POST) {
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
+                $form = $list->getForm();
                  $msg = sprintf(__('Successfully added %s'),
                     __('this custom list'));
             } elseif ($errors) {
@@ -180,9 +181,10 @@ if($_POST) {
                 'type' => $_POST["type-new-$i"],
                 'name' => $_POST["name-new-$i"],
             ));
-            $field->setForm($form);
-            if ($field->isValid())
+            if ($field->isValid()) {
+                $field->form = $form;
                 $field->save();
+            }
             else
                 $errors["new-$i"] = $field->errors();
         }
