@@ -1220,7 +1220,7 @@ class SelectionField extends FormField {
     }
 
     function toString($items) {
-        return ($items && is_array($items))
+        return is_array($items)
             ? implode(', ', $items) : (string) $items;
     }
 
