@@ -191,8 +191,7 @@ class DynamicForm extends VerySimpleModel {
             $inst->save();
             foreach ($ht['fields'] as $f) {
                 $f = DynamicFormField::create($f);
-                $f->form_id = $inst->id;
-                $f->setForm($inst);
+                $f->form = $inst;
                 $f->save();
             }
         }
@@ -391,11 +390,11 @@ Signal::connect('model.updated',
 Signal::connect('model.created',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
-    function($o) { return $o->getForm()->get('type') == 'T'; });
+    function($o) { return $o->form->get('type') == 'T'; });
 Signal::connect('model.deleted',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
-    function($o) { return $o->getForm()->get('type') == 'T'; });
+    function($o) { return $o->form->get('type') == 'T'; });
 // If the `name` column is in the dirty list, we would be renaming a
 // column. Delete the view instead.
 Signal::connect('model.updated',
