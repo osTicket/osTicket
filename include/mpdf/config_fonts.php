@@ -303,10 +303,11 @@ $this->mono_fonts = array('dejavusansmono','freemono','liberationmono','courier'
 
 // Add fonts from language packs
 
-list($phar_fonts, $phar_subs) = Internationalization::getTtfFonts();
-$this->fontdata += $phar_fonts;
-foreach ($phar_subs as $simple) {
-    if (!in_array($simple, $this->backupSubsFont))
-        $this->backupSubsFont[] = $simple;
+if (list($phar_fonts, $phar_subs) = Internationalization::getTtfFonts()) {
+    $this->fontdata += $phar_fonts;
+    foreach ($phar_subs as $simple) {
+        if (!in_array($simple, $this->backupSubsFont))
+            $this->backupSubsFont[] = $simple;
+    }
 }
 ?>
