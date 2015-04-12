@@ -44,7 +44,7 @@ require(CLIENTINC_DIR.'header.inc.php');
     </div>
     <div class="front-page-button pull-right">
         <p>
-            <a href="view.php" class="blue button"><?php echo __('Check Ticket Status');?></a>
+            <a href="<?php if(is_object($thisclient)){ echo 'tickets.php';} else {echo 'view.php';}?>" class="blue button"><?php echo __('Check Ticket Status');?></a>
         </p>
     </div>
 </div>
