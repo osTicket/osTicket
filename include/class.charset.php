@@ -29,6 +29,8 @@ class Charset {
         // ks_c_5601-1987: Korean alias for cp949
         case preg_match('`^ks_c_5601-1987`', $charset):
             return 'cp949';
+        case preg_match('`^iso-?(\S+)$`', $charset, $match):
+            return "ISO-".$match[1];
         // Incorrect, bogus, ambiguous or empty charsets
         // ISO-8859-1 is assumed
         case preg_match('`^(default|x-user-defined|iso|us-ascii)`', $charset):
