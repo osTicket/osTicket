@@ -249,7 +249,7 @@ $info['id']=$staff->getId();
             <td colspan=2>
                 <textarea class="richtext no-bar" name="signature" cols="21"
                     rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
-                <br><em><?php __('Signature is made available as a choice, on ticket reply.');?></em>
+                <br><em><?php echo __('Signature is made available as a choice, on ticket reply.');?></em>
             </td>
         </tr>
     </tbody>
