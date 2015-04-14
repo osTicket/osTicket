@@ -882,7 +882,7 @@ class Ticket {
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
         if ($current_status = $this->getStatus()) {
-            $note = sprintf(__('Status changed from %s to %s by %s'),
+            $note = sprintf(__('Status changed from %1$s to %2$s by %3$s'),
                     $this->getStatus(),
                     $status,
                     $thisstaff ?: 'SYSTEM');
