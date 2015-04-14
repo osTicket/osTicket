@@ -27,10 +27,12 @@
     right: auto;
     left: 1em;
 }
-.rtl #nav .inactive li {
+.rtl #nav .inactive li,
+.rtl #sub_nav li {
     text-align: right;
 }
-.rtl #nav .inactive li a {
+.rtl #nav .inactive li a,
+.rtl #sub_nav li a {
     background-position: 100% 50%;
     padding-left: 0;
     padding-right: 24px;
@@ -38,6 +40,10 @@
 .rtl #nav li.inactive > ul {
     left: auto;
     right: -1px;
+}
+.rtl #sub_nav li + li > a {
+    margin-left: 0;
+    margin-right: 10px;
 }
 .rtl .tip_close {
     right: auto;
