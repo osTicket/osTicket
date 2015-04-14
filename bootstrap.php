@@ -57,7 +57,7 @@ class Bootstrap {
                 && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
     }
 
-    function defineTables($prefix) {
+    static function defineTables($prefix) {
         #Tables being used sytem wide
         define('SYSLOG_TABLE',$prefix.'syslog');
         define('SESSION_TABLE',$prefix.'session');

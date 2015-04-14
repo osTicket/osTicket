@@ -416,8 +416,11 @@ class Task extends TaskModel {
         return !self::lookupIdByNumber($number);
     }
 
-    static function create($vars) {
+    static function create($vars=false) {
         global $cfg;
+
+        if (!is_array($vars))
+            return null;
 
         $task = parent::create(array(
             'flags' => self::ISOPEN,

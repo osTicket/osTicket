@@ -1,5 +1,9 @@
 <?php
 
+define('TABLE_PREFIX', '%');
+
+Bootstrap::defineTables(TABLE_PREFIX);
+
 function db_connect($source) {
     global $__db;
     $__db = $source;

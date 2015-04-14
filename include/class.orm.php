@@ -357,7 +357,7 @@ class VerySimpleModel {
         }
     }
 
-    function delete($pk=false) {
+    function delete() {
         $ex = DbEngine::delete($this);
         try {
             $ex->execute();

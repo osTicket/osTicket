@@ -1035,7 +1035,7 @@ class ThreadEntry extends VerySimpleModel {
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
-    static function create($vars) {
+    static function create($vars, &$errors=array()) {
         global $cfg;
 
         //Must have...
@@ -1159,7 +1159,7 @@ class ThreadEntry extends VerySimpleModel {
         return $entry;
     }
 
-    static function add($vars) {
+    static function add($vars, &$errors=array()) {
         return self::create($vars);
     }
 
@@ -1443,11 +1443,11 @@ class MessageThreadEntry extends ThreadEntry {
         return $this->getTitle();
     }
 
-    static function create($vars, &$errors) {
+    static function create($vars, &$errors=array()) {
         return static::add($vars, $errors);
     }
 
-    static function add($vars, &$errors) {
+    static function add($vars, &$errors=array()) {
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
             $errors['err'] = __('Missing or invalid data');
@@ -1481,11 +1481,11 @@ class ResponseThreadEntry extends ThreadEntry {
         return $this->getStaff();
     }
 
-    static function create($vars, &$errors) {
+    static function create($vars, &$errors=array()) {
         return static::add($vars, $errors);
     }
 
-    static function add($vars, &$errors) {
+    static function add($vars, &$errors=array()) {
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
             $errors['err'] = __('Missing or invalid data');
@@ -1520,7 +1520,7 @@ class NoteThreadEntry extends ThreadEntry {
         return self::add($vars, $errors);
     }
 
-    static function add($vars, &$errors) {
+    static function add($vars, &$errors=array()) {
 
         //Check required params.
         if (!$vars || !is_array($vars) || !$vars['threadId'])
