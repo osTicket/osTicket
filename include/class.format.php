@@ -228,7 +228,7 @@ class Format {
     function localizeInlineImages($text) {
         // Change file.php urls back to content-id's
         return preg_replace(
-            '/src="(?:\/[^"]+?)?\/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*/',
+            '`src="(?:https?:/)?(?:/[^/"]+)*?/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*`',
             'src="cid:$1', $text);
     }
 
