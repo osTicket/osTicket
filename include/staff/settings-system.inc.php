@@ -99,7 +99,8 @@ $gmtime = Misc::gmtime();
                     for ($i = 1; $i <=12; $i++) {
                         ?>
                         <option <?php echo $config['log_graceperiod']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo __('After');?>&nbsp;<?php echo $i; ?>&nbsp;<?php echo ($i>1)?__('Months'):__('Month'); ?></option>
+                            <?php echo sprintf(_N('After %d month', 'After %d months', $i), $i);?>
+                        </option>
                         <?php
                     } ?>
                 </select>
