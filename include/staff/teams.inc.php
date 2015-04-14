@@ -126,11 +126,11 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>enable</b> %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>enable</b> %s?'),
             _N('selected team', 'selected teams', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>disable</b> %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>disable</b> %s?'),
             _N('selected team', 'selected teams', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
