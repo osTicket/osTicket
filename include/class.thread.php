@@ -996,7 +996,7 @@ class ThreadEntry {
         }
 
         // Search for the message-id token in the body
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
                     $mailinfo['email']))
