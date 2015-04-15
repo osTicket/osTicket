@@ -62,7 +62,7 @@ if ($info['error']) {
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr><td style="width:30%;"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>
@@ -86,7 +86,7 @@ if ($info['error']) {
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr><td style="width:30%"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

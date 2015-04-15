@@ -1299,7 +1299,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->getName();
     }
 
-    static function create($ht) {
+    static function create($ht=false) {
+        if (!is_array($ht))
+            return null;
 
         if (!isset($ht['mode']))
             $ht['mode'] = 1;

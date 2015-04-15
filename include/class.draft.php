@@ -137,7 +137,7 @@ class Draft extends VerySimpleModel {
         return parent::save($refetch);
     }
 
-    static function create($vars) {
+    static function create($vars=false) {
         $attachments = @$vars['attachments'];
         unset($vars['attachments']);
 

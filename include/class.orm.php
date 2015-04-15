@@ -166,8 +166,7 @@ class VerySimpleModel {
                 static::_inspect();
             $j = static::$meta['joins'][$field];
             // Support instrumented lists and such
-            if (isset($this->ht[$j['local']])
-                    && isset($j['list']) && $j['list']) {
+            if (isset($j['list']) && $j['list']) {
                 $fkey = $j['fkey'];
                 $v = $this->ht[$field] = new InstrumentedList(
                     // Send Model, Foriegn-Field, Local-Id
@@ -252,11 +251,13 @@ class VerySimpleModel {
                 // Pass. Set local field to NULL in logic below
             }
             elseif ($value instanceof $j['fkey'][0]) {
-                if ($value->__new__)
-                    $value->save();
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                $value = $value->get($j['fkey'][1]);
+                if ($value->__new__)
+                    // save() will be performed when saving this object
+                    $value = null;
+                else
+                    $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             else
@@ -356,7 +357,7 @@ class VerySimpleModel {
         }
     }
 
-    function delete($pk=false) {
+    function delete() {
         $ex = DbEngine::delete($this);
         try {
             $ex->execute();
@@ -373,17 +374,39 @@ class VerySimpleModel {
     }
 
     function save($refetch=false) {
+        if ($this->__deleted__)
+            throw new OrmException('Trying to update a deleted object');
+
+        $pk = static::$meta['pk'];
+        $wasnew = $this->__new__;
+
+        // First, if any foreign properties of this object are connected to
+        // another *new* object, then save those objects first and set the
+        // local foreign key field values
+        static::_inspect();
+        foreach (static::$meta['joins'] as $prop => $j) {
+            if (isset($this->ht[$prop]) 
+                && ($foreign = $this->ht[$prop])
+                && $foreign instanceof VerySimpleModel
+                && !in_array($j['local'], $pk)
+                && null === $this->get($j['local'])
+            ) {
+                if ($foreign->__new__ && !$foreign->save())
+                    return false;
+                $this->set($j['local'], $foreign->get($j['fkey'][1]));
+            }
+        }
+
+        // If there's nothing in the model to be saved, then we're done
         if (count($this->dirty) === 0)
             return true;
-        elseif ($this->__deleted__)
-            throw new OrmException('Trying to update a deleted object');
 
         $ex = DbEngine::save($this);
         try {
             $ex->execute();
             if ($ex->affected_rows() != 1) {
                 // This doesn't really signify an error. It just means that
-                // the database believe that the row did not change. For
+                // the database believes that the row did not change. For
                 // inserts though, it's a deal breaker
                 if ($this->__new__)
                     return false;
@@ -397,10 +420,7 @@ class VerySimpleModel {
             return false;
         }
 
-        $pk = static::$meta['pk'];
-        $wasnew = $this->__new__;
-
-        if ($this->__new__) {
+        if ($wasnew) {
             if (count($pk) == 1)
                 // XXX: Ensure AUTO_INCREMENT is set for the field
                 $this->ht[$pk[0]] = $ex->insert_id();
@@ -412,19 +432,38 @@ class VerySimpleModel {
             Signal::send('model.updated', $this, $data);
         }
         # Refetch row from database
-        # XXX: Too much voodoo
         if ($refetch) {
-            // Uncache so that the lookup will not be short-cirtuited to
-            // return this object
-            ModelInstanceManager::uncache($this);
-            $self = call_user_func_array(array(get_class($this), 'lookup'),
-                $this->get('pk'));
-            $this->ht = $self->ht;
+            // Preserve non database information such as list relationships
+            // across the refetch
+            $this->ht = 
+                static::objects()->filter($this->getPk())->values()->one()
+                + $this->ht;
         }
-        if ($wasnew)
+        if ($wasnew) {
+            // Attempt to update foreign, unsaved objects with the PK of
+            // this newly created object
+            foreach (static::$meta['joins'] as $prop => $j) {
+                if (isset($this->ht[$prop]) 
+                    && ($foreign = $this->ht[$prop])
+                    && in_array($j['local'], $pk)
+                ) {
+                    if ($foreign instanceof VerySimpleModel
+                        && null === $foreign->get($j['fkey'][1])
+                    ) {
+                        $foreign->set($j['fkey'][1], $this->get($j['local']));
+                    }
+                    elseif ($foreign instanceof InstrumentedList) {
+                        foreach ($foreign as $item) {
+                            if (null === $item->get($j['fkey'][1]))
+                                $item->set($j['fkey'][1], $this->get($j['local']));
+                        }
+                    }
+                }
+            }
             $this->__onload();
+        }
         $this->dirty = array();
-        return $this->get($pk[0]);
+        return true;
     }
 
     static function create($ht=false) {
@@ -944,7 +983,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         $query = clone $this;
         if (!$query->ordering && isset($model::$meta['ordering']))
             $query->ordering = $model::$meta['ordering'];
-        if (!$query->related && !$query->values && $model::$meta['select_related'])
+        if (false !== $query->related && !$query->values && $model::$meta['select_related'])
             $query->related = $model::$meta['select_related'];
         if (!$query->defer && $model::$meta['defer'])
             $query->defer = $model::$meta['defer'];
@@ -1275,15 +1314,17 @@ class InstrumentedList extends ModelInstanceManager {
             throw new Exception(__('Attempting to add invalid object to list'));
 
         $object->set($this->key, $this->id);
-        $object->save();
 
         if ($at !== false)
             $this->cache[$at] = $object;
         else
             $this->cache[] = $object;
     }
-    function remove($object) {
-        $object->delete();
+    function remove($object, $delete=true) {
+        if ($delete)
+            $object->delete();
+        else
+            $object->set($this->key, null);
     }
 
     function reset() {
@@ -2344,11 +2385,11 @@ class Q implements Serializable {
         return $this;
     }
 
-    static function not(array $constraints) {
+    static function not($constraints) {
         return new static($constraints, self::NEGATED);
     }
 
-    static function any(array $constraints) {
+    static function any($constraints) {
         return new static($constraints, self::ANY);
     }
 

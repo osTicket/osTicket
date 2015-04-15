@@ -285,12 +285,12 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'U');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function addForm($form, $sort=1, $data=false) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'U');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function getLanguage($flags=false) {
@@ -328,14 +328,7 @@ class User extends UserModel {
     }
 
     function addDynamicData($data) {
-        $uf = UserForm::getNewInstance();
-        $uf->setClientId($this->id);
-        foreach ($uf->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-        $uf->save();
-
-        return $uf;
+        return $this->addForm(UserForm::objects()->one(), 1, $data);
     }
 
     function getDynamicData($create=true) {
@@ -355,12 +348,12 @@ class User extends UserModel {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getForm()->get('type') != 'U')
+            if ($entry->getDynamicForm()->get('type') != 'U')
                 continue;
             $vars += $entry->getFilterData();
             // Add in special `name` and `email` fields
             foreach (array('name', 'email') as $name) {
-                if ($f = $entry->getForm()->getField($name))
+                if ($f = $entry->getField($name))
                     $vars['field.'.$f->get('id')] =
                         $name == 'name' ? $this->getName() : $this->getEmail();
             }
@@ -372,12 +365,12 @@ class User extends UserModel {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
-            foreach ($this->getDynamicData() as $cd) {
-                $cd->addMissingFields();
+            foreach ($this->getDynamicData() as $entry) {
+                $entry->addMissingFields();
                 if(!$data
-                        && ($form = $cd->getForm())
+                        && ($form = $entry->getDynamicForm())
                         && $form->get('type') == 'U' ) {
-                    foreach ($cd->getFields() as $f) {
+                    foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
                             $f->value = $this->getFullName();
                         elseif ($f->get('name') == 'email')
@@ -385,7 +378,7 @@ class User extends UserModel {
                     }
                 }
 
-                $this->_forms[] = $cd;
+                $this->_forms[] = $entry;
             }
         }
 
@@ -549,13 +542,13 @@ class User extends UserModel {
 
         $valid = true;
         $forms = $this->getForms($vars);
-        foreach ($forms as $cd) {
-            $cd->setSource($vars);
-            if ($staff && !$cd->isValidForStaff())
+        foreach ($forms as $entry) {
+            $entry->setSource($vars);
+            if ($staff && !$entry->isValidForStaff())
                 $valid = false;
-            elseif (!$staff && !$cd->isValidForClient())
+            elseif (!$staff && !$entry->isValidForClient())
                 $valid = false;
-            elseif (($form= $cd->getForm())
+            elseif (($form= $entry->getDynamicForm())
                         && $form->get('type') == 'U'
                         && ($f=$form->getField('email'))
                         && $f->getClean()
@@ -569,8 +562,8 @@ class User extends UserModel {
         if (!$valid)
             return false;
 
-        foreach ($forms as $cd) {
-            if (($f=$cd->getForm()) && $f->get('type') == 'U') {
+        foreach ($forms as $entry) {
+            if (($f=$entry->getDynamicForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
                     $this->save();
@@ -581,7 +574,7 @@ class User extends UserModel {
                     $this->default_email->save();
                 }
             }
-            $cd->save();
+            $entry->save();
         }
 
         return true;
@@ -631,8 +624,8 @@ class User extends UserModel {
         $this->emails->expunge();
 
         // Drop dynamic data
-        foreach ($this->getDynamicData() as $cd) {
-            $cd->delete();
+        foreach ($this->getDynamicData() as $entry) {
+            $entry->delete();
         }
 
         // Delete user

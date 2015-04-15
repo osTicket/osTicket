@@ -180,18 +180,18 @@ class Organization extends OrganizationModel {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
-            foreach ($this->getDynamicData() as $cd) {
-                $cd->addMissingFields();
+            foreach ($this->getDynamicData() as $entry) {
+                $entry->addMissingFields();
                 if(!$data
-                        && ($form = $cd->getForm())
+                        && ($form = $entry->getDynamicForm())
                         && $form->get('type') == 'O' ) {
-                    foreach ($cd->getFields() as $f) {
+                    foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
                             $f->value = $this->getName();
                     }
                 }
 
-                $this->_forms[] = $cd->getForm();
+                $this->_forms[] = $entry;
             }
         }
 
@@ -251,11 +251,11 @@ class Organization extends OrganizationModel {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getForm()->get('type') != 'O')
+            if ($entry->getDynamicForm()->get('type') != 'O')
                 continue;
             $vars += $entry->getFilterData();
             // Add special `name` field
-            $f = $entry->getForm()->getField('name');
+            $f = $entry->getField('name');
             $vars['field.'.$f->get('id')] = $this->getName();
         }
         return $vars;
@@ -308,12 +308,11 @@ class Organization extends OrganizationModel {
 
         $valid = true;
         $forms = $this->getForms($vars);
-        foreach ($forms as $cd) {
-            if (!$cd->isValid())
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
                 $valid = false;
-            if ($cd->get('type') == 'O'
-                        && ($form= $cd->getForm($vars))
-                        && ($f=$form->getField('name'))
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
                         && $f->getClean()
                         && ($o=Organization::lookup(array('name'=>$f->getClean())))
                         && $o->id != $this->getId()) {
@@ -347,14 +346,14 @@ class Organization extends OrganizationModel {
         if (!$valid || $errors)
             return false;
 
-        foreach ($this->getDynamicData() as $cd) {
-            if (($f=$cd->getForm())
-                    && ($f->get('type') == 'O')
-                    && ($name = $f->getField('name'))) {
-                    $this->name = $name->getClean();
-                    $this->save();
-                }
-            $cd->save();
+        foreach ($this->getDynamicData() as $entry) {
+            if ($entry->getDynamicForm()->get('type') == 'O'
+               && ($name = $entry->getField('name'))
+            ) {
+                $this->name = $name->getClean();
+                $this->save();
+            }
+            $entry->save();
         }
 
         // Set flags
@@ -378,11 +377,6 @@ class Organization extends OrganizationModel {
                 $u->save();
             }
         }
-
-        // Send signal for search engine updating if not modifying the
-        // fields specific to the organization
-        if (count($this->dirty) === 0)
-            Signal::send('model.updated', $this);
 
         return $this->save();
     }
