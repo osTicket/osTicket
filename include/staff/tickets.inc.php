@@ -602,8 +602,10 @@ if ($results) {
                 <option value="s<?php echo $thisstaff->getId(); ?>"><?php echo __('Me');?></option>
                 <?php
                 if(($users=Staff::getStaffMembers())) {
-                    echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)).'">';
+                    echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'),count($users)-1).'">';
                     foreach($users as $id => $name) {
+                        if ($id == $thisstaff->getId())
+                            continue;
                         $k="s$id";
                         echo sprintf('<option value="%s">%s</option>', $k, $name);
                     }
