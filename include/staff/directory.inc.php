@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access Denied');
 $qs = array();
-$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name,dept.dept_name as dept ';
+$select='SELECT staff.*,dept.dept_name as dept ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) ';
 $where='WHERE staff.isvisible=1 ';
@@ -31,6 +31,16 @@ if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','email'=>'staff.email','dept'=>'dept.dept_name',
                    'phone'=>'staff.phone','mobile'=>'staff.mobile','ext'=>'phone_ext',
                    'created'=>'staff.created','login'=>'staff.lastlogin');
+
+switch ($cfg->getDefaultNameFormat()) {
+case 'last':
+case 'lastfirst':
+case 'legal':
+    $sortOptions['name'] = 'staff.lastname, staff.firstname';
+    break;
+// Otherwise leave unchanged
+}
+
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
@@ -111,9 +121,11 @@ else
     <?php
         if($res && db_num_rows($res)):
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-            while ($row = db_fetch_array($res)) { ?>
+            while ($row = db_fetch_array($res)) {
+            $name = new PersonsName(array('first' => $row['firstname'], 'last' => $row['lastname']));
+?>
                <tr id="<?php echo $row['staff_id']; ?>">
-                <td>&nbsp;<?php echo Format::htmlchars($row['name']); ?></td>
+                <td>&nbsp;<?php echo Format::htmlchars($name); ?></td>
                 <td>&nbsp;<?php echo Format::htmlchars($row['dept']); ?></td>
                 <td>&nbsp;<?php echo Format::htmlchars($row['email']); ?></td>
                 <td>&nbsp;<?php echo Format::phone($row['phone']); ?></td>

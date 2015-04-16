@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $qs = array();
-$select='SELECT staff.*,CONCAT_WS(" ",firstname,lastname) as name, grp.group_name, dept.dept_name as dept,count(m.team_id) as teams ';
+$select='SELECT staff.*, grp.group_name, dept.dept_name as dept,count(m.team_id) as teams ';
 $from='FROM '.STAFF_TABLE.' staff '.
       'LEFT JOIN '.GROUP_TABLE.' grp ON(staff.group_id=grp.group_id) '.
       'LEFT JOIN '.DEPT_TABLE.' dept ON(staff.dept_id=dept.dept_id) '.
@@ -25,6 +25,16 @@ if($_REQUEST['tid'] && is_numeric($_REQUEST['tid'])) {
 
 $sortOptions=array('name'=>'staff.firstname,staff.lastname','username'=>'staff.username','status'=>'isactive',
                    'group'=>'grp.group_name','dept'=>'dept.dept_name','created'=>'staff.created','login'=>'staff.lastlogin');
+
+switch ($cfg->getDefaultNameFormat()) {
+case 'last':
+case 'lastfirst':
+case 'legal':
+    $sortOptions['name'] = 'staff.lastname, staff.firstname';
+    break;
+// Otherwise leave unchanged
+}
+
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
@@ -143,11 +153,12 @@ else
                 $sel=false;
                 if($ids && in_array($row['staff_id'],$ids))
                     $sel=true;
+                $name = new PersonsName(array('first' => $row['firstname'], 'last' => $row['lastname']));
                 ?>
                <tr id="<?php echo $row['staff_id']; ?>">
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['staff_id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
-                <td><a href="staff.php?id=<?php echo $row['staff_id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>&nbsp;</td>
+                <td><a href="staff.php?id=<?php echo $row['staff_id']; ?>"><?php echo Format::htmlchars($name); ?></a>&nbsp;</td>
                 <td><?php echo $row['username']; ?></td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php echo $row['onvacation']?'<small>(<i>'.__('vacation').'</i>)</small>':''; ?></td>
                 <td><a href="groups.php?id=<?php echo $row['group_id']; ?>"><?php echo Format::htmlchars($row['group_name']); ?></a></td>
