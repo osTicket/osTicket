@@ -101,15 +101,15 @@
 
       this.query = this.$element.val()
 
-      if (!this.query) {
+      if (this.query.length < this.options.minLength) {
         return this.shown ? this.hide() : this
       }
-      
+
       items = $.grep(results, function (item) {
         if (!that.strings)
           item = item[that.options.property]
 
-        if (that.matcher(item)) 
+        if (that.matcher(item))
             return item
       })
 
@@ -146,6 +146,8 @@
     }
 
   , highlighter: function (item) {
+      if (!this.query)
+          return item;
       return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
         return '<strong>' + match + '</strong>'
       })
@@ -155,6 +157,7 @@
       var that = this
 
       items = $(items).map(function (i, item) {
+        var orig = item;
         i = $(that.options.item).attr('data-value', JSON.stringify(item))
         if (!that.strings) {
             if(item[that.options.render])
@@ -162,7 +165,7 @@
             else
                 item = item[that.options.property];
         }
-        i.find('a').html(that.highlighter(item))
+        i.find('a').html(that.highlighter(item, orig))
         return i[0]
       })
 
@@ -283,6 +286,10 @@
       $(e.currentTarget).addClass('active')
     }
 
+  , visible: function() {
+      return this.shown;
+    }
+
   }
 
 
@@ -307,6 +314,7 @@
   , onselect: null
   , property: 'value'
   , render: 'info'
+  , minLength: 1
   }
 
   $.fn.typeahead.Constructor = Typeahead
