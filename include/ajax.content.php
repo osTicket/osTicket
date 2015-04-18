@@ -208,12 +208,18 @@ class ContentAjaxAPI extends AjaxController {
         if (!$_GET['root'])
             Http::response(400, '`root` is required parameter');
 
-        // Get the template for this template
-        $tpl_info = EmailTemplateGroup::getTemplateDescription($_GET['root']);
-        if (!$tpl_info)
-            Http::response(422, 'No such context');
+        switch ($_GET['root']) {
+        case 'cannedresponse':
+            $roots = array('ticket');
+            break;
 
-        $global = osTicket::getVarScope();
+        default:
+            // Get the template for this template
+            $tpl_info = EmailTemplateGroup::getTemplateDescription($_GET['root']);
+            if (!$tpl_info)
+                Http::response(422, 'No such context');
+            $roots = $tpl_info['context'];
+        }
 
         $contextTypes = array(
             'assignee' => array('class' => 'Staff', 'desc' => 'Newly assigned agent'),
@@ -229,9 +235,10 @@ class ContentAjaxAPI extends AjaxController {
             'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
         );
         $context = array();
-        foreach ($tpl_info['context'] as $C) {
+        foreach ($roots as $C) {
             $context[$C] = $contextTypes[$C];
         }
+        $global = osTicket::getVarScope();
         $items = VariableReplacer::compileScope($context + $global);
 
         header('Content-Type: application/json');

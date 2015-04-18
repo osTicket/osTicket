@@ -80,10 +80,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     static function getVarScope() {
       return array(
+        'dept' => array('class' => 'Dept', 'desc' => 'Department'),
+        'email' => 'Email address',
         'name' => array(
           'class' => 'PersonsName', 'desc' => 'Name of the agent',
         ),
+        'phone' => 'Phone number',
         'signature' => "Agent's signature",
+        'timezone' => "Agent's configured timezone",
+        'username' => 'Access username',
       );
     }
 
