@@ -212,7 +212,7 @@ TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
 class Ticket
-implements RestrictedAccess, Threadable {
+implements RestrictedAccess, Threadable, TemplateVariable {
 
     var $id;
     var $number;
@@ -1797,7 +1797,7 @@ implements RestrictedAccess, Threadable {
 
     }
 
-    //ticket obj as variable = ticket number.
+    // TemplateVariable interface
     function asVar() {
        return $this->getNumber();
     }
@@ -1852,6 +1852,52 @@ implements RestrictedAccess, Threadable {
         }
 
         return false;
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'assigned' => 'Assigned agent and/or team',
+            'close_date' => 'Date of ticket closure',
+            'create_date' => 'Ticket create date',
+            'dept' => array(
+                'class' => 'Dept', 'desc' => 'Department',
+            ),
+            'due_date' => 'Ticket due date',
+            'email' => 'Default email address of ticket owner',
+            'name' => array(
+                'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
+            ),
+            'number' => 'Ticket number',
+            'phone' => 'Phone number of ticket owner',
+            'priority' => array(
+                'class' => 'Priority', 'desc' => __('Ticket priority'),
+            ),
+            'recipients' => array(
+                'class' => 'UserList', 'desc' => 'Ticket participant list',
+            ),
+            'status' => array(
+                'class' => 'TicketStatus', 'desc' => __('Ticket status'),
+            ),
+            'staff' => array(
+                'class' => 'Staff', 'desc' => __('Assigned/closing agent'),
+            ),
+            'subject' => 'Subject',
+            'team' => array(
+                'class' => 'Team', 'desc' => __('Assigned/closing team'),
+            ),
+            'thread' => array(
+                'class' => 'TicketThread', 'desc' => 'Ticket thread',
+            ),
+            'topic' => array(
+                'class' => 'Topic', 'desc' => 'Help topic',
+            ),
+            'user' => array(
+                'class' => 'User', 'desc' => __('Ticket owner'),
+            ),
+        );
+
+        $extra = VariableReplacer::compileFormScope(TicketForm::getInstance());
+        return $base + $extra;
     }
 
     //Replace base variables.

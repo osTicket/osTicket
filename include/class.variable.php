@@ -146,5 +146,69 @@ class VariableReplacer {
 
         return $vars;
     }
+
+    static function compileScope($scope, $recurse=5, $exclude=false) {
+        $items = array();
+        foreach ($scope as $name => $info) {
+            if ($exclude === $name)
+                continue;
+            if (isset($info['class']) && $recurse) {
+                $items[$name] = $info['desc'];
+                foreach (static::compileScope($info['class']::getVarScope(), $recurse-1,
+                    @$info['exclude'] ?: $name)
+                as $name2=>$desc) {
+                    $items["{$name}.{$name2}"] = $desc;
+                }
+            }
+            if (!is_array($info)) {
+                $items[$name] = $info;
+            }
+        }
+        return $items;
+    }
+
+    static function compileFormScope($form) {
+        $items = array();
+        foreach ($form->getFields() as $f) {
+            if (!($name = $f->get('name')))
+                continue;
+            if (!$f->isStorable() || !$f->hasData())
+                continue;
+
+            $desc = $f->getLocal('label');
+            $items[$name] = $desc;
+            foreach (VariableReplacer::compileFieldScope($f) as $name2=>$desc) {
+                $items["$name.$name2"] = $desc;
+            }
+        }
+        return $items;
+    }
+
+    static function compileFieldScope($field, $recurse=2, $exclude=false) {
+        $items = array();
+        if (!$field->hasSubFields())
+            return $items;
+
+        foreach ($field->getSubFields() as $f) {
+            if (!($name = $f->get('name')))
+                continue;
+            if ($exclude === $name)
+                continue;
+            $items[$name] = $f->getLabel();
+            if ($recurse) {
+                foreach (static::compileFieldScope($f, $recurse-1, $name)
+                as $name2=>$desc) {
+                    $items["$name.$name2"] = $desc;
+                }
+            }
+        }
+        return $items;
+    }
+}
+
+interface TemplateVariable {
+    // function asVar(); — not absolutely required
+    // function getVar($name); — not absolutely required
+    static function getVarScope();
 }
 ?>

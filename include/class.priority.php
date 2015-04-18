@@ -14,7 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Priority extends VerySimpleModel {
+class Priority extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => PRIORITY_TABLE,
@@ -44,6 +45,14 @@ class Priority extends VerySimpleModel {
 
     function isPublic() {
         return $this->ispublic;
+    }
+
+    // TemplateVariable interface
+    function asVar() { return $this->getDesc(); }
+    static function getVarScope() {
+        return array(
+            'desc' => 'Priority description',
+        );
     }
 
     function __toString() {

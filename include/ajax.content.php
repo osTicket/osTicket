@@ -199,5 +199,43 @@ class ContentAjaxAPI extends AjaxController {
         $errors = Format::htmlchars($errors);
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
+
+    function context() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        if (!$_GET['root'])
+            Http::response(400, '`root` is required parameter');
+
+        // Get the template for this template
+        $tpl_info = EmailTemplateGroup::getTemplateDescription($_GET['root']);
+        if (!$tpl_info)
+            Http::response(422, 'No such context');
+
+        $global = osTicket::getVarScope();
+
+        $contextTypes = array(
+            'assignee' => array('class' => 'Staff', 'desc' => 'Newly assigned agent'),
+            'assigner' => array('class' => 'Staff', 'desc' => 'Agent performing the assignment'),
+            'comments' => 'Agent supplied comments',
+            'message' => array('class' => 'MessageThreadEntry', 'desc' => 'Message from the EndUser'),
+            'note' => array('class' => 'NoteThreadEntry', 'desc' => 'Internal note'),
+            'poster' => array('class' => 'User', 'desc' => 'EndUser or Agent originating the message'),
+            'recipient' => array('class' => 'TicketUser', 'desc' => 'Message recipient'),
+            'response' => array('class' => 'ResponseThreadEntry', 'desc' => 'Agent reply'),
+            'signature' => 'Selected staff or department signature',
+            'staff' => array('class' => 'Staff', 'desc' => 'Agent originating the activity'),
+            'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
+        );
+        $context = array();
+        foreach ($tpl_info['context'] as $C) {
+            $context[$C] = $contextTypes[$C];
+        }
+        $items = VariableReplacer::compileScope($context + $global);
+
+        header('Content-Type: application/json');
+        return $this->encode($items);
+    }
 }
 ?>

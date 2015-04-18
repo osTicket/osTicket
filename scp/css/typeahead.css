@@ -56,3 +56,12 @@
   text-decoration: none;
   background-color: #0088cc;
 }
+.dropdown-menu li > a:hover .faded,
+.dropdown-menu .active > a .faded,
+.dropdown-menu .active > a:hover .faded {
+  color: rgba(255,255,255,0.6);
+}
+
+.dropdown-menu li + li {
+    border-top: 1px solid rgba(0,0,0,0.15);
+}

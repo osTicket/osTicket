@@ -394,7 +394,8 @@ class ThreadEntryEmailInfo extends VerySimpleModel {
     );
 }
 
-class ThreadEntry extends VerySimpleModel {
+class ThreadEntry extends VerySimpleModel
+implements TemplateVariable {
     static $meta = array(
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
@@ -844,6 +845,7 @@ class ThreadEntry extends VerySimpleModel {
         return (string) $this->getBody();
     }
 
+    // TemplateVariable interface
     function asVar() {
         return (string) $this->getBody()->display('email');
     }
@@ -863,6 +865,22 @@ class ThreadEntry extends VerySimpleModel {
         }
 
         return false;
+    }
+
+    static function getVarScope() {
+        return array(
+          'body' => 'Formatted message body',
+          'create_date' => 'Date created',
+          'ip_address' => 'IP address of remote user, for web submissions',
+          'poster' => 'Name of the thread item originator',
+          'staff' => array(
+            'class' => 'Staff', 'desc' => 'Agent posting the note or response',
+          ),
+          'subject' => 'Subject of the message, if any',
+          'user' => array(
+            'class' => 'User', 'desc' => 'User posting the message',
+          ),
+        );
     }
 
     /**
@@ -1493,6 +1511,12 @@ class MessageThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['staff']);
+        return $base;
+    }
 }
 
 /* thread entry of type response */
@@ -1533,6 +1557,12 @@ class ResponseThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['user']);
+        return $base;
+    }
 }
 
 /* Thread entry of type note (Internal Note) */
@@ -1563,10 +1593,17 @@ class NoteThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['user']);
+        return $base;
+    }
 }
 
 // Object specific thread utils.
-class ObjectThread extends Thread {
+class ObjectThread extends Thread
+implements TemplateVariable {
     private $_entries = array();
 
     static $types = array(
@@ -1692,6 +1729,13 @@ class ObjectThread extends Thread {
 
             break;
         }
+    }
+
+    static function getVarScope() {
+      return array(
+        'original' => array('class' => 'MessageThreadEntry', 'desc' => __('Original Message')),
+        'lastmessage' => array('class' => 'MessageThreadEntry', 'desc' => __('Last Message')),
+      );
     }
 
     static function lookup($criteria, $type=false) {

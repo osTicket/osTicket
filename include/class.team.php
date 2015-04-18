@@ -14,7 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Team extends VerySimpleModel {
+class Team extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => TEAM_TABLE,
@@ -42,6 +43,18 @@ class Team extends VerySimpleModel {
         return (string) $this->getName();
     }
 
+    static function getVarScope() {
+        return array(
+            'name' => 'Team name',
+            'lead' => array(
+                'class' => 'Staff', 'desc' => 'Team leader',
+            ),
+            'members' => array(
+                'class' => 'UserList', 'desc' => 'Team members',
+            ),
+        );
+    }
+
     function getId() {
         return $this->team_id;
     }
@@ -62,7 +75,7 @@ class Team extends VerySimpleModel {
                 $this->_members[] = $m->staff;
         }
 
-        return $this->_members;
+        return new UserList($this->_members);
     }
 
     function hasMember($staff) {

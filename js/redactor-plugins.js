@@ -1606,3 +1606,155 @@ RedactorPlugins.imageannotate = function() {
     }
   };
 };
+
+RedactorPlugins.contexttypeahead = function() {
+  return {
+    typeahead: false,
+    context: false,
+
+    init: function() {
+      if (!this.$element.data('rootContext'))
+        return;
+
+      this.opts.keyupCallback = this.contexttypeahead.watch.bind(this);
+      this.opts.keydownCallback = this.contexttypeahead.watch.bind(this);
+      this.$editor.on('click', this.contexttypeahead.watch.bind(this));
+    },
+
+    watch: function(e) {
+      var current = this.selection.getCurrent(),
+          search = new RegExp(/%\{([^}]*)$/),
+          match;
+
+      if (!current)
+        return;
+
+      content = current.textContent;
+      if (e.which == 27 || !(match = search.exec(content)))
+        // No longer in a element — close typeahead
+        return this.contexttypeahead.destroy();
+
+      // Locate the position of the cursor and the number of characters back
+      // to the `%{` symbols
+      var sel         = this.selection.get(),
+          range       = this.sel.getRangeAt(0),
+          clientRects = range.getClientRects(),
+          position    = clientRects[0],
+          cursorAt    = range.endOffset,
+          backTextLen = match[1].length - content.length + cursorAt,
+          backText    = match[1].substring(0, backTextLen);
+
+      if (backTextLen < 0)
+          return this.contexttypeahead.destroy();
+
+      if (e.type == 'click')
+          return;
+
+      // Insert a hidden text input to receive the typed text and add a
+      // typeahead widget
+      if (!this.contexttypeahead.typeahead) {
+        this.contexttypeahead.typeahead = $('<input type="text">')
+          .css({position: 'absolute', visibility: 'hidden'})
+          .width(0).height(position.height)
+          .appendTo(document.body)
+          .typeahead({
+            property: 'variable',
+            minLength: 0,
+            highlighter: function(variable, item) {
+              var base = $.fn.typeahead.Constructor.prototype.highlighter.call(this, variable);
+              return base + $('<span class="faded"/>')
+                .text(' — ' + item.desc)
+                .wrap('<div>').parent().html();
+            },
+            source: this.contexttypeahead.getContext.bind(this),
+            sorter: function(items) {
+              items.sort(
+                function(a,b) {return a.variable > b.variable ? 1 : -1;}
+              );
+              return items;
+            },
+            matcher: function(item) {
+              if (item.toLowerCase().indexOf(this.query.toLowerCase()) !== 0)
+                return false;
+
+              return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
+            },
+            onselect: this.contexttypeahead.select.bind(this)
+          });
+      }
+
+      var left = position.left - this.contexttypeahead.textWidth(
+            backText,
+            this.selection.getParent() || $('<div class="redactor-editor">')
+          );
+
+      this.contexttypeahead.typeahead
+        .val(match[1])
+        .trigger(e)
+        .css({top: position.top + $(window).scrollTop(), left: left});
+
+      return !e.isDefaultPrevented();
+    },
+
+    getContext: function(typeahead, query) {
+      var dfd,
+          root = this.$element.data('rootContext');
+      if (!this.contexttypeahead.context) {
+        dfd = $.Deferred();
+        $.ajax('ajax.php/content/context', {
+          data: {root: root},
+          success: function(json) {
+            var items = $.map(json, function(v,k) {
+              return {variable: k, desc: v};
+            });
+            dfd.resolve(items);
+          }
+        });
+        this.contexttypeahead.context = dfd;
+      }
+      // Only fetch the context once for this redactor box
+      this.contexttypeahead.context.then(function(items) {
+        typeahead.process(items);
+      });
+    },
+
+    textWidth: function(text, clone) {
+      var c = $(clone),
+          o = c.clone().text(text)
+            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden'})
+            .css({'font-family': c.css('font-family'), 'font-weight': c.css('font-weight'),
+              'font-size': c.css('font-size')})
+            .appendTo($('body')),
+          w = o.width();
+
+      o.remove();
+
+      return w;
+    },
+
+    destroy: function() {
+      if (this.contexttypeahead.typeahead) {
+        this.contexttypeahead.typeahead.typeahead('hide');
+        this.contexttypeahead.typeahead.remove();
+        this.contexttypeahead.typeahead = false;
+      }
+      // TODO: Hide typeahead widget
+    },
+
+    select: function(item) {
+      var current = this.selection.getCurrent(),
+          search = new RegExp(/%\{([^}]*)$/);
+
+      if (!current)
+        return;
+
+      // Set cursor at the end of the expanded text
+      var q = current.textContent
+            = current.textContent.replace(search, '%{' + item.variable);
+      this.range.setStart(current, current.length);
+      this.range.setEnd(current, current.length);
+      this.selection.addRange();
+      return this.contexttypeahead.destroy();
+    }
+  };
+};

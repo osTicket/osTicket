@@ -17,6 +17,7 @@
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
 require_once INCLUDE_DIR . 'class.organization.php';
+require_once INCLUDE_DIR . 'class.variable.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -188,7 +189,8 @@ class UserCdata extends VerySimpleModel {
     }
 }
 
-class User extends UserModel {
+class User extends UserModel
+implements TemplateVariable {
 
     var $_entries;
     var $_forms;
@@ -329,6 +331,18 @@ class User extends UserModel {
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'email' => 'Default email address',
+            'name' => array(
+                'class' => 'PersonsName', 'desc' => 'User name, default format'
+            ),
+            'organization' => array('class' => 'Organization', 'desc' => 'Organization'),
+        );
+        $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
+        return $base + $extra;
     }
 
     function addDynamicData($data) {
@@ -642,7 +656,8 @@ class User extends UserModel {
     }
 }
 
-class PersonsName {
+class PersonsName
+implements TemplateVariable {
     var $format;
     var $parts;
     var $name;
@@ -759,6 +774,16 @@ class PersonsName {
 
     function asVar() {
         return $this->__toString();
+    }
+
+    static function getVarScope() {
+        $formats = array();
+        foreach (static::$formats as $name=>$info) {
+            if (in_array($name, array('original', 'complete')))
+                continue;
+            $formats[$name] = $info[0];
+        }
+        return $formats;
     }
 
     function __toString() {
@@ -1220,9 +1245,14 @@ class UserAccountStatus {
 /*
  *  Generic user list.
  */
-class UserList extends ListObject {
+class UserList extends ListObject
+implements TemplateVariable {
 
     function __toString() {
+        return $this->getNames();
+    }
+
+    function getNames() {
 
         $list = array();
         foreach($this->storage as $user) {
@@ -1231,6 +1261,34 @@ class UserList extends ListObject {
         }
 
         return $list ? implode(', ', $list) : '';
+    }
+
+    function getFull() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
+        }
+
+        return $list ? implode(', ', $list) : '';
+    }
+
+    function getEmails() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = $user->getEmail();
+        }
+
+        return $list ? implode(', ', $list) : '';
+    }
+
+    static function getVarScope() {
+        return array(
+            'names' => 'List of names',
+            'emails' => 'List of email addresses',
+            'full' => 'List of names and email addresses',
+        );
     }
 }
 ?>

@@ -108,6 +108,7 @@ $tpl=$msgtemplates[$selected];
     </div>
     <input type="hidden" name="draft_id" value=""/>
     <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
+        data-root-context="<?php echo $selected; ?>"
         data-toolbar-external="#toolbar" class="richtext draft" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('tpl.'.$selected, $tpl_id, $info['body']);
     echo $attrs; ?>><?php echo $draft ?: $info['body'];

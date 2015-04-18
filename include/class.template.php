@@ -30,56 +30,108 @@ class EmailTemplateGroup {
         'ticket.autoresp'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-response',
-            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.'),
+            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'signature', 'message', 'recipient'
+            ),
+        ),
         'ticket.autoreply'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-reply',
-            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.'),
+            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.',
+            'context' => array(
+                'ticket', 'signature', 'response', 'recipient',
+            ),
+        ),
         'message.autoresp'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Message Auto-response',
-            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.'),
+            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.',
+            'context' => array(
+                'ticket', 'signature', 'recipient',
+            ),
+        ),
         'ticket.notice'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Ticket Notice',
-            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).'),
+            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).',
+            'context' => array(
+                'ticket', 'signature', 'recipient', 'staff', 'message',
+            ),
+        ),
         'ticket.overlimit'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'Over Limit Notice',
-            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.'),
+            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
+            'context' => array(
+                'ticket', 'signature',
+            ),
+        ),
         'ticket.reply'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'Response/Reply Template',
-            'desc'=>/* @trans */ 'Template used on ticket response/reply'),
+            'desc'=>/* @trans */ 'Template used on ticket response/reply',
+            'context' => array(
+                'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
+            ),
+        ),
         'ticket.activity.notice'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Activity Notice',
-            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
+            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
+            'context' => array(
+                'ticket', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
         'ticket.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'New Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.'),
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message',
+            ),
+        ),
         'message.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'New Message Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.'),
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message', 'poster',
+            ),
+        ),
         'note.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'Internal Activity Alert',
-            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.'),
+            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
         'assigned.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'Ticket Assignment Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.'),
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
+        ),
         'transfer.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'Ticket Transfer Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.'),
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'staff',
+            ),
+        ),
         'ticket.overdue'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'Overdue Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.'),
-        );
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.',
+            'context' => array(
+                'ticket', 'recipient', 'comments',
+            ),
+        ),
+    );
 
     function EmailTemplateGroup($id){
         $this->id=0;
@@ -157,7 +209,7 @@ class EmailTemplateGroup {
         return (db_query($sql) && db_affected_rows());
     }
 
-    function getTemplateDescription($name) {
+    static function getTemplateDescription($name) {
         return static::$all_names[$name];
     }
 
