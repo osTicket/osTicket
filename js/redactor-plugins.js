@@ -1611,6 +1611,7 @@ RedactorPlugins.contexttypeahead = function() {
   return {
     typeahead: false,
     context: false,
+    variables: false,
 
     init: function() {
       if (!this.$element.data('rootContext'))
@@ -1642,7 +1643,8 @@ RedactorPlugins.contexttypeahead = function() {
           position    = clientRects[0],
           cursorAt    = range.endOffset,
           backTextLen = match[1].length - content.length + cursorAt,
-          backText    = match[1].substring(0, backTextLen);
+          backText    = match[1].substring(0, backTextLen),
+          that        = this.contexttypeahead;
 
       if (backTextLen < 0)
           return this.contexttypeahead.destroy();
@@ -1655,15 +1657,25 @@ RedactorPlugins.contexttypeahead = function() {
       if (!this.contexttypeahead.typeahead) {
         this.contexttypeahead.typeahead = $('<input type="text">')
           .css({position: 'absolute', visibility: 'hidden'})
-          .width(0).height(position.height)
+          .width(0).height(position.height - 4)
           .appendTo(document.body)
           .typeahead({
             property: 'variable',
             minLength: 0,
+            arrow: $('<span class="pull-right"><i class="icon-muted icon-chevron-right"></i></span>')
+                .css('padding', '0 0 0 6px'),
             highlighter: function(variable, item) {
-              var base = $.fn.typeahead.Constructor.prototype.highlighter.call(this, variable);
+              var base = $.fn.typeahead.Constructor.prototype.highlighter
+                    .call(this, variable),
+                  further = new RegExp(variable + '\\.'),
+                  extendable = Object.keys(that.variables).some(function(v) {
+                    return v.match(further);
+                  }),
+                  arrow = extendable ? this.options.arrow.clone() : '';
+
               return base + $('<span class="faded"/>')
                 .text(' — ' + item.desc)
+                .append(arrow)
                 .wrap('<div>').parent().html();
             },
             source: this.contexttypeahead.getContext.bind(this),
@@ -1697,7 +1709,7 @@ RedactorPlugins.contexttypeahead = function() {
     },
 
     getContext: function(typeahead, query) {
-      var dfd,
+      var dfd, that=this.contexttypeahead,
           root = this.$element.data('rootContext');
       if (!this.contexttypeahead.context) {
         dfd = $.Deferred();
@@ -1707,6 +1719,7 @@ RedactorPlugins.contexttypeahead = function() {
             var items = $.map(json, function(v,k) {
               return {variable: k, desc: v};
             });
+            that.variables = json;
             dfd.resolve(items);
           }
         });
