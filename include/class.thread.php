@@ -745,10 +745,20 @@ class ThreadEntry {
         if ($mailinfo['userId']
                 || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
+            $vars['userId'] = $mailinfo['userId'] ?: $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
-        // XXX: Consider collaborator role
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators)
+        elseif (($E = UserEmail::lookup($mailinfo['email']))
+            && ($C = Collaborator::lookup(array(
+                'ticketId' => $ticket->getId(), 'userId' => $E->user_id
+            )))
+        ) {
+            $vars['userId'] = $C->getUserId();
+            $vars['message'] = $body;
+            return $ticket->postMessage($vars, 'Email');
+        }
         elseif ($mailinfo['staffId']
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
