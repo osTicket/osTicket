@@ -1265,13 +1265,14 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function asVar() {
-        return (is_object($this->getValue()))
-            ? $this->getValue() : $this->toString();
+        return $this->getField()->asVar(
+            $this->get('value'), $this->get('value_id')
+        );
     }
 
     function getVar($tag) {
-        if (is_object($this->getValue()) && method_exists($this->getValue(), 'getVar'))
-            return $this->getValue()->getVar($tag);
+        if (is_object($var = $this->asVar()) && method_exists($var, 'getVar'))
+            return $var->getVar($tag);
     }
 
     function __toString() {
@@ -1370,6 +1371,15 @@ class SelectionField extends FormField {
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
         return $value;
+    }
+
+    function asVar($value, $id=false) {
+        $values = $this->to_php($value, $id);
+        if (is_array($values)) {
+            return new PlaceholderList($this->getList()->getAllItems()
+                ->filter(array('id__in' => array_keys($values)))
+            );
+        }
     }
 
     function hasSubFields() {

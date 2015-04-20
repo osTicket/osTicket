@@ -212,6 +212,44 @@ class VariableReplacer {
     }
 }
 
+class PlaceholderList
+/* implements TemplateVariable */ {
+    var $items;
+
+    function __construct($items) {
+        $this->items = $items;
+    }
+
+    function asVar() {
+        $items = array();
+        foreach ($this->items as $I) {
+            if (method_exists($I, 'asVar')) {
+                $items[] = $I->asVar();
+            }
+            else {
+                $items[] = (string) $I;
+            }
+        }
+        return implode(',', $items);
+    }
+
+    function getVar($tag) {
+        $items = array();
+        foreach ($this->items as $I) {
+            if (is_object($I) && method_exists($I, 'get'.ucfirst($tag))) {
+                $items[] = call_user_func(array($I, 'get'.ucfirst($tag)));
+            }
+            elseif (method_exists($I, 'getVar')) {
+                $items[] = $I->getVar($tag);
+            }
+        }
+        if (count($items) == 1) {
+            return $items[0];
+        }
+        return new static($items);
+    }
+}
+
 interface TemplateVariable {
     // function asVar(); — not absolutely required
     // function getVar($name); — not absolutely required

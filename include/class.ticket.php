@@ -294,8 +294,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if (!$this->_answers) {
             foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
                 foreach ($form->getAnswers() as $answer) {
-                    $tag = mb_strtolower($answer->getField()->get('name'))
-                        ?: 'field.' . $answer->getField()->get('id');
+                    $tag = mb_strtolower($answer->field->name)
+                        ?: 'field.' . $answer->field->id;
                         $this->_answers[$tag] = $answer;
                 }
             }
