@@ -209,6 +209,7 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(400, '`root` is required parameter');
 
         switch ($_GET['root']) {
+        case 'thank-you':
         case 'cannedresponse':
             $roots = array('ticket');
             break;
