@@ -1824,21 +1824,15 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
                 break;
             case 'create_date':
-                return Format::datetime($this->getCreateDate(), true, 'UTC');
+                return new FormattedDate($this->getCreateDate());
                 break;
              case 'due_date':
-                $duedate ='';
-                if($this->getEstDueDate())
-                    $duedate = Format::datetime($this->getEstDueDate(), true, 'UTC');
-
-                return $duedate;
+                if ($due = $this->getEstDueDate())
+                    return new FormattedDate($due);
                 break;
             case 'close_date':
-                $closedate ='';
-                if($this->isClosed())
-                    $closedate = Format::datetime($this->getCloseDate(), true, 'UTC');
-
-                return $closedate;
+                if ($this->isClosed())
+                    return new FormattedDate($this->getCloseDate());
                 break;
             case 'user':
                 return $this->getOwner();
@@ -1857,12 +1851,18 @@ implements RestrictedAccess, Threadable, TemplateVariable {
     static function getVarScope() {
         $base = array(
             'assigned' => 'Assigned agent and/or team',
-            'close_date' => 'Date of ticket closure',
-            'create_date' => 'Ticket create date',
+            'close_date' => array(
+                'class' => 'FormattedDate', 'desc' => 'Date of ticket closure',
+            ),
+            'create_date' => array(
+                'class' => 'FormattedDate', 'desc' => 'Ticket create date',
+            ),
             'dept' => array(
                 'class' => 'Dept', 'desc' => 'Department',
             ),
-            'due_date' => 'Ticket due date',
+            'due_date' => array(
+                'class' => 'FormattedDate', 'desc' => 'Ticket due date',
+            ),
             'email' => 'Default email address of ticket owner',
             'name' => array(
                 'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),

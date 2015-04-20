@@ -519,6 +519,24 @@ class FormField {
     }
 
     /**
+     * Fetch a value suitable for embedding the value of this field in an
+     * email template. Reference implementation uses ::to_php();
+     */
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
+    /**
+     * Fetch the var type used with the email templating system's typeahead
+     * feature. This helps with variable expansion if supported by this
+     * field's ::asVar() method. This method should return a valid classname
+     * which implements the `TemplateVariable` interface.
+     */
+    function asVarType() {
+        return false;
+    }
+
+    /**
      * Convert the field data to something matchable by filtering. The
      * primary use of this is for ticket filtering.
      */
@@ -1291,6 +1309,14 @@ class DatetimeField extends FormField {
             return $value;
         else
             return (int) $value;
+    }
+
+    function asVar($value, $id=false) {
+        if (!$value) return null;
+        return new FormattedDate((int) $value, 'UTC', false, false);
+    }
+    function asVarType() {
+        return 'FormattedDate';
     }
 
     function toString($value) {

@@ -65,14 +65,14 @@ class VariableReplacer {
 
         if (!$var) {
             if (method_exists($obj, 'asVar'))
-                return call_user_func(array($obj, 'asVar'));
+                return call_user_func(array($obj, 'asVar'), $this);
             elseif (method_exists($obj, '__toString'))
                 return (string) $obj;
         }
 
         list($v, $part) = explode('.', $var, 2);
         if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
-            $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
+            $rv = call_user_func(array($obj, 'get'.ucfirst($v)), $this);
             if(!$rv || !is_object($rv))
                 return $rv;
 
@@ -86,7 +86,7 @@ class VariableReplacer {
             return "";
 
         list($tag, $remainder) = explode('.', $var, 2);
-        if(($rv = call_user_func(array($obj, 'getVar'), $tag))===false)
+        if(($rv = call_user_func(array($obj, 'getVar'), $tag, $this))===false)
             return "";
 
         if(!is_object($rv))
@@ -176,6 +176,9 @@ class VariableReplacer {
                 continue;
 
             $desc = $f->getLocal('label');
+            if (($class = $f->asVarType()) && class_exists($class)) {
+                $desc = array('desc' => $desc, 'class' => $class);
+            }
             $items[$name] = $desc;
             foreach (VariableReplacer::compileFieldScope($f) as $name2=>$desc) {
                 $items["$name.$name2"] = $desc;
@@ -198,6 +201,9 @@ class VariableReplacer {
             if ($recurse) {
                 foreach (static::compileFieldScope($f, $recurse-1, $name)
                 as $name2=>$desc) {
+                    if (($class = $f->asVarType()) && class_exists($class)) {
+                        $desc = array('desc' => $desc, 'class' => $class);
+                    }
                     $items["$name.$name2"] = $desc;
                 }
             }

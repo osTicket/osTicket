@@ -55,6 +55,11 @@ implements EmailContact, ITicketUser, TemplateVariable {
 
     }
 
+    // Required for Internationalization::getCurrentLanguage() in templates
+    function getLanguage() {
+        return $this->user->getLanguage();
+    }
+
     static function getVarScope() {
         return array(
             'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),

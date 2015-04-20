@@ -291,6 +291,15 @@ implements TemplateVariable {
         return $this->created;
     }
 
+    function getTimezone() {
+        global $cfg;
+
+        if (($acct = $this->getAccount()) && ($tz = $acct->getTimezone())) {
+            return $tz;
+        }
+        return $cfg->getDefaultTimezone();
+    }
+
     function addForm($form, $sort=1, $data=null) {
         $entry = $form->instanciate($sort, $data);
         $entry->set('object_type', 'U');
@@ -999,6 +1008,10 @@ class UserAccountModel extends VerySimpleModel {
             $lang = $this->getExtraAttr('browser_lang', false);
 
         return $lang;
+    }
+
+    function getTimezone() {
+        return $this->timezone;
     }
 
     function save($refetch=false) {
