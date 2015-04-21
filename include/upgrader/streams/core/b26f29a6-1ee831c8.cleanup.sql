@@ -19,4 +19,5 @@ ALTER TABLE `%TABLE_PREFIX%user_account`
     DROP `dst`;
 
 DELETE FROM `%TABLE_PREFIX%config`
-    WHERE `key` = 'enable_daylight_saving' AND `namespace` = 'core';
+    WHERE `key` = IN ('enable_daylight_saving', 'default_timezone_id')
+      AND `namespace` = 'core';

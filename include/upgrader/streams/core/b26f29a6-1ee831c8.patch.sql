@@ -167,6 +167,11 @@ UPDATE `%TABLE_PREFIX%config` A1
     WHERE A1.`key` = 'default_timezone_id'
       AND A1.`namespace` = 'core';
 
+UPDATE `%TABLE_PREFIX%config` A1
+    SET A1.`key` = 'default_timezone'
+    WHERE A1.`key` = 'default_timezone_id'
+      AND A1.`namespace` = 'core';
+
 DROP TABLE %TABLE_PREFIX%_timezones;
 
 ALTER TABLE `%TABLE_PREFIX%ticket`
