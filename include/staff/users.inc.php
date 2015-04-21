@@ -244,10 +244,11 @@ $(function() {
     $(document).on('click', 'a.popup-dialog', function(e) {
         e.preventDefault();
         $.userLookup('ajax.php/' + $(this).attr('href').substr(1), function (user) {
+            var url = window.location.href;
             if (user && user.id)
-                window.location.href = 'users.php?id='+user.id;
-            else
-              $.pjax({url: window.location.href, container: '#pjax-container'})
+                url = 'users.php?id='+user.id;
+            $.pjax({url: url, container: '#pjax-container'})
+            return false;
          });
 
         return false;
@@ -283,11 +284,14 @@ $(function() {
     $(document).on('dialog:close', function(e, json) {
         $form = $('form#users-list');
         try {
-            var json = $.parseJSON(json);
-            $form.find('#org_id').val(json.id);
-            goBaby('setorg', true);
+            var json = $.parseJSON(json),
+                org_id = $form.find('#org_id');
+            if (json.id) {
+                org_id.val(json.id);
+                goBaby('setorg', true);
+            }
         }
-        catch (e) { console.log(e); }
+        catch (e) { }
     });
 });
 </script>

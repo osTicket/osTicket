@@ -152,15 +152,12 @@ class Organization extends OrganizationModel {
     var $_forms;
 
     function addDynamicData($data) {
+        $entry = $this->addForm(OrganizationForm::objects()->one(), 1, $data);
+        // FIXME: For some reason, the second save here is required or the
+        //        custom data is not properly saved
+        $entry->save();
 
-        $of = OrganizationForm::getInstance($this->id, true);
-        foreach ($of->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $of->setAnswer($f->get('name'), $data[$f->get('name')]);
-
-        $of->save();
-
-        return $of;
+        return $entry;
     }
 
     function getDynamicData($create=true) {
@@ -240,12 +237,12 @@ class Organization extends OrganizationModel {
         }
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'O');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function addForm($form, $sort=1, $data) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'O');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function getFilterData() {
@@ -353,6 +350,7 @@ class Organization extends OrganizationModel {
                 $this->name = $name->getClean();
                 $this->save();
             }
+            $entry->setSource($vars);
             $entry->save();
         }
 
@@ -381,6 +379,15 @@ class Organization extends OrganizationModel {
         return $this->save();
     }
 
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        foreach ($this->getDynamicData(false) as $entry) {
+            $entry->delete();
+        }
+    }
+
     static function fromVars($vars) {
 
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
@@ -399,14 +406,15 @@ class Organization extends OrganizationModel {
 
     static function fromForm($form) {
 
-        if(!$form) return null;
+        if (!$form)
+            return null;
 
         //Validate the form
         $valid = true;
         if (!$form->isValid())
             $valid  = false;
 
-        //Make sure the email is not in-use
+        // Make sure the name is not in-use
         if (($field=$form->getField('name'))
                 && $field->getClean()
                 && Organization::lookup(array('name' => $field->getClean()))) {
@@ -452,9 +460,9 @@ class OrganizationForm extends DynamicForm {
         return static::$form;
     }
 
-    static function getInstance($object_id=0, $new=false) {
+    static function getInstance($object_id=0, $new=false, $data=null) {
         if ($new || !isset(static::$instance))
-            static::$instance = static::getDefaultForm()->instanciate();
+            static::$instance = static::getDefaultForm()->instanciate(1, $data);
 
         static::$instance->object_type = 'O';
 

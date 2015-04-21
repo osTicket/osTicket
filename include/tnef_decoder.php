@@ -345,7 +345,14 @@ class TnefAttributeStreamReader extends TnefStreamReader {
             }
 
             return $text;
+
+        case self::TypeCLSID:
+            return $this->_getx(16);
+
+        default:
+            throw new TnefException(sprintf('0x%04x: Bad data type', $type));
         }
+
     }
 
     function next() {

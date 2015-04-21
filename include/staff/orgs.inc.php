@@ -209,7 +209,8 @@ $(function() {
     $(document).on('click', 'a.add-org', function(e) {
         e.preventDefault();
         $.orgLookup('ajax.php/orgs/add', function (org) {
-            window.location.href = 'orgs.php?id='+org.id;
+            var url = 'orgs.php?id=' + org.id;
+            $.pjax({url: url, container: '#pjax-container'})
          });
 
         return false;

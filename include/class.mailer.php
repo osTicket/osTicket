@@ -353,12 +353,13 @@ class Mailer {
         if (isset($options['thread'])
             && $options['thread'] instanceof ThreadEntry
         ) {
-            if ($references = $options['thread']->getEmailReferences())
-                $headers += array('References' => $references);
             if ($irt = $options['thread']->getEmailMessageId()) {
                 // This is an response from an email, like and autoresponse.
                 // Web posts will not have a email message-id
-                $headers += array('In-Reply-To' => $irt);
+                $headers += array(
+                    'In-Reply-To' => $irt,
+                    'References' => $options['thread']->getEmailReferences()
+                );
             }
             elseif ($parent = $options['thread']->getParent()) {
                 // Use the parent item as the email information source. This

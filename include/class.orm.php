@@ -235,7 +235,9 @@ class VerySimpleModel {
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
-            static::_inspect();
+            // XXX: This is likely not necessary
+            if (!isset(static::$meta['joins'][$field]['fkey']))
+                static::_inspect();
             $j = static::$meta['joins'][$field];
             if ($j['list'] && ($value instanceof InstrumentedList)) {
                 // Magic list property
@@ -385,7 +387,7 @@ class VerySimpleModel {
         // local foreign key field values
         static::_inspect();
         foreach (static::$meta['joins'] as $prop => $j) {
-            if (isset($this->ht[$prop]) 
+            if (isset($this->ht[$prop])
                 && ($foreign = $this->ht[$prop])
                 && $foreign instanceof VerySimpleModel
                 && !in_array($j['local'], $pk)
@@ -435,7 +437,7 @@ class VerySimpleModel {
         if ($refetch) {
             // Preserve non database information such as list relationships
             // across the refetch
-            $this->ht = 
+            $this->ht =
                 static::objects()->filter($this->getPk())->values()->one()
                 + $this->ht;
         }
@@ -443,7 +445,7 @@ class VerySimpleModel {
             // Attempt to update foreign, unsaved objects with the PK of
             // this newly created object
             foreach (static::$meta['joins'] as $prop => $j) {
-                if (isset($this->ht[$prop]) 
+                if (isset($this->ht[$prop])
                     && ($foreign = $this->ht[$prop])
                     && in_array($j['local'], $pk)
                 ) {

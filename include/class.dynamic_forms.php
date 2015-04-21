@@ -140,12 +140,13 @@ class DynamicForm extends VerySimpleModel {
         return $visible > 0;
     }
 
-    function instanciate($sort=1, $data=false) {
-        $entry = DynamicFormEntry::create(array(
-            'form_id'=>$this->get('id'), 'sort'=>$sort));
+    function instanciate($sort=1, $data=null) {
+        $inst = DynamicFormEntry::create(
+            array('form_id'=>$this->get('id'), 'sort'=>$sort)
+        );
         if ($data)
-            $entry->setSource($data);
-        return $entry;
+            $inst->setSource($data);
+        return $inst;
     }
 
     function getTranslateTag($subtag) {
@@ -196,8 +197,7 @@ class DynamicForm extends VerySimpleModel {
         if (isset($ht['fields'])) {
             $inst->save();
             foreach ($ht['fields'] as $f) {
-                $f = DynamicFormField::create(array('form' => $inst));
-                $f->setForm($inst);
+                $field = DynamicFormField::create(array('form' => $inst) + $f);
                 $f->save();
             }
         }
@@ -274,7 +274,7 @@ class DynamicForm extends VerySimpleModel {
             if ($exclude && in_array($f->get('name'), $exclude))
                 continue;
 
-            $impl = $f->getImpl();
+            $impl = $f->getImpl($f);
             if (!$impl->hasData() || $impl->isPresentationOnly())
                 continue;
 
@@ -404,6 +404,9 @@ class TicketForm extends DynamicForm {
             return;
 
         $f = $answer->getField();
+        if (!$f->getFormId())
+            return;
+
         $name = $f->get('name') ?: ('field_'.$f->get('id'));
         $fields = sprintf('`%s`=', $name) . db_input(
             implode(',', $answer->getSearchKeys()));
@@ -544,6 +547,9 @@ class DynamicFormField extends VerySimpleModel {
             $this->_field = new FormField($ht);
         return $this->_field;
     }
+
+    function getForm() { return $this->form; }
+    function getFormId() { return $this->form_id; }
 
     /**
      * setConfiguration
@@ -1137,11 +1143,13 @@ class DynamicFormEntry extends VerySimpleModel {
         return true;
     }
 
-    static function create($ht=false) {
+    static function create($ht=false, $data=null) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
         foreach ($inst->getDynamicFields() as $field) {
-            if (!$field->getImpl()->hasData())
+            if (!($impl = $field->getImpl($field)))
+                continue;
+            if (!$impl->hasData() || !$impl->isStorable())
                 continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field'=>$field, 'entry'=>$inst));
@@ -1259,6 +1267,15 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         $v = $this->toString();
         return is_string($v) ? $v : (string) $this->getValue();
     }
+
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        // Allow the field to cleanup anything else in the database
+        $this->getField()->db_cleanup();
+        return true;
+    }
 }
 
 class SelectionField extends FormField {
@@ -1362,7 +1379,7 @@ class SelectionField extends FormField {
     }
 
     function toString($items) {
-        return ($items && is_array($items))
+        return is_array($items)
             ? implode(', ', $items) : (string) $items;
     }
 

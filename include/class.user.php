@@ -285,7 +285,7 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function addForm($form, $sort=1, $data=false) {
+    function addForm($form, $sort=1, $data=null) {
         $entry = $form->instanciate($sort, $data);
         $entry->set('object_type', 'U');
         $entry->set('object_id', $this->getId());

@@ -2826,24 +2826,33 @@ implements RestrictedAccess, Threadable {
             }
         }
 
+        if (!$user) {
+            $interesting = array('name', 'email');
+            $user_form = UserForm::getUserForm()->getForm($vars);
+            // Add all the user-entered info for filtering
+            foreach ($interesting as $F) {
+                $field = $user_form->getField($F);
+                $vars[$F] = $field->toString($field->getClean());
+            }
+            // Attempt to lookup the user and associated data
+            $user = User::lookupByEmail($vars['email']);
+        }
+
         // Add in user and organization data for filtering
         if ($user) {
             $vars += $user->getFilterData();
             $vars['email'] = $user->getEmail();
-            $vars['name'] = $user->getName();
+            $vars['name'] = $user->getName()->getOriginal();
             if ($org = $user->getOrganization()) {
                 $vars += $org->getFilterData();
             }
         }
-        // Unpack the basic user information
+        // Don't include org information based solely on email domain
+        // for existing user instances
         else {
-            $interesting = array('name', 'email');
-            $user_form = UserForm::getUserForm()->getForm($vars);
-            // Add all the user-entered info for filtering
+            // Unpack all known user info from the request
             foreach ($user_form->getFields() as $f) {
                 $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
-                if (in_array($f->get('name'), $interesting))
-                    $vars[$f->get('name')] = $vars['field.'.$f->get('id')];
             }
             // Add in organization data if one exists for this email domain
             list($mailbox, $domain) = explode('@', $vars['email'], 2);
