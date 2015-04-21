@@ -168,14 +168,13 @@ $manage_content = function($title, $content) use ($contents) {
     $notes = explode('. ', $notes);
     $notes = $notes[0];
     ?><tr><td colspan="2">
-    <div style="display:inline-block;margin:0 36px">
-    <i class="icon-file-text pull-left icon-2x" style="color:#bbb;margin:0 -36px"></i>
+    <div style="padding:2px 5px">
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
         $.dialog($(this).attr('href').substr(1), 201);
     return false;" class="pull-left"><i class="icon-file-text icon-2x"
         style="color:#bbb;"></i> </a>
-    <span style="display:inline-block;width:90%;padding-left:10px;line-height:1.2em">
+    <span style="display:inline-block;width:90%;width:calc(100% - 32px);padding-left:10px;line-height:1.2em">
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
         $.dialog($(this).attr('href').substr(1), 201);
