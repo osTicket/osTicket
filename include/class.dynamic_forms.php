@@ -236,7 +236,7 @@ class DynamicForm extends VerySimpleModel {
         // New translations (?)
         if ($vars['trans'] && is_array($vars['trans'])) {
             foreach ($vars['trans'] as $lang=>$parts) {
-                if (!Internationalization::isLanguageInstalled($lang))
+                if (!Internationalization::isLanguageEnabled($lang))
                     continue;
                 foreach ($parts as $T => $content) {
                     $content = trim($content);

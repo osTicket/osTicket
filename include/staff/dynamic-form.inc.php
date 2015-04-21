@@ -15,7 +15,7 @@ if($form && $_REQUEST['a']!='add') {
     $translations = CustomDataTranslation::allTranslations($trans, 'phrase');
     $_keys = array_flip($trans);
     foreach ($translations as $t) {
-        if (!Internationalization::isLanguageInstalled($t->lang))
+        if (!Internationalization::isLanguageEnabled($t->lang))
             continue;
         // Create keys of [trans][de_DE][title] for instance
         $info['trans'][$t->lang][$_keys[$t->object_hash]]

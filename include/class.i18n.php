@@ -255,18 +255,28 @@ class Internationalization {
         return isset($langs[strtolower($code)]);
     }
 
+    static function isLanguageEnabled($code) {
+        $langs = self::getConfiguredSystemLanguages();
+        return isset($langs[$code]);
+    }
+
     static function getConfiguredSystemLanguages() {
         global $cfg;
+        static $langs;
 
         if (!$cfg)
             return self::availableLanguages();
 
-        $pri = $cfg->getPrimaryLanguage();
-        $langs = array($pri => self::getLanguageInfo($pri));
+        if (!isset($langs)) {
+            $pri = $cfg->getPrimaryLanguage();
+            if ($info = self::getLanguageInfo($pri))
+                $langs = array($pri => $info);
 
-        // Honor sorting preference of ::availableLanguages()
-        foreach ($cfg->getSecondaryLanguages() as $l) {
-            $langs[$l] = self::getLanguageInfo($l);
+            // Honor sorting preference of ::availableLanguages()
+            foreach ($cfg->getSecondaryLanguages() as $l) {
+                if ($info = self::getLanguageInfo($l))
+                    $langs[$l] = $info;
+            }
         }
         return $langs;
     }
@@ -369,7 +379,7 @@ class Internationalization {
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
-            if ($lang = $user->getLanguage())
+            if (($lang = $user->getLanguage()) && self::isLanguageEnabled($lang))
                 return $lang;
 
         // Support the flag buttons for guests
