@@ -8,7 +8,6 @@ core:
     date_format: 'm/d/Y'
     datetime_format: 'm/d/Y g:i a'
     daydatetime_format: 'D, M j Y g:ia'
-    default_timezone_id: 8
     default_priority_id: 2
     enable_daylight_saving: 0
 
