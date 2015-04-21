@@ -663,7 +663,7 @@ $.sysAlert = function (title, msg, cb) {
         $.toggleOverlay(true);
         $('#title', $dialog).html(title);
         $('#body', $dialog).html(msg);
-        $dialog.show();
+        $dialog.resize().show();
         if (cb)
             $dialog.find('input.ok.close').click(cb);
     } else {
