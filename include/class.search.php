@@ -82,14 +82,17 @@ class SearchInterface {
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        if (!$this->backend)
-            return;
-
-        $this->backend->update($model, $id, $content, $new, $attrs);
+        if ($this->backend)
+            $this->backend->update($model, $id, $content, $new, $attrs);
     }
 
     function createModel($model) {
         return $this->updateModel($model, true);
+    }
+
+    function deleteModel($model) {
+        if ($this->backend)
+            $this->backend->delete($model);
     }
 
     function updateModel($model, $new=false) {
@@ -104,11 +107,10 @@ class SearchInterface {
                 break;
 
             $this->update($model, $model->getId(),
-                $model->getBody()->getSearchable(), $new,
+                $model->getBody()->getSearchable(),
+                $new === true,
                 array(
                     'title' =>      $model->getTitle(),
-                    //TODO: send attribute of object_id
-                    'ticket_id' =>  $model->getThread()->getObjectId(),
                     'created' =>    $model->getCreateDate(),
                 )
             );
@@ -121,7 +123,7 @@ class SearchInterface {
                     $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getSubject()),
                     'number'=>      $model->getNumber(),
@@ -148,7 +150,7 @@ class SearchInterface {
                         $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getFullName()),
                     'emails'=>      $model->emails->asArray(),
@@ -166,7 +168,7 @@ class SearchInterface {
                         $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getName()),
                     'created'=>     $model->getCreateDate(),
@@ -177,7 +179,7 @@ class SearchInterface {
         case $model instanceof FAQ:
             $this->update($model, $model->getId(),
                 $model->getSearchableAnswer(),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getQuestion()),
                     'keywords'=>    $model->getKeywords(),
@@ -219,7 +221,7 @@ class SearchInterface {
         Signal::connect('model.created', array($this, 'createModel'), 'FAQ');
 
         Signal::connect('model.updated', array($this, 'updateModel'));
-        #Signal::connect('model.deleted', array($this, 'deleteModel'));
+        Signal::connect('model.deleted', array($this, 'deleteModel'));
     }
 }
 
@@ -239,6 +241,7 @@ class MysqlSearchBackend extends SearchBackend {
     // Only index 20 batches per cron run
     var $max_batches = 60;
     var $_reindexed = 0;
+    var $SEARCH_TABLE;
 
     function __construct() {
         $this->SEARCH_TABLE = TABLE_PREFIX . '_search';
@@ -257,8 +260,6 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-
-
         if (!($type=ObjectModel::getType($model)))
             return;
 
@@ -271,6 +272,8 @@ class MysqlSearchBackend extends SearchBackend {
 
         if (!$content && !$title)
             return;
+        if (!$id)
+            return;
 
         $sql = 'REPLACE INTO '.$this->SEARCH_TABLE
             . ' SET object_type='.db_input($type)
@@ -278,6 +281,26 @@ class MysqlSearchBackend extends SearchBackend {
             . ', content='.db_input($content)
             . ', title='.db_input($title);
         return db_query($sql);
+    }
+
+    function delete($model) {
+        switch (true) {
+        case $model instanceof Thread:
+            $sql = 'DELETE s.* FROM '.$this->SEARCH_TABLE
+                . " s JOIN ".THREAD_ENTRY_TABLE." h ON (h.id = s.object_id) "
+                . " WHERE s.object_type='H'"
+                . ' AND h.thread_id='.db_input($model->getId());
+            return db_query($sql);
+
+        default:
+            if (!($type = ObjectModel::getType($model)))
+                return;
+
+            $sql = 'DELETE FROM '.$this->SEARCH_TABLE
+                . ' WHERE object_type='.db_input($type)
+                . ' AND object_id='.db_input($model->getId());
+            return db_query($sql);
+        }
     }
 
     // Quote things like email addresses
