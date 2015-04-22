@@ -437,6 +437,10 @@ class AttachmentFile extends VerySimpleModel {
         return $f;
     }
 
+    static function __create($file, &$errors) {
+        return static::create($file);
+    }
+
     /**
      * Migrate this file from the current backend to the backend specified.
      *
