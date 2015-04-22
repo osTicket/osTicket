@@ -563,6 +563,16 @@ $(document).keydown(function(e) {
     }
 });
 
+
+$(document).on('focus', 'form.spellcheck textarea, form.spellcheck input[type=text]', function() {
+  var $this = $(this);
+  if ($this.attr('lang') !== undefined)
+    return;
+  var lang = $(this).closest('[lang]').attr('lang');
+  if (lang)
+    $(this).attr({'spellcheck':'true', 'lang': lang});
+});
+
 $.toggleOverlay = function (show) {
   if (typeof(show) === 'undefined') {
     return $.toggleOverlay(!$('#overlay').is(':visible'));

@@ -268,6 +268,12 @@ $(function() {
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
+                'initCallback': function() {
+                    this.$editor.attr('spellcheck', 'true');
+                    var lang = this.$editor.closest('[lang]').attr('lang');
+                    if (lang)
+                        this.$editor.attr('lang', lang);
+                },
                 'linkSize': 100000,
                 'definedLinks': 'ajax.php/config/links'
             }, options||{});

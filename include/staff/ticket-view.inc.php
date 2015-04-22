@@ -433,7 +433,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content" action="tickets.php?id=<?php
+    <form id="reply" class="tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -622,7 +622,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </form>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="note" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -705,7 +705,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
    </form>
     <?php
     if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
-    <form id="transfer" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="transfer" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
@@ -766,7 +766,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     } ?>
     <?php
     if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
-    <form id="assign" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="assign" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
          echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">

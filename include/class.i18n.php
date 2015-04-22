@@ -408,6 +408,15 @@ class Internationalization {
         return $locale;
     }
 
+    static function rfc1766($what) {
+        if (is_array($what))
+            return array_map(array(get_called_class(), 'rfc1766'), $what);
+
+        $lr = explode('_', $what);
+        if (isset($lr[1]))
+            $lr[1] = strtoupper($lr[1]);
+        return implode('-', $lr);
+    }
 
     static function getTtfFonts() {
         if (!class_exists('Phar'))

@@ -27,7 +27,8 @@ if (count($langs) > 1) { ?>
         class="tab_content left-tabs" style="padding:0" lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
     <div class="error"><?php echo $errors['name']; ?></div>
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
-        echo Format::htmlchars($info['title']); ?>" />
+    echo Format::htmlchars($info['title']); ?>" spellcheck="true"
+        lang="<?php echo $cfg->getPrimaryLanguage(); ?>" />
     <div style="margin-top: 5px">
     <div class="error"><?php echo $errors['body']; ?></div>
     <textarea class="richtext no-bar" name="body"
@@ -46,7 +47,8 @@ if (count($langs) > 1) { ?>
     <input type="text" style="width: 100%; font-size: 14pt"
         name="trans[<?php echo $tag; ?>][title]" value="<?php
         echo Format::htmlchars($trans['title']); ?>"
-        placeholder="<?php echo __('Title'); ?>" />
+        placeholder="<?php echo __('Title'); ?>"  spellcheck="true"
+        lang="<?php echo $tag; ?>" />
     <div style="margin-top: 5px">
     <textarea class="richtext no-bar" data-direction=<?php echo $nfo['direction']; ?>
         data-root-context="<?php echo $content->getType(); ?>"

@@ -2,11 +2,14 @@
 header("Content-Type: text/html; charset=UTF-8");
 if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html <?php
+<html<?php
 if (($lang = Internationalization::getCurrentLanguage())
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
-    echo 'dir="rtl" class="rtl"';
+    echo ' dir="rtl" class="rtl"';
+if ($lang) {
+    echo ' lang="' . Internationalization::rfc1766($lang) . '"';
+}
 ?>>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">

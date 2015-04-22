@@ -8,11 +8,17 @@ $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 header("Content-Type: text/html; charset=UTF-8");
 ?>
 <!DOCTYPE html>
-<html <?php
+<html<?php
 if (($lang = Internationalization::getCurrentLanguage())
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
-    echo 'dir="rtl" class="rtl"';
+    echo ' dir="rtl" class="rtl"';
+if ($lang) {
+    $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
+    $langs = Internationalization::rfc1766($langs);
+    echo ' lang="' . $lang . '"';
+    header("Content-Language: ".implode(', ', $langs));
+}
 ?>>
 <head>
     <meta charset="utf-8">
@@ -47,6 +53,25 @@ if (($lang = Internationalization::getCurrentLanguage())
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
+    }
+
+    // Offer alternate links for search engines
+    // @see https://support.google.com/webmasters/answer/189077?hl=en
+    if (($all_langs = Internationalization::getConfiguredSystemLanguages())
+        && (count($all_langs) > 1)
+    ) {
+        $langs = Internationalization::rfc1766(array_keys($all_langs));
+        $qs = array();
+        parse_str($_SERVER['QUERY_STRING'], $qs);
+        foreach ($langs as $L) {
+            $qs['lang'] = $L; ?>
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>?<?php
+            echo http_build_query($qs); ?>" hreflang="<?php echo $L; ?>" />
+<?php
+        } ?>
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
+            hreflang="x-default";
+<?php
     }
     ?>
 </head>
