@@ -27,6 +27,12 @@ require(CLIENTINC_DIR.'header.inc.php');
             <a href="open.php" style="display:block" class="blue button"><?php
                 echo __('Open a New Ticket');?></a>
 </p>
+<?php if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
+<p>
+            <a href="view.php" style="display:block" class="green button"><?php
+                echo __('Check Ticket Status');?></a>
+</p>
+<?php } ?>
         </div>
         <div class="content"><?php
     $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
