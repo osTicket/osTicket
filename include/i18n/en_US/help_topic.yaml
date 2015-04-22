@@ -23,6 +23,7 @@
   ispublic: 1
   dept_id: 1
   priority_id: 2
+  forms: [2]
   topic: General Inquiry
   notes: |
     Questions about products or services
@@ -31,6 +32,7 @@
   ispublic: 1
   dept_id: 1
   priority_id: 1
+  forms: [2]
   topic: Feedback
   notes: |
     Tickets that primarily concern the sales and billing departments
@@ -40,6 +42,7 @@
   ispublic: 1
   dept_id: 1
   priority_id: 2
+  forms: [2]
   topic: Report a Problem
   notes: |
     Product, service, or equipment related issues
@@ -50,6 +53,7 @@
   dept_id: 1
   sla_id: 1
   priority_id: 3
+  forms: [2]
   topic: Access Issue
   notes: |
     Report an inability access a physical or virtual asset
