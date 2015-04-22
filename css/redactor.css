@@ -124,16 +124,16 @@ body .redactor-box-fullscreen {
 }
 .redactor-placeholder:after {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 10px;
+  left: 10px;
   content: attr(placeholder);
   color: #999 !important;
   font-weight: normal !important;
 }
 /* Placeholder in linebreaks mode */
 .redactor-linebreaks.redactor-placeholder:after {
-  top: 20px;
-  left: 20px;
+  top: 10px;
+  left: 10px;
 }
 /*
 	Toolbar
