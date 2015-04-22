@@ -1368,6 +1368,9 @@ class InstrumentedList extends ModelInstanceManager {
 
         $object->set($this->key, $this->id);
 
+        if (!$object->__new__)
+            $object->save();
+
         if ($at !== false)
             $this->cache[$at] = $object;
         else
