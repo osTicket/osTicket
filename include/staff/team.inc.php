@@ -31,7 +31,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <i class="help-tip icon-question-sign" href="#teams"></i>
     </h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#team">
         <i class="icon-file"></i> <?php echo __('Team'); ?></a></li>
     <?php

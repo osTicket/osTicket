@@ -143,7 +143,7 @@ if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
 </table>
 <br>
 <div class="clear"></div>
-<ul class="tabs" id="user-view-tabs">
+<ul class="clean tabs" id="user-view-tabs">
     <li class="active"><a href="#tickets"><i
     class="icon-list-alt"></i>&nbsp;<?php echo __('User Tickets'); ?></a></li>
     <li><a href="#notes"><i

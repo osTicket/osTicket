@@ -27,7 +27,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <h2><?php echo __('Custom List'); ?>
     <?php echo $list ? $list->getName() : __('Add new list'); ?></h2>
 
-<ul class="tabs" id="list-tabs">
+<ul class="clean tabs" id="list-tabs">
     <li class="active"><a href="#definition">
         <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
     <li><a href="#items">

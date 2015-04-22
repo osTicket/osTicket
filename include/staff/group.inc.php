@@ -30,7 +30,7 @@ $roles = Role::getActiveRoles();
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2> <?php echo $group ?: __('New Group'); ?></h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#group">
         <i class="icon-file"></i> <?php echo __('Group'); ?></a></li>
     <li><a href="#departments">

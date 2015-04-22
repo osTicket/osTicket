@@ -75,7 +75,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
 </table>
 <br>
 <div class="clear"></div>
-<ul class="tabs" id="orgtabs">
+<ul class="clean tabs" id="orgtabs">
     <li class="active"><a href="#users"><i
     class="icon-user"></i>&nbsp;<?php echo __('Users'); ?></a></li>
     <li><a href="#tickets"><i

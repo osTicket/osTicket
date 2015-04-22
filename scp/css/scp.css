@@ -927,6 +927,7 @@ ul.tabs {
     border-bottom:1px solid #aaa;
     background:#eef3f8;
     position: relative;
+    box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.3);
 }
 
 #response_options ul.tabs {
@@ -967,7 +968,13 @@ ul.tabs li.active {
     text-align: center;
     border-top:2px solid #81a9d7;
     bottom: 0;
-    box-shadow: 4px -1px 6px -3px rgba(0,0,0,0.3);
+    box-shadow: 4px -1px 6px -3px rgba(0,0,0,0.2);
+}
+ul.tabs li:not(.active) {
+    box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.2);
+}
+ul.tabs.clean li.active {
+    background-color: white;
 }
 
 ul.tabs li a {
@@ -997,6 +1004,7 @@ ul.tabs.vertical {
     padding-bottom: 40px;
     padding-top: 10px;
     background: transparent;
+    box-shadow: inset -5px 0 10px -9px rgba(0,0,0,0.3);
 }
 ul.tabs.vertical.left {
     float: left;
@@ -1013,6 +1021,9 @@ ul.tabs.vertical li {
     border-bottom-left-radius: 5px;
     right: 0;
     height: auto;
+}
+ul.tabs.vertical li:not(.active) {
+    box-shadow: inset -5px 0 10px -9px rgba(0,0,0,0.3);
 }
 
 ul.tabs.vertical li + li {

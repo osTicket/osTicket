@@ -32,7 +32,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <br/>
 
-<ul class="tabs" id="topic-tabs">
+<ul class="clean tabs" id="topic-tabs">
     <li class="active"><a href="#info"><i class="icon-info-sign"></i> Help Topic Information</a></li>
     <li><a href="#routing"><i class="icon-ticket"></i> New ticket options</a></li>
     <li><a href="#forms"><i class="icon-paste"></i> Forms</a></li>

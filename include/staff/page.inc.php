@@ -111,7 +111,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan="2">
-                <ul class="tabs">
+                <ul class="tabs clean">
                     <li class="active"><a href="#content"><?php echo __('Page Content'); ?></a></li>
                     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
                 </ul>
