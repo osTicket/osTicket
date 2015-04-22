@@ -996,6 +996,9 @@ img.sign-in-image {
 .sidebar .content {
     padding: 10px; border: 1px solid #C8DDFA; background: #F7FBFE;
 }
+.sidebar .content:empty {
+    display: none;
+}
 
 .sidebar section .header {
     font-weight: bold;

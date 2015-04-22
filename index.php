@@ -28,8 +28,7 @@ require(CLIENTINC_DIR.'header.inc.php');
                 echo __('Open a New Ticket');?></a>
 </p>
         </div>
-        <div class="content">
-<?php
+        <div class="content"><?php
     $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
     if ($faqs->all()) { ?>
             <section><div class="header"><?php echo __('Featured Questions'); ?></div>
@@ -50,8 +49,8 @@ require(CLIENTINC_DIR.'header.inc.php');
 <?php   } ?>
             </section>
 <?php
-    } ?>
-        </div>
+    }
+        ?></div>
     </div>
 <div class="welcome">
 <?php
