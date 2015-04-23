@@ -29,11 +29,16 @@ if (!$_GET['key']
 // Validate session access hash - we want to make sure the link is FRESH!
 // and the user has access to the parent ticket!!
 if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
-    if (($s = @$_GET['s']) && strpos($file->getType(), 'image/') === 0)
-        return $file->display($s);
+    try {
+        if (($s = @$_GET['s']) && strpos($file->getType(), 'image/') === 0)
+            return $file->display($s);
 
-    // Download the file..
-    $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
+        // Download the file..
+        $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
+    }
+    catch (Exception $x) {
+        Http::response(500, 'Unable to find that file: '.$ex->getMessage());
+    }
 }
 // else
 Http::response(404, __('Unknown or invalid file'));

@@ -1010,5 +1010,5 @@ foreach (AttachmentFile::objects()->filter(array(
         'filename' => $file->name,
     );
 } ?>
-$.showImagesInline(<?php echo JsonDataEncoder::encode($urls); ?>);
+$('#ticket_thread').data('imageUrls', <?php echo JsonDataEncoder::encode($urls); ?>);
 </script>
