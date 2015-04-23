@@ -85,28 +85,10 @@ $info['id']=$staff->getId();
                 <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <select name="timezone" class="chosen-select" id="timezone-dropdown"
-                    data-placeholder="<?php echo __('System Default'); ?>">
-                    <option value=""></option>
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                    <option value="<?php echo $zone; ?>" <?php
-                    if ($info['timezone'] == $zone)
-                        echo 'selected="selected"';
-                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-<?php } ?>
-                </select>
-                <button class="action-button" onclick="javascript:
-    $('head').append($('<script>').attr('src', '<?php
-        echo ROOT_PATH; ?>js/jstz.min.js'));
-    var recheck = setInterval(function() {
-        if (window.jstz !== undefined) {
-            clearInterval(recheck);
-            var zone = jstz.determine();
-            $('#timezone-dropdown').val(zone.name()).trigger('chosen:updated');
-
-        }
-    }, 200);
-    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
+                <?php
+                $TZ_NAME = 'timezone';
+                $TZ_TIMEZONE = $info['timezone'];
+                include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
                 <div class="error"><?php echo $errors['timezone']; ?></div>
             </td>
         </tr>
@@ -273,11 +255,3 @@ $info['id']=$staff->getId();
     <input type="button" name="cancel" value="<?php echo __('Cancel Changes');?>" onclick='window.location.href="index.php"'>
 </p>
 </form>
-<script type="text/javascript">
-!(function() {
-    $('#timezone-dropdown').chosen({
-        allow_single_deselect: true,
-        width: '350px'
-    });
-})();
-</script>

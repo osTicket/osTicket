@@ -903,7 +903,6 @@ a.refresh {
   border: 1px solid #aaa;
   cursor: pointer;
   font-size: 11px;
-  height: 18px;
   overflow: hidden;
   background-color: #dddddd;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
@@ -915,7 +914,6 @@ a.refresh {
   padding: 0 5px;
   text-decoration: none;
   line-height:18px;
-  float:right;
   margin-left:5px;
 }
 .action-button span,

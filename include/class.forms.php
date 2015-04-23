@@ -2745,7 +2745,7 @@ class ChoicesWidget extends Widget {
             id="<?php echo $this->id; ?>"
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
-                echo ' multiple="multiple" class="chosen-select"'; ?>>
+                echo ' multiple="multiple"'; ?>>
             <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
@@ -2759,7 +2759,7 @@ class ChoicesWidget extends Widget {
         <script type="text/javascript">
         $(function() {
             $("#<?php echo $this->id; ?>")
-            .chosen({'disable_search_threshold':10, 'width': '250px'});
+            .select2({'minimumResultsForSearch':10, 'width': '350px'});
         });
         </script>
        <?php

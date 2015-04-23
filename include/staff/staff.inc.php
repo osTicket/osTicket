@@ -286,17 +286,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <select name="timezone" class="chosen-select" id="timezone-dropdown"
-                    data-placeholder="<?php echo __('System Default'); ?>">
-                    <option value=""></option>
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                    <option value="<?php echo $zone; ?>" <?php
-                    if ($info['timezone'] == $zone)
-                        echo 'selected="selected"';
-                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-<?php } ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone']; ?></span>
+                <?php
+                $TZ_NAME = 'timezone';
+                $TZ_TIMEZONE = $info['timezone'];
+                include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
+                <div class="error"><?php echo $errors['timezone']; ?></div>
             </td>
         </tr>
         <tr>
@@ -364,11 +358,3 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="staff.php"'>
 </p>
 </form>
-<script type="text/javascript">
-!(function() {
-    $('#timezone-dropdown').chosen({
-        allow_single_deselect: true,
-        width: '350px'
-    });
-})();
-</script>

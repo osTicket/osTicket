@@ -49,7 +49,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     var $authkey;
     var $departments;
-    var $timezone;
     var $stats = array();
     var $_extra;
     var $passwd_change;
@@ -604,7 +603,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if($errors) return false;
 
-        $_SESSION['staff:lang'] = null;
+        $_SESSION['::lang'] = null;
         TextDomain::configureForUser($this);
 
         $this->firstname = $vars['firstname'];

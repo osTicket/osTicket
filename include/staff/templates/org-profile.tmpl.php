@@ -170,6 +170,6 @@ $(function() {
         $('div#org-profile').fadeIn();
         return false;
     });
-    $("#primary_contacts").chosen({width: '300px'});
+    $("#primary_contacts").select2({width: '300px'});
 });
 </script>

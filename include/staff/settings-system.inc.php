@@ -145,29 +145,12 @@ $gmtime = Misc::gmtime();
         </tr>
         <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
-                <select name="default_timezone" id="timezone-dropdown">
                 <?php
-                foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                    <option value="<?php echo $zone; ?>" <?php
-                    if ($config['default_timezone'] == $zone)
-                        echo 'selected="selected"';
-                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-
-                <?php
-                } ?>
-                </select>
-                <button class="action-button" onclick="javascript:
-    $('head').append($('<script>').attr('src', '<?php
-        echo ROOT_PATH; ?>js/jstz.min.js'));
-    var recheck = setInterval(function() {
-        if (window.jstz !== undefined) {
-            clearInterval(recheck);
-            var zone = jstz.determine();
-            $('#timezone-dropdown').val(zone.name()).trigger('chosen:updated');
-
-        }
-    }, 200);
-    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
+                $TZ_TIMEZONE = $config['default_timezone'];
+                $TZ_NAME = 'default_timezone';
+                $TZ_ALLOW_DEFAULT = false;
+                include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
+                <div class="error"><?php echo $errors['default_timezone']; ?></div>
             </td>
         </tr>
         <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
@@ -291,12 +274,6 @@ $gmtime = Misc::gmtime();
 </p>
 </form>
 <script type="text/javascript">
-(function() {
-    $('#timezone-dropdown').chosen({
-        allow_single_deselect: true,
-        width: '350px'
-    });
-})();
 $('#secondary_langs').sortable({
     cursor: 'move'
 });

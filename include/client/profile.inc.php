@@ -25,15 +25,10 @@ if ($acct = $thisclient->getAccount()) {
             <?php echo __('Time Zone');?>:
         </td>
         <td>
-            <select name="timezone" class="chosen-select" id="timezone-dropdown">
-                <option value=""><?php echo __('System Default'); ?></option>
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                <option value="<?php echo $zone; ?>" <?php
-                if ($info['timezone'] == $zone)
-                    echo 'selected="selected"';
-                ?>><?php echo str_replace('/', ' / ', $zone); ?></option>
-<?php } ?>
-            </select>
+            <?php
+            $TZ_NAME = 'timezone';
+            $TZ_TIMEZONE = $info['timezone'];
+            include INCLUDE_DIR.'staff/templates/timezone.tmpl.php'; ?>
             <div class="error"><?php echo $errors['timezone']; ?></div>
         </td>
     </tr>
@@ -101,10 +96,3 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         window.location.href='index.php';"/>
 </p>
 </form>
-<script type="text/javascript">
-$('#timezone-dropdown').chosen({
-    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-    allow_single_deselect: true,
-    width: '350px'
-});
-</script>

@@ -130,17 +130,11 @@ echo sprintf(__(
             </tr>
                 <td><?php echo __('Time Zone'); ?>:</td>
                 <td>
-                    <select name="timezone" class="chosen-select" id="timezone-dropdown"
-                        data-placeholder="<?php echo __('System Default'); ?>">
-                        <option value=""></option>
-    <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                        <option value="<?php echo $zone; ?>" <?php
-                        if ($info['timezone'] == $zone)
-                            echo 'selected="selected"';
-                        ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-    <?php } ?>
-                    </select>
-                    &nbsp;<span class="error"><?php echo $errors['timezone']; ?></span>
+                    <?php
+                    $TZ_NAME = 'timezone';
+                    $TZ_TIMEZONE = $info['timezone'];
+                    include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
+                    <div class="error"><?php echo $errors['timezone']; ?></div>
                 </td>
             </tr>
         </tbody>
@@ -165,10 +159,6 @@ $(function() {
             $('tbody#password').hide();
         else
             $('tbody#password').show();
-    });
-    $('#timezone-dropdown').chosen({
-        allow_single_deselect: true,
-        width: '350px'
     });
 });
 </script>
