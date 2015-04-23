@@ -27,7 +27,7 @@
     data-dept-id="<?php echo $dept->getId(); ?>"
     data-poster-id="<?php echo $this->entry->staff_id; ?>"
     data-signature-field="signature"
-    data-signature="<?php echo Format::viewableImages($signature); ?>"
+    data-signature="<?php echo Format::htmlchars(Format::viewableImages($signature)); ?>"
 <?php } ?>
     name="body"
     class="large <?php
