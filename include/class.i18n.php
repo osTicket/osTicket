@@ -372,10 +372,6 @@ class Internationalization {
 
     static function getCurrentLanguage($user=false) {
         global $thisstaff, $thisclient;
-        static $session = null;
-
-        if (!isset($session))
-            $session = &$_SESSION['::lang'];
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
@@ -383,8 +379,8 @@ class Internationalization {
                 return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && $session)
-            return $session;
+        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+            return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
     }

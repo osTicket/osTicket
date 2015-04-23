@@ -603,9 +603,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if($errors) return false;
 
-        $_SESSION['::lang'] = null;
-        TextDomain::configureForUser($this);
-
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
         $this->email = $vars['email'];
@@ -621,6 +618,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
+
+        $_SESSION['::lang'] = null;
+        TextDomain::configureForUser($this);
 
         return $this->save();
     }
