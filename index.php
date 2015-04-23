@@ -21,44 +21,8 @@ $section = 'home';
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
 <div id="landing_page">
-    <div class="sidebar pull-right">
-        <div class="front-page-button flush-right">
-<p>
-            <a href="open.php" style="display:block" class="blue button"><?php
-                echo __('Open a New Ticket');?></a>
-</p>
-<?php if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
-<p>
-            <a href="view.php" style="display:block" class="green button"><?php
-                echo __('Check Ticket Status');?></a>
-</p>
-<?php } ?>
-        </div>
-        <div class="content"><?php
-    $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
-    if ($faqs->all()) { ?>
-            <section><div class="header"><?php echo __('Featured Questions'); ?></div>
-<?php   foreach ($faqs as $F) { ?>
-            <div><a href="<?php echo ROOT_PATH; ?>/kb/faq.php?id=<?php
-                echo urlencode($F->getId());
-                ?>"><?php echo $F->getLocalQuestion(); ?></a></div>
-<?php   } ?>
-            </section>
-<?php
-    }
-    $resources = Page::getActivePages()->filter(array('type'=>'other'));
-    if ($resources->all()) { ?>
-            <section><div class="header"><?php echo __('Other Resources'); ?></div>
-<?php   foreach ($resources as $page) { ?>
-            <a href="<?php echo ROOT_PATH; ?>pages/<?php echo $page->getNameAsSlug();
-            ?>"><?php echo $page->getLocalName(); ?></a>
-<?php   } ?>
-            </section>
-<?php
-    }
-        ?></div>
-    </div>
-<div class="welcome">
+<?php include CLIENTINC_DIR.'templates/sidebar.tmpl.php'; ?>
+<div class="main-content">
 <?php
 if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
 <div class="search-form">

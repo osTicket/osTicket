@@ -413,7 +413,7 @@ body {
 }
 .front-page-button {
 }
-#landing_page .welcome {
+.main-content {
   width: 560px;
 }
 #landing_page #new_ticket {
@@ -984,7 +984,7 @@ img.sign-in-image {
     margin-bottom: 20px;
     margin-left: 20px;
 }
-#landing_page .sidebar {
+.sidebar {
     width: 220px;
 }
 .rtl .sidebar {
