@@ -163,7 +163,7 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    static function fromVars($vars) {
+    static function fromVars($vars, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
         if (!$user) {
@@ -194,6 +194,20 @@ class User extends UserModel {
             }
             catch (OrmException $e) {
                 return null;
+            }
+        }
+        elseif ($update) {
+            foreach ($user->getDynamicData() as $entry) {
+                // FIXME: Convert this to ->form for `develop-next`
+                if ($entry->getForm()->type == 'U') {
+                    $entry->setSource($vars);
+                    $entry->save();
+                }
+            }
+            // Update name
+            if (isset($vars['name'])) {
+                $user->name = $vars['name'];
+                $user->save();
             }
         }
 
@@ -472,7 +486,7 @@ class User extends UserModel {
 
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars))
+            if (!static::fromVars($vars, true))
                 return sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
         }
