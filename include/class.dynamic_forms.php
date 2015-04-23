@@ -471,7 +471,8 @@ class TicketForm extends DynamicForm {
         // field.id=ans.field_id
         // where entry.object_type='T' group by entry.object_id;
         $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
-                (ticket_id)) AS ' . static::getCrossTabQuery('T', 'ticket_id');
+            (ticket_id)) DEFAULT CHARSET=utf8 AS '
+            . static::getCrossTabQuery('T', 'ticket_id');
         db_query($sql);
     }
 
