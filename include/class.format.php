@@ -366,7 +366,7 @@ class Format {
             },
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'elements' => '*+iframe',
-            'spec' => 'span=data-src,width,height',
+            'spec' => 'span=data-src,width,height;img=data-cid',
         );
         return Format::html($text, $config);
     }

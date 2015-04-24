@@ -885,7 +885,6 @@ a.refresh {
 #ticketThread .info a {
   display: inline-block;
   margin: 5px 10px 5px 0;
-  padding-left: 24px;
   height: 16px;
   line-height: 16px;
   background-position: 0 50%;
@@ -1047,4 +1046,9 @@ img.sign-in-image {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.image-hover a.action-button:hover,
+.image-hover a.action-button {
+    color: initial !important;
+    text-decoration: none;
 }

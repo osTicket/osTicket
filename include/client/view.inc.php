@@ -128,16 +128,27 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
             </th></tr>
             <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
             <?php
-            if($entry->has_attachments
-                    && ($urls = $entry->getAttachmentUrls())
-                    && ($links = $entry->getAttachmentsLinks())) { ?>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-<?php       }
-            if ($urls) { ?>
-                <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
-                </script>
+            $urls = null;
+            if ($entry->has_attachments
+                && ($urls = $entry->getAttachmentUrls())) { ?>
+            <tr>
+                <td class="info"><?php
+                    foreach ($entry->attachments as $A) {
+                        if ($A->inline) continue;
+                        $size = '';
+                        if ($A->file->size)
+                            $size = sprintf('<em>(%s)</em>',
+                                Format::file_size($A->file->size));
+?>
+                &nbsp; <i class="icon-paperclip"></i>
+                <a class="no-pjax" href="<?php echo $A->file->getDownloadUrl();
+                    ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
+                        target="_blank">
+                <?php echo Format::htmlchars($A->file->name);
+                ?></a><?php echo $size;?>&nbsp;
+<?php               } ?>
+                </td>
+            </tr>
 <?php       } ?>
         </table>
     <?php
@@ -199,3 +210,18 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
 </form>
 <?php
 } ?>
+<script type="text/javascript">
+<?php
+// Hover support for all inline images
+$urls = array();
+foreach (AttachmentFile::objects()->filter(array(
+    'attachments__thread_entry__thread__id' => $ticket->getThreadId(),
+    'attachments__inline' => true,
+)) as $file) {
+    $urls[strtolower($file->getKey())] = array(
+        'download_url' => $file->getDownloadUrl(),
+        'filename' => $file->name,
+    );
+} ?>
+showImagesInline(<?php echo JsonDataEncoder::encode($urls); ?>);
+</script>
