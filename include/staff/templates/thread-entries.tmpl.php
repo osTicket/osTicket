@@ -60,7 +60,8 @@ if ($entries) {
                             Format::file_size($A->file->size));
 ?>
             <a class="Icon file no-pjax" href="<?php echo $A->file->getDownloadUrl();
-                ?>" target="_blank"><?php echo Format::htmlchars($A->file->name);
+                ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
+                target="_blank"><?php echo Format::htmlchars($A->file->name);
             ?></a><?php echo $size;?>&nbsp;
 <?php               } ?>
             </td>

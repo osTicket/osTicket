@@ -328,7 +328,9 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                    .append($('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                      .attr('download', info.filename)
+                    )
                 );
             e.data('wrapped', true);
         }
@@ -419,11 +421,7 @@ var ticket_onload = function($) {
         });
     });
 
-    $('.thread-body').each(function() {
-        var urls = $(this).data('urls');
-        if (urls)
-            $.showImagesInline(urls, $(this).data('id'));
-    });
+    $.showImagesInline($('#ticket_thread').data('imageUrls'));
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });
