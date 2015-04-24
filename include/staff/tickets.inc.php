@@ -31,6 +31,7 @@ $sort_options = array(
 $use_subquery = true;
 
 $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
+
 // Stash current queue view
 $_SESSION['::Q'] = $queue_name;
 
