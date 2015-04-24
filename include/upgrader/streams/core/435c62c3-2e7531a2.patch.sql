@@ -5,6 +5,7 @@
  */
 
 -- Group department access table
+DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
 CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
   `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
