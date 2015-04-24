@@ -12,7 +12,7 @@ parse_str($_SERVER['QUERY_STRING'], $args);
 
 // Remove commands from query
 unset($args['id']);
-unset($args['a']);
+if ($args['a'] !== 'search') unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
@@ -30,7 +30,7 @@ $sort_options = array(
 );
 $use_subquery = true;
 
-$queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+$queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
 // Stash current queue view
 $_SESSION['::Q'] = $queue_name;
 
@@ -69,6 +69,9 @@ case 'answered':
     break;
 default:
 case 'search':
+    $queue_sort_options = array('priority,updated', 'priority,created',
+        'priority,due', 'due', 'updated', 'answered',
+        'closed', 'number', 'hot');
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
@@ -95,9 +98,6 @@ case 'search':
         $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        $queue_sort_options = array('priority,updated', 'priority,created',
-            'priority,due', 'due', 'updated', 'answered',
-            'closed', 'number', 'hot');
         $has_relevance = false;
         foreach ($tickets->getSortFields() as $sf) {
             if ($sf instanceof SqlCode && $sf->code == '`relevance`') {
@@ -113,6 +113,21 @@ case 'search':
             unset($_SESSION[$queue_sort_key]);
         }
 
+        break;
+    }
+    // Apply user filter
+    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
+        $tickets->filter(array('user__id'=>$_GET['uid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $user->getName());
+        // Don't apply normal open ticket
+        break;
+    }
+    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
+        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $org->getName());
+        // Don't apply normal open ticket
         break;
     }
     // Fall-through and show open tickets
@@ -132,13 +147,9 @@ case 'open':
     break;
 }
 
-// Apply user filter
-if (isset($_GET['uid'])) {
-    $tickets->filter(array('user__id'=>$_GET['uid']));
-}
-
-
 // Apply primary ticket status
+if (!isset($status) && isset($_GET['status']))
+    $status = $_GET['status'];
 if ($status)
     $tickets->filter(array('status__state'=>$status));
 

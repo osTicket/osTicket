@@ -245,6 +245,19 @@ class  EndUser extends BaseAuthenticatedUser {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
+    function getNumOrganizationTickets() {
+        if (!($stats=$this->getTicketStats()))
+            return 0;
+
+        return $stats['org-open']+$stats['org-closed'];
+    }
+    function getNumOpenOrganizationTickets() {
+        return ($stats=$this->getTicketStats())?$stats['org-open']:0;
+    }
+    function getNumClosedOrganizationTickets() {
+        return ($stats=$this->getTicketStats())?$stats['org-closed']:0;
+    }
+
     function getAccount() {
         if ($this->_account === false)
             $this->_account =
@@ -262,6 +275,8 @@ class  EndUser extends BaseAuthenticatedUser {
 
         $where = ' WHERE ticket.user_id = '.db_input($this->getId())
                 .' OR collab.user_id = '.db_input($this->getId()).' ';
+
+        $where2 = ' WHERE user.org_id > 0 AND user.org_id = '.db_input($this->getOrgId()).' ';
 
         $join  =  'LEFT JOIN '.THREAD_TABLE.' thread
                     ON (ticket.ticket_id = thread.object_id and thread.object_type = \'T\')
@@ -283,7 +298,25 @@ class  EndUser extends BaseAuthenticatedUser {
                     ON (ticket.status_id=status.id
                             AND status.state=\'closed\' ) '
                 . $join
-                . $where;
+                . $where
+
+                .'UNION SELECT \'org-open\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id) '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.state=\'open\' ) '
+                . $join
+                . $where2
+
+                .'UNION SELECT \'org-closed\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id) '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.state=\'closed\' ) '
+                . $join
+                . $where2;
 
         $res = db_query($sql);
         $stats = array();

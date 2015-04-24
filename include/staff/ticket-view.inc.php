@@ -213,10 +213,13 @@ if($ticket->isOverdue())
                             ><?php echo Format::htmlchars($ticket->getName());
                         ?></span></a>
                         <?php
-                        if($user) {
-                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&uid=%d" title="%s" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
-                                    urlencode($user->getId()), __('Related Tickets'), $user->getNumTickets());
-                        ?>
+                        if ($user) { ?>
+                            <a href="tickets.php?<?php echo Http::build_query(array(
+                                'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
+                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                            data-dropdown="#action-dropdown-stats">
+                            (<b><?php echo $user->getNumTickets(); ?></b>)
+                            </a>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
                                     <?php
@@ -234,16 +237,48 @@ if($ticket->isOverdue())
                                     <li><a href="users.php?id=<?php echo
                                     $user->getId(); ?>"><i class="icon-user
                                     icon-fixed-width"></i> <?php echo __('Manage User'); ?></a></li>
-<?php       if ($user->getOrgId()) { ?>
+<?php   } ?>
+                                </ul>
+                            </div>
+<?php   if ($user->getOrgId()) { ?>
+                &nbsp; <span style="display:inline-block">
+                    <i class="icon-building"></i>
+                    <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
+                        <a href="tickets.php?<?php echo Http::build_query(array(
+                            'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
+                        )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                        data-dropdown="#action-dropdown-org-stats">
+                        (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
+                        </a>
+                    </span>
+                            <div id="action-dropdown-org-stats" class="action-dropdown anchor-right">
+                                <ul>
+<?php   if ($open = $user->getNumOpenOrganizationTickets()) { ?>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'status' => 'open', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-folder-open-alt icon-fixed-width"></i>
+                                    <?php echo sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open); ?>
+                                    </a></li>
+<?php   }
+        if ($closed = $user->getNumClosedOrganizationTickets()) { ?>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'status' => 'closed', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-folder-close-alt icon-fixed-width"></i>
+                                    <?php echo sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed); ?>
+                                    </a></li>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
+<?php   }
+        if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i
                                         class="icon-building icon-fixed-width"></i> <?php
                                         echo __('Manage Organization'); ?></a></li>
-<?php       }
-        } ?>
+<?php   } ?>
                                 </ul>
                             </div>
-                    <?php
-                        }
+<?php   } # end if (user->org)
+                        } # end if ($user)
                     ?>
                     </td>
                 </tr>
