@@ -301,7 +301,13 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
-    <form action="tickets.php" method="get">
+    <form action="tickets.php" method="get" onsubmit="javascript:
+  $.pjax({
+    url:$(this).attr('action') + '?' + $(this).serialize(),
+    container:'#pjax-container',
+    timeout: 2000
+  });
+return false;">
     <input type="hidden" name="a" value="search">
     <table>
         <tr>

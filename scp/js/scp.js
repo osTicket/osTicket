@@ -814,21 +814,10 @@ $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
 // NOTE: getConfig should be global
 getConfig = (function() {
     var dfd = $.Deferred(),
-        requested = null;
+        requested = false;
     return function() {
-        if (dfd.state() != 'resolved' && !requested)
-            requested = $.ajax({
-                url: "ajax.php/config/scp",
-                dataType: 'json',
-                success: function (json_config) {
-                    dfd.resolve(json_config);
-                },
-                error: function() {
-                    requested = null;
-                }
-            });
         return dfd;
-    }
+    };
 })();
 
 $(document).on('pjax:click', function(options) {
@@ -844,7 +833,7 @@ $(document).on('pjax:click', function(options) {
         if ($(this).data('timer'))
             clearTimeout($(this).data('timer'));
     });
-    $('.tip_box').remove();
+    $('.tip_box, .typeahead.dropdown-menu').remove();
 });
 
 $(document).on('pjax:start', function() {
@@ -881,6 +870,17 @@ $(document).on('pjax:complete', function() {
     $.toggleOverlay(false);
     $('#overlay').removeAttr('style');
 });
+
+// Enable PJAX for the staff interface
+if ($.support.pjax) {
+  $(document).on('click', 'a', function(event) {
+    var $this = $(this);
+    if (!$this.hasClass('no-pjax')
+        && !$this.closest('.no-pjax').length
+        && $this.attr('href')[0] != '#')
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
+  })
+}
 
 // Quick note interface
 $(document).on('click.note', '.quicknote .action.edit-note', function() {

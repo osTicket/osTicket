@@ -40,16 +40,23 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <div class="clear"></div>
 </div>
 
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
+<script type="text/javascript" src="./js/scp.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.full.min.js"></script>
+<script type="text/javascript" src="./js/tips.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
+<script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="./js/jquery.translatable.js"></script>
 <script type="text/javascript">
-if ($.support.pjax) {
-  $(document).on('click', 'a', function(event) {
-    var $this = $(this);
-    if (!$this.hasClass('no-pjax')
-        && !$this.closest('.no-pjax').length
-        && $this.attr('href')[0] != '#')
-      $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
-  })
-}
+    getConfig().resolve(<?php
+        include INCLUDE_DIR . 'ajax.config.php';
+        $api = new ConfigAjaxAPI();
+        print $api->scp(false);
+    ?>);
 </script>
 <?php
 if ($thisstaff
