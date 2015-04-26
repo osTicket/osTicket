@@ -141,7 +141,20 @@ class ModelMeta implements ArrayAccess {
     }
 
     function inspectFields() {
-        return DbEngine::getCompiler()->inspectTable($this['table']);
+        static $cache;
+        if (!isset($cache))
+            $cache = function_exists('apc_fetch');
+        if ($cache) {
+            $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
+            if ($fields = apc_fetch($key)) {
+                return $fields;
+            }
+        }
+        $fields = DbEngine::getCompiler()->inspectTable($this['table']);
+        if ($cache) {
+            apc_store($key, $fields);
+        }
+        return $fields;
     }
 }
 
