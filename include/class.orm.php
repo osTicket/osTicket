@@ -43,9 +43,16 @@ class ModelMeta implements ArrayAccess {
 
     function __construct($model) {
         $this->model = $model;
-        $meta = $model::$meta + self::$base;
+        $parent = get_parent_class($model);
 
-        // TODO: Merge ModelMeta from parent model (if inherited)
+        // Merge ModelMeta from parent model (if inherited)
+        if (is_subclass_of($parent, 'VerySimpleModel')) {
+            $parent::_inspect();
+            $meta = $parent::$meta->extend($model::$meta);
+        }
+        else {
+            $meta = $model::$meta + self::$base;
+        }
 
         if (!$meta['table'])
             throw new OrmConfigurationException(
@@ -67,9 +74,17 @@ class ModelMeta implements ArrayAccess {
             $meta['joins'] = array();
         foreach ($meta['joins'] as $field => &$j) {
             $this->processJoin($j);
+            if ($j['local'])
+                $meta['foreign_keys'][$j['local']] = $field;
         }
         unset($j);
         $this->base = $meta;
+    }
+
+    function extend($meta) {
+        if ($meta instanceof self)
+            $meta = $meta->base;
+        return $meta + $this->base + self::$base;
     }
 
     function processJoin(&$j) {
@@ -266,11 +281,15 @@ class VerySimpleModel {
             || isset(static::$meta['joins'][$field]);
     }
     function __unset($field) {
-        unset($this->ht[$field]);
+        if ($this->__isset($field))
+            unset($this->ht[$field]);
+        else
+            unset($this->{$field});
     }
 
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
+        $related = false;
         if (isset(static::$meta['joins'][$field])) {
             // XXX: This is likely not necessary
             if (!isset(static::$meta['joins'][$field]['fkey']))
@@ -282,9 +301,9 @@ class VerySimpleModel {
                 return;
             }
             if ($value === null) {
+                $this->ht[$field] = $value;
                 if (in_array($j['local'], static::$meta['pk'])) {
                     // Reverse relationship — don't null out local PK
-                    $this->ht[$field] = $value;
                     return;
                 }
                 // Pass. Set local field to NULL in logic below
@@ -307,12 +326,23 @@ class VerySimpleModel {
             // Capture the foreign key id value
             $field = $j['local'];
         }
+        // elseif $field is in a relationship, adjust the relationship
+        elseif (isset(static::$meta['foreign_keys'][$field])) {
+            // meta->foreign_keys->{$field} points to the property of the
+            // foreign object. For instance 'object_id' points to 'object'
+            $related = static::$meta['foreign_keys'][$field];
+        }
         $old = isset($this->ht[$field]) ? $this->ht[$field] : null;
         if ($old != $value) {
             // isset should not be used here, because `null` should not be
             // replaced in the dirty array
             if (!array_key_exists($field, $this->dirty))
                 $this->dirty[$field] = $old;
+            if ($related)
+                // $related points to a foreign object propery. If setting a
+                // new object_id value, the relationship to object should be
+                // cleared and rebuilt
+                unset($this->ht[$related]);
         }
         $this->ht[$field] = $value;
     }
@@ -376,6 +406,9 @@ class VerySimpleModel {
      * no such instance exists.
      */
     static function lookup($criteria) {
+        // Autoinsepct model
+        static::_inspect();
+
         // Model::lookup(1), where >1< is the pk value
         if (!is_array($criteria)) {
             $criteria = array();

@@ -49,6 +49,13 @@ class TaskModel extends VerySimpleModel {
                 'constraint' => array('id' => 'TaskCData.task_id'),
                 'list' => false,
             ),
+            'ticket' => array(
+                'constraint' => array(
+                    'object_type' => "'T'",
+                    'object_id' => 'Ticket.ticket_id',
+                ),
+                'null' => true,
+            ),
         ),
     );
 

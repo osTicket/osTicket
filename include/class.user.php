@@ -39,7 +39,7 @@ class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
         'pk' => array('id'),
-        'select_related' => array('account', 'default_email'),
+        'select_related' => array('default_email', 'org', 'account'),
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
