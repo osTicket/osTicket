@@ -17,7 +17,8 @@
 .redactor-box {
   position: relative;
   overflow: visible;
-  background: #fff;
+  overflow-x: hidden;
+  background: #ddd;
 }
 .redactor-box textarea {
   display: block;
@@ -41,8 +42,7 @@
 /*
 	Z-index setup
 */
-.redactor-editor,
-.redactor-box {
+.redactor-editor {
   background: #fff;
 }
 .redactor-editor,
@@ -109,6 +109,7 @@ body .redactor-box-fullscreen {
   font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif;
   font-size: 14px;
   line-height: 1.6em;
+  box-shadow: 5px 0 10px -8px rgba(0,0,0,0.5);
 }
 .redactor-editor:focus {
   outline: none;
@@ -148,8 +149,9 @@ body .redactor-box-fullscreen {
   font-size: 14px !important;
   line-height: 1 !important;
   background: #fff;
-  border: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 0;
+  box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.4);
 }
 .redactor-toolbar:after {
   content: "";

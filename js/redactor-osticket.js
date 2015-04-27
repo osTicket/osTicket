@@ -269,6 +269,8 @@ $(function() {
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'initCallback': function() {
+                    if (this.$element.data('width'))
+                        this.$editor.width(this.$element.data('width'));
                     this.$editor.attr('spellcheck', 'true');
                     var lang = this.$editor.closest('[lang]').attr('lang');
                     if (lang)

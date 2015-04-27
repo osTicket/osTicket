@@ -6,7 +6,7 @@ html {
 }
 body {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.231;
   padding: 0;
 }
@@ -14,7 +14,7 @@ body,
 input,
 select,
 textarea {
-  font-family: sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   color: #000;
 }
 b,
@@ -201,7 +201,7 @@ h2, .subject {
   border: 1px solid #0a0;
   background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0;
 }
-#msg_warning {
+#msg_warning, .warning-banner {
   margin: 0;
   padding: 5px 10px 5px 36px;
   height: 16px;
@@ -528,10 +528,10 @@ body {
     overflow: hidden;
 }
 .article-title {
-    font-weight: 400;
+    font-weight: 500;
 }
 .faq-content .article-title {
-    font-size: 16pt;
+    font-size: 17pt;
     margin-top: 15px;
 }
 #kb-search {
@@ -727,12 +727,14 @@ label.required, span.required {
 }
 #reply {
   margin-top: 20px;
-  padding: 10px 5px;
+  padding: 10px;
   background: #f9f9f9;
   border: 1px solid #ccc;
 }
 #reply h2 {
   margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px dotted rgba(0,0,0,0.1);
 }
 #reply > table {
   width: auto;
@@ -851,6 +853,7 @@ a.refresh {
 }
 .infoTable th {
   text-align: left;
+  padding: 3px 8px;
 }
 #ticketThread table.response,
 #ticketThread table.message {
@@ -982,9 +985,7 @@ img.sign-in-image {
 .sidebar {
     margin-bottom: 20px;
     margin-left: 20px;
-}
-.sidebar {
-    width: 220px;
+    width: 215px;
 }
 .rtl .sidebar {
     margin-left: 0;
@@ -999,12 +1000,13 @@ img.sign-in-image {
 
 .sidebar section .header {
     font-weight: bold;
+    margin-bottom: 0.3em;
 }
 .sidebar section + section {
     margin-top: 15px;
 }
 .search-form {
-    padding: 12px 0px 20px 0;
+    padding-top: 12px;
 }
 .searchbar .search,
 .search-form .search {
@@ -1029,13 +1031,13 @@ img.sign-in-image {
 }
 .span4 {
     display: inline-block;
-    width: 30.5%;
+    width: 29.5%;
     margin: 0 1%;
     vertical-align: top;
 }
 .span8 {
     display: inline-block;
-    width: 64.5%;
+    width: 66.5%;
     margin: 0 1%;
     vertical-align: top;
 }
@@ -1051,4 +1053,29 @@ img.sign-in-image {
 .image-hover a.action-button {
     color: initial !important;
     text-decoration: none;
+}
+table.custom-data {
+    margin-top: 10px;
+}
+table.custom-data th {
+    width: 25%;
+}
+table.custom-data th {
+    background-color: #F4FAFF;
+    padding: 3px 8px;
+}
+table .headline,
+table.custom-data .headline {
+    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid rgba(0,0,0,0.15);
+    font-weight: bold;
+    background-color: white;
+}
+#ticketInfo h1 {
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    border-bottom: 2px dotted rgba(0, 0, 0, 0.15);
+}
+#ticketInfo h1 small {
+    font-weight: normal;
 }

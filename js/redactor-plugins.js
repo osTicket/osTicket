@@ -93,7 +93,7 @@ RedactorPlugins.fontcolor = function()
 			{
 				var color = colors[z];
 
-				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px;"></a>');
+				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px; box-sizing: border-box;"></a>');
 				$swatch.css('background-color', color);
 				$swatch.on('click', func);
 

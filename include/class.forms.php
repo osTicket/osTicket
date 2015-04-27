@@ -1622,6 +1622,14 @@ class ThreadEntryField extends FormField {
         return false;
     }
 
+    function getMedia() {
+        $config = $this->getConfiguration();
+        $media = parent::getMedia() ?: array();
+        if ($config['attachments'])
+            $media = array_merge_recursive($media, FileUploadWidget::$media);
+        return $media;
+    }
+
     function getConfigurationOptions() {
         global $cfg;
 

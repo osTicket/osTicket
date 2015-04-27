@@ -32,6 +32,7 @@ if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
     <button type="submit" class="green button">Search</button>
     </form>
 </div>
+    <div class="thread-body">
 <?php
 }
     if($cfg && ($page = $cfg->getLandingPage()))
@@ -39,6 +40,7 @@ if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
     else
         echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
     ?>
+    </div>
 </div>
 <div class="clear"></div>
 

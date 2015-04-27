@@ -28,10 +28,6 @@ div#header a {
     color:#E65524;
 }
 
-.form_table a:hover {
-    text-decoration: underline;
-}
-
 .centered {
     text-align:center;
 }
@@ -989,6 +985,9 @@ ul.tabs li a {
     outline: none;
     padding: 5px 10px;
 }
+ul.tabs li a:hover {
+    text-decoration: none;
+}
 
 ul.tabs li.active a {
     font-weight: bold;
@@ -1791,6 +1790,8 @@ div.selected-signature {
     overflow-y: hidden;
     font-size: 15px;
     line-height: 1.25rem;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.9);
 }
 div.selected-signature .inner {
     opacity: 0.5;
