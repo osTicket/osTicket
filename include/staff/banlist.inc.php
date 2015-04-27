@@ -55,8 +55,9 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
     <form action="banlist.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
      <div>
-       <?php echo __('Query');?>: <input name="q" type="text" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-        &nbsp;&nbsp;
+       <?php echo __('Query');?>:
+            <input name="q" type="search" size="30" autofocus
+            value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <input type="submit" name="submit" value="<?php echo __('Search');?>"/>
      </div>
     </form>

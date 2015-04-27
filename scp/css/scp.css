@@ -613,6 +613,10 @@ a.print {
     height:25px;
 }
 
+input[type=search] {
+    font-size: 16px;
+}
+.search input[type=search],
 .search input[type=text] {
     height:23px;
     line-height:23px;

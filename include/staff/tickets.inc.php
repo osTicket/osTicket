@@ -311,9 +311,8 @@ return false;">
     <input type="hidden" name="a" value="search">
     <table>
         <tr>
-            <td><input type="text" id="basic-ticket-search" name="query"
-            size=30 value="<?php echo Format::htmlchars($_REQUEST['query'],
-            true); ?>"
+            <td><input type="search" id="basic-ticket-search" name="query"
+                autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
             <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
             <td>&nbsp;&nbsp;<a href="#" onclick="javascript:

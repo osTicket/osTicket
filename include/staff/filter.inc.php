@@ -42,7 +42,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
               <?php echo __('Filter Name');?>:
             </td>
             <td>
-                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

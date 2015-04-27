@@ -49,7 +49,8 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
             <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td>
                 <input size="50" type="text" name="name" value="<?php echo
-                $info['name']; ?>" data-translate-tag="<?php echo $trans['name']; ?>"/>
+                $info['name']; ?>" data-translate-tag="<?php echo $trans['name']; ?>"
+                autofocus/>
                 <span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

@@ -57,7 +57,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     echo $list->getName();
                 else {
                     echo sprintf('<input size="50" type="text" name="name"
-                            data-translate-tag="%s"
+                            data-translate-tag="%s" autofocus
                             value="%s"/> <span
                             class="error">*<br/>%s</span>',
                             $trans['name'], $info['name'], $errors['name']);

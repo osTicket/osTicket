@@ -54,7 +54,7 @@ $roles = Role::getActiveRoles();
             <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td>
                 <input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"
-                data-translate-tag="<?php echo $trans['name']; ?>"/>
+                autofocus data-translate-tag="<?php echo $trans['name']; ?>"/>
                 <span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

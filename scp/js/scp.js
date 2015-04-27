@@ -37,7 +37,10 @@ function checkbox_checker(formObj, min, max) {
 
 var scp_prep = function() {
 
-    $("input:not(.dp):visible:enabled:first").focus();
+    $("input[autofocus]:visible:enabled:first").each(function() {
+      if ($(this).val())
+        $(this).blur();
+    });
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")

@@ -50,7 +50,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="30" class="staff-username typeahead"
-                     name="username" value="<?php echo $info['username']; ?>">
+                     autofocus name="username" value="<?php echo $info['username']; ?>">
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['username']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#username"></i>
             </td>
         </tr>

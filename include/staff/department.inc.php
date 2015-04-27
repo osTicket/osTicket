@@ -72,7 +72,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
             <td>
                 <input data-translate-tag="<?php echo $dept ? $dept->getTranslateTag() : '';
-                ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

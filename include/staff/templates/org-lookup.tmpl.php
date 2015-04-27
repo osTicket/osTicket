@@ -17,7 +17,8 @@ if ($info['search'] === false)
 if ($info['search'] !== false) { ?>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
-    placeholder="Search by name" id="org-search" autocorrect="off" autocomplete="off"/>
+    placeholder="Search by name" id="org-search"
+    autofocus autocorrect="off" autocomplete="off"/>
 </div>
 <?php
 }

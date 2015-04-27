@@ -73,7 +73,7 @@ if ($form && count($langs) > 1) { ?>
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
             <div class="required"><?php echo __('Title'); ?>:</div>
             <div>
-            <input type="text" name="title" size="60"
+            <input type="text" name="title" size="60" autofocus
                 value="<?php echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
                 <div class="error"><?php
