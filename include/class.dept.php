@@ -159,6 +159,7 @@ implements TemplateVariable {
 
         if (!$this->_members || $criteria) {
             $members = Staff::objects()
+                ->distinct('staff_id')
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
