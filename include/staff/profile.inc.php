@@ -92,6 +92,7 @@ $info['id']=$staff->getId();
                 <div class="error"><?php echo $errors['timezone']; ?></div>
             </td>
         </tr>
+<?php if ($cfg->getSecondaryLanguages()) { ?>
         <tr>
             <td width="180">
                 <?php echo __('Preferred Language'); ?>:
@@ -110,6 +111,7 @@ $info['id']=$staff->getId();
                 <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
             </td>
         </tr>
+<?php } ?>
         <tr><td width="220"><?php echo __('Preferred Locale');?>:</td>
             <td>
                 <select name="locale">

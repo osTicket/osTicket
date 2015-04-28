@@ -32,6 +32,7 @@ if ($acct = $thisclient->getAccount()) {
             <div class="error"><?php echo $errors['timezone']; ?></div>
         </td>
     </tr>
+<?php if ($cfg->getSecondaryLanguages()) { ?>
     <tr>
         <td width="180">
             <?php echo __('Preferred Language'); ?>:
@@ -50,7 +51,8 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
             <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
         </td>
     </tr>
-<?php if ($acct->isPasswdResetEnabled()) { ?>
+<?php }
+      if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
     <td colspan=2">
         <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
