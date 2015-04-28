@@ -2584,10 +2584,17 @@ class TextboxWidget extends Widget {
             $disabled = 'disabled="disabled"';
         if (isset($config['translatable']) && $config['translatable'])
             $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        $type = static::$input_type;
+        $types = array(
+            'email' => 'email',
+            'phone' => 'tel',
+        );
+        if ($type == 'text' && isset($types[$config['validator']]))
+            $type = $types[$config['validator']];
         $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
             $config['placeholder']));
         ?>
-        <input type="<?php echo static::$input_type; ?>"
+        <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
                 $size, $maxlength, $classes, $autocomplete, $disabled,
@@ -2677,7 +2684,7 @@ class PhoneNumberWidget extends Widget {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
-        <input id="<?php echo $this->id; ?>" type="text" name="<?php echo $this->name; ?>" value="<?php
+        <input id="<?php echo $this->id; ?>" type="tel" name="<?php echo $this->name; ?>" value="<?php
         echo Format::htmlchars($phone); ?>"/><?php
         // Allow display of extension field even if disabled if the phone
         // number being edited has an extension
