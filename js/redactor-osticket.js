@@ -53,8 +53,8 @@ RedactorPlugins.draft = function() {
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
             var trash = this.draft.deleteButton =
-                this.button.add('deleteDraft', __('Delete Draft'),
-                    this.draft.deleteDraft);
+                this.button.add('deleteDraft', __('Delete Draft'))
+            this.button.addCallback(trash, this.draft.deleteDraft);
             this.button.setAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
