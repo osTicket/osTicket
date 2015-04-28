@@ -381,19 +381,20 @@ class DraftAjaxAPI extends AjaxController {
     function _findDraftBody($vars) {
         if (isset($vars['name'])) {
             $parts = array();
+            // Support nested `name`, like trans[lang]
             if (preg_match('`(\w+)(?:\[(\w+)\])?(?:\[(\w+)\])?`', $_POST['name'], $parts)) {
                 array_shift($parts);
                 $focus = $vars;
                 foreach ($parts as $p)
                     $focus = $focus[$p];
-                return urldecode($focus);
+                return $focus;
             }
         }
         $field_list = array('response', 'note', 'answer', 'body',
              'message', 'issue', 'description');
         foreach ($field_list as $field) {
             if (isset($vars[$field])) {
-                return urldecode($vars[$field]);
+                return $vars[$field];
             }
         }
 

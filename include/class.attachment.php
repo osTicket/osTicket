@@ -22,15 +22,21 @@ class Attachment extends VerySimpleModel {
         'pk' => array('id'),
         'select_related' => array('file'),
         'joins' => array(
-            'thread_entry' => array(
+            'draft' => array(
                 'constraint' => array(
-                    'type' => "'H'",
-                    'object_id' => 'ThreadEntry.id',
+                    'type' => "'D'",
+                    'object_id' => 'Draft.id',
                 ),
             ),
             'file' => array(
                 'constraint' => array(
                     'file_id' => 'AttachmentFile.id',
+                ),
+            ),
+            'thread_entry' => array(
+                'constraint' => array(
+                    'type' => "'H'",
+                    'object_id' => 'ThreadEntry.id',
                 ),
             ),
         ),
