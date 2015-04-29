@@ -713,7 +713,7 @@ $.confirm = function(message, title) {
                     .click(function() {  hide(); D.resolve(); })
         ))).append($('<div class="clear"></div>'));
     $.toggleOverlay(true);
-    $popup.show();
+    $popup.resize().show();
     return D.promise();
 };
 
