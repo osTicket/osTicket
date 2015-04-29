@@ -790,16 +790,35 @@ RedactorPlugins.imagepaste = function() {
           return true;
 
       this.$editor.on('paste.imagepaste', $.proxy(this.imagepaste.buildEventPaste, this));
+
+      // Capture the selection position every so often as Redactor seems to
+      // drop it when attempting an image paste before `paste` browser event
+      // fires
+      var that = this,
+          plugin = this.imagepaste;
+      setInterval(function() {
+        if (plugin.inpaste)
+          return;
+        plugin.offset = that.caret.getOffset() || plugin.offset;
+      }, 300);
     },
+    offset: 0,
+    inpaste: false,
     buildEventPaste: function(e)
     {
       var event = e.originalEvent || e,
           fileUpload = false,
           files = [],
           i, file,
-          cd = event.clipboardData;
+          plugin = this.imagepaste,
+          cd = event.clipboardData,
+          self = this, node,
+          bail = function() {
+            plugin.inpaste = false;
+          };
+      plugin.inpaste = true;
 
-      if (typeof(cd) === 'undefined') return;
+      if (typeof(cd) === 'undefined') return bail();
 
       if (cd.items && cd.items.length)
       {
@@ -824,23 +843,41 @@ RedactorPlugins.imagepaste = function() {
           }
         }
       }
-      var self = this, node;
-      this.opts.imageUploadCallback = function(image, json) {
-        // Redactor just has a bloody hard time inserting for some dumb
-        // reason.
-      };
 
-      if (files.length) {
-        // clipboard upload
-        var I = setInterval(function() {
-          if (!self.focus.isFocused())
-            return;
-          clearInterval(I);
-          self.clean.singleLine = false;
-          for (i = 0, k = files.length; i < k; i++)
-            self.upload.directUpload(files[i], e);
-        }, 5);
-      }
+      if (!files.length)
+        return bail();
+
+      // Clipboard upload
+
+      setTimeout(function() {
+        // We need to allow the paste operation to settle, so we can set
+        // self.clean.singleLine and not have to cleared by some other running
+        // code
+
+        var oldIUC = self.opts.imageUploadCallback;
+        self.opts.imageUploadCallback = function(image, json) {
+          self.$editor.find('.-image-upload-placeholder').remove();
+          self.opts.imageUploadCallback = oldIUC;
+          // Add a zero-width space so that the caret:getOffset will find
+          // locations after pictures if only <br> tags exist otherwise. In
+          // other words, ensure there is at least one character after the
+          // image for text character counting. Additionally, Redactor will
+          // strip the zero-width space when saving
+          $(document.createTextNode("\u200b")).insertAfter($(image));
+          bail();
+        };
+
+        // Place the cursor back in the box!
+        self.caret.setOffset(plugin.offset);
+
+        // Add cool wait cursor
+        self.insert.htmlWithoutClean('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+
+        // Upload clipboard files
+        self.clean.singleLine = false;
+        for (i = 0, k = files.length; i < k; i++)
+          self.upload.directUpload(files[i], e);
+      }, 1);
     }
   };
 };

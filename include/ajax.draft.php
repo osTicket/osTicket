@@ -94,6 +94,10 @@ class DraftAjaxAPI extends AjaxController {
                     ))
                 );
 
+            // Paste uploads in Chrome will have a name of 'blob'
+            if ($file[0]['name'] == 'blob')
+                $file[0]['name'] = 'screenshot-'.Misc::randcode(4);
+
             if (isset($file[0]['tmp_name'])) {
               $ids = $draft->attachments->upload($file);
             }
