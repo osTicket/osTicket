@@ -2540,6 +2540,9 @@ class Ticket {
 
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
+            if (!$cfg->isHtmlThreadEnabled()) {
+                $vars['note'] = new TextThreadBody($vars['note']);
+            }
             $ticket->logNote('New Ticket', $vars['note'], $thisstaff, false);
         }
         else {
