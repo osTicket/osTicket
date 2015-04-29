@@ -192,7 +192,7 @@ EOF;
     }
 }
 
-RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions());
+RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions(), true);
 
 class TicketCData extends VerySimpleModel {
     static $meta = array(
