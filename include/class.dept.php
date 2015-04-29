@@ -124,6 +124,7 @@ class Dept {
     }
 
     function getMembers($criteria=null) {
+        global $cfg;
 
         if(!$this->members || $criteria) {
             $members = array();
@@ -144,7 +145,16 @@ class Dept {
                           AND s.isactive=1
                           AND s.onvacation=0 ) ';
 
-            $sql.=' ORDER BY s.lastname, s.firstname';
+            switch ($cfg->getDefaultNameFormat()) {
+            case 'last':
+            case 'lastfirst':
+            case 'legal':
+                $sql .= ' ORDER BY s.lastname, s.firstname';
+                break;
+
+            default:
+                $sql .= ' ORDER BY s.firstname, s.lastname';
+            }
 
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))

@@ -623,8 +623,14 @@ class PersonsName {
         elseif($cfg)
             $this->format = $cfg->getDefaultNameFormat();
 
-        $this->parts = static::splitName($name);
-        $this->name = $name;
+        if (!is_array($name)) {
+            $this->parts = static::splitName($name);
+            $this->name = $name;
+        }
+        else {
+            $this->parts = $name;
+            $this->name = implode(' ', $name);
+        }
     }
 
     function getFirst() {
