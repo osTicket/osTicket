@@ -163,7 +163,7 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    static function fromVars($vars) {
+    static function fromVars($vars, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
         if (!$user) {
@@ -195,6 +195,10 @@ class User extends UserModel {
             catch (OrmException $e) {
                 return null;
             }
+        }
+        elseif ($update) {
+            $errors = array();
+            $user->updateInfo($vars, $errors, true);
         }
 
         return $user;
@@ -472,7 +476,7 @@ class User extends UserModel {
 
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars))
+            if (!static::fromVars($vars, true))
                 return sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
         }
@@ -526,7 +530,6 @@ class User extends UserModel {
             if (($f=$cd->getForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
-                    $this->save();
                 }
 
                 if (($email = $f->getField('email'))) {
@@ -534,10 +537,12 @@ class User extends UserModel {
                     $this->default_email->save();
                 }
             }
-            $cd->save();
+            // DynamicFormEntry::save returns the number of answers updated
+            if ($cd->save()) {
+                $this->updated = SqlFunction::NOW();
+            }
         }
-
-        return true;
+        return $this->save();
     }
 
     function save($refetch=false) {
