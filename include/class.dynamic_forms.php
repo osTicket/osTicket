@@ -970,12 +970,20 @@ class DynamicFormEntry extends VerySimpleModel {
         }
     }
 
+    /**
+     * Save the form entry and all associated answers.
+     *
+     * Returns:
+     * (mixed) FALSE if updated failed, otherwise the number of dirty answers
+     * which were save is returned (which may be ZERO).
+     */
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         if (!parent::save($refetch || count($this->dirty)))
             return false;
 
+        $dirty = 0;
         foreach ($this->getAnswers() as $a) {
             $field = $a->getField();
 
@@ -998,10 +1006,14 @@ class DynamicFormEntry extends VerySimpleModel {
             else
                 $a->set('value', $val);
             // Don't save answers for presentation-only fields
-            if ($field->hasData() && !$field->isPresentationOnly())
+            if ($field->hasData() && !$field->isPresentationOnly()) {
+                if ($a->dirty)
+                    $dirty++;
                 $a->save();
+            }
         }
         $this->_values = null;
+        return $dirty;
     }
 
     function delete() {
