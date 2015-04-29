@@ -31,6 +31,9 @@ class Charset {
             return 'cp949';
         case preg_match('`^iso-?(\S+)$`i', $charset, $match):
             return "ISO-".$match[1];
+        // GBK superceded gb2312 and is backward compatible
+        case preg_match('`^gb2312`i', $charset):
+            return 'GBK';
         // Incorrect, bogus, ambiguous or empty charsets
         // ISO-8859-1 is assumed
         case preg_match('`^(default|x-user-defined|iso|us-ascii)$`i', $charset):
