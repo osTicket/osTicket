@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         <?php } ?>
                     </select>
                     <select name="rule_h<?php echo $i; ?>">
-                        <option value="0">&mdash; <?php echo __('Select One');?> &dash;</option>
+                        <option value="0">&mdash; <?php echo __('Select One');?> &mdash;</option>
                         <?php
                         foreach($match_types as $k=>$v){
                             $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';
