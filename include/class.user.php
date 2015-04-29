@@ -197,18 +197,8 @@ class User extends UserModel {
             }
         }
         elseif ($update) {
-            foreach ($user->getDynamicData() as $entry) {
-                // FIXME: Convert this to ->form for `develop-next`
-                if ($entry->getForm()->type == 'U') {
-                    $entry->setSource($vars);
-                    $entry->save();
-                }
-            }
-            // Update name
-            if (isset($vars['name'])) {
-                $user->name = $vars['name'];
-                $user->save();
-            }
+            $errors = array();
+            $user->updateInfo($vars, $errors, true);
         }
 
         return $user;
@@ -540,7 +530,6 @@ class User extends UserModel {
             if (($f=$cd->getForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
-                    $this->save();
                 }
 
                 if (($email = $f->getField('email'))) {
@@ -548,10 +537,12 @@ class User extends UserModel {
                     $this->default_email->save();
                 }
             }
-            $cd->save();
+            // DynamicFormEntry::save returns the number of answers updated
+            if ($cd->save()) {
+                $this->updated = SqlFunction::NOW();
+            }
         }
-
-        return true;
+        return $this->save();
     }
 
     function save($refetch=false) {
