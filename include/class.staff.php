@@ -96,7 +96,13 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getAuthBackend() {
-        list($authkey, ) = explode(':', $this->getAuthKey());
+        list($bk, ) = explode(':', $this->getAuthKey());
+
+        // If administering a user other than yourself, fallback to the
+        // agent's declared backend, if any
+        if (!$bk && $this->backend)
+            $bk = $this->backend;
+
         return StaffAuthenticationBackend::getBackend($authkey);
     }
 
@@ -155,6 +161,34 @@ implements AuthenticatedUser, EmailContact {
         global $cfg;
         return ($cfg && $cfg->getPasswdResetPeriod()
                     && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
+    }
+
+    function setPassword($new, $current=false) {
+        // Allow the backend to update the password. This is the preferred
+        // method as it allows for integration with password policies and
+        // also allows for remotely updating the password where possible and
+        // supported.
+        if (!($bk = $this->getAuthBackend())
+            || !$bk instanceof AuthBackend
+        ) {
+            // Fallback to osTicket authentication token udpates
+            $bk = new osTicketAuthentication();
+        }
+
+        // And now for the magic
+        if (!$bk->supportsPasswordChange()) {
+            throw new PasswordUpdateFailed(
+                __('Authentication backend does not support password updates'));
+        }
+        if (!$bk->setPassword($this, $new, $current)) {
+            // Backend should throw PasswordUpdateFailed directly
+            return false;
+        }
+
+        // Successfully updated authentication tokens
+        $this->change_passwd = 0;
+        $this->cancelResetTokens();
+        $this->passwdreset = SqlFunction::NOW();
     }
 
     function canAccess($something) {
@@ -493,8 +527,6 @@ implements AuthenticatedUser, EmailContact {
 
             if(!$vars['passwd1'])
                 $errors['passwd1']=__('New password is required');
-            elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']=__('Passwords do not match');
 
@@ -512,12 +544,23 @@ implements AuthenticatedUser, EmailContact {
                 $errors['cpasswd']=__('Current password is required');
             elseif(!$this->cmp_passwd($vars['cpasswd']))
                 $errors['cpasswd']=__('Invalid current password!');
-            elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                $errors['passwd1']=__('New password MUST be different from the current password!');
         }
 
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
+
+        // Update the user's password if requested
+        if ($vars['passwd1']) {
+            try {
+                $this->setPassword($vars['passwd1'], $vars['cpasswd']);
+            }
+            catch (BadPassword $ex) {
+                $errors['passwd1'] = $ex->getMessage();
+            }
+            catch (PasswordUpdateFailed $ex) {
+                // TODO: Add a warning banner or crash the update
+            }
+        }
 
         if($errors) return false;
 
@@ -539,15 +582,6 @@ implements AuthenticatedUser, EmailContact {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
-
-        if ($vars['passwd1']) {
-            $this->change_passwd = 0;
-            $this->passwdreset = SqlFunction::NOW();
-            $this->passwd = Passwd::hash($vars['passwd1']);
-            $info = array('password' => $vars['passwd1']);
-            Signal::send('auth.pwchange', $this, $info);
-            $this->cancelResetTokens();
-        }
 
         return $this->save();
     }

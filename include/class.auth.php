@@ -347,6 +347,38 @@ abstract class AuthenticationBackend {
         return false;
     }
 
+    /**
+     * Request the backend to update the password for a user. This method is
+     * the main entry for password updates so that password policies can be
+     * applied to the new password before passing the new password to the
+     * backend for updating.
+     *
+     * Throws:
+     * BadPassword — if password does not meet policy requirement
+     * PasswordUpdateFailed — if backend failed to update the password
+     */
+    function setPassword($user, $password, $current=false) {
+        PasswordPolicy::checkPassword($password, $current);
+        $rv = $this->syncPassword($user, $password);
+        if ($rv) {
+            $info = array('password' => $password, 'current' => $current);
+            Signal::send('auth.pwchange', $user, $info);
+        }
+        return $rv;
+    }
+
+    /**
+     * Request the backend to update the user's password with the password
+     * given. This method should only be used if the backend advertises
+     * supported password updates with the supportsPasswordChange() method.
+     *
+     * Returns:
+     * true if the password was successfully updated and false otherwise.
+     */
+    protected function syncPassword($user, $password) {
+        return false;
+    }
+
     function supportsPasswordReset() {
         return false;
     }
@@ -946,6 +978,14 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
         }
     }
 
+    function supportsPasswordChange() {
+        return true;
+    }
+
+    function syncPassword($staff, $password) {
+        $staff->passwd = Passwd::hash($password);
+    }
+
 }
 StaffAuthenticationBackend::register('osTicketAuthentication');
 
@@ -1228,4 +1268,56 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
     }
 }
 UserAuthenticationBackend::register('ClientAcctConfirmationTokenBackend');
+
+// ----- Password Policy --------------------------------------
+
+class BadPassword extends Exception {}
+class PasswordUpdateFailed extends Exception {}
+
+abstract class PasswordPolicy {
+    static protected $registry = array();
+
+    /**
+     * Check a password and throw BadPassword with a meaningful message if
+     * the password cannot be accepted.
+     */
+    abstract function processPassword($new, $current);
+
+    static function checkPassword($new, $current) {
+        foreach (static::allActivePolicies() as $P) {
+            $P->processPassword($new, $current);
+        }
+    }
+
+    static function allActivePolicies() {
+        $policies = array();
+        foreach (static::$registry as $P) {
+            if (is_string($P) && class_exists($P))
+                $P = new $P();
+            if ($P instanceof PasswordPolicy)
+                $policies[] = $P;
+        }
+        return $policies;
+    }
+
+    static function register($policy) {
+        static::$registry[] = $policy;
+    }
+}
+
+class osTicketPasswordPolicy
+extends PasswordPolicy {
+    function processPassword($passwd, $current) {
+        if (strlen($passwd) < 6) {
+            throw new BadPassword(
+                __('Password must be at least 6 characters'));
+        }
+        // XXX: Changing case is technicall changing the password
+        if (0 === strcasecmp($passwd, $current)) {
+            throw new BadPassword(
+                __('New password MUST be different from the current password!'));
+        }
+    }
+}
+PasswordPolicy::register('osTicketPasswordPolicy');
 ?>
