@@ -531,7 +531,7 @@ if ($results) {
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
-        <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
+        <?php echo __('Are you sure you want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>

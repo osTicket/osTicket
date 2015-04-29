@@ -205,11 +205,11 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>enable</b> (unlock) %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>enable</b> (unlock) %s?'),
             _N('selected agent', 'selected agents', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>disable</b> (lock) %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>disable</b> (lock) %s?'),
             _N('selected agent', 'selected agents', 2));?>
         <br><br><?php echo __("Locked staff won't be able to login to Staff Control Panel.");?>
     </p>

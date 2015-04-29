@@ -44,7 +44,7 @@ if ($acct = $thisclient->getAccount()) {
     <td>
         <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
         <?php echo __('Observe daylight saving'); ?>
-        <em>(<?php __('Current Time'); ?>:
+        <em>(<?php echo __('Current Time'); ?>:
             <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
