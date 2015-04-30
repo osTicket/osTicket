@@ -115,6 +115,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </span>
             </td>
         </tr>
+
+        <tr>
+            <td><?php echo __('Unassign ticket when transferring to another department'); ?>:</td>
+            <td>
+                <span>
+                <input type="checkbox" name="unassign_tickets_dept" <?php echo
+                $info['unassign_tickets_dept']?'checked="checked"':''; ?>>
+                <?php echo __('Unassign ticket when transferring to another department'); ?>
+                <i class="help-tip icon-question-sign" href="#sandboxing"></i>
+                </span>
+            </td>
+        </tr>
+
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Outgoing Email Settings'); ?></strong>:</em>

@@ -314,6 +314,10 @@ class Dept {
         return $this->groups;
     }
 
+    function unassignTicketsDept() {
+        return ($this->config->get('unassign_tickets_dept', 0));
+    }
+
     function updateSettings($vars) {
 
         // Groups allowes to access department
@@ -332,6 +336,8 @@ class Dept {
 
         // Misc. config settings
         $this->config->set('assign_members_only', $vars['assign_members_only']);
+
+        $this->config->set('unassign_tickets_dept', isset($vars['unassign_tickets_dept']) ? 1 : 0);
 
         return true;
     }
