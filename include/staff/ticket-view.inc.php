@@ -423,9 +423,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
 <?php               foreach ($actions as $group => $list) {
                         foreach ($list as $id => $action) { ?>
                     <li>
-                    <a class="no-pjax" href="#" onclick="javascript:
-                            <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
-                        <i class="<?php echo $action->getIcon(); ?>"></i> <?php
+                    <a class="no-pjax <?php
+                        if (!$action->isEnabled())
+                            echo 'disabled';
+                    ?>" href="#" onclick="javascript:
+                        if ($(this).hasClass('disabled')) return false;
+                        <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
+                        <i class="icon-fixed-width <?php echo $action->getIcon(); ?>"></i> <?php
                             echo $action->getName();
                 ?></a></li>
 <?php                   }
@@ -434,7 +438,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     </div>
 <?php           } ?>
                     <span style="vertical-align:middle">
-                        <span style="vertical-align:middle;" class="textra"></span>
+                        <span style="vertical-align:middle;" class="textra">
+        <?php if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
+                <span class="label label-bare" title="<?php
+        echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated), 'You');
+                ?>"><?php echo __('Edited'); ?></span>
+        <?php } ?>
+                        </span>
                         <span style="vertical-align:middle;"
                             class="tmeta faded title"><?php
                             echo Format::htmlchars($entry->getName()); ?></span>

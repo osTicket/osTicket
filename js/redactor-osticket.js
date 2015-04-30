@@ -156,10 +156,10 @@ RedactorPlugins.signature = function() {
             else
                 this.$signatureBox.hide();
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                .on('change', false, false, $.proxy(this.updateSignature, this));
+                .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             if ($el.data('deptField'))
                 $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this));
+                    .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),
@@ -199,6 +199,9 @@ RedactorPlugins.signature = function() {
                 url += 'dept/' + dept;
             else
                 return inner.empty().parent().hide();
+        }
+        else if (selected == 'theirs' && $el.data('posterId')) {
+            url += 'agent/' + $el.data('posterId');
         }
         else if (type == 'none')
            return inner.empty().parent().hide();
@@ -251,7 +254,8 @@ $(function() {
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
                 'buttonSource': !el.hasClass('no-bar'),
-                'autoresize': !el.hasClass('no-bar'),
+                'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
+                'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')

@@ -1947,7 +1947,7 @@ tr.disabled th {
 
 .label {
   font-size: 11px;
-  padding: 1px 4px 2px;
+  padding: 1px 4px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -1958,6 +1958,13 @@ tr.disabled th {
   white-space: nowrap;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #999999;
+}
+.label-bare {
+  background-color: transparent;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #999999;
+  color: #999999;
+  text-shadow: none;
 }
 .label-info {
   background-color: #3a87ad;

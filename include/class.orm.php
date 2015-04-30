@@ -71,34 +71,39 @@ class ModelMeta implements ArrayAccess {
     }
 
     function processJoin(&$j) {
+        $constraint = array();
         if (isset($j['reverse'])) {
             list($fmodel, $key) = explode('.', $j['reverse']);
             $info = $fmodel::$meta['joins'][$key];
-            $constraint = array();
             if (!is_array($info['constraint']))
                 throw new OrmConfigurationException(sprintf(__(
                     // `reverse` here is the reverse of an ORM relationship
                     '%s: Reverse does not specify any constraints'),
                     $j['reverse']));
             foreach ($info['constraint'] as $foreign => $local) {
-                list(,$field) = explode('.', $local);
-                $constraint[$field ?: $local] = "$fmodel.$foreign";
+                list($L,$field) = is_array($local) ? $local : explode('.', $local);
+                $constraint[$field ?: $L] = array($fmodel, $foreign);
             }
-            $j['constraint'] = $constraint;
             if (!isset($j['list']))
                 $j['list'] = true;
             if (!isset($j['null']))
                 // By default, reverse releationships can be empty lists
                 $j['null'] = true;
         }
-        // XXX: Make this better (ie. composite keys)
-        foreach ($j['constraint'] as $local => $foreign) {
-            list($class, $field) = explode('.', $foreign);
+        else {
+            foreach ($j['constraint'] as $local => $foreign) {
+                list($class, $field) = $constraint[$local]
+                    = explode('.', $foreign);
+            }
+        }
+        foreach ($constraint as $local => $foreign) {
+            list($class, $field) = $foreign;
             if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
                 continue;
-            $j['fkey'] = array($class, $field);
+            $j['fkey'] = $foreign;
             $j['local'] = $local;
         }
+        $j['constraint'] = $constraint;
     }
 
     function offsetGet($field) {
@@ -178,13 +183,13 @@ class VerySimpleModel {
             elseif (isset($j['fkey'])) {
                 $criteria = array();
                 foreach ($j['constraint'] as $local => $foreign) {
-                    list($klas,$F) = explode('.', $foreign);
+                    list($klas,$F) = $foreign;
                     if (class_exists($klas))
                         $class = $klas;
                     if ($local[0] == "'") {
                         $criteria[$F] = trim($local,"'");
                     }
-                    elseif ($foreign[0] == "'") {
+                    elseif ($F[0] == "'") {
                         // Does not affect the local model
                         continue;
                     }
@@ -535,14 +540,20 @@ class SqlFunction {
         $this->args = array_slice(func_get_args(), 1);
     }
 
+    function input($what, $compiler, $model) {
+        if ($what instanceof SqlFunction)
+            $A = $what->toSql($compiler, $model);
+        elseif ($what instanceof Q)
+            $A = $compiler->compileQ($what, $model);
+        else
+            $A = $compiler->input($what);
+        return $A;
+    }
+
     function toSql($compiler, $model=false, $alias=false) {
         $args = array();
         foreach ($this->args as $A) {
-            if ($A instanceof SqlFunction)
-                $A = $A->toSql($compiler, $model);
-            else
-                $A = $compiler->input($A);
-            $args[] = $A;
+            $args[] = $this->input($A, $compiler, $model);
         }
         return sprintf('%s(%s)%s', $this->func, implode(',', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
@@ -559,6 +570,40 @@ class SqlFunction {
         $I = new static($func);
         $I->args = $args;
         return $I;
+    }
+}
+
+class SqlCase extends SqlFunction {
+    var $cases = array();
+    var $else = false;
+
+    static function N() {
+        return new static('CASE');
+    }
+
+    function when($expr, $result) {
+        $this->cases[] = array($expr, $result);
+        return $this;
+    }
+    function otherwise($result) {
+        $this->else = $result;
+        return $this;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $cases = array();
+        foreach ($this->cases as $A) {
+            list($expr, $result) = $A;
+            $expr = $this->input($expr, $compiler, $model);
+            $result = $this->input($result, $compiler, $model);
+            $cases[] = "WHEN {$expr} THEN {$result}";
+        }
+        if ($this->else) {
+            $else = $this->input($this->else, $compiler, $model);
+            $cases[] = "ELSE {$else}";
+        }
+        return sprintf('CASE %s END%s', implode(' ', $cases),
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 }
 
@@ -687,7 +732,12 @@ class SqlAggregate extends SqlFunction {
 
         // For DISTINCT, require a field specification — not a relationship
         // specification.
-        list($field, $rmodel) = $compiler->getField($this->expr, $model, $options);
+        $E = $this->expr;
+        if ($E instanceof SqlFunction) {
+            $field = $E->toSql($compiler, $model, $alias);
+        }
+        else {
+        list($field, $rmodel) = $compiler->getField($E, $model, $options);
         if ($this->distinct) {
             $pk = false;
             foreach ($rmodel::$meta['pk'] as $f) {
@@ -707,6 +757,7 @@ class SqlAggregate extends SqlFunction {
                     );
                 }
             }
+        }
         }
 
         return sprintf('%s(%s%s)%s', $this->func,
@@ -1455,23 +1506,19 @@ class SqlCompiler {
         $operator = static::$operators['exact'];
         if (!isset($options['table'])) {
             $field = array_pop($parts);
-            if (array_key_exists($field, static::$operators)) {
+            if (isset(static::$operators[$field])) {
                 $operator = static::$operators[$field];
                 $field = array_pop($parts);
             }
         }
 
         $path = array();
-
-        // Determine the alias for the root model table
-        $alias = (isset($this->joins['']))
-            ? $this->joins['']['alias']
-            : $this->quote($model::$meta['table']);
+        $rootModel = $model;
 
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
-        $self = $this;
-        $push = function($p, $path, $extra=false) use (&$model, $self) {
+        $joins = array();
+        $push = function($p, $path, $model) use (&$joins) {
             $model::_inspect();
             if (!($info = $model::$meta['joins'][$p])) {
                 throw new OrmException(sprintf(
@@ -1479,27 +1526,38 @@ class SqlCompiler {
                     $model, $p));
             }
             $crumb = implode('__', $path);
-            $path[] = $p;
-            $tip = implode('__', $path);
-            $alias = $self->pushJoin($crumb, $tip, $model, $info, $extra);
+            $tip = ($crumb) ? "{$crumb}__{$p}" : $p;
+            $joins[] = array($crumb, $tip, $model, $info);
             // Roll to foreign model
-            foreach ($info['constraint'] as $local => $foreign) {
-                list($model, $f) = explode('.', $foreign);
-                if (class_exists($model))
-                    break;
-            }
-            return array($alias, $f);
+            return $info['fkey'];
         };
 
-        foreach ($parts as $i=>$p) {
-            list($alias) = $push($p, $path, @$options['constraint']);
+        foreach ($parts as $p) {
+            list($model) = $push($p, $path, $model);
             $path[] = $p;
         }
 
         // If comparing a relationship, join the foreign table
         // This is a comparison with a relationship — use the foreign key
         if (isset($model::$meta['joins'][$field])) {
-            list($alias, $field) = $push($field, $path, @$options['constraint']);
+            list($model, $field) = $push($field, $path, $model);
+        }
+
+        // Add the conststraint as the last arg to the last join
+        if (isset($options['constraint'])) {
+            $joins[count($joins)-1][] = $options['constraint'];
+        }
+
+        // Apply the joins list to $this->pushJoin
+        foreach ($joins as $A) {
+            $alias = call_user_func_array(array($this, 'pushJoin'), $A);
+        }
+
+        if (!isset($alias)) {
+            // Determine the alias for the root model table
+            $alias = (isset($this->joins['']))
+                ? $this->joins['']['alias']
+                : $this->quote($rootModel::$meta['table']);
         }
 
         if (isset($options['table']) && $options['table'])
@@ -1550,8 +1608,8 @@ class SqlCompiler {
         // coordination between the data returned from the database (where
         // table alias is available) and the corresponding data.
         $T = array('alias' => $alias);
-        $this->joins[$path] = &$T;
-        $T['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
+        $this->joins[$path] = $T;
+        $this->joins[$path]['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
         return $alias;
     }
 
@@ -1712,12 +1770,6 @@ class DbEngine {
 
 class MySqlCompiler extends SqlCompiler {
 
-    // Consts for ::input()
-    const SLOT_JOINS = 1;
-    const SLOT_WHERE = 2;
-
-    protected $input_join_count = 0;
-
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
@@ -1803,21 +1855,21 @@ class MySqlCompiler extends SqlCompiler {
         else
             $table = $this->quote($model::$meta['table']);
         foreach ($info['constraint'] as $local => $foreign) {
-            list($rmodel, $right) = explode('.', $foreign);
+            list($rmodel, $right) = $foreign;
             // Support a constant constraint with
             // "'constant'" => "Model.field_name"
             if ($local[0] == "'") {
                 $constraints[] = sprintf("%s.%s = %s",
                     $alias, $this->quote($right),
-                    $this->input(trim($local, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($local, '\'"'))
                 );
             }
             // Support local constraint
             // field_name => "'constant'"
-            elseif ($foreign[0] == "'" && !$right) {
+            elseif ($rmodel[0] == "'" && !$right) {
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
-                    $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($rmodel, '\'"'))
                 );
             }
             else {
@@ -1829,7 +1881,7 @@ class MySqlCompiler extends SqlCompiler {
         }
         // Support extra join constraints
         if ($extra instanceof Q) {
-            $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
+            $constraints[] = $this->compileQ($extra, $model);
         }
         if (!isset($rmodel))
             $rmodel = $model;
@@ -1838,9 +1890,9 @@ class MySqlCompiler extends SqlCompiler {
             // XXX: Support parameters from the nested query
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::$meta['table']);
-        $base = "$join$table $alias";
+        $base = "{$join}{$table} {$alias}";
         if ($constraints)
-            $base .= ' ON ('.implode(' AND ', $constraints).')';
+           $base .= ' ON ('.implode(' AND ', $constraints).')';
         return $base;
     }
 
@@ -1853,11 +1905,6 @@ class MySqlCompiler extends SqlCompiler {
      * Parameters:
      * $what - (mixed) value to be sent to the database. No escaping is
      *      necessary. Pass a raw value here.
-     * $slot - (int) clause location of the input in compiled SQL statement.
-     *      Currently, SLOT_JOINS and SLOT_WHERE is supported. SLOT_JOINS
-     *      inputs are inserted ahead of the SLOT_WHERE inputs as the joins
-     *      come logically before the where claused in the finalized
-     *      statement.
      *
      * Returns:
      * (string) token to be placed into the compiled SQL statement. For
@@ -1876,16 +1923,8 @@ class MySqlCompiler extends SqlCompiler {
             return 'NULL';
         }
         else {
-            switch ($slot) {
-            case self::SLOT_JOINS:
-                // This should be inserted before the WHERE inputs
-                array_splice($this->params, $this->input_join_count++, 0,
-                    array($what));
-                break;
-            default:
-                $this->params[] = $what;
-            }
-            return '?';
+            $this->params[] = $what;
+            return ':'.(count($this->params));
         }
     }
 
@@ -2193,7 +2232,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 }
 
-class MysqlExecutor {
+class MySqlExecutor {
 
     var $stmt;
     var $fields = array();
@@ -2214,17 +2253,28 @@ class MysqlExecutor {
         return $this->map;
     }
 
+    function fixupParams() {
+        $self = $this;
+        $params = array();
+        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+            $params[] = $self->params[$m[1]-1];
+            return '?';
+        }, $this->sql);
+        return array($sql, $params);
+    }
+
     function _prepare() {
         $this->execute();
         $this->_setup_output();
     }
 
     function execute() {
-        if (!($this->stmt = db_prepare($this->sql)))
+        list($sql, $params) = $this->fixupParams();
+        if (!($this->stmt = db_prepare($sql)))
             throw new InconsistentModelException(
-                'Unable to prepare query: '.db_error().' '.$this->sql);
-        if (count($this->params))
-            $this->_bind($this->params);
+                'Unable to prepare query: '.db_error().' '.$sql);
+        if (count($params))
+            $this->_bind($params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
@@ -2335,9 +2385,8 @@ class MysqlExecutor {
 
     function __toString() {
         $self = $this;
-        $x = 0;
-        return preg_replace_callback('/\?/', function($m) use ($self, &$x) {
-            $p = $self->params[$x++];
+        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+            $p = $self->params[$m[1]-1];
             return db_real_escape($p, is_string($p));
         }, $this->sql);
     }

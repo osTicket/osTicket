@@ -16,6 +16,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
+include_once(INCLUDE_DIR.'class.role.php');
 
 //Ticket thread.
 class Thread extends VerySimpleModel {
@@ -82,6 +83,7 @@ class Thread extends VerySimpleModel {
             'has_attachments' => SqlAggregate::COUNT('attachments', false,
                 new Q(array('attachments__inline'=>0)))
         ));
+        $base->exclude(array('flags__hasbit'=>ThreadEntry::FLAG_HIDDEN));
         if ($criteria)
             $base->filter($criteria);
         return $base;
@@ -398,7 +400,8 @@ class ThreadEntry extends VerySimpleModel {
     static $meta = array(
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
-        'select_related' => array('staff', 'user'),
+        'select_related' => array('staff', 'user', 'email_info'),
+        'ordering' => array('created'),
         'joins' => array(
             'thread' => array(
                 'constraint' => array('thread_id' => 'Thread.id'),
@@ -430,11 +433,23 @@ class ThreadEntry extends VerySimpleModel {
     );
 
     const FLAG_ORIGINAL_MESSAGE         = 0x0001;
+    const FLAG_EDITED                   = 0x0002;
+    const FLAG_HIDDEN                   = 0x0004;
+    const FLAG_GUARDED                  = 0x0008;   // No replace on edit
+
+    const PERM_EDIT     = 'thread.edit';
 
     var $_headers;
     var $_thread;
     var $_actions;
     var $_attachments;
+
+    static protected $perms = array(
+        self::PERM_EDIT => array(
+            'title' => /* @trans */ 'Edit Thread',
+            'desc'  => /* @trans */ 'Ability to edit thread items of other agents',
+        ),
+    );
 
     function postEmail($mailinfo) {
         if (!($thread = $this->getThread()))
@@ -457,8 +472,7 @@ class ThreadEntry extends VerySimpleModel {
     }
 
     function getParent() {
-        if ($this->getPid())
-            return ThreadEntry::lookup($this->getPid());
+        return $this->parent;
     }
 
     function getType() {
@@ -563,6 +577,21 @@ class ThreadEntry extends VerySimpleModel {
             $recipients = array_merge($recipients, $all);
         }
         return $recipients;
+    }
+
+    /**
+     * Recurse through the ancestry of this thread entry to find the first
+     * thread entry which cites a email Message-ID field.
+     *
+     * Returns:
+     * <ThreadEntry> or null if neither this thread entry nor any of its
+     * ancestry contains an email header with an email Message-ID header.
+     */
+    function findOriginalEmailMessage() {
+        $P = $this;
+        while (!$P->getEmailMessageId()
+            && ($P = $P->getParent()));
+        return $P;
     }
 
     function getUIDFromEmailReference($ref) {
@@ -1248,7 +1277,13 @@ class ThreadEntry extends VerySimpleModel {
 
         self::$action_registry[$group][$action::getId()] = $action;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+
+RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
 
 class ThreadEntryBody /* extends SplString */ {
@@ -1734,7 +1769,7 @@ abstract class ThreadEntryAction {
     static $id;                 // Unique identifier used for plumbing
     static $icon = 'cog';
 
-    var $thread;
+    var $entry;
 
     function getName() {
         $class = get_class($this);
@@ -1751,13 +1786,13 @@ abstract class ThreadEntryAction {
     }
 
     function __construct(ThreadEntry $thread) {
-        $this->thread = $thread;
+        $this->entry = $thread;
     }
 
     abstract function trigger();
 
     function getTicket() {
-        return $this->thread->getTicket();
+        return $this->entry->getObject();
     }
 
     function isEnabled() {
@@ -1791,8 +1826,8 @@ abstract class ThreadEntryAction {
     function getAjaxUrl($dialog=false) {
         return sprintf('%stickets/%d/thread/%d/%s',
             $dialog ? '#' : 'ajax.php/',
-            $this->thread->getThread()->getObjectId(),
-            $this->thread->getId(),
+            $this->entry->getThread()->getObjectId(),
+            $this->entry->getId(),
             static::getId()
         );
     }
