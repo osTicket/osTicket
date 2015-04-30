@@ -209,13 +209,17 @@ class ContentAjaxAPI extends AjaxController {
             Http::response(400, '`root` is required parameter');
 
         switch ($_GET['root']) {
-        case 'thank-you':
         case 'cannedresponse':
             $roots = array('ticket');
             break;
 
         default:
-            // Get the template for this template
+            if ($info = Page::getContext($_GET['root'])) {
+                $roots = $info;
+                break;
+            }
+
+            // Get the context for an email template
             $tpl_info = EmailTemplateGroup::getTemplateDescription($_GET['root']);
             if (!$tpl_info)
                 Http::response(422, 'No such context');
@@ -223,21 +227,29 @@ class ContentAjaxAPI extends AjaxController {
         }
 
         $contextTypes = array(
-            'assignee' => array('class' => 'Staff', 'desc' => 'Newly assigned agent'),
-            'assigner' => array('class' => 'Staff', 'desc' => 'Agent performing the assignment'),
-            'comments' => 'Agent supplied comments',
+            'activity' => __('Type of recent activity'),
+            'assignee' => array('class' => 'Staff', 'desc' => __('Assigned agent/team')),
+            'assigner' => array('class' => 'Staff', 'desc' => __('Agent performing the assignment')),
+            'comments' => __('Assign/transfer comments'),
+            'link' => __('Access link'),
             'message' => array('class' => 'MessageThreadEntry', 'desc' => 'Message from the EndUser'),
-            'note' => array('class' => 'NoteThreadEntry', 'desc' => 'Internal note'),
+            'note' => array('class' => 'NoteThreadEntry', 'desc' => __('Internal note')),
             'poster' => array('class' => 'User', 'desc' => 'EndUser or Agent originating the message'),
+            // XXX: This could be EndUser -or- Staff object
             'recipient' => array('class' => 'TicketUser', 'desc' => 'Message recipient'),
-            'response' => array('class' => 'ResponseThreadEntry', 'desc' => 'Agent reply'),
+            'response' => array('class' => 'ResponseThreadEntry', 'desc' => __('Outgoing response')),
             'signature' => 'Selected staff or department signature',
             'staff' => array('class' => 'Staff', 'desc' => 'Agent originating the activity'),
             'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
+            'user' => array('class' => 'User', 'desc' => __('Message recipient')),
         );
         $context = array();
-        foreach ($roots as $C) {
-            $context[$C] = $contextTypes[$C];
+        foreach ($roots as $C=>$desc) {
+            // $desc may be either the root or the description array
+            if (is_array($desc))
+                $context[$C] = $desc;
+            else
+                $context[$desc] = $contextTypes[$desc];
         }
         $global = osTicket::getVarScope();
         $items = VariableReplacer::compileScope($context + $global);
