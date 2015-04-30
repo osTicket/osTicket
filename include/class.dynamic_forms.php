@@ -1519,6 +1519,21 @@ class SelectionField extends FormField {
         return $selection;
     }
 
+    function lookupChoice($value) {
+
+        // See if it's in the choices.
+        $choices = $this->getChoices();
+        if ($choices && ($i=array_search($value, $choices)))
+            return array($i=>$choices[$i]);
+
+        // Query the store by value or extra (abbrv.)
+        if (($list=$this->getList()) && ($i=$list->getItem($value)))
+            return array($i->getId() => $i->getValue());
+
+        return null;
+    }
+
+
     function getFilterData() {
         // Start with the filter data for the list item as the [0] index
         $data = array(parent::getFilterData());
