@@ -4,7 +4,6 @@
   padding-left: 20px;
   background-position: top left;
   background-repeat: no-repeat;
-  color: #006699;
   text-decoration: none;
 }
 
@@ -29,43 +28,7 @@
 
 
 #ticketTable {
-  border: 1px solid #aaa;
-  border-left: none;
-  border-bottom: none;
-
-  caption {
-    padding: 5px;
-    text-align: left;
-    color: #000;
-    background: #ddd;
-    border: 1px solid #aaa;
-    border-bottom: none;
-    font-weight: bold;
-  }
-
-  th {
-    height: 24px;
-    line-height: 24px;
-    background: #e1f2ff;
-    border: 1px solid #aaa;
-    border-right: none;
-    border-top: none;
-
-    a {
-      color: #000;
-    }
-  }
-
-  td {
-    padding: 2px;
-    border: 1px solid #aaa;
-    border-right: none;
-    border-top: none;
-  }
-
-  tr.alt td {
-    background: #f9f9f9;
-  }
+  width: 100%;
 }
 
 #ticketSearchForm {
@@ -82,64 +45,15 @@ a.refresh {
   line-height: 20px;
   text-align: center;
   padding: 0 10px 0 28px;
-  border: 1px solid #aaa;
   margin-left: 10px;
-  color: #333;
   background-position: 5px 50%;
   background-repeat: no-repeat;
   background-image: url('../images/icons/refresh.png');
 }
 
 .infoTable {
-  background: #F4FAFF;
   th {
     text-align: left;
+    white-space: nowrap;
   }
 }
-
-#ticketThread {
-  table {
-    margin-top: 10px;
-    border: 1px solid #aaa;
-    border-bottom: 2px solid #aaa;
-
-    th {
-      text-align: left;
-      border-bottom: 1px solid #aaa;
-      font-size: 12px;
-      padding: 5px;
-
-      span {
-          font-weight:normal;
-          color:#888;
-          padding-left:20px;
-      }
-    }
-
-    td {
-      padding: 5px;
-    }
-  }
-
-  .message th { background: #d8efff; }
-  .response th { background: #ddd; }
-
-  .info {
-    padding: 2px;
-    background: #f9f9f9;
-    border-top: 1px solid #ddd;
-    height: 16px;
-    line-height: 16px;
-
-    a {
-      display: inline-block;
-      margin: 5px 10px 5px 0;
-      padding-left: 24px;
-      height: 16px;
-      line-height: 16px;
-      background-position: 0 50%;
-      background-repeat: no-repeat;
-    }
-  }
-}
-

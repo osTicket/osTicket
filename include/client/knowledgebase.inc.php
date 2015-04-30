@@ -5,8 +5,11 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 <h1><?php echo __('Frequently Asked Questions');?></h1>
 <form action="index.php" method="get" id="kb-search">
     <input type="hidden" name="a" value="search">
-    <div>
+    <div class="row">
+      <div class="col-sm-6">
         <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+      </div>
+      <div class="col-sm-6">
         <select name="cid" id="cid">
             <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php
@@ -27,9 +30,10 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
             }
             ?>
         </select>
-        <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
+        </div>
     </div>
-    <div>
+    <div class="row">
+      <div class="col-sm-6">
         <select name="topicId" id="topic-id">
             <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
             <?php
@@ -50,6 +54,10 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
             }
             ?>
         </select>
+      </div>
+      <div class="col-sm-6">
+        <input id="searchSubmit" class="btn btn-primary" type="submit" value="<?php echo __('Search');?>">
+      </div>  
     </div>
 </form>
 <hr>
@@ -79,7 +87,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 
     $sql.=' GROUP BY faq.faq_id ORDER BY question';
-    echo "<div><strong>".__('Search Results').'</strong></div><div class="clear"></div>';
+    echo '<div class="clearfix"><strong>'.__('Search Results').'</strong></div>';
     if(($res=db_query($sql)) && ($num=db_num_rows($res))) {
         echo '<div id="faq">'.sprintf(__('%d FAQs matched your search criteria.'),$num).'
                 <ol>';
@@ -91,7 +99,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         echo '  </ol>
              </div>';
     } else {
-        echo '<strong class="faded">'.__('The search did not match any FAQs.').'</strong>';
+        echo '<strong class="text-muted">'.__('The search did not match any FAQs.').'</strong>';
     }
 } else { //Category Listing.
     $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '

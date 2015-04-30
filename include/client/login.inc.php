@@ -17,9 +17,10 @@ if ($content) {
 ?>
 <h1><?php echo Format::display($title); ?></h1>
 <p><?php echo Format::display($body); ?></p>
-<form action="login.php" method="post" id="clientLogin">
+<form action="login.php" method="post" id="clientLogin" class="form-horizontal">
     <?php csrf_token(); ?>
-<div style="display:table-row">
+<div class="row form-group">
+<div class="col-sm-6">
     <div class="login-box">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
@@ -28,14 +29,9 @@ if ($content) {
     <div>
         <input id="passwd" placeholder="<?php echo __('Password'); ?>" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
     </div>
-    <p>
-        <input class="btn" type="submit" value="<?php echo __('Sign In'); ?>">
-<?php if ($suggest_pwreset) { ?>
-        <a style="padding-top:4px;display:inline-block;" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a>
-<?php } ?>
-    </p>
     </div>
-    <div style="display:table-cell;padding: 15px;vertical-align:top">
+</div>
+    <div class="col-sm-6">
 <?php
 
 $ext_bks = array();
@@ -60,6 +56,12 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
     </div>
     </div>
 </div>
+<p>
+  <input class="btn btn-primary" type="submit" value="<?php echo __('Sign In'); ?>">
+<?php if ($suggest_pwreset) { ?>
+        <a style="padding-top:4px;display:inline-block;" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a>
+<?php } ?>
+  </p>
 </form>
 <br>
 <p>

@@ -136,23 +136,23 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
     <input type="submit" value="<?php echo __('Go');?>">
 </form>
 <a class="refresh" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
-<table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
+<table  class="table table-striped table-bordered table-hover" id="ticketTable" border="0" cellspacing="0" cellpadding="0">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th nowrap>
                 <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
             </th>
-            <th width="120">
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
             </th>
-            <th width="100">
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
             </th>
-            <th width="320">
+            <th>
                 <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
             </th>
-            <th width="120">
+            <th class="hidden-xs">
                 <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
             </th>
         </tr>
@@ -181,12 +181,12 @@ $negorder=$order=='DESC'?'ASC':'DESC'; //Negate the sorting
                 <a class="Icon <?php echo strtolower($row['source']); ?>Ticket" title="<?php echo $row['email']; ?>"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::db_date($row['created']); ?></td>
-                <td>&nbsp;<?php echo $row['status']; ?></td>
+                <td class="hidden-xs">&nbsp;<?php echo Format::db_date($row['created']); ?></td>
+                <td class="hidden-xs">&nbsp;<?php echo $row['status']; ?></td>
                 <td>
                     <a href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::truncate($dept,30); ?></td>
+                <td class="hidden-xs">&nbsp;<?php echo Format::truncate($dept,30); ?></td>
             </tr>
         <?php
         }
