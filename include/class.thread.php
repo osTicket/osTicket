@@ -188,7 +188,6 @@ class Thread extends VerySimpleModel {
         )) {
             $vars['message'] = $body;
             $vars['userId'] = $mailinfo['userId'] ?: $object->getUserId();
-            $vars['origin'] = 'Email';
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('M', $vars);
@@ -197,7 +196,26 @@ class Thread extends VerySimpleModel {
             else
                 throw new Exception('Cannot continue discussion with abstract thread');
         }
-        // XXX: Consider collaborator role
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators). Normally, the block above should match based
+        // on the Referenced message-id header
+        elseif ($object instanceof Ticket
+            && ($E = UserEmail::lookup($mailinfo['email']))
+            && ($C = Collaborator::lookup(array(
+                'ticketId' => $object->getId(), 'userId' => $E->user_id
+            )))
+        ) {
+            $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
+            $vars['message'] = $body;
+
+            if ($object instanceof Threadable)
+                return $object->postThreadEntry('M', $vars);
+            elseif ($this instanceof ObjectThread)
+                $this->addMessage($vars, $errors);
+            else
+                throw new Exception('Cannot continue discussion with abstract thread');
+        }
+        // Accept internal note from staff members' replies
         elseif ($mailinfo['staffId']
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
@@ -983,11 +1001,20 @@ class ThreadEntry extends VerySimpleModel {
         // Search for the message-id token in the body
         // *DEPRECATED* the current algo on outgoing mail will use
         // Mailer::getMessageId as the message id tagged here
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
-                $mailinfo['message'], $match))
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
+                $mailinfo['message'], $match)) {
+            // Support new Message-Id format
+            if (($info = Mailer::decodeMessageId($match[1]))
+                && $info['loopback']
+                && $info['entryId']
+            ) {
+                return ThreadEntry::lookup($info['entryId']);
+            }
+            // Support old (deprecated) reference format
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
                     $mailinfo['email']))
                 return $thread;
+        }
 
         return null;
     }

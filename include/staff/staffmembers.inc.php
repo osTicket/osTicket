@@ -5,7 +5,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin())
 $qstr='';
 $qs = array();
 $sortOptions = array(
-        'name' => 'lastname',
+        'name' => array('firstname', 'lastname'),
         'username' => 'username',
         'status' => 'isactive',
         'group' => 'group__name',
@@ -21,7 +21,16 @@ if ($sort && $sortOptions[$sort]) {
     $order_column = $sortOptions[$sort];
 }
 
-$order_column = $order_column ? $order_column : 'lastname';
+$order_column = $order_column ? $order_column : array('firstname', 'lastname');
+
+switch ($cfg->getDefaultNameFormat()) {
+case 'last':
+case 'lastfirst':
+case 'legal':
+    $sortOptions['name'] = array('lastname', 'firstname');
+    break;
+// Otherwise leave unchanged
+}
 
 if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
     $order = $orderWays[strtoupper($_REQUEST['order'])];
@@ -57,10 +66,12 @@ $agents = Staff::objects()
     ->annotate(array(
             'teams_count'=>SqlAggregate::COUNT('teams', true),
     ))
-    ->select_related('dept', 'group')
-    ->order_by(sprintf('%s%s',
-                strcasecmp($order, 'DESC') ? '' : '-',
-                $order_column));
+    ->select_related('dept', 'group');
+
+$order = strcasecmp($order, 'DESC') ? '' : '-';
+foreach ((array) $order_column as $C) {
+    $agents->order_by($order.$C);
+}
 
 if ($filters)
     $agents->filter($filters);
@@ -155,7 +166,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                   <input type="checkbox" class="ckb" name="ids[]"
                   value="<?php echo $id; ?>" <?php echo $sel ? 'checked="checked"' : ''; ?> >
                 <td><a href="staff.php?id=<?php echo $id; ?>"><?php echo
-                Format::htmlchars($agent->getName()); ?></a>&nbsp;</td>
+                Format::htmlchars((string) $agent->getName()); ?></a>&nbsp;</td>
                 <td><?php echo $agent->getUserName(); ?></td>
                 <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php
                     echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
@@ -206,11 +217,11 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>enable</b> (unlock) %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>enable</b> (unlock) %s?'),
             _N('selected agent', 'selected agents', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
-        <?php echo sprintf(__('Are you sure want to <b>disable</b> (lock) %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>disable</b> (lock) %s?'),
             _N('selected agent', 'selected agents', 2));?>
         <br><br><?php echo __("Locked staff won't be able to login to Staff Control Panel.");?>
     </p>

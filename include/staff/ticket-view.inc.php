@@ -1016,7 +1016,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
             '<b>'.Format::htmlchars($ticket->getName()).'</b>', Format::htmlchars($ticket->getEmail())); ?>
         </span>
-        <?php echo sprintf(__('Are you sure want to <b>change</b> ticket owner to %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>change</b> ticket owner to %s?'),
             '<b><span id="newuser">this guy</span></b>'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

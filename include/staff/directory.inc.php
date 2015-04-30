@@ -9,7 +9,6 @@ $agents = Staff::objects()
 if($_REQUEST['q']) {
     $searchTerm=$_REQUEST['q'];
     if($searchTerm){
-        $query=db_real_escape($searchTerm,false); //escape the term ONLY...no quotes.
         if(is_numeric($searchTerm)){
             $agents->filter(Q::any(array(
                 'phone__contains'=>$searchTerm,
@@ -33,10 +32,20 @@ if($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $qs += array('did' => $_REQUEST['did']);
 }
 
-$sortOptions=array('name'=>'firstname,lastname','email'=>'email','dept'=>'dept__name',
+$sortOptions=array('name'=>array('firstname','lastname'),'email'=>'email','dept'=>'dept__name',
                    'phone'=>'phone','mobile'=>'mobile','ext'=>'phone_ext',
                    'created'=>'created','login'=>'lastlogin');
 $orderWays=array('DESC'=>'-','ASC'=>'');
+
+switch ($cfg->getDefaultNameFormat()) {
+case 'last':
+case 'lastfirst':
+case 'legal':
+    $sortOptions['name'] = 'staff.lastname, staff.firstname';
+    break;
+// Otherwise leave unchanged
+}
+
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
@@ -50,7 +59,7 @@ if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
 
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($_REQUEST['order'] ?: 'desc').'" ';
-foreach (explode(',', $order_column) as $C) {
+foreach ((array) $order_column as $C) {
     $agents->order_by($order.$C);
 }
 

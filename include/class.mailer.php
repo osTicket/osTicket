@@ -395,7 +395,7 @@ class Mailer {
             // in a response
             if ($reply_tag || $mid_token) {
                 $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$reply_tag</div>$message";
+                    class=\"mid-$mid_token\">$reply_tag</div>$message";
             }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($messageId ? "\nRef-Mid: $messageId\n" : '');

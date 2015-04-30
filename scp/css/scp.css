@@ -161,6 +161,7 @@ div#header a {
     line-height:26px;
     border-left:1px solid #aaa;
     border-right:1px solid #aaa;
+    white-space: nowrap;
 }
 
 #nav .active, #sub_nav li {

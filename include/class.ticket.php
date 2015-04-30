@@ -1246,7 +1246,7 @@ implements RestrictedAccess, Threadable {
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
         if ($current_status = $this->getStatus()) {
-            $note = sprintf(__('Status changed from %s to %s by %s'),
+            $note = sprintf(__('Status changed from %1$s to %2$s by %3$s'),
                     $this->getStatus(),
                     $status,
                     $thisstaff ?: 'SYSTEM');
@@ -3389,6 +3389,9 @@ implements RestrictedAccess, Threadable {
 
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
+            if (!$cfg->isHtmlThreadEnabled()) {
+                $vars['note'] = new TextThreadBody($vars['note']);
+            }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
         else {

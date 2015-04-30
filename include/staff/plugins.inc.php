@@ -83,12 +83,12 @@ if ($count) //Show options..
     </p>
     <p class="confirm-action" style="display:none;" id="enable-confirm">
         <font color="green"><?php echo sprintf(
-        __('Are you sure want to <b>enable</b> %s?'),
+        __('Are you sure you want to <b>enable</b> %s?'),
         _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
         <font color="red"><?php echo sprintf(
-        __('Are you sure want to <b>disable</b> %s?'),
+        __('Are you sure you want to <b>disable</b> %s?'),
         _N('selected plugin', 'selected plugins', 2)); ?></font>
     </p>
     <div><?php echo __('Please confirm to continue.'); ?></div>

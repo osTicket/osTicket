@@ -35,7 +35,7 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-                $name = "{$u['first']} {$u['last']}";
+                $name = new PersonsName(array('first' => $u['first'], 'last' => $u['last']));
                 $users[] = array('email' => $u['email'], 'name'=>$name,
                     'info' => "{$u['email']} - $name (remote)",
                     'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
@@ -48,7 +48,8 @@ class UsersAjaxAPI extends AjaxController {
                 ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
                 : '';
 
-            $escaped = db_input(strtolower($_REQUEST['q']), false);
+            $q = str_replace(' ', '%', $_REQUEST['q']);
+            $escaped = db_input($q, false);
             $sql='SELECT DISTINCT user.id, email.address, name '
                 .' FROM '.USER_TABLE.' user '
                 .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
@@ -57,7 +58,6 @@ class UsersAjaxAPI extends AjaxController {
                 .' WHERE email.address LIKE \'%'.$escaped.'%\'
                    OR user.name LIKE \'%'.$escaped.'%\'
                    OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
-                .' ORDER BY user.created '
                 .' LIMIT '.$limit;
 
             if(($res=db_query($sql)) && db_num_rows($res)){
@@ -68,11 +68,12 @@ class UsersAjaxAPI extends AjaxController {
                             break;
                         }
                     }
-                    $name = Format::htmlchars($name);
+                    $name = Format::htmlchars(new PersonsName($name));
                     $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                         "id" => $id, "/bin/true" => $_REQUEST['q']);
                 }
             }
+            usort($users, function($a, $b) { return strcmp($a['name'], $b['name']); });
         }
 
         return $this->json_encode(array_values($users));

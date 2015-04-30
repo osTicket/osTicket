@@ -361,7 +361,7 @@ class MailFetcher {
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1, $recurseIntoRfc822=true) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -397,15 +397,21 @@ class MailFetcher {
                 && ($content = $this->tnef->getBody('text/html', $encoding)))
             return $content;
 
-        //Do recursive search
-        $text='';
-        if($struct && $struct->parts && $recurse) {
+        // Do recursive search
+        $text = '';
+        $ctype = $this->getMimeType($struct);
+        if ($struct && $struct->parts && $recurse
+            // Do not recurse into email (rfc822) attachments unless requested
+            && (strtolower($ctype) !== 'message/rfc822' || $recurseIntoRfc822)
+        ) {
             while(list($i, $substruct) = each($struct->parts)) {
-                if($partNumber)
+                if ($partNumber)
                     $prefix = $partNumber . '.';
-                if (($result=$this->getPart($mid, $mimeType, $encoding,
-                        $substruct, $prefix.($i+1), $recurse-1)))
-                    $text.=$result;
+                if ($result = $this->getPart($mid, $mimeType, $encoding,
+                    $substruct, $prefix.($i+1), $recurse-1, $recurseIntoRfc822)
+                ) {
+                    $text .= $result;
+                }
             }
         }
 
@@ -520,9 +526,13 @@ class MailFetcher {
         if (strtolower($ctype) == 'multipart/report') {
             foreach ($struct->parameters as $p) {
                 if (strtolower($p->attribute) == 'report-type'
-                        && $p->value == 'delivery-status') {
-                    return new TextThreadEntryBody( $this->getPart(
-                                $mid, 'text/plain', $this->charset, $struct, false, 1));
+                    && $p->value == 'delivery-status'
+                ) {
+                    if ($body = $this->getPart(
+                        $mid, 'text/plain', $this->charset, $struct, false, 3, false
+                    )) {
+                        return new TextThreadBody($body);
+                    }
                 }
             }
         }

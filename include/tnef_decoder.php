@@ -63,8 +63,8 @@ class TnefStreamReader implements Iterator {
         $this->push($stream);
 
         // Read header
-        if (self::SIGNATURE != $this->_geti(32))
-            throw new TnefException("Invalid signature");
+        if (self::SIGNATURE != ($S = $this->_geti(32)))
+            throw new TnefException(sprintf("%08x: Invalid signature magic", $S));
 
         $this->_geti(16); // Attach key
 
@@ -109,6 +109,10 @@ class TnefStreamReader implements Iterator {
         return $value;
     }
 
+    protected function skip($bytes) {
+        $this->pos += $bytes;
+    }
+
     function check($block) {
         $sum = 0; $bytes = strlen($block['data']); $bs = 1024;
         for ($i=0; $i < $bytes; $i+=$bs) {
@@ -117,7 +121,8 @@ class TnefStreamReader implements Iterator {
             $sum = $sum % 65536;
         }
         if ($block['checksum'] != $sum)
-            throw new TnefException('Corrupted block. Invalid checksum');
+            throw new TnefException(sprintf('Corrupted block. %04x: Invalid checksum, expected %04x',
+                $sum, $block['checksum']));
     }
 
     function next() {
@@ -288,6 +293,16 @@ class TnefAttributeStreamReader extends TnefStreamReader {
         $this->pos = 4;
     }
 
+    /**
+     * Read a single typed value from the current input stream. The type is
+     * a 16-bit number receved as an argument which should be one of the
+     * Type* constants defined in this class.
+     *
+     * According to the TNEF spec, all types regardless of their actual
+     * size, must be rounded up in size to the next multiple of four (4)
+     * bytes. Therefore 16-bit values and a strings will need to have extra
+     * padding consumed to keep the stream on track.
+     */
     protected function readPhpValue($type) {
         switch ($type) {
         case self::TypeUnspecified:
@@ -296,26 +311,52 @@ class TnefAttributeStreamReader extends TnefStreamReader {
             return null;
 
         case self::TypeInt16:
-            return $this->_geti(16);
+            // Signed 16-bit value = INT16.
+            $int16 = unpack('v', $this->_getx(4));
+            $sign = $int16 & 0x8000;
+            if ($sign)
+                // Use two's compliment
+                $int16 = - ((~$int16 & 0xFFFF) + 1);
+            return $int16;
 
         case self::TypeInt32:
+            // Signed 32-bit value = INT32.
+            // FIXME: Convert to signed value
             return $this->_geti(32);
 
         case self::TypeBoolean:
-            return (bool) $this->_geti(32);
+            // 16-bit Boolean (non-zero = TRUE)
+            list($bool) = unpack('v', $this->_getx(4));
+            return 0 != $bool;
 
         case self::TypeFlt32:
-            list($f) = unpack('f', $this->_getx(8));
+            // Signed 32-bit floating point= FLOAT.
+            list($f) = unpack('f', $this->_getx(4));
             return $f;
 
         case self::TypeFlt64:
+            // 64-bit floating point= DOUBLE.
             list($d) = unpack('d', $this->_getx(8));
             return $d;
 
-        case self::TypeAppTime:
         case self::TypeCurency:
-        case self::TypeInt64:
+            // Signed 64-bit int = OLE CURRENCY type.
+            // FIXME: Convert to PHP double
             return $this->_getx(8);
+
+        case self::TypeInt64:
+            // 8-byte signed integer= INT64.
+            $x = $this->_getx(8);
+            if (phpversion() >= '5.6.3')
+                list($x) = unpack('P', $x);
+            return $x;
+
+        case self::TypeAppTime:
+            list($d) = unpack('d', $this->_getx(8));
+            // Application time= OLE DATE type.
+            // Thanks, http://stackoverflow.com/a/10443946/1025836
+            // Convert to UNIX timestamp, UTC timezone is assumed
+            return ($d - 25569) * 86400;
 
         case self::TypeSystime:
             $a = unpack('Vl/Vh', $this->_getx(8));
@@ -326,7 +367,6 @@ class TnefAttributeStreamReader extends TnefStreamReader {
         case self::TypeString8:
         case self::TypeUnicode:
         case self::TypeBinary:
-        case self::TypeObject:
             $length = $this->_geti(32);
 
             /* Pad to next 4 byte boundary. */
@@ -341,10 +381,21 @@ class TnefAttributeStreamReader extends TnefStreamReader {
             /* Read and truncate to length. */
             $text = substr($this->_getx($datalen), 0, $length);
             if ($type == self::TypeUnicode) {
-                $text = Charset::utf8($text, 'ucs2');
+                // TNEF spec says encoding is UTF-16LE
+                $text = Charset::utf8($text, 'UTF-16LE');
             }
 
             return $text;
+
+        case self::TypeObject:
+            $length = $this->_geti(32);
+            $oid = $this->_getx(16);
+            if (bin2hex($text) == "0703020000000000c000000000000046") {
+                // TODO: Create stream parser for embedded TNEF stream
+            }
+            $this->skip($length - 16);
+            $this->skip((4 - ($length % 4)) % 4);
+            return null;
 
         case self::TypeCLSID:
             return $this->_getx(16);
@@ -352,7 +403,6 @@ class TnefAttributeStreamReader extends TnefStreamReader {
         default:
             throw new TnefException(sprintf('0x%04x: Bad data type', $type));
         }
-
     }
 
     function next() {
@@ -475,6 +525,9 @@ class TnefStreamParser {
                 break;
             case self::idMessageID:
                 $msg->_set('MessageId', $info['data']);
+                break;
+            case self::idSubject:
+                $msg->_set('Subject', $info['data']);
                 break;
 
             case self::attMsgProps:

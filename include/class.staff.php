@@ -103,7 +103,7 @@ implements AuthenticatedUser, EmailContact {
         if (!$bk && $this->backend)
             $bk = $this->backend;
 
-        return StaffAuthenticationBackend::getBackend($authkey);
+        return StaffAuthenticationBackend::getBackend($bk);
     }
 
     function setAuthKey($key) {
@@ -230,7 +230,7 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getName() {
-        return new PersonsName($this->firstname.' '.$this->lastname);
+        return new PersonsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
     }
 
     function getFirstName() {
@@ -658,8 +658,8 @@ implements AuthenticatedUser, EmailContact {
     }
 
     static function getStaffMembers($availableonly=false) {
-
-        $members = static::objects()->order_by('lastname', 'firstname');
+        global $cfg;
+        $members = static::objects();
 
         if ($availableonly) {
             $members = $members->filter(array(
@@ -667,6 +667,17 @@ implements AuthenticatedUser, EmailContact {
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
+        }
+
+        switch ($cfg->getDefaultNameFormat()) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $members->order_by('lastname', 'firstname');
+            break;
+
+        default:
+            $members->order_by('firstname', 'lastname');
         }
 
         $users=array();

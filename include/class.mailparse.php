@@ -278,9 +278,8 @@ class Mail_Parse {
             && isset($this->struct->ctype_parameters['report-type'])
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
-            return new TextThreadBody(
-                $this->getPart($this->struct, 'text/plain', 1)
-            );
+            if ($body = $this->getPart($this->struct, 'text/plain', 3, false))
+                return new TextThreadBody($body);
         }
         return false;
     }
@@ -326,10 +325,27 @@ class Mail_Parse {
         return $body;
     }
 
-    function getPart($struct, $ctypepart, $recurse=-1) {
+    /**
+     * Fetch all the parts of the message for a specific MIME type. The
+     * parts are automatically transcoded to UTF-8 and concatenated together
+     * in the event more than one body of the requested type exists.
+     *
+     * Parameters:
+     * $struct - (<Mail_mime>) decoded message
+     * $ctypepart - (string) 'text/plain' or 'text/html', message body
+     *      format to retrieve from the mail
+     * $recurse - (int:-1) levels acceptable to recurse into. Default is to
+     *      recurse as needed.
+     * $recurseIntoRfc822 - (bool:true) proceed to recurse into
+     *      message/rfc822 bodies to look for the message body format
+     *      requested. For something like a bounce notice, where another
+     *      email might be attached to the email, set this to false to avoid
+     *      finding the wrong body.
+     */
+    function getPart($struct, $ctypepart, $recurse=-1, $recurseIntoRfc822=true) {
 
-        if($struct && !@$struct->parts) {
-            $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
+        $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
+        if ($struct && !@$struct->parts) {
             if (@$struct->disposition
                     && (strcasecmp($struct->disposition, 'inline') !== 0))
                 return '';
@@ -349,10 +365,16 @@ class Mail_Parse {
             return $content;
 
         $data='';
-        if($struct && @$struct->parts && $recurse) {
-            foreach($struct->parts as $i=>$part) {
-                if($part && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
-                    $data.=$text;
+        if ($struct && @$struct->parts && $recurse
+            // Do not recurse into email (rfc822) attachments unless requested
+            && ($ctype !== 'message/rfc822' || $recurseIntoRfc822)
+        ) {
+            foreach ($struct->parts as $i=>$part) {
+                if ($part && ($text=$this->getPart($part, $ctypepart,
+                    $recurse-1, $recurseIntoRfc822))
+                ) {
+                    $data .= $text;
+                }
             }
         }
         return $data;

@@ -25,7 +25,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
     <h2><?php echo __('Custom List'); ?>
-    <?php echo $list ? $list->getName() : 'Add new list'; ?></h2>
+    <?php echo $list ? $list->getName() : __('Add new list'); ?></h2>
 
 <ul class="tabs" id="list-tabs">
     <li class="active"><a href="#definition">

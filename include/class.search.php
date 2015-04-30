@@ -848,11 +848,16 @@ class DepartmentChoiceField extends ChoiceField {
 
 class AssigneeChoiceField extends ChoiceField {
     function getChoices() {
+        global $thisstaff;
+
         $items = array(
             'M' => __('Me'),
             'T' => __('One of my teams'),
         );
         foreach (Staff::getStaffMembers() as $id=>$name) {
+            // Don't include $thisstaff (since that's 'Me')
+            if ($thisstaff && $thisstaff->getId() == $id)
+                continue;
             $items['s' . $id] = $name;
         }
         foreach (Team::getTeams() as $id=>$name) {

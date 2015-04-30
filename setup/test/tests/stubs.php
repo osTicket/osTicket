@@ -156,6 +156,10 @@ class ResourceBundle {
     function getLocales() {}
 }
 
+class NumberFormatter {
+    function getSymbol() {}
+}
+
 class Aws_Route53_Client {
     function changeResourceRecordSets() {}
 }

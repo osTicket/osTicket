@@ -134,6 +134,8 @@ class Dept extends VerySimpleModel {
     }
 
     function getMembers($criteria=null) {
+        global $cfg;
+
         if (!$this->_members || $criteria) {
             $members = Staff::objects()
                 ->filter(Q::any(array(
@@ -152,7 +154,16 @@ class Dept extends VerySimpleModel {
                     'onvacation' => 0,
                 ));
 
-            $members->order_by('lastname', 'firstname');
+            switch ($cfg->getDefaultNameFormat()) {
+            case 'last':
+            case 'lastfirst':
+            case 'legal':
+                $members->order_by('lastname', 'firstname');
+                break;
+
+            default:
+                $members->order_by('firstname', 'lastname');
+            }
 
             if ($criteria)
                 return $members->all();
