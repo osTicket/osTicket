@@ -28,6 +28,8 @@
     this.sorter = this.options.sorter || this.sorter
     this.highlighter = this.options.highlighter || this.highlighter
     this.$menu = $(this.options.menu).appendTo('body')
+    if (this.options.scroll)
+      this.$menu.addClass('scroll');
     this.source = this.options.source
     this.onselect = this.options.onselect
     this.strings = true
@@ -174,6 +176,16 @@
       return this
     }
 
+  , adjustScroll: function(next) {
+      var top = this.$menu.scrollTop(),
+        bottom = top + this.$menu.height(),
+        pos = next.position();
+      if (pos.top < 0)
+        this.$menu.scrollTop(top + pos.top - 10);
+      else if (next.height() + top + pos.top > bottom)
+        this.$menu.scrollTop(top + pos.top - this.$menu.height() + next.height() + 10);
+  }
+
   , next: function (event) {
       var active = this.$menu.find('.active').removeClass('active')
         , next = active.next()
@@ -183,6 +195,10 @@
       }
 
       next.addClass('active')
+
+      if (this.options.scroll) {
+        this.adjustScroll(next);
+      }
     }
 
   , prev: function (event) {
@@ -194,6 +210,10 @@
       }
 
       prev.addClass('active')
+
+      if (this.options.scroll) {
+        this.adjustScroll(prev);
+      }
     }
 
   , listen: function () {
@@ -315,6 +335,7 @@
   , property: 'value'
   , render: 'info'
   , minLength: 1
+  , scroll: false
   }
 
   $.fn.typeahead.Constructor = Typeahead

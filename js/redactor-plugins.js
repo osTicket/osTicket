@@ -1691,7 +1691,9 @@ RedactorPlugins.contexttypeahead = function() {
 
               return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
             },
-            onselect: this.contexttypeahead.select.bind(this)
+            onselect: this.contexttypeahead.select.bind(this),
+            scroll: true,
+            items: 100
           });
       }
 

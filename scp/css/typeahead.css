@@ -32,6 +32,12 @@
   right: 0;
   left: auto;
 }
+.dropdown-menu.scroll {
+  max-height: 180px;
+  height: auto;
+  overflow-y: auto;
+  padding: 0;
+}
 .dropdown-menu .divider {
   height: 1px;
   margin: 8px 1px;
