@@ -146,6 +146,32 @@ UPDATE `%TABLE_PREFIX%user_account` A1
         AND A3.`south` = 0)
     SET A1.`timezone` = A3.`olson_name`;
 
+-- Update system default timezone
+SET @default_timezone_id = (
+    SELECT `value` FROM `%TABLE_PREFIX%config` A1
+    WHERE A1.`key` = 'default_timezone_id'
+      AND A1.`namespace` = 'core'
+);
+SET @enable_daylight_saving = (
+    SELECT `value` FROM `%TABLE_PREFIX%config` A1
+    WHERE A1.`key` = 'enable_daylight_saving'
+      AND A1.`namespace` = 'core'
+);
+
+UPDATE `%TABLE_PREFIX%config` A1
+    JOIN `%TABLE_PREFIX%timezone` A2 ON (@default_timezone_id = A2.`id`)
+    JOIN `%TABLE_PREFIX%_timezones` A3 ON (A2.`offset` * 60 = A3.`offset`
+        AND @enable_daylight_saving = A3.`dst`
+        AND A3.`south` = 0)
+    SET A1.`value` = A3.`olson_name`
+    WHERE A1.`key` = 'default_timezone_id'
+      AND A1.`namespace` = 'core';
+
+UPDATE `%TABLE_PREFIX%config` A1
+    SET A1.`key` = 'default_timezone'
+    WHERE A1.`key` = 'default_timezone_id'
+      AND A1.`namespace` = 'core';
+
 DROP TABLE %TABLE_PREFIX%_timezones;
 
 ALTER TABLE `%TABLE_PREFIX%ticket`
