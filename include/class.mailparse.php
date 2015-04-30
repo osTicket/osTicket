@@ -371,7 +371,7 @@ class Mail_Parse {
         ) {
             foreach ($struct->parts as $i=>$part) {
                 if ($part && ($text=$this->getPart($part, $ctypepart,
-                    $recurse-1, $recursIntoRfc822))
+                    $recurse-1, $recurseIntoRfc822))
                 ) {
                     $data .= $text;
                 }
