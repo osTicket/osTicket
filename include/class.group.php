@@ -14,223 +14,301 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Group {
+class Group extends VerySimpleModel {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => GROUP_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'members' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'Staff.group',
+            ),
+            'depts' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'GroupDeptAccess.group',
+            ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id')
+            ),
+        ),
+    );
 
-    var $members;
+    const FLAG_ENABLED = 0X0001;
+
     var $departments;
 
-    function Group($id){
-
-        $this->id=0;
-        return $this->load($id);
-    }
-
-    function load($id=0) {
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT grp.*,grp.group_name as name, grp.group_enabled as isactive, count(staff.staff_id) as users '
-            .'FROM '.GROUP_TABLE.' grp '
-            .'LEFT JOIN '.STAFF_TABLE.' staff USING(group_id) '
-            .'WHERE grp.group_id='.db_input($id).' GROUP BY grp.group_id ';
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['group_id'];
-        $this->members=array();
-        $this->departments = array();
-
-        return $this->id;
-    }
-
-    function reload(){
-        return $this->load();
-    }
-
     function getHashtable() {
-        return $this->ht;
+        $base = $this->ht;
+        $base['name'] = $base['name'];
+        $base['isactive'] = $base['flags'];
+        return $base;
     }
 
-    function getInfo(){
-        return  $this->getHashtable();
+    function getInfo() {
+        return $this->getHashtable();
     }
 
-    function getId(){
+    function getId() {
         return $this->id;
     }
 
-    function getName(){
-        return $this->ht['name'];
+    function getRoleId() {
+        return $this->role_id;
     }
 
-    function getNumUsers(){
-        return $this->ht['users'];
+    function getRole($deptId=0) {
+
+        if ($deptId // Department specific role.
+                && ($roles=$this->getDepartmentsAccess())
+                && isset($roles[$deptId])
+                && $roles[$deptId]
+                && ($role=Role::lookup($roles[$deptId]))
+                && $role->isEnabled())
+            return $role;
+
+        // Default role for this group.
+        return $this->role;
     }
 
+    function getName() {
+        return $this->name;
+    }
 
-    function isEnabled(){
-        return ($this->ht['isactive']);
+    function getCreateDate() {
+        return $this->created;
+    }
+
+    function getUpdateDate() {
+        return $this->updated;
+    }
+
+    function getNumMembers() {
+        return $this->members ? $this->members->count() : 0;
+     }
+
+    function isEnabled() {
+        return ($this->get('flags') & self::FLAG_ENABLED !== 0);
     }
 
     function isActive(){
         return $this->isEnabled();
     }
- 
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('group.%s.%s', $subtag, $this->getId()));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('group.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
     //Get members of the group.
     function getMembers() {
 
-        if(!$this->members && $this->getNumUsers()) {
-            $sql='SELECT staff_id FROM '.STAFF_TABLE
-                .' WHERE group_id='.db_input($this->getId())
-                .' ORDER BY lastname, firstname';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id)=db_fetch_row($res))
-                    if(($staff=Staff::lookup($id)))
-                        $this->members[]= $staff;
-            }
+        if (!$this->members) {
+            $this->members = Staff::objects()
+                ->filter(array('group_id'=>$this->getId()))
+                ->order_by('lastname', 'firstname')
+                ->all();
         }
-
         return $this->members;
     }
 
-    //Get departments the group is allowed to access.
+    //Get departments & roles the group is allowed to access.
     function getDepartments() {
+        return array_keys($this->getDepartmentsAccess());
+    }
 
-        if(!$this->departments) {
-            $sql='SELECT dept_id FROM '.GROUP_DEPT_TABLE
-                .' WHERE group_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id)=db_fetch_row($res))
-                    $this->departments[]= $id;
+    function getDepartmentsAccess() {
+        if (!isset($this->departments)) {
+            $this->departments = array();
+            foreach (GroupDeptAccess::objects()
+                ->filter(array('group_id'=>$this->getId()))
+                ->values_flat('dept_id', 'role_id') as $gda
+            ) {
+                $this->departments[$gda[0]] = $gda[1];
             }
         }
 
         return $this->departments;
     }
 
-        
-    function updateDeptAccess($depts) {
-
-
-        if($depts && is_array($depts)) {
-            foreach($depts as $k=>$id) {
-                $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
-                    .' SET group_id='.db_input($this->getId())
-                    .', dept_id='.db_input($id);
-                db_query($sql);
+    function updateDeptAccess($dept_ids, $vars=array()) {
+        if (is_array($dept_ids)) {
+            $groups = GroupDeptAccess::objects()
+                ->filter(array('group_id' => $this->getId()));
+            foreach ($groups as $group) {
+                if ($idx = array_search($group->dept_id, $dept_ids)) {
+                    unset($dept_ids[$idx]);
+                    $roleId = $vars['dept'.$group->dept_id.'_role_id'];
+                    if ($roleId != $group->role_id) {
+                        $group->set('role_id', $roleId ?: 0);
+                        $group->save();
+                    }
+                } else {
+                    $group->delete();
+                }
+            }
+            foreach ($dept_ids as $id) {
+                $roleId = $vars['dept'.$id.'_role_id'];
+                GroupDeptAccess::create(array(
+                    'group_id' => $this->getId(),
+                    'dept_id' => $id,
+                    'role_id' => $roleId ?: 0
+                ))->save();
             }
         }
-
-        $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE group_id='.db_input($this->getId());
-        if($depts && is_array($depts)) // just inserted departments IF any.
-            $sql.=' AND dept_id NOT IN('.implode(',', db_input($depts)).')';
-
-        db_query($sql);
-
-        return true;
-    }
-
-    function update($vars,&$errors) {
-
-        if(!Group::save($this->getId(),$vars,$errors))
-            return false;
-
-        $this->updateDeptAccess($vars['depts']);
-        $this->reload();
-        
         return true;
     }
 
     function delete() {
 
-        //Can't delete with members
-        if($this->getNumUsers())
+        // Can't delete with members
+        if ($this->getNumMembers())
             return false;
 
-        $res = db_query('DELETE FROM '.GROUP_TABLE.' WHERE group_id='.db_input($this->getId()).' LIMIT 1');
-        if(!$res || !db_affected_rows($res))
+        if (!parent::delete())
             return false;
 
-        //Remove dept access entry.
-        db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE group_id='.db_input($this->getId()));
+        // Remove dept access entries
+        GroupDeptAccess::objects()
+            ->filter(array('group_id'=>$this->getId()))
+            ->delete();
 
         return true;
     }
 
-    /*** Static functions ***/
-    function getIdByName($name){
-        $sql='SELECT group_id FROM '.GROUP_TABLE.' WHERE group_name='.db_input(trim($name));
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
-
-        return $id;
+    function __toString() {
+        return $this->getName();
     }
 
-    function lookup($id){
-        return ($id && is_numeric($id) && ($g= new Group($id)) && $g->getId()==$id)?$g:null;
-    }
-
-    function create($vars, &$errors) { 
-        if(($id=self::save(0,$vars,$errors)) && ($group=self::lookup($id)))
-            $group->updateDeptAccess($vars['depts']);
-
-        return $id;
-    }
-
-    function save($id,$vars,&$errors) {
-        if($id && $vars['id']!=$id)
-            $errors['err']=__('Missing or invalid group ID');
-            
-        if(!$vars['name']) {
-            $errors['name']=__('Group name required');
-        }elseif(strlen($vars['name'])<3) {
-            $errors['name']=__('Group name must be at least 3 chars.');
-        }elseif(($gid=Group::getIdByName($vars['name'])) && $gid!=$id){
-            $errors['name']=__('Group name already exists');
+    function save($refetch=false) {
+        if ($this->dirty) {
+            $this->updated = SqlFunction::NOW();
         }
-        
-        if($errors) return false;
-            
-        $sql=' SET updated=NOW() '
-            .', group_name='.db_input(Format::striptags($vars['name']))
-            .', group_enabled='.db_input($vars['isactive'])
-            .', can_create_tickets='.db_input($vars['can_create_tickets'])
-            .', can_delete_tickets='.db_input($vars['can_delete_tickets'])
-            .', can_edit_tickets='.db_input($vars['can_edit_tickets'])
-            .', can_assign_tickets='.db_input($vars['can_assign_tickets'])
-            .', can_transfer_tickets='.db_input($vars['can_transfer_tickets'])
-            .', can_close_tickets='.db_input($vars['can_close_tickets'])
-            .', can_ban_emails='.db_input($vars['can_ban_emails'])
-            .', can_manage_premade='.db_input($vars['can_manage_premade'])
-            .', can_manage_faq='.db_input($vars['can_manage_faq'])
-            .', can_post_ticket_reply='.db_input($vars['can_post_ticket_reply'])
-            .', can_view_staff_stats='.db_input($vars['can_view_staff_stats'])
-            .', notes='.db_input(Format::sanitize($vars['notes']));
+        return parent::save($refetch || $this->dirty);
+    }
 
-        if($id) {
-            
-            $sql='UPDATE '.GROUP_TABLE.' '.$sql.' WHERE group_id='.db_input($id);
-            if(($res=db_query($sql)))
-                return true;
+    function update($vars,&$errors) {
+        if (isset($this->id) && $this->getId() != $vars['id'])
+            $errors['err'] = __('Missing or invalid group ID');
 
+        if (!$vars['name']) {
+            $errors['name'] = __('Group name required');
+        } elseif(strlen($vars['name'])<3) {
+            $errors['name'] = __('Group name must be at least 3 chars.');
+        } elseif (($gid=static::getIdByName($vars['name']))
+                && (!isset($this->id) || $gid!=$this->getId())) {
+            $errors['name'] = __('Group name already exists');
+        }
+
+        if (!$vars['role_id'])
+            $errors['role_id'] = __('Role selection required');
+
+        if ($errors)
+            return false;
+
+        $this->name = Format::striptags($vars['name']);
+        $this->role_id = $vars['role_id'];
+        $this->notes = Format::sanitize($vars['notes']);
+
+        if ($vars['isactive'])
+            $this->flags = ($this->flags | self::FLAG_ENABLED);
+        else
+            $this->flags =  ($this->flags & ~self::FLAG_ENABLED);
+
+        if ($this->save())
+            return $this->updateDeptAccess($vars['depts'] ?: array(), $vars);
+
+        if (isset($this->id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this group'))
                .' '.__('Internal error occurred');
-
-        }else{
-            $sql='INSERT INTO '.GROUP_TABLE.' '.$sql.',created=NOW()';
-            if(($res=db_query($sql)) && ($id=db_insert_id()))
-                return $id;
-
+        }
+        else {
             $errors['err']=sprintf(__('Unable to create %s.'), __('this group'))
                .' '.__('Internal error occurred');
         }
-
         return false;
     }
+
+    /*** Static functions ***/
+    static function getIdByName($name){
+        $id = static::objects()->filter(array('name'=>trim($name)))
+            ->values_flat('id')->first();
+
+        return $id ? $id[0] : 0;
+    }
+
+    static function create($vars=false) {
+
+        if (!isset($vars['flags']))
+            $vars['flags'] = 0;
+
+        $group = parent::create($vars);
+        $group->created = SqlFunction::NOW();
+        return $group;
+    }
+
+    static function __create($vars, &$errors) {
+        $g = self::create($vars);
+        $g->save();
+        if ($vars['depts'])
+            $g->updateDeptAccess($vars['depts'], $vars);
+
+        return $g;
+    }
+
+    static function getGroups($criteria=array()) {
+        static $groups = null;
+        if (!isset($groups) || $criteria) {
+            $groups = array();
+            $query = static::objects()
+                ->values_flat('id', 'name', 'flags')
+                ->order_by('name');
+
+            $filters = array();
+            if (isset($criteria['active']))
+                $filters += array(
+                        'isactive' => $criteria['active'] ? 1 : 0);
+
+            if ($filters)
+                $query->filter($filters);
+
+            $names = array();
+            foreach ($query as $row) {
+                list($id, $name, $flags) = $row;
+                $names[$id] = sprintf('%s%s',
+                    self::getLocalById($id, 'name', $name),
+                    $flags ? '' : ' ' . __('(disabled)'));
+            }
+
+            //TODO: sort if $criteria['localize'];
+            if ($criteria)
+                return $names;
+
+            $groups = $names;
+        }
+
+        return $groups;
+    }
+
+    static function getActiveGroups() {
+        static $groups = null;
+
+        if (!isset($groups))
+            $groups = self::getGroups(array('active'=>true));
+
+        return $groups;
+    }
+
 }
 ?>

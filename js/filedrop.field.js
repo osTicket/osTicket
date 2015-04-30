@@ -171,7 +171,6 @@
             .hide())
           .append($('<input type="hidden"/>').attr('name', this.options.name)
             .val(file.id))
-          .append($('<div class="clear"></div>'));
       if (this.options.deletable) {
         filenode.prepend($('<span><i class="icon-trash"></i></span>')
           .addClass('trash pull-right')

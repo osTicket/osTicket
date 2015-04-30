@@ -32,9 +32,187 @@ include_once(INCLUDE_DIR.'class.canned.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
+require_once(INCLUDE_DIR.'class.task.php');
+require_once(INCLUDE_DIR.'class.faq.php');
+
+class TicketModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_TABLE,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'User.id')
+            ),
+            'status' => array(
+                'constraint' => array('status_id' => 'TicketStatus.id')
+            ),
+            'lock' => array(
+                'constraint' => array('lock_id' => 'Lock.lock_id'),
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+            ),
+            'sla' => array(
+                'constraint' => array('sla_id' => 'SlaModel.id'),
+                'null' => true,
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+                'null' => true,
+            ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+                'null' => true,
+            ),
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+                'null' => true,
+            ),
+            'thread' => array(
+                'reverse' => 'Thread.ticket',
+                'list' => false,
+                'null' => true,
+            ),
+            'cdata' => array(
+                'reverse' => 'TicketCData.ticket',
+                'list' => false,
+            ),
+        )
+    );
+
+    const PERM_CREATE   = 'ticket.create';
+    const PERM_EDIT     = 'ticket.edit';
+    const PERM_ASSIGN   = 'ticket.assign';
+    const PERM_TRANSFER = 'ticket.transfer';
+    const PERM_REPLY    = 'ticket.reply';
+    const PERM_CLOSE    = 'ticket.close';
+    const PERM_DELETE   = 'ticket.delete';
 
 
-class Ticket {
+    static protected $perms = array(
+            self::PERM_CREATE => array(
+                'title' =>
+                /* @trans */ 'Create',
+                'desc'  =>
+                /* @trans */ 'Ability to open tickets on behalf of users'),
+            self::PERM_EDIT => array(
+                'title' =>
+                /* @trans */ 'Edit',
+                'desc'  =>
+                /* @trans */ 'Ability to edit tickets'),
+            self::PERM_ASSIGN => array(
+                'title' =>
+                /* @trans */ 'Assign',
+                'desc'  =>
+                /* @trans */ 'Ability to assign tickets to agents or teams'),
+            self::PERM_TRANSFER => array(
+
+                'title' =>
+                /* @trans */ 'Transfer',
+                'desc'  =>
+                /* @trans */ 'Ability to transfer tickets between departments'),
+            self::PERM_REPLY => array(
+                'title' =>
+                /* @trans */ 'Post Reply',
+                'desc'  =>
+                /* @trans */ 'Ability to post a ticket reply'),
+            self::PERM_CLOSE => array(
+                'title' =>
+                /* @trans */ 'Close',
+                'desc'  =>
+                /* @trans */ 'Ability to close tickets'),
+            self::PERM_DELETE => array(
+                'title' =>
+                /* @trans */ 'Delete',
+                'desc'  =>
+                /* @trans */ 'Ability to delete tickets'),
+            );
+
+    function getId() {
+        return $this->ticket_id;
+    }
+
+    function getEffectiveDate() {
+         return Format::datetime(max(
+             strtotime($this->lastmessage),
+             strtotime($this->closed),
+             strtotime($this->reopened),
+             strtotime($this->created)
+         ));
+    }
+
+    function delete() {
+
+        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
+            return true;
+
+        return false;
+    }
+
+    static function registerCustomData(DynamicForm $form) {
+        if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
+            $cdata_class = <<<EOF
+class DynamicForm{$form->id} extends DynamicForm {
+    static function getInstance() {
+        static \$instance;
+        if (!isset(\$instance))
+            \$instance = static::lookup({$form->id});
+        return \$instance;
+    }
+}
+class TicketCdataForm{$form->id} {
+    static \$meta = array(
+        'view' => true,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+        )
+    );
+    static function getQuery(\$compiler) {
+        return '('.DynamicForm{$form->id}::getCrossTabQuery('T', 'ticket_id').')';
+    }
+}
+EOF;
+            eval($cdata_class);
+            static::$meta['joins']['cdata+'.$form->id] = array(
+                'reverse' => 'TicketCdataForm'.$form->id.'.ticket',
+                'null' => true,
+            );
+            // This may be necessary if the model has already been inspected
+            if (static::$meta instanceof ModelMeta)
+                static::$meta->processJoin(static::$meta['joins']['cdata+'.$form->id]);
+        }
+    }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+}
+
+RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions());
+
+class TicketCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+            ),
+            ':priority' => array(
+                'constraint' => array('priority' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+        ),
+    );
+}
+TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
+
+
+class Ticket
+implements RestrictedAccess, Threadable {
 
     var $id;
     var $number;
@@ -61,25 +239,30 @@ class Ticket {
 
     function load($id=0) {
 
-        if(!$id && !($id=$this->getId()))
+        if (!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT  ticket.*, lock_id, dept_name '
-            .' ,IF(sla.id IS NULL, NULL, '
-                .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
-            .' ,count(distinct attach.attach_id) as attachments'
+        $sql='SELECT  ticket.*, thread.id as thread_id, ticket.lock_id, dept.name as dept_name '
+            .' ,count(distinct attach.id) as attachments'
+            .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
+            .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
-            .' LEFT JOIN '.TICKET_LOCK_TABLE.' tlock
-                ON ( ticket.ticket_id=tlock.ticket_id AND tlock.expire>NOW()) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
-                ON ( ticket.ticket_id=attach.ticket_id) '
+            .' LEFT JOIN '.LOCK_TABLE.' tlock
+                ON ( ticket.lock_id=tlock.lock_id AND tlock.expire>NOW()) '
+            .' LEFT JOIN '.TASK_TABLE.' task
+                ON ( task.object_id = ticket.ticket_id AND task.object_type="T" ) '
+            .' LEFT JOIN '.THREAD_TABLE.' thread
+                ON ( thread.object_id = ticket.ticket_id AND thread.object_type="T" ) '
+            .' LEFT JOIN '.THREAD_ENTRY_TABLE.' entry
+                ON ( entry.thread_id = thread.id ) '
+            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
+                ON ( attach.object_id = entry.id AND attach.`type` = "H") '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 
         //echo $sql;
-        if(!($res=db_query($sql)) || !db_num_rows($res))
+        if (!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
 
@@ -165,32 +348,35 @@ class Ticket {
     }
 
     function isLocked() {
-        return ($this->getLockId());
+        return null !== $this->getLock();
     }
 
-    function checkStaffAccess($staff) {
+    function checkStaffPerm($staff, $perm=null) {
 
-        if(!is_object($staff) && !($staff=Staff::lookup($staff)))
+        // Must be a valid staff
+        if (!$staff instanceof Staff && !($staff=Staff::lookup($staff)))
             return false;
 
-        // Staff has access to the department.
-        if (!$staff->showAssignedOnly()
-                && $staff->canAccessDept($this->getDeptId()))
-            return true;
-
-        // Only consider assignment if the ticket is open
-        if (!$this->isOpen())
+        // Check access based on department or assignment
+        if (!(!$staff->showAssignedOnly()
+                    && $staff->canAccessDept($this->getDeptId()))
+                // only open tickets can be considered assigned
+                && $this->isOpen()
+                && $staff->getId() != $this->getStaffId()
+                && !$staff->isTeamMember($this->getTeamId()))
             return false;
 
-        // Check ticket access based on direct or team assignment
-        if ($staff->getId() == $this->getStaffId()
-                || ($this->getTeamId()
-                    && $staff->isTeamMember($this->getTeamId())
-        ))
+        // At this point staff has view access unless a specific permission is
+        // requested
+        if ($perm === null)
             return true;
 
-        // No access bro!
-        return false;
+        // Permission check requested -- get role.
+        if (!($role=$staff->getRole($this->getDeptId())))
+            return false;
+
+        // Check permission based on the effective role
+        return $role->hasPerm($perm);
     }
 
     function checkUserAccess($user) {
@@ -205,13 +391,13 @@ class Ticket {
         //Collaborator?
         // 1) If the user was authorized via this ticket.
         if ($user->getTicketId() == $this->getId()
-                && !strcasecmp($user->getRole(), 'collaborator'))
+                && !strcasecmp($user->getUserType(), 'collaborator'))
             return true;
 
         // 2) Query the database to check for expanded access...
         if (Collaborator::lookup(array(
-                        'userId' => $user->getId(),
-                        'ticketId' => $this->getId())))
+                        'user_id' => $user->getId(),
+                        'thread_id' => $this->getThreadId())))
             return true;
 
         return false;
@@ -251,7 +437,8 @@ class Ticket {
         return $this->getEmail();
     }
 
-    function getAuthToken() {
+    // Deprecated
+    function getOldAuthToken() {
         # XXX: Support variable email address (for CCs)
         return md5($this->getId() . strtolower($this->getEmail()) . SECRET_SALT);
     }
@@ -291,12 +478,31 @@ class Ticket {
         return $this->ht['updated'];
     }
 
+    function getEffectiveDate() {
+        return $this->ht['lastupdate'];
+    }
+
     function getDueDate() {
         return $this->ht['duedate'];
     }
 
     function getSLADueDate() {
-        return $this->ht['sla_duedate'];
+        if ($sla = $this->getSLA()) {
+            $dt = new DateTime($this->getCreateDate());
+
+            return $dt
+                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
+                ->format('Y-m-d H:i:s');
+        }
+    }
+
+    function updateEstDueDate() {
+        $estimatedDueDate = $this->getEstDueDate();
+        if ($estimatedDueDate != $this->ht['est_duedate']) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `est_duedate`='.db_input($estimatedDueDate)
+                .' WHERE `ticket_id`='.db_input($this->getId());
+            db_query($sql);
+        }
     }
 
     function getEstDueDate() {
@@ -315,6 +521,22 @@ class Ticket {
 
     function getStatusId() {
         return $this->ht['status_id'];
+    }
+
+    /**
+     * setStatusId
+     *
+     * Forceably set the ticket status ID to the received status ID. No
+     * checks are made. Use ::setStatus() to change the ticket status
+     */
+    // XXX: Use ::setStatus to change the status. This can be used as a
+    //      fallback if the logic in ::setStatus fails.
+    function setStatusId($id) {
+        $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
+               ' ,status_id='.db_input($id) .
+               ' WHERE ticket_id='.db_input($this->getId());
+
+        return (db_query($sql) && db_affected_rows());
     }
 
     function getStatus() {
@@ -340,7 +562,7 @@ class Ticket {
     function getDeptName() {
 
         if(!$this->ht['dept_name'] && ($dept = $this->getDept()))
-            $this->ht['dept_name'] = $dept->getName();
+            $this->ht['dept_name'] = $dept->getFullName();
 
        return $this->ht['dept_name'];
     }
@@ -384,23 +606,17 @@ class Ticket {
                     'slaId' =>  $this->getSLAId(),
                     'user_id' => $this->getOwnerId(),
                     'duedate'   =>  $this->getDueDate()
-                        ? Format::userdate($cfg->getDateFormat(),
-                            Misc::db2gmtime($this->getDueDate()))
+                        ? Format::date($this->getDueDate())
                         :'',
-                    'time'  =>  $this->getDueDate()?(Format::userdate('G:i', Misc::db2gmtime($this->getDueDate()))):'',
+                    'time'  =>  $this->getDueDate()?(Format::date($this->getDueDate(), true, 'HH:mm')):'',
                     );
 
         return $info;
     }
 
-    function getLockId() {
-        return $this->ht['lock_id'];
-    }
-
     function getLock() {
-
-        if(!$this->tlock && $this->getLockId())
-            $this->tlock= TicketLock::lookup($this->getLockId(), $this->getId());
+        if (!isset($this->tlock) && $this->ht['lock_id'])
+            $this->tlock = Lock::lookup($this->ht['lock_id']);
 
         return $this->tlock;
     }
@@ -421,10 +637,32 @@ class Ticket {
             return $lock;
         }
         //No lock on the ticket or it is expired
-        $this->tlock = null; //clear crap
-        $this->ht['lock_id'] = TicketLock::acquire($this->getId(), $staffId, $lockTime); //Create a new lock..
+        $this->tlock = Lock::acquire($staffId, $lockTime); //Create a new lock..
+
+        if ($this->tlock) {
+            $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = '
+                .db_input($this->tlock->getId())
+                .' WHERE `ticket_id` = '. db_input($this->getId());
+            db_query($sql);
+        }
+
         //load and return the newly created lock if any!
-        return $this->getLock();
+        return $this->tlock;
+    }
+
+    function releaseLock($staffId=false) {
+        if (!($lock = $this->getLock()))
+            return false;
+
+        if ($staffId && $lock->staff_id != $staffId)
+            return false;
+
+        if (!$lock->delete())
+            return false;
+
+        $sql = 'UPDATE '.TICKET_TABLE.' SET `lock_id` = 0 WHERE `ticket_id` = '
+            . db_input($this->getId());
+        return ($res = db_query($sql)) && db_affected_rows($res);
     }
 
     function getDept() {
@@ -528,19 +766,25 @@ class Ticket {
 
     function getLastRespondent() {
 
-        $sql ='SELECT  resp.staff_id '
-             .' FROM '.TICKET_THREAD_TABLE.' resp '
-             .' LEFT JOIN '.STAFF_TABLE. ' USING(staff_id) '
-             .' WHERE  resp.ticket_id='.db_input($this->getId()).' AND resp.staff_id>0 '
-             .'   AND  resp.thread_type="R"'
-             .' ORDER BY resp.created DESC LIMIT 1';
+        if (!isset($this->lastrespondent)) {
 
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return null;
+            $sql ='SELECT resp.staff_id '
+                 .' FROM '.THREAD_ENTRY_TABLE.' resp '
+                 .' LEFT JOIN '.THREAD_TABLE.' t ON( t.id=resp.thread_id) '
+                 .' LEFT JOIN '.STAFF_TABLE. ' s ON(s.staff_id=resp.staff_id) '
+                 .' WHERE  t.object_id='.db_input($this->getId())
+                 .'     AND t.object_type="T" AND resp.staff_id>0 AND  resp.`type`="R" '
+                 .' ORDER BY resp.created DESC LIMIT 1';
 
-        list($id)=db_fetch_row($res);
+            if(!($res=db_query($sql)) || !db_num_rows($res))
+                return null;
 
-        return Staff::lookup($id);
+            list($id)=db_fetch_row($res);
+
+            $this->lastrespondent = Staff::lookup($id);
+        }
+
+        return $this->lastrespondent;
 
     }
 
@@ -566,27 +810,37 @@ class Ticket {
     }
 
     function getLastMessage() {
+
         if (!isset($this->last_message)) {
-            if($this->getLastMsgId())
-                $this->last_message =  Message::lookup(
-                    $this->getLastMsgId(), $this->getId());
+            if ($this->getLastMsgId())
+                $this->last_message = MessageThreadEntry::lookup(
+                    $this->getLastMsgId(), $this->getThreadId());
 
             if (!$this->last_message)
-                $this->last_message = Message::lastByTicketId($this->getId());
+                $this->last_message = $this->getThread()->getLastMessage();
         }
+
         return $this->last_message;
+    }
+
+    function getNumTasks() {
+        return $this->ht['tasks'];
+    }
+
+    function getThreadId() {
+        return $this->ht['thread_id'];
     }
 
     function getThread() {
 
-        if(!$this->thread)
-            $this->thread = Thread::lookup($this);
+        if (!$this->thread && $this->getThreadId())
+            $this->thread = TicketThread::lookup($this->getThreadId());
 
         return $this->thread;
     }
 
     function getThreadCount() {
-        return $this->getNumMessages() + $this->getNumResponses();
+        return $this->getClientThread()->count();
     }
 
     function getNumMessages() {
@@ -602,15 +856,15 @@ class Ticket {
     }
 
     function getMessages() {
-        return $this->getThreadEntries('M');
+        return $this->getThreadEntries(array('M'));
     }
 
     function getResponses() {
-        return $this->getThreadEntries('R');
+        return $this->getThreadEntries(array('R'));
     }
 
     function getNotes() {
-        return $this->getThreadEntries('N');
+        return $this->getThreadEntries(array('N'));
     }
 
     function getClientThread() {
@@ -621,8 +875,11 @@ class Ticket {
         return $this->getThread()->getEntry($id);
     }
 
-    function getThreadEntries($type, $order='') {
-        return $this->getThread()->getEntries($type, $order);
+    function getThreadEntries($type=false) {
+        $thread = $this->getThread()->getEntries();
+        if ($type && is_array($type))
+            $thread->filter(array('type__in' => $type));
+        return $thread;
     }
 
     //Collaborators
@@ -646,10 +903,10 @@ class Ticket {
     function getCollaborators($criteria=array()) {
 
         if ($criteria)
-            return Collaborator::forTicket($this->getId(), $criteria);
+            return Collaborator::forThread($this->getThreadId(), $criteria);
 
         if (!isset($this->collaborators))
-            $this->collaborators = Collaborator::forTicket($this->getId());
+            $this->collaborators = Collaborator::forThread($this->getThreadId());
 
         return $this->collaborators;
     }
@@ -670,6 +927,35 @@ class Ticket {
         return $this->recipients;
     }
 
+    function hasClientEditableFields() {
+        $forms = DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            foreach ($form->getFields() as $field) {
+                if ($field->isEditableToUsers())
+                    return true;
+            }
+        }
+    }
+
+    function getMissingRequiredFields() {
+        $returnArray = array();
+        $forms=DynamicFormEntry::forTicket($this->getId());
+        foreach ($forms as $form) {
+            foreach ($form->getFields() as $field) {
+                if ($field->isRequiredForClose()) {
+                    if (!($field->answer->get('value'))) {
+                        array_push($returnArray, $field->get('label'));
+                    }
+                }
+            }
+        }
+        return $returnArray;
+    }
+
+    function getMissingRequiredField() {
+        $fields = $this->getMissingRequiredFields();
+        return $fields[0];
+    }
 
     function addCollaborator($user, $vars, &$errors) {
 
@@ -677,7 +963,7 @@ class Ticket {
             return null;
 
         $vars = array_merge(array(
-                'ticketId' => $this->getId(),
+                'threadId' => $this->getThreadId(),
                 'userId' => $user->getId()), $vars);
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
@@ -700,7 +986,7 @@ class Ticket {
             foreach ($ids as $k => $cid) {
                 if (($c=Collaborator::lookup($cid))
                         && $c->getTicketId() == $this->getId()
-                        && $c->remove())
+                        && $c->delete())
                      $collabs[] = $c;
             }
 
@@ -711,26 +997,75 @@ class Ticket {
         //statuses
         $cids = null;
         if($vars['cid'] && ($cids=array_filter($vars['cid']))) {
-            $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-                .' SET updated=NOW(), isactive=1 '
-                .' WHERE ticket_id='.db_input($this->getId())
-                .' AND id IN('.implode(',', db_input($cids)).')';
-            db_query($sql);
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                'id__in' => $cids
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 1,
+            ));
         }
 
-        $sql='UPDATE '.TICKET_COLLABORATOR_TABLE
-            .' SET updated=NOW(), isactive=0 '
-            .' WHERE ticket_id='.db_input($this->getId());
-        if($cids)
-            $sql.=' AND id NOT IN('.implode(',', db_input($cids)).')';
-
-        db_query($sql);
+        if ($cids) {
+            $this->getThread()->collaborators->filter(array(
+                'thread_id' => $this->getThreadId(),
+                Q::not(array('id__in' => $cids))
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 0,
+            ));
+        }
 
         unset($this->ht['active_collaborators']);
         $this->collaborators = null;
 
         return true;
     }
+
+    function getAuthToken($user, $algo=1) {
+
+        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
+        $authtoken = sprintf('%s%dx%s',
+                ($user->getId() == $this->getOwnerId() ? 'o' : 'c'),
+                $algo,
+                Base32::encode(pack('VV',$user->getId(), $this->getId())));
+
+        switch($algo) {
+            case 1:
+                $authtoken .= substr(base64_encode(
+                            md5($user->getId().$this->getCreateDate().$this->getId().SECRET_SALT, true)), 8);
+                break;
+            default:
+                return null;
+        }
+
+        return $authtoken;
+    }
+
+    function sendAccessLink($user) {
+        global $ost;
+
+        if (!($email = $ost->getConfig()->getDefaultEmail())
+            || !($content = Page::lookupByType('access-link')))
+            return;
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $this,
+            'user' => $user,
+            'recipient' => $user,
+        );
+
+        $lang = $user->getLanguage(UserAccount::LANG_MAILOUTS);
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
+        ), $vars);
+
+        $email->send($user, Format::striptags($msg['subj']),
+            $msg['body']);
+    }
+
 
     /* -------------------- Setters --------------------- */
     function setLastMsgId($msgid) {
@@ -774,10 +1109,15 @@ class Ticket {
 
     function setSLAId($slaId) {
         if ($slaId == $this->getSLAId()) return true;
-        return db_query(
+        $rv = db_query(
              'UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($slaId)
             .' WHERE ticket_id='.db_input($this->getId()))
             && db_affected_rows();
+        if ($rv) {
+            $this->ht['sla_id'] = $slaId;
+            $this->sla = null;
+        }
+        return $rv;
     }
     /**
      * Selects the appropriate service-level-agreement plan for this ticket.
@@ -822,8 +1162,12 @@ class Ticket {
     }
 
     //Status helper.
-    function setStatus($status, $comments='', $set_closing_agent=true) {
+
+    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
+
+        if ($thisstaff && !($role=$thisstaff->getRole($this->getDeptId())))
+            return false;
 
         if ($status && is_numeric($status))
             $status = TicketStatus::lookup($status);
@@ -831,9 +1175,22 @@ class Ticket {
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
-        // XXX: intercept deleted status and do hard delete
-        if (!strcasecmp($status->getState(), 'deleted'))
-            return $this->delete($comments);
+        // Double check permissions (when changing status)
+        if ($role && $this->getStatusId()) {
+            switch ($status->getState()) {
+            case 'closed':
+                if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+                    return false;
+                break;
+            case 'deleted':
+                // XXX: intercept deleted status and do hard delete
+                if ($role->hasPerm(TicketModel::PERM_DELETE))
+                    return $this->delete($comments);
+                // Agent doesn't have permission to delete  tickets
+                return false;
+                break;
+            }
+        }
 
         if ($this->getStatusId() == $status->getId())
             return true;
@@ -841,10 +1198,17 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET updated=NOW() '.
                ' ,status_id='.db_input($status->getId());
 
+        //TODO: move this up.
         $ecb = null;
         switch($status->getState()) {
             case 'closed':
-                $sql.=', closed=NOW(), duedate=NULL ';
+                if ($this->getMissingRequiredFields()) {
+                    $errors['err'] = sprintf(__(
+                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
+                    '', '');
+                    return false;
+                }
+                $sql.=', closed=NOW(), lastupdate=NOW(), duedate=NULL ';
                 if ($thisstaff && $set_closing_agent)
                     $sql.=', staff_id='.db_input($thisstaff->getId());
                 $this->clearOverdue();
@@ -858,7 +1222,7 @@ class Ticket {
             case 'open':
                 // TODO: check current status if it allows for reopening
                 if ($this->isClosed()) {
-                    $sql .= ',closed=NULL, reopened=NOW() ';
+                    $sql .= ',closed=NULL, lastupdate=NOW(), reopened=NOW() ';
                     $ecb = function ($t) {
                         $t->logEvent('reopened', 'closed');
                     };
@@ -973,10 +1337,19 @@ class Ticket {
                 return false;  //bail out...missing stuff.
         }
 
-        $options = array(
-            'inreplyto'=>$message->getEmailMessageId(),
-            'references'=>$message->getEmailReferences(),
-            'thread'=>$message);
+        $options = array();
+        if ($message instanceof ThreadEntry) {
+            $options += array(
+                'inreplyto'=>$message->getEmailMessageId(),
+                'references'=>$message->getEmailReferences(),
+                'thread'=>$message
+            );
+        }
+        else {
+            $options += array(
+                'thread' => $this->getThread(),
+            );
+        }
 
         //Send auto response - if enabled.
         if($autorespond
@@ -1004,7 +1377,7 @@ class Ticket {
 
             $recipients=$sentlist=array();
             //Exclude the auto responding email just incase it's from staff member.
-            if ($message->isAutoReply())
+            if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
             //Alert admin??
@@ -1156,7 +1529,7 @@ class Ticket {
     function onMessage($message, $autorespond=true) {
         global $cfg;
 
-        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
+        db_query('UPDATE '.TICKET_TABLE.' SET isanswered=0,lastupdate=NOW(),lastmessage=NOW() WHERE ticket_id='.db_input($this->getId()));
 
         // Auto-assign to closing staff or last respondent
         // If the ticket is closed and auto-claim is not enabled then put the
@@ -1183,8 +1556,17 @@ class Ticket {
         if ($autorespond && $this->isClosed() && $this->isReopenable())
             $this->reopen();
 
-       /**********   double check auto-response  ************/
-        if (!($user = $message->getUser()))
+        // Figure out the user
+        if ($this->getOwnerId() == $message->getUserId())
+            $user = new TicketOwner(
+                    User::lookup($message->getUserId()), $this);
+        else
+            $user = Collaborator::lookup(array(
+                    'user_id' => $message->getUserId(),
+                    'thread_id' => $this->getThreadId()));
+
+        /**********   double check auto-response  ************/
+        if (!$user)
             $autorespond=false;
         elseif ($autorespond && (Email::getIdByEmail($user->getEmail())))
             $autorespond=false;
@@ -1288,7 +1670,7 @@ class Ticket {
                     // No duplicates.
                     || isset($sentlist[$staff->getEmail()])
                     // Make sure staff has access to ticket
-                    || ($isClosed && !$this->checkStaffAccess($staff))
+                    || ($isClosed && !$this->checkStaffPerm($staff))
                     )
                 continue;
             $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -1432,7 +1814,7 @@ class Ticket {
                 return $this->getPhoneNumber();
                 break;
             case 'auth_token':
-                return $this->getAuthToken();
+                return $this->getOldAuthToken();
                 break;
             case 'client_link':
                 return sprintf('%s/view.php?t=%s',
@@ -1442,31 +1824,19 @@ class Ticket {
                 return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
                 break;
             case 'create_date':
-                return Format::date(
-                        $cfg->getDateTimeFormat(),
-                        Misc::db2gmtime($this->getCreateDate()),
-                        $cfg->getTZOffset(),
-                        $cfg->observeDaylightSaving());
+                return Format::datetime($this->getCreateDate(), true, 'UTC');
                 break;
              case 'due_date':
                 $duedate ='';
                 if($this->getEstDueDate())
-                    $duedate = Format::date(
-                            $cfg->getDateTimeFormat(),
-                            Misc::db2gmtime($this->getEstDueDate()),
-                            $cfg->getTZOffset(),
-                            $cfg->observeDaylightSaving());
+                    $duedate = Format::datetime($this->getEstDueDate(), true, 'UTC');
 
                 return $duedate;
                 break;
             case 'close_date':
                 $closedate ='';
                 if($this->isClosed())
-                    $closedate = Format::date(
-                            $cfg->getDateTimeFormat(),
-                            Misc::db2gmtime($this->getCloseDate()),
-                            $cfg->getTZOffset(),
-                            $cfg->observeDaylightSaving());
+                    $closedate = Format::datetime($this->getCloseDate(), true, 'UTC');
 
                 return $closedate;
                 break;
@@ -1547,7 +1917,7 @@ class Ticket {
 
         global $cfg, $thisstaff;
 
-        if(!$thisstaff || !$thisstaff->canTransferTickets())
+        if (!$this->checkStaffPerm($thisstaff, TicketModel::PERM_TRANSFER))
             return false;
 
         $currentDept = $this->getDeptName(); //Current department
@@ -1724,7 +2094,8 @@ class Ticket {
 
         if (!$user
                 || ($user->getId() == $this->getOwnerId())
-                || !$thisstaff->canEditTickets())
+                || !($this->checkStaffPerm($thisstaff,
+                        TicketModel::PERM_EDIT)))
             return false;
 
         $sql ='UPDATE '.TICKET_TABLE.' SET updated = NOW() '
@@ -1744,9 +2115,10 @@ class Ticket {
                 $thisstaff->getName(), $user->getName());
 
         //Remove the new owner from list of collaborators
-        $c = Collaborator::lookup(array('userId' => $user->getId(),
-                    'ticketId' => $this->getId()));
-        if ($c && $c->remove())
+        $c = Collaborator::lookup(array(
+                    'user_id' => $user->getId(),
+                    'thread_id' => $this->getThreadId()));
+        if ($c && $c->delete())
             $note.= ' '._S('(removed as collaborator)');
 
         $this->logNote('Ticket ownership changed', $note);
@@ -1758,7 +2130,8 @@ class Ticket {
     function postMessage($vars, $origin='', $alerts=true) {
         global $cfg;
 
-        $vars['origin'] = $origin;
+        if ($origin)
+            $vars['origin'] = $origin;
         if(isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif(!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
@@ -1875,7 +2248,7 @@ class Ticket {
         return $message;
     }
 
-    function postCannedReply($canned, $msgId, $alert=true) {
+    function postCannedReply($canned, $message, $alert=true) {
         global $ost, $cfg;
 
         if((!is_object($canned) && !($canned=Canned::lookup($canned))) || !$canned->isEnabled())
@@ -1886,13 +2259,13 @@ class Ticket {
             $files[] = $file['id'];
 
         if ($cfg->isHtmlThreadEnabled())
-            $response = new HtmlThreadBody(
+            $response = new HtmlThreadEntryBody(
                     $this->replaceVars($canned->getHtml()));
         else
-            $response = new TextThreadBody(
+            $response = new TextThreadEntryBody(
                     $this->replaceVars($canned->getPlainText()));
 
-        $info = array('msgId' => $msgId,
+        $info = array('msgId' => $message instanceof ThreadEntry ? $message->getId() : 0,
                       'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
                       'cannedattachments' => $files);
@@ -1963,6 +2336,7 @@ class Ticket {
                 && $cfg->autoClaimTickets())
             $this->setStaffId($thisstaff->getId()); //direct assignment;
 
+        $this->lastrespondent = null;
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
@@ -2046,7 +2420,7 @@ class Ticket {
         $errors = array();
         //Unless specified otherwise, assume HTML
         if ($note && is_string($note))
-            $note = new HtmlThreadBody($note);
+            $note = new HtmlThreadEntryBody($note);
 
         return $this->postNote(
                 array(
@@ -2059,17 +2433,20 @@ class Ticket {
         );
     }
 
-    function postNote($vars, &$errors, $poster, $alert=true) {
+    function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
         $vars['staffId'] = 0;
-        $vars['poster'] = 'SYSTEM';
         if($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
-        }elseif($poster) { //string
+        }
+        elseif ($poster) { //string
             $vars['poster'] = $poster;
+        }
+        elseif (!isset($vars['poster'])) {
+            $vars['poster'] = 'SYSTEM';
         }
         if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
@@ -2103,6 +2480,19 @@ class Ticket {
         return $note;
     }
 
+    // Threadable interface
+    function postThreadEntry($type, $vars) {
+        $errors = array();
+        switch ($type) {
+        case 'M':
+            return $this->postMessage($vars, $vars['origin']);
+        case 'N':
+            return $this->postNote($vars, $errors);
+        case 'R':
+            return $this->postReply($vars, $errors);
+        }
+    }
+
     //Print ticket... export the ticket thread as PDF.
     function pdfExport($psize='Letter', $notes=false) {
         global $thisstaff;
@@ -2117,7 +2507,7 @@ class Ticket {
 
         $pdf = new Ticket2PDF($this, $psize, $notes);
         $name='Ticket-'.$this->getNumber().'.pdf';
-        $pdf->Output($name, 'I');
+        Http::download($name, 'application/pdf', $pdf->Output($name, 'S'));
         //Remember what the user selected - for autoselect on the next print.
         $_SESSION['PAPER_SIZE'] = $psize;
         exit;
@@ -2169,7 +2559,9 @@ class Ticket {
 
         global $cfg, $thisstaff;
 
-        if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
+        if (!$cfg
+                || !($this->checkStaffPerm($thisstaff,
+                        TicketModel::PERM_EDIT)))
             return false;
 
         $fields=array();
@@ -2201,11 +2593,15 @@ class Ticket {
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
             $form->setSource($_POST);
-            if (!$form->isValid())
+            if (!$form->isValid(function($f) {
+                return $f->isVisibleToStaff() && $f->isEditableToStaff();
+            })) {
                 $errors = array_merge($errors, $form->errors());
+            }
         }
 
-        if($errors) return false;
+        if ($errors)
+            return false;
 
         $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW() '
             .' ,topic_id='.db_input($vars['topicId'])
@@ -2253,10 +2649,14 @@ class Ticket {
                 && (!$this->getSLA() || $this->getSLA()->isTransient()))
             $this->selectSLAId();
 
+        // Update estimated due date in database
+        $estimatedDueDate = $this->getEstDueDate();
+        $this->updateEstDueDate();
+
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
-                && (!$this->getEstDueDate() //Duedate + SLA cleared
-                    || Misc::db2gmtime($this->getEstDueDate()) > Misc::gmtime() //New due date in the future.
+                && (!$estimatedDueDate //Duedate + SLA cleared
+                    || Misc::db2gmtime($estimatedDueDate) > Misc::gmtime() //New due date in the future.
                     )) {
             $this->clearOverdue();
         }
@@ -2341,7 +2741,7 @@ class Ticket {
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
-            $where2 =' AND ticket.staff_id=0 ';
+            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';
 
@@ -2359,7 +2759,7 @@ class Ticket {
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
                 .'WHERE ticket.isanswered = 1 '
-                . $where
+                . $where . ($cfg->showAnsweredTickets() ? $where2 : '')
 
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
@@ -2463,8 +2863,8 @@ class Ticket {
 
         try {
             // Make sure the email address is not banned
-            if (TicketFilter::isBanned($vars['email'])) {
-                throw new RejectedException(Banlist::getFilter(), $vars);
+            if (($filter=Banlist::isBanned($vars['email']))) {
+                throw new RejectedException($filter, $vars);
             }
 
             // Init ticket filters...
@@ -2485,7 +2885,7 @@ class Ticket {
      */
     static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
-        global $ost, $cfg, $thisclient, $_FILES;
+        global $ost, $cfg, $thisclient, $thisstaff;
 
         // Don't enforce form validation for email
         $field_filter = function($type) use ($origin) {
@@ -2499,10 +2899,9 @@ class Ticket {
                 case 'staff':
                     // Required 'Contact Information' fields aren't required
                     // when staff open tickets
-                    return $type != 'user'
-                        || in_array($f->get('name'), array('name','email'));
+                    return $f->isVisibleToStaff();
                 case 'web':
-                    return !$f->get('private');
+                    return $f->isVisibleToUsers();
                 default:
                     return true;
                 }
@@ -2533,15 +2932,11 @@ class Ticket {
             }
         }
 
-        if (!$form->isValid($field_filter('ticket')))
-            $errors += $form->errors();
-
         if ($vars['uid'])
             $user = User::lookup($vars['uid']);
 
         $id=0;
         $fields=array();
-        $fields['message']  = array('type'=>'*',     'required'=>1, 'error'=>__('Message content is required'));
         switch (strtolower($origin)) {
             case 'web':
                 $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a help topic'));
@@ -2574,22 +2969,45 @@ class Ticket {
                 $errors['duedate']=__('Due date must be in the future');
         }
 
+        $topic_forms = array();
         if (!$errors) {
 
-            # Perform ticket filter actions on the new ticket arguments
-            $__form = null;
+            // Handle the forms associate with the help topics. Instanciate the
+            // entries, disable and track the requested disabled fields.
             if ($vars['topicId']) {
-                if (($__topic=Topic::lookup($vars['topicId']))
-                    && ($__form = $__topic->getForm())
-                ) {
-                    $__form = $__form->instanciate();
-                    $__form->setSource($vars);
+                if ($__topic=Topic::lookup($vars['topicId'])) {
+                    foreach ($__topic->getForms() as $idx=>$__F) {
+                        $disabled = array();
+                        foreach ($__F->getFields() as $field) {
+                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                                $disabled[] = $field->get('id');
+                        }
+                        // Special handling for the ticket form — disable fields
+                        // requested to be disabled as per the help topic.
+                        if ($__F->get('type') == 'T') {
+                            foreach ($form->getFields() as $field) {
+                                if (false !== array_search($field->get('id'), $disabled))
+                                    $field->disable();
+                            }
+                            $form->sort = $idx;
+                            $__F = $form;
+                        }
+                        else {
+                            $__F = $__F->instanciate($idx);
+                            $__F->setSource($vars);
+                            $topic_forms[] = $__F;
+                        }
+                        // Track fields currently disabled
+                        $__F->extra = JsonDataEncoder::encode(array(
+                            'disable' => $disabled
+                        ));
+                    }
                 }
             }
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
-                    array($form, $__form), $user);
+                    array_merge(array($form), $topic_forms), $user);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
@@ -2635,18 +3053,24 @@ class Ticket {
                 }
 
                 $user_form = UserForm::getUserForm()->getForm($vars);
+                $can_create = !$thisstaff || $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
                 if (!$user_form->isValid($field_filter('user'))
-                        || !($user=User::fromVars($user_form->getClean())))
-                    $errors['user'] = __('Incomplete client information');
+                    || !($user=User::fromVars($user_form->getClean(), $can_create))
+                ) {
+                    $errors['user'] = $can_create
+                        ? __('Incomplete client information')
+                        : __('You do not have permission to create users.');
+                }
             }
         }
 
+        if (!$form->isValid($field_filter('ticket')))
+            $errors += $form->errors();
+
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
-                if ($topic_form = $topic->getForm()) {
-                    $TF = $topic_form->getForm($vars);
-                    $topic_form = $topic_form->instanciate();
-                    $topic_form->setSource($vars);
+                foreach ($topic_forms as $topic_form) {
+                    $TF = $topic_form->getForm()->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }
@@ -2753,6 +3177,7 @@ class Ticket {
         //We are ready son...hold on to the rails.
         $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
         $sql='INSERT INTO '.TICKET_TABLE.' SET created=NOW() '
+            .' ,lastupdate= NOW() '
             .' ,lastmessage= NOW()'
             .' ,user_id='.db_input($user->getId())
             .' ,`number`='.db_input($number)
@@ -2769,17 +3194,27 @@ class Ticket {
              $sql.=' ,duedate='.db_input(date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time'])));
 
 
-        if(!db_query($sql) || !($id=db_insert_id()) || !($ticket =Ticket::lookup($id)))
+        if(!db_query($sql)
+                || !($id=db_insert_id())
+                || !($thread=TicketThread::create($id))
+                || !($ticket =Ticket::lookup($id)))
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
 
         // Save the (common) dynamic form
+        // Ensure we have a subject
+        $subject = $form->getAnswer('subject');
+        if ($subject && !$subject->getValue()) {
+            if ($topic) {
+                $form->setAnswer('subject', $topic->getFullName());
+            }
+        }
         $form->setTicketId($id);
         $form->save();
 
         // Save the form data from the help-topic form, if any
-        if ($topic_form) {
+        foreach ($topic_forms as $topic_form) {
             $topic_form->setTicketId($id);
             $topic_form->save();
         }
@@ -2815,6 +3250,14 @@ class Ticket {
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
 
+        // If a message was posted, flag it as the orignal message. This
+        // needs to be done on new ticket, so as to otherwise separate the
+        // concept from the first message entry in a thread.
+        if ($message instanceof ThreadEntry) {
+            $message->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $message->save();
+        }
+
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
@@ -2833,11 +3276,18 @@ class Ticket {
                     !$vars['staffId']);
         }
 
+        // Update the estimated due date in the database
+        $ticket->updateEstDueDate();
+
         // Apply requested status — this should be done AFTER assignment,
         // because if it is requested to be closed, it should not cause the
         // ticket to be reopened for assignment.
-        if ($statusId)
-            $ticket->setStatus($statusId, false, false);
+        if ($statusId) {
+            if (!$ticket->setStatus($statusId, false, $errors, false)) {
+                // Tickets _must_ have a status. Forceably set one here
+                $ticket->setStatusId($cfg->getDefaultTicketStatusId());
+            }
+        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
@@ -2848,12 +3298,12 @@ class Ticket {
         # not have a return 'ping' message
         if (isset($vars['flags']) && $vars['flags']['bounce'])
             $autorespond = false;
-        if ($autorespond && $message->isAutoReply())
+        if ($autorespond && $message instanceof ThreadEntry && $message->isAutoReply())
             $autorespond = false;
 
         //post canned auto-response IF any (disables new ticket auto-response).
         if ($vars['cannedResponseId']
-            && $ticket->postCannedReply($vars['cannedResponseId'], $message->getId(), $autorespond)) {
+            && $ticket->postCannedReply($vars['cannedResponseId'], $message, $autorespond)) {
                 $ticket->markUnAnswered(); //Leave the ticket as unanswred.
                 $autorespond = false;
         }
@@ -2865,7 +3315,7 @@ class Ticket {
 
         //Don't send alerts to staff when the message is a bounce
         //  this is necessary to avoid possible loop (especially on new ticket)
-        if ($alertstaff && $message->isBounce())
+        if ($alertstaff && $message instanceof ThreadEntry && $message->isBounce())
             $alertstaff = false;
 
         /***** See if we need to send some alerts ****/
@@ -2882,7 +3332,7 @@ class Ticket {
         $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
-        Signal::send('model.created', $ticket);
+        Signal::send('ticket.created', $ticket);
 
         /* Phew! ... time for tea (KETEPA) */
 
@@ -2893,7 +3343,8 @@ class Ticket {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
+        if (!$thisstaff || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+            return false;
 
         if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
             $errors['source']=sprintf(__('Invalid source given - %s'),Format::htmlchars($vars['source']));
@@ -2907,8 +3358,11 @@ class Ticket {
                 $errors['name'] = __('Name is required');
         }
 
-        if (!$thisstaff->canAssignTickets())
+        if (!$thisstaff->hasPerm(TicketModel::PERM_ASSIGN))
             unset($vars['assignId']);
+
+        //TODO: Deny action based on selected department.
+
 
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
@@ -2920,9 +3374,12 @@ class Ticket {
 
         $vars['msgId']=$ticket->getLastMsgId();
 
+        // Effective role for the department
+        $role = $thisstaff->getRole($ticket->getDeptId());
+
         // post response - if any
         $response = null;
-        if($vars['response'] && $thisstaff->canPostReply()) {
+        if($vars['response'] && $role->hasPerm(TicketModel::PERM_REPLY)) {
 
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
@@ -2980,12 +3437,15 @@ class Ticket {
                         )
                     );
 
-            $references = $ticket->getLastMessage()->getEmailMessageId();
+            $references = array();
+            $message = $ticket->getLastMessage();
+            if (isset($message))
+                $references[] = $message->getEmailMessageId();
             if (isset($response))
-                $references = array($response->getEmailMessageId(), $references);
+                $references[] = $response->getEmailMessageId();
             $options = array(
                 'references' => $references,
-                'thread' => $ticket->getLastMessage()
+                'thread' => $message ?: $ticket->getThread(),
             );
             $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);

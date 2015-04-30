@@ -108,9 +108,10 @@ $tpl=$msgtemplates[$selected];
     </div>
     <input type="hidden" name="draft_id" value=""/>
     <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
-        data-toolbar-external="#toolbar"
-        class="richtext draft" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>"
-        data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
+        data-toolbar-external="#toolbar" class="richtext draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('tpl.'.$selected, $tpl_id, $info['body']);
+    echo $attrs; ?>><?php echo $draft ?: $info['body'];
+    ?></textarea>
 </div>
 
 <p style="text-align:center">

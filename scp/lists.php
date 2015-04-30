@@ -21,7 +21,6 @@ if ($criteria) {
 }
 
 $errors = array();
-$max_isort = 0;
 
 if($_POST) {
     switch(strtolower($_POST['do'])) {
@@ -30,36 +29,15 @@ if($_POST) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
                     __('custom list'));
             elseif ($list->update($_POST, $errors)) {
-                // Update items
-                $items = array();
-                foreach ($list->getAllItems() as $item) {
-                    $id = $item->getId();
-                    if ($_POST["delete-item-$id"] == 'on' && $item->isDeletable()) {
-                        $item->delete();
-                        continue;
+                // Update item sorting
+                if ($list->getSortMode() == 'SortCol') {
+                    foreach ($list->getAllItems() as $item) {
+                        $id = $item->getId();
+                        if (isset($_POST["sort-{$id}"])) {
+                            $item->sort = $_POST["sort-$id"];
+                            $item->save();
+                        }
                     }
-
-                    $ht = array(
-                            'value' => $_POST["value-$id"],
-                            'abbrev' => $_POST["abbrev-$id"],
-                            'sort' => $_POST["sort-$id"],
-                            );
-                    $value = mb_strtolower($ht['value']);
-                    if (!$value)
-                        $errors["value-$id"] = __('Value required');
-                    elseif (in_array($value, $items))
-                        $errors["value-$id"] = __('Value already in-use');
-                    elseif ($item->update($ht, $errors)) {
-                        if ($_POST["disable-$id"] == 'on')
-                            $item->disable();
-                        elseif(!$item->isEnabled() && $item->isEnableable())
-                            $item->enable();
-
-                        $item->save();
-                        $items[] = $value;
-                    }
-
-                    $max_isort = max($max_isort, $_POST["sort-$id"]);
                 }
 
                 // Update properties
@@ -117,7 +95,7 @@ if($_POST) {
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
-                $form = $list->getForm();
+                 $form = $list->getForm(true);
                  $msg = sprintf(__('Successfully added %s'),
                     __('this custom list'));
             } elseif ($errors) {
@@ -155,19 +133,21 @@ if($_POST) {
                 }
             }
             break;
-    }
 
-    if ($list && $list->allowAdd()) {
-        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
-            if (!$_POST["value-new-$i"])
-                continue;
-
-            $list->addItem(array(
-                        'value' => $_POST["value-new-$i"],
-                        'abbrev' =>$_POST["abbrev-new-$i"],
-                        'sort' => $_POST["sort-new-$i"] ?: ++$max_isort,
-                        ), $errors);
-        }
+        case 'import-items':
+            if (!$list) {
+                $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+                    __('custom list'));
+            }
+            else {
+                $status = $list->importFromPost($_FILES['import'] ?: $_POST['pasted']);
+                if (is_numeric($status))
+                    $msg = sprintf(__('Successfully imported %1$d %2$s.'), $status,
+                        _N('list item', 'list items', $status));
+                else
+                    $errors['err'] = $status;
+            }
+            break;
     }
 
     if ($form) {
@@ -175,26 +155,32 @@ if($_POST) {
             if (!$_POST["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'form_id' => $form->get('id'),
                 'sort' => $_POST["prop-sort-new-$i"] ?: ++$max_sort,
                 'label' => $_POST["prop-label-new-$i"],
                 'type' => $_POST["type-new-$i"],
                 'name' => $_POST["name-new-$i"],
+                'flags' => DynamicFormField::FLAG_ENABLED
+                    | DynamicFormField::FLAG_AGENT_VIEW
+                    | DynamicFormField::FLAG_AGENT_EDIT,
             ));
             if ($field->isValid()) {
-                $field->form = $form;
+                $form->fields->add($field);
                 $field->save();
             }
             else
                 $errors["new-$i"] = $field->errors();
         }
-        // XXX: Move to an instrumented list that can handle this better
-        if (!$errors)
-            $form->_dfields = $form->_fields = null;
     }
 }
 
 $page='dynamic-lists.inc.php';
+if($list && !strcasecmp(@$_REQUEST['a'],'items') && isset($_SERVER['HTTP_X_PJAX'])) {
+    $page='templates/list-items.tmpl.php';
+    $pjax_container = @$_SERVER['HTTP_X_PJAX_CONTAINER'];
+    require(STAFFINC_DIR.$page);
+    // Don't emit the header
+    return;
+}
 if($list || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='dynamic-list.inc.php';
     $ost->addExtraHeader('<meta name="tip-namespace" content="manage.custom_list" />',

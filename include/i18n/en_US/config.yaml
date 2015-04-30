@@ -74,8 +74,10 @@ core:
     hide_staff_name: 0
     overlimit_notice_active: 0
     email_attachments: 1
-    number_format: '######'
-    sequence_id: 0
+    ticket_number_format: '######'
+    ticket_sequence_id: 0
+    task_number_format: '#'
+    task_sequence_id: 2
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'

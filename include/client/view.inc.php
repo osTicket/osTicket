@@ -32,13 +32,17 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h1>
                 <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?> &nbsp;
-                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="Reload"><span class="Icon refresh">&nbsp;</span></a>
-<?php if ($cfg->allowClientUpdates()
+                <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><span class="Icon refresh">&nbsp;</span></a>
+<div class="pull-right">
+    <a class="action-button" href="tickets.php?a=print&id=<?php
+        echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+<?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button pull-right" href="tickets.php?a=edit&id=<?php
-                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> Edit</a>
+                     echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
 <?php } ?>
+</div>
             </h1>
         </td>
     </tr>
@@ -47,7 +51,7 @@ if ($thisclient && $thisclient->isGuest()
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <tr>
                     <th width="100"><?php echo __('Ticket Status');?>:</th>
-                    <td><?php echo $ticket->getStatus(); ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Department');?>:</th>
@@ -55,7 +59,7 @@ if ($thisclient && $thisclient->isGuest()
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
            </table>
        </td>
@@ -88,7 +92,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
     <?php foreach ($answers as $answer) {
         if (in_array($answer->getField()->get('name'), array('name', 'email', 'subject')))
             continue;
-        elseif ($answer->getField()->get('private'))
+        elseif (!$answer->getField()->isVisibleToUsers())
             continue;
         ?>
         <tr>
@@ -110,24 +114,23 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     foreach($thread as $entry) {
 
         //Making sure internal notes are not displayed due to backend MISTAKES!
-        if(!$threadType[$entry['thread_type']]) continue;
-        $poster = $entry['poster'];
-        if($entry['thread_type']=='R' && ($cfg->hideStaffName() || !$entry['staff_id']))
+        if(!$threadType[$entry->type]) continue;
+        $poster = $entry->poster;
+        if($entry->type=='R' && ($cfg->hideStaffName() || !$entry->staff_id))
             $poster = ' ';
         ?>
-        <table class="thread-entry <?php echo $threadType[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
+        <table class="thread-entry <?php echo $threadType[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
             <tr><th><div>
-<?php echo Format::db_datetime($entry['created']); ?>
+<?php echo Format::datetime($entry->created); ?>
                 &nbsp;&nbsp;<span class="textra"></span>
                 <span><?php echo $poster; ?></span>
             </div>
             </th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
             <?php
-            if($entry['attachments']
-                    && ($tentry=$ticket->getThreadEntry($entry['id']))
-                    && ($urls = $tentry->getAttachmentUrls())
-                    && ($links=$tentry->getAttachmentsLinks())) { ?>
+            if($entry->has_attachments
+                    && ($urls = $entry->getAttachmentUrls())
+                    && ($links = $entry->getAttachmentsLinks())) { ?>
                 <tr><td class="info"><?php echo $links; ?></td></tr>
 <?php       }
             if ($urls) { ?>
@@ -172,13 +175,15 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
                 <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
                 <br/>
                 <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
-                    data-draft-namespace="ticket.client"
-                    data-draft-object-id="<?php echo $ticket->getId(); ?>"
-                    class="richtext ifhtml draft"><?php echo $info['message']; ?></textarea>
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
+    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+                ?></textarea>
         <?php
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php
-            print $attachments->render(true);
+            print $attachments->render(array('client'=>true));
             print $attachments->getForm()->getMedia();
 ?>
         <?php

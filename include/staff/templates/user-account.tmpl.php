@@ -15,16 +15,17 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li><a href="#user-account" <?php echo !$access? 'class="active"' : ''; ?>
+<form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
+<ul class="tabs" id="user-account-tabs">
+    <li <?php echo !$access? 'class="active"' : ''; ?>><a href="#user-account"
         ><i class="icon-user"></i>&nbsp;<?php echo __('User Information'); ?></a></li>
-    <li><a href="#user-access" <?php echo $access? 'class="active"' : ''; ?>
+    <li <?php echo $access? 'class="active"' : ''; ?>><a href="#user-access"
         ><i class="icon-fixed-width icon-lock faded"></i>&nbsp;<?php echo __('Manage Access'); ?></a></li>
 </ul>
 
 
-<form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
  <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
+<div id="user-account-tabs_container">
  <div class="tab_content"  id="user-account" style="display:<?php echo $access? 'none' : 'block'; ?>; margin:5px;">
     <form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
         <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
@@ -61,29 +62,22 @@ if ($info['error']) {
             <tr>
                 <th colspan="2"><em><strong><?php echo __('User Preferences'); ?></strong></em></th>
             </tr>
-                <td><?php echo __('Time Zone'); ?>:</td>
-                <td>
-                    <select name="timezone_id" id="timezone_id">
-                        <?php
-                        $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                        if(($res=db_query($sql)) && db_num_rows($res)){
-                            while(list($id,$offset, $tz)=db_fetch_row($res)){
-                                $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                                echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                            }
-                        }
-                        ?>
-                    </select>
-                    &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
-                </td>
-            </tr>
             <tr>
                 <td width="180">
-                   <?php echo __('Daylight Saving'); ?>:
+                    <?php echo __('Time Zone');?>:
                 </td>
                 <td>
-                    <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-                    <?php echo __('Observe daylight saving'); ?>
+                    <select name="timezone" class="chosen-select" id="timezone-dropdown"
+                        data-placeholder="<?php echo __('System Default'); ?>">
+                        <option value=""></option>
+    <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                        <option value="<?php echo $zone; ?>" <?php
+                        if ($info['timezone'] == $zone)
+                            echo 'selected="selected"';
+                        ?>><?php echo str_replace('/',' / ',$zone); ?></option>
+    <?php } ?>
+                    </select>
+                    <div class="error"><?php echo $errors['timezone']; ?></div>
                 </td>
             </tr>
         </tbody>
@@ -110,7 +104,7 @@ if ($info['error']) {
                     data-content="<?php echo sprintf('%s: %s',
                         __('Users can always sign in with their email address'),
                         $user->getEmail()); ?>"></i>
-                    <div class="error">&nbsp;<?php echo $errors['username']; ?></div>
+                    <div class="error"><?php echo $errors['username']; ?></div>
                 </td>
             </tr>
             <tr>
@@ -157,6 +151,7 @@ if ($info['error']) {
         </tbody>
         </table>
    </div>
+   </div>
    <hr>
    <p class="full-width">
         <span class="buttons pull-left">
@@ -179,4 +174,11 @@ $(function() {
             $('tbody#password').show();
     });
 });
+!(function() {
+    $('#timezone-dropdown').chosen({
+        header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+        allow_single_deselect: true,
+        width: '350px'
+    });
+})();
 </script>

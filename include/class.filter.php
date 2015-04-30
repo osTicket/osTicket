@@ -14,6 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+require_once INCLUDE_DIR . 'class.filter_action.php';
+
 class Filter {
 
     var $id;
@@ -293,48 +295,28 @@ class Filter {
 
         return $match;
     }
+
+    function getActions() {
+        return FilterAction::objects()->filter(array(
+            'filter_id'=>$this->getId()
+        ));
+    }
     /**
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $info=null) {
-        # TODO: Disable alerting
-        # XXX: Does this imply turning it on as well? (via ->sendAlerts())
-        if ($this->disableAlerts()) $ticket['autorespond']=false;
-        #       Set owning department (?)
-        if ($this->getDeptId())     $ticket['deptId']=$this->getDeptId();
-        #       Set ticket priority (?)
-        if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
-        #       Set SLA plan (?)
-        if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
-        #       Set status
-        if ($this->getStatusId())   $ticket['statusId']=$this->getStatusId();
-        #       Auto-assign to (?)
-        #       XXX: Unset the other (of staffId or teamId) (?)
-        if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
-        elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
-        #       Override name with reply-to information from the TicketFilter
-        #       match
-        if ($this->useReplyToEmail() && $info['reply-to']) {
-            $changed = $info['reply-to'] != $ticket['email']
-                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
-            $ticket['email'] = $info['reply-to'];
-            if ($info['reply-to-name'])
-                $ticket['name'] = $info['reply-to-name'];
-            if ($changed)
-                throw new FilterDataChanged($ticket);
-
+    function apply(&$ticket, $vars) {
+        foreach ($this->getActions() as $a) {
+            $a->setFilter($this);
+            $a->apply($ticket, $vars);
         }
-
-        # Use canned response.
-        if ($this->getCannedResponse())
-            $ticket['cannedResponseId'] = $this->getCannedResponse();
-
-        # Apply help topic
-        if ($this->getHelpTopic())
-            $ticket['topicId'] = $this->getHelpTopic();
     }
-     static function getSupportedMatches() {
+
+    function getVars() {
+        return $this->vars;
+    }
+
+    static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
             if (is_callable($v[0]))
                 $v[0] = $v[0]();
@@ -519,27 +501,9 @@ class Filter {
             .',name='.db_input($vars['name'])
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
-            .',dept_id='.db_input($vars['dept_id'])
-            .',status_id='.db_input($vars['status_id'])
-            .',priority_id='.db_input($vars['priority_id'])
-            .',sla_id='.db_input($vars['sla_id'])
-            .',topic_id='.db_input($vars['topic_id'])
             .',match_all_rules='.db_input($vars['match_all_rules'])
             .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
-            .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
-            .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
-            .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
-            .',canned_response_id='.db_input($vars['canned_response_id'])
             .',notes='.db_input(Format::sanitize($vars['notes']));
-
-
-        //Auto assign ID is overloaded...
-        if($vars['assign'] && $vars['assign'][0]=='s')
-             $sql.=',team_id=0,staff_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        elseif($vars['assign'] && $vars['assign'][0]=='t')
-            $sql.=',staff_id=0,team_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        else
-            $sql.=',staff_id=0,team_id=0 '; //no auto-assignment!
 
         if($id) {
             $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
@@ -559,8 +523,48 @@ class Filter {
         # Don't care about errors stashed in $xerrors
         $xerrors = array();
         self::save_rules($id,$vars,$xerrors);
+        self::save_actions($id, $vars, $errors);
 
-        return true;
+        return count($errors) == 0;
+    }
+
+    function save_actions($id, $vars, &$errors) {
+        if (!is_array(@$vars['actions']))
+            return;
+
+        foreach ($vars['actions'] as $sort=>$v) {
+            if (is_array($v)) {
+                $info = $v['type'];
+                $sort = $v['sort'] ?: $sort;
+                $action = 'N';
+            } else {
+                $action = $v[0];
+                $info = substr($v, 1);
+            }
+
+            switch ($action) {
+            case 'N': # new filter action
+                $I = FilterAction::create(array(
+                    'type'=>$info,
+                    'filter_id'=>$id,
+                    'sort' => (int) $sort,
+                ));
+                $I->setConfiguration($errors, $vars);
+                $I->save();
+                break;
+            case 'I': # exiting filter action
+                if ($I = FilterAction::lookup($info)) {
+                    $I->setConfiguration($errors, $vars);
+                    $I->sort = (int) $sort;
+                    $I->save();
+                }
+                break;
+            case 'D': # deleted filter action
+                if ($I = FilterAction::lookup($info))
+                    $I->delete();
+                break;
+            }
+        }
     }
 }
 
@@ -780,8 +784,6 @@ class TicketFilter {
      */
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            if ($filter->rejectOnMatch())
-                throw new RejectedException($filter, $ticket);
             $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
@@ -800,51 +802,6 @@ class TicketFilter {
         $sql.=' ORDER BY execorder';
 
         return db_query($sql);
-    }
-
-    /**
-     * Quick function to determine if the received email-address is
-     * indicated by an active email filter to be banned. Returns the id of
-     * the filter that has the address blacklisted and FALSE if the email is
-     * not blacklisted.
-     *
-     * XXX: If more detailed matching is to be supported, perhaps this
-     *      should receive an array like the constructor and
-     *      Filter::matches() method.
-     *      Peter - Let's keep it as a quick scan for obviously banned emails.
-     */
-    /* static */
-    function isBanned($addr) {
-
-        $sql='SELECT filter.id, what, how, UPPER(val) '
-            .' FROM '.FILTER_TABLE.' filter'
-            .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
-            .' ON (filter.id=rule.filter_id)'
-            .' WHERE filter.reject_ticket'
-            .'   AND filter.match_all_rules=0'
-            .'   AND filter.email_id=0'
-            .'   AND filter.isactive'
-            .'   AND rule.isactive '
-            .'   AND rule.what="email"'
-            .'   AND LOCATE(rule.val,'.db_input($addr).')';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        # XXX: Use MB_xxx function for proper unicode support
-        $addr = strtoupper($addr);
-        $how=array('equal'      => array('strcmp', 0),
-                   'contains'   => array('strpos', null, false));
-
-        while ($row=db_fetch_array($res)) {
-            list($func, $pos, $neg) = $how[$row['how']];
-            if (!$func) continue;
-            $result = call_user_func($func, $addr, $row['val']);
-            if (($neg === null && $result === $pos) || $result !== $neg)
-                return $row['id'];
-        }
-
-        return false;
     }
 
     /**

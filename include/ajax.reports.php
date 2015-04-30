@@ -42,11 +42,11 @@ class OverviewReportAjaxAPI extends AjaxController {
         $groups = array(
             "dept" => array(
                 "table" => DEPT_TABLE,
-                "pk" => "dept_id",
-                "sort" => 'T1.dept_name',
-                "fields" => 'T1.dept_name',
+                "pk" => "id",
+                "sort" => 'T1.name',
+                "fields" => 'T1.name',
                 "headers" => array(__('Department')),
-                "filter" => ('T1.dept_id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
+                "filter" => ('T1.id IN ('.implode(',', db_input($thisstaff->getDepts())).')')
             ),
             "topic" => array(
                 "table" => TOPIC_TABLE,
@@ -70,7 +70,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                       (T1.staff_id='.db_input($thisstaff->getId())
                         .(($depts=$thisstaff->getManagedDepartments())?
                             (' OR T1.dept_id IN('.implode(',', db_input($depts)).')'):'')
-                        .(($thisstaff->canViewStaffStats())?
+                        .($thisstaff->hasPerm(ReportModel::PERM_AGENTS)?
                             (' OR T1.dept_id IN('.implode(',', db_input($thisstaff->getDepts())).')'):'')
                      .')'
                      )
@@ -111,9 +111,11 @@ class OverviewReportAjaxAPI extends AjaxController {
                 FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
             FROM '.$info['table'].' T1
                 LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['pk'].'=T1.'.$info['pk'].')
-                LEFT JOIN '.TICKET_THREAD_TABLE.' B2 ON (B2.ticket_id = T2.ticket_id
-                    AND B2.thread_type="R")
-                LEFT JOIN '.TICKET_THREAD_TABLE.' B1 ON (B2.pid = B1.id)
+                LEFT JOIN '.THREAD_TABLE.' B0 ON (B0.object_id=T2.ticket_id
+                    AND B0.object_type="T")
+                LEFT JOIN '.THREAD_ENTRY_TABLE.' B2 ON (B2.thread_id = B0.id
+                    AND B2.`type`="R")
+                LEFT JOIN '.THREAD_ENTRY_TABLE.' B1 ON (B2.pid = B1.id)
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=B2.staff_id)
             WHERE '.$info['filter'].' AND B1.created BETWEEN '.$start.' AND '.$stop.'
             GROUP BY T1.'.$info['pk'].'

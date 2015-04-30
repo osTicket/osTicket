@@ -55,9 +55,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while(list($id,$name)=db_fetch_row($res)) {
+                    if (($depts=Dept::getDepartments())) {
+                        foreach($depts as $id => $name) {
                             $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
                         }
@@ -82,20 +81,22 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     &nbsp;&nbsp;&nbsp;(<a class="tip" href="#ticket_variables"><?php echo __('Supported Variables'); ?></a>)
                     </div>
                 <textarea name="response" class="richtext draft draft-delete" cols="21" rows="12"
-                    data-draft-namespace="canned"
-                    data-draft-object-id="<?php if (isset($canned)) echo $canned->getId(); ?>"
-                    style="width:98%;" class="richtext draft"><?php
-                        echo $info['response']; ?></textarea>
+                    style="width:98%;" class="richtext draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('canned',
+        is_object($canned) ? $canned->getId() : false, $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                ?></textarea>
+                <br><br>
                 <div><h3><?php echo __('Canned Attachments'); ?> <?php echo __('(optional)'); ?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i></h3>
                 <div class="error"><?php echo $errors['files']; ?></div>
                 </div>
                 <?php
                 $attachments = $canned_form->getField('attachments');
-                if ($canned && ($files=$canned->attachments->getSeparates())) {
+                if ($canned && ($files=$canned->getAttachedFiles())) {
                     $ids = array();
                     foreach ($files as $f)
-                        $ids[] = $f['id'];
+                        $ids[] = $f->id;
                     $attachments->value = $ids;
                 }
                 print $attachments->render(); ?>

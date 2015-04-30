@@ -16,7 +16,7 @@
 require_once INCLUDE_DIR.'class.user.php';
 
 abstract class TicketUser
-implements EmailContact {
+implements EmailContact, ITicketUser {
 
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
@@ -44,7 +44,7 @@ implements EmailContact {
                 return sprintf('%s/view.php?%s',
                         $cfg->getBaseUrl(),
                         Http::build_query(
-                            array('auth' => $this->getAuthToken()),
+                            array('auth' => $this->getTicket()->getAuthToken($this)),
                             false
                             )
                         );
@@ -58,49 +58,6 @@ implements EmailContact {
     function getId() { return ($this->user) ? $this->user->getId() : null; }
     function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
 
-    function sendAccessLink() {
-        global $ost;
-
-        if (!($ticket = $this->getTicket())
-                || !($email = $ost->getConfig()->getDefaultEmail())
-                || !($content = Page::lookup(Page::getIdByType('access-link'))))
-            return;
-
-        $vars = array(
-            'url' => $ost->getConfig()->getBaseUrl(),
-            'ticket' => $this->getTicket(),
-            'user' => $this,
-            'recipient' => $this);
-
-        $msg = $ost->replaceTemplateVariables(array(
-            'subj' => $content->getName(),
-            'body' => $content->getBody(),
-        ), $vars);
-
-        $email->send($this->getEmail(), Format::striptags($msg['subj']),
-            $msg['body']);
-    }
-
-    protected function getAuthToken($algo=1) {
-
-        //Format: // <user type><algo id used>x<pack of uid & tid><hash of the algo>
-        $authtoken = sprintf('%s%dx%s',
-                ($this->isOwner() ? 'o' : 'c'),
-                $algo,
-                Base32::encode(pack('VV',$this->getId(), $this->getTicketId())));
-
-        switch($algo) {
-            case 1:
-                $authtoken .= substr(base64_encode(
-                            md5($this->getId().$this->getTicket()->getCreateDate().$this->getTicketId().SECRET_SALT, true)), 8);
-                break;
-            default:
-                return null;
-        }
-
-        return $authtoken;
-    }
-
     static function lookupByToken($token) {
 
         //Expecting well formatted token see getAuthToken routine for details.
@@ -113,6 +70,10 @@ implements EmailContact {
                 Base32::decode(strtolower(substr($matches['hash'], 0, 13))));
 
         $user = null;
+        if (!($ticket = Ticket::lookup($matches['tid'])))
+            // Require a ticket for now
+            return null;
+
         switch ($matches['type']) {
             case 'c': //Collaborator c
                 if (($user = Collaborator::lookup($matches['uid']))
@@ -120,17 +81,16 @@ implements EmailContact {
                     $user = null;
                 break;
             case 'o': //Ticket owner
-                if (($ticket = Ticket::lookup($matches['tid']))) {
-                    if (($user = $ticket->getOwner())
-                            && $user->getId() != $matches['uid'])
-                        $user = null;
+                if (($user = $ticket->getOwner())
+                        && $user->getId() != $matches['uid']) {
+                    $user = null;
                 }
                 break;
         }
 
         if (!$user
-                || !$user instanceof TicketUser
-                || strcasecmp($user->getAuthToken($matches['algo']), $token))
+                || !$user instanceof ITicketUser
+                || strcasecmp($ticket->getAuthToken($user, $matches['algo']), $token))
             return false;
 
         return $user;
@@ -187,7 +147,7 @@ class TicketOwner extends  TicketUser {
  *
  */
 
-class  EndUser extends AuthenticatedUser {
+class  EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;
@@ -214,10 +174,13 @@ class  EndUser extends AuthenticatedUser {
         $u = $this;
         // Traverse the $user properties of all nested user objects to get
         // to the User instance with the custom data
-        while (isset($u->user))
+        while (isset($u->user)) {
             $u = $u->user;
-        if (method_exists($u, 'getVar'))
-            return $u->getVar($tag);
+            if (method_exists($u, 'getVar')) {
+                if ($rv = $u->getVar($tag))
+                    return $rv;
+            }
+        }
     }
 
     function getId() {
@@ -237,7 +200,7 @@ class  EndUser extends AuthenticatedUser {
         return $this->user->getEmail();
     }
 
-    function getRole() {
+    function getUserType() {
         return $this->isOwner() ? 'owner' : 'collaborator';
     }
 
@@ -277,17 +240,9 @@ class  EndUser extends AuthenticatedUser {
         return $this->_account;
     }
 
-    function getLanguage() {
-        static $cached = false;
-        if (!$cached) $cached = &$_SESSION['client:lang'];
-
-        if (!$cached) {
-            if ($acct = $this->getAccount())
-                $cached = $acct->getLanguage();
-            if (!$cached)
-                $cached = Internationalization::getDefaultLanguage();
-        }
-        return $cached;
+    function getLanguage($flags=false) {
+        if ($acct = $this->getAccount())
+            return $acct->getLanguage($flags);
     }
 
     private function getStats() {
@@ -295,8 +250,10 @@ class  EndUser extends AuthenticatedUser {
         $where = ' WHERE ticket.user_id = '.db_input($this->getId())
                 .' OR collab.user_id = '.db_input($this->getId()).' ';
 
-        $join  =  'LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-                    ON (collab.ticket_id=ticket.ticket_id
+        $join  =  'LEFT JOIN '.THREAD_TABLE.' thread
+                    ON (ticket.ticket_id = thread.object_id and thread.object_type = \'T\')
+                   LEFT JOIN '.THREAD_COLLABORATOR_TABLE.' collab
+                    ON (collab.thread_id=thread.id
                             AND collab.user_id = '.db_input($this->getId()).' ) ';
 
         $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
@@ -322,6 +279,11 @@ class  EndUser extends AuthenticatedUser {
         }
 
         return $stats;
+    }
+
+    function onLogin($bk) {
+        if ($account = $this->getAccount())
+            $account->onLogin($bk);
     }
 }
 
@@ -362,6 +324,12 @@ class ClientAccount extends UserAccount {
         unset($_SESSION['_client']['reset-token']);
     }
 
+    function onLogin($bk) {
+        $this->setExtraAttr('browser_lang',
+            Internationalization::getCurrentLanguage());
+        $this->save();
+    }
+
     function update($vars, &$errors) {
         global $cfg;
 
@@ -395,16 +363,16 @@ class ClientAccount extends UserAccount {
             }
         }
 
-        if (!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
+        // Timezone selection is not required. System default is a valid
+        // fallback
 
         if ($errors) return false;
 
-        $this->set('timezone_id', $vars['timezone_id']);
+        $this->set('timezone', $vars['timezone']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
-        $_SESSION['client:lang'] = null;
+        Internationalization::setCurrentLanguage(null);
         TextDomain::configureForUser($this);
 
         if ($vars['backend']) {
@@ -427,5 +395,17 @@ class ClientAccount extends UserAccount {
 
 // Used by the email system
 interface EmailContact {
+    // function getId()
+    // function getName()
+    // function getEmail()
+}
+
+interface ITicketUser {
+    function isOwner();
+    function flagGuest();
+    function isGuest();
+    function getUserId();
+    function getTicketId();
+    function getTicket();
 }
 ?>

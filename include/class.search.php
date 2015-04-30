@@ -30,8 +30,18 @@ abstract class SearchBackend {
     const SORT_RECENT = 2;
     const SORT_OLDEST = 3;
 
+    const PERM_EVERYTHING = 'search.all';
+
+    static protected $perms = array(
+        self::PERM_EVERYTHING => array(
+            'title' => /* @trans */ 'Search',
+            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access',
+            'primary' => true,
+        ),
+    );
+
     abstract function update($model, $id, $content, $new=false, $attrs=array());
-    abstract function find($query, $criteria, $model=false, $sort=array());
+    abstract function find($query, QuerySet $criteria);
 
     static function register($backend=false) {
         $backend = $backend ?: get_called_class();
@@ -48,7 +58,12 @@ abstract class SearchBackend {
 
         return new self::$registry[$id]();
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', SearchBackend::getPermissions());
 
 // Register signals to intercept saving of various content throughout the
 // system
@@ -61,9 +76,9 @@ class SearchInterface {
         $this->bootstrap();
     }
 
-    function find($query, $criteria, $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria) {
         $query = Format::searchable($query);
-        return $this->backend->find($query, $criteria, $model, $sort);
+        return $this->backend->find($query, $criteria);
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
@@ -92,7 +107,8 @@ class SearchInterface {
                 $model->getBody()->getSearchable(), $new,
                 array(
                     'title' =>      $model->getTitle(),
-                    'ticket_id' =>  $model->getTicketId(),
+                    //TODO: send attribute of object_id
+                    'ticket_id' =>  $model->getThread()->getObjectId(),
                     'created' =>    $model->getCreateDate(),
                 )
             );
@@ -196,7 +212,12 @@ class SearchInterface {
         // Tickets, which can be edited as well
         // Knowledgebase articles (FAQ and canned responses)
         // Users, organizations
-        Signal::connect('model.created', array($this, 'createModel'));
+        Signal::connect('threadentry.created', array($this, 'createModel'));
+        Signal::connect('ticket.created', array($this, 'createModel'));
+        Signal::connect('user.created', array($this, 'createModel'));
+        Signal::connect('organization.created', array($this, 'createModel'));
+        Signal::connect('model.created', array($this, 'createModel'), 'FAQ');
+
         Signal::connect('model.updated', array($this, 'updateModel'));
         #Signal::connect('model.deleted', array($this, 'deleteModel'));
     }
@@ -236,31 +257,15 @@ class MysqlSearchBackend extends SearchBackend {
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        switch (true) {
-        case $model instanceof ThreadEntry:
-            $type = 'H';
-            break;
-        case $model instanceof Ticket:
-            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
-            $type = 'T';
-            break;
-        case $model instanceof User:
-            $content .= implode("\n", $attrs['emails']);
-            $type = 'U';
-            break;
-        case $model instanceof Organization:
-            $type = 'O';
-            break;
-        case $model instanceof FAQ:
-            $type = 'K';
-            break;
-        case $model instanceof AttachmentFile:
-            $type = 'F';
-            break;
-        default:
-            // Not indexed
+
+
+        if (!($type=ObjectModel::getType($model)))
             return;
-        }
+
+        if ($model instanceof Ticket)
+            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
+        elseif ($model instanceof User)
+            $content .= implode("\n", $attrs['emails']);
 
         $title = $attrs['title'] ?: '';
 
@@ -296,7 +301,7 @@ class MysqlSearchBackend extends SearchBackend {
         return implode(' ', $results);
     }
 
-    function find($query, $criteria=array(), $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria) {
         global $thisstaff;
 
         $mode = ' IN BOOLEAN MODE';
@@ -310,136 +315,41 @@ class MysqlSearchBackend extends SearchBackend {
         $P = TABLE_PREFIX;
         $sort = '';
 
-        if ($query) {
-            $tables[] = "(
-                SELECT object_type, object_id, $search AS `relevance`
-                FROM `{$P}_search` `search`
-                WHERE $search
-            ) `search`";
-            $sort = 'ORDER BY `search`.`relevance`';
-        }
-
-        switch ($model) {
+        switch ($criteria->model) {
         case false:
-        case 'Ticket':
-            $tables[] = "(select ticket_id as ticket_id from {$P}ticket
-            ) B1 ON (B1.ticket_id = search.object_id and search.object_type = 'T')";
-            $tables[] = "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
-                join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
-            ) B2 ON (B2.thread_id = search.object_id and search.object_type = 'H')";
-            $tables[] = "(select A3.id as user_id, A1.ticket_id from {$P}user A3
-                join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B3 ON (B3.user_id = search.object_id and search.object_type = 'U')";
-            $tables[] = "(select A4.id as org_id, A1.ticket_id from {$P}organization A4
-                join {$P}user A3 on (A3.org_id = A4.id) join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B4 ON (B4.org_id = search.object_id and search.object_type = 'O')";
-            $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
-            $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
-            $tables[] = "{$P}ticket_status A2 ON (A1.status_id = A2.id)";
-            $cdata_search = false;
-            $where = array();
-
-            if ($criteria) {
-                foreach ($criteria as $name=>$value) {
-                    switch ($name) {
-                    case 'status_id':
-                        $where[] = 'A2.id = '.db_input($value);
-                        break;
-                    case 'state':
-                        $where[] = 'A2.state = '.db_input($value);
-                        break;
-                    case 'state__in':
-                        $where[] = 'A2.state IN ('.implode(',',db_input($value)).')';
-                        break;
-                    case 'topic_id':
-                    case 'staff_id':
-                    case 'team_id':
-                    case 'dept_id':
-                    case 'user_id':
-                    case 'isanswered':
-                    case 'isoverdue':
-                    case 'number':
-                        $where[] = sprintf('A1.%s = %s', $name, db_input($value));
-                        break;
-                    case 'created__gte':
-                        $where[] = sprintf('A1.created >= %s', db_input($value));
-                        break;
-                    case 'created__lte':
-                        $where[] = sprintf('A1.created <= %s', db_input($value));
-                        break;
-                    case 'email':
-                    case 'org_id':
-                    case 'form_id':
-                    default:
-                        if (strpos($name, 'cdata.') === 0) {
-                            // Search ticket CDATA table
-                            $cdata_search = true;
-                            $name = substr($name, 6);
-                            if (is_array($value)) {
-                                $where[] = '(' . implode(' OR ', array_map(
-                                    function($k) use ($name) {
-                                        return sprintf('FIND_IN_SET(%s, cdata.`%s`)',
-                                            db_input($k), $name);
-                                    }, $value)
-                                ) . ')';
-                            }
-                            else {
-                                $where[] = sprintf("cdata.%s = %s", $name, db_input($value));
-                            }
-                        }
-                    }
-                }
+        case 'TicketModel':
+            if ($query) {
+            $key = 'COALESCE(Z1.ticket_id, Z2.ticket_id)';
+            $criteria->extra(array(
+                'select' => array(
+                    'ticket_id' => $key,
+                    'relevance'=>'`search`.`relevance`',
+                ),
+                'order_by' => array(new SqlCode('`relevance`')),
+                'tables' => array(
+                    "(SELECT object_type, object_id, $search AS `relevance`
+                        FROM `{$P}_search` `search` WHERE $search) `search`",
+                    "(select ticket_id as ticket_id from {$P}ticket
+                ) Z1 ON (Z1.ticket_id = search.object_id and search.object_type = 'T')",
+                    "(select A3.id as thread_id, A1.ticket_id from {$P}ticket A1
+                    join {$P}thread A2 on (A1.ticket_id = A2.object_id and A2.object_type = 'T')
+                    join {$P}thread_entry A3 on (A2.id = A3.thread_id)
+                ) Z2 ON (Z2.thread_id = search.object_id and search.object_type = 'H')",
+                )
+            ));
+            // XXX: This is extremely ugly
+            $criteria->filter(array('ticket_id'=>new SqlCode($key)));
+            $criteria->distinct('ticket_id');
             }
-            if ($cdata_search)
-                $tables[] = TABLE_PREFIX.'ticket__cdata cdata'
-                    .' ON (cdata.ticket_id = A1.ticket_id)';
-
-            // Always consider the current staff's access
-            $thisstaff->getDepts();
-            $access = array();
-            $access[] = '(A1.staff_id=' . db_input($thisstaff->getId())
-                .' AND A2.state="open")';
-
-            if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-                $access[] = 'A1.dept_id IN ('
-                    . ($depts ? implode(',', db_input($depts)) : 0)
-                    . ')';
-
-            if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-                $access[] = 'A1.team_id IN ('
-                    .implode(',', db_input(array_filter($teams)))
-                    .') AND A2.state="open"';
-
-            $where[] = '(' . implode(' OR ', $access) . ')';
-
             // TODO: Consider sorting preferences
-
-            $sql = 'SELECT DISTINCT '
-                . $key
-                . ' FROM '
-                . implode(' LEFT JOIN ', $tables)
-                . ' WHERE ' . implode(' AND ', $where)
-                . $sort
-                . ' LIMIT 500';
         }
 
-        $class = get_class();
-        $auto_create = function($db_error) use ($class) {
-
-            if ($db_error != 1146)
-                // Perform the standard error handling
-                return true;
-
-            // Create the search table automatically
-            $class::createSearchTable();
-        };
-        $res = db_query($sql, $auto_create);
-        $object_ids = array();
-
-        while ($row = db_fetch_row($res))
-            $object_ids[] = $row[0];
-
-        return $object_ids;
+        // TODO: Ensure search table exists;
+        if (false) {
+            // TODO: Create the search table automatically
+            // $class::createSearchTable();
+        }
+        return $criteria;
     }
 
     static function createSearchTable() {
@@ -488,8 +398,7 @@ class MysqlSearchBackend extends SearchBackend {
         };
 
         // THREADS ----------------------------------
-
-        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".TICKET_THREAD_TABLE."` A1
+        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".THREAD_ENTRY_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
@@ -498,7 +407,7 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $body = ThreadBody::fromFormattedText($row[2], $row[3]);
+            $body = ThreadEntryBody::fromFormattedText($row[2], $row[3]);
             $body = $body->getSearchable();
             $title = Format::searchable($row[1]);
             if (!$body && !$title)
@@ -651,3 +560,442 @@ Signal::connect('system.install',
         array('MysqlSearchBackend', '__init'));
 
 MysqlSearchBackend::register();
+
+// Saved search system
+
+/**
+ *
+ * Fields:
+ * id - (int:unsigned:auto:pk) unique identifier
+ * flags - (int:unsigned) flags for this queue
+ * staff_id - (int:unsigned) Agent to whom this queue belongs (can be null
+ *      for public saved searches)
+ * title - (text:60) name of the queue
+ * config - (text) JSON encoded search configuration for the queue
+ * created - (date) date initially created
+ * updated - (date:auto_update) time of last update
+ */
+class SavedSearch extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => 'ost_queue', # QUEUE_TABLE
+        'pk' => array('id'),
+        'ordering' => array('sort'),
+    );
+
+    const FLAG_PUBLIC =     0x0001;
+    const FLAG_QUEUE =      0x0002;
+
+    static function forStaff(Staff $agent) {
+        return static::objects()->filter(Q::any(array(
+            'staff_id' => $agent->getId(),
+            'flags__hasbit' => self::FLAG_PUBLIC,
+        )));
+    }
+
+    function getFormFromSession($key, $source=false) {
+        if (isset($_SESSION[$key])) {
+            $source = $source ?: array();
+            $state = $_SESSION[$key];
+            // Pull out 'other' fields from the state so the fields will be
+            // added to the form. The state will be loaded below
+            foreach ($state as $k=>$v) {
+                $info = array();
+                if (!preg_match('/^:(\w+)!(\d+)\+search/', $k, $info)) {
+                    continue;
+                }
+                list($k,) = explode('+', $k, 2);
+                $source['fields'][] = ":{$info[1]}!{$info[2]}";
+            }
+        }
+        return $this->getForm($source);
+    }
+
+    function getForm($source=false) {
+        // XXX: Ensure that the UIDs generated for these fields are
+        //      consistent between requests
+
+        $searchable = $this->getCurrentSearchFields($source);
+        $fields = array(
+            'keywords' => new TextboxField(array(
+                'configuration' => array(
+                    'size' => 40,
+                    'length' => 400,
+                    'classes' => 'full-width headline',
+                    'placeholder' => __('Keywords — Optional'),
+                ),
+            )),
+        );
+        foreach ($searchable as $name=>$field) {
+            $fields = array_merge($fields, self::getSearchField($field, $name));
+        }
+
+        $form = new Form($fields, $source);
+        $form->addValidator(function($form) {
+            $selected = 0;
+            foreach ($form->getFields() as $F) {
+                if (substr($F->get('name'), -7) == '+search' && $F->getClean())
+                    $selected += 1;
+                // Consider keyword searches
+                elseif ($F->get('name') == 'keywords' && $F->getClean())
+                    $selected += 1;
+            }
+            if (!$selected)
+                $form->addError(__('No fields selected for searching'));
+        });
+        return $form;
+    }
+
+    function getCurrentSearchFields($source=false) {
+        $core = array(
+            'state' =>      new TicketStateChoiceField(array(
+                'label' => __('State'),
+            )),
+            'status_id' =>  new TicketStatusChoiceField(array(
+                'label' => __('Status'),
+            )),
+            'flags' =>      new TicketFlagChoiceField(array(
+                'label' => __('Flags'),
+            )),
+            'dept_id'   =>  new DepartmentChoiceField(array(
+                'label' => __('Department'),
+            )),
+            'assignee'  =>  new AssigneeChoiceField(array(
+                'label' => __('Assignee'),
+            )),
+            'topic_id'  =>  new HelpTopicChoiceField(array(
+                'label' => __('Help Topic'),
+            )),
+            'created'   =>  new DateTimeField(array(
+                'label' => __('Created'),
+            )),
+            'duedate'   =>  new DateTimeField(array(
+                'label' => __('Due Date'),
+            )),
+        );
+
+        // Add 'other' fields added dynamically
+        if (is_array($source) && isset($source['fields'])) {
+            foreach ($source['fields'] as $f) {
+                $info = array();
+                if (!preg_match('/^:(\w+)!(\d+)/', $f, $info)) {
+                    continue;
+                }
+                $id = $info[2];
+                if (is_numeric($id) && ($field = DynamicFormField::lookup($id))) {
+                    $impl = $field->getImpl();
+                    $impl->set('label', sprintf('%s / %s',
+                        $field->form->getLocal('title'), $field->getLocal('label')
+                    ));
+                    $core[":{$info[1]}!{$info[2]}"] = $impl;
+                }
+            }
+        }
+
+        return $core;
+    }
+
+    static function getSearchField($field, $name) {
+        $pieces = array();
+        $pieces["{$name}+search"] = new BooleanField(array(
+            'configuration' => array('desc' => $field->get('label'))
+        ));
+        $methods = $field->getSearchMethods();
+        $pieces["{$name}+method"] = new ChoiceField(array(
+            'choices' => $methods,
+            'default' => key($methods),
+            'visibility' => new VisibilityConstraint(new Q(array(
+                "{$name}+search__eq" => true,
+            )), VisibilityConstraint::HIDDEN),
+        ));
+        foreach ($field->getSearchMethodWidgets() as $m=>$w) {
+            if (!$w)
+                continue;
+            list($class, $args) = $w;
+            $args['required'] = true;
+            $args['visibility'] = new VisibilityConstraint(new Q(array(
+                    "{$name}+method__eq" => $m,
+                )), VisibilityConstraint::HIDDEN);
+            $pieces["{$name}+{$m}"] = new $class($args);
+        }
+        return $pieces;
+    }
+
+    function mangleQuerySet(QuerySet $qs, $form=false) {
+        $form = $form ?: $this->getForm();
+        $searchable = $this->getCurrentSearchFields($form->getSource());
+        $qs = clone $qs;
+
+        // Figure out fields to search on
+        foreach ($form->getFields() as $f) {
+            if (substr($f->get('name'), -7) == '+search' && $f->getClean()) {
+                $name = substr($f->get('name'), 0, -7);
+                // Determine the search method and fetch the original field
+                if (($M = $form->getField("{$name}+method"))
+                    && ($method = $M->getClean())
+                    && ($field = $searchable[$name])
+                ) {
+                    // Request the field to generate a search Q for the
+                    // search method and given value
+                    $value = null;
+                    if ($value = $form->getField("{$name}+{$method}"))
+                        $value = $value->getClean();
+
+                    if ($name[0] == ':') {
+                        // This was an 'other' field, fetch a special "name"
+                        // for it which will be the ORM join path
+                        static $other_paths = array(
+                            ':ticket' => 'cdata__',
+                            ':user' => 'user__cdata__',
+                            ':organization' => 'user__org__cdata__',
+                        );
+                        $column = $field->get('name') ?: 'field_'.$field->get('id');
+                        list($type,$id) = explode('!', $name, 2);
+                        $OP = $other_paths[$type];
+                        if ($type == ':field') {
+                            $DF = DynamicFormField::lookup($id);
+                            TicketModel::registerCustomData($DF->form);
+                            $OP = 'cdata+'.$DF->form->id.'__';
+                        }
+                        // XXX: Last mile — find a better idea
+                        switch (array($type, $column)) {
+                        case array(':user', 'name'):
+                            $name = 'user__name';
+                            break;
+                        case array(':user', 'email'):
+                            $name = 'user__emails__address';
+                            break;
+                        case array(':organization', 'name'):
+                            $name = 'user__org__name';
+                            break;
+                        default:
+                            $name = $OP . $column;
+                        }
+                    }
+
+                    // Add the criteria to the QuerySet
+                    if ($Q = $field->getSearchQ($method, $value, $name))
+                        $qs = $qs->filter($Q);
+                }
+            }
+        }
+
+        // Consider keyword searching
+        if ($keywords = $form->getField('keywords')->getClean()) {
+            global $ost;
+
+            $qs = $ost->searcher->find($keywords, $qs);
+        }
+
+        return $qs;
+    }
+
+    function checkAccess(Staff $agent) {
+        return $agent->getId() == $this->staff_id
+            || $this->hasFlag(self::FLAG_PUBLIC);
+    }
+
+    protected function hasFlag($flag) {
+        return $this->get('flag') & $flag !== 0;
+    }
+
+    protected function clearFlag($flag) {
+        return $this->set('flag', $this->get('flag') & ~$flag);
+    }
+
+    protected function setFlag($flag) {
+        return $this->set('flag', $this->get('flag') | $flag);
+    }
+
+    static function create($vars=array()) {
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+}
+
+// Advanced search special fields
+
+class HelpTopicChoiceField extends ChoiceField {
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices() {
+        return Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    }
+}
+
+require_once INCLUDE_DIR . 'class.dept.php';
+class DepartmentChoiceField extends ChoiceField {
+    function getChoices() {
+        return Dept::getDepartments();
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+}
+
+class AssigneeChoiceField extends ChoiceField {
+    function getChoices() {
+        global $thisstaff;
+
+        $items = array(
+            'M' => __('Me'),
+            'T' => __('One of my teams'),
+        );
+        foreach (Staff::getStaffMembers() as $id=>$name) {
+            // Don't include $thisstaff (since that's 'Me')
+            if ($thisstaff && $thisstaff->getId() == $id)
+                continue;
+            $items['s' . $id] = $name;
+        }
+        foreach (Team::getTeams() as $id=>$name) {
+            $items['t' . $id] = $name;
+        }
+        return $items;
+    }
+
+    function getSearchMethods() {
+        return array(
+            'assigned' =>   __('assigned'),
+            '!assigned' =>  __('unassigned'),
+            'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'assigned' => null,
+            '!assigned' => null,
+            'includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            '!includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'assigned':
+            $Q->negate();
+        case '!assigned':
+            $Q->add(array('team_id' => 0,
+                'staff_id' => 0));
+            break;
+        case '!includes':
+            $Q->negate();
+        case 'includes':
+            $teams = $agents = array();
+            foreach ($value as $id => $ST) {
+                switch ($id[0]) {
+                case 'M':
+                    $agents[] = $thisstaff->getId();
+                    break;
+                case 's':
+                    $agents[] = (int) substr($id, 1);
+                    break;
+                case 'T':
+                    $teams = array_merge($thisstaff->getTeams());
+                    break;
+                case 't':
+                    $teams[] = (int) substr($id, 1);
+                    break;
+                }
+            }
+            $constraints = array();
+            if ($teams)
+                $constraints['team_id__in'] = $teams;
+            if ($agents)
+                $constraints['staff_id__in'] = $agents;
+            $Q->add(Q::any($constraints));
+        }
+        return $Q;
+    }
+}
+
+class TicketStateChoiceField extends ChoiceField {
+    function getChoices() {
+        return array(
+            'open' => __('Open'),
+            'closed' => __('Closed'),
+            'archived' => __('Archived'),
+            'deleted' => __('Deleted'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'status__state');
+    }
+}
+
+class TicketFlagChoiceField extends ChoiceField {
+    function getChoices() {
+        return array(
+            'isanswered' =>   __('Answered'),
+            'isoverdue' =>    __('Overdue'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $Q = new Q();
+        if (isset($value['isanswered']))
+            $Q->add(array('isanswered' => 1));
+        if (isset($value['isoverdue']))
+            $Q->add(array('isoverdue' => 1));
+        if ($method == '!includes')
+            $Q->negate();
+        if ($Q->constraints)
+            return $Q;
+    }
+}
+
+class TicketStatusChoiceField extends SelectionField {
+    static $widget = 'ChoicesWidget';
+
+    function getList() {
+        return new TicketStatusList(
+            DynamicList::lookup(
+                array('type' => 'ticket-status'))
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+}

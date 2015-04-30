@@ -24,8 +24,6 @@ if($staff && $_REQUEST['a']!='add'){
     $info['isactive']=1;
     $info['isvisible']=1;
     $info['isadmin']=0;
-    $info['timezone_id'] = $cfg->getDefaultTimezoneId();
-    $info['daylight_saving'] = $cfg->observeDaylightSaving();
     $qs += array('a' => 'add');
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -229,18 +227,54 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
+                <?php echo __('Primary Department');?>:
+            </td>
+            <td>
+                <select name="dept_id" id="dept_id">
+                    <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
+                    <?php
+                    foreach (Dept::getDepartments() as $id=>$name) {
+                        $sel=($info['dept_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
+                <div class="error"><?php echo $errors['dept_id']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Primary Role');?>:
+            </td>
+            <td>
+                <select name="role_id">
+                    <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+                    <?php
+                    foreach (Role::getRoles() as $id=>$name) {
+                        $sel=($info['role_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error">*</span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#primary_role"></i>
+                <div class="error"><?php echo $errors['role_id']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
                 <?php echo __('Assigned Group');?>:
             </td>
             <td>
                 <select name="group_id" id="group_id">
                     <option value="0">&mdash; <?php echo __('Select Group');?> &mdash;</option>
                     <?php
-                    $sql='SELECT group_id, group_name, group_enabled as isactive FROM '.GROUP_TABLE.' ORDER BY group_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name,$isactive)=db_fetch_row($res)){
-                            $sel=($info['group_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s %s</option>',$id,$sel,$name,($isactive?'':__('(disabled)')));
-                        }
+                    foreach (Group::getGroups() as $id=>$name) {
+                        $sel=($info['group_id']==$id)?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                            $id, $sel, $name);
                     }
                     ?>
                 </select>
@@ -248,57 +282,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('Primary Department');?>:
-            </td>
-            <td>
-                <select name="dept_id" id="dept_id">
-                    <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' ORDER BY dept_name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $sel=($info['dept_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __("Agent's Time Zone");?>:
-            </td>
-            <td>
-                <select name="timezone_id" id="timezone_id">
-                    <option value="0">&mdash; <?php echo __('Select Time Zone');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$offset, $tz)=db_fetch_row($res)){
-                            $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone_id']; ?></span>
-            </td>
-        </tr>
-        <tr>
             <td width="180">
-               <?php echo __('Daylight Saving');?>:
+                <?php echo __('Time Zone');?>:
             </td>
             <td>
-                <input type="checkbox" name="daylight_saving" value="1" <?php echo $info['daylight_saving']?'checked="checked"':''; ?>>
-                <?php echo __('Observe daylight saving');?>
-                <em>(<?php echo __('Current Time');?>: <strong><?php
-                    echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['daylight_saving']);
-                ?></strong>)
-                &nbsp;<i class="help-tip icon-question-sign" href="#daylight_saving"></i>
-                </em>
+                <select name="timezone" class="chosen-select" id="timezone-dropdown"
+                    data-placeholder="<?php echo __('System Default'); ?>">
+                    <option value=""></option>
+<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                    <option value="<?php echo $zone; ?>" <?php
+                    if ($info['timezone'] == $zone)
+                        echo 'selected="selected"';
+                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
+<?php } ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['timezone']; ?></span>
             </td>
         </tr>
         <tr>
@@ -331,20 +329,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <?php
-         //List team assignments.
-         $sql='SELECT team.team_id, team.name, isenabled FROM '.TEAM_TABLE.' team  ORDER BY team.name';
-         if(($res=db_query($sql)) && db_num_rows($res)){ ?>
+        // List team assignments.
+        $teams = Team::getTeams();
+        if (count($teams)) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Assigned Teams');?></strong>: <?php echo __("Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department.");?> </em>
             </th>
         </tr>
         <?php
-         while(list($id,$name,$isactive)=db_fetch_row($res)){
-             $checked=($info['teams'] && in_array($id,$info['teams']))?'checked="checked"':'';
-             echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s>%s %s</td></tr>',
-                     $id,$checked,$name,($isactive?'':__('(disabled)')));
-         }
+            foreach ($teams as $id=>$name) {
+                $checked=($info['teams'] && in_array($id,$info['teams']))
+                    ? 'checked="checked"' : '';
+                echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s> %s</td></tr>',
+                     $id,$checked,$name);
+            }
         } ?>
         <tr>
             <th colspan="2">
@@ -365,3 +364,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="staff.php"'>
 </p>
 </form>
+<script type="text/javascript">
+!(function() {
+    $('#timezone-dropdown').chosen({
+        allow_single_deselect: true,
+        width: '350px'
+    });
+})();
+</script>

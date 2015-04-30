@@ -40,15 +40,13 @@ $messageField = $tform->getField('message');
 $attachments = $messageField->getWidget()->getAttachments();
 
 //Process post...depends on $ticket object above.
-if($_POST && is_object($ticket) && $ticket->getId()):
+if ($_POST && is_object($ticket) && $ticket->getId()) {
     $errors=array();
     switch(strtolower($_POST['a'])){
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
-        elseif (!$cfg || !$cfg->allowClientUpdates())
-            $errors['err']=__('Access Denied. Client updates are currently disabled');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             foreach ($forms as $form) {
@@ -103,11 +101,20 @@ if($_POST && is_object($ticket) && $ticket->getId()):
         $errors['err']=__('Unknown action');
     }
     $ticket->reload();
-endif;
+}
+elseif (is_object($ticket) && $ticket->getId()) {
+    switch(strtolower($_REQUEST['a'])) {
+    case 'print':
+        if (!$ticket || !$ticket->pdfExport($_REQUEST['psize']))
+            $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
+        break;
+    }
+}
+
 $nav->setActiveNav('tickets');
 if($ticket && $ticket->checkUserAccess($thisclient)) {
     if (isset($_REQUEST['a']) && $_REQUEST['a'] == 'edit'
-            && $cfg->allowClientUpdates()) {
+            && $ticket->hasClientEditableFields()) {
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries

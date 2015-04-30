@@ -8,7 +8,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
         <img src="logo.php?login" alt="osTicket :: <?php echo __('Staff Control Panel');?>" />
     </a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
-    <div class="banner"><small><?php echo ($content) ? Format::display($content->getBody()) : ''; ?></small></div>
+    <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
     <form action="login.php" method="post">
         <?php csrf_token(); ?>
         <input type="hidden" name="do" value="scplogin">

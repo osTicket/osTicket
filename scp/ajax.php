@@ -57,11 +57,22 @@ $dispatcher = patterns('',
         url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer'),
         url_post('^upload/(\d+)?$', 'upload'),
-        url_post('^upload/(\w+)?$', 'attach')
+        url_post('^upload/(\w+)?$', 'attach'),
+        url_get('^(?P<id>\d+)/fields/view$', 'getAllFields')
+    )),
+    url('^/filter/', patterns('ajax.filter.php:FilterAjaxAPI',
+        url_get('^action/(?P<type>\w+)/config$', 'getFilterActionForm')
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
-        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),
-        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'saveListItemProperties')
+        url_get('^(?P<list>\w+)/items$', 'getListItems'),
+        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'getListItem'),
+        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'saveListItem'),
+        url('^(?P<list>\w+)/item/add$', 'addListItem'),
+        url('^(?P<list>\w+)/import$', 'importListItems'),
+        url('^(?P<list>\w+)/manage$', 'massManageListItems'),
+        url_post('^(?P<list>\w+)/delete$', 'deleteItems'),
+        url_post('^(?P<list>\w+)/disable$', 'disableItems'),
+        url_post('^(?P<list>\w+)/enable$', 'undisableItems')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
@@ -142,10 +153,35 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/canned-resp/(?P<cid>\w+).(?P<format>json|txt)', 'cannedResponse'),
         url_get('^(?P<tid>\d+)/status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeTicketStatus'),
         url_post('^(?P<tid>\d+)/status$', 'setTicketStatus'),
+        url('^(?P<tid>\d+)/thread/(?P<thread_id>\d+)/(?P<action>\w+)$', 'triggerThreadAction'),
         url_get('^status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeSelectedTicketsStatus'),
         url_post('^status/(?P<state>\w+)$', 'setSelectedTicketsStatus'),
+        url_get('^(?P<tid>\d+)/tasks$', 'tasks'),
+        url('^(?P<tid>\d+)/add-task$', 'addTask'),
         url_get('^lookup', 'lookup'),
-        url_get('^search', 'search')
+        url('^search', patterns('ajax.search.php:SearchAjaxAPI',
+            url_get('^$', 'getAdvancedSearchDialog'),
+            url_post('^$', 'doSearch'),
+            url_get('^quick$', 'doQuickSearch'),
+            url_get('^/(?P<id>\d+)$', 'loadSearch'),
+            url_post('^/(?P<id>\d+)$', 'saveSearch'),
+            url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
+            url_post('^/create$', 'createSearch'),
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
+        ))
+    )),
+    url('^/tasks/', patterns('ajax.tasks.php:TasksAjaxAPI',
+        url_get('^(?P<tid>\d+)/preview$', 'preview'),
+        url_get('^(?P<tid>\d+)/edit', 'edit'),
+        url_post('^(?P<tid>\d+)/edit$', 'edit'),
+        url_get('^(?P<tid>\d+)/transfer', 'transfer'),
+        url_post('^(?P<tid>\d+)/transfer$', 'transfer'),
+        url_get('^(?P<tid>\d+)/assign', 'assign'),
+        url_post('^(?P<tid>\d+)/assign$', 'assign'),
+        url_get('^(?P<tid>\d+)/delete', 'delete'),
+        url_post('^(?P<tid>\d+)/delete$', 'delete'),
+        url_get('^(?P<tid>\d+)/view$', 'task'),
+        url_post('^(?P<tid>\d+)$', 'task')
     )),
     url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),
@@ -155,6 +191,7 @@ $dispatcher = patterns('',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
         url_delete('^(?P<id>\d+)$', 'deleteDraft'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImage'),
+        url_post('^(?P<namespace>[\w.]+)/attach$', 'uploadInlineImageEarly'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
@@ -175,8 +212,11 @@ $dispatcher = patterns('',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     )),
-    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
-        url_get('(?P<tag>\w+)$', 'getLanguageFile')
+    url('^/i18n/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('^langs$', 'getSecondaryLanguages'),
+        url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
+        url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
+        url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
     ))
 );
 

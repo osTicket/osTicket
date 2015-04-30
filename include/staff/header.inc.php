@@ -20,17 +20,18 @@ if (($lang = Internationalization::getCurrentLanguage())
         .tip_shadow { display:block !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script type="text/javascript" src="./js/scp.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="./js/tips.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
+    <script type="text/javascript" src="./js/jquery.translatable.js"></script>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="all">
     <link rel="stylesheet" href="./css/scp.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
@@ -43,7 +44,10 @@ if (($lang = Internationalization::getCurrentLanguage())
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="./css/dropdown.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/chosen.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
+    <link type="text/css" rel="stylesheet" href="./css/translatable.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
 
     <?php

@@ -142,9 +142,3 @@ max_file_size:
         Choose a maximum file size for attachments uploaded by agents. This
         includes canned attachments, knowledge base articles, and
         attachments to ticket replies.
-
-ticket_response_files:
-    title: Ticket Response Files
-    content: >
-        If enabled, any attachments an Agent may attach to a ticket response will
-        be also included in the email to the User.

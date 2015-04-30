@@ -20,9 +20,10 @@ class TicketApiController extends ApiController {
         # the names to the supported request structure
         if (isset($data['topicId'])
                 && ($topic = Topic::lookup($data['topicId']))
-                && ($form = $topic->getForm())) {
-            foreach ($form->getDynamicFields() as $field)
-                $supported[] = $field->get('name');
+                && ($forms = $topic->getForms())) {
+            foreach ($forms as $form)
+                foreach ($form->getDynamicFields() as $field)
+                    $supported[] = $field->get('name');
         }
 
         # Ticket form fields
@@ -80,7 +81,8 @@ class TicketApiController extends ApiController {
                 }
                 // Validate and save immediately
                 try {
-                    $file['id'] = $fileField->uploadAttachment($file);
+                    $F = $fileField->uploadAttachment($file);
+                    $file['id'] = $F->getId();
                 }
                 catch (FileUploadError $ex) {
                     $file['error'] = $file['name'] . ': ' . $ex->getMessage();
@@ -150,14 +152,29 @@ class TicketApiController extends ApiController {
         if (!$data)
             $data = $this->getEmailRequest();
 
-        if (($thread = ThreadEntry::lookupByEmailHeaders($data))
-                && ($t=$thread->getTicket())
-                && ($data['staffId']
-                    || !$t->isClosed()
-                    || $t->isReopenable())
-                && $thread->postEmail($data)) {
-            return $thread->getTicket();
+        $seen = false;
+        if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
+            && ($message = $entry->postEmail($data))
+        ) {
+            if ($message instanceof ThreadEntry) {
+                return $message->getThread()->getObject();
+            }
+            else if ($seen) {
+                // Email has been processed previously
+                return $entry->getThread()->getObject();
+            }
         }
+
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($data))
+            && ($message = $thread->postEmail($data))
+        ) {
+            return $thread->getObject();
+        }
+
+        // All emails which do not appear to be part of an existing thread
+        // will always create new "Tickets". All other objects will need to
+        // be created via the web interface or the API
         return $this->createTicket($data);
     }
 

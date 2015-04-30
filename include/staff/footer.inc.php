@@ -19,7 +19,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
     <h1><?php echo __('Loading ...');?></h1>
 </div>
-<div class="dialog draggable" style="display:none;width:650px;" id="popup">
+<div class="dialog draggable" style="display:none;" id="popup">
     <div id="popup-loading">
         <h1 style="margin-bottom: 20px;"><i class="icon-spinner icon-spin icon-large"></i>
         <?php echo __('Loading ...');?></h1>
@@ -34,7 +34,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <hr style="margin-top:3em"/>
     <p class="full-width">
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('OK');?>" class="close">
+            <input type="button" value="<?php echo __('OK');?>" class="close ok">
         </span>
      </p>
     <div class="clear"></div>
@@ -43,15 +43,18 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script type="text/javascript">
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
-    if (!$(this).hasClass('no-pjax')
-        && !$(this).closest('.no-pjax').length
-        && $(this).attr('href')[0] != '#')
-      $.pjax.click(event, {container: $('#pjax-container'), timeout: 2000});
+    var $this = $(this);
+    if (!$this.hasClass('no-pjax')
+        && !$this.closest('.no-pjax').length
+        && $this.attr('href')[0] != '#')
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
   })
 }
 </script>
 <?php
-if ($thisstaff && $thisstaff->getLanguage() != 'en_US') { ?>
+if ($thisstaff
+        && ($lang = $thisstaff->getLanguage())
+        && 0 !== strcasecmp($lang, 'en_US')) { ?>
     <script type="text/javascript" src="ajax.php/i18n/<?php
         echo $thisstaff->getLanguage(); ?>/js"></script>
 <?php } ?>

@@ -36,11 +36,12 @@ if($_POST){
             }
             break;
         case 'add':
-            if(($id=SLA::create($_POST,$errors))){
+            $_sla = SLA::create();
+            if (($_sla->update($_POST, $errors))) {
                 $msg=sprintf(__('Successfully added %s'),
                     __('a SLA plan'));
                 $_REQUEST['a']=null;
-            }elseif(!$errors['err']){
+            } elseif (!$errors['err']) {
                 $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
                     __('this SLA plan'));
             }
@@ -53,10 +54,12 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.SLA_TABLE.' SET isactive=1 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = SLA::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isactive' => 1
+                        ));
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected SLA plan', 'selected SLA plans', $count));
@@ -69,9 +72,13 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.SLA_TABLE.' SET isactive=0 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = SLA::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'isactive' => 0
+                        ));
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected SLA plan', 'selected SLA plans', $count));
@@ -85,7 +92,7 @@ if($_POST){
                         break;
                     case 'delete':
                         $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
+                        foreach ($_POST['ids'] as $k => $v) {
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete())

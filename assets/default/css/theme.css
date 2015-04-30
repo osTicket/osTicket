@@ -238,13 +238,13 @@ h2, .subject {
 .button,
 .button:visited {
   background: #222;
+  border: none;
   display: inline-block;
   font-size: 16px;
-  padding: 8px 16px 6px 16px;
+  padding: 4px 16px 4px 16px;
   max-width: 220px;
   text-align: center;
   color: #fff;
-  font-weight: bold;
   text-decoration: none;
   border-radius: 5px;
   -moz-border-radius: 5px;
@@ -413,13 +413,15 @@ body {
 }
 .front-page-button {
 }
+#landing_page .welcome {
+  width: 560px;
+}
 #landing_page #new_ticket {
   margin-top: 40px;
   background: url('../images/new_ticket_icon.png') top left no-repeat;
 }
 #landing_page #new_ticket,
-#landing_page #check_status,
-.front-page-button {
+#landing_page #check_status {
   width: 295px;
   padding-left: 75px;
 }
@@ -427,12 +429,8 @@ body {
   margin-top: 40px;
   background: url('../images/check_status_icon.png') top left no-repeat;
 }
-.rtl #landing_page #new_ticket,
-.rtl #landing_page #check_status,
-.rtl .front-page-button {
-  padding-left: 0;
-  padding-right: 75px;
-  background-position: top right;
+#landing_page h1, #landing_page h2, #landing_page h3 {
+    margin-bottom: 10px;
 }
 /* Landing page FAQ not yet implemented. */
 #faq {
@@ -482,10 +480,7 @@ body {
   margin: 0;
   background: url(../images/kb_category_bg.png) bottom left repeat-x;
   border-bottom: 1px solid #ddd;
-}
-#kb > li h4 {
-  padding-bottom: 3px;
-  margin-bottom: 3px;
+  display: block;
 }
 #kb > li h4 span {
   color: #666;
@@ -493,13 +488,51 @@ body {
 #kb > li h4 a {
   font-size: 14px;
 }
-#kb li i {
+#kb > li > i {
   display: block;
   width: 32px;
   height: 32px;
   float: left;
   margin-right: 6px;
   background: url(../images/kb_large_folder.png) top left no-repeat;
+}
+.featured-category {
+    margin-top: 10px;
+    width: 49.7%;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+}
+.category-name {
+    display: inline-block;
+    font-weight: 400;
+    font-size: 120%;
+}
+.featured-category i {
+    color: rgba(0,174,239, 0.8);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    vertical-align: middle;
+}
+.article-headline {
+    margin-left: 34px;
+}
+.rtl .article-headline {
+    margin-left: 0;
+    margin-right: 34px;
+}
+.article-teaser {
+    font-size: 90%;
+    line-height: 1.5em;
+    height: 3em;
+    overflow: hidden;
+}
+.article-title {
+    font-weight: 400;
+}
+.faq-content .article-title {
+    font-size: 16pt;
+    margin-top: 15px;
 }
 #kb-search {
   padding: 10px 0;
@@ -556,7 +589,7 @@ body {
 #clientLogin div label {
   display: block;
 }
-label.required {
+label.required, span.required {
   font-weight: bold;
 }
 #ticketForm div label.required,
@@ -761,6 +794,7 @@ label.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
+  table-layout: fixed;
 }
 #ticketTable caption {
   padding: 5px;
@@ -778,12 +812,13 @@ label.required {
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
+  padding: 0 5px;
 }
 #ticketTable th a {
   color: #000;
 }
 #ticketTable td {
-  padding: 2px;
+  padding: 3px 5px;
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
@@ -946,4 +981,69 @@ img.sign-in-image {
 }
 .flush-left {
     text-align: left;
+}
+.sidebar {
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+#landing_page .sidebar {
+    width: 220px;
+}
+.rtl .sidebar {
+    margin-left: 0;
+    margin-right: 20px;
+}
+.sidebar .content {
+    padding: 10px; border: 1px solid #C8DDFA; background: #F7FBFE;
+}
+
+.sidebar section .header {
+    font-weight: bold;
+}
+.sidebar section + section {
+    margin-top: 15px;
+}
+.search-form {
+    padding: 12px 0px 20px 0;
+}
+.searchbar .search,
+.search-form .search {
+    display: inline-block;
+    width: 400px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.searchbar .search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.bleed {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.row {
+}
+.span4 {
+    display: inline-block;
+    width: 30.5%;
+    margin: 0 1%;
+    vertical-align: top;
+}
+.span8 {
+    display: inline-block;
+    width: 64.5%;
+    margin: 0 1%;
+    vertical-align: top;
+}
+.truncate {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

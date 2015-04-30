@@ -3,77 +3,58 @@ if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qs = array();
 
-$select = 'SELECT user.*, email.address as email, org.name as organization
-          , account.id as account_id, account.status as account_status ';
-
-$from = 'FROM '.USER_TABLE.' user '
-      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
-      . 'LEFT JOIN '.ORGANIZATION_TABLE.' org ON (user.org_id = org.id) '
-      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (account.user_id = user.id) ';
-
-$where='WHERE 1 ';
-
+$users = User::objects()
+    ->annotate(array('ticket_count'=>SqlAggregate::COUNT('tickets')));
 
 if ($_REQUEST['query']) {
-
-    $from .=' LEFT JOIN '.FORM_ENTRY_TABLE.' entry
-                ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-              LEFT JOIN '.FORM_ANSWER_TABLE.' value
-                ON (value.entry_id=entry.id) ';
-
-    $search = db_input(strtolower($_REQUEST['query']), false);
-    $where .= ' AND (
-                    email.address LIKE \'%'.$search.'%\'
-                    OR user.name LIKE \'%'.$search.'%\'
-                    OR org.name LIKE \'%'.$search.'%\'
-                    OR value.value LIKE \'%'.$search.'%\'
-                )';
-
+    $search = $_REQUEST['query'];
+    $users->filter(Q::any(array(
+        'emails__address__contains' => $search,
+        'name__contains' => $search,
+        'org__name__contains' => $search,
+        // TODO: Add search for cdata
+    )));
     $qs += array('query' => $_REQUEST['query']);
 }
 
-$sortOptions = array('name' => 'user.name',
-                     'email' => 'email.address',
-                     'status' => 'account_status',
-                     'create' => 'user.created',
-                     'update' => 'user.updated');
-$orderWays = array('DESC'=>'DESC','ASC'=>'ASC');
+$sortOptions = array('name' => 'name',
+                     'email' => 'emails__address',
+                     'status' => 'account__status',
+                     'create' => 'created',
+                     'update' => 'updated');
+$orderWays = array('DESC'=>'-','ASC'=>'');
 $sort= ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
 //Sorting options...
 if ($sort && $sortOptions[$sort])
     $order_column =$sortOptions[$sort];
 
-$order_column = $order_column ?: 'user.name';
+$order_column = $order_column ?: 'name';
 
 if ($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 
-$order=$order ?: 'ASC';
 if ($order_column && strpos($order_column,','))
     $order_column = str_replace(','," $order,",$order_column);
 
 $x=$sort.'_sort';
-$$x=' class="'.strtolower($order).'" ';
-$order_by="$order_column $order ";
+$$x=' class="'.($order == '' ? 'asc' : 'desc').'" ';
 
-$total=db_count('SELECT count(DISTINCT user.id) '.$from.' '.$where);
+$total = $users->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
+$pageNav->paginate($users);
+
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('users.php', $qs);
-$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qstr.='&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 
-$select .= ', count(DISTINCT ticket.ticket_id) as tickets ';
-
-$from .= ' LEFT JOIN '.TICKET_TABLE.' ticket ON (ticket.user_id = user.id) ';
-
-
-$query="$select $from $where GROUP BY user.id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
 //echo $query;
-$qhash = md5($query);
-$_SESSION['users_qs_'.$qhash] = $query;
+$_SESSION[':Q:users'] = clone $users;
 
+$users->values('id', 'name', 'default_email__address', 'account__id',
+    'account__status', 'created', 'updated');
+$users->order_by($order . $order_column);
 ?>
 <h2><?php echo __('User Directory'); ?></h2>
 <div class="pull-left">
@@ -92,6 +73,7 @@ $_SESSION['users_qs_'.$qhash] = $query;
  </div>
 
 <div class="pull-right">
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE)) { ?>
     <a class="action-button popup-dialog"
         href="#users/add">
         <i class="icon-plus-sign"></i>
@@ -102,6 +84,7 @@ $_SESSION['users_qs_'.$qhash] = $query;
         <i class="icon-upload"></i>
         <?php echo __('Import'); ?>
     </a>
+<?php } ?>
     <span class="action-button" data-dropdown="#action-dropdown-more"
         style="/*DELME*/ vertical-align:top; margin-bottom:0">
         <i class="icon-caret-down pull-right"></i>
@@ -109,19 +92,24 @@ $_SESSION['users_qs_'.$qhash] = $query;
     </span>
     <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_DELETE)) { ?>
             <li><a class="users-action" href="#delete">
                 <i class="icon-trash icon-fixed-width"></i>
                 <?php echo __('Delete'); ?></a></li>
+<?php }
+if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
             <li><a href="#orgs/lookup/form" onclick="javascript:
 $.dialog('ajax.php/orgs/lookup/form', 201);
 return false;">
                 <i class="icon-group icon-fixed-width"></i>
                 <?php echo __('Add to Organization'); ?></a></li>
 <?php
+}
 if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
             <li><a class="users-action" href="#reset">
                 <i class="icon-envelope icon-fixed-width"></i>
                 <?php echo __('Send Password Reset Email'); ?></a></li>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_MANAGE)) { ?>
             <li><a class="users-action" href="#register">
                 <i class="icon-smile icon-fixed-width"></i>
                 <?php echo __('Register'); ?></a></li>
@@ -131,7 +119,8 @@ if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
             <li><a class="users-action" href="#unlock">
                 <i class="icon-unlock icon-fixed-width"></i>
                 <?php echo __('Unlock'); ?></a></li>
-<?php } # end of registration-enabled? ?>
+<?php }
+} # end of registration-enabled? ?>
         </ul>
     </div>
 </div>
@@ -139,8 +128,7 @@ if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
-$res = db_query($query);
-if($res && ($num=db_num_rows($res)))
+if($users->exists(true))
     $showing .= $pageNav->showing();
 else
     $showing .= __('No users found!');
@@ -168,46 +156,45 @@ else
     </thead>
     <tbody>
     <?php
-        if($res && db_num_rows($res)):
-            $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-            while ($row = db_fetch_array($res)) {
+        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
+        foreach ($users as $U) {
                 // Default to email address mailbox if no name specified
-                if (!$row['name'])
-                    list($name) = explode('@', $row['email']);
+                if (!$U['name'])
+                    list($name) = explode('@', $U['default_email__address']);
                 else
-                    $name = new PersonsName($row['name']);
+                    $name = new PersonsName($U['name']);
 
                 // Account status
-                if ($row['account_id'])
-                    $status = new UserAccountStatus($row['account_status']);
+                if ($U['account__id'])
+                    $status = new UserAccountStatus($U['account__status']);
                 else
                     $status = __('Guest');
 
                 $sel=false;
-                if($ids && in_array($row['id'], $ids))
+                if($ids && in_array($U['id'], $ids))
                     $sel=true;
                 ?>
-               <tr id="<?php echo $row['id']; ?>">
+               <tr id="<?php echo $U['id']; ?>">
                 <td nowrap>
-                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
+                    <input type="checkbox" value="<?php echo $U['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp;
-                    <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php
+                    <a class="preview"
+                        href="users.php?id=<?php echo $U['id']; ?>"
+                        data-preview="#users/<?php echo $U['id']; ?>/preview"><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php
-                    if ($row['tickets'])
+                    if ($U['ticket_count'])
                          echo sprintf('<i class="icon-fixed-width icon-file-text-alt"></i>
-                             <small>(%d)</small>', $row['tickets']);
+                             <small>(%d)</small>', $U['ticket_count']);
                     ?>
                 </td>
                 <td><?php echo $status; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($U['created']); ?></td>
+                <td><?php echo Format::datetime($U['updated']); ?>&nbsp;</td>
                </tr>
-            <?php
-            } //end of while.
-        endif; ?>
+<?php   } //end of foreach. ?>
     </tbody>
     <tfoot>
      <tr>
@@ -227,12 +214,12 @@ else
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($total) {
     echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
             href="users.php?a=export&qh=%s">'.__('Export').'</a></div>',
             $pageNav->getPageLinks(),
             $qhash);
-endif;
+}
 ?>
 </form>
 

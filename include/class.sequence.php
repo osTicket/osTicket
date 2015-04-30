@@ -215,7 +215,7 @@ class RandomSequence extends Sequence {
     var $padding = '0';
 
     // Override the ORM constructor and do nothing
-    function __construct() {}
+    function __construct($ht=false) {}
 
     function __next($digits=6) {
         if ($digits < 6)
@@ -228,7 +228,7 @@ class RandomSequence extends Sequence {
         return $this->next($format);
     }
 
-    function save() {
+    function save($refetch=false) {
         throw new RuntimeException('RandomSequence is not database-backed');
     }
 }

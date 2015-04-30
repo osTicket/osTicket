@@ -109,8 +109,8 @@
   box-sizing: border-box;
 }
 .thread-body a {
-  color: #428bca;
-  text-decoration: none;
+  color: #428bca !important;
+  text-decoration: underline;
 }
 .thread-body a:hover,
 .thread-body a:focus {
@@ -466,9 +466,6 @@ table.thread-entry {
 
 table.thread-entry th div span {
     vertical-align: middle;
-}
-table.thread-entry th div :not(.title) {
-    font-weight: 600;
 }
 table.thread-entry th div .title {
     font-weight: 400;

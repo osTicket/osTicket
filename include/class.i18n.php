@@ -26,7 +26,7 @@ class Internationalization {
     function Internationalization($language=false) {
         global $cfg;
 
-        if ($cfg && ($lang = $cfg->getSystemLanguage()))
+        if ($cfg && ($lang = $cfg->getPrimaryLanguage()))
             array_unshift($this->langs, $language);
 
         // Detect language filesystem path, case insensitively
@@ -49,21 +49,23 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::create',
-            'sla.yaml' =>           'SLA::create',
+            'department.yaml' =>    'Dept::__create',
+            'sla.yaml' =>           'SLA::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic::create',
+            'help_topic.yaml' =>    'Topic::__create',
             'filter.yaml' =>        'Filter::create',
-            'team.yaml' =>          'Team::create',
+            'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
             // Ticket
-            'ticket_status.yaml' =>  'TicketStatus::__create',
+            'ticket_status.yaml' => 'TicketStatus::__create',
+            // Role
+            'role.yaml' =>          'Role::__create',
             // Note that group requires department
-            'group.yaml' =>         'Group::create',
+            'group.yaml' =>         'Group::__create',
             'file.yaml' =>          'AttachmentFile::create',
             'sequence.yaml' =>      'Sequence::__create',
         );
@@ -238,11 +240,35 @@ class Internationalization {
                     'phar' => substr($f, -5) == '.phar',
                     'code' => $base,
                 );
+                $installed[strtolower($base)]['flag'] = strtolower(
+                    $langs[$code]['flag'] ?: $locale ?: $code
+                );
             }
         }
-        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+        ksort($installed);
 
         return $cache = $installed;
+    }
+
+    static function isLanguageInstalled($code) {
+        $langs = self::availableLanguages();
+        return isset($langs[strtolower($code)]);
+    }
+
+    static function getConfiguredSystemLanguages() {
+        global $cfg;
+
+        if (!$cfg)
+            return self::availableLanguages();
+
+        $pri = $cfg->getPrimaryLanguage();
+        $langs = array($pri => self::getLanguageInfo($pri));
+
+        // Honor sorting preference of ::availableLanguages()
+        foreach ($cfg->getSecondaryLanguages() as $l) {
+            $langs[$l] = self::getLanguageInfo($l);
+        }
+        return $langs;
     }
 
     // TODO: Move this to the REQUEST class or some middleware when that
@@ -252,9 +278,9 @@ class Internationalization {
         global $cfg;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
-            return $cfg->getSystemLanguage();
+            return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
 
-        $languages = self::availableLanguages();
+        $languages = self::getConfiguredSystemLanguages();
 
         // The Accept-Language header contains information about the
         // language preferences configured in the user's browser / operating
@@ -328,19 +354,47 @@ class Internationalization {
           }
         }
 
-        return $best_match_langcode;
+        if (self::isLanguageInstalled($best_match_langcode))
+            return $best_match_langcode;
+        else
+            return $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {
         global $thisstaff, $thisclient;
+        static $session = null;
+
+        if (!isset($session))
+            $session = &$_SESSION['::lang'];
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
-            return $user->getLanguage();
-        if (isset($_SESSION['client:lang']))
-            return $_SESSION['client:lang'];
+            if ($lang = $user->getLanguage())
+                return $lang;
+
+        // Support the flag buttons for guests
+        if ((!$user || $user != $thisstaff) && $session)
+            return $session;
+
         return self::getDefaultLanguage();
     }
+
+    static function getCurrentLocale() {
+        global $thisstaff, $cfg;
+
+        // FIXME: Move this majic elsewhere - see upgrade bug note in
+        // class.staff.php
+        if ($thisstaff) {
+            return $thisstaff->getLocale()
+                ?: self::getCurrentLanguage();
+        }
+
+        if (!($locale = $cfg->getDefaultLocale()))
+            $locale = self::getCurrentLanguage();
+
+        return $locale;
+    }
+
 
     static function getTtfFonts() {
         if (!class_exists('Phar'))
@@ -363,6 +417,33 @@ class Internationalization {
         $rv = array($fonts, $subs);
         Signal::send('config.ttfonts', null, $rv);
         return $rv;
+    }
+
+    static function setCurrentLanguage($lang) {
+        if (!self::isLanguageInstalled($lang))
+            return false;
+
+        $_SESSION['::lang'] = $lang ?: null;
+        return true;
+    }
+
+    static function allLocales() {
+        $locales = array();
+        if (class_exists('ResourceBundle')) {
+            $current_lang = self::getCurrentLanguage();
+            $langs = array();
+            foreach (self::getConfiguredSystemLanguages() as $code=>$info) {
+                list($lang,) = explode('_', $code, 2);
+                $langs[$lang] = true;
+            }
+            foreach (ResourceBundle::getLocales('') as $code) {
+                list($lang,) = explode('_', $code, 2);
+                if (isset($langs[$lang])) {
+                    $locales[$code] = Locale::getDisplayName($code, $current_lang);
+                }
+            }
+        }
+        return $locales;
     }
 
     static function bootstrap() {

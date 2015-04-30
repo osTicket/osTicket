@@ -17,7 +17,8 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageCannedResponses()
+if(!$thisstaff
+        || !$thisstaff->getRole()->hasPerm(CannedModel::PERM_MANAGE)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
@@ -36,7 +37,7 @@ $canned_form = new Form(array(
    )),
 ));
 
-if($_POST && $thisstaff->canManageCannedResponses()) {
+if ($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$canned) {

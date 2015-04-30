@@ -28,7 +28,7 @@ class ContentAjaxAPI extends AjaxController {
                     $log->getTitle(),
                     Format::display(str_replace(',',', ',$log->getText())),
                     __('Log Date'),
-                    Format::db_daydatetime($log->getCreateDate()),
+                    Format::daydatetime($log->getCreateDate()),
                     __('IP Address'),
                     $log->getIP());
         }else {
@@ -134,24 +134,42 @@ class ContentAjaxAPI extends AjaxController {
     }
 
     function manageContent($id, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
-        $info = $content->getHashtable();
+
+        $langs = Internationalization::getConfiguredSystemLanguages();
+        $translations = $content->getAllTranslations();
+        $info = array(
+            'title' => $content->getTitle(),
+            'body' => $content->getBody(),
+        );
+        foreach ($translations as $t) {
+            if (!($data = $t->getComplex()))
+                continue;
+            $info['trans'][$t->lang] = array(
+                'title' => $data['name'],
+                'body' => $data['body'],
+            );
+        }
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
     function manageNamedContent($type, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
-        $content = Page::lookup(Page::getIdByType($type, $lang));
+        $langs = $cfg->getSecondaryLanguages();
+
+        $content = Page::lookupByType($type, $lang);
         $info = $content->getHashtable();
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
@@ -168,8 +186,9 @@ class ContentAjaxAPI extends AjaxController {
 
         $vars = array_merge($content->getHashtable(), $_POST);
         $errors = array();
+
         // Allow empty content for the staff banner
-        if ($content->save($id, $vars, $errors,
+        if ($content->update($vars, $errors,
             $content->getType() == 'banner-staff')
         ) {
             Http::response(201, 'Have a great day!');

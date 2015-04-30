@@ -111,10 +111,18 @@ class StaffNav {
 
 
     function getTabs(){
+        global $thisstaff;
+
         if(!$this->tabs) {
-            $this->tabs=array();
-            $this->tabs['dashboard'] = array('desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax");
-            $this->tabs['users'] = array('desc' => __('Users'), 'href' => 'users.php', 'title' => __('User Directory'));
+            $this->tabs = array();
+            $this->tabs['dashboard'] = array(
+                'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax"
+            );
+            if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) {
+                $this->tabs['users'] = array(
+                    'desc' => __('Users'), 'href' => 'users.php', 'title' => __('User Directory')
+                );
+            }
             $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
             if (count($this->getRegisteredApps()))
@@ -141,7 +149,7 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
-                        if($staff->canCreateTickets())
+                        if ($staff->hasPerm(TicketModel::PERM_CREATE))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',
@@ -162,9 +170,9 @@ class StaffNav {
                 case 'kbase':
                     $subnav[]=array('desc'=>__('FAQs'),'href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
-                        if($staff->canManageFAQ())
+                        if ($staff->getRole()->hasPerm(FAQ::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if ($cfg->isCannedResponseEnabled() && $staff->canManageCannedResponses())
+                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(CannedModel::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
@@ -233,7 +241,6 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('System'),'href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
-                    $subnav[]=array('desc'=>__('Emails'),'href'=>'settings.php?t=emails','iconclass'=>'email-settings');
                     $subnav[]=array('desc'=>__('Access'),'href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     $subnav[]=array('desc'=>__('Autoresponder'),'href'=>'settings.php?t=autoresp','iconclass'=>'email-autoresponders');
@@ -252,6 +259,7 @@ class AdminNav extends StaffNav{
                     break;
                 case 'emails':
                     $subnav[]=array('desc'=>__('Emails'),'href'=>'emails.php', 'title'=>__('Email Addresses'), 'iconclass'=>'emailSettings');
+                    $subnav[]=array('desc'=>__('Settings'),'href'=>'emailsettings.php','iconclass'=>'email-settings');
                     $subnav[]=array('desc'=>__('Banlist'),'href'=>'banlist.php',
                                         'title'=>__('Banned Emails'),'iconclass'=>'emailDiagnostic');
                     $subnav[]=array('desc'=>__('Templates'),'href'=>'templates.php','title'=>__('Email Templates'),'iconclass'=>'emailTemplates');
@@ -261,6 +269,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Agents'),'href'=>'staff.php','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Teams'),'href'=>'teams.php','iconclass'=>'teams');
                     $subnav[]=array('desc'=>__('Groups'),'href'=>'groups.php','iconclass'=>'groups');
+                    $subnav[]=array('desc'=>__('Roles'),'href'=>'roles.php','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Departments'),'href'=>'departments.php','iconclass'=>'departments');
                     break;
                 case 'apps':

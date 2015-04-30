@@ -12,9 +12,9 @@ $current_list = array();
 foreach ($forms as $e) { ?>
 <div class="sortable row-item" data-id="<?php echo $e->get('id'); ?>">
     <input type="hidden" name="forms[]" value="<?php echo $e->get('form_id'); ?>" />
-    <i class="icon-reorder"></i> <?php echo $e->getForm()->getTitle();
+    <i class="icon-reorder"></i> <?php echo $e->getTitle();
     $current_list[] = $e->get('form_id');
-    if ($e->getForm()->get('type') == 'G') { ?>
+    if ($e->getDynamicForm()->get('type') == 'G') { ?>
     <div class="button-group">
     <div class="delete"><a href="#"><i class="icon-trash"></i></a></div>
     </div>
@@ -70,7 +70,7 @@ foreach ($forms as $e) { ?>
 <script type="text/javascript">
 $(function() {
     $('#ticket-entries').sortable({containment:'parent',tolerance:'pointer'});
-    $('#ticket-entries .delete a').live('click', function() {
+    $(document).on('click', '#ticket-entries .delete a', function() {
         var $div = $(this).closest('.sortable.row-item');
         $('select[name=new-form]').find('option[data-id='+$div.data('id')+']')
             .prop('disabled',false);

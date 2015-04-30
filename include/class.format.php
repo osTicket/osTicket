@@ -200,7 +200,7 @@ class Format {
         }
     }
 
-    function safe_html($html) {
+    function safe_html($html, $spec=false) {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
             array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
@@ -219,7 +219,7 @@ class Format {
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
             'elements' => '*+iframe',
-            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder',
+            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder'.($spec ? '; '.$spec : ''),
         );
 
         return Format::html($html, $config);
@@ -232,10 +232,10 @@ class Format {
             'src="cid:$1', $text);
     }
 
-    function sanitize($text, $striptags=false) {
+    function sanitize($text, $striptags=false, $spec=false) {
 
         //balance and neutralize unsafe tags.
-        $text = Format::safe_html($text);
+        $text = Format::safe_html($text, $spec);
 
         $text = self::localizeInlineImages($text);
 
@@ -377,10 +377,19 @@ class Format {
 
 
     function viewableImages($html, $script=false) {
+        $cids = $images = array();
+        // Try and get information for all the files in one query
+        if (preg_match_all('/"cid:([\w._-]{32})"/', $html, $cids)) {
+            foreach (AttachmentFile::objects()
+                ->filter(array('key__in' => $cids[1]))
+                as $file
+            ) {
+                $images[strtolower($file->getKey())] = $file;
+            }
+        }
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
-        function($match) use ($script) {
-            $hash = $match[1];
-            if (!($file = AttachmentFile::lookup($hash)))
+        function($match) use ($script, $images) {
+            if (!($file = $images[strtolower($match[1])]))
                 return $match[0];
             return sprintf('"%s" data-cid="%s"',
                 $file->getDownloadUrl(false, 'inline', $script), $match[1]);
@@ -428,34 +437,145 @@ class Format {
         return $tstring;
     }
 
-    /* Dates helpers...most of this crap will change once we move to PHP 5*/
-    function db_date($time) {
+    function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
+            $strftimeFallback, $timezone) {
         global $cfg;
-        return Format::userdate($cfg->getDateFormat(), Misc::db2gmtime($time));
+
+        if ($timestamp && $fromDb) {
+            $timestamp = Misc::db2gmtime($timestamp);
+        }
+        if (class_exists('IntlDateFormatter')) {
+            $formatter = new IntlDateFormatter(
+                Internationalization::getCurrentLocale(),
+                $dayType,
+                $timeType,
+                $timezone,
+                IntlDateFormatter::GREGORIAN,
+                $format ?: null
+            );
+            if ($cfg->isForce24HourTime()) {
+                $format = str_replace(array('a', 'h'), array('', 'H'),
+                    $formatter->getPattern());
+                $formatter->setPattern($format);
+            }
+            return $formatter->format($timestamp);
+        }
+        // Fallback using strftime
+        $format = self::getStrftimeFormat($format);
+        // TODO: Properly convert to local time
+        $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
+        $time->setTimeZone(new DateTimeZone($cfg->getTimezone() ?: date_default_timezone_get()));
+        $timestamp = $time->getTimestamp();
+        return strftime($format ?: $strftimeFallback, $timestamp);
     }
 
-    function db_datetime($time) {
+    function parseDate($date, $format=false) {
         global $cfg;
-        return Format::userdate($cfg->getDateTimeFormat(), Misc::db2gmtime($time));
+
+        if (class_exists('IntlDateFormatter')) {
+            $formatter = new IntlDateFormatter(
+                Internationalization::getCurrentLocale(),
+                null,
+                null,
+                null,
+                IntlDateFormatter::GREGORIAN,
+                $format ?: null
+            );
+            if ($cfg->isForce24HourTime()) {
+                $format = str_replace(array('a', 'h'), array('', 'H'),
+                    $formatter->getPattern());
+                $formatter->setPattern($format);
+            }
+            return $formatter->parse($date);
+        }
+        // Fallback using strtotime
+        return strtotime($date);
     }
 
-    function db_daydatetime($time) {
+    function time($timestamp, $fromDb=true, $format=false, $timezone=false) {
         global $cfg;
-        return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
+
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getTimeFormat(), $fromDb,
+            IDF_NONE, IDF_SHORT,
+            '%x', $timezone ?: $cfg->getTimezone());
     }
 
-    function userdate($format, $gmtime) {
-        return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
+    function date($timestamp, $fromDb=true, $format=false, $timezone=false) {
+        global $cfg;
+
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getDateFormat(), $fromDb,
+            IDF_SHORT, IDF_NONE,
+            '%X', $timezone ?: $cfg->getTimezone());
     }
 
-    function date($format, $gmtimestamp, $offset=0, $daylight=false){
+    function datetime($timestamp, $fromDb=true, $timezone=false) {
+        global $cfg;
 
-        if(!$gmtimestamp || !is_numeric($gmtimestamp))
-            return "";
+        return self::__formatDate($timestamp,
+                $cfg->getDateTimeFormat(), $fromDb,
+                IDF_SHORT, IDF_SHORT,
+                '%X %x', $timezone ?: $cfg->getTimezone());
+    }
 
-        $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
+    function daydatetime($timestamp, $fromDb=true, $timezone=false) {
+        global $cfg;
 
-        return date($format, ($gmtimestamp+ ($offset*3600)));
+        return self::__formatDate($timestamp,
+                $cfg->getDayDateTimeFormat(), $fromDb,
+                IDF_FULL, IDF_SHORT,
+                '%X %x', $timezone ?: $cfg->getTimezone());
+    }
+
+    function getStrftimeFormat($format) {
+        static $dateToStrftime = array(
+            '%d' => 'dd',
+            '%a' => 'EEE',
+            '%e' => 'd',
+            '%A' => 'EEEE',
+            '%w' => 'e',
+            '%w' => 'c',
+            '%z' => 'D',
+
+            '%V' => 'w',
+
+            '%B' => 'MMMM',
+            '%m' => 'MM',
+            '%b' => 'MMM',
+
+            '%g' => 'Y',
+            '%G' => 'Y',
+            '%Y' => 'y',
+            '%y' => 'yy',
+
+            '%P' => 'a',
+            '%l' => 'h',
+            '%k' => 'H',
+            '%I' => 'hh',
+            '%H' => 'HH',
+            '%M' => 'mm',
+            '%S' => 'ss',
+
+            '%z' => 'ZZZ',
+            '%Z' => 'z',
+        );
+
+        $flipped = array_flip($dateToStrftime);
+        krsort($flipped);
+        // Also establish a list of ids, so we can do a creative replacement
+        // without clobbering the common letters in the formats
+        $ids = array_keys($flipped);
+        $ids = array_flip($ids);
+        foreach ($flipped as $icu=>$date) {
+            $format = str_replace($date, chr($ids[$icu]), $format);
+        }
+        return preg_replace_callback('`[\x00-\x1f]`',
+            function($m) use ($ids) {
+                return $ids[ord($m[0])];
+            },
+            $format
+        );
     }
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836
@@ -573,7 +693,7 @@ class Format {
         if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
-                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+                    $lang ?: ($cfg ? $cfg->getPrimaryLanguage() : 'en_US'))
             ) {
                 $tokenizer->setText($text);
                 $tokens = array();
@@ -590,5 +710,16 @@ class Format {
         }
         return $text;
     }
+}
+
+if (!class_exists('IntlDateFormatter')) {
+    define('IDF_NONE', 0);
+    define('IDF_SHORT', 1);
+    define('IDF_FULL', 2);
+}
+else {
+    define('IDF_NONE', IntlDateFormatter::NONE);
+    define('IDF_SHORT', IntlDateFormatter::SHORT);
+    define('IDF_FULL', IntlDateFormatter::FULL);
 }
 ?>

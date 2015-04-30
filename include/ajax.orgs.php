@@ -15,6 +15,7 @@
 
 if(!defined('INCLUDE_DIR')) die('403');
 
+require_once INCLUDE_DIR . 'class.organization.php';
 include_once(INCLUDE_DIR.'class.ticket.php');
 
 class OrgsAjaxAPI extends AjaxController {
@@ -53,6 +54,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -71,6 +74,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -96,6 +101,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(Organization::PERM_DELETE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -115,6 +122,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -136,7 +145,8 @@ class OrgsAjaxAPI extends AjaxController {
                             Format::htmlchars($user->getName()));
             } else { //Creating new  user
                 $form = UserForm::getUserForm()->getForm($_POST);
-                if (!($user = User::fromForm($form)))
+                $can_create = $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
+                if (!($user = User::fromForm($form, $can_create)))
                     $info['error'] = __('Error adding user - try again!');
             }
 
@@ -174,6 +184,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->getRole()->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, 'No such organization');
 
@@ -197,6 +209,10 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function addOrg() {
+        global $thisstaff;
+
+        if (!$thisstaff->getRole()->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
 
         $info = array();
 
@@ -259,7 +275,7 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function manageForms($org_id) {
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         $info = array('action' => '#orgs/'.Format::htmlchars($org_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -269,13 +285,15 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required");
+        elseif (!$thisstaff->getRole()->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, "No such ticket");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {

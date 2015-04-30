@@ -57,6 +57,7 @@ else
 
 ?>
 <div style="width:700px;" class="pull-left"><b><?php echo $showing; ?></b></div>
+<?php if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
 <div class="pull-right flush-right" style="padding-right:5px;">
     <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user"
         ><?php echo __('Add User'); ?></a></b>
@@ -65,6 +66,7 @@ else
     <i class="icon-cloud-upload icon-large"></i>
     <?php echo __('Import'); ?></a></b>
 </div>
+<?php } ?>
 <div class="clear"></div>
 <br/>
 <?php
@@ -102,8 +104,10 @@ if ($num) { ?>
                     value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 </td>
                 <td>&nbsp;
-                    <a class="userPreview"
-                        href="users.php?id=<?php echo $row['id']; ?>"><?php
+                    <a class="preview"
+                        href="users.php?id=<?php echo $row['id']; ?>"
+                        data-preview="#users/<?php
+                        echo $row['id']; ?>/preview" ><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php
@@ -114,7 +118,7 @@ if ($num) { ?>
                 </td>
                 <td><?php echo Format::htmlchars($row['email']); ?></td>
                 <td><?php echo $status; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
+                <td><?php echo Format::date($row['created']); ?></td>
                </tr>
             <?php
             } //end of while.

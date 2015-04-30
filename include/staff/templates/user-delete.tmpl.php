@@ -35,7 +35,7 @@ if ($info['error']) {
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

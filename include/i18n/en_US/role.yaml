@@ -1,0 +1,97 @@
+#
+# Default roles defined for the system
+#
+# Fields:
+# id - Primary id for the role
+# flags - (bit mask) role flags
+# name - (string) descriptive name for the role
+# notes - (string) internal notes
+# permissions: (list<keys>)
+#
+# NOTE: ------------------------------------
+# ---
+- id: 1
+  flags: 1
+  name: All Access
+  notes: |
+    Role with unlimited access
+
+  permissions: [
+    ticket.create,
+    ticket.edit,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply,
+    ticket.close,
+    ticket.delete,
+    task.create,
+    task.edit,
+    task.assign,
+    task.transfer,
+    task.reply,
+    task.close,
+    task.delete,
+    kb.premade,
+    kb.faq,
+    stats.agents,
+    emails.banlist,
+    user.edit,
+    user.delete,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit,
+    org.delete,
+    search.all]
+
+- id: 2
+  flags: 1
+  name: Expanded Access
+  notes: |
+    Role with expanded access
+
+  permissions: [
+    ticket.create,
+    ticket.edit,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply,
+    ticket.close,
+    task.create,
+    task.edit,
+    task.assign,
+    task.transfer,
+    task.reply,
+    task.close,
+    kb.premade,
+    kb.faq,
+    stats.agents,
+    emails.banlist,
+    user.edit,
+    user.delete,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit,
+    org.delete]
+
+- id: 3
+  flags: 1
+  name: Limited Access
+  notes: |
+    Role with limited access
+
+  permissions: [
+    ticket.create,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply
+    task.create,
+    task.assign,
+    task.transfer,
+    task.reply,
+    user.edit,
+    user.manage,
+    user.dir,
+    org.create,
+    org.edit]

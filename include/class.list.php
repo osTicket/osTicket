@@ -188,14 +188,14 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function getName() {
-        return $this->get('name');
+        return $this->getLocal('name');
     }
 
     function getPluralName() {
-        if ($name = $this->get('name_plural'))
+        if ($name = $this->getLocal('name_plural'))
             return $name;
         else
-            return $this->get('name') . 's';
+            return $this->getName() . 's';
     }
 
     function getItemCount() {
@@ -229,18 +229,26 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
 
 
-    function getItem($val) {
+    function getItem($val, $extra=false) {
 
-        $criteria = array('list_id' => $this->getId());
+        $items = DynamicListItem::objects()->filter(
+                array('list_id' => $this->getId()));
+
         if (is_int($val))
-            $criteria['id'] = $val;
+            $items->filter(array('id' => $val));
+        elseif ($extra)
+            $items->filter(array('extra' => $val));
         else
-            $criteria['value'] = $val;
+            $items->filter(array('value' => $val));
 
-         return DynamicListItem::lookup($criteria);
+
+        return $items->one();
     }
 
     function addItem($vars, &$errors) {
+
+        if (($item=$this->getItem($vars['value'])))
+            return $item;
 
         $item = DynamicListItem::create(array(
             'status' => 1,
@@ -313,6 +321,15 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     function getConfiguration() {
         return JsonDataParser::parse($this->_config->get('configuration'));
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('list.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function update($vars, &$errors) {
@@ -438,6 +455,151 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $selections;
     }
 
+    function importCsv($stream, $defaults=array()) {
+        //Read the header (if any)
+        $headers = array('value' => __('Value'), 'abbrev' => __('Abbreviation'));
+        $form = $this->getConfigurationForm();
+        $named_fields = $fields = array(
+            'value' => new TextboxField(array(
+                'label' => __('Value'),
+                'name' => 'value',
+                'configuration' => array(
+                    'length' => 0,
+                ),
+            )),
+            'abbrev' => new TextboxField(array(
+                'name' => 'abbrev',
+                'label' => __('Abbreviation'),
+                'configuration' => array(
+                    'length' => 0,
+                ),
+            )),
+        );
+        $all_fields = $form->getFields();
+        $has_header = false;
+        foreach ($all_fields as $f)
+            if ($f->get('name'))
+                $named_fields[] = $f;
+
+        if (!($data = fgetcsv($stream, 1000, ",")))
+            return __('Whoops. Perhaps you meant to send some CSV records');
+
+        foreach ($data as $D) {
+            if (strcasecmp($D, 'value') === 0)
+                $has_header = true;
+        }
+        if ($has_header) {
+            foreach ($data as $h) {
+                $found = false;
+                foreach ($all_fields as $f) {
+                    if (in_array(mb_strtolower($h), array(
+                            mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
+                        $found = true;
+                        if (!$f->get('name'))
+                            return sprintf(__(
+                                '%s: Field must have `variable` set to be imported'), $h);
+                        $headers[$f->get('name')] = $f->get('label');
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $has_header = false;
+                    if (count($data) == count($named_fields)) {
+                        // Number of fields in the user form matches the number
+                        // of fields in the data. Assume things line up
+                        $headers = array();
+                        foreach ($named_fields as $f)
+                            $headers[$f->get('name')] = $f->get('label');
+                        break;
+                    }
+                    else {
+                        return sprintf(__('%s: Unable to map header to a property'), $h);
+                    }
+                }
+            }
+        }
+
+        // 'value' MUST be in the headers
+        if (!isset($headers['value']))
+            return __('CSV file must include `value` column');
+
+        if (!$has_header)
+            fseek($stream, 0);
+
+        $items = array();
+        $keys = array('value', 'abbrev');
+        foreach ($headers as $h => $label) {
+            if (!($f = $form->getField($h)))
+                continue;
+
+            $name = $keys[] = $f->get('name');
+            $fields[$name] = $f->getImpl();
+        }
+
+        // Add default fields (org_id, etc).
+        foreach ($defaults as $key => $val) {
+            // Don't apply defaults which are also being imported
+            if (isset($header[$key]))
+                unset($defaults[$key]);
+            $keys[] = $key;
+        }
+
+        while (($data = fgetcsv($stream, 1000, ",")) !== false) {
+            if (count($data) == 1 && $data[0] == null)
+                // Skip empty rows
+                continue;
+            elseif (count($data) != count($headers))
+                return sprintf(__('Bad data. Expected: %s'), implode(', ', $headers));
+            // Validate according to field configuration
+            $i = 0;
+            foreach ($headers as $h => $label) {
+                $f = $fields[$h];
+                $T = $f->parse($data[$i]);
+                if ($f->validateEntry($T) && $f->errors())
+                    return sprintf(__(
+                        /* 1 will be a field label, and 2 will be error messages */
+                        '%1$s: Invalid data: %2$s'),
+                        $label, implode(', ', $f->errors()));
+                // Convert to database format
+                $data[$i] = $f->to_database($T);
+                $i++;
+            }
+            // Add default fields
+            foreach ($defaults as $key => $val)
+                $data[] = $val;
+
+            $items[] = $data;
+        }
+
+        foreach ($items as $u) {
+            $vars = array_combine($keys, $u);
+            $errors = array();
+            $item = $this->addItem($vars, $errors);
+            if (!$item || !$item->setConfiguration($vars, $errors))
+                return sprintf(__('Unable to import item: %s'),
+                    print_r($vars, true));
+        }
+
+        return count($items);
+    }
+
+    function importFromPost($stuff, $extra=array()) {
+        if (is_array($stuff) && !$stuff['error']) {
+            // Properly detect Macintosh style line endings
+            ini_set('auto_detect_line_endings', true);
+            $stream = fopen($stuff['tmp_name'], 'r');
+        }
+        elseif ($stuff) {
+            $stream = fopen('php://temp', 'w+');
+            fwrite($stream, $stuff);
+            rewind($stream);
+        }
+        else {
+            return __('Unable to parse submitted items');
+        }
+
+        return self::importCsv($stream, $extra);
+    }
 }
 FormField::addFieldTypes(/* @trans */ 'Custom Lists', array('DynamicList', 'getSelections'));
 
@@ -520,7 +682,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function getValue() {
-        return $this->get('value');
+        return $this->getLocal('value');
     }
 
     function getAbbrev() {
@@ -542,16 +704,19 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array()) {
+    function setConfiguration($vars, &$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm($_POST)->getFields() as $field) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
             $config[$field->get('id')] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('properties', JsonDataEncoder::encode($config));
 
-        return count($errors) === 0;
+        if ($errors)
+            return false;
+
+        $this->set('properties', JsonDataEncoder::encode($config));
+
+        return $this->save();
     }
 
     function getConfigurationForm($source=null) {
@@ -594,6 +759,15 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         }
         $data['.abb'] = (string) $this->get('extra');
         return $data;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('listitem.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
     }
 
     function toString() {
@@ -797,10 +971,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
 
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
-    }
-
     protected function hasFlag($field, $flag) {
         return 0 !== ($this->get($field) & $flag);
     }
@@ -997,6 +1167,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     function getValue() {
         return $this->getName();
     }
+    function getLocalName() {
+        return $this->getLocal('value', $this->getName());
+    }
 
     function getAbbrev() {
         return '';
@@ -1017,6 +1190,20 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         }
 
         return $this->_properties;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('status.%s.%s', $subtag, $this->id));
+    }
+    function getLocal($subtag, $default) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('status.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
     }
 
     function getConfiguration() {
@@ -1050,9 +1237,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->_settings;
     }
 
-    function setConfiguration(&$errors=array()) {
+    function setConfiguration($vars, &$errors=array()) {
         $properties = array();
-        foreach ($this->getConfigurationForm($_POST)->getFields() as $f) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $f) {
             if ($this->isInternal() //Item is internal.
                     && !$f->isEditable())
                 continue;
@@ -1120,10 +1307,12 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
     }
 
     function __toString() {
-        return __($this->getName());
+        return $this->getName();
     }
 
-    static function create($ht) {
+    static function create($ht=false) {
+        if (!is_array($ht))
+            return null;
 
         if (!isset($ht['mode']))
             $ht['mode'] = 1;
@@ -1158,6 +1347,4 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
     }
 }
-
-TicketStatus::_inspect();
 ?>
