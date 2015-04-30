@@ -227,22 +227,26 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->_items;
     }
 
-
-
-    function getItem($val) {
+    function getItem($val, $extra=false) {
 
         $items = DynamicListItem::objects()->filter(
                 array('list_id' => $this->getId()));
 
         if (is_int($val))
             $items->filter(array('id' => $val));
+        elseif ($extra)
+            $items->filter(array('extra' => $val));
         else
-            $items->filter(Q::any(array('value'=>$val, 'extra' => $val)));
+            $items->filter(array('value' => $val));
+
 
         return $items->first();
     }
 
     function addItem($vars, &$errors) {
+
+        if (($item=$this->getItem($vars['value'])))
+            return $item;
 
         $item = DynamicListItem::create(array(
             'status' => 1,
@@ -513,7 +517,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             }
         }
 
-        // 'name' and 'email' MUST be in the headers
+        // 'value' MUST be in the headers
         if (!isset($headers['value']))
             return __('CSV file must include `value` column');
 
@@ -565,11 +569,11 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $items[] = $data;
         }
 
-        $errors = array();
         foreach ($items as $u) {
             $vars = array_combine($keys, $u);
-            $item = $this->addItem($vars);
-            if (!$item || !$item->setConfiguration($errors, $vars))
+            $errors = array();
+            $item = $this->addItem($vars, $errors);
+            if (!$item || !$item->setConfiguration($vars, $errors))
                 return sprintf(__('Unable to import item: %s'),
                     print_r($vars, true));
         }
@@ -698,16 +702,19 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array(), $source=false) {
+    function setConfiguration($vars, &$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm($source ?: $_POST)->getFields() as $field) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
             $config[$field->get('id')] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('properties', JsonDataEncoder::encode($config));
 
-        return count($errors) === 0;
+        if ($errors)
+            return false;
+
+        $this->set('properties', JsonDataEncoder::encode($config));
+
+        return $this->save();
     }
 
     function getConfigurationForm($source=null) {
@@ -1228,9 +1235,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->_settings;
     }
 
-    function setConfiguration(&$errors=array()) {
+    function setConfiguration($vars, &$errors=array()) {
         $properties = array();
-        foreach ($this->getConfigurationForm($_POST)->getFields() as $f) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $f) {
             if ($this->isInternal() //Item is internal.
                     && !$f->isEditable())
                 continue;
