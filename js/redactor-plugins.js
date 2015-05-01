@@ -1624,33 +1624,33 @@ RedactorPlugins.contexttypeahead = function() {
 
     watch: function(e) {
       var current = this.selection.getCurrent(),
+          allText = this.$editor.text(),
+          offset = this.caret.getOffset(),
+          lhs = allText.substring(0, offset),
           search = new RegExp(/%\{([^}]*)$/),
           match;
 
-      if (!current)
-        return;
+      if (!lhs) {
+        return !e.isDefaultPrevented();
+      }
 
-      content = current.textContent;
-      if (e.which == 27 || !(match = search.exec(content)))
+      if (e.which == 27 || !(match = search.exec(lhs)))
         // No longer in a element — close typeahead
         return this.contexttypeahead.destroy();
+
+      if (e.type == 'click')
+        return;
 
       // Locate the position of the cursor and the number of characters back
       // to the `%{` symbols
       var sel         = this.selection.get(),
           range       = this.sel.getRangeAt(0),
+          content     = current.textContent,
           clientRects = range.getClientRects(),
           position    = clientRects[0],
-          cursorAt    = range.endOffset,
-          backTextLen = match[1].length - content.length + cursorAt,
-          backText    = match[1].substring(0, backTextLen),
-          that        = this.contexttypeahead;
-
-      if (backTextLen < 0)
-          return this.contexttypeahead.destroy();
-
-      if (e.type == 'click')
-          return;
+          backText    = match[1],
+          parent      = this.selection.getParent() || this.$editor,
+          plugin      = this.contexttypeahead;
 
       // Insert a hidden text input to receive the typed text and add a
       // typeahead widget
@@ -1668,16 +1668,17 @@ RedactorPlugins.contexttypeahead = function() {
               var base = $.fn.typeahead.Constructor.prototype.highlighter
                     .call(this, variable),
                   further = new RegExp(variable + '\\.'),
-                  extendable = Object.keys(that.variables).some(function(v) {
+                  extendable = Object.keys(plugin.variables).some(function(v) {
                     return v.match(further);
                   }),
                   arrow = extendable ? this.options.arrow.clone() : '';
 
-              return base + $('<span class="faded"/>')
-                .text(' — ' + item.desc)
-                .append(arrow)
-                .wrap('<div>').parent().html();
+              return $('<div/>').html(base).prepend(arrow).html()
+                + $('<span class="faded">')
+                  .text(' — ' + item.desc)
+                  .wrap('<div>').parent().html();
             },
+            item: '<li><a href="#" style="display:block"></a></li>',
             source: this.contexttypeahead.getContext.bind(this),
             sorter: function(items) {
               items.sort(
@@ -1697,15 +1698,25 @@ RedactorPlugins.contexttypeahead = function() {
           });
       }
 
-      var left = position.left - this.contexttypeahead.textWidth(
-            backText,
-            this.selection.getParent() || $('<div class="redactor-editor">')
-          );
+      if (position) {
+        var width = plugin.textWidth(
+              backText,
+              this.selection.getParent() || $('<div class="redactor-editor">')
+            ),
+            pleft = $(parent).offset().left,
+            left = position.left - width;
 
-      this.contexttypeahead.typeahead
+        if (left < pleft)
+            // This is a bug in chrome, but I'm not sure how to adjust it
+            left += pleft;
+
+        plugin.typeahead
+          .css({top: position.top + $(window).scrollTop(), left: left});
+      }
+
+      plugin.typeahead
         .val(match[1])
-        .trigger(e)
-        .css({top: position.top + $(window).scrollTop(), left: left});
+        .trigger(e);
 
       return !e.isDefaultPrevented();
     },
@@ -1753,12 +1764,13 @@ RedactorPlugins.contexttypeahead = function() {
         this.contexttypeahead.typeahead.remove();
         this.contexttypeahead.typeahead = false;
       }
-      // TODO: Hide typeahead widget
     },
 
     select: function(item) {
       var current = this.selection.getCurrent(),
           search = new RegExp(/%\{([^}]*)$/);
+
+      // FIXME: ENTER will end up here, but current will be empty
 
       if (!current)
         return;
