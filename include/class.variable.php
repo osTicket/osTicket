@@ -21,8 +21,9 @@ class VariableReplacer {
     var $start_delim;
     var $end_delim;
 
-    var $objects;
-    var $variables;
+    var $objects = array();
+    var $variables = array();
+    var $extras = array();
 
     var $errors;
 
@@ -30,9 +31,6 @@ class VariableReplacer {
 
         $this->start_delim = $start_delim;
         $this->end_delim = $end_delim;
-
-        $this->objects = array();
-        $this->variables = array();
     }
 
     function setError($error) {
@@ -97,13 +95,21 @@ class VariableReplacer {
 
     function replaceVars($input) {
 
+        // Preserve existing extras
+        if ($input instanceof TextWithExtras)
+            $this->extras = $input->extras;
+
         if($input && is_array($input))
             return array_map(array($this, 'replaceVars'), $input);
 
         if(!($vars=$this->_parse($input)))
             return $input;
 
-        return str_replace(array_keys($vars), array_values($vars), $input);
+        $text = str_replace(array_keys($vars), array_values($vars), $input);
+        if ($this->extras) {
+            return new TextWithExtras($text, $this->extras);
+        }
+        return $text;
     }
 
     function _resolveVar($var) {
@@ -113,9 +119,18 @@ class VariableReplacer {
             return $this->variables[$var];
 
         $parts = explode('.', $var, 2);
-        if($parts && ($obj=$this->getObj($parts[0])))
-            return $this->getVar($obj, $parts[1]);
-        elseif($parts[0] && @isset($this->variables[$parts[0]])) { //root override
+        try {
+            if ($parts && ($obj=$this->getObj($parts[0])))
+                return $this->getVar($obj, $parts[1]);
+        }
+        catch (OOBContent $content) {
+            $type = $content->getType();
+            $existing = @$this->extras[$type] ?: array();
+            $this->extras[$type] = array_merge($existing, $content->getContent());
+            return '';
+        }
+
+        if ($parts[0] && @isset($this->variables[$parts[0]])) { //root override
             if (is_array($this->variables[$parts[0]])
                     && isset($this->variables[$parts[0]][$parts[1]]))
                 return $this->variables[$parts[0]][$parts[1]];
@@ -296,6 +311,52 @@ class PlaceholderList
             return $items[0];
         }
         return new static($items);
+    }
+}
+
+/**
+ * Exception used in the variable replacement process to indicate non text
+ * content (such as attachments)
+ */
+class OOBContent extends Exception {
+    var $type;
+    var $content;
+
+    const FILES = 'files';
+
+    function __construct($type, $content) {
+        $this->type = $type;
+        $this->content = $content;
+    }
+
+    function getType() { return $this->type; }
+    function getContent() { return $this->content; }
+}
+
+class TextWithExtras {
+    var $text = '';
+    var $extras;
+
+    function __construct($text, array $extras) {
+        $this->setText($text);
+        $this->extras = $extras;
+    }
+
+    function setText($text) {
+        try {
+            $this->text = (string) $text;
+        }
+        catch (Exception $e) {
+            throw new InvalidArgumentException('String type is required', 0, $e);
+        }
+    }
+
+    function __toString() {
+        return $this->text;
+    }
+
+    function getFiles() {
+        return $this->extras[OOBContent::FILES];
     }
 }
 

@@ -793,17 +793,6 @@ implements TemplateVariable {
         return $str;
     }
 
-    /* Returns file names with id as key */
-    function getFiles() {
-
-        $files = array();
-        foreach($this->attachments as $attachment)
-            $files[$attachment->file_id] = $attachment->file->name;
-
-        return $files;
-    }
-
-
     /* save email info
      * TODO: Refactor it to include outgoing emails on responses.
      */
@@ -851,17 +840,16 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        global $cfg;
-
-        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
             return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(strtolower($tag)) {
             case 'create_date':
-                // XXX: Consider preferences of receiving user
-                return Format::datetime($this->getCreateDate(), true, 'UTC');
+                return new FormattedDate($this->getCreateDate());
             case 'update_date':
-                return Format::datetime($this->getUpdateDate(), true, 'UTC');
+                return new FormattedDate($this->getUpdateDate());
+            case 'files':
+                throw new OOBContent(OOBContent::FILES, $this->attachments->all());
         }
 
         return false;
