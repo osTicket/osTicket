@@ -2184,6 +2184,42 @@ class FileUploadField extends FormField {
             $this->attachments->deleteAll();
         }
     }
+
+    function asVar($value, $id=false) {
+        return new FileFieldAttachments($this->getFiles());
+    }
+    function asVarType() {
+        return 'FileFieldAttachments';
+    }
+}
+
+class FileFieldAttachments {
+    var $files;
+
+    function __construct($files) {
+        $this->files = $files;
+    }
+
+    function __toString() {
+        $files = array();
+        foreach ($this->files as $f) {
+            $files[] = $f->file->name;
+        }
+        return implode(', ', $files);
+    }
+
+    function getVar($tag) {
+        switch ($tag) {
+        case 'files':
+            throw new OOBContent(OOBContent::FILES, $this->files->all());
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'files' => __('Attached files'),
+        );
+    }
 }
 
 class InlineFormData extends ArrayObject {

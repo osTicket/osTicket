@@ -127,7 +127,7 @@ class VariableReplacer {
             $type = $content->getType();
             $existing = @$this->extras[$type] ?: array();
             $this->extras[$type] = array_merge($existing, $content->getContent());
-            return '';
+            return $content->asVar();
         }
 
         if ($parts[0] && @isset($this->variables[$parts[0]])) { //root override
@@ -321,18 +321,25 @@ class PlaceholderList
 class OOBContent extends Exception {
     var $type;
     var $content;
+    var $text;
 
     const FILES = 'files';
 
-    function __construct($type, $content) {
+    function __construct($type, $content, $asVar='') {
         $this->type = $type;
         $this->content = $content;
+        $this->text = $asVar;
     }
 
     function getType() { return $this->type; }
     function getContent() { return $this->content; }
+    function asVar() { return $this->text; }
 }
 
+/**
+ * Simple wrapper to represent a rendered or partially rendered template
+ * with extra content such as attachments
+ */
 class TextWithExtras {
     var $text = '';
     var $extras;
