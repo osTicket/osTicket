@@ -508,6 +508,22 @@ class EmailTemplate {
         return $this->getGroup()->getTemplateDescription($this->ht['code_name']);
     }
 
+    function getInvalidVariableUsage() {
+        $context = VariableReplacer::getContextForRoot($this->ht['code_name']);
+        $invalid = array();
+        foreach (array($this->getSubject(), $this->getBody()) as $B) {
+            $variables = array();
+            if (!preg_match_all('`%\{([^}]*)\}`', $B, $variables, PREG_SET_ORDER))
+                continue;
+            foreach ($variables as $V) {
+                if (!isset($context[$V[1]])) {
+                    $invalid[] = $V[0];
+                }
+            }
+        }
+        return $invalid;
+    }
+
     function update($vars, &$errors) {
 
         if(!$this->save($this->getId(),$vars,$errors))

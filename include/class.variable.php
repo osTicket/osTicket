@@ -210,6 +210,55 @@ class VariableReplacer {
         }
         return $items;
     }
+
+    static function getContextForRoot($root) {
+        switch ($root) {
+        case 'cannedresponse':
+            $roots = array('ticket');
+            break;
+
+        default:
+            if ($info = Page::getContext($root)) {
+                $roots = $info;
+                break;
+            }
+
+            // Get the context for an email template
+            if ($tpl_info = EmailTemplateGroup::getTemplateDescription($root))
+                $roots = $tpl_info['context'];
+        }
+
+        if (!$roots)
+            return false;
+
+        $contextTypes = array(
+            'activity' => __('Type of recent activity'),
+            'assignee' => array('class' => 'Staff', 'desc' => __('Assigned agent/team')),
+            'assigner' => array('class' => 'Staff', 'desc' => __('Agent performing the assignment')),
+            'comments' => __('Assign/transfer comments'),
+            'link' => __('Access link'),
+            'message' => array('class' => 'MessageThreadEntry', 'desc' => 'Message from the EndUser'),
+            'note' => array('class' => 'NoteThreadEntry', 'desc' => __('Internal note')),
+            'poster' => array('class' => 'User', 'desc' => 'EndUser or Agent originating the message'),
+            // XXX: This could be EndUser -or- Staff object
+            'recipient' => array('class' => 'TicketUser', 'desc' => 'Message recipient'),
+            'response' => array('class' => 'ResponseThreadEntry', 'desc' => __('Outgoing response')),
+            'signature' => 'Selected staff or department signature',
+            'staff' => array('class' => 'Staff', 'desc' => 'Agent originating the activity'),
+            'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
+            'user' => array('class' => 'User', 'desc' => __('Message recipient')),
+        );
+        $context = array();
+        foreach ($roots as $C=>$desc) {
+            // $desc may be either the root or the description array
+            if (is_array($desc))
+                $context[$C] = $desc;
+            else
+                $context[$desc] = $contextTypes[$desc];
+        }
+        $global = osTicket::getVarScope();
+        return self::compileScope($context + $global);
+    }
 }
 
 class PlaceholderList
