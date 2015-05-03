@@ -193,7 +193,7 @@ implements EmailContact {
     }
 
     function getName() {
-        return new PersonsName($this->ht['firstname'].' '.$this->ht['lastname']);
+        return new PersonsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
     }
 
     function getFirstName() {
@@ -602,20 +602,32 @@ implements EmailContact {
 
     /**** Static functions ********/
     function getStaffMembers($availableonly=false) {
+        global $cfg;
 
-        $sql='SELECT s.staff_id, CONCAT_WS(" ", s.firstname, s.lastname) as name '
-            .' FROM '.STAFF_TABLE.' s ';
+        $sql = 'SELECT s.staff_id, s.firstname, s.lastname FROM '
+            .STAFF_TABLE.' s ';
 
         if($availableonly) {
             $sql.=' INNER JOIN '.GROUP_TABLE.' g ON(g.group_id=s.group_id AND g.group_enabled=1) '
                  .' WHERE s.isactive=1 AND s.onvacation=0';
         }
 
-        $sql.='  ORDER BY s.lastname, s.firstname';
+        switch ($cfg->getDefaultNameFormat()) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $sql .= ' ORDER BY s.lastname, s.firstname';
+            break;
+
+        default:
+            $sql .= ' ORDER BY s.firstname, s.lastname';
+        }
+
         $users=array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name) = db_fetch_row($res))
-                $users[$id] = $name;
+            while(list($id, $fname, $lname) = db_fetch_row($res))
+                $users[$id] = new PersonsName(
+                    array('first' => $fname, 'last' => $lname));
         }
 
         return $users;

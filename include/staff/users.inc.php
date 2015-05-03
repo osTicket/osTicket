@@ -76,7 +76,7 @@ $_SESSION['users_qs_'.$qhash] = $query;
 
 ?>
 <h2><?php echo __('User Directory'); ?></h2>
-<div class="pull-left" style="width:700px;">
+<div class="pull-left">
     <form action="users.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -90,12 +90,52 @@ $_SESSION['users_qs_'.$qhash] = $query;
         </table>
     </form>
  </div>
- <div class="pull-right flush-right" style="padding-right:5px;">
-    <b><a href="#users/add" class="Icon newstaff popup-dialog"><?php echo __('Add User'); ?></a></b>
-    |
-    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i>
-    <?php echo __('Import'); ?></a></b>
+
+<div class="pull-right">
+    <a class="action-button popup-dialog"
+        href="#users/add">
+        <i class="icon-plus-sign"></i>
+        <?php echo __('Add User'); ?>
+    </a>
+    <a class="action-button popup-dialog"
+        href="#users/import">
+        <i class="icon-upload"></i>
+        <?php echo __('Import'); ?>
+    </a>
+    <span class="action-button" data-dropdown="#action-dropdown-more"
+        style="/*DELME*/ vertical-align:top; margin-bottom:0">
+        <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul>
+            <li><a class="users-action" href="#delete">
+                <i class="icon-trash icon-fixed-width"></i>
+                <?php echo __('Delete'); ?></a></li>
+            <li><a href="#orgs/lookup/form" onclick="javascript:
+$.dialog('ajax.php/orgs/lookup/form', 201);
+return false;">
+                <i class="icon-group icon-fixed-width"></i>
+                <?php echo __('Add to Organization'); ?></a></li>
+<?php
+if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
+            <li><a class="users-action" href="#reset">
+                <i class="icon-envelope icon-fixed-width"></i>
+                <?php echo __('Send Password Reset Email'); ?></a></li>
+            <li><a class="users-action" href="#register">
+                <i class="icon-smile icon-fixed-width"></i>
+                <?php echo __('Register'); ?></a></li>
+            <li><a class="users-action" href="#lock">
+                <i class="icon-lock icon-fixed-width"></i>
+                <?php echo __('Lock'); ?></a></li>
+            <li><a class="users-action" href="#unlock">
+                <i class="icon-unlock icon-fixed-width"></i>
+                <?php echo __('Unlock'); ?></a></li>
+<?php } # end of registration-enabled? ?>
+        </ul>
+    </div>
 </div>
+
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -105,14 +145,17 @@ if($res && ($num=db_num_rows($res)))
 else
     $showing .= __('No users found!');
 ?>
-<form action="users.php" method="POST" name="staff" >
+<form id="users-list" action="users.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
+ <input type="hidden" id="selected-count" name="count" value="" >
+ <input type="hidden" id="org_id" name="org_id" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
+            <th nowrap width="12"> </th>
             <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
             <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
@@ -145,6 +188,9 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
+                <td nowrap>
+                    <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
+                </td>
                 <td>&nbsp;
                     <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php
                         echo Format::htmlchars($name); ?></a>
@@ -163,6 +209,22 @@ else
             } //end of while.
         endif; ?>
     </tbody>
+    <tfoot>
+     <tr>
+        <td colspan="7">
+            <?php if ($res && $num) { ?>
+            <?php echo __('Select');?>:&nbsp;
+            <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
+            <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
+            <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+            <?php }else{
+                echo '<i>';
+                echo __('Query returned 0 results.');
+                echo '</i>';
+            } ?>
+        </td>
+     </tr>
+    </tfoot>
 </table>
 <?php
 if($res && $num): //Show options..
@@ -195,14 +257,55 @@ $(function() {
     $(document).on('click', 'a.popup-dialog', function(e) {
         e.preventDefault();
         $.userLookup('ajax.php/' + $(this).attr('href').substr(1), function (user) {
+            var url = window.location.href;
             if (user && user.id)
-                window.location.href = 'users.php?id='+user.id;
-            else
-              $.pjax({url: window.location.href, container: '#pjax-container'})
+                url = 'users.php?id='+user.id;
+            $.pjax({url: url, container: '#pjax-container'})
+            return false;
          });
 
         return false;
-     });
+    });
+    var goBaby = function(action, confirmed) {
+        var ids = [],
+            $form = $('form#users-list');
+        $(':checkbox.mass:checked', $form).each(function() {
+            ids.push($(this).val());
+        });
+        if (ids.length) {
+          var submit = function() {
+            $form.find('#action').val(action);
+            $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
+            $form.find('#selected-count').val(ids.length);
+            $form.submit();
+          };
+          if (!confirmed)
+              $.confirm(__('You sure?')).then(submit);
+          else
+              submit();
+        }
+        else {
+            $.sysAlert(__('Oops'),
+                __('You need to select at least one item'));
+        }
+    };
+    $(document).on('click', 'a.users-action', function(e) {
+        e.preventDefault();
+        goBaby($(this).attr('href').substr(1));
+        return false;
+    });
+    $(document).on('dialog:close', function(e, json) {
+        $form = $('form#users-list');
+        try {
+            var json = $.parseJSON(json),
+                org_id = $form.find('#org_id');
+            if (json.id) {
+                org_id.val(json.id);
+                goBaby('setorg', true);
+            }
+        }
+        catch (e) { }
+    });
 });
 </script>
 

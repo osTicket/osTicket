@@ -237,7 +237,7 @@ class Thread {
 }
 
 
-Class ThreadEntry {
+class ThreadEntry {
 
     var $id;
     var $ht;
@@ -257,11 +257,9 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid, info.headers '
+        $sql='SELECT thread.*'
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
-            .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id) '
@@ -341,6 +339,10 @@ Class ThreadEntry {
         return db_query($sql) && db_affected_rows();
     }
 
+    function getMessage() {
+        return $this->getBody();
+    }
+
     function getCreateDate() {
         return $this->ht['created'];
     }
@@ -357,13 +359,30 @@ Class ThreadEntry {
         return $this->ht['ticket_id'];
     }
 
+    function _deferEmailInfo() {
+        if (isset($this->ht['email_mid']))
+            return;
+
+        // Don't do this more than once
+        $this->ht['email_mid'] = false;
+
+        $sql = 'SELECT email_mid, headers FROM '.TICKET_EMAIL_INFO_TABLE
+            .' WHERE thread_id='.db_input($this->getId());
+        if (!($res = db_query($sql)))
+            return;
+
+        list($this->ht['email_mid'], $this->ht['headers']) = db_fetch_row($res);
+    }
+
     function getEmailMessageId() {
+        $this->_deferEmailInfo();
         return $this->ht['email_mid'];
     }
 
     function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
+        $this->_deferEmailInfo();
         if (!isset($this->ht['@headers']))
             $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
 
@@ -459,6 +478,7 @@ Class ThreadEntry {
     }
 
     function getEmailHeader() {
+        $this->_deferEmailInfo();
         return $this->ht['headers'];
     }
 
@@ -725,10 +745,20 @@ Class ThreadEntry {
         if ($mailinfo['userId']
                 || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
+            $vars['userId'] = $mailinfo['userId'] ?: $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
-        // XXX: Consider collaborator role
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators)
+        elseif (($E = UserEmail::lookup($mailinfo['email']))
+            && ($C = Collaborator::lookup(array(
+                'ticketId' => $ticket->getId(), 'userId' => $E->user_id
+            )))
+        ) {
+            $vars['userId'] = $C->getUserId();
+            $vars['message'] = $body;
+            return $ticket->postMessage($vars, 'Email');
+        }
         elseif ($mailinfo['staffId']
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
@@ -787,7 +817,8 @@ Class ThreadEntry {
 
     function saveEmailInfo($vars) {
 
-        if(!$vars || !$vars['mid'])
+        // Don't save empty message ID
+        if (!$vars || !$vars['mid'])
             return 0;
 
         $this->ht['email_mid'] = $vars['mid'];
@@ -975,7 +1006,7 @@ Class ThreadEntry {
         }
 
         // Search for the message-id token in the body
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
                     $mailinfo['email']))
@@ -1287,10 +1318,6 @@ class Note extends ThreadEntry {
 
     function Note($id, $ticketId=0) {
         parent::ThreadEntry($id, 'N', $ticketId);
-    }
-
-    function getMessage() {
-        return $this->getBody();
     }
 
     /* static */

@@ -242,8 +242,11 @@ class Mail_Parse {
     }
 
     function getMessageId(){
-        if (!($mid = $this->struct->headers['message-id']))
+        if (($mid = $this->struct->headers['message-id']) && is_array($mid))
+            $mid = array_pop(array_filter($mid));
+        if (!$mid)
             $mid = sprintf('<%s@local>', md5($this->getHeader()));
+
         return $mid;
     }
 
@@ -275,10 +278,8 @@ class Mail_Parse {
             && isset($this->struct->ctype_parameters['report-type'])
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
-            return sprintf('<pre>%s</pre>',
-                Format::htmlchars(
-                    $this->getPart($this->struct, 'text/plain', 1)
-                ));
+            if ($body = $this->getPart($this->struct, 'text/plain', 3, false))
+                return new TextThreadBody($body);
         }
         return false;
     }
@@ -324,10 +325,27 @@ class Mail_Parse {
         return $body;
     }
 
-    function getPart($struct, $ctypepart, $recurse=-1) {
+    /**
+     * Fetch all the parts of the message for a specific MIME type. The
+     * parts are automatically transcoded to UTF-8 and concatenated together
+     * in the event more than one body of the requested type exists.
+     *
+     * Parameters:
+     * $struct - (<Mail_mime>) decoded message
+     * $ctypepart - (string) 'text/plain' or 'text/html', message body
+     *      format to retrieve from the mail
+     * $recurse - (int:-1) levels acceptable to recurse into. Default is to
+     *      recurse as needed.
+     * $recurseIntoRfc822 - (bool:true) proceed to recurse into
+     *      message/rfc822 bodies to look for the message body format
+     *      requested. For something like a bounce notice, where another
+     *      email might be attached to the email, set this to false to avoid
+     *      finding the wrong body.
+     */
+    function getPart($struct, $ctypepart, $recurse=-1, $recurseIntoRfc822=true) {
 
-        if($struct && !@$struct->parts) {
-            $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
+        $ctype = @strtolower($struct->ctype_primary.'/'.$struct->ctype_secondary);
+        if ($struct && !@$struct->parts) {
             if (@$struct->disposition
                     && (strcasecmp($struct->disposition, 'inline') !== 0))
                 return '';
@@ -347,10 +365,16 @@ class Mail_Parse {
             return $content;
 
         $data='';
-        if($struct && @$struct->parts && $recurse) {
-            foreach($struct->parts as $i=>$part) {
-                if($part && ($text=$this->getPart($part,$ctypepart,$recurse - 1)))
-                    $data.=$text;
+        if ($struct && @$struct->parts && $recurse
+            // Do not recurse into email (rfc822) attachments unless requested
+            && ($ctype !== 'message/rfc822' || $recurseIntoRfc822)
+        ) {
+            foreach ($struct->parts as $i=>$part) {
+                if ($part && ($text=$this->getPart($part, $ctypepart,
+                    $recurse-1, $recurseIntoRfc822))
+                ) {
+                    $data .= $text;
+                }
             }
         }
         return $data;
@@ -462,43 +486,59 @@ class Mail_Parse {
         return $files;
     }
 
-    function getPriority(){
-        if ($this->tnef && isset($this->tnef->Importance))
-            // PidTagImportance is 0, 1, or 2
+    function getPriority() {
+        if ($this->tnef && isset($this->tnef->Importance)) {
+            // PidTagImportance is 0, 1, or 2, 2 is high
             // http://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
-            return $this->tnef->Importance + 1;
-
-        return Mail_Parse::parsePriority($this->getHeader());
+            $urgency = 4 - $this->tnef->Importance;
+        }
+        elseif ($priority = Mail_Parse::parsePriority($this->getHeader())) {
+            $urgency = $priority + 1;
+        }
+        if ($urgency) {
+            $sql = 'SELECT `priority_id` FROM '.PRIORITY_TABLE
+                .' WHERE `priority_urgency`='.db_input($urgency)
+                .' LIMIT 1';
+            $id = db_result(db_query($sql));
+            return $id;
+        }
     }
 
+    /**
+     * Return a normalized priority urgency from the email headers received.
+     *
+     * Returns:
+     * (int) priority urgency, {1,2,3}, where 1 is high. Returns 0 if no
+     * priority could be inferred from the headers.
+     *
+     * References:
+     * https://github.com/osTicket/osTicket-1.8/issues/1674
+     * http://stackoverflow.com/questions/15568583/php-mail-priority-types
+     */
     static function parsePriority($header=null){
 
-    	if (! $header)
-    		return 0;
-    	// Test for normal "X-Priority: INT" style header & stringy version.
-    	// Allows for Importance possibility.
-    	$matching_char = '';
-    	if (preg_match ( '/priority: (\d|\w)/i', $header, $matching_char )
-    			|| preg_match ( '/importance: (\d|\w)/i', $header, $matching_char )) {
-    		switch ($matching_char[1]) {
-    			case 'h' :
-    			case 'H' :// high
-    			case 'u':
-    			case 'U': //Urgent
-    			case 6 :
-    			case 5 :
-    				return 1;
-    			case 'n' : // normal
-    			case 'N' :
-    			case 4 :
-    			case 3 :
-    				return 2;
-    			case 'l' : // low
-    			case 'L' :
-    			case 2 :
-    			case 1 :
-    				return 3;
-    		}
+        if (!$header)
+            return 0;
+
+        // Test for normal "X-Priority: INT" style header & stringy version.
+        // Allows for Importance possibility.
+        $matching_char = '';
+        if (preg_match('/(?:priority|importance): (\w)/i', $header, $matching_char)) {
+            switch (strtoupper($matching_char[1])) {
+            case 'H' :// high
+            case 'U': //Urgent
+            case '2' :
+            case '1' :
+                return 1;
+            case 'N' :
+            case '4' :
+            case '3' :
+                return 2;
+            case 'L' :
+            case '6' :
+            case '5' :
+                return 3;
+            }
     	}
     	return 0;
     }
@@ -657,7 +697,7 @@ class EmailDataParser {
                 $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $data['message'] = $parser->getDeliveryStatusMessage();
+            $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();
             $data['thread-type'] = 'N';
             $data['flags']['bounce'] = true;
         }

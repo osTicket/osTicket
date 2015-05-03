@@ -5,65 +5,67 @@ define('PEAR_DIR', INCLUDE_DIR.'/pear/');
 require_once INCLUDE_DIR."class.mailparse.php";
 
 abstract class Priorities {
-	const HIGH_PRIORITY = 1;
-	const NORMAL_PRIORITY = 2;
-	const LOW_PRIORITY = 3;
-	const NO_PRIORITY = 0;
+    const HIGH_PRIORITY = 1;
+    const NORMAL_PRIORITY = 2;
+    const LOW_PRIORITY = 3;
+    const NO_PRIORITY = 0;
 }
 
 class TestHeaderFunctions extends Test {
     var $name = "Email Header Function Algorithm Regression Tests.";
-    
-    function testMailParsePriority() {
-    	$func_class_method = array('Mail_Parse','parsePriority');
-    	$strlen_base = strlen($this->h());
 
-    	foreach ( array (
-    			'X-Priority: isNAN' => Priorities::NO_PRIORITY, // input => output
-    			'X-Priority: 1' => Priorities::LOW_PRIORITY,
-    			'X-Priority: 2' => Priorities::LOW_PRIORITY,
-    			'X-Priority: 3' => Priorities::NORMAL_PRIORITY,
-    			'X-Priority: 4' => Priorities::NORMAL_PRIORITY,
-    			'X-Priority: 5' => Priorities::HIGH_PRIORITY,
-    			'X-Priority: 6' => Priorities::HIGH_PRIORITY,
-    			'No priority set' => Priorities::NO_PRIORITY,
-    			'Priority: normal' => Priorities::NORMAL_PRIORITY,
-    			'xyz-priority: high' => Priorities::HIGH_PRIORITY,
-    			'Priority: high' => Priorities::HIGH_PRIORITY,
-    			'priority: low' => Priorities::LOW_PRIORITY,
-    			'x-priority: 1000' => Priorities::LOW_PRIORITY, // only matches first 1, not the full 1000
-    			'priority: 3' => Priorities::NORMAL_PRIORITY,
-    			'IPM-Importance: low' => Priorities::LOW_PRIORITY,
-    			'My-Importance: URGENT' => Priorities::HIGH_PRIORITY,
-    			'Urgency: High' => Priorities::NO_PRIORITY, //urgency doesn't match.. maybe it should?
-    			'X-Importance: 5' => Priorities::HIGH_PRIORITY,
-    			'' => Priorities::NO_PRIORITY
-    	) as $priority => $response ) {
-    		$this->assert(is_int($response), "Setup fail, function should only return Integer values");
-    		//get header
-    		$header = $this->h($priority);
-    		
-    		if(strlen($priority)){
-    			$this->assert((strlen($header) > $strlen_base), "Setup fail, function h not returning correct string length");
-    		}
-    		if (! (call_user_func_array ($func_class_method , array($header) ) == $response)){
-    			//TODO: make line number dynamic
-    			$this->fail ( "class.mailparse.php", 351, "Algorithm mistake: $priority should return $response!" );
-    		}else{
-    			$this->pass();
-    		}
-    	}
-  
+    function testMailParsePriority() {
+        $func_class_method = array('Mail_Parse','parsePriority');
+        $strlen_base = strlen($this->h());
+
+        foreach ( array (
+                // input => output
+                'X-Priority: isNAN' => Priorities::NO_PRIORITY,
+                'X-Priority: 1' => Priorities::HIGH_PRIORITY,
+                'X-Priority: 2' => Priorities::HIGH_PRIORITY,
+                'X-Priority: 3' => Priorities::NORMAL_PRIORITY,
+                'X-Priority: 4' => Priorities::NORMAL_PRIORITY,
+                'X-Priority: 5' => Priorities::LOW_PRIORITY,
+                'X-Priority: 6' => Priorities::LOW_PRIORITY,
+                'No priority set' => Priorities::NO_PRIORITY,
+                'Priority: normal' => Priorities::NORMAL_PRIORITY,
+                'xyz-priority: high' => Priorities::HIGH_PRIORITY,
+                'Priority: high' => Priorities::HIGH_PRIORITY,
+                'priority: low' => Priorities::LOW_PRIORITY,
+                'x-priority: 1000' => Priorities::HIGH_PRIORITY, // only matches first 1, not the full 1000
+                'priority: 3' => Priorities::NORMAL_PRIORITY,
+                'IPM-Importance: low' => Priorities::LOW_PRIORITY,
+                'My-Importance: URGENT' => Priorities::HIGH_PRIORITY,
+                'Urgency: High' => Priorities::NO_PRIORITY, //urgency doesn't match.. maybe it should?
+                'Importance: Low' => Priorities::LOW_PRIORITY,
+                'X-MSMail-Priority: High' => Priorities::HIGH_PRIORITY,
+                '' => Priorities::NO_PRIORITY
+        ) as $priority => $response ) {
+            $this->assert(is_int($response), "Setup fail, function should only return Integer values");
+            //get header
+            $header = $this->h($priority);
+
+            if(strlen($priority)){
+                $this->assert((strlen($header) > $strlen_base), "Setup fail, function h not returning correct string length");
+            }
+            if (! (call_user_func_array ($func_class_method , array($header) ) == $response)){
+                //TODO: make line number dynamic
+                $this->fail ( "class.mailparse.php", 351, "Algorithm mistake: $priority should return $response!" );
+            }else{
+                $this->pass();
+            }
+        }
+
     }
-    
+
     /**
      * Generate some header text to test with. Allows insertion of a known header variable
-     * 
+     *
      * @param string $setPriority
      * @return string
      */
     function h($setPriority = "") {
-    	return <<<HEADER
+        return <<<HEADER
 Delivered-To: clonemeagain@gmail.com
 Received: by 10.69.18.42 with SMTP id gj10csp88238pbd;
 Fri, 20 Dec 2013 10:08:25 -0800 (PST)

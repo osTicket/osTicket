@@ -82,6 +82,13 @@ class UserModel extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('default_email_id' => 'UserEmailModel.id')
             ),
+            'cdata_entry' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'U'" => 'DynamicFormEntry.object_type',
+                ),
+                null => true,
+            ),
         )
     );
 
@@ -156,7 +163,7 @@ class User extends UserModel {
     var $_entries;
     var $_forms;
 
-    static function fromVars($vars) {
+    static function fromVars($vars, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
         if (!$user) {
@@ -188,6 +195,10 @@ class User extends UserModel {
             catch (OrmException $e) {
                 return null;
             }
+        }
+        elseif ($update) {
+            $errors = array();
+            $user->updateInfo($vars, $errors, true);
         }
 
         return $user;
@@ -247,12 +258,12 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'U');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function addForm($form, $sort=1, $data=null) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'U');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function to_json() {
@@ -285,14 +296,11 @@ class User extends UserModel {
     }
 
     function addDynamicData($data) {
-        $uf = UserForm::getNewInstance();
-        $uf->setClientId($this->id);
-        foreach ($uf->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-        $uf->save();
-
-        return $uf;
+        $entry = $this->addForm(UserForm::objects()->one(), 1, $data);
+        // FIXME: For some reason, the second save here is required or the
+        //        custom data is not properly saved
+        $entry->save();
+        return $entry;
     }
 
     function getDynamicData($create=true) {
@@ -468,7 +476,7 @@ class User extends UserModel {
 
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars))
+            if (!static::fromVars($vars, true))
                 return sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
         }
@@ -522,7 +530,6 @@ class User extends UserModel {
             if (($f=$cd->getForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
-                    $this->save();
                 }
 
                 if (($email = $f->getField('email'))) {
@@ -530,10 +537,12 @@ class User extends UserModel {
                     $this->default_email->save();
                 }
             }
-            $cd->save();
+            // DynamicFormEntry::save returns the number of answers updated
+            if ($cd->save()) {
+                $this->updated = SqlFunction::NOW();
+            }
         }
-
-        return true;
+        return $this->save();
     }
 
     function save($refetch=false) {
@@ -619,8 +628,14 @@ class PersonsName {
         elseif($cfg)
             $this->format = $cfg->getDefaultNameFormat();
 
-        $this->parts = static::splitName($name);
-        $this->name = $name;
+        if (!is_array($name)) {
+            $this->parts = static::splitName($name);
+            $this->name = $name;
+        }
+        else {
+            $this->parts = $name;
+            $this->name = implode(' ', $name);
+        }
     }
 
     function getFirst() {
@@ -726,9 +741,9 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
-        
+
         //check if name is bad format (ex: J.Everybody), and fix them
-        if($size==1 && mb_strpos($r[0], '.') !== false) 
+        if($size==1 && mb_strpos($r[0], '.') !== false)
         {
             $r = explode('.', $name);
             $size = count($r);
@@ -833,7 +848,12 @@ class UserAccountModel extends VerySimpleModel {
 
     function lock() {
         $this->setStatus(UserAccountStatus::LOCKED);
-        $this->save();
+        return $this->save();
+    }
+
+    function unlock() {
+        $this->clearStatus(UserAccountStatus::LOCKED);
+        return $this->save();
     }
 
     function isLocked() {

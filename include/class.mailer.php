@@ -304,11 +304,13 @@ class Mailer {
         if (isset($options['thread'])
             && $options['thread'] instanceof ThreadEntry
         ) {
-            $headers += array('References' => $options['thread']->getEmailReferences());
             if ($irt = $options['thread']->getEmailMessageId()) {
                 // This is an response from an email, like and autoresponse.
                 // Web posts will not have a email message-id
-                $headers += array('In-Reply-To' => $irt);
+                $headers += array(
+                    'In-Reply-To' => $irt,
+                    'References' => $options['thread']->getEmailReferences()
+                );
             }
             elseif ($parent = $options['thread']->getParent()) {
                 // Use the parent item as the email information source. This
@@ -326,24 +328,12 @@ class Mailer {
                 $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
         }
 
-        // Use Mail_mime default initially
-        $eol = null;
+        // Use general failsafe default initially
+        $eol = "\n";
 
         // MAIL_EOL setting can be defined in `ost-config.php`
         if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
             $eol = MAIL_EOL;
-        }
-        // The Suhosin patch will muck up the line endings in some
-        // cases
-        //
-        // References:
-        // https://github.com/osTicket/osTicket-1.8/issues/202
-        // http://pear.php.net/bugs/bug.php?id=12032
-        // http://us2.php.net/manual/en/function.mail.php#97680
-        elseif ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
-            && !$this->getSMTPInfo()
-        ) {
-            $eol = "\n";
         }
         $mime = new Mail_mime($eol);
 
@@ -354,7 +344,7 @@ class Mailer {
         if (!(isset($options['text']) && $options['text'])) {
             if ($reply_tag || $mid_token) {
                 $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$reply_tag</div>$message";
+                    class=\"mid-$mid_token\">$reply_tag</div>$message";
             }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');

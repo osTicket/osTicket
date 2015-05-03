@@ -13,26 +13,10 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-department:
-    title: Department
-    content: >
-
-name:
-    title: Name
-    content: >
-
 type:
     title: Type
     content: >
         If the Department’s Type is Private, then the Department Signature will not be available on response nor will the department assignment show from the Client Portal.
-
-users:
-    title: Users
-    content: >
-
-email_address:
-    title: Email Address
-    content: >
 
 dept_manager:
     title: Department Manager

@@ -78,7 +78,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="target">
-                   <option value="">&mdash; <?php echo __('Select a Channel');?> &dash;</option>
+                   <option value="">&mdash; <?php echo __('Select a Channel');?> &mdash;</option>
                    <?php
                    foreach(Filter::getTargets() as $k => $v) {
                        echo sprintf('<option value="%s" %s>%s</option>',
@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         <?php } ?>
                     </select>
                     <select name="rule_h<?php echo $i; ?>">
-                        <option value="0">&mdash; <?php echo __('Select One');?> &dash;</option>
+                        <option value="0">&mdash; <?php echo __('Select One');?> &mdash;</option>
                         <?php
                         foreach($match_types as $k=>$v){
                             $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';

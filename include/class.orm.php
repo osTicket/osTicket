@@ -71,6 +71,8 @@ class VerySimpleModel {
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
+            if (!isset(static::$meta['joins'][$field]['fkey']))
+                static::_inspect();
             $j = static::$meta['joins'][$field];
             if ($j['list'] && ($value instanceof InstrumentedList)) {
                 // Magic list property

@@ -65,8 +65,8 @@ class EmailTemplateGroup {
             'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.'),
         'note.alert'=>array(
             'group'=>'ticket.staff',
-            'name'=>/* @trans */ 'Internal Note Alert',
-            'desc'=>/* @trans */ 'Alert sent to selected agents, if enabled, on new internal note.'),
+            'name'=>/* @trans */ 'Internal Activity Alert',
+            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.'),
         'assigned.alert'=>array(
             'group'=>'ticket.staff',
             'name'=>/* @trans */ 'Ticket Assignment Alert',
