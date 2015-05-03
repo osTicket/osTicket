@@ -1768,7 +1768,10 @@ RedactorPlugins.contexttypeahead = function() {
 
     select: function(item) {
       var current = this.selection.getCurrent(),
-          search = new RegExp(/%\{([^}]*)$/);
+          sel     = this.selection.get(),
+          range   = this.sel.getRangeAt(0),
+          cursorAt = range.endOffset,
+          search  = new RegExp(/%\{([^}]*)(\}?)$/);
 
       // FIXME: ENTER will end up here, but current will be empty
 
@@ -1776,10 +1779,16 @@ RedactorPlugins.contexttypeahead = function() {
         return;
 
       // Set cursor at the end of the expanded text
-      var q = current.textContent
-            = current.textContent.replace(search, '%{' + item.variable);
-      this.range.setStart(current, current.length);
-      this.range.setEnd(current, current.length);
+      var left = current.textContent.substring(0, cursorAt),
+          right = current.textContent.substring(cursorAt),
+          newLeft = left.replace(search, '%{' + item.variable + '}');
+
+      current.textContent = newLeft
+        // Drop the remaining part of a variable block, if any
+        + right.replace(/[^%}]*?[%}]/, '');
+
+      this.range.setStart(current, newLeft.length - 1);
+      this.range.setEnd(current, newLeft.length - 1);
       this.selection.addRange();
       return this.contexttypeahead.destroy();
     }
