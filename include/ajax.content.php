@@ -150,7 +150,7 @@ class ContentAjaxAPI extends AjaxController {
         $langs = Internationalization::getConfiguredSystemLanguages();
         $translations = $content->getAllTranslations();
         $info = array(
-            'title' => $content->getTitle(),
+            'title' => $content->getName(),
             'body' => $content->getBody(),
         );
         foreach ($translations as $t) {
