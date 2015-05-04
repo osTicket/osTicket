@@ -847,6 +847,88 @@ class OsticketConfig extends Config {
         return ($this->get('overlimit_notice_active'));
     }
 
+    /* Tasks */
+
+    function alertONNewTask() {
+        return ($this->get('task_alert_active'));
+    }
+
+    function alertAdminONNewTask() {
+        return ($this->get('task_alert_admin'));
+    }
+
+    function alertDeptManagerONNewTask() {
+        return ($this->get('task_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONNewTask() {
+        return ($this->get('task_alert_dept_members'));
+    }
+
+    function alertONTaskActivity() {
+        return ($this->get('task_activity_alert_active'));
+    }
+
+    function alertLastRespondentONTaskActivity() {
+        return ($this->get('task_activity_alert_laststaff'));
+    }
+
+    function alertAssignedONTaskActivity() {
+        return ($this->get('task_activity_alert_assigned'));
+    }
+
+    function alertDeptManagerONTaskActivity() {
+        return ($this->get('task_activity_alert_dept_manager'));
+    }
+
+    function alertONTaskTransfer() {
+        return ($this->get('task_transfer_alert_active'));
+    }
+
+    function alertAssignedONTaskTransfer() {
+        return ($this->get('task_transfer_alert_assigned'));
+    }
+
+    function alertDeptManagerONTaskTransfer() {
+        return ($this->get('task_transfer_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONTaskTransfer() {
+        return ($this->get('task_transfer_alert_dept_members'));
+    }
+
+    function alertONTaskAssignment() {
+        return ($this->get('task_assignment_alert_active'));
+    }
+
+    function alertStaffONTaskAssignment() {
+        return ($this->get('task_assignment_alert_staff'));
+    }
+
+    function alertTeamLeadONTaskAssignment() {
+        return ($this->get('task_assignment_alert_team_lead'));
+    }
+
+    function alertTeamMembersONTaskAssignment() {
+        return ($this->get('task_assignment_alert_team_members'));
+    }
+
+    function alertONOverdueTask() {
+        return ($this->get('task_overdue_alert_active'));
+    }
+
+    function alertAssignedONOverdueTask() {
+        return ($this->get('task_overdue_alert_assigned'));
+    }
+
+    function alertDeptManagerONOverdueTask() {
+        return ($this->get('task_overdue_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONOverdueTask() {
+        return ($this->get('task_overdue_alert_dept_members'));
+    }
+
     /* Error alerts sent to admin email when enabled */
     function alertONSQLError() {
         return ($this->get('send_sql_errors'));
