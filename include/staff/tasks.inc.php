@@ -37,25 +37,12 @@ case 'search':
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
-        // Use an index if possible
-        if (Validator::is_email($_REQUEST['query'])) {
-            $tickets = $tickets->filter(array(
-                'user__emails__address' => $_REQUEST['query'],
-            ));
-        }
-        else {
-            $tickets = $tickets->filter(Q::any(array(
-                'number__startswith' => $_REQUEST['query'],
-                'user__emails__address__contains' => $_REQUEST['query'],
-            )));
-        }
+        $tasks = $tasks->filter(Q::any(array(
+            'number__startswith' => $_REQUEST['query'],
+            'cdata__title__contains' => $_REQUEST['query'],
+        )));
         break;
-    }
-    elseif (isset($_GET['uid'])) {
-        // Apply user filter
-        $tickets->filter(array('user__id'=>$_GET['uid']));
-    }
-    elseif (isset($_SESSION['advsearch'])) {
+    } elseif (isset($_SESSION['advsearch'])) {
         // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
         $form->loadState($_SESSION['advsearch']);
@@ -222,44 +209,9 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
 <?php } ?>
             </select>
             </span>
-            <?php
-            if ($thisstaff->canManageTickets()) {
-                echo TicketStatus::status_options();
-            }
-            if ($actions) { ?>
-            <span
-                class="action-button"
-                data-dropdown="#action-dropdown-moreoptions">
-                <i class="icon-caret-down pull-right"></i>
-                <a class="tasks-action"
-                    href="#moreoptions"><i
-                    class="icon-reorder"></i> <?php
-                    echo __('Options'); ?></a>
-            </span>
-            <div id="action-dropdown-moreoptions"
-                class="action-dropdown anchor-right">
-                <ul>
-            <?php foreach ($actions as $a => $action) { ?>
-                    <li>
-                        <a class="no-pjax tasks-action"
-                            <?php
-                            if ($action['dialog'])
-                                echo sprintf("data-dialog='%s'", $action['dialog']);
-                            if ($action['redirect'])
-                                echo sprintf("data-redirect='%s'", $action['redirect']);
-                            ?>
-                            href="<?php
-                            echo sprintf('#tasks/mass/%s', $a); ?>"
-                            ><i class="icon-fixed-width <?php
-                            echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
-                            echo $action['action']; ?></a>
-                    </li>
-                <?php
-                } ?>
-                </ul>
-            </div>
-            <?php
-           } ?>
+           <?php
+            Task::getAgentActions($thisstaff, array('status' => $status));
+            ?>
         </div>
 </div>
 <div class="clear" style="margin-bottom:10px;"></div>
@@ -291,7 +243,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
         <?php
         // Setup Subject field for display
         $total=0;
-        $title_field = TaskForm::objects()->one()->getField('title');
+        $title_field = TaskForm::getInstance()->getField('title');
         $ids=($errors && $_POST['tids'] && is_array($_POST['tids']))?$_POST['tids']:null;
         foreach ($tasks as $T) {
             $T['isopen'] = ($T['flags'] & TaskModel::ISOPEN != 0); //XXX:
@@ -427,6 +379,23 @@ $(function() {
                 $.pjax.reload('#pjax-container');
              });
         }
+        return false;
+    });
+    $(document).off('.task-action');
+    $(document).on('click.task-action', 'a.task-action', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'
+        +$(this).attr('href').substr(1)
+        +'?_uid='+new Date().getTime();
+        var $options = $(this).data('dialog');
+        var $redirect = $(this).data('redirect');
+        $.dialog(url, [201], function (xhr) {
+            if ($redirect)
+                window.location.href = $redirect;
+            else
+                $.pjax.reload('#pjax-container');
+        }, $options);
+
         return false;
     });
 });

@@ -156,7 +156,7 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="tasks.queue" />',
 if($task) {
     $ost->setPageTitle(sprintf(__('Task #%s'),$task->getNumber()));
     $nav->setActiveSubMenu(-1);
-    $inc = 'templates/task-view.tmpl.php';
+    $inc = 'task-view.inc.php';
     if ($_REQUEST['a']=='edit'
             && $task->checkStaffPerm($thisstaff, TaskModel::PERM_EDIT)) {
         $inc = 'task-edit.inc.php';
