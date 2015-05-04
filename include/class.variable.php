@@ -310,7 +310,7 @@ class PlaceholderList
         if (count($items) == 1) {
             return $items[0];
         }
-        return new static($items);
+        return new static(array_filter($items));
     }
 }
 

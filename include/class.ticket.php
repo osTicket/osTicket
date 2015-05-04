@@ -1834,9 +1834,10 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 if ($this->isClosed())
                     return new FormattedDate($this->getCloseDate());
                 break;
+            case 'last_update':
+                return new FormattedDate($upd);
             case 'user':
                 return $this->getOwner();
-                break;
             default:
                 if (isset($this->_answers[$tag]))
                     // The answer object is retrieved here which will
@@ -1850,33 +1851,33 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
     static function getVarScope() {
         $base = array(
-            'assigned' => 'Assigned agent and/or team',
+            'assigned' => __('Assigned agent and/or team'),
             'close_date' => array(
-                'class' => 'FormattedDate', 'desc' => 'Date of ticket closure',
+                'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
             'create_date' => array(
-                'class' => 'FormattedDate', 'desc' => 'Ticket create date',
+                'class' => 'FormattedDate', 'desc' => __('Date created'),
             ),
             'dept' => array(
-                'class' => 'Dept', 'desc' => 'Department',
+                'class' => 'Dept', 'desc' => __('Department'),
             ),
             'due_date' => array(
-                'class' => 'FormattedDate', 'desc' => 'Ticket due date',
+                'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
-            'email' => 'Default email address of ticket owner',
+            'email' => __('Default email address of ticket owner'),
             'name' => array(
                 'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
             ),
-            'number' => 'Ticket number',
-            'phone' => 'Phone number of ticket owner',
+            'number' => __('Ticket number'),
+            'phone' => __('Phone number of ticket owner'),
             'priority' => array(
-                'class' => 'Priority', 'desc' => __('Ticket priority'),
+                'class' => 'Priority', 'desc' => __('Priority'),
             ),
             'recipients' => array(
-                'class' => 'UserList', 'desc' => 'Ticket participant list',
+                'class' => 'UserList', 'desc' => __('List of all recipient names'),
             ),
             'status' => array(
-                'class' => 'TicketStatus', 'desc' => __('Ticket status'),
+                'class' => 'TicketStatus', 'desc' => __('Status'),
             ),
             'staff' => array(
                 'class' => 'Staff', 'desc' => __('Assigned/closing agent'),
@@ -1886,10 +1887,14 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 'class' => 'Team', 'desc' => __('Assigned/closing team'),
             ),
             'thread' => array(
-                'class' => 'TicketThread', 'desc' => 'Ticket thread',
+                'class' => 'TicketThread', 'desc' => __('Ticket Thread'),
             ),
             'topic' => array(
-                'class' => 'Topic', 'desc' => 'Help topic',
+                'class' => 'Topic', 'desc' => __('Help topic'),
+            ),
+            // XXX: Isn't lastreponse and lastmessage more useful
+            'last_update' => array(
+                'class' => 'FormattedDate', 'desc' => __('Time of last update'),
             ),
             'user' => array(
                 'class' => 'User', 'desc' => __('Ticket owner'),

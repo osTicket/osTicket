@@ -80,16 +80,26 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     static function getVarScope() {
       return array(
-        'dept' => array('class' => 'Dept', 'desc' => 'Department'),
-        'email' => 'Email address',
+        'dept' => array('class' => 'Dept', 'desc' => __('Department')),
+        'email' => __('Email Address'),
         'name' => array(
-          'class' => 'PersonsName', 'desc' => 'Name of the agent',
+          'class' => 'PersonsName', 'desc' => __('Agent name'),
         ),
-        'phone' => 'Phone number',
-        'signature' => "Agent's signature",
+        'mobile' => __('Mobile Number'),
+        'phone' => __('Phone Number'),
+        'signature' => __('Signature'),
         'timezone' => "Agent's configured timezone",
         'username' => 'Access username',
       );
+    }
+
+    function getVar($tag) {
+        switch ($tag) {
+        case 'mobile':
+            return Format::phone($this->ht['mobile']);
+        case 'phone':
+            return Format::phone($this->ht['phone']);
+        }
     }
 
     function getHashtable() {

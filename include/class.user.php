@@ -262,7 +262,7 @@ implements TemplateVariable {
     }
 
     function getEmail() {
-        return $this->default_email->address;
+        return new EmailAddress($this->default_email->address);
     }
 
     function getFullName() {
@@ -344,11 +344,13 @@ implements TemplateVariable {
 
     static function getVarScope() {
         $base = array(
-            'email' => 'Default email address',
+            'email' => array(
+                'class' => 'EmailAddress', 'desc' => __('Default email address')
+            ),
             'name' => array(
                 'class' => 'PersonsName', 'desc' => 'User name, default format'
             ),
-            'organization' => array('class' => 'Organization', 'desc' => 'Organization'),
+            'organization' => array('class' => 'Organization', 'desc' => __('Organization')),
         );
         $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
         return $base + $extra;
@@ -662,6 +664,47 @@ implements TemplateVariable {
 
     static function lookupByEmail($email) {
         return static::lookup(array('emails__address'=>$email));
+    }
+}
+
+class EmailAddress
+implements TemplateVariable {
+    var $address;
+
+    function __construct($address) {
+        $this->address = $address;
+    }
+
+    function __toString() {
+        return $this->address;
+    }
+
+    function getVar($what) {
+        require_once PEAR_DIR . 'Mail/RFC822.php';
+        require_once PEAR_DIR . 'PEAR.php';
+        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
+            return '';
+
+        if (!$list && count($mails) > 1)
+            return '';
+
+        $info = $mails[0];
+        switch ($what) {
+        case 'domain':
+            return $info->host;
+        case 'personal':
+            return $info->personal;
+        case 'mailbox':
+            return $info->mailbox;
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'domain' => __('Domain'),
+            'mailbox' => __('Mailbox'),
+            'personal' => __('Personal name'),
+        );
     }
 }
 
@@ -1266,13 +1309,11 @@ implements TemplateVariable {
     }
 
     function getNames() {
-
         $list = array();
         foreach($this->storage as $user) {
             if (is_object($user))
                 $list [] = $user->getName();
         }
-
         return $list ? implode(', ', $list) : '';
     }
 
@@ -1292,15 +1333,14 @@ implements TemplateVariable {
             if (is_object($user))
                 $list[] = $user->getEmail();
         }
-
         return $list ? implode(', ', $list) : '';
     }
 
     static function getVarScope() {
         return array(
-            'names' => 'List of names',
-            'emails' => 'List of email addresses',
-            'full' => 'List of names and email addresses',
+            'names' => __('List of names'),
+            'emails' => __('List of email addresses'),
+            'full' => __('List of names and email addresses'),
         );
     }
 }

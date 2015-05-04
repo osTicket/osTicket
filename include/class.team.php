@@ -45,12 +45,12 @@ implements TemplateVariable {
 
     static function getVarScope() {
         return array(
-            'name' => 'Team name',
+            'name' => __('Team Name'),
             'lead' => array(
-                'class' => 'Staff', 'desc' => 'Team leader',
+                'class' => 'Staff', 'desc' => __('Team Lead'),
             ),
             'members' => array(
-                'class' => 'UserList', 'desc' => 'Team members',
+                'class' => 'UserList', 'desc' => __('Team Members'),
             ),
         );
     }

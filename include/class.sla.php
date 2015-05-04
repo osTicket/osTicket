@@ -103,8 +103,8 @@ implements TemplateVariable {
 
     static function getVarScope() {
         return array(
-            'name' => 'SLA Name',
-            'graceperiod' => 'Grace period (in hours)',
+            'name' => __('SLA Plan'),
+            'graceperiod' => __("Grace Period (hrs)"),
         );
     }
 

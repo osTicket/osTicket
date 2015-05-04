@@ -315,10 +315,10 @@ implements TemplateVariable {
 
     static function getVarScope() {
         $base = array(
-            'contacts' => array('class' => 'UserList', 'desc' => 'Primary contacts'),
-            'manager' => 'Account manager',
-            'members' => array('class' => 'UserList', 'desc' => 'Organization members'),
-            'name' => 'Organization name',
+            'contacts' => array('class' => 'UserList', 'desc' => __('Primary Contacts')),
+            'manager' => __('Account Manager'),
+            'members' => array('class' => 'UserList', 'desc' => __('Organization Members')),
+            'name' => __('Name'),
         );
         $extra = VariableReplacer::compileFormScope(OrganizationForm::getInstance());
         return $base + $extra;

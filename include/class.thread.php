@@ -857,16 +857,19 @@ implements TemplateVariable {
 
     static function getVarScope() {
         return array(
-          'body' => 'Formatted message body',
-          'create_date' => 'Date created',
-          'ip_address' => 'IP address of remote user, for web submissions',
-          'poster' => 'Name of the thread item originator',
-          'staff' => array(
-            'class' => 'Staff', 'desc' => 'Agent posting the note or response',
+          'files' => __('Attached files'),
+          'body' => __('Message body'),
+          'create_date' => array(
+              'class' => 'FormattedDate', 'desc' => __('Date created'),
           ),
-          'subject' => 'Subject of the message, if any',
+          'ip_address' => __('IP address of remote user, for web submissions'),
+          'poster' => __('Submitter of the thread item'),
+          'staff' => array(
+            'class' => 'Staff', 'desc' => __('Agent posting the note or response'),
+          ),
+          'title' => __('Subject, if any'),
           'user' => array(
-            'class' => 'User', 'desc' => 'User posting the message',
+            'class' => 'User', 'desc' => __('User posting the message'),
           ),
         );
     }

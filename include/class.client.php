@@ -62,8 +62,9 @@ implements EmailContact, ITicketUser, TemplateVariable {
 
     static function getVarScope() {
         return array(
+            'email' => __('Email address'),
             'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
-            'ticket_link' => __('Link to the ticket'),
+            'ticket_link' => __('Auth. token used for auto-login'),
         );
     }
 

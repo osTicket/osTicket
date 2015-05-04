@@ -2210,6 +2210,8 @@ class FileFieldAttachments {
 
     function getVar($tag) {
         switch ($tag) {
+        case 'names':
+            return $this->__toString();
         case 'files':
             throw new OOBContent(OOBContent::FILES, $this->files->all());
         }
@@ -2217,6 +2219,7 @@ class FileFieldAttachments {
 
     static function getVarScope() {
         return array(
+            'names' => __('List of file names'),
             'files' => __('Attached files'),
         );
     }

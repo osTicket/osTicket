@@ -828,6 +828,8 @@ implements TemplateVariable {
         if (method_exists($this, 'get' . ucfirst($what)))
             return call_user_func(array($this, 'get'.ucfirst($what)));
 
+        // TODO: Rebase date format so that locale is discovered HERE.
+
         switch ($what) {
         case 'short':
             return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);

@@ -76,15 +76,15 @@ implements TemplateVariable {
     static function getVarScope() {
         return array(
             'dept' => array(
-                'class' => 'Dept', 'desc' => 'Department',
+                'class' => 'Dept', 'desc' => __('Department'),
             ),
-            'fullname' => 'Help topic full path',
-            'name' => 'Help topic name',
+            'fullname' => __('Help topic full path'),
+            'name' => __('Help topic'),
             'parent' => array(
-                'class' => 'Topic', 'desc' => 'Parent help topic',
+                'class' => 'Topic', 'desc' => __('Parent'),
             ),
             'sla' => array(
-                'class' => 'SLA', 'desc' => 'Service Level Agreement',
+                'class' => 'SLA', 'desc' => __('Service Level Agreement'),
             ),
         );
     }

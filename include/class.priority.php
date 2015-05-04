@@ -51,7 +51,7 @@ implements TemplateVariable {
     function asVar() { return $this->getDesc(); }
     static function getVarScope() {
         return array(
-            'desc' => 'Priority description',
+            'desc' => __('Priority Level'),
         );
     }
 
