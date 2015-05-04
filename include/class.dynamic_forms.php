@@ -116,7 +116,7 @@ class DynamicForm extends VerySimpleModel {
         if ($source)
             $this->reset();
         $fields = $this->getFields();
-        $form = new Form($fields, $source, array(
+        $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
             'instructions' => $this->getLocal('instructions'))
         );
@@ -287,7 +287,7 @@ class DynamicForm extends VerySimpleModel {
         if (!$cdata
                 || !$cdata['table']
                 || !($e = $answer->getEntry())
-                || $e->getForm()->get('type') != $cdata['object_type'])
+                || $e->form->get('type') != $cdata['object_type'])
             return;
 
         // $record = array();
@@ -315,10 +315,10 @@ class DynamicForm extends VerySimpleModel {
     static function updateDynamicFormEntryAnswer($answer, $data) {
         if (!$answer
                 || !($e = $answer->getEntry())
-                || !$e->getForm())
+                || !$e->form)
             return;
 
-        switch ($e->getForm()->get('type')) {
+        switch ($e->form->get('type')) {
         case 'T':
             return TicketForm::updateDynamicDataView($answer, $data);
         case 'A':
@@ -328,10 +328,10 @@ class DynamicForm extends VerySimpleModel {
     }
 
     static function updateDynamicFormField($field, $data) {
-        if (!$field || !$field->getForm())
+        if (!$field || !$field->form)
             return;
 
-        switch ($field->getForm()->get('type')) {
+        switch ($field->form->get('type')) {
         case 'T':
             return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
         case 'A':
@@ -985,7 +985,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             // XXX: Should source be $this?
-            $form = new Form($this->getFields(), $this->getSource(),
+            $form = new SimpleForm($this->getFields(), $this->getSource(),
             array(
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),

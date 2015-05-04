@@ -876,10 +876,11 @@ implements RestrictedAccess, Threadable, TemplateVariable {
     }
 
     function getThreadEntries($type=false) {
-        $thread = $this->getThread()->getEntries();
+        $entries = $this->getThread()->getEntries();
         if ($type && is_array($type))
-            $thread->filter(array('type__in' => $type));
-        return $thread;
+            $entries->filter(array('type__in' => $type));
+
+        return $entries;
     }
 
     //Collaborators

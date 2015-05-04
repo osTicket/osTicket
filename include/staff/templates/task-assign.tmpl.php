@@ -1,6 +1,8 @@
 <?php
 global $cfg;
 
+$form = $form ?: AssignmentForm::instantiate($info);
+
 if (!$info[':title'])
     $info[':title'] = sprintf(__('%s Selected Tasks'),
             __('Assign'));
@@ -24,15 +26,17 @@ if ($info['error']) {
 
 $action = $info[':action'] ?: ('#tasks/mass/assign');
 ?>
-<div id="ticket-status" style="display:block; margin:5px;">
-<form class="mass-action" method="post" name="transfer" id="transfer"
+<div style="display:block; margin:5px;">
+<form class="mass-action" method="post"
+    name="assign"
+    id="<?php echo $form->getId(); ?>"
     action="<?php echo $action; ?>">
     <table width="100%">
         <?php
-        if ($info['extra']) {
+        if ($info[':extra']) {
             ?>
         <tbody>
-            <tr><td colspan="2"><strong><?php echo $info['extra'];
+            <tr><td colspan="2"><strong><?php echo $info[':extra'];
             ?></strong></td> </tr>
         </tbody>
         <?php
@@ -40,44 +44,11 @@ $action = $info[':action'] ?: ('#tasks/mass/assign');
        ?>
         <tbody>
             <tr><td colspan=2>
-                <span>
-                <strong><?php echo __('Agent') ?>:&nbsp;</strong>
-                <select name="staff_id">
-                <option value=""><?php
-                    echo __('Select Assignee'); ?></option>
-                <?php
-                foreach (Staff::getAvailableStaffMembers() as $id => $name) {
-                    if ($task && $task->getStaffId() == $id)
-                        $name .= sprintf(' (%s) ', __('current'));
-
-                    echo sprintf('<option value="%d" %s>%s</option>',
-                            $id,
-                            ($info['staff_id'] == $id)
-                             ? 'selected="selected"' : '',
-                            $name
-                            );
-                }
-                ?>
-                </select>
-                <font class="error">*&nbsp;<?php echo
-                $errors['staff_id']; ?></font>
-                </span>
+             <?php
+             $options = array('template' => 'simple', 'form_id' => 'assign');
+             $form->render($options);
+             ?>
             </td> </tr>
-        </tbody>
-        <tbody>
-            <tr>
-                <td colspan="2">
-                <?php
-                $placeholder = $info['placeholder'] ?: __('Optional reason for the assignment');
-                ?>
-                <textarea name="comments" id="comments"
-                    cols="50" rows="3" wrap="soft" style="width:100%"
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                    ?> no-bar"
-                    placeholder="<?php echo $placeholder; ?>"><?php
-                    echo $info['comments']; ?></textarea>
-                </td>
-            </tr>
         </tbody>
     </table>
     <hr>

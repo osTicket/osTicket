@@ -1,6 +1,8 @@
 <?php
 global $cfg;
 
+$form = $form ?: TransferForm::instantiate($info);
+
 if (!$info[':title'])
     $info[':title'] = sprintf(__('%s Selected Tasks'),
             __('Tranfer'));
@@ -41,42 +43,11 @@ $action = $info[':action'] ?: ('#tasks/mass/transfer');
        ?>
         <tbody>
             <tr><td colspan=2>
-                <span>
-                <strong><?php echo __('Department') ?>:&nbsp;</strong>
-                <select name="dept_id">
-                <?php
-                foreach (Dept::getDepartments() as $id => $name) {
-                    if ($task && $task->getDeptId() == $id)
-                        $name .= sprintf(' (%s) ', __('current'));
-
-                    echo sprintf('<option value="%d" %s>%s</option>',
-                            $id,
-                            ($info['dept_id'] == $id)
-                             ? 'selected="selected"' : '',
-                            $name
-                            );
-                }
-                ?>
-                </select>
-                <font class="error">*&nbsp;<?php echo
-                $errors['dept_id']; ?></font>
-                </span>
+             <?php
+             $options = array('template' => 'simple', 'form_id' => 'transfer');
+             $form->render($options);
+             ?>
             </td> </tr>
-        </tbody>
-        <tbody>
-            <tr>
-                <td colspan="2">
-                <?php
-                $placeholder = $info[':placeholder'] ?: __('Optional reason for the transfer');
-                ?>
-                <textarea name="comments" id="comments"
-                    cols="50" rows="3" wrap="soft" style="width:100%"
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                    ?> no-bar"
-                    placeholder="<?php echo $placeholder; ?>"><?php
-                    echo $info['comments']; ?></textarea>
-                </td>
-            </tr>
         </tbody>
     </table>
     <hr>

@@ -390,11 +390,10 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
      <tbody>
         <?php
         // Setup Subject field for display
-        $subject_field = TicketForm::objects()->one()->getField('subject');
+        $subject_field = TicketForm::getInstance()->getField('subject');
         $class = "row1";
         $total=0;
         $ids=($errors && $_POST['tids'] && is_array($_POST['tids']))?$_POST['tids']:null;
-        $subject_field = TicketForm::objects()->one()->getField('subject');
         foreach ($tickets as $T) {
             $total += 1;
                 $tag=$T['staff_id']?'assigned':'openticket';

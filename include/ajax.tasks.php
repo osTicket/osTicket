@@ -22,6 +22,46 @@ require_once(INCLUDE_DIR.'class.task.php');
 
 class TasksAjaxAPI extends AjaxController {
 
+    function add() {
+        global $thisstaff;
+
+        $info=$errors=array();
+        if ($_POST) {
+            Draft::deleteForNamespace('task.add', $thisstaff->getId());
+            // Default form
+            $form = TaskForm::getInstance();
+            $form->setSource($_POST);
+            // Internal form
+            $iform = TaskForm::getInternalForm($_POST);
+            $isvalid = true;
+            if (!$iform->isValid())
+                $isvalid = false;
+            if (!$form->isValid())
+                $isvalid = false;
+
+            if ($isvalid) {
+                $vars = $_POST;
+                $vars['default_formdata'] = $form->getClean();
+                $vars['internal_formdata'] = $iform->getClean();
+                $desc = $form->getField('description');
+                if ($desc
+                        && $desc->isAttachmentsEnabled()
+                        && ($attachments=$desc->getWidget()->getAttachments()))
+                    $vars['cannedattachments'] = $attachments->getClean();
+                $vars['staffId'] = $thisstaff->getId();
+                $vars['poster'] = $thisstaff;
+                $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
+                if (($task=Task::create($vars, $errors)))
+                    Http::response(201, $task->getId());
+            }
+
+            $info['error'] = __('Error adding task - try again!');
+        }
+
+        include STAFFINC_DIR . 'templates/task.tmpl.php';
+    }
+
+
     function preview($tid) {
         global $thisstaff;
 
@@ -67,6 +107,12 @@ class TasksAjaxAPI extends AjaxController {
                 'delete' => array(
                     'verbed' => __('deleted'),
                     ),
+                'reopen' => array(
+                    'verbed' => __('reopen'),
+                    ),
+                'close' => array(
+                    'verbed' => __('closed'),
+                    ),
                 );
 
         if (!isset($actions[$action]))
@@ -88,53 +134,92 @@ class TasksAjaxAPI extends AjaxController {
         switch ($action) {
         case 'assign':
             $inc = 'task-assign.tmpl.php';
-            if ($_POST && !$errors) {
-                if (!isset($_POST['staff_id']) || !is_numeric($_POST['staff_id']))
-                    $errors['staff_id'] = __('Assignee selection required');
-                else {
-                    foreach ($_POST['tids'] as $tid) {
-                        if (($t=Task::lookup($tid))
-                                && $t->getDeptId() != $_POST['dept_id']
-                                // Make sure the agent is allowed to
-                                // access and assign the task.
-                                && $t->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
-                                // Do the transfer
-                                && $t->assign($_POST, $e)
-                                )
-                            $i++;
-                    }
+            $form = AssignmentForm::instantiate($_POST);
+            if ($_POST && $form->isValid()) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Task::lookup($tid))
+                            // Make sure the agent is allowed to
+                            // access and assign the task.
+                            && $t->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
+                            // Do the transfer
+                            && $t->assign($form, $e)
+                            )
+                        $i++;
+                }
 
-                    if (!$i) {
-                        $info['error'] = sprintf(
-                                __('Unable to %1$s %2$s'),
-                                __('assign'),
-                                _N('selected task', 'selected tasks', $count));
-                    }
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('assign'),
+                            _N('selected task', 'selected tasks', $count));
                 }
             }
             break;
         case 'transfer':
             $inc = 'task-transfer.tmpl.php';
+            $form = TransferForm::instantiate($_POST);
+            if ($_POST && $form->isValid()) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Task::lookup($tid))
+                            // Make sure the agent is allowed to
+                            // access and transfer the task.
+                            && $t->checkStaffPerm($thisstaff, Task::PERM_TRANSFER)
+                            // Do the transfer
+                            && $t->transfer($form, $e)
+                            )
+                        $i++;
+                }
+
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('transfer'),
+                            _N('selected task', 'selected tasks', $count));
+                }
+            }
+            break;
+        case 'reopen':
+            $info['status'] = 'open';
+        case 'close':
+            $inc = 'task-status.tmpl.php';
+            $info['status'] = $info['status'] ?: 'closed';
+            $perm = '';
+            switch ($info['status']) {
+            case 'open':
+                // If an agent can create a task then they're allowed to
+                // reopen closed ones.
+                $perm = Task::PERM_CREATE;
+                break;
+            case 'closed':
+                $perm = Task::PERM_CLOSE;
+                break;
+            default:
+                $errors['err'] = __('Unknown action');
+            }
+            // Check generic permissions --  department specific permissions
+            // will be checked below.
+            if ($perm && !$thisstaff->hasPerm($perm))
+                $errors['err'] = sprintf(
+                        __('You do not have permission to %s %s'),
+                        __($action),
+                        __('tasks'));
+
             if ($_POST && !$errors) {
-                if (!isset($_POST['dept_id']) || !is_numeric($_POST['dept_id']))
-                    $errors['dept_id'] = __('Department selection required');
+                if (!$_POST['status']
+                        || !in_array($_POST['status'], array('open', 'closed')))
+                    $errors['status'] = __('Status selection required');
                 else {
                     foreach ($_POST['tids'] as $tid) {
                         if (($t=Task::lookup($tid))
-                                && $t->getDeptId() != $_POST['dept_id']
-                                // Make sure the agent is allowed to
-                                // access and transfer the task.
-                                && $t->checkStaffPerm($thisstaff, Task::PERM_TRANSFER)
-                                // Do the transfer
-                                && $t->transfer($_POST, $e)
+                                && $t->checkStaffPerm($thisstaff, $perm ?: null)
+                                && $t->setStatus($_POST['status'], $_POST['comments'])
                                 )
                             $i++;
                     }
 
                     if (!$i) {
                         $info['error'] = sprintf(
-                                __('Unable to %1$s %2$s'),
-                                __('transfer'),
+                                __('Unable to change status of %1$s'),
                                 _N('selected task', 'selected tasks', $count));
                     }
                 }
@@ -198,7 +283,7 @@ class TasksAjaxAPI extends AjaxController {
         } elseif($_POST && !isset($info['error'])) {
             $info['error'] = $errors['err'] ?: sprintf(
                     __('Unable to %1$s  %2$s'),
-                    $actions[$action]['verbed'],
+                    __('process'),
                     _N('selected task', 'selected tasks', $count));
         }
 
@@ -242,8 +327,9 @@ class TasksAjaxAPI extends AjaxController {
                     $task->getId())
                 );
 
-        if ($_POST) {
-            if ($task->transfer($_POST, $errors)) {
+        $form = $task->getTransferForm($_POST);
+        if ($_POST && $form->isValid()) {
+            if ($task->transfer($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
                         __('%s successfully'),
                         sprintf(
@@ -255,7 +341,7 @@ class TasksAjaxAPI extends AjaxController {
                 Http::response(201, $task->getId());
             }
 
-            $info = array_merge($info, Format::htmlchars($_POST));
+            $form->addErrors($errors);
             $info['error'] = $errors['err'] ?: __('Unable to transfer task');
         }
 
@@ -281,25 +367,28 @@ class TasksAjaxAPI extends AjaxController {
                 ':action' => sprintf('#tasks/%d/assign',
                     $task->getId()),
                 );
-        if ($_POST) {
-            if ($task->assign($_POST,  $errors)) {
+        if ($task->isAssigned()) {
+            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
+                    __('Task'),
+                    $task->getAssigned());
+        }
+
+        $form = $task->getAssignmentForm($_POST);
+        if ($_POST && $form->isValid()) {
+            if ($task->assign($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
                         __('%s successfully'),
                         sprintf(
                             __('%s assigned to %s'),
                             __('Task'),
-                            $task->getStaff()
-                            )
+                            $form->getAssignee())
                         );
-
                 Http::response(201, $task->getId());
             }
 
-            $info = array_merge($info, Format::htmlchars($_POST));
+            $form->addErrors($errors);
             $info['error'] = $errors['err'] ?: __('Unable to assign task');
         }
-
-        $info['staff_id'] = $info['staff_id'] ?: $task->getStaffId();
 
         include STAFFINC_DIR . 'templates/task-assign.tmpl.php';
     }
@@ -367,14 +456,14 @@ class TasksAjaxAPI extends AjaxController {
             switch ($_POST['a']) {
             case 'postnote':
                 $vars = $_POST;
-                $attachments = $task_note_form->getField('attachments')->getClean();
+                $attachments = $note_form->getField('attachments')->getClean();
                 $vars['cannedattachments'] = array_merge(
                     $vars['cannedattachments'] ?: array(), $attachments);
                 if(($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list
-                    $task_note_form->setSource(array());
-                    $task_note_form->getField('attachments')->reset();
+                    $note_form->setSource(array());
+                    $note_form->getField('attachments')->reset();
                     Draft::deleteForNamespace('task.note.'.$task->getId(),
                             $thisstaff->getId());
                 } else {
