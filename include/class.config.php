@@ -905,6 +905,9 @@ class OsticketConfig extends Config {
             case 'tickets':
                 return $this->updateTicketsSettings($vars, $errors);
                 break;
+            case 'tasks':
+                return $this->updateTasksSettings($vars, $errors);
+                break;
             case 'emails':
                 return $this->updateEmailsSettings($vars, $errors);
                 break;
@@ -1056,6 +1059,82 @@ class OsticketConfig extends Config {
         ));
     }
 
+    function updateTasksSettings($vars, &$errors) {
+        $f=array();
+        $f['default_task_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+        $f['default_task_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+
+        if (!preg_match('`(?!<\\\)#`', $vars['task_number_format']))
+            $errors['task_number_format'] = 'Task number format requires at least one hash character (#)';
+
+        Validator::process($f, $vars, $errors);
+
+        if ($vars['task_alert_active']
+                && (!isset($vars['task_alert_admin'])
+                    && !isset($vars['task_alert_dept_manager'])
+                    && !isset($vars['task_alert_dept_members'])
+                    && !isset($vars['task_alert_acct_manager']))) {
+            $errors['task_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_activity_alert_active']
+                && (!isset($vars['task_activity_alert_laststaff'])
+                    && !isset($vars['task_activity_alert_assigned'])
+                    && !isset($vars['task_activity_alert_dept_manager']))) {
+            $errors['task_activity_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_transfer_alert_active']
+                && (!isset($vars['task_transfer_alert_assigned'])
+                    && !isset($vars['task_transfer_alert_dept_manager'])
+                    && !isset($vars['task_transfer_alert_dept_members']))) {
+            $errors['task_transfer_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_overdue_alert_active']
+                && (!isset($vars['task_overdue_alert_assigned'])
+                    && !isset($vars['task_overdue_alert_dept_manager'])
+                    && !isset($vars['task_overdue_alert_dept_members']))) {
+            $errors['task_overdue_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_assignment_alert_active']
+                && (!isset($vars['task_assignment_alert_staff'])
+                    && !isset($vars['task_assignment_alert_team_lead'])
+                    && !isset($vars['task_assignment_alert_team_members']))) {
+            $errors['task_assignment_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($errors)
+            return false;
+
+        return $this->updateAll(array(
+            'task_number_format'=>$vars['task_number_format'] ?: '######',
+            'task_sequence_id'=>$vars['task_sequence_id'] ?: 0,
+            'default_task_priority_id'=>$vars['default_task_priority_id'],
+            'default_task_sla_id'=>$vars['default_task_sla_id'],
+            'task_alert_active'=>$vars['task_alert_active'],
+            'task_alert_admin'=>isset($vars['task_alert_admin']) ? 1 : 0,
+            'task_alert_dept_manager'=>isset($vars['task_alert_dept_manager']) ? 1 : 0,
+            'task_alert_dept_members'=>isset($vars['task_alert_dept_members']) ? 1 : 0,
+            'task_activity_alert_active'=>$vars['task_activity_alert_active'],
+            'task_activity_alert_laststaff'=>isset($vars['task_activity_alert_laststaff']) ? 1 : 0,
+            'task_activity_alert_assigned'=>isset($vars['task_activity_alert_assigned']) ? 1 : 0,
+            'task_activity_alert_dept_manager'=>isset($vars['task_activity_alert_dept_manager']) ? 1 : 0,
+            'task_assignment_alert_active'=>$vars['task_assignment_alert_active'],
+            'task_assignment_alert_staff'=>isset($vars['task_assignment_alert_staff']) ? 1 : 0,
+            'task_assignment_alert_team_lead'=>isset($vars['task_assignment_alert_team_lead']) ? 1 : 0,
+            'task_assignment_alert_team_members'=>isset($vars['task_assignment_alert_team_members']) ? 1 : 0,
+            'task_transfer_alert_active'=>$vars['task_transfer_alert_active'],
+            'task_transfer_alert_assigned'=>isset($vars['task_transfer_alert_assigned']) ? 1 : 0,
+            'task_transfer_alert_dept_manager'=>isset($vars['task_transfer_alert_dept_manager']) ? 1 : 0,
+            'task_transfer_alert_dept_members'=>isset($vars['task_transfer_alert_dept_members']) ? 1 : 0,
+            'task_overdue_alert_active'=>$vars['task_overdue_alert_active'],
+            'task_overdue_alert_assigned'=>isset($vars['task_overdue_alert_assigned']) ? 1 : 0,
+            'task_overdue_alert_dept_manager'=>isset($vars['task_overdue_alert_dept_manager']) ? 1 : 0,
+            'task_overdue_alert_dept_members'=>isset($vars['task_overdue_alert_dept_members']) ? 1 : 0,
+        ));
+    }
 
     function updateEmailsSettings($vars, &$errors) {
         $f=array();
