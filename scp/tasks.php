@@ -117,8 +117,8 @@ if ($stats['overdue']) {
 }
 
 if ($stats['closed']) {
-    $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
-                           'title'=>__('Closed Tasks'),
+    $nav->addSubMenu(array('desc' => __('Completed').' ('.number_format($stats['closed']).')',
+                           'title'=>__('Completed Tasks'),
                            'href'=>'tasks.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
@@ -129,12 +129,12 @@ if (isset($_SESSION['advsearch'])) {
     $search = SavedSearch::create();
     $form = $search->getFormFromSession('advsearch');
     $form->loadState($_SESSION['advsearch']);
-    $tickets = TicketModel::objects();
-    $tickets = $search->mangleQuerySet($tickets, $form);
-    $count = $tickets->count();
+    $tasks = Task::objects();
+    $tasks = $search->mangleQuerySet($tasks, $form);
+    $count = $tasks->count();
     $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Ticket Search'),
-                           'href'=>'tickets.php?status=search',
+                           'title'=>__('Advanced Task Search'),
+                           'href'=>'tasks.php?status=search',
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
@@ -142,9 +142,13 @@ if (isset($_SESSION['advsearch'])) {
 if ($thisstaff->hasPerm(TaskModel::PERM_CREATE)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
-                           'href'=>'tasks.php?a=open',
-                           'iconclass'=>'newTicket',
-                           'id' => 'new-task'),
+                           'href'=>'#tasks/add',
+                           'iconclass'=>'newTicket task-action',
+                           'id' => 'new-task',
+                           'attr' => array(
+                               'data-dialog' => '{"size":"large"}'
+                               )
+                           ),
                         ($_REQUEST['a']=='open'));
 }
 
