@@ -89,6 +89,15 @@ class Thread extends VerySimpleModel {
         return $base;
     }
 
+    function render($type=false) {
+
+        $entries = $this->getEntries();
+        if ($type && is_array($type))
+            $entries->filter(array('type__in' => $type));
+
+        include STAFFINC_DIR . 'templates/thread-entries.tmpl.php';
+    }
+
     function getEntry($id) {
         return ThreadEntry::lookup($id, $this->getId());
     }
