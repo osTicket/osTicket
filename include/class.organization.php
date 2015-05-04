@@ -305,7 +305,8 @@ class Organization extends OrganizationModel {
                     $this->save();
                 }
             $cd->setSource($vars);
-            $cd->save();
+            if ($cd->save())
+                $this->updated = SqlFunction::NOW();
         }
 
         // Set flags
