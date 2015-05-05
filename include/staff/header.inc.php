@@ -27,23 +27,22 @@ if ($lang) {
         .tip_shadow { display:block !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/scp.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead.css" media="screen">
-    <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css"
-         rel="stylesheet" media="screen" />
-     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
-    <!--[if IE 7]>
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome-ie7.min.css">
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/dropdown.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/translatable.css"/>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>css/thread.css" media="all">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/scp.css" media="all">
+    <link rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
+    <link rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css" media="screen">
+    <link type="text/css"  data-group="scp" href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen" />
+    <link type="text/css" rel="stylesheet" data-group="scp" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"/>
+    <link type="text/css" rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>scp/css/dropdown.css">
+    <link type="text/css" rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
+    <link type="text/css" rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>css/flags.css">
+    <link type="text/css" rel="stylesheet" data-group="scp" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css"/>
+    <link type="text/css" rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
+    <link type="text/css" rel="stylesheet" data-group="scp" href="<?php echo ROOT_PATH; ?>scp/css/translatable.css"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/tooltip.css">
+
+    <!-- {#} CSS -->
 
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {

@@ -40,21 +40,21 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <div class="clear"></div>
 </div>
 
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/scp.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/tips.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jquery.translatable.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jquery.dropdown.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-tooltip.js"></script>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
-<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/tooltip.css">
+<script type="text/javascript" data-group="scp" src="//cdnjs.cloudflare.com/ajax/libs/jquery.pjax/1.9.6/jquery.pjax.min.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" data-group="scp" src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
+<script type="text/javascript" data-group="scp" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/scp.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/tips.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/jquery.translatable.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/jquery.dropdown.js"></script>
+<script type="text/javascript" data-group="scp" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" data-group="scp" src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
+<!-- {#} JS -->
 <script type="text/javascript">
     getConfig().resolve(<?php
         include INCLUDE_DIR . 'ajax.config.php';

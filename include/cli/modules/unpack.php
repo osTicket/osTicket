@@ -238,6 +238,7 @@ class Unpacker extends Module {
 
         # Locate the upload folder
         $upload = $this->source = $this->find_upload_folder();
+        $this->root = $upload;
 
         # Unpack the upload folder to the destination, except the include folder
         if ($upgrade)
