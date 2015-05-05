@@ -693,7 +693,7 @@ implements TemplateVariable {
         case 'domain':
             return $info->host;
         case 'personal':
-            return $info->personal;
+            return trim($info->personal, '"');
         case 'mailbox':
             return $info->mailbox;
         }

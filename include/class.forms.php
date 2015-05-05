@@ -2458,6 +2458,7 @@ class TextareaWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
+        $attrs = array();
         if (isset($config['rows']))
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
@@ -2470,9 +2471,12 @@ class TextareaWidget extends Widget {
             $class = sprintf('class="%s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
+        if (isset($config['context']))
+            $attrs['data-root-context'] = '"'.$config['context'].'"';
         ?>
         <span style="display:inline-block;width:100%">
         <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
+                .' '.Format::array_implode('=', ' ', $attrs)
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php

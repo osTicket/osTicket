@@ -1876,6 +1876,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             'recipients' => array(
                 'class' => 'UserList', 'desc' => __('List of all recipient names'),
             ),
+            'source' => __('Source'),
             'status' => array(
                 'class' => 'TicketStatus', 'desc' => __('Status'),
             ),
