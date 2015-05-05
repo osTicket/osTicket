@@ -3123,7 +3123,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
                 foreach ($topic_forms as $topic_form) {
-                    $TF = $topic_form->getForm()->getForm($vars);
+                    $TF = $topic_form->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }
