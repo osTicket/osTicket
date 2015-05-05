@@ -33,6 +33,22 @@ class TaskModel extends VerySimpleModel {
                 'constraint' => array('staff_id' => 'Staff.staff_id'),
                 'null' => true,
             ),
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+                'null' => true,
+            ),
+            'thread' => array(
+                'constraint' => array(
+                    'id'  => 'TaskThread.object_id',
+                    "'A'" => 'TaskThread.object_type',
+                ),
+                'list' => false,
+                'null' => false,
+            ),
+            'cdata' => array(
+                'constraint' => array('id' => 'TaskCData.task_id'),
+                'list' => false,
+            ),
         ),
     );
 
@@ -104,12 +120,24 @@ class TaskModel extends VerySimpleModel {
         return $this->staff_id;
     }
 
+    function getStaff() {
+        return $this->staff;
+    }
+
     function getTeamId() {
         return $this->team_id;
     }
 
+    function getTeam() {
+        return $this->team;
+    }
+
     function getDeptId() {
         return $this->dept_id;
+    }
+
+    function getDept() {
+        return $this->dept;
     }
 
     function getCreateDate() {
@@ -156,13 +184,12 @@ RolePermission::register(/* @trans */ 'Tasks', TaskModel::getPermissions());
 class Task extends TaskModel {
     var $form;
     var $entry;
-    var $thread;
 
+    var $_thread;
     var $_entries;
 
-
     function getStatus() {
-        return $this->isOpen() ? _('Open') : _('Closed');
+        return $this->isOpen() ? __('Open') : __('Completed');
     }
 
     function getTitle() {
@@ -195,6 +222,34 @@ class Task extends TaskModel {
         return $role->hasPerm($perm);
     }
 
+    function getAssignee() {
+
+        if (!$this->isOpen() || !$this->isAssigned())
+            return false;
+
+        if ($this->staff)
+            return $this->staff;
+
+        if ($this->team)
+            return $this->team;
+
+        return null;
+    }
+
+    function getAssigneeId() {
+
+        if (!($assignee=$this->getAssignee()))
+            return null;
+
+        $id = '';
+        if ($assignee instanceof Staff)
+            $id = 's'.$assignee->getId();
+        elseif ($assignee instanceof Team)
+            $id = 't'.$assignee->getId();
+
+        return $id;
+    }
+
     function getAssignees() {
 
         $assignees=array();
@@ -202,7 +257,7 @@ class Task extends TaskModel {
             $assignees[] = $this->staff->getName();
 
         //Add team assignment
-        if (isset($this->team))
+        if ($this->team)
             $assignees[] = $this->team->getName();
 
         return $assignees;
@@ -215,13 +270,6 @@ class Task extends TaskModel {
     }
 
     function getThread() {
-
-        if (!$this->thread)
-            $this->thread = TaskThread::lookup(array(
-                        'object_id' => $this->getId(),
-                        'object_type' => ObjectModel::OBJECT_TYPE_TASK)
-                    );
-
         return $this->thread;
     }
 
@@ -257,6 +305,23 @@ class Task extends TaskModel {
         return $this->form;
     }
 
+    function getAssignmentForm($source=null) {
+
+        if (!$source)
+            $source = array('assignee' => array($this->getAssigneeId()));
+
+        return AssignmentForm::instantiate($source,
+                array('dept' => $this->getDept()));
+    }
+
+    function getTransferForm($source=null) {
+
+        if (!$source)
+            $source = array('dept' => array($this->getDeptId()));
+
+        return TransferForm::instantiate($source);
+    }
+
     function addDynamicData($data) {
 
         $tf = TaskForm::getInstance($this->id, true);
@@ -283,6 +348,40 @@ class Task extends TaskModel {
         return $this->_entries ?: array();
     }
 
+    function setStatus($status, $comments='') {
+        global $thisstaff;
+
+        switch($status) {
+        case 'open':
+            if ($this->isOpen())
+                return false;
+
+            $this->reopen();
+            break;
+        case 'closed':
+            if ($this->isClosed())
+                return false;
+            $this->close();
+            break;
+        default:
+            return false;
+        }
+
+        $this->save(true);
+        if ($comments) {
+            $errors = array();
+            $this->postNote(array(
+                        'note' => $comments,
+                        'title' => sprintf(
+                            __('Status changed to %s'),
+                            $this->getStatus())
+                        ),
+                    $errors,
+                    $thisstaff);
+        }
+
+        return true;
+    }
 
     function to_json() {
 
@@ -298,13 +397,13 @@ class Task extends TaskModel {
 
         foreach ($this->getDynamicData() as $e) {
             // Make sure the form type matches
-            if (!$e->getForm()
-                    || ($ftype && $ftype != $e->getForm()->get('type')))
+            if (!$e->form
+                    || ($ftype && $ftype != $e->form->get('type')))
                 continue;
 
             // Get the named field and return the answer
-            if ($f = $e->getForm()->getField($field))
-                return $f->getAnswer();
+            if ($a = $e->getAnswer($field))
+                return $a;
         }
 
         return null;
@@ -315,44 +414,82 @@ class Task extends TaskModel {
     }
 
     /* util routines */
-    function assign($vars, &$errors) {
-        global $thisstaff;
+    function assign(AssignmentForm $form, &$errors, $alert=true) {
 
-        if (!isset($vars['staff_id']) || !($staff=Staff::lookup($vars['staff_id'])))
-            $errors['staff_id'] = __('Agent selection required');
-        elseif ($staff->getid() == $this->getStaffId())
-            $errors['dept_id'] = __('Task already assigned to agent');
-        else
-            $this->staff_id = $staff->getId();
+        $assignee = $form->getAssignee();
+        if ($assignee instanceof Staff) {
+            if ($this->getStaffId() == $assignee->getId()) {
+                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
+                        __('Task'),
+                        __('the agent')
+                        );
+            } elseif(!$assignee->isAvailable()) {
+                $errors['assignee'] = __('Agent is unavailable for assignment');
+            } else {
+                $this->staff_id = $assignee->getId();
+            }
+        } elseif ($assignee instanceof Team) {
+            if ($this->getTeamId() == $assignee->getId()) {
+                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
+                        __('Task'),
+                        __('the team')
+                        );
+            } else {
+                $this->team_id = $assignee->getId();
 
-        if ($errors || !$this->save())
-            return false;
-
-        // Transfer completed... post internal note.
-        $title = sprintf(__('Task assigned to %s'),
-                $staff->getName());
-        if ($vars['comments']) {
-            $note = $vars['comments'];
+            }
         } else {
-            $note = $title;
-            $title = '';
+            $errors['assignee'] = __('Unknown assignee');
         }
 
-        $this->postNote(
-                array('note' => $note, 'title' => $title),
-                $errors,
-                $thisstaff);
+        if ($errors || !$this->save(true))
+            return false;
+
+        $this->onAssignment($assignee,
+                $form->getField('comments')->getClean(),
+                $alert);
 
         return true;
     }
 
-    function transfer($vars, &$errors) {
+    function onAssignment($assignee, $note='', $alert=true) {
         global $thisstaff;
 
-        if (!isset($vars['dept_id']) || !($dept=Dept::lookup($vars['dept_id'])))
-            $errors['dept_id'] = __('Department selection required');
+        if (!is_object($assignee))
+            return false;
+
+        $assigner = $thisstaff ?: __('SYSTEM (Auto Assignment)');
+        //Assignment completed... post internal note.
+        $title = sprintf(__('Task assigned to %s'),
+                (string) $assignee);
+
+        if (!$note) {
+            $note = $title;
+            $title = '';
+        }
+
+        $errors = array();
+        $note = $this->postNote(
+                array('note' => $note, 'title' => $title),
+                $errors,
+                $assigner,
+                false);
+
+        // Send alerts out
+        if (!$alert)
+            return false;
+
+        return true;
+    }
+
+    function transfer(TransferForm $form, &$errors, $alert=true) {
+        global $thisstaff;
+
+        $dept = $form->getDept();
+        if (!$dept || !($dept instanceof Dept))
+            $errors['dept'] = __('Department selection required');
         elseif ($dept->getid() == $this->getDeptId())
-            $errors['dept_id'] = __('Task already in the department');
+            $errors['dept'] = __('Task already in the department');
         else
             $this->dept_id = $dept->getId();
 
@@ -360,19 +497,24 @@ class Task extends TaskModel {
             return false;
 
         // Transfer completed... post internal note.
-        $title = sprintf(__('Task transfered to %s department'),
+        $title = sprintf(__('%s transferred to %s department'),
+                __('Task'),
                 $dept->getName());
-        if ($vars['comments']) {
-            $note = $vars['comments'];
-        } else {
+
+        $note = $form->getField('comments')->getClean();
+        if (!$note) {
             $note = $title;
             $title = '';
         }
-
-        $this->postNote(
+        $_errors = array();
+        $note = $this->postNote(
                 array('note' => $note, 'title' => $title),
-                $errors,
-                $thisstaff);
+                $_errors, $thisstaff, false);
+
+        // Send alerts if requested && enabled.
+        if (!$alert)
+            return true;
+
 
         return true;
     }
@@ -392,14 +534,8 @@ class Task extends TaskModel {
         if (!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
 
-        if (isset($vars['task_status'])) {
-            if ($vars['task_status'])
-                $this->reopen();
-            else
-                $this->close();
-
-            $this->save(true);
-        }
+        if (isset($vars['task_status']))
+            $this->setStatus($vars['task_status']);
 
         return $note;
     }
@@ -496,7 +632,85 @@ class Task extends TaskModel {
             }
         }
     }
+
+    /* Quick staff's stats */
+    static function getStaffStats($staff) {
+        global $cfg;
+
+        /* Unknown or invalid staff */
+        if (!$staff
+                || (!is_object($staff) && !($staff=Staff::lookup($staff)))
+                || !$staff->isStaff())
+            return null;
+
+        $where = array('(task.staff_id='.db_input($staff->getId())
+                    .sprintf(' AND task.flags & %d != 0 ', TaskModel::ISOPEN)
+                    .') ');
+        $where2 = '';
+
+        if(($teams=$staff->getTeams()))
+            $where[] = ' ( flags.team_id IN('.implode(',', db_input(array_filter($teams)))
+                        .') AND '
+                        .sprintf('task.flags & %d != 0 ', TaskModel::ISOPEN)
+                        .')';
+
+        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
+            $where[] = 'task.dept_id IN('.implode(',', db_input($depts)).') ';
+
+        $where = implode(' OR ', $where);
+        if ($where) $where = 'AND ( '.$where.' ) ';
+
+        $sql =  'SELECT \'open\', count(task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                . $where . $where2
+
+                .'UNION SELECT \'overdue\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                . sprintf(' AND task.flags & %d != 0 ', TaskModel::ISOVERDUE)
+                . $where
+
+                .'UNION SELECT \'assigned\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
+                .'AND task.staff_id = ' . db_input($staff->getId()) . ' '
+                . $where
+
+                .'UNION SELECT \'closed\', count( task.id ) AS tasks '
+                .'FROM ' . TASK_TABLE . ' task '
+                . sprintf(' WHERE task.flags & %d = 0 ', TaskModel::ISOPEN)
+                . $where;
+
+        $res = db_query($sql);
+        $stats = array();
+        while ($row = db_fetch_row($res))
+            $stats[$row[0]] = $row[1];
+
+        return $stats;
+    }
+
+    static function getAgentActions($agent, $options=array()) {
+        if (!$agent)
+            return;
+
+        require STAFFINC_DIR.'templates/tasks-actions.tmpl.php';
+    }
 }
+
+
+class TaskCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('task_id'),
+        'table' => TASK_CDATA_TABLE,
+        'joins' => array(
+            'task' => array(
+                'constraint' => array('task_id' => 'TaskModel.task_id'),
+            ),
+        ),
+    );
+}
+
 
 class TaskForm extends DynamicForm {
     static $instance;
@@ -504,6 +718,12 @@ class TaskForm extends DynamicForm {
     static $internalForm;
 
     static $forms;
+
+    static $cdata = array(
+            'table' => TASK_CDATA_TABLE,
+            'object_id' => 'task_id',
+            'object_type' => 'A',
+        );
 
     static function objects() {
         $os = parent::objects();
@@ -533,7 +753,7 @@ class TaskForm extends DynamicForm {
 
     static function getInternalForm($source=null) {
         if (!isset(static::$internalForm))
-            static::$internalForm = new Form(self::getInternalFields(), $source);
+            static::$internalForm = new SimpleForm(self::getInternalFields(), $source);
 
         return static::$internalForm;
     }

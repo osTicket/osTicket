@@ -23,12 +23,13 @@ class EmailTemplateGroup {
     var $_templates;
     static $all_groups = array(
         'sys' => /* @trans */ 'System Management Templates',
-        'ticket.user' => /* @trans */ 'End-User Email Templates',
-        'ticket.staff' => /* @trans */ 'Agent Email Templates',
+        'a.ticket.user' => /* @trans */ 'Ticket End-User Email Templates',
+        'b.ticket.staff' => /* @trans */ 'Ticket Agent Email Templates',
+        'c.task' => /* @trans */ 'Task Email Templates',
     );
     static $all_names=array(
         'ticket.autoresp'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-response',
             'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.',
             'context' => array(
@@ -36,7 +37,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.autoreply'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-reply',
             'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.',
             'context' => array(
@@ -44,7 +45,7 @@ class EmailTemplateGroup {
             ),
         ),
         'message.autoresp'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Message Auto-response',
             'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.',
             'context' => array(
@@ -52,7 +53,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.notice'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Notice',
             'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).',
             'context' => array(
@@ -60,7 +61,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.overlimit'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Over Limit Notice',
             'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
             'context' => array(
@@ -68,7 +69,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.reply'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Response/Reply Template',
             'desc'=>/* @trans */ 'Template used on ticket response/reply',
             'context' => array(
@@ -76,7 +77,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.activity.notice'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Activity Notice',
             'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
             'context' => array(
@@ -84,7 +85,7 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Ticket Alert',
             'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.',
             'context' => array(
@@ -92,7 +93,7 @@ class EmailTemplateGroup {
             ),
         ),
         'message.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Message Alert',
             'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.',
             'context' => array(
@@ -100,7 +101,7 @@ class EmailTemplateGroup {
             ),
         ),
         'note.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Internal Activity Alert',
             'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.',
             'context' => array(
@@ -108,7 +109,7 @@ class EmailTemplateGroup {
             ),
         ),
         'assigned.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Ticket Assignment Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.',
             'context' => array(
@@ -116,7 +117,7 @@ class EmailTemplateGroup {
             ),
         ),
         'transfer.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Ticket Transfer Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.',
             'context' => array(
@@ -124,12 +125,44 @@ class EmailTemplateGroup {
             ),
         ),
         'ticket.overdue'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Overdue Ticket Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.',
             'context' => array(
                 'ticket', 'recipient', 'comments',
             ),
+        ),
+        'task.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new task.',
+        ),
+        'task.activity.notice' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Notice',
+            'desc'=>/* @trans */ 'Template used to notify collaborators on task activity.'
+        ),
+        'task.activity.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Alert',
+            'desc'=>/* @trans */ 'Alert sent to selected agents, if enabled, on new activity.',
+
+        ),
+        'task.assignment.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Assignment Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task assignment.',
+        ),
+        'task.transfer.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Transfer Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task transfer.',
+        ),
+        'task.overdue.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Overdue Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue
+            task.',
         ),
     );
 
@@ -298,6 +331,27 @@ class EmailTemplateGroup {
 
     function getOverdueAlertMsgTemplate() {
         return $this->getMsgTemplate('ticket.overdue');
+    }
+
+    /* Tasks templates */
+    function getNewTaskAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.alert');
+    }
+
+    function  getTaskActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.notice');
+    }
+
+    function getTaskTransferAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.transfer.alert');
+    }
+
+    function getTaskAssignmentAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.assignment.alert');
+    }
+
+    function getTaskOverdueAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.overdue.alert');
     }
 
     function update($vars,&$errors) {

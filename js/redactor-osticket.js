@@ -343,6 +343,10 @@ $(function() {
     $(document).on('pjax:start', cleanupRedactorElements);
 });
 
+$(document).on('focusout.redactor', 'div.redactor_richtext', function (e) {
+    $(this).siblings('textarea').trigger('change');
+});
+
 $(document).ajaxError(function(event, request, settings) {
     if (settings.url.indexOf('ajax.php/draft') != -1
             && settings.type.toUpperCase() == 'POST') {

@@ -19,6 +19,9 @@
  * data for a ticket
  */
 class Form {
+
+    static $id = 0;
+
     var $fields = array();
     var $title = '';
     var $instructions = '';
@@ -28,24 +31,40 @@ class Form {
     var $_errors = null;
     var $_source = false;
 
-    function __construct($fields=array(), $source=null, $options=array()) {
+    function __construct($source=null, $options=array()) {
+
+        if (isset($options['title']))
+            $this->title = $options['title'];
+        if (isset($options['instructions']))
+            $this->instructions = $options['instructions'];
+        if (isset($options['id']))
+            $this->id = $options['id'];
+
+        // Use POST data if source was not specified
+        $this->_source = ($source) ? $source : $_POST;
+    }
+
+    function getId() {
+        return static::$id;
+    }
+
+    function data($source) {
+        foreach ($this->fields as $name=>$f)
+            if (isset($source[$name]))
+                $f->value = $source[$name];
+    }
+
+    function setFields($fields) {
+
+        if (!is_array($fields))
+            return;
+
         $this->fields = $fields;
         foreach ($fields as $k=>$f) {
             $f->setForm($this);
             if (!$f->get('name') && $k && !is_numeric($k))
                 $f->set('name', $k);
         }
-        if (isset($options['title']))
-            $this->title = $options['title'];
-        if (isset($options['instructions']))
-            $this->instructions = $options['instructions'];
-        // Use POST data if source was not specified
-        $this->_source = ($source) ? $source : $_POST;
-    }
-    function data($source) {
-        foreach ($this->fields as $name=>$f)
-            if (isset($source[$name]))
-                $f->value = $source[$name];
     }
 
     function getFields() {
@@ -120,8 +139,21 @@ class Form {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
 
-    function addError($message) {
-        $this->_errors['form'][] = $message;
+    function addError($message, $index=false) {
+
+        if ($index)
+            $this->_errors[$index] = $message;
+        else
+            $this->_errors['form'][] = $message;
+    }
+
+    function addErrors($errors=array()) {
+        foreach ($errors as $k => $v) {
+            if (($f=$this->getField($k)))
+                $f->addError($v);
+            else
+                $this->addError($v, $k);
+        }
     }
 
     function addValidator($function) {
@@ -161,6 +193,42 @@ class Form {
                 }
             }
         }
+    }
+
+    function emitJavascript($options=array()) {
+
+        // Check if we need to emit javascript
+        if (!($fid=$this->getId()))
+            return;
+        ?>
+        <script type="text/javascript">
+          $(function() {
+            <?php
+            //XXX: We ONLY want to watch field on this form. We'll only
+            // watch form inputs if form_id is specified. Current FORM API
+            // doesn't generate the entire form  (just fields)
+            if ($fid) {
+                ?>
+                $(document).off('change.<?php echo $fid; ?>');
+                $(document).on('change.<?php echo $fid; ?>',
+                    'form#<?php echo $fid; ?> :input',
+                    function() {
+                        //Clear any current errors...
+                        var errors = $('#field'+$(this).attr('id')+'_error');
+                        if (errors.length)
+                            errors.slideUp('fast', function (){
+                                $(this).remove();
+                                });
+                        //TODO: Validation input inplace or via ajax call
+                        // and set any new errors AND visibilty changes
+                    }
+                   );
+            <?php
+            }
+            ?>
+            });
+        </script>
+        <?php
     }
 
     static function emitMedia($url, $type) {
@@ -221,6 +289,28 @@ class Form {
             }
         }
     }
+
+    /*
+     * Initialize a generic static form
+     */
+    static function instantiate() {
+        $r = new ReflectionClass(get_called_class());
+        return $r->newInstanceArgs(func_get_args());
+    }
+}
+
+/**
+ * SimpleForm
+ * Wrapper for inline/static forms.
+ *
+ */
+class SimpleForm extends Form {
+
+    function __construct($fields=array(), $source=null, $options=array()) {
+        parent::__construct($source, $options);
+        $this->setFields($fields);
+    }
+
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -340,14 +430,22 @@ class FormField {
         $this->_clean = $this->_widget = null;
     }
 
+    function getValue() {
+        return $this->getWidget()->getValue();
+    }
+
     function errors() {
         return $this->_errors;
     }
-    function addError($message, $field=false) {
+    function addError($message, $index=false) {
         if ($field)
-            $this->_errors[$field] = $message;
+            $this->_errors[$index] = $message;
         else
             $this->_errors[] = $message;
+
+        // Update parent form errors for the field
+        if ($this->_form)
+            $this->_form->addError($this->errors(), $this->get('id'));
     }
 
     function isValidEntry() {
@@ -818,7 +916,7 @@ class FormField {
             $clazz = $type[1];
             $T = new $clazz($this->ht);
             $config = $this->getConfiguration();
-            $this->_cform = new Form($T->getConfigurationOptions(), $source);
+            $this->_cform = new SimpleForm($T->getConfigurationOptions(), $source);
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))
@@ -1008,7 +1106,7 @@ class TextareaField extends FormField {
     }
 
     function searchable($value) {
-        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value);
+        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value); //<?php
         $value = Format::htmldecode(Format::striptags($value));
         return Format::searchable($value);
     }
@@ -1138,6 +1236,7 @@ class BooleanField extends FormField {
 
 class ChoiceField extends FormField {
     static $widget = 'ChoicesWidget';
+    var $_choices;
 
     function getConfigurationOptions() {
         return array(
@@ -1211,6 +1310,18 @@ class ChoiceField extends FormField {
         if (is_array($value))
             return implode(', ', $value);
         return (string) $value;
+    }
+
+    /*
+     Return criteria to which the choice should be filtered by
+     */
+    function getCriteria() {
+        $config = $this->getConfiguration();
+        $criteria = array();
+        if (isset($config['criteria']))
+            $criteria = $config['criteria'];
+
+        return $criteria;
     }
 
     function getChoice($value) {
@@ -1693,11 +1804,25 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 
 
 class AssigneeField extends ChoiceField {
+    var $_choices = array();
+    var $_criteria = null;
+
     function getWidget() {
         $widget = parent::getWidget();
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
         return $widget;
+    }
+
+    function getCriteria() {
+
+        if (!isset($this->_criteria)) {
+            $this->_criteria = array('available' => true);
+            if (($c=parent::getCriteria()))
+                $this->_criteria = array_merge($this->_criteria, $c);
+        }
+
+        return $this->_criteria;
     }
 
     function hasIdValue() {
@@ -1706,13 +1831,44 @@ class AssigneeField extends ChoiceField {
 
     function getChoices() {
         global $cfg;
-        $choices = array();
-        if (($agents = Staff::getAvailableStaffMembers()))
-            foreach ($agents as $id => $name)
-                $choices[$id] = $name;
 
-        return $choices;
+        if (!$this->_choices) {
+            $config = $this->getConfiguration();
+            $choices = array(
+                    __('Agents') => new ArrayObject(),
+                    __('Teams') => new ArrayObject());
+            $A = current($choices);
+            $criteria = $this->getCriteria();
+            $agents = array();
+            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
+                if (($members = $dept->getMembers($criteria)))
+                    foreach ($members as $member)
+                        $agents[$member->getId()] = $member;
+            } else {
+                $agents = Staff::getStaffMembers($criteria);
+            }
+
+            foreach ($agents as $id => $name)
+                $A['s'.$id] = $name;
+
+            next($choices);
+            $T = current($choices);
+            if (($teams = Team::getTeams()))
+                foreach ($teams as $id => $name)
+                    $T['t'.$id] = $name;
+
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
     }
+
+    function getValue() {
+
+        if (($value = parent::getValue()) && ($id=$this->getClean()))
+           return $value[$id];
+    }
+
 
     function parse($id) {
         return $this->to_php(null, $id);
@@ -2291,7 +2447,7 @@ class InlineFormField extends FormField {
     function getInlineForm($data=false) {
         $form = $this->get('form');
         if (is_array($form)) {
-            $form = new Form($form, $data ?: $this->value ?: $this->getSource());
+            $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource());
         }
         return $form;
     }
@@ -2573,14 +2729,9 @@ class ChoicesWidget extends Widget {
             <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
-            <?php }
-            foreach ($choices as $key => $name) {
-                if (!$have_def && $key == $def_key)
-                    continue; ?>
-                <option value="<?php echo $key; ?>" <?php
-                    if (isset($values[$key])) echo 'selected="selected"';
-                ?>><?php echo $name; ?></option>
-            <?php } ?>
+<?php
+        }
+        $this->emitChoices($choices, $values); ?>
         </select>
         <?php
         if ($config['multiselect']) {
@@ -2595,6 +2746,35 @@ class ChoicesWidget extends Widget {
         }
     }
 
+    function emitChoices($choices, $values=array()) {
+        reset($choices);
+        if (is_array(current($choices)) || current($choices) instanceof Traversable)
+            return $this->emitComplexChoices($choices, $values);
+
+        foreach ($choices as $key => $name) {
+            if (!$have_def && $key == $def_key)
+                continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo $name; ?></option>
+        <?php
+        }
+    }
+
+    function emitComplexChoices($choices, $values=array()) {
+        foreach ($choices as $label => $group) { ?>
+            <optgroup label="<?php echo $label; ?>"><?php
+            foreach ($group as $key => $name) {
+                if (!$have_def && $key == $def_key)
+                    continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo $name; ?></option>
+<?php       } ?>
+            </optgroup><?php
+        }
+    }
+
     function getValue() {
 
         if (!($value = parent::getValue()))
@@ -2606,12 +2786,23 @@ class ChoicesWidget extends Widget {
         // Assume multiselect
         $values = array();
         $choices = $this->field->getChoices();
-        if (is_array($value)) {
-            foreach($value as $k => $v) {
-                if (isset($choices[$v]))
-                    $values[$v] = $choices[$v];
-                elseif (($i=$this->field->lookupChoice($v)))
-                    $values += $i;
+
+        if ($choices && is_array($value)) {
+            // Complex choices
+            if (is_array(current($choices))
+                    || current($choices) instanceof Traversable) {
+                foreach ($choices as $label => $group) {
+                     foreach ($group as $k => $v)
+                        if (in_array($k, $value))
+                            $values[$k] = $v;
+                }
+            } else {
+                foreach($value as $k => $v) {
+                    if (isset($choices[$v]))
+                        $values[$v] = $choices[$v];
+                    elseif (($i=$this->field->lookupChoice($v)))
+                        $values += $i;
+                }
             }
         }
 
@@ -3055,5 +3246,204 @@ class VisibilityConstraint {
         return $expression;
     }
 }
+
+class AssignmentForm extends Form {
+
+    static $id = 'assign';
+    var $_assignee = null;
+    var $_dept = null;
+
+    function __construct($source=null, $options=array()) {
+        parent::__construct($source, $options);
+        // Department of the object -- if necessary to limit assinees
+        if (isset($options['dept']))
+            $this->_dept = $options['dept'];
+    }
+
+    function getFields() {
+
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'assignee' => new AssigneeField(array(
+                    'id'=>1,
+                    'label' => __('Assignee'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Assignee selection required'),
+                    'configuration' => array(
+                        'criteria' => array(
+                            'available' => true,
+                            ),
+                        'dept' => $this->_dept ?: null,
+                       ),
+                    )
+                ),
+            'comments' => new TextareaField(array(
+                    'id' => 2,
+                    'label'=> '',
+                    'required'=>false,
+                    'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'large',
+                        'placeholder' => __('Optional reason for the assignment'),
+                        ),
+                    )
+                ),
+            );
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function isValid() {
+
+        if (!parent::isValid())
+            return false;
+
+        // Do additional assignment validation
+        if (!($assignee = $this->getAssignee())) {
+            $this->getField('assignee')->addError(
+                    __('Unknown assignee'));
+        } elseif ($assignee instanceof Staff) {
+            // Make sure the agent is available
+            if (!$assignee->isAvailable())
+                $this->getField('assignee')->addError(
+                        __('Agent is unavailable for assignment')
+                        );
+        }
+
+        return !$this->errors();
+    }
+
+    function getClean() {
+        return parent::getClean();
+    }
+
+    function render($options) {
+
+        switch(strtolower($options['template'])) {
+        case 'simple':
+            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+            break;
+        default:
+            throw new Exception(sprintf(__('%s: Unknown template style %s'),
+                        'FormUtils', $options['template']));
+        }
+
+        $form = $this;
+        include $inc;
+    }
+
+    function getAssignee() {
+
+        if (!isset($this->_assignee)) {
+            $value = $this->getField('assignee')->getClean();
+            if ($value[0] == 's')
+                $this->_assignee = Staff::lookup(substr($value, 1));
+            elseif ($value[0] == 't')
+                $this->_assignee = Team::lookup(substr($value, 1));
+        }
+
+        return $this->_assignee;
+    }
+
+    function assigneeCriteria() {
+        $dept = $this->id;
+        return function () use($dept) {
+            return array('dept_id' =>$dept);
+        };
+    }
+}
+
+class TransferForm extends Form {
+
+    static $id = 'transfer';
+    var $_dept = null;
+
+    function __construct($source=null, $options=array()) {
+        parent::__construct($source, $options);
+    }
+
+    function getFields() {
+
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'dept' => new DepartmentField(array(
+                    'id'=>1,
+                    'label' => __('Department'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Department selection required'),
+                    )
+                ),
+            'comments' => new TextareaField(array(
+                    'id' => 2,
+                    'label'=> '',
+                    'required'=>false,
+                    'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason for the transfer'),
+                        ),
+                    )
+                ),
+            );
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function isValid() {
+
+        if (!parent::isValid())
+            return false;
+
+        // Do additional validations
+        if (!($dept = $this->getDept()))
+            $this->getField('dept')->addError(
+                    __('Unknown department'));
+
+        return !$this->errors();
+    }
+
+    function getClean() {
+        return parent::getClean();
+    }
+
+    function render($options) {
+
+        switch(strtolower($options['template'])) {
+        case 'simple':
+            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+            break;
+        default:
+            throw new Exception(sprintf(__('%s: Unknown template style %s'),
+                        get_class(), $options['template']));
+        }
+
+        $form = $this;
+        include $inc;
+
+    }
+
+    function getDept() {
+
+        if (!isset($this->_dept)) {
+            if (($id = $this->getField('dept')->getClean()))
+                $this->_dept = Dept::lookup($id);
+        }
+
+        return $this->_dept;
+    }
+}
+
 
 ?>

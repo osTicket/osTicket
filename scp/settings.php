@@ -21,6 +21,8 @@ $settingOptions=array(
         array(__('System Settings'), 'settings.system'),
     'tickets' =>
         array(__('Ticket Settings and Options'), 'settings.ticket'),
+    'tasks' =>
+        array(__('Task Settings and Options'), 'settings.tasks'),
     'pages' =>
         array(__('Site Pages'), 'settings.pages'),
     'access' =>

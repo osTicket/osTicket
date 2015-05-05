@@ -40,12 +40,12 @@ if ($_REQUEST['uid'])
     $user = User::lookup($_REQUEST['uid']);
 
 // Configure form for file uploads
-$response_form = new Form(array(
+$response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:response',
         'configuration' => array('extensions'=>'')))
 ));
-$note_form = new Form(array(
+$note_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:note',
         'configuration' => array('extensions'=>'')))

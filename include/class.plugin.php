@@ -32,7 +32,7 @@ class PluginConfig extends Config {
      */
     function getForm() {
         if (!isset($this->form)) {
-            $this->form = new Form($this->getOptions());
+            $this->form = new SimpleForm($this->getOptions());
             if ($_SERVER['REQUEST_METHOD'] != 'POST')
                 $this->form->data($this->getInfo());
         }

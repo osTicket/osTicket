@@ -326,7 +326,9 @@ var scp_prep = function() {
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
-        $(this).parents('div.dialog')
+        var $dialog = $(this).parents('div.dialog');
+        $dialog.off('blur.redactor');
+        $dialog
         .hide()
         .removeAttr('style');
         $.toggleOverlay(false);

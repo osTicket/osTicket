@@ -490,6 +490,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }
 
+    function getTasksStats() {
+
+        if (!$this->stats['tasks'])
+            $this->stats['tasks'] = Task::getStaffStats($this);
+
+        return  $this->stats['tasks'];
+    }
+
+    function getNumAssignedTasks() {
+        return ($stats=$this->getTasksStats()) ? $stats['assigned'] : 0;
+    }
+
+    function getNumClosedTasks() {
+        return ($stats=$this->getTasksStats()) ? $stats['closed'] : 0;
+    }
+
     function getExtraAttr($attr=false, $default=null) {
         if (!isset($this->_extra) && isset($this->extra))
             $this->_extra = JsonDataParser::decode($this->extra);
@@ -681,11 +697,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             return null;
     }
 
-    static function getStaffMembers($availableonly=false) {
+    static function getStaffMembers($criteria=array()) {
         global $cfg;
+
         $members = static::objects();
 
-        if ($availableonly) {
+        if (isset($criteria['available'])) {
             $members = $members->filter(array(
                 'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
@@ -713,7 +730,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     static function getAvailableStaffMembers() {
-        return self::getStaffMembers(true);
+        return self::getStaffMembers(array('available'=>true));
     }
 
     static function getIdByUsername($username) {

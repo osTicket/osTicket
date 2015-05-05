@@ -46,7 +46,7 @@ if ($langs = $cfg->getSecondaryLanguages()) {
     }
 }
 
-$faq_form = new Form($form_fields, $_POST);
+$faq_form = new SimpleForm($form_fields, $_POST);
 
 if ($_POST) {
     $errors=array();

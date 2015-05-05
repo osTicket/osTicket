@@ -123,7 +123,9 @@ class StaffNav {
                     'desc' => __('Users'), 'href' => 'users.php', 'title' => __('User Directory')
                 );
             }
+            $this->tabs['tasks'] = array('desc'=>__('Tasks'), 'href'=>'tasks.php', 'title'=>__('Task Queue'));
             $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
+
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
             if (count($this->getRegisteredApps()))
                 $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));
@@ -140,6 +142,9 @@ class StaffNav {
         foreach($this->getTabs() as $k=>$tab){
             $subnav=array();
             switch(strtolower($k)){
+                case 'tasks':
+                    $subnav[]=array('desc'=>__('Tasks'), 'href'=>'tasks.php', 'iconclass'=>'Ticket', 'droponly'=>true);
+                    break;
                 case 'tickets':
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'tickets.php','iconclass'=>'Ticket', 'droponly'=>true);
                     if($staff) {
@@ -241,6 +246,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('System'),'href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
+                    $subnav[]=array('desc'=>__('Tasks'),'href'=>'settings.php?t=tasks','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Access'),'href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     $subnav[]=array('desc'=>__('Autoresponder'),'href'=>'settings.php?t=autoresp','iconclass'=>'email-autoresponders');

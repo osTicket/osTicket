@@ -924,7 +924,8 @@ class TicketsAjaxAPI extends AjaxController {
                     sprintf('ticket.%d.task', $ticket->getId()),
                     $thisstaff->getId());
             // Default form
-            $form = TaskForm::getDefaultForm()->getForm($_POST);
+            $form = TaskForm::getInstance();
+            $form->setSource($_POST);
             // Internal form
             $iform = TaskForm::getInternalForm($_POST);
             $isvalid = true;
@@ -962,6 +963,52 @@ class TicketsAjaxAPI extends AjaxController {
                 );
 
          include STAFFINC_DIR . 'templates/task.tmpl.php';
+    }
+
+    function task($tid, $id) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+        // Lookup task and check access
+        if (!($task=Task::lookup($id))
+                || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown task');
+
+        $info=$errors=array();
+        $note_form = new SimpleForm(array(
+            'attachments' => new FileUploadField(array('id'=>'attach',
+            'name'=>'attach:note',
+            'configuration' => array('extensions'=>'')))
+            ));
+
+        if ($_POST) {
+            switch ($_POST['a']) {
+            case 'postnote':
+                $vars = $_POST;
+                $attachments = $note_form->getField('attachments')->getClean();
+                $vars['cannedattachments'] = array_merge(
+                    $vars['cannedattachments'] ?: array(), $attachments);
+                if(($note=$task->postNote($vars, $errors, $thisstaff))) {
+                    $msg=__('Note posted successfully');
+                    // Clear attachment list
+                    $note_form->setSource(array());
+                    $note_form->getField('attachments')->reset();
+                    Draft::deleteForNamespace('task.note.'.$task->getId(),
+                            $thisstaff->getId());
+                } else {
+                    if(!$errors['err'])
+                        $errors['err'] = __('Unable to post the note - missing or invalid data.');
+                }
+                break;
+            default:
+                $errors['err'] = __('Unknown action');
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/task-view.tmpl.php';
     }
 }
 ?>

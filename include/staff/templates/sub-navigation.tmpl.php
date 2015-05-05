@@ -17,7 +17,13 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         if (!($id=$item['id']))
             $id="subnav$k";
 
-        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
-                $class, $item['href'], $item['title'], $id, $item['desc']);
+        //Extra attributes
+        $attr = '';
+        if ($item['attr'])
+            foreach ($item['attr'] as $name => $value)
+                $attr.=  sprintf("%s='%s' ", $name, $value);
+
+        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s" %s>%s</a></li>',
+                $class, $item['href'], $item['title'], $id, $attr, $item['desc']);
     }
 }

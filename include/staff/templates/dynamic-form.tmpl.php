@@ -65,7 +65,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <span class="error">*</span>
             <?php
             }
-            if (($a = $field->getAnswer()) && $a->isDeleted()) {
+            if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
                 ?><a class="action-button float-right danger overlay" title="Delete this data"
                     href="#delete-answer"
                     onclick="javascript:if (confirm('<?php echo __('You sure?'); ?>'))
