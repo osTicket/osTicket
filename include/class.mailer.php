@@ -509,6 +509,8 @@ class Mailer {
 
         //No SMTP or it failed....use php's native mail function.
         $mail = mail::factory('mail');
+        // Ensure the To: header is properly encoded.
+        $to = $headers['To'];
         return PEAR::isError($mail->send($to, $headers, $body))?false:$messageId;
 
     }
