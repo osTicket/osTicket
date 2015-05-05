@@ -341,5 +341,34 @@ class Page extends VerySimpleModel {
         }
         return true;
     }
+
+    static function getContext($type) {
+        $context = array(
+        'thank-you' => array('ticket'),
+        'registration-staff' => array(
+            // 'token' => __('Special authentication token'),
+            'staff' => array('class' => 'Staff', 'desc' => __('Message recipient')),
+            'recipient' => array('class' => 'Staff', 'desc' => __('Message recipient')),
+            'link',
+        ),
+        'pwreset-staff' => array(
+            'staff' => array('class' => 'Staff', 'desc' => __('Message recipient')),
+            'recipient' => array('class' => 'Staff', 'desc' => __('Message recipient')),
+            'link',
+        ),
+        'registration-client' => array(
+            // 'token' => __('Special authentication token'),
+            'recipient' => array('class' => 'User', 'desc' => __('Message recipient')),
+            'link', 'user',
+        ),
+        'pwreset-client' => array(
+            'recipient' => array('class' => 'User', 'desc' => __('Message recipient')),
+            'link', 'user',
+        ),
+        'access-link' => array('ticket', 'recipient'),
+        );
+
+        return $context[$type];
+    }
 }
 ?>

@@ -14,7 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Dept extends VerySimpleModel {
+class Dept extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => DEPT_TABLE,
@@ -69,6 +70,26 @@ class Dept extends VerySimpleModel {
 
     function asVar() {
         return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'name' => 'Department name',
+            'manager' => array(
+                'class' => 'Staff', 'desc' => 'Department manager',
+                'exclude' => 'dept',
+            ),
+            'members' => array(
+                'class' => 'UserList', 'desc' => 'Department members',
+            ),
+            'parent' => array(
+                'class' => 'Dept', 'desc' => 'Parent department',
+            ),
+            'sla' => array(
+                'class' => 'SLA', 'desc' => 'Service Level Agreement',
+            ),
+            'signature' => 'Department signature',
+        );
     }
 
     function getId() {
@@ -170,7 +191,7 @@ class Dept extends VerySimpleModel {
 
             $this->_members = $members->all();
         }
-        return $this->_members;
+        return new UserList($this->_members);
     }
 
     function getAvailableMembers() {

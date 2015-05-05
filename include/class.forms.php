@@ -519,6 +519,24 @@ class FormField {
     }
 
     /**
+     * Fetch a value suitable for embedding the value of this field in an
+     * email template. Reference implementation uses ::to_php();
+     */
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
+    /**
+     * Fetch the var type used with the email templating system's typeahead
+     * feature. This helps with variable expansion if supported by this
+     * field's ::asVar() method. This method should return a valid classname
+     * which implements the `TemplateVariable` interface.
+     */
+    function asVarType() {
+        return false;
+    }
+
+    /**
      * Convert the field data to something matchable by filtering. The
      * primary use of this is for ticket filtering.
      */
@@ -1295,6 +1313,14 @@ class DatetimeField extends FormField {
             return $value;
         else
             return (int) $value;
+    }
+
+    function asVar($value, $id=false) {
+        if (!$value) return null;
+        return new FormattedDate((int) $value, 'UTC', false, false);
+    }
+    function asVarType() {
+        return 'FormattedDate';
     }
 
     function toString($value) {
@@ -2162,6 +2188,45 @@ class FileUploadField extends FormField {
             $this->attachments->deleteAll();
         }
     }
+
+    function asVar($value, $id=false) {
+        return new FileFieldAttachments($this->getFiles());
+    }
+    function asVarType() {
+        return 'FileFieldAttachments';
+    }
+}
+
+class FileFieldAttachments {
+    var $files;
+
+    function __construct($files) {
+        $this->files = $files;
+    }
+
+    function __toString() {
+        $files = array();
+        foreach ($this->files as $f) {
+            $files[] = $f->file->name;
+        }
+        return implode(', ', $files);
+    }
+
+    function getVar($tag) {
+        switch ($tag) {
+        case 'names':
+            return $this->__toString();
+        case 'files':
+            throw new OOBContent(OOBContent::FILES, $this->files->all());
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'names' => __('List of file names'),
+            'files' => __('Attached files'),
+        );
+    }
 }
 
 class InlineFormData extends ArrayObject {
@@ -2394,6 +2459,7 @@ class TextareaWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
+        $attrs = array();
         if (isset($config['rows']))
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
@@ -2406,9 +2472,12 @@ class TextareaWidget extends Widget {
             $class = sprintf('class="%s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
+        if (isset($config['context']))
+            $attrs['data-root-context'] = '"'.$config['context'].'"';
         ?>
         <span style="display:inline-block;width:100%">
         <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
+                .' '.Format::array_implode('=', ' ', $attrs)
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php

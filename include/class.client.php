@@ -16,7 +16,7 @@
 require_once INCLUDE_DIR.'class.user.php';
 
 abstract class TicketUser
-implements EmailContact, ITicketUser {
+implements EmailContact, ITicketUser, TemplateVariable {
 
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
@@ -53,6 +53,19 @@ implements EmailContact, ITicketUser {
 
         return false;
 
+    }
+
+    // Required for Internationalization::getCurrentLanguage() in templates
+    function getLanguage() {
+        return $this->user->getLanguage();
+    }
+
+    static function getVarScope() {
+        return array(
+            'email' => __('Email address'),
+            'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
+            'ticket_link' => __('Auth. token used for auto-login'),
+        );
     }
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }

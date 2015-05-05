@@ -145,6 +145,13 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
+    static function getVarScope() {
+        return array(
+            'url' => __("osTicket's base url (FQDN)"),
+            'company' => array('class' => 'Company', 'desc' => __('Company Information')),
+        );
+    }
+
     function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
         $this->pjax_extra[md5($header)] = $pjax_script;

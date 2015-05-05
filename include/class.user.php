@@ -17,6 +17,7 @@
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
 require_once INCLUDE_DIR . 'class.organization.php';
+require_once INCLUDE_DIR . 'class.variable.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -188,7 +189,8 @@ class UserCdata extends VerySimpleModel {
     }
 }
 
-class User extends UserModel {
+class User extends UserModel
+implements TemplateVariable {
 
     var $_entries;
     var $_forms;
@@ -260,7 +262,7 @@ class User extends UserModel {
     }
 
     function getEmail() {
-        return $this->default_email->address;
+        return new EmailAddress($this->default_email->address);
     }
 
     function getFullName() {
@@ -287,6 +289,15 @@ class User extends UserModel {
 
     function getCreateDate() {
         return $this->created;
+    }
+
+    function getTimezone() {
+        global $cfg;
+
+        if (($acct = $this->getAccount()) && ($tz = $acct->getTimezone())) {
+            return $tz;
+        }
+        return $cfg->getDefaultTimezone();
     }
 
     function addForm($form, $sort=1, $data=null) {
@@ -329,6 +340,20 @@ class User extends UserModel {
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'email' => array(
+                'class' => 'EmailAddress', 'desc' => __('Default email address')
+            ),
+            'name' => array(
+                'class' => 'PersonsName', 'desc' => 'User name, default format'
+            ),
+            'organization' => array('class' => 'Organization', 'desc' => __('Organization')),
+        );
+        $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
+        return $base + $extra;
     }
 
     function addDynamicData($data) {
@@ -642,7 +667,49 @@ class User extends UserModel {
     }
 }
 
-class PersonsName {
+class EmailAddress
+implements TemplateVariable {
+    var $address;
+
+    function __construct($address) {
+        $this->address = $address;
+    }
+
+    function __toString() {
+        return $this->address;
+    }
+
+    function getVar($what) {
+        require_once PEAR_DIR . 'Mail/RFC822.php';
+        require_once PEAR_DIR . 'PEAR.php';
+        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
+            return '';
+
+        if (!$list && count($mails) > 1)
+            return '';
+
+        $info = $mails[0];
+        switch ($what) {
+        case 'domain':
+            return $info->host;
+        case 'personal':
+            return trim($info->personal, '"');
+        case 'mailbox':
+            return $info->mailbox;
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'domain' => __('Domain'),
+            'mailbox' => __('Mailbox'),
+            'personal' => __('Personal name'),
+        );
+    }
+}
+
+class PersonsName
+implements TemplateVariable {
     var $format;
     var $parts;
     var $name;
@@ -759,6 +826,16 @@ class PersonsName {
 
     function asVar() {
         return $this->__toString();
+    }
+
+    static function getVarScope() {
+        $formats = array();
+        foreach (static::$formats as $name=>$info) {
+            if (in_array($name, array('original', 'complete')))
+                continue;
+            $formats[$name] = $info[0];
+        }
+        return $formats;
     }
 
     function __toString() {
@@ -974,6 +1051,10 @@ class UserAccountModel extends VerySimpleModel {
             $lang = $this->getExtraAttr('browser_lang', false);
 
         return $lang;
+    }
+
+    function getTimezone() {
+        return $this->timezone;
     }
 
     function save($refetch=false) {
@@ -1220,17 +1301,47 @@ class UserAccountStatus {
 /*
  *  Generic user list.
  */
-class UserList extends ListObject {
+class UserList extends ListObject
+implements TemplateVariable {
 
     function __toString() {
+        return $this->getNames();
+    }
 
+    function getNames() {
         $list = array();
         foreach($this->storage as $user) {
             if (is_object($user))
                 $list [] = $user->getName();
         }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    function getFull() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
+        }
 
         return $list ? implode(', ', $list) : '';
+    }
+
+    function getEmails() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = $user->getEmail();
+        }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    static function getVarScope() {
+        return array(
+            'names' => __('List of names'),
+            'emails' => __('List of email addresses'),
+            'full' => __('List of names and email addresses'),
+        );
     }
 }
 ?>

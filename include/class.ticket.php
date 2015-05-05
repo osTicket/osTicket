@@ -212,7 +212,7 @@ TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 
 class Ticket
-implements RestrictedAccess, Threadable {
+implements RestrictedAccess, Threadable, TemplateVariable {
 
     var $id;
     var $number;
@@ -294,8 +294,8 @@ implements RestrictedAccess, Threadable {
         if (!$this->_answers) {
             foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
                 foreach ($form->getAnswers() as $answer) {
-                    $tag = mb_strtolower($answer->getField()->get('name'))
-                        ?: 'field.' . $answer->getField()->get('id');
+                    $tag = mb_strtolower($answer->field->name)
+                        ?: 'field.' . $answer->field->id;
                         $this->_answers[$tag] = $answer;
                 }
             }
@@ -1797,7 +1797,7 @@ implements RestrictedAccess, Threadable {
 
     }
 
-    //ticket obj as variable = ticket number.
+    // TemplateVariable interface
     function asVar() {
        return $this->getNumber();
     }
@@ -1824,25 +1824,20 @@ implements RestrictedAccess, Threadable {
                 return sprintf('%s/scp/tickets.php?id=%d', $cfg->getBaseUrl(), $this->getId());
                 break;
             case 'create_date':
-                return Format::datetime($this->getCreateDate(), true, 'UTC');
+                return new FormattedDate($this->getCreateDate());
                 break;
              case 'due_date':
-                $duedate ='';
-                if($this->getEstDueDate())
-                    $duedate = Format::datetime($this->getEstDueDate(), true, 'UTC');
-
-                return $duedate;
+                if ($due = $this->getEstDueDate())
+                    return new FormattedDate($due);
                 break;
             case 'close_date':
-                $closedate ='';
-                if($this->isClosed())
-                    $closedate = Format::datetime($this->getCloseDate(), true, 'UTC');
-
-                return $closedate;
+                if ($this->isClosed())
+                    return new FormattedDate($this->getCloseDate());
                 break;
+            case 'last_update':
+                return new FormattedDate($upd);
             case 'user':
                 return $this->getOwner();
-                break;
             default:
                 if (isset($this->_answers[$tag]))
                     // The answer object is retrieved here which will
@@ -1852,6 +1847,63 @@ implements RestrictedAccess, Threadable {
         }
 
         return false;
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'assigned' => __('Assigned agent and/or team'),
+            'close_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Date Closed'),
+            ),
+            'create_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Date created'),
+            ),
+            'dept' => array(
+                'class' => 'Dept', 'desc' => __('Department'),
+            ),
+            'due_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Due Date'),
+            ),
+            'email' => __('Default email address of ticket owner'),
+            'name' => array(
+                'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
+            ),
+            'number' => __('Ticket number'),
+            'phone' => __('Phone number of ticket owner'),
+            'priority' => array(
+                'class' => 'Priority', 'desc' => __('Priority'),
+            ),
+            'recipients' => array(
+                'class' => 'UserList', 'desc' => __('List of all recipient names'),
+            ),
+            'source' => __('Source'),
+            'status' => array(
+                'class' => 'TicketStatus', 'desc' => __('Status'),
+            ),
+            'staff' => array(
+                'class' => 'Staff', 'desc' => __('Assigned/closing agent'),
+            ),
+            'subject' => 'Subject',
+            'team' => array(
+                'class' => 'Team', 'desc' => __('Assigned/closing team'),
+            ),
+            'thread' => array(
+                'class' => 'TicketThread', 'desc' => __('Ticket Thread'),
+            ),
+            'topic' => array(
+                'class' => 'Topic', 'desc' => __('Help topic'),
+            ),
+            // XXX: Isn't lastreponse and lastmessage more useful
+            'last_update' => array(
+                'class' => 'FormattedDate', 'desc' => __('Time of last update'),
+            ),
+            'user' => array(
+                'class' => 'User', 'desc' => __('Ticket owner'),
+            ),
+        );
+
+        $extra = VariableReplacer::compileFormScope(TicketForm::getInstance());
+        return $base + $extra;
     }
 
     //Replace base variables.

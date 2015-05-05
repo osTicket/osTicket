@@ -396,7 +396,8 @@ class ThreadEntryEmailInfo extends VerySimpleModel {
     );
 }
 
-class ThreadEntry extends VerySimpleModel {
+class ThreadEntry extends VerySimpleModel
+implements TemplateVariable {
     static $meta = array(
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
@@ -821,17 +822,6 @@ class ThreadEntry extends VerySimpleModel {
         return $str;
     }
 
-    /* Returns file names with id as key */
-    function getFiles() {
-
-        $files = array();
-        foreach($this->attachments as $attachment)
-            $files[$attachment->file_id] = $attachment->file->name;
-
-        return $files;
-    }
-
-
     /* save email info
      * TODO: Refactor it to include outgoing emails on responses.
      */
@@ -873,25 +863,44 @@ class ThreadEntry extends VerySimpleModel {
         return (string) $this->getBody();
     }
 
+    // TemplateVariable interface
     function asVar() {
         return (string) $this->getBody()->display('email');
     }
 
     function getVar($tag) {
-        global $cfg;
-
-        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
             return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(strtolower($tag)) {
             case 'create_date':
-                // XXX: Consider preferences of receiving user
-                return Format::datetime($this->getCreateDate(), true, 'UTC');
+                return new FormattedDate($this->getCreateDate());
             case 'update_date':
-                return Format::datetime($this->getUpdateDate(), true, 'UTC');
+                return new FormattedDate($this->getUpdateDate());
+            case 'files':
+                throw new OOBContent(OOBContent::FILES, $this->attachments->all());
         }
 
         return false;
+    }
+
+    static function getVarScope() {
+        return array(
+          'files' => __('Attached files'),
+          'body' => __('Message body'),
+          'create_date' => array(
+              'class' => 'FormattedDate', 'desc' => __('Date created'),
+          ),
+          'ip_address' => __('IP address of remote user, for web submissions'),
+          'poster' => __('Submitter of the thread item'),
+          'staff' => array(
+            'class' => 'Staff', 'desc' => __('Agent posting the note or response'),
+          ),
+          'title' => __('Subject, if any'),
+          'user' => array(
+            'class' => 'User', 'desc' => __('User posting the message'),
+          ),
+        );
     }
 
     /**
@@ -1528,6 +1537,12 @@ class MessageThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['staff']);
+        return $base;
+    }
 }
 
 /* thread entry of type response */
@@ -1568,6 +1583,12 @@ class ResponseThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['user']);
+        return $base;
+    }
 }
 
 /* Thread entry of type note (Internal Note) */
@@ -1598,10 +1619,17 @@ class NoteThreadEntry extends ThreadEntry {
 
         return parent::add($vars);
     }
+
+    static function getVarScope() {
+        $base = parent::getVarScope();
+        unset($base['user']);
+        return $base;
+    }
 }
 
 // Object specific thread utils.
-class ObjectThread extends Thread {
+class ObjectThread extends Thread
+implements TemplateVariable {
     private $_entries = array();
 
     static $types = array(
@@ -1727,6 +1755,13 @@ class ObjectThread extends Thread {
 
             break;
         }
+    }
+
+    static function getVarScope() {
+      return array(
+        'original' => array('class' => 'MessageThreadEntry', 'desc' => __('Original Message')),
+        'lastmessage' => array('class' => 'MessageThreadEntry', 'desc' => __('Last Message')),
+      );
     }
 
     static function lookup($criteria, $type=false) {

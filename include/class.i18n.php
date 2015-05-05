@@ -379,14 +379,17 @@ class Internationalization {
         return self::getDefaultLanguage();
     }
 
-    static function getCurrentLocale() {
+    static function getCurrentLocale($user=false) {
         global $thisstaff, $cfg;
 
+        if ($user) {
+            return self::getCurrentLanguage($user);
+        }
         // FIXME: Move this majic elsewhere - see upgrade bug note in
         // class.staff.php
         if ($thisstaff) {
             return $thisstaff->getLocale()
-                ?: self::getCurrentLanguage();
+                ?: self::getCurrentLanguage($thisstaff);
         }
 
         if (!($locale = $cfg->getDefaultLocale()))

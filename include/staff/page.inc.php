@@ -145,6 +145,7 @@ if ($page && count($langs) > 1) { ?>
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
         <textarea name="body" cols="21" rows="12" style="width:100%" class="richtext draft"
 <?php
+    if (!$info['type'] || $info['type'] == 'thank-you') echo 'data-root-context="thank-you"';
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'], $info['body']);
     echo $attrs; ?>><?php echo $draft ?: $info['body']; ?></textarea>
         </div>
@@ -156,6 +157,7 @@ if ($page && count($langs) > 1) { ?>
         <div id="translation-<?php echo $tag; ?>" class="tab_content"
             style="display:none;" lang="<?php echo $tag; ?>">
         <textarea name="trans[<?php echo $tag; ?>][body]" cols="21" rows="12"
+<?php if ($info['type'] == 'thank-you') echo 'data-root-context="thank-you"'; ?>
             style="width:100%" class="richtext draft"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'].'.'.$tag, $info['trans'][$tag]);

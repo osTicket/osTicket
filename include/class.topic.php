@@ -17,7 +17,8 @@
 require_once INCLUDE_DIR . 'class.sequence.php';
 require_once INCLUDE_DIR . 'class.filter.php';
 
-class Topic extends VerySimpleModel {
+class Topic extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => TOPIC_TABLE,
@@ -70,6 +71,22 @@ class Topic extends VerySimpleModel {
 
     function asVar() {
         return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'dept' => array(
+                'class' => 'Dept', 'desc' => __('Department'),
+            ),
+            'fullname' => __('Help topic full path'),
+            'name' => __('Help topic'),
+            'parent' => array(
+                'class' => 'Topic', 'desc' => __('Parent'),
+            ),
+            'sla' => array(
+                'class' => 'SLA', 'desc' => __('Service Level Agreement'),
+            ),
+        );
     }
 
     function getId() {

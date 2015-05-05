@@ -13,7 +13,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class SLA extends VerySimpleModel {
+class SLA extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => SLA_TABLE,
@@ -93,6 +94,18 @@ class SLA extends VerySimpleModel {
         $tag = _H(sprintf('sla.%s.%s', $subtag, $id));
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $default;
+    }
+
+    // TemplateVariable interface
+    function asVar() {
+        return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'name' => __('SLA Plan'),
+            'graceperiod' => __("Grace Period (hrs)"),
+        );
     }
 
     function update($vars, &$errors) {

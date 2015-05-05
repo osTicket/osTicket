@@ -386,6 +386,17 @@ class Mailer {
         }
         $mime = new Mail_mime($eol);
 
+        // Add in extra attachments, if any from template variables
+        if ($message instanceof TextWithExtras
+            && ($files = $message->getFiles())
+        ) {
+            foreach ($files as $F) {
+                $file = $F->getFile();
+                $mime->addAttachment($file->getData(),
+                    $file->getType(), $file->getName(), false);
+            }
+        }
+
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text
         // body

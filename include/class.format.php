@@ -438,7 +438,7 @@ class Format {
     }
 
     function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
-            $strftimeFallback, $timezone) {
+            $strftimeFallback, $timezone, $user=false) {
         global $cfg;
 
         if ($timestamp && $fromDb) {
@@ -446,7 +446,7 @@ class Format {
         }
         if (class_exists('IntlDateFormatter')) {
             $formatter = new IntlDateFormatter(
-                Internationalization::getCurrentLocale(),
+                Internationalization::getCurrentLocale($user),
                 $dayType,
                 $timeType,
                 $timezone,
@@ -492,40 +492,40 @@ class Format {
         return strtotime($date);
     }
 
-    function time($timestamp, $fromDb=true, $format=false, $timezone=false) {
+    function time($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
             $format ?: $cfg->getTimeFormat(), $fromDb,
             IDF_NONE, IDF_SHORT,
-            '%x', $timezone ?: $cfg->getTimezone());
+            '%x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function date($timestamp, $fromDb=true, $format=false, $timezone=false) {
+    function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
             $format ?: $cfg->getDateFormat(), $fromDb,
             IDF_SHORT, IDF_NONE,
-            '%X', $timezone ?: $cfg->getTimezone());
+            '%X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function datetime($timestamp, $fromDb=true, $timezone=false) {
+    function datetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
                 $cfg->getDateTimeFormat(), $fromDb,
                 IDF_SHORT, IDF_SHORT,
-                '%X %x', $timezone ?: $cfg->getTimezone());
+                '%X %x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function daydatetime($timestamp, $fromDb=true, $timezone=false) {
+    function daydatetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
                 $cfg->getDayDateTimeFormat(), $fromDb,
                 IDF_FULL, IDF_SHORT,
-                '%X %x', $timezone ?: $cfg->getTimezone());
+                '%X %x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
     function getStrftimeFormat($format) {
@@ -710,6 +710,84 @@ class Format {
         }
         return $text;
     }
+
+    function relativeTime($to, $from=false) {
+        $timestamp = $to ?: Misc::gmtime();
+        if (gettype($timestamp) === 'string')
+            $timestamp = strtotime($timestamp);
+        $from = $from ?: Misc::gmtime();
+        if (gettype($timestamp) === 'string')
+            $from = strtotime($from);
+        $timeDiff = $from - $timestamp;
+        $absTimeDiff = abs($timeDiff);
+
+        // within 2 seconds
+        if ($absTimeDiff <= 2) {
+          return $timeDiff >= 0 ? __('just now') : __('now');
+        }
+
+        // within a minute
+        if ($absTimeDiff < 60) {
+          return sprintf($timeDiff >= 0 ? __('%d seconds ago') : __('in %d seconds'), $absTimeDiff);
+        }
+
+        // within 2 minutes
+        if ($absTimeDiff < 120) {
+          return sprintf($timeDiff >= 0 ? __('about a minute ago') : __('in about a minute'));
+        }
+
+        // within an hour
+        if ($absTimeDiff < 3600) {
+          return sprintf($timeDiff >= 0 ? __('%d minutes ago') : __('in %d minutes'), $absTimeDiff / 60);
+        }
+
+        // within 2 hours
+        if ($absTimeDiff < 7200) {
+          return ($timeDiff >= 0 ? __('about an hour ago') : __('in about an hour'));
+        }
+
+        // within 24 hours
+        if ($absTimeDiff < 86400) {
+          return sprintf($timeDiff >= 0 ? __('%d hours ago') : __('in %d hours'), $absTimeDiff / 3600);
+        }
+
+        // within 2 days
+        $days2 = 2 * 86400;
+        if ($absTimeDiff < $days2) {
+            // XXX: yesterday / tomorrow?
+          return $absTimeDiff >= 0 ? __('1 day ago') : __('in 1 day');
+        }
+
+        // within 29 days
+        $days29 = 29 * 86400;
+        if ($absTimeDiff < $days29) {
+          return sprintf($timeDiff >= 0 ? __('%d days ago') : __('in %d days'), $absTimeDiff / 86400);
+        }
+
+        // within 60 days
+        $days60 = 60 * 86400;
+        if ($absTimeDiff < $days60) {
+          return ($timeDiff >= 0 ? __('about a month ago') : __('in about a month'));
+        }
+
+        $currTimeYears = date('Y', $from);
+        $timestampYears = date('Y', $timestamp);
+        $currTimeMonths = $currTimeYears * 12 + date('n', $from);
+        $timestampMonths = $timestampYears * 12 + date('n', $timestamp);
+
+        // within a year
+        $monthDiff = $currTimeMonths - $timestampMonths;
+        if ($monthDiff < 12 && $monthDiff > -12) {
+          return sprintf($monthDiff >= 0 ? __('%d months ago') : __('in %d months'), abs($monthDiff));
+        }
+
+        $yearDiff = $currTimeYears - $timestampYears;
+        if ($yearDiff < 2 && $yearDiff > -2) {
+          return $yearDiff >= 0 ? __('a year ago') : __('in a year');
+        }
+
+        return sprintf($yearDiff >= 0 ? __('%d years ago') : __('in %d years'), abs($yearDiff));
+    }
 }
 
 if (!class_exists('IntlDateFormatter')) {
@@ -721,5 +799,104 @@ else {
     define('IDF_NONE', IntlDateFormatter::NONE);
     define('IDF_SHORT', IntlDateFormatter::SHORT);
     define('IDF_FULL', IntlDateFormatter::FULL);
+}
+
+class FormattedLocalDate
+implements TemplateVariable {
+    var $date;
+    var $timezone;
+    var $fromdb;
+
+    function __construct($date, $timezone=false, $user=false, $fromdb=true) {
+        $this->date = $date;
+        $this->timezone = $timezone;
+        $this->user = $user;
+        $this->fromdb = $fromdb;
+    }
+
+    function asVar() {
+        return $this->getVar('long');
+    }
+
+    function __toString() {
+        return $this->asVar();
+    }
+
+    function getVar($what) {
+        global $cfg;
+
+        if (method_exists($this, 'get' . ucfirst($what)))
+            return call_user_func(array($this, 'get'.ucfirst($what)));
+
+        // TODO: Rebase date format so that locale is discovered HERE.
+
+        switch ($what) {
+        case 'short':
+            return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);
+        case 'long':
+            return Format::datetime($this->date, $this->fromdb, $this->timezone, $this->user);
+        case 'time':
+            return Format::time($this->date, $this->fromdb, false, $this->timezone, $this->user);
+        case 'full':
+            return Format::daydatetime($this->date, $this->fromdb, $this->timezone, $this->user);
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'full' => 'Expanded date, e.g. day, month dd, yyyy',
+            'long' => 'Date and time, e.g. d/m/yyyy hh:mm',
+            'short' => 'Date only, e.g. d/m/yyyy',
+            'time' => 'Time only, e.g. hh:mm',
+        );
+    }
+}
+
+class FormattedDate
+extends FormattedLocalDate {
+    function asVar() {
+        return $this->getVar('system')->asVar();
+    }
+
+    function __toString() {
+        global $cfg;
+        return (string) new FormattedLocalDate($this->date, $cfg->getTimezone(), false, $this->fromdb);
+    }
+
+    function getVar($what) {
+        global $cfg;
+
+        if ($rv = parent::getVar($what))
+            return $rv;
+
+        switch ($what) {
+        case 'system':
+            return new FormattedLocalDate($this->date, $cfg->getDefaultTimezone());
+        }
+    }
+
+    function getHumanize() {
+        return Format::relativeTime(Misc::db2gmtime($this->date));
+    }
+
+    function getUser($context) {
+        global $cfg;
+
+        // Fetch $recipient from the context and find that user's time zone
+        if ($recipient = $context->getObj('recipient')) {
+            $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
+            return new FormattedLocalDate($this->date, $tz, $recipient);
+        }
+    }
+
+    static function getVarScope() {
+        return parent::getVarScope() + array(
+            'humanize' => 'Humanized time, e.g. about an hour ago',
+            'user' => array(
+                'class' => 'FormattedLocalDate', 'desc' => "Localize to recipient's time zone and locale"),
+            'system' => array(
+                'class' => 'FormattedLocalDate', 'desc' => 'Localize to system default time zone'),
+        );
+    }
 }
 ?>

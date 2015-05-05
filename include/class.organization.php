@@ -147,7 +147,8 @@ class OrganizationCdata extends VerySimpleModel {
 }
 
 
-class Organization extends OrganizationModel {
+class Organization extends OrganizationModel
+implements TemplateVariable {
     var $_entries;
     var $_forms;
 
@@ -299,6 +300,28 @@ class Organization extends OrganizationModel {
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->users);
+        case 'manager':
+            return $this->getAccountManager();
+        case 'contacts':
+            return new UserList($this->users->filter(array(
+                'flags__hasbit' => User::PRIMARY_ORG_CONTACT
+            )));
+        }
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'contacts' => array('class' => 'UserList', 'desc' => __('Primary Contacts')),
+            'manager' => __('Account Manager'),
+            'members' => array('class' => 'UserList', 'desc' => __('Organization Members')),
+            'name' => __('Name'),
+        );
+        $extra = VariableReplacer::compileFormScope(OrganizationForm::getInstance());
+        return $base + $extra;
     }
 
     function update($vars, &$errors) {

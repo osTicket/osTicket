@@ -24,7 +24,7 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser, EmailContact {
+implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     static $meta = array(
         'table' => STAFF_TABLE,
@@ -76,6 +76,30 @@ implements AuthenticatedUser, EmailContact {
 
     function asVar() {
         return $this->__toString();
+    }
+
+    static function getVarScope() {
+      return array(
+        'dept' => array('class' => 'Dept', 'desc' => __('Department')),
+        'email' => __('Email Address'),
+        'name' => array(
+          'class' => 'PersonsName', 'desc' => __('Agent name'),
+        ),
+        'mobile' => __('Mobile Number'),
+        'phone' => __('Phone Number'),
+        'signature' => __('Signature'),
+        'timezone' => "Agent's configured timezone",
+        'username' => 'Access username',
+      );
+    }
+
+    function getVar($tag) {
+        switch ($tag) {
+        case 'mobile':
+            return Format::phone($this->ht['mobile']);
+        case 'phone':
+            return Format::phone($this->ht['phone']);
+        }
     }
 
     function getHashtable() {

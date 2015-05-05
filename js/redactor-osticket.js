@@ -298,6 +298,9 @@ $(function() {
             options['plugins'].push('imagepaste');
             options.draftDelete = el.hasClass('draft-delete');
         }
+        if (true || 'scp') { // XXX: Add this to SCP only
+            options['plugins'].push('contexttypeahead');
+        }
         if (el.hasClass('fullscreen'))
             options['plugins'].push('fullscreen');
         if ($('#ticket_thread[data-thread-id]').length)

@@ -14,8 +14,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 require_once(INCLUDE_DIR .'class.dynamic_forms.php');
+require_once(INCLUDE_DIR .'class.variable.php');
 
 /**
  * Interface for Custom Lists
@@ -746,7 +746,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $name = mb_strtolower($name);
         foreach ($this->getConfigurationForm()->getFields() as $field) {
             if (mb_strtolower($field->get('name')) == $name)
-                return $config[$field->get('id')];
+                return $field->asVar($config[$field->get('id')]);
         }
     }
 
@@ -948,7 +948,9 @@ class TicketStatusList extends CustomListHandler {
     }
 }
 
-class TicketStatus  extends VerySimpleModel implements CustomListItem {
+class TicketStatus
+extends VerySimpleModel
+implements CustomListItem, TemplateVariable {
 
     static $meta = array(
         'table' => TICKET_STATUS_TABLE,
@@ -1202,6 +1204,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         $tag = _H(sprintf('status.%s.%s', $subtag, $id));
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $default;
+    }
+
+    // TemplateVariable interface
+    static function getVarScope() {
+        $base = array(
+            'name' => __('Status label'),
+            'state' => __('State name (e.g. open or closed)'),
+        );
+        return $base;
     }
 
     function getConfiguration() {

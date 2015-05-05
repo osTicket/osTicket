@@ -30,9 +30,10 @@ if (count($langs) > 1) { ?>
         echo Format::htmlchars($info['title']); ?>" />
     <div style="margin-top: 5px">
     <div class="error"><?php echo $errors['body']; ?></div>
-    <textarea class="richtext no-bar" name="body"><?php
-    echo Format::htmlchars(Format::viewableImages($info['body']));
-?></textarea>
+    <textarea class="richtext no-bar" name="body"
+        data-root-context="<?php echo $content->getType();
+        ?>"><?php echo Format::htmlchars(Format::viewableImages($info['body']));
+        ?></textarea>
     </div>
     </div>
 
@@ -48,6 +49,7 @@ if (count($langs) > 1) { ?>
         placeholder="<?php echo __('Title'); ?>" />
     <div style="margin-top: 5px">
     <textarea class="richtext no-bar" data-direction=<?php echo $nfo['direction']; ?>
+        data-root-context="<?php echo $content->getType(); ?>"
         placeholder="<?php echo __('Message content'); ?>"
         name="trans[<?php echo $tag; ?>][body]"><?php
     echo Format::htmlchars(Format::viewableImages($trans['body']));
