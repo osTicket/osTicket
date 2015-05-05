@@ -2,9 +2,9 @@
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qs = array();
-$sql='SELECT canned.*, count(attach.file_id) as files, dept.dept_name as department '.
+$sql='SELECT canned.*, count(attach.file_id) as files, dept.name as department '.
      ' FROM '.CANNED_TABLE.' canned '.
-     ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=canned.dept_id) '.
+     ' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.id=canned.dept_id) '.
      ' LEFT JOIN '.ATTACHMENT_TABLE.' attach
             ON (attach.object_id=canned.canned_id AND attach.`type`=\'C\' AND NOT attach.inline)';
 $sql.=' WHERE 1';
@@ -92,7 +92,7 @@ else
                 </td>
                 <td><?php echo $row['isenabled']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td><?php echo $row['department']?$row['department']:'&mdash; '.__('All Departments').' &mdash;'; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

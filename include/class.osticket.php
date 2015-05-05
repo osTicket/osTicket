@@ -145,6 +145,13 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
+    static function getVarScope() {
+        return array(
+            'url' => __("osTicket's base url (FQDN)"),
+            'company' => array('class' => 'Company', 'desc' => __('Company Information')),
+        );
+    }
+
     function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
         $this->pjax_extra[md5($header)] = $pjax_script;
@@ -431,10 +438,6 @@ class osTicket {
 
         if(!($ost = new osTicket()))
             return null;
-
-        //Set default time zone... user/staff settting will override it (on login).
-        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
 
         // Bootstrap installed plugins
         $ost->plugins->bootstrap();

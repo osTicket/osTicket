@@ -1,24 +1,67 @@
 <h3><?php echo __('Manage Content'); ?> &mdash; <?php echo Format::htmlchars($content->getName()); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
+
 <?php if ($errors['err']) { ?>
 <div class="error-banner">
     <?php echo $errors['err']; ?>
 </div>
 <?php } ?>
-<form method="post" action="#content/<?php echo $info['id']; ?>">
+<form method="post" action="#content/<?php echo $content->getId(); ?>"
+        style="clear:none">
+<?php
+if (count($langs) > 1) { ?>
+    <ul class="vertical left tabs">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $tag=>$nfo) { ?>
+    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>"><a href="#translation-<?php echo $tag; ?>" title="<?php
+        echo Internationalization::getLanguageDescription($tag);
+    ?>"><span class="flag flag-<?php echo strtolower($nfo['flag']); ?>"></span>
+    </a></li>
+<?php } ?>
+    </ul>
+<?php
+} ?>
+    <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>"
+        class="tab_content left-tabs" style="padding:0" lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
     <div class="error"><?php echo $errors['name']; ?></div>
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
-        echo Format::htmlchars($info['name']); ?>" />
+        echo Format::htmlchars($info['title']); ?>" />
     <div style="margin-top: 5px">
     <div class="error"><?php echo $errors['body']; ?></div>
-    <textarea class="richtext no-bar" name="body"><?php
-    echo Format::viewableImages($info['body']);
+    <textarea class="richtext no-bar" name="body"
+        data-root-context="<?php echo $content->getType();
+        ?>"><?php echo Format::htmlchars(Format::viewableImages($info['body']));
+        ?></textarea>
+    </div>
+    </div>
+
+<?php foreach ($langs as $tag=>$nfo) {
+        if ($tag == $cfg->getPrimaryLanguage())
+            continue;
+        $trans = $info['trans'][$tag]; ?>
+    <div id="translation-<?php echo $tag; ?>" class="tab_content left-tabs"
+        style="display:none;padding:0" dir="<?php echo $nfo['direction']; ?>" lang="<?php echo $tag; ?>">
+    <input type="text" style="width: 100%; font-size: 14pt"
+        name="trans[<?php echo $tag; ?>][title]" value="<?php
+        echo Format::htmlchars($trans['title']); ?>"
+        placeholder="<?php echo __('Title'); ?>" />
+    <div style="margin-top: 5px">
+    <textarea class="richtext no-bar" data-direction=<?php echo $nfo['direction']; ?>
+        data-root-context="<?php echo $content->getType(); ?>"
+        placeholder="<?php echo __('Message content'); ?>"
+        name="trans[<?php echo $tag; ?>][body]"><?php
+    echo Format::htmlchars(Format::viewableImages($trans['body']));
 ?></textarea>
     </div>
-    <div id="msg_info" style="margin-top:7px"><?php
+    </div>
+<?php } ?>
+
+    <div class="info-banner left-tabs" style="margin-top:7px"><?php
 echo $content->getNotes(); ?></div>
-    <hr/>
+
+    <hr class="clear"/>
     <p class="full-width">
         <span class="buttons pull-left">
             <input type="reset" value="<?php echo __('Reset'); ?>">
@@ -29,6 +72,6 @@ echo $content->getNotes(); ?></div>
             <input type="submit" value="<?php echo __('Save Changes'); ?>">
         </span>
      </p>
-</form>
 </div>
+</form>
 <div class="clear"></div>

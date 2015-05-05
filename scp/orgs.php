@@ -13,6 +13,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.note.php';
 
 $org = null;

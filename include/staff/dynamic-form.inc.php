@@ -6,8 +6,21 @@ if($form && $_REQUEST['a']!='add') {
     $action = 'update';
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text=__('Save Changes');
-    $info = $form->ht;
+    $info = $form->getInfo();
+    $trans = array(
+        'title' => $form->getTranslateTag('title'),
+        'instructions' => $form->getTranslateTag('instructions'),
+    );
     $newcount=2;
+    $translations = CustomDataTranslation::allTranslations($trans, 'phrase');
+    $_keys = array_flip($trans);
+    foreach ($translations as $t) {
+        if (!Internationalization::isLanguageInstalled($t->lang))
+            continue;
+        // Create keys of [trans][de_DE][title] for instance
+        $info['trans'][$t->lang][$_keys[$t->object_hash]]
+            = Format::viewableImages($t->text);
+    }
 } else {
     $title = __('Add new custom form section');
     $action = 'add';
@@ -37,21 +50,65 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </thead>
     <tbody style="vertical-align:top">
         <tr>
-            <td width="180" class="required"><?php echo __('Title'); ?>:</td>
-            <td><input type="text" name="title" size="40" value="<?php
-                echo $info['title']; ?>"/>
+            <td colspan="2">
+    <table class="full-width"><tbody><tr><td style="vertical-align:top">
+<?php
+$langs = Internationalization::getConfiguredSystemLanguages();
+if ($form && count($langs) > 1) { ?>
+    <ul class="vertical tabs" id="translations">
+        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+<?php foreach ($langs as $tag=>$nfo) { ?>
+    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>"><a href="#translation-<?php echo $tag; ?>" title="<?php
+        echo Internationalization::getLanguageDescription($tag);
+    ?>"><span class="flag flag-<?php echo strtolower($nfo['flag']); ?>"></span>
+    </a></li>
+<?php } ?>
+    </ul>
+<?php
+} ?>
+    </td>
+    <td id="translations_container">
+        <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content"
+            lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
+            <div class="required"><?php echo __('Title'); ?>:</div>
+            <div>
+            <input type="text" name="title" size="60"
+                value="<?php echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
-                <font class="error"><?php
-                    if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Instructions'); ?>:</td>
-            <td><textarea name="instructions" rows="3" cols="40"><?php
-                echo $info['instructions']; ?></textarea>
+                <div class="error"><?php
+                    if ($errors['title']) echo '<br/>'; echo $errors['title']; ?></div>
+            </div>
+            <div style="margin-top: 8px"><?php echo __('Instructions'); ?>:
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
-            </td>
-        </tr>
+                </div>
+            <textarea name="instructions" rows="3" cols="40" class="richtext small"><?php
+                echo $info['instructions']; ?></textarea>
+        </div>
+
+<?php if ($langs && $form) {
+    foreach ($langs as $tag=>$nfo) {
+        if ($tag == $cfg->getPrimaryLanguage())
+            continue; ?>
+        <div id="translation-<?php echo $tag; ?>" class="tab_content"
+            style="display:none;" lang="<?php echo $tag; ?>">
+        <div>
+            <div class="required"><?php echo __('Title'); ?>:</div>
+            <input type="text" name="trans[<?php echo $tag; ?>][title]" size="60"
+                value="<?php echo $info['trans'][$tag]['title']; ?>"/>
+                <i class="help-tip icon-question-sign" href="#form_title"></i>
+        </div>
+        <div style="margin-top: 8px"><?php echo __('Instructions'); ?>:
+            <i class="help-tip icon-question-sign" href="#form_instructions"></i>
+            </div>
+        <textarea name="trans[<?php echo $tag; ?>][instructions]" cols="21" rows="12"
+            style="width:100%" class="richtext"><?php
+            echo $info['trans'][$tag]['instructions']; ?></textarea>
+        </div>
+<?php }
+} ?>
+    </td></tr></tbody></table>
+        </td></tr>
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -79,17 +136,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $uform = UserForm::objects()->all();
         $ftypes = FormField::allTypes();
         foreach ($uform[0]->getFields() as $f) {
-            if ($f->get('private')) continue;
+            if (!$f->isVisibleToUsers()) continue;
         ?>
         <tr>
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
             <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
-            <td><?php
-                $rmode = $f->getRequirementMode();
-                $modes = $f->getAllRequirementModes();
-                echo $modes[$rmode]['desc'];
-            ?></td>
+            <td><?php echo $f->getVisibilityDescription(); ?></td>
             <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td></tr>
 
@@ -123,12 +176,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $rmode = $f->getRequirementMode();
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
+                data-translate-tag="<?php echo $f->getTranslateTag('label'); ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
@@ -157,12 +210,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
             <?php } ?></td>
             <td>
-                <select name="visibility-<?php echo $id; ?>">
-<?php foreach ($f->getAllRequirementModes() as $m=>$I) { ?>
-    <option value="<?php echo $m; ?>" <?php if ($rmode == $m)
-         echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
-<?php } ?>
-                <select>
+                <?php echo $f->getVisibilityDescription(); ?>
             </td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"

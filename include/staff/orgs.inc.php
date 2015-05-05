@@ -88,11 +88,14 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
  </div>
 
 <div class="pull-right">
+<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_CREATE)) { ?>
     <a class="action-button add-org"
         href="#">
         <i class="icon-plus-sign"></i>
         <?php echo __('Add Organization'); ?>
     </a>
+<?php }
+if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
     <span class="action-button" data-dropdown="#action-dropdown-more"
         style="/*DELME*/ vertical-align:top; margin-bottom:0">
         <i class="icon-caret-down pull-right"></i>
@@ -105,6 +108,7 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
                 <?php echo __('Delete'); ?></a></li>
         </ul>
     </div>
+<?php } ?>
 </div>
 
 <div class="clear"></div>
@@ -148,8 +152,8 @@ else
                 </td>
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>
                 <td>&nbsp;<?php echo $row['users']; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td><?php echo Format::date($row['created']); ?></td>
+                <td><?php echo Format::datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

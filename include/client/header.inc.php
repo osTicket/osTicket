@@ -33,15 +33,17 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/chosen.min.css">
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/chosen.jquery.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
@@ -77,14 +79,17 @@ if (($lang = Internationalization::getCurrentLanguage())
             </p>
             <p>
 <?php
-if (($all_langs = Internationalization::availableLanguages())
+if (($all_langs = Internationalization::getConfiguredSystemLanguages())
     && (count($all_langs) > 1)
 ) {
+    $qs = array();
+    parse_str($_SERVER['QUERY_STRING'], $qs);
     foreach ($all_langs as $code=>$info) {
         list($lang, $locale) = explode('_', $code);
+        $qs['lang'] = $code;
 ?>
         <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
-            href="?<?php echo urlencode($_GET['QUERY_STRING']); ?>&amp;lang=<?php echo $code;
+            href="?<?php echo http_build_query($qs);
             ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
 <?php }
 } ?>

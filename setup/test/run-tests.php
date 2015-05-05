@@ -5,12 +5,8 @@ if (php_sapi_name() != 'cli') exit();
 //Allow user to select suite
 $selected_test = (isset($argv[1])) ? $argv[1] : false;
 
+require_once 'bootstrap.php';
 require_once "tests/class.test.php";
-
-$root = get_osticket_root_path();
-define('INCLUDE_DIR', "$root/include/");
-define('PEAR_DIR', INCLUDE_DIR."pear/");
-ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
 $fails = array();
 

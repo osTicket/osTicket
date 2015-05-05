@@ -14,59 +14,82 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Dept {
-    var $id;
+class Dept extends VerySimpleModel
+implements TemplateVariable {
 
+    static $meta = array(
+        'table' => DEPT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'parent' => array(
+                'constraint' => array('pid' => 'Dept.id'),
+                'null' => true,
+            ),
+            'email' => array(
+                'constraint' => array('email_id' => 'EmailModel.email_id'),
+                'null' => true,
+             ),
+            'sla' => array(
+                'constraint' => array('sla_id' => 'SLA.sla_id'),
+                'null' => true,
+            ),
+            'manager' => array(
+                'null' => true,
+                'constraint' => array('manager_id' => 'Staff.staff_id'),
+            ),
+            'members' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'Staff.dept',
+            ),
+            'groups' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'GroupDeptAccess.dept'
+            ),
+        ),
+    );
+
+    var $_members;
+    var $_groupids;
+    var $config;
+
+    var $template;
     var $email;
-    var $sla;
-    var $manager;
-    var $members;
-    var $groups;
-
-    var $ht;
+    var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
     const ALERTS_DEPT_AND_GROUPS = 1;
     const ALERTS_DEPT_ONLY = 0;
 
-    function Dept($id) {
-        $this->id=0;
-        $this->load($id);
-    }
-
-    function load($id=0) {
-        global $cfg;
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT dept.*,dept.dept_id as id,dept.dept_name as name, dept.dept_signature as signature, count(staff.staff_id) as users '
-            .' FROM '.DEPT_TABLE.' dept '
-            .' LEFT JOIN '.STAFF_TABLE.' staff ON (dept.dept_id=staff.dept_id) '
-            .' WHERE dept.dept_id='.db_input($id)
-            .' GROUP BY dept.dept_id';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['dept_id'];
-        $this->email=$this->sla=$this->manager=null;
-        $this->getEmail(); //Auto load email struct.
-        $this->config = new Config('dept.'.$this->id);
-        $this->members=$this->groups=array();
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load();
+    function getConfig() {
+        if (!isset($this->config))
+            $this->config = new Config('dept.'. $this->getId());
+        return $this->config;
     }
 
     function asVar() {
         return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'name' => 'Department name',
+            'manager' => array(
+                'class' => 'Staff', 'desc' => 'Department manager',
+                'exclude' => 'dept',
+            ),
+            'members' => array(
+                'class' => 'UserList', 'desc' => 'Department members',
+            ),
+            'parent' => array(
+                'class' => 'Dept', 'desc' => 'Parent department',
+            ),
+            'sla' => array(
+                'class' => 'SLA', 'desc' => 'Service Level Agreement',
+            ),
+            'signature' => 'Department signature',
+        );
     }
 
     function getId() {
@@ -74,22 +97,30 @@ class Dept {
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->name;
     }
 
+    function getLocalName($locale=false) {
+        $tag = $this->getTranslateTag();
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->name;
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('dept.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
+    function getTranslateTag($subtag='name') {
+        return _H(sprintf('dept.%s.%s', $subtag, $this->getId()));
+    }
+
+    function getFullName() {
+        return self::getNameById($this->getId());
+    }
 
     function getEmailId() {
-        return $this->ht['email_id'];
-    }
-
-    function getEmail() {
-        global $cfg;
-
-        if(!$this->email)
-            if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
-                $this->email = $cfg->getDefaultEmail();
-
-        return $this->email;
+        return $this->email_id;
     }
 
     /**
@@ -110,13 +141,13 @@ class Dept {
         return $this->email;
     }
 
-    function getNumStaff() {
-        return $this->ht['users'];
-    }
+    function getEmail() {
+        global $cfg;
 
+        if ($this->email)
+            return $this->email;
 
-    function getNumUsers() {
-        return $this->getNumStaff();
+        return $cfg? $cfg->getDefaultEmail() : null;
     }
 
     function getNumMembers() {
@@ -126,49 +157,41 @@ class Dept {
     function getMembers($criteria=null) {
         global $cfg;
 
-        if(!$this->members || $criteria) {
-            $members = array();
-            $sql='SELECT DISTINCT s.staff_id FROM '.STAFF_TABLE.' s '
-                .' LEFT JOIN '.GROUP_TABLE.' g ON (g.group_id=s.group_id) '
-                .' LEFT JOIN '.GROUP_DEPT_TABLE.' gd ON(s.group_id=gd.group_id) '
-                .' INNER JOIN '.DEPT_TABLE.' d
-                       ON ( d.dept_id=s.dept_id
-                            OR d.manager_id=s.staff_id
-                            OR (d.dept_id=gd.dept_id AND d.group_membership='.
-                                self::ALERTS_DEPT_AND_GROUPS.')
-                        ) '
-                .' WHERE d.dept_id='.db_input($this->getId());
+        if (!$this->_members || $criteria) {
+            $members = Staff::objects()
+                ->filter(Q::any(array(
+                    'dept_id' => $this->getId(),
+                    new Q(array(
+                        'group__depts__dept_id' => $this->getId(),
+                        'group__depts__dept__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
+                    )),
+                    'staff_id' => $this->manager_id
+                )));
 
             if ($criteria && $criteria['available'])
-                $sql .= ' AND
-                        ( g.group_enabled=1
-                          AND s.isactive=1
-                          AND s.onvacation=0 ) ';
+                $members->filter(array(
+                    'group__flags__hasbit' => Group::FLAG_ENABLED,
+                    'isactive' => 1,
+                    'onvacation' => 0,
+                ));
 
             switch ($cfg->getDefaultNameFormat()) {
             case 'last':
             case 'lastfirst':
             case 'legal':
-                $sql .= ' ORDER BY s.lastname, s.firstname';
+                $members->order_by('lastname', 'firstname');
                 break;
 
             default:
-                $sql .= ' ORDER BY s.firstname, s.lastname';
-            }
-
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id)=db_fetch_row($res))
-                    $members[$id] = Staff::lookup($id);
+                $members->order_by('firstname', 'lastname');
             }
 
             if ($criteria)
-                return $members;
+                return $members->all();
 
-            $this->members = $members;
-
+            $this->_members = $members->all();
         }
-
-        return $this->members;
+        return new UserList($this->_members);
     }
 
     function getAvailableMembers() {
@@ -187,19 +210,15 @@ class Dept {
     }
 
     function getSLAId() {
-        return $this->ht['sla_id'];
+        return $this->sla_id;
     }
 
     function getSLA() {
-
-        if(!$this->sla && $this->getSLAId())
-            $this->sla=SLA::lookup($this->getSLAId());
-
         return $this->sla;
     }
 
     function getTemplateId() {
-         return $this->ht['tpl_id'];
+         return $this->tpl_id;
     }
 
     function getTemplate() {
@@ -216,8 +235,8 @@ class Dept {
     function getAutoRespEmail() {
 
         if (!$this->autorespEmail) {
-            if (!$this->ht['autoresp_email_id']
-                    || !($this->autorespEmail = Email::lookup($this->ht['autoresp_email_id'])))
+            if (!$this->autoresp_email_id
+                    || !($this->autorespEmail = Email::lookup($this->autoresp_email_id)))
                 $this->autorespEmail = $this->getEmail();
         }
 
@@ -230,7 +249,7 @@ class Dept {
     }
 
     function getSignature() {
-        return $this->ht['signature'];
+        return $this->signature;
     }
 
     function canAppendSignature() {
@@ -238,14 +257,10 @@ class Dept {
     }
 
     function getManagerId() {
-        return $this->ht['manager_id'];
+        return $this->manager_id;
     }
 
     function getManager() {
-
-        if(!$this->manager && $this->getManagerId())
-            $this->manager=Staff::lookup($this->getManagerId());
-
         return $this->manager;
     }
 
@@ -268,97 +283,110 @@ class Dept {
     }
 
     function isPublic() {
-         return ($this->ht['ispublic']);
+         return $this->ispublic;
     }
 
     function autoRespONNewTicket() {
-        return ($this->ht['ticket_auto_response']);
+        return $this->ticket_auto_response;
     }
 
     function autoRespONNewMessage() {
-        return ($this->ht['message_auto_response']);
+        return $this->message_auto_response;
     }
 
     function noreplyAutoResp() {
-         return ($this->ht['noreply_autoresp']);
+         return $this->noreply_autoresp;
     }
 
     function assignMembersOnly() {
-        return ($this->config->get('assign_members_only', 0));
+        return $this->getConfig()->get('assign_members_only', 0);
     }
 
     function isGroupMembershipEnabled() {
-        return ($this->ht['group_membership']);
+        return $this->group_membership;
     }
 
     function getHashtable() {
-        return $this->ht;
+        $ht = $this->ht;
+        if (static::$meta['joins'])
+            foreach (static::$meta['joins'] as $k => $v)
+                unset($ht[$k]);
+
+        return $ht;
     }
 
     function getInfo() {
-        return $this->config->getInfo() + $this->getHashtable();
+        return $this->getConfig()->getInfo() + $this->getHashtable();
     }
 
     function getAllowedGroups() {
 
-        if($this->groups) return $this->groups;
+        if (!isset($this->_groupids)) {
+            $this->_groupids = array();
+            $groups = GroupDeptAccess::objects()
+                ->filter(array('dept_id' => $this->getId()))
+                ->values_flat('group_id');
 
-        $sql='SELECT group_id FROM '.GROUP_DEPT_TABLE
-            .' WHERE dept_id='.db_input($this->getId());
-
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id)=db_fetch_row($res))
-                $this->groups[] = $id;
+            foreach ($groups as $row)
+                $this->_groupids[] = $row[0];
         }
 
-        return $this->groups;
+        return $this->_groupids;
+    }
+
+    function updateGroups($groups_ids, $vars) {
+
+        // Groups allowed to access department
+        if (is_array($groups_ids)) {
+            $groups = GroupDeptAccess::objects()
+                ->filter(array('dept_id' => $this->getId()));
+            foreach ($groups as $group) {
+                if ($idx = array_search($group->group_id, $groups_ids)) {
+                    unset($groups_ids[$idx]);
+                    $roleId = $vars['group'.$group->group_id.'_role_id'];
+                    if ($roleId != $group->role_id) {
+                        $group->set('role_id', $roleId ?: 0);
+                        $group->save();
+                    }
+                } else {
+                    $group->delete();
+                }
+            }
+            foreach ($groups_ids as $id) {
+                $roleId = $vars['group'.$id.'_role_id'];
+                GroupDeptAccess::create(array(
+                    'dept_id' => $this->getId(),
+                    'group_id' => $id,
+                    'role_id' => $roleId ?: 0,
+                ))->save();
+            }
+        }
+
     }
 
     function updateSettings($vars) {
-
-        // Groups allowes to access department
-        if($vars['groups'] && is_array($vars['groups'])) {
-            foreach($vars['groups'] as $k=>$id) {
-                $sql='INSERT IGNORE INTO '.GROUP_DEPT_TABLE
-                    .' SET dept_id='.db_input($this->getId()).', group_id='.db_input($id);
-                db_query($sql);
-            }
-        }
-        $sql='DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($this->getId());
-        if($vars['groups'] && is_array($vars['groups']))
-            $sql.=' AND group_id NOT IN ('.implode(',', db_input($vars['groups'])).')';
-
-        db_query($sql);
-
-        // Misc. config settings
-        $this->config->set('assign_members_only', $vars['assign_members_only']);
-
-        return true;
-    }
-
-    function update($vars, &$errors) {
-
-        if(!$this->save($this->getId(), $vars, $errors))
-            return false;
-
-        $this->updateSettings($vars);
-        $this->reload();
-
+        $this->updateGroups($vars['groups'] ?: array(), $vars);
+        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
+        $this->path = $this->getFullPath();
+        $this->save();
         return true;
     }
 
     function delete() {
         global $cfg;
 
-        if(!$cfg
-                // Default department cannot be deleted
-                || $this->getId()==$cfg->getDefaultDeptId()
-                // Department  with users cannot be deleted
-                || $this->getNumUsers())
+        if (!$cfg
+            // Default department cannot be deleted
+            || $this->getId()==$cfg->getDefaultDeptId()
+            // Department  with users cannot be deleted
+            || $this->members->count()
+        ) {
             return 0;
+        }
 
-        $id=$this->getId();
-        $sql='DELETE FROM '.DEPT_TABLE.' WHERE dept_id='.db_input($id).' LIMIT 1';
+        parent::delete();
+        $id = $this->getId();
+        $sql='DELETE FROM '.DEPT_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
@@ -375,7 +403,7 @@ class Dept {
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
 
             // Destrory config settings
-            $this->config->destroy();
+            $this->getConfig()->destroy();
         }
 
         return $num;
@@ -385,127 +413,224 @@ class Dept {
         return $this->getName();
     }
 
-    /*----Static functions-------*/
-	function getIdByName($name) {
-        $id=0;
-        $sql ='SELECT dept_id FROM '.DEPT_TABLE.' WHERE dept_name='.db_input($name);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
-
-        return $id;
+    function getParent() {
+        return static::lookup($this->ht['pid']);
     }
 
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($dept = new Dept($id)) && $dept->getId()==$id)?$dept:null;
+    /**
+     * getFullPath
+     *
+     * Utility function to retrieve a '/' separated list of department IDs
+     * in the ancestry of this department. This is used to populate the
+     * `path` field in the database and is used for access control rather
+     * than the ID field since nesting of departments is necessary and
+     * department access can be cascaded.
+     *
+     * Returns:
+     * Slash-separated string of ID ancestry of this department. The string
+     * always starts and ends with a slash, and will always contain the ID
+     * of this department last.
+     */
+    function getFullPath() {
+        $path = '';
+        if ($p = $this->getParent())
+            $path .= $p->getFullPath();
+        else
+            $path .= '/';
+        $path .= $this->getId() . '/';
+        return $path;
+    }
+
+    /*----Static functions-------*/
+	static function getIdByName($name, $pid=0) {
+        $row = static::objects()
+            ->filter(array(
+                        'name' => $name,
+                        'pid'  => $pid ?: 0))
+            ->values_flat('id')
+            ->first();
+
+        return $row ? $row[0] : 0;
     }
 
     function getNameById($id) {
-
-        if($id && ($dept=Dept::lookup($id)))
-            $name= $dept->getName();
-
-        return $name;
+        $names = static::getDepartments();
+        return $names[$id];
     }
 
     function getDefaultDeptName() {
         global $cfg;
-        return ($cfg && $cfg->getDefaultDeptId() && ($name=Dept::getNameById($cfg->getDefaultDeptId())))?$name:null;
+
+        return ($cfg
+            && ($did = $cfg->getDefaultDeptId())
+            && ($names = self::getDepartments()))
+            ? $names[$did]
+            : null;
     }
 
-    function getDepartments( $criteria=null) {
+    static function getDepartments( $criteria=null, $localize=true) {
+        static $depts = null;
 
-        $depts=array();
-        $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' WHERE 1';
-        if($criteria['publiconly'])
-            $sql.=' AND  ispublic=1';
+        if (!isset($depts) || $criteria) {
+            // XXX: This will upset the static $depts array
+            $depts = array();
+            $query = self::objects();
+            if (isset($criteria['publiconly']))
+                $query->filter(array(
+                            'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
 
-        if(($manager=$criteria['manager']))
-            $sql.=' AND manager_id='.db_input(is_object($manager)?$manager->getId():$manager);
+            if ($manager=$criteria['manager'])
+                $query->filter(array(
+                            'manager_id' => is_object($manager)?$manager->getId():$manager));
 
-        $sql.=' ORDER BY dept_name';
+            if (isset($criteria['nonempty'])) {
+                $query->annotate(array(
+                    'user_count' => SqlAggregate::COUNT('members')
+                ))->filter(array(
+                    'user_count__gt' => 0
+                ));
+            }
 
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $depts[$id] = $name;
+            $query->order_by('name')
+                ->values('id', 'pid', 'name', 'parent');
+
+            foreach ($query as $row)
+                $depts[$row['id']] = $row;
+
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("dept.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+
+            // Resolve parent names
+            $names = array();
+            foreach ($depts as $id=>$info) {
+                $name = $info['name'];
+                $loop = array($id=>true);
+                $parent = false;
+                while ($info['pid'] && ($info = $depts[$info['pid']])) {
+                    $name = sprintf('%s / %s', $info['name'], $name);
+                    if (isset($loop[$info['pid']]))
+                        break;
+                    $loop[$info['pid']] = true;
+                    $parent = $info;
+                }
+                // Fetch local names
+                $names[$id] = $localize_this($id, $name);
+            }
+            asort($names);
+
+            // TODO: Use locale-aware sorting mechanism
+
+            if ($criteria)
+                return $names;
+
+            $depts = $names;
         }
 
         return $depts;
     }
 
-    function getPublicDepartments() {
-        return self::getDepartments(array('publiconly'=>true));
+    static function getPublicDepartments() {
+        static $depts =null;
+
+        if (!$depts)
+            $depts = self::getDepartments(array('publiconly'=>true));
+
+        return $depts;
     }
 
-    function create($vars, &$errors) {
+    static function create($vars=false, &$errors=array()) {
+        $dept = parent::create($vars);
+        $dept->created = SqlFunction::NOW();
 
-        if(!($id=self::save(0, $vars, $errors)))
-            return null;
-
-        if (($dept=self::lookup($id)))
-            $dept->updateSettings($vars);
-
-        return $id;
+        return $dept;
     }
 
-    function save($id, $vars, &$errors) {
+    static function __create($vars, &$errors) {
+        $dept = self::create();
+        $dept->update($vars, $errors);
+
+        return isset($dept->id) ? $dept : null;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+
+        return parent::save($refetch || $this->dirty);
+    }
+
+    function update($vars, &$errors) {
         global $cfg;
 
-        if($id && $id!=$vars['id'])
+        if (isset($this->id) && $this->getId() != $vars['id'])
             $errors['err']=__('Missing or invalid Dept ID (internal error).');
 
-        if(!$vars['name']) {
+        if (!$vars['name']) {
             $errors['name']=__('Name required');
-        } elseif(strlen($vars['name'])<4) {
-            $errors['name']=__('Name is too short.');
-        } elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id) {
+        } elseif (($did=static::getIdByName($vars['name'], $vars['pid']))
+                && (!isset($this->id) || $did!=$this->getId())) {
             $errors['name']=__('Department already exists');
         }
 
-        if(!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
+        if (!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
             $errors['ispublic']=__('System default department cannot be private');
 
-        if($errors) return false;
+        if ($vars['pid'] && !($p = static::lookup($vars['pid'])))
+            $errors['pid'] = __('Department selection is required');
 
+        if ($errors)
+            return false;
 
-        $sql='SET updated=NOW() '
-            .' ,ispublic='.db_input(isset($vars['ispublic'])?$vars['ispublic']:0)
-            .' ,email_id='.db_input(isset($vars['email_id'])?$vars['email_id']:0)
-            .' ,tpl_id='.db_input(isset($vars['tpl_id'])?$vars['tpl_id']:0)
-            .' ,sla_id='.db_input(isset($vars['sla_id'])?$vars['sla_id']:0)
-            .' ,autoresp_email_id='.db_input(isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0)
-            .' ,manager_id='.db_input($vars['manager_id']?$vars['manager_id']:0)
-            .' ,dept_name='.db_input(Format::striptags($vars['name']))
-            .' ,dept_signature='.db_input(Format::sanitize($vars['signature']))
-            .' ,group_membership='.db_input($vars['group_membership'])
-            .' ,ticket_auto_response='.db_input(isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1)
-            .' ,message_auto_response='.db_input(isset($vars['message_auto_response'])?$vars['message_auto_response']:1);
+        $this->pid = $vars['pid'] ?: 0;
+        $this->updated = SqlFunction::NOW();
+        $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
+        $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
+        $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
+        $this->sla_id = isset($vars['sla_id'])?$vars['sla_id']:0;
+        $this->autoresp_email_id = isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0;
+        $this->manager_id = $vars['manager_id'] ?: 0;
+        $this->name = Format::striptags($vars['name']);
+        $this->signature = Format::sanitize($vars['signature']);
+        $this->group_membership = $vars['group_membership'];
+        $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
+        $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
 
+        if ($this->save())
+            return $this->updateSettings($vars);
 
-        if($id) {
-            $sql='UPDATE '.DEPT_TABLE.' '.$sql.' WHERE dept_id='.db_input($id);
-            if(db_query($sql) && db_affected_rows())
-                return true;
-
+        if (isset($this->id))
             $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
                .' '.__('Internal error occurred');
-
-        } else {
-            if (isset($vars['id']))
-                $sql .= ', dept_id='.db_input($vars['id']);
-
-            $sql='INSERT INTO '.DEPT_TABLE.' '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
-
+        else
             $errors['err']=sprintf(__('Unable to create %s.'), __('this department'))
                .' '.__('Internal error occurred');
-
-        }
-
 
         return false;
     }
 
+}
+
+class GroupDeptAccess extends VerySimpleModel {
+    static $meta = array(
+        'table' => GROUP_DEPT_TABLE,
+        'pk' => array('dept_id', 'group_id'),
+        'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+            ),
+            'group' => array(
+                'constraint' => array('group_id' => 'Group.id'),
+            ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id'),
+            ),
+        ),
+    );
 }
 ?>

@@ -84,7 +84,8 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                         ?>
                         <textarea name="comments" id="comments"
                             cols="50" rows="3" wrap="soft" style="width:100%"
-                            class="richtext ifhtml no-bar"
+                            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            ?> no-bar"
                             placeholder="<?php echo $placeholder; ?>"><?php
                             echo $info['comments']; ?></textarea>
                     </td>

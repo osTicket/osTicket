@@ -14,42 +14,26 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Team {
+class Team extends VerySimpleModel
+implements TemplateVariable {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => TEAM_TABLE,
+        'pk' => array('team_id'),
+        'joins' => array(
+            'lead' => array(
+                'null' => true,
+                'constraint' => array('lead_id' => 'Staff.staff_id'),
+            ),
+            'members' => array(
+                'null' => true,
+                'list' => true,
+                'reverse' => 'TeamMember.team',
+            ),
+        ),
+    );
 
-    var $members;
-
-    function Team($id) {
-
-        return $this->load($id);
-    }
-
-    function load($id=0) {
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT team.*,count(member.staff_id) as members '
-            .' FROM '.TEAM_TABLE.' team '
-            .' LEFT JOIN '.TEAM_MEMBER_TABLE.' member USING(team_id) '
-            .' WHERE team.team_id='.db_input($id)
-            .' GROUP BY team.team_id ';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['team_id'];
-        $this->members=array();
-
-        return $this->id;
-    }
-
-    function reload() {
-        return $this->load($this->getId());
-    }
+    var $_members;
 
     function asVar() {
         return $this->__toString();
@@ -59,50 +43,52 @@ class Team {
         return (string) $this->getName();
     }
 
+    static function getVarScope() {
+        return array(
+            'name' => __('Team Name'),
+            'lead' => array(
+                'class' => 'Staff', 'desc' => __('Team Lead'),
+            ),
+            'members' => array(
+                'class' => 'UserList', 'desc' => __('Team Members'),
+            ),
+        );
+    }
+
     function getId() {
-        return $this->id;
+        return $this->team_id;
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->name;
     }
 
     function getNumMembers() {
-        return $this->ht['members'];
+        return $this->members->count();
     }
 
     function getMembers() {
 
-        if(!$this->members && $this->getNumMembers()) {
-            $sql='SELECT m.staff_id FROM '.TEAM_MEMBER_TABLE.' m '
-                .'LEFT JOIN '.STAFF_TABLE.' s USING(staff_id) '
-                .'WHERE m.team_id='.db_input($this->getId()).' AND s.staff_id IS NOT NULL '
-                .'ORDER BY s.lastname, s.firstname';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id)=db_fetch_row($res))
-                    if(($staff= Staff::lookup($id)))
-                        $this->members[]= $staff;
-            }
+        if (!isset($this->_members)) {
+            $this->_members = array();
+            foreach ($this->members as $m)
+                $this->_members[] = $m->staff;
         }
 
-        return $this->members;
+        return new UserList($this->_members);
     }
 
     function hasMember($staff) {
-        return db_count(
-             'SELECT COUNT(*) FROM '.TEAM_MEMBER_TABLE
-            .' WHERE team_id='.db_input($this->getId())
-            .'   AND staff_id='.db_input($staff->getId())) !== 0;
+        return $this->members
+            ->filter(array('staff_id'=>$staff->getId()))
+            ->count() !== 0;
     }
 
     function getLeadId() {
-        return $this->ht['lead_id'];
+        return $this->lead_id;
     }
 
     function getTeamLead() {
-        if(!$this->lead && $this->getLeadId())
-            $this->lead=Staff::lookup($this->getLeadId());
-
         return $this->lead;
     }
 
@@ -111,7 +97,9 @@ class Team {
     }
 
     function getHashtable() {
-        return $this->ht;
+        $base = $this->ht;
+        unset($base['staffmembers']);
+        return $base;
     }
 
     function getInfo() {
@@ -119,7 +107,7 @@ class Team {
     }
 
     function isEnabled() {
-        return ($this->ht['isenabled']);
+        return $this->isenabled;
     }
 
     function isActive() {
@@ -127,52 +115,89 @@ class Team {
     }
 
     function alertsEnabled() {
-        return !$this->ht['noalerts'];
+        return !$this->noalerts;
     }
 
-    function update($vars, &$errors) {
+    function getTranslateTag($subtag) {
+        return _H(sprintf('team.%s.%s', $subtag, $this->getId()));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('team.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
 
-        //reset team lead if they're being deleted
-        if($this->getLeadId()==$vars['lead_id']
-                && $vars['remove'] && in_array($this->getLeadId(), $vars['remove']))
-            $vars['lead_id']=0;
+    function update($vars, &$errors=array()) {
 
-        //Save the changes...
-        if(!Team::save($this->getId(), $vars, $errors))
-            return false;
-
-        //Delete staff marked for removal...
-        if($vars['remove']) {
-            $sql='DELETE FROM '.TEAM_MEMBER_TABLE
-                .' WHERE team_id='.db_input($this->getId())
-                .' AND staff_id IN ('
-                    .implode(',', db_input($vars['remove']))
-                .')';
-            db_query($sql);
+        if (!$vars['name']) {
+            $errors['name']=__('Team name is required');
+        } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
+            $errors['name']=__('Team name already exists');
         }
 
-        //Reload.
-        $this->reload();
+        if ($errors)
+            return false;
 
-        return true;
+        // Reset team lead if they're getting removed
+        if (isset($this->lead_id)
+                && $this->lead_id == $vars['lead_id']
+                && $vars['remove']
+                && in_array($this->lead_id, $vars['remove']))
+            $vars['lead_id'] =0 ;
+
+        $this->isenabled = $vars['isenabled'];
+        $this->noalerts = isset($vars['noalerts']) ? $vars['noalerts'] : 0;
+        $this->lead_id = $vars['lead_id'] ?: 0;
+        $this->name = $vars['name'];
+        $this->notes = Format::sanitize($vars['notes']);
+
+        if ($this->save()) {
+            // Remove checked members
+            if ($vars['remove'] && is_array($vars['remove'])) {
+                TeamMember::objects()
+                    ->filter(array(
+                        'staff_id__in' => $vars['remove']))
+                    ->delete();
+            }
+
+            return true;
+        }
+
+        if (isset($this->team_id)) {
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
+               .' '.__('Internal error occurred');
+        } else {
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
+               .' '.__('Internal error occurred');
+        }
+
+        return false;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+
+        return parent::save($refetch || $this->dirty);
     }
 
     function delete() {
         global $thisstaff;
 
-        if(!$thisstaff || !($id=$this->getId()))
+        if (!$thisstaff || !($id=$this->getId()))
             return false;
 
         # Remove the team
-        $res = db_query(
-            'DELETE FROM '.TEAM_TABLE.' WHERE team_id='.db_input($id)
-          .' LIMIT 1');
-        if (db_affected_rows($res) != 1)
+        if (!parent::delete())
             return false;
 
         # Remove members of this team
-        db_query('DELETE FROM '.TEAM_MEMBER_TABLE
-               .' WHERE team_id='.db_input($id));
+        $this->staffmembers->delete();
 
         # Reset ticket ownership for tickets owned by this team
         db_query('UPDATE '.TICKET_TABLE.' SET team_id=0 WHERE team_id='
@@ -182,88 +207,88 @@ class Team {
     }
 
     /* ----------- Static function ------------------*/
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($team= new Team($id)) && $team->getId()==$id)?$team:null;
+    static function getIdByName($name) {
+
+        $row = self::objects()
+            ->filter(array('name'=>trim($name)))
+            ->values_flat('team_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
     }
 
+    static function getTeams($criteria=array()) {
+        static $teams = null;
+        if (!$teams || $criteria) {
+            $teams = array();
+            $query = static::objects()
+                ->values_flat('team_id', 'name', 'isenabled')
+                ->order_by('name');
 
-    function getIdbyName($name) {
+            if (isset($criteria['active']) && $criteria['active']) {
+                $query->annotate(array('members_count'=>SqlAggregate::COUNT('members')))
+                ->filter(array(
+                    'isenabled'=>1,
+                    'members__staff__isactive'=>1,
+                    'members__staff__onvacation'=>0,
+                    'members__staff__group__flags__hasbit'=>Group::FLAG_ENABLED,
+                ))
+                ->filter(array('members_count__gt'=>0));
+            }
 
-        $sql='SELECT team_id FROM '.TEAM_TABLE.' WHERE name='.db_input($name);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
+            $items = array();
+            foreach ($query as $row) {
+                //TODO: Fix enabled - flags is a bit field.
+                list($id, $name, $enabled) = $row;
+                $items[$id] = sprintf('%s%s',
+                    self::getLocalById($id, 'name', $name),
+                    ($enabled || isset($criteria['active']))
+                        ? '' : ' ' . __('(disabled)'));
+            }
 
-        return $id;
-    }
+            //TODO: sort if $criteria['localize'];
+            if ($criteria)
+                return $items;
 
-    function getTeams( $availableOnly=false ) {
-
-        $teams=array();
-        $sql='SELECT team_id, name FROM '.TEAM_TABLE;
-        if($availableOnly) {
-            //Make sure the members are active...TODO: include group check!!
-            $sql='SELECT t.team_id, t.name, count(m.staff_id) as members '
-                .' FROM '.TEAM_TABLE.' t '
-                .' LEFT JOIN '.TEAM_MEMBER_TABLE.' m ON(m.team_id=t.team_id) '
-                .' INNER JOIN '.STAFF_TABLE.' s ON(s.staff_id=m.staff_id AND s.isactive=1 AND onvacation=0) '
-                .' INNER JOIN '.GROUP_TABLE.' g ON(g.group_id=s.group_id AND g.group_enabled=1) '
-                .' WHERE t.isenabled=1 '
-                .' GROUP BY t.team_id '
-                .' HAVING members>0'
-                .' ORDER by t.name ';
-        }
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name)=db_fetch_row($res))
-                $teams[$id] = $name;
+            $teams = $items;
         }
 
         return $teams;
     }
 
-    function getActiveTeams() {
-        return self::getTeams(true);
+    static function getActiveTeams() {
+        static $teams = null;
+
+        if (!isset($teams))
+            $teams = self::getTeams(array('active'=>true));
+
+        return $teams;
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars=false) {
+        $team = parent::create($vars);
+        $team->created = SqlFunction::NOW();
+        return $team;
     }
 
-    function save($id, $vars, &$errors) {
-        if($id && $vars['id']!=$id)
-            $errors['err']=__('Missing or invalid team');
-
-        if(!$vars['name']) {
-            $errors['name']=__('Team name is required');
-        } elseif(strlen($vars['name'])<3) {
-            $errors['name']=__('Team name must be at least 3 chars.');
-        } elseif(($tid=Team::getIdByName($vars['name'])) && $tid!=$id) {
-            $errors['name']=__('Team name already exists');
-        }
-
-        if($errors) return false;
-
-        $sql='SET updated=NOW(),isenabled='.db_input($vars['isenabled']).
-             ',name='.db_input($vars['name']).
-             ',noalerts='.db_input(isset($vars['noalerts'])?$vars['noalerts']:0).
-             ',notes='.db_input(Format::sanitize($vars['notes']));
-
-        if($id) {
-            $sql='UPDATE '.TEAM_TABLE.' '.$sql.',lead_id='.db_input($vars['lead_id']).' WHERE team_id='.db_input($id);
-            if(db_query($sql) && db_affected_rows())
-                return true;
-
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
-               .' '.__('Internal error occurred');
-        } else {
-            $sql='INSERT INTO '.TEAM_TABLE.' '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
-               .' '.__('Internal error occurred');
-        }
-
-        return false;
+    static function __create($vars, &$errors) {
+        return self::create($vars)->save();
     }
+
+}
+
+class TeamMember extends VerySimpleModel {
+    static $meta = array(
+        'table' => TEAM_MEMBER_TABLE,
+        'pk' => array('team_id', 'staff_id'),
+        'joins' => array(
+            'team' => array(
+                'constraint' => array('team_id' => 'Team.team_id'),
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+            ),
+        ),
+    );
 }
 ?>

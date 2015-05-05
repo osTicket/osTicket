@@ -39,6 +39,10 @@ class Config {
         if (!isset($_SESSION['cfg:'.$this->section]))
             $_SESSION['cfg:'.$this->section] = array();
         $this->session = &$_SESSION['cfg:'.$this->section];
+        $this->load();
+    }
+
+    function load() {
 
         $sql='SELECT id, `key`, value, `updated` FROM '.$this->table
             .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
@@ -156,7 +160,6 @@ class OsticketConfig extends Config {
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
-        'allow_client_updates' => false,
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
         'clients_only' => false,
@@ -177,17 +180,6 @@ class OsticketConfig extends Config {
                 foreach (db_fetch_array($res) as $key=>$value)
                     $this->config[$key] = array('value'=>$value);
         }
-
-        //Get the default time zone
-        // We can't JOIN timezone table above due to upgrade support.
-        if ($this->get('default_timezone_id')) {
-            if (!$this->exists('tz_offset'))
-                $this->persist('tz_offset',
-                    Timezone::getOffsetById($this->get('default_timezone_id')));
-        } else
-            // Previous osTicket versions saved the offset value instead of
-            // a timezone instance. This is compatibility for the upgrader
-            $this->persist('tz_offset', 0);
 
         return true;
     }
@@ -262,27 +254,82 @@ class OsticketConfig extends Config {
         return $this->get('db_tz_offset');
     }
 
-    function getDefaultTimezoneId() {
-        return $this->get('default_timezone_id');
+    function getDefaultTimezone() {
+        return $this->get('default_timezone');
+    }
+
+    function getTimezone() {
+        global $thisstaff, $thisclient;
+
+        if ($thisstaff)
+            $zone = $thisstaff->getTimezone();
+        #elseif ($thisclient)
+        #    $zone = $thisclient->getTimezone();
+        else
+            $zone = $this->get('default_timezone');
+
+        if (!$zone)
+            $zone = ini_get('date.timezone');
+        return $zone;
+    }
+
+    function getDefaultLocale() {
+        return $this->get('default_locale');
     }
 
     /* Date & Time Formats */
-    function observeDaylightSaving() {
-        return ($this->get('enable_daylight_saving'));
-    }
     function getTimeFormat() {
-        return $this->get('time_format');
+        if ($this->get('date_formats') == 'custom')
+            return $this->get('time_format');
+        return '';
     }
-    function getDateFormat() {
-        return $this->get('date_format');
+    function isForce24HourTime() {
+        return $this->get('date_formats') == '24';
+    }
+    /**
+     * getDateFormat
+     *
+     * Retrieve the current date format for the system, as a string, and in
+     * the intl (icu) format.
+     *
+     * Parameters:
+     * $propogate - (boolean:default=false), if set and the configuration
+     *      indicates default date and time formats (ie. not custom), then
+     *      the intl date formatter will be queried to find the pattern used
+     *      internally for the current locale settings.
+     */
+    function getDateFormat($propogate=false) {
+        if ($this->get('date_formats') == 'custom')
+            return $this->get('date_format');
+        if ($propogate) {
+            if (class_exists('IntlDateFormatter')) {
+                $formatter = new IntlDateFormatter(
+                    Internationalization::getCurrentLocale(),
+                    IntlDateFormatter::SHORT,
+                    IntlDateFormatter::NONE,
+                    $this->getTimezone(),
+                    IntlDateFormatter::GREGORIAN
+                );
+                return $formatter->getPattern();
+            }
+            else {
+                // Use a standard
+                return 'y-M-d';
+            }
+        }
+        return '';
     }
 
     function getDateTimeFormat() {
-        return $this->get('datetime_format');
+        if ($this->get('date_formats') == 'custom')
+            return $this->get('datetime_format');
+        return '';
     }
 
     function getDayDateTimeFormat() {
-        return $this->get('daydatetime_format');
+        if ($this->get('date_formats') == 'custom')
+            return $this->get('daydatetime_format');
+        return '';
     }
 
     function getConfigInfo() {
@@ -301,10 +348,6 @@ class OsticketConfig extends Config {
         return rtrim($this->getUrl(),'/');
     }
 
-    function getTZOffset() {
-        return $this->get('tz_offset');
-    }
-
     function getPageSize() {
         return $this->get('max_page_size');
     }
@@ -319,10 +362,6 @@ class OsticketConfig extends Config {
 
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
-    }
-
-    function allowClientUpdates() {
-        return $this->get('allow_client_updates');
     }
 
     function getClientTimeout() {
@@ -627,20 +666,42 @@ class OsticketConfig extends Config {
         return true; //No longer an option...hint: big plans for headers coming!!
     }
 
-    function getDefaultSequence() {
-        if ($this->get('sequence_id'))
-            $sequence = Sequence::lookup($this->get('sequence_id'));
+    function getDefaultTicketSequence() {
+        if ($this->get('ticket_sequence_id'))
+            $sequence = Sequence::lookup($this->get('ticket_sequence_id'));
         if (!$sequence)
             $sequence = new RandomSequence();
         return $sequence;
     }
-    function getDefaultNumberFormat() {
-        return $this->get('number_format');
+
+    function getDefaultTicketNumberFormat() {
+        return $this->get('ticket_number_format');
     }
+
     function getNewTicketNumber() {
-        $s = $this->getDefaultSequence();
-        return $s->next($this->getDefaultNumberFormat(),
+        $s = $this->getDefaultTicketSequence();
+        return $s->next($this->getDefaultTicketNumberFormat(),
             array('Ticket', 'isTicketNumberUnique'));
+    }
+
+    // Task sequence
+    function getDefaultTaskSequence() {
+        if ($this->get('task_sequence_id'))
+            $sequence = Sequence::lookup($this->get('task_sequence_id'));
+        if (!$sequence)
+            $sequence = new RandomSequence();
+
+        return $sequence;
+    }
+
+    function getDefaultTaskNumberFormat() {
+        return $this->get('task_number_format');
+    }
+
+    function getNewTaskNumber() {
+        $s = $this->getDefaultTaskSequence();
+        return $s->next($this->getDefaultTaskNumberFormat(),
+            array('Task', 'isNumberUnique'));
     }
 
     /* autoresponders  & Alerts */
@@ -809,8 +870,14 @@ class OsticketConfig extends Config {
         return ($this->get('allow_attachments'));
     }
 
-    function getSystemLanguage() {
+    function getPrimaryLanguage() {
         return $this->get('system_language');
+    }
+
+    function getSecondaryLanguages() {
+        $langs = $this->get('secondary_langs');
+        $langs = (is_string($langs)) ? explode(',', $langs) : array();
+        return array_filter($langs);
     }
 
     /* Needed by upgrader on 1.6 and older releases upgrade - not not remove */
@@ -874,10 +941,19 @@ class OsticketConfig extends Config {
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
         $f['datetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Datetime format is required'));
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Day, Datetime format is required'));
-        $f['default_timezone_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Timezone is required'));
+        $f['default_timezone']=array('type'=>'string',   'required'=>1, 'error'=>__('Default Timezone is required'));
+        $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        // Manage secondard languages
+        $vars['secondary_langs'][] = $vars['add_secondary_language'];
+        foreach ($vars['secondary_langs'] as $i=>$lang) {
+            if (!$lang || !Internationalization::isLanguageInstalled($lang))
+                unset($vars['secondary_langs'][$i]);
+        }
+        $secondary_langs = implode(',', $vars['secondary_langs']);
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -892,8 +968,11 @@ class OsticketConfig extends Config {
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
             'daydatetime_format'=>$vars['daydatetime_format'],
-            'default_timezone_id'=>$vars['default_timezone_id'],
-            'enable_daylight_saving'=>isset($vars['enable_daylight_saving'])?1:0,
+            'date_formats'=>$vars['date_formats'],
+            'default_timezone'=>$vars['default_timezone'],
+            'default_locale'=>$vars['default_locale'],
+            'system_language'=>$vars['system_language'],
+            'secondary_langs'=>$secondary_langs,
         ));
     }
 
@@ -947,8 +1026,8 @@ class OsticketConfig extends Config {
             $errors['default_help_topic'] = __('Default help topic must be set to active');
         }
 
-        if (!preg_match('`(?!<\\\)#`', $vars['number_format']))
-            $errors['number_format'] = 'Ticket number format requires at least one hash character (#)';
+        if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
+            $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -957,8 +1036,8 @@ class OsticketConfig extends Config {
             $this->update('default_storage_bk', $vars['default_storage_bk']);
 
         return $this->updateAll(array(
-            'number_format'=>$vars['number_format'] ?: '######',
-            'sequence_id'=>$vars['sequence_id'] ?: 0,
+            'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
+            'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
@@ -1047,7 +1126,7 @@ class OsticketConfig extends Config {
                 ; // Pass
             elseif ($logo['error'])
                 $errors['logo'] = $logo['error'];
-            elseif (!($id = AttachmentFile::uploadLogo($logo, $error)))
+            elseif (!AttachmentFile::uploadLogo($logo, $error))
                 $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 

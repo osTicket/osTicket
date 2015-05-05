@@ -79,15 +79,25 @@ class Mailer {
         return $this->attachments;
     }
 
-    function addAttachment($attachment) {
+    function addAttachment(Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$attachment['file_id']] = $attachment;
+        $this->attachments[$attachment->file_id] = $attachment->file;
+    }
+
+    function addFile(AttachmentFile $file) {
+        // XXX: This looks too assuming; however, the attachment processor
+        // in the ::send() method seems hard coded to expect this format
+        $this->attachments[$file->file_id] = $file;
     }
 
     function addAttachments($attachments) {
-        foreach ($attachments as $a)
-            $this->addAttachment($a);
+        foreach ($attachments as $a) {
+            if ($a instanceof Attachment)
+                $this->addAttachment($a);
+            elseif ($a instanceof AttachmentFile)
+                $this->addFile($a);
+        }
     }
 
     /**
@@ -108,44 +118,52 @@ class Mailer {
      *      'thread' element, the threadId will be recorded in the TAG
      *
      * Returns:
-     * (string) - email message id, with leading and trailing <> chars. See
-     * the format below for the structure.
+     * (string) - email message id, without leading and trailing <> chars.
+     * See the Format below for the structure.
      *
      * Format:
-     * VA-B-C-D, with dash separators and A-D explained below:
+     * VA-B-C, with dash separators and A-C explained below:
      *
      * V: Version code of the generated Message-Id
-     * A: Predictable random code — used for loop detection
-     * B: Random data for unique identifier
-     *    Version Code: A (at char position 10)
-     * C: TAG: Base64(Pack(userid, entryId, type)), = chars discarded
-     * D: Signature:
-     *   '@' + Signed Tag value, last 10 chars from
-     *        HMAC(sha1, tag+rand, SECRET_SALT)
-     *   -or- Original From email address
+     * A: Predictable random code — used for loop detection (sysid)
+     * B: Random data for unique identifier (rand)
+     * C: TAG: Base64(Pack(userid, entryId, threadId, type, Signature)),
+     *    '=' chars discarded
+     * where Signature is:
+     *   Signed Tag value, last 5 chars from
+     *        HMAC(sha1, Tag + rand + sysid, SECRET_SALT),
+     *   where Tag is:
+     *     pack(userId, entryId, threadId, type)
      */
-    function getMessageId($recipient, $options=array(), $version='A') {
-        $rand = Misc::randCode(9,
+    function getMessageId($recipient, $options=array(), $version='B') {
+        $tag = '';
+        $rand = Misc::randCode(5,
             // RFC822 specifies the LHS of the addr-spec can have any char
             // except the specials — ()<>@,;:\".[], dash is reserved as the
             // section separator, and + is reserved for historical reasons
             'abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_=');
+        $sig = $this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer';
+        $sysid = static::getSystemMessageIdCode();
         // Create a tag for the outbound email
-        $tag = pack('VVa',
-            ($recipient instanceof EmailContact) ? $recipient->getUserId() : 0,
-            (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
-                ? $options['thread']->getId() : 0,
+        $entry = (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
+            ? $options['thread'] : false;
+        $thread = $entry ? $entry->getThread()
+            : (isset($options['thread']) && $options['thread'] instanceof Thread
+                ? $options['thread'] : false);
+        $tag = pack('VVVa',
+            $recipient instanceof EmailContact ? $recipient->getUserId() : 0,
+            $entry ? $entry->getId() : 0,
+            $thread ? $thread->getId() : 0,
             ($recipient instanceof Staff ? 'S'
                 : ($recipient instanceof TicketOwner ? 'U'
                 : ($recipient instanceof Collaborator ? 'C'
                 : '?')))
         );
-        $tag = str_replace('=','',base64_encode($tag));
         // Sign the tag with the system secret salt
-        $sig = '@' . substr(hash_hmac('sha1', $tag.$rand, SECRET_SALT), -10);
-        return sprintf('<A%s-%s-%s-%s>',
-            static::getSystemMessageIdCode(),
-            $rand, $tag, $sig);
+        $tag .= substr(hash_hmac('sha1', $tag.$rand.$sysid, SECRET_SALT, true), -5);
+        $tag = str_replace('=','',base64_encode($tag));
+        return sprintf('B%s-%s-%s-%s',
+            $sysid, $rand, $tag, $sig);
     }
 
     /**
@@ -166,6 +184,7 @@ class Mailer {
      *      'version' - (string|FALSE) version code of the message id
      *      'code' - (string) unique but predictable help desk message-id
      *      'id' - (string) random characters serving as the unique id
+     *      'entryId' - (int) thread-entry-id from which the message originated
      *      'threadId' - (int) thread-id from which the message originated
      *      'staffId' - (int|null) staff the email was originally sent to
      *      'userId' - (int|null) user the email was originally sent to
@@ -190,33 +209,63 @@ class Mailer {
         if (count($parts) < 2)
             return $rv;
 
-        // Detect the MessageId version, which should be the tenth char of
-        // the second segment
-        $rv['version'] = @$parts[0][0];
-        switch ($rv['version']) {
-            case 'A':
-            default:
-                list($rv['code'], $rv['id'], $tag) = $parts;
-                // Drop the leading version code
-                $rv['code'] = substr($rv['code'], 1);
-                // Verify tag signature
-                $chksig = substr(hash_hmac('sha1', $tag.$rv['id'], SECRET_SALT), -10);
-                if ($tag && $sig == $chksig && ($tag = base64_decode($tag))) {
-                    // Find user and ticket id
-                    $rv += unpack('Vuid/VthreadId/auserClass', $tag);
-                    // Attempt to make the user-id more specific
-                    $classes = array(
-                        'S' => 'staffId', 'U' => 'userId', 'C' => 'userId',
-                    );
-                    if (isset($classes[$rv['userClass']]))
-                        $rv[$classes[$rv['userClass']]] = $rv['uid'];
+        $decoders = array(
+        'A' => function($id, $tag) use ($sig) {
+            // Old format was VA-B-C-D@sig, where C was the packed tag and D
+            // was blank
+            $format = 'Vuid/VentryId/auserClass';
+            $chksig = substr(hash_hmac('sha1', $tag.$id, SECRET_SALT), -10);
+            if ($tag && $sig == $chksig && ($tag = base64_decode($tag))) {
+                // Find user and ticket id
+                return unpack($format, $tag);
+            }
+            return false;
+        },
+        'B' => function($id, $tag) {
+            $format = 'Vuid/VentryId/VthreadId/auserClass/a*sig';
+            if ($tag && ($tag = base64_decode($tag))) {
+                $info = unpack($format, $tag);
+                $sysid = static::getSystemMessageIdCode();
+                $shorttag = substr($tag, 0, 13);
+                $chksig = substr(hash_hmac('sha1', $shorttag.$id.$sysid,
+                    SECRET_SALT, true), -5);
+                if ($chksig == $info['sig']) {
+                    return $info;
                 }
-                // Round-trip detection - the first section is the local
-                // system's message-id code
-                $rv['loopback'] = (0 === strcasecmp($rv['code'],
-                    static::getSystemMessageIdCode()));
-                break;
-        }
+            }
+            return false;
+        },
+        );
+
+        // Detect the MessageId version, which should be the first char
+        $rv['version'] = @$parts[0][0];
+        if (!isset($decoders[$rv['version']]))
+            // invalid version code
+            return null;
+
+        // Drop the leading version code
+        list($rv['code'], $rv['id'], $tag) = $parts;
+        $rv['code'] = substr($rv['code'], 1);
+
+        // Verify tag signature and unpack the tag
+        $info = $decoders[$rv['version']]($rv['id'], $tag);
+        if ($info === false)
+            return $rv;
+
+        $rv += $info;
+
+        // Attempt to make the user-id more specific
+        $classes = array(
+            'S' => 'staffId', 'U' => 'userId', 'C' => 'userId',
+        );
+        if (isset($classes[$rv['userClass']]))
+            $rv[$classes[$rv['userClass']]] = $rv['uid'];
+
+        // Round-trip detection - the first section is the local
+        // system's message-id code
+        $rv['loopback'] = (0 === strcasecmp($rv['code'],
+            static::getSystemMessageIdCode()));
+
         return $rv;
     }
 
@@ -256,7 +305,7 @@ class Mailer {
             'To' => $to,
             'Subject' => $subject,
             'Date'=> date('D, d M Y H:i:s O'),
-            'Message-ID' => $messageId,
+            'Message-ID' => "<{$messageId}>",
             'X-Mailer' =>'osTicket Mailer',
         );
 
@@ -312,17 +361,17 @@ class Mailer {
                     'References' => $options['thread']->getEmailReferences()
                 );
             }
-            elseif ($parent = $options['thread']->getParent()) {
+            elseif ($original = $options['thread']->findOriginalEmailMessage()) {
                 // Use the parent item as the email information source. This
                 // will apply for staff replies
                 $headers += array(
-                    'In-Reply-To' => $parent->getEmailMessageId(),
-                    'References' => $parent->getEmailReferences(),
+                    'In-Reply-To' => $original->getEmailMessageId(),
+                    'References' => $original->getEmailReferences(),
                 );
             }
 
             // Configure the reply tag and embedded message id token
-            $mid_token = $options['thread']->asMessageId($to);
+            $mid_token = $messageId;
             if ($cfg && $cfg->stripQuotedReply()
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
                 $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
@@ -337,17 +386,30 @@ class Mailer {
         }
         $mime = new Mail_mime($eol);
 
+        // Add in extra attachments, if any from template variables
+        if ($message instanceof TextWithExtras
+            && ($files = $message->getFiles())
+        ) {
+            foreach ($files as $F) {
+                $file = $F->getFile();
+                $mime->addAttachment($file->getData(),
+                    $file->getType(), $file->getName(), false);
+            }
+        }
+
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text
         // body
         $isHtml = true;
         if (!(isset($options['text']) && $options['text'])) {
+            // Embed the data-mid in such a way that it should be included
+            // in a response
             if ($reply_tag || $mid_token) {
                 $message = "<div style=\"display:none\"
                     class=\"mid-$mid_token\">$reply_tag</div>$message";
             }
             $txtbody = rtrim(Format::html2text($message, 90, false))
-                . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
+                . ($messageId ? "\nRef-Mid: $messageId\n" : '');
             $mime->setTXTBody($txtbody);
         }
         else {
@@ -368,7 +430,14 @@ class Mailer {
             $self = $this;
             $message = preg_replace_callback('/cid:([\w.-]{32})/',
                 function($match) use ($domain, $mime, $self) {
-                    if (!($file = AttachmentFile::lookup($match[1])))
+                    $file = false;
+                    foreach ($self->attachments as $id=>$F) {
+                        if (strcasecmp($F->getKey(), $match[1]) === 0) {
+                            $file = $F;
+                            break;
+                        }
+                    }
+                    if (!$file)
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
                         $file->getType(), $file->getName(), false,
@@ -382,12 +451,9 @@ class Mailer {
         }
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
-            foreach($attachments as $attachment) {
-                if ($attachment['file_id']
-                        && ($file=AttachmentFile::lookup($attachment['file_id']))) {
-                    $mime->addAttachment($file->getData(),
-                        $file->getType(), $file->getName(),false);
-                }
+            foreach($attachments as $id=>$file) {
+                $mime->addAttachment($file->getData(),
+                    $file->getType(), $file->getName(),false);
             }
         }
 

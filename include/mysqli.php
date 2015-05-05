@@ -90,6 +90,12 @@ function db_autocommit($enable=true) {
     return $__db->autocommit($enable);
 }
 
+function db_rollback() {
+    global $__db;
+
+    return $__db->rollback();
+}
+
 function db_close() {
     global $__db;
     return @$__db->close();

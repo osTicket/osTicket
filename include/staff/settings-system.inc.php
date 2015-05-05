@@ -50,9 +50,8 @@ $gmtime = Misc::gmtime();
                 <select name="default_dept_id">
                     <option value="">&mdash; <?php echo __('Select Default Department');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' WHERE ispublic=1';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id, $name) = db_fetch_row($res)){
+                    if (($depts=Dept::getPublicDepartments())) {
+                        foreach ($depts as $id => $name) {
                             $selected = ($config['default_dept_id']==$id)?'selected="selected"':''; ?>
                             <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?> <?php echo __('Dept');?></option>
                         <?php
@@ -111,12 +110,12 @@ $gmtime = Misc::gmtime();
             <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
             <td>
                 <select name="name_format">
-<?php foreach (PersonsName::allFormats() as $n=>$f) {
-    list($desc, $func) = $f;
-    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
-                    <option value="<?php echo $n; ?>" <?php echo $selected;
-                        ?>><?php echo __($desc); ?></option>
-<?php } ?>
+                <?php foreach (PersonsName::allFormats() as $n=>$f) {
+                    list($desc, $func) = $f;
+                    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
+                                    <option value="<?php echo $n; ?>" <?php echo $selected;
+                                        ?>><?php echo __($desc); ?></option>
+                <?php } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
             </td>
@@ -128,53 +127,162 @@ $gmtime = Misc::gmtime();
                 </em>
             </th>
         </tr>
-        <tr><td width="220" class="required"><?php echo __('Time Format');?>:</td>
+        <tr><td width="220" class="required"><?php echo __('Default Locale');?>:</td>
             <td>
-                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
-                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
-                    <em><?php echo Format::date($config['time_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em></td>
-        </tr>
-        <tr><td width="220" class="required"><?php echo __('Date Format');?>:</td>
-            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
-                        <em><?php echo Format::date($config['date_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
-            </td>
-        </tr>
-        <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
-            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
-                        <em><?php echo Format::date($config['datetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
-            </td>
-        </tr>
-        <tr><td width="220" class="required"><?php echo __('Day, Date and Time Format');?>:</td>
-            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
-                        <em><?php echo Format::date($config['daydatetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
+                <select name="default_locale">
+                    <option value=""><?php echo __('Use Language Preference'); ?></option>
+                    <?php
+                    foreach (Internationalization::allLocales() as $code=>$name) { ?>
+                    <option value="<?php echo $code; ?>" <?php
+                        if ($code == $config['default_locale'])
+                            echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+
+                    <?php
+                    } ?>
+                </select>
             </td>
         </tr>
         <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
-                <select name="default_timezone_id">
-                    <option value="">&mdash; <?php echo __('Select Default Time Zone');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id, $offset, $tz)=db_fetch_row($res)){
-                            $sel=($config['default_timezone_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>', $id, $sel, $offset, $tz);
-                        }
-                    }
-                    ?>
+                <select name="default_timezone" id="timezone-dropdown">
+                <?php
+                foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                    <option value="<?php echo $zone; ?>" <?php
+                    if ($config['default_timezone'] == $zone)
+                        echo 'selected="selected"';
+                    ?>><?php echo str_replace('/',' / ',$zone); ?></option>
+
+                <?php
+                } ?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['default_timezone_id']; ?></font>
+                <button class="action-button" onclick="javascript:
+    $('head').append($('<script>').attr('src', '<?php
+        echo ROOT_PATH; ?>js/jstz.min.js'));
+    var recheck = setInterval(function() {
+        if (window.jstz !== undefined) {
+            clearInterval(recheck);
+            var zone = jstz.determine();
+            $('#timezone-dropdown').val(zone.name()).trigger('chosen:updated');
+
+        }
+    }, 200);
+    return false;"><i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?></button>
+            </td>
+        </tr>
+        <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
+            <td>
+                <select name="date_formats" onchange="javascript:
+    $('#advanced-time').toggle($(this).find(':selected').val() == 'custom');
+">
+<?php foreach (array(
+    '' => __('Locale Defaults'),
+    '24' => __('Locale Defaults, 24-hour Time'),
+    'custom' => '— '.__("Advanced").' —',
+) as $v=>$name) { ?>
+                    <option value="<?php echo $v; ?>" <?php
+                    if ($v == $config['date_formats'])
+                        echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
+                </select>
+            </td>
+        </tr>
+
+    </tbody>
+    <tbody id="advanced-time" <?php if ($config['date_formats'] != 'custom')
+        echo 'style="display:none;"'; ?>>
+        <tr>
+            <td width="220" class="indented required"><?php echo __('Time Format');?>:</td>
+            <td>
+                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
+                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
+                    <em><?php echo Format::time(null, false); ?></em></td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Date Format');?>:</td>
+            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
+                        <em><?php echo Format::date(null, false); ?></em>
+            </td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Date and Time Format');?>:</td>
+            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
+                        <em><?php echo Format::datetime(null, false); ?></em>
+            </td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Day, Date and Time Format');?>:</td>
+            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
+                        <em><?php echo Format::daydatetime(null, false); ?></em>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('System Languages'); ?></b>&nbsp;
+                <i class="help-tip icon-question-sign" href="#languages"></i>
+                </em>
+            </th>
+        </tr>
+        <tr><td><?php echo __('Primary Language'); ?>:</td>
+            <td>
+        <?php
+        $langs = Internationalization::availableLanguages(); ?>
+                <select name="system_language">
+                    <option value="">&mdash; <?php echo __('Select a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['system_language'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+                </select>
+                <span class="error">&nbsp;<?php echo $errors['system_language']; ?></span>
+                <i class="help-tip icon-question-sign" href="#primary_language"></i>
             </td>
         </tr>
         <tr>
-            <td width="220"><?php echo __('Daylight Saving');?>:</td>
-            <td>
-                <input type="checkbox" name="enable_daylight_saving" <?php echo $config['enable_daylight_saving'] ? 'checked="checked"': ''; ?>><?php echo __('Observe daylight savings');?>
-            </td>
-        </tr>
+            <td style="vertical-align:top;padding-top:4px;"><?php echo __('Secondary Languages'); ?>:</td>
+            <td><div id="secondary_langs" style="width: 300px"><?php
+            foreach ($cfg->getSecondaryLanguages() as $lang) {
+                $info = Internationalization::getLanguageInfo($lang); ?>
+            <div class="secondary_lang" style="cursor:move">
+            <i class="icon-sort"></i>&nbsp;
+            <span class="flag flag-<?php echo $info['flag']; ?>"></span>&nbsp;
+            <?php echo Internationalization::getLanguageDescription($lang); ?>
+            <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
+            <div class="pull-right">
+            <a href="#<?php echo $lang; ?>" onclick="javascript:
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $(this).closest('.secondary_lang')
+                        .find('input').remove();
+                    $(this).closest('.secondary_lang').slideUp();
+                }
+                return false;
+                "><i class="icon-trash"></i></a>
+            </div>
+            </div>
+<?php   } ?>
+            <script type="text/javascript">
+            </script>
+            </div>
+            <i class="icon-plus-sign"></i>&nbsp;
+            <select name="add_secondary_language">
+                <option value="">&mdash; <?php echo __('Add a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['add_secondary_language'] == $l['code']) ? 'selected="selected"' : '';
+    if (!$selected && $l['code'] == $cfg->getPrimaryLanguage())
+        continue;
+    if (!$selected && in_array($l['code'], $cfg->getSecondaryLanguages()))
+        continue; ?>
+                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+            </select>
+            <span class="error">&nbsp;<?php echo $errors['add_secondary_language']; ?></span>
+            <i class="help-tip icon-question-sign" href="#secondary_language"></i>
+        </td></tr>
     </tbody>
 </table>
 <p style="padding-left:250px;">
@@ -182,3 +290,14 @@ $gmtime = Misc::gmtime();
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
+<script type="text/javascript">
+(function() {
+    $('#timezone-dropdown').chosen({
+        allow_single_deselect: true,
+        width: '350px'
+    });
+})();
+$('#secondary_langs').sortable({
+    cursor: 'move'
+});
+</script>

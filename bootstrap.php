@@ -43,6 +43,7 @@ class Bootstrap {
                 ini_set('date.timezone', 'America/New_York');
             }
         }
+        date_default_timezone_set('UTC');
 
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
@@ -56,7 +57,7 @@ class Bootstrap {
                 && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
     }
 
-    function defineTables($prefix) {
+    static function defineTables($prefix) {
         #Tables being used sytem wide
         define('SYSLOG_TABLE',$prefix.'syslog');
         define('SESSION_TABLE',$prefix.'session');
@@ -79,23 +80,28 @@ class Bootstrap {
         define('TEAM_TABLE',$prefix.'team');
         define('TEAM_MEMBER_TABLE',$prefix.'team_member');
         define('DEPT_TABLE',$prefix.'department');
-        define('GROUP_TABLE',$prefix.'groups');
+        define('GROUP_TABLE', $prefix.'group');
         define('GROUP_DEPT_TABLE', $prefix.'group_dept_access');
+        define('ROLE_TABLE', $prefix.'role');
 
         define('FAQ_TABLE',$prefix.'faq');
         define('FAQ_TOPIC_TABLE',$prefix.'faq_topic');
         define('FAQ_CATEGORY_TABLE',$prefix.'faq_category');
 
         define('DRAFT_TABLE',$prefix.'draft');
+
+        define('THREAD_TABLE', $prefix.'thread');
+        define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
+        define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+
         define('TICKET_TABLE',$prefix.'ticket');
-        define('TICKET_THREAD_TABLE',$prefix.'ticket_thread');
-        define('TICKET_ATTACHMENT_TABLE',$prefix.'ticket_attachment');
-        define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
+        define('LOCK_TABLE',$prefix.'lock');
         define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
-        define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
-        define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
+        define('TASK_TABLE',$prefix.'task');
 
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
@@ -110,6 +116,7 @@ class Bootstrap {
         define('FORM_ANSWER_TABLE',$prefix.'form_entry_values');
 
         define('TOPIC_TABLE',$prefix.'help_topic');
+        define('TOPIC_FORM_TABLE',$prefix.'help_topic_form');
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');
@@ -118,6 +125,7 @@ class Bootstrap {
 
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
+        define('FILTER_ACTION_TABLE', $prefix.'filter_action');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');
@@ -180,7 +188,9 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
+        require_once INCLUDE_DIR.'class.translation.php';
         require(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.model.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
@@ -188,7 +198,6 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.timezone.php');
         require_once(INCLUDE_DIR.'class.signal.php');
-        require(INCLUDE_DIR.'class.nav.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.

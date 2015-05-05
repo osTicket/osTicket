@@ -18,6 +18,132 @@
 
 class OrmException extends Exception {}
 class OrmConfigurationException extends Exception {}
+// Database fields/tables do not match codebase
+class InconsistentModelException extends OrmException {}
+
+/**
+ * Meta information about a model including edges (relationships), table
+ * name, default sorting information, database fields, etc.
+ *
+ * This class is constructed and built automatically from the model's
+ * ::_inspect method using a class's ::$meta array.
+ */
+class ModelMeta implements ArrayAccess {
+
+    static $base = array(
+        'pk' => false,
+        'table' => false,
+        'defer' => array(),
+        'select_related' => array(),
+        'view' => false,
+    );
+    var $model;
+
+    function __construct($model) {
+        $this->model = $model;
+        $meta = $model::$meta + self::$base;
+
+        // TODO: Merge ModelMeta from parent model (if inherited)
+
+        if (!$meta['table'])
+            throw new OrmConfigurationException(
+                __('Model does not define meta.table'), $model);
+        elseif (!$meta['pk'])
+            throw new OrmConfigurationException(
+                __('Model does not define meta.pk'), $model);
+
+        // Ensure other supported fields are set and are arrays
+        foreach (array('pk', 'ordering', 'defer') as $f) {
+            if (!isset($meta[$f]))
+                $meta[$f] = array();
+            elseif (!is_array($meta[$f]))
+                $meta[$f] = array($meta[$f]);
+        }
+
+        // Break down foreign-key metadata
+        if (!isset($meta['joins']))
+            $meta['joins'] = array();
+        foreach ($meta['joins'] as $field => &$j) {
+            $this->processJoin($j);
+        }
+        unset($j);
+        $this->base = $meta;
+    }
+
+    function processJoin(&$j) {
+        $constraint = array();
+        if (isset($j['reverse'])) {
+            list($fmodel, $key) = explode('.', $j['reverse']);
+            $info = $fmodel::$meta['joins'][$key];
+            if (!is_array($info['constraint']))
+                throw new OrmConfigurationException(sprintf(__(
+                    // `reverse` here is the reverse of an ORM relationship
+                    '%s: Reverse does not specify any constraints'),
+                    $j['reverse']));
+            foreach ($info['constraint'] as $foreign => $local) {
+                list($L,$field) = is_array($local) ? $local : explode('.', $local);
+                $constraint[$field ?: $L] = array($fmodel, $foreign);
+            }
+            if (!isset($j['list']))
+                $j['list'] = true;
+            if (!isset($j['null']))
+                // By default, reverse releationships can be empty lists
+                $j['null'] = true;
+        }
+        else {
+            foreach ($j['constraint'] as $local => $foreign) {
+                list($class, $field) = $constraint[$local]
+                    = explode('.', $foreign);
+            }
+        }
+        foreach ($constraint as $local => $foreign) {
+            list($class, $field) = $foreign;
+            if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
+                continue;
+            $j['fkey'] = $foreign;
+            $j['local'] = $local;
+        }
+        $j['constraint'] = $constraint;
+    }
+
+    function offsetGet($field) {
+        if (!isset($this->base[$field]))
+            $this->setupLazy($field);
+        return $this->base[$field];
+    }
+    function offsetSet($field, $what) {
+        $this->base[$field] = $what;
+    }
+    function offsetExists($field) {
+        return isset($this->base[$field]);
+    }
+    function offsetUnset($field) {
+        throw new Exception('Model MetaData is immutable');
+    }
+
+    function setupLazy($what) {
+        switch ($what) {
+        case 'fields':
+            $this->base['fields'] = self::inspectFields();
+            break;
+        case 'newInstance':
+            $class_repr = sprintf(
+                'O:%d:"%s":0:{}',
+                strlen($this->model), $this->model
+            );
+            $this->base['newInstance'] = function() use ($class_repr) {
+                return unserialize($class_repr);
+            };
+            break;
+        default:
+            throw new Exception($what . ': No such meta-data');
+        }
+    }
+
+    function inspectFields() {
+        return DbEngine::getCompiler()->inspectTable($this['table']);
+    }
+}
 
 class VerySimpleModel {
     static $meta = array(
@@ -27,32 +153,75 @@ class VerySimpleModel {
     );
 
     var $ht;
-    var $dirty;
+    var $dirty = array();
     var $__new__ = false;
+    var $__deleted__ = false;
+    var $__deferred__ = array();
 
     function __construct($row) {
         $this->ht = $row;
-        $this->__setupForeignLists();
-        $this->dirty = array();
     }
 
     function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
         elseif (isset(static::$meta['joins'][$field])) {
-            // TODO: Support instrumented lists and such
-            $j = static::$meta['joins'][$field];
             // Make sure joins were inspected
-            if (isset($j['fkey'])
-                    && ($class = $j['fkey'][0])
-                    && class_exists($class)) {
-                $v = $this->ht[$field] = $class::lookup(
-                    array($j['fkey'][1] => $this->ht[$j['local']]));
+            if (!static::$meta instanceof ModelMeta)
+                static::_inspect();
+            $j = static::$meta['joins'][$field];
+            // Support instrumented lists and such
+            if (isset($j['list']) && $j['list']) {
+                $fkey = $j['fkey'];
+                $v = $this->ht[$field] = new InstrumentedList(
+                    // Send Model, Foriegn-Field, Local-Id
+                    array($fkey[0], $fkey[1], $this->get($j['local']))
+                );
+                return $v;
+            }
+            // Support relationships
+            elseif (isset($j['fkey'])) {
+                $criteria = array();
+                foreach ($j['constraint'] as $local => $foreign) {
+                    list($klas,$F) = $foreign;
+                    if (class_exists($klas))
+                        $class = $klas;
+                    if ($local[0] == "'") {
+                        $criteria[$F] = trim($local,"'");
+                    }
+                    elseif ($F[0] == "'") {
+                        // Does not affect the local model
+                        continue;
+                    }
+                    else {
+                        $criteria[$F] = $this->ht[$local];
+                    }
+                }
+                try {
+                    $v = $this->ht[$field] = $class::lookup($criteria);
+                }
+                catch (DoesNotExist $e) {
+                    $v = null;
+                }
                 return $v;
             }
         }
+        elseif (isset($this->__deferred__[$field])) {
+            // Fetch deferred field
+            $row = static::objects()->filter($this->getPk())
+                // XXX: Seems like all the deferred fields should be fetched
+                ->values_flat($field)
+                ->one();
+            if ($row)
+                return $this->ht[$field] = $row[0];
+        }
+        elseif ($field == 'pk') {
+            return $this->getPk();
+        }
+
         if (isset($default))
             return $default;
+        // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
     }
@@ -71,6 +240,7 @@ class VerySimpleModel {
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
+            // XXX: This is likely not necessary
             if (!isset(static::$meta['joins'][$field]['fkey']))
                 static::_inspect();
             $j = static::$meta['joins'][$field];
@@ -80,33 +250,39 @@ class VerySimpleModel {
                 return;
             }
             if ($value === null) {
+                if (in_array($j['local'], static::$meta['pk'])) {
+                    // Reverse relationship — don't null out local PK
+                    $this->ht[$field] = $value;
+                    return;
+                }
                 // Pass. Set local field to NULL in logic below
             }
             elseif ($value instanceof $j['fkey'][0]) {
-                if ($value->__new__)
-                    $value->save();
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                $value = $value->get($j['fkey'][1]);
+                if ($value->__new__)
+                    // save() will be performed when saving this object
+                    $value = null;
+                else
+                    $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             else
                 throw new InvalidArgumentException(
-                    sprintf(__('Expecting NULL or instance of %s'), $j['fkey'][0]));
+                    sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
+                    $j['fkey'][0], get_class($value)));
 
             // Capture the foreign key id value
             $field = $j['local'];
         }
-        // XXX: Fully support or die if updating pk
-        // XXX: The contents of $this->dirty should be the value after the
-        // previous fetch or save. For instance, if the value is changed more
-        // than once, the original value should be preserved in the dirty list
-        // on the second edit.
         $old = isset($this->ht[$field]) ? $this->ht[$field] : null;
         if ($old != $value) {
-            $this->dirty[$field] = $old;
-            $this->ht[$field] = $value;
+            // isset should not be used here, because `null` should not be
+            // replaced in the dirty array
+            if (!array_key_exists($field, $this->dirty))
+                $this->dirty[$field] = $old;
         }
+        $this->ht[$field] = $value;
     }
     function __set($field, $value) {
         return $this->set($field, $value);
@@ -117,117 +293,145 @@ class VerySimpleModel {
             $this->set($field, $value);
     }
 
-    function __setupForeignLists() {
-        // Construct related lists
-        if (isset(static::$meta['joins'])) {
-            foreach (static::$meta['joins'] as $name => $j) {
-                if (isset($this->ht[$j['local']])
-                        && isset($j['list']) && $j['list']) {
-                    $fkey = $j['fkey'];
-                    $this->set($name, new InstrumentedList(
-                        // Send Model, Foriegn-Field, Local-Id
-                        array($fkey[0], $fkey[1], $this->get($j['local'])))
-                    );
-                }
-            }
-        }
-    }
-
     function __onload() {}
+    static function __oninspect() {}
 
     static function _inspect() {
-        if (!static::$meta['table'])
-            throw new OrmConfigurationException(
-                __('Model does not define meta.table'), get_called_class());
+        if (!static::$meta instanceof ModelMeta) {
+            static::$meta = new ModelMeta(get_called_class());
 
-        // Break down foreign-key metadata
-        foreach (static::$meta['joins'] as $field => &$j) {
-            if (isset($j['reverse'])) {
-                list($model, $key) = explode('.', $j['reverse']);
-                $info = $model::$meta['joins'][$key];
-                $constraint = array();
-                if (!is_array($info['constraint']))
-                    throw new OrmConfigurationException(sprintf(__(
-                        // `reverse` here is the reverse of an ORM relationship
-                        '%s: Reverse does not specify any constraints'),
-                        $j['reverse']));
-                foreach ($info['constraint'] as $foreign => $local) {
-                    list(,$field) = explode('.', $local);
-                    $constraint[$field] = "$model.$foreign";
-                }
-                $j['constraint'] = $constraint;
-                if (!isset($j['list']))
-                    $j['list'] = true;
-            }
-            // XXX: Make this better (ie. composite keys)
-            $keys = array_keys($j['constraint']);
-            $foreign = $j['constraint'][$keys[0]];
-            $j['fkey'] = explode('.', $foreign);
-            $j['local'] = $keys[0];
+            // Let the model participate
+            static::__oninspect();
         }
     }
 
+    /**
+     * objects
+     *
+     * Retrieve a QuerySet for this model class which can be used to fetch
+     * models from the connected database. Subclasses can override this
+     * method to apply forced constraints on the QuerySet.
+     */
     static function objects() {
         return new QuerySet(get_called_class());
     }
 
+    /**
+     * lookup
+     *
+     * Retrieve a record by its primary key. This method may be short
+     * circuited by model caching if the record has already been loaded by
+     * the database. In such a case, the database will not be consulted for
+     * the model's data.
+     *
+     * This method can be called with an array of keyword arguments matching
+     * the PK of the object or the values of the primary key. Both of these
+     * usages are correct:
+     *
+     * >>> User::lookup(1)
+     * >>> User::lookup(array('id'=>1))
+     *
+     * For composite primary keys and the first usage, pass the values in
+     * the order they are given in the Model's 'pk' declaration in its meta
+     * data.
+     *
+     * Parameters:
+     * $criteria - (mixed) primary key for the sought model either as
+     *      arguments or key/value array as the function's first argument
+     *
+     * Returns:
+     * (Object<Model>|null) a single instance of the sought model or null if
+     * no such instance exists.
+     */
     static function lookup($criteria) {
-        if (!is_array($criteria))
-            // Model::lookup(1), where >1< is the pk value
-            $criteria = array(static::$meta['pk'][0] => $criteria);
-        return static::objects()->filter($criteria)->one();
+        // Model::lookup(1), where >1< is the pk value
+        if (!is_array($criteria)) {
+            $criteria = array();
+            foreach (func_get_args() as $i=>$f)
+                $criteria[static::$meta['pk'][$i]] = $f;
+
+            // Only consult cache for PK lookup, which is assumed if the
+            // values are passed as args rather than an array
+            if ($cached = ModelInstanceManager::checkCache(get_called_class(),
+                    $criteria))
+                return $cached;
+        }
+        try {
+            return static::objects()->filter($criteria)->one();
+        }
+        catch (DoesNotExist $e) {
+            return null;
+        }
     }
 
-    function delete($pk=false) {
-        $table = static::$meta['table'];
-        $sql = 'DELETE FROM '.$table;
-        $filter = array();
+    function delete() {
+        $ex = DbEngine::delete($this);
+        try {
+            $ex->execute();
+            if ($ex->affected_rows() != 1)
+                return false;
 
-        if (!$pk) $pk = static::$meta['pk'];
-        if (!is_array($pk)) $pk=array($pk);
-
-        foreach ($pk as $p)
-            $filter[] = $p.' = '.db_input($this->get($p));
-        $sql .= ' WHERE '.implode(' AND ', $filter).' LIMIT 1';
-        if (!db_query($sql) || db_affected_rows() != 1)
-            throw new Exception(db_error());
-        Signal::send('model.deleted', $this);
+            $this->__deleted__ = true;
+            Signal::send('model.deleted', $this);
+        }
+        catch (OrmException $e) {
+            return false;
+        }
         return true;
     }
 
     function save($refetch=false) {
+        if ($this->__deleted__)
+            throw new OrmException('Trying to update a deleted object');
+
         $pk = static::$meta['pk'];
-        if (!is_array($pk)) $pk=array($pk);
-        if ($this->__new__)
-            $sql = 'INSERT INTO '.static::$meta['table'];
-        else
-            $sql = 'UPDATE '.static::$meta['table'];
-        $filter = $fields = array();
-        if (count($this->dirty) === 0)
-            return true;
-        foreach ($this->dirty as $field=>$old) {
-            if ($this->__new__ or !in_array($field, $pk)) {
-                if (@get_class($this->get($field)) == 'SqlFunction')
-                    $fields[] = "`$field` = ".$this->get($field)->toSql();
-                else
-                    $fields[] = "`$field` = ".db_input($this->get($field));
+        $wasnew = $this->__new__;
+
+        // First, if any foreign properties of this object are connected to
+        // another *new* object, then save those objects first and set the
+        // local foreign key field values
+        static::_inspect();
+        foreach (static::$meta['joins'] as $prop => $j) {
+            if (isset($this->ht[$prop])
+                && ($foreign = $this->ht[$prop])
+                && $foreign instanceof VerySimpleModel
+                && !in_array($j['local'], $pk)
+                && null === $this->get($j['local'])
+            ) {
+                if ($foreign->__new__ && !$foreign->save())
+                    return false;
+                $this->set($j['local'], $foreign->get($j['fkey'][1]));
             }
         }
-        $sql .= ' SET '.implode(', ', $fields);
-        if (!$this->__new__) {
-            foreach ($pk as $p)
-                $filter[] = $p.' = '.db_input($this->get($p));
-            $sql .= ' WHERE '.implode(' AND ', $filter);
-            $sql .= ' LIMIT 1';
+
+        // If there's nothing in the model to be saved, then we're done
+        if (count($this->dirty) === 0)
+            return true;
+
+        $ex = DbEngine::save($this);
+        try {
+            $ex->execute();
+            if ($ex->affected_rows() != 1) {
+                // This doesn't really signify an error. It just means that
+                // the database believes that the row did not change. For
+                // inserts though, it's a deal breaker
+                if ($this->__new__)
+                    return false;
+                else
+                    // No need to reload the record if requested — the
+                    // database didn't update anything
+                    $refetch = false;
+            }
         }
-        if (!db_query($sql) || db_affected_rows() != 1)
-            throw new Exception(db_error());
-        if ($this->__new__) {
+        catch (OrmException $e) {
+            return false;
+        }
+
+        if ($wasnew) {
             if (count($pk) == 1)
-                $this->ht[$pk[0]] = db_insert_id();
+                // XXX: Ensure AUTO_INCREMENT is set for the field
+                $this->ht[$pk[0]] = $ex->insert_id();
             $this->__new__ = false;
-            // Setup lists again
-            $this->__setupForeignLists();
             Signal::send('model.created', $this);
         }
         else {
@@ -235,15 +439,38 @@ class VerySimpleModel {
             Signal::send('model.updated', $this, $data);
         }
         # Refetch row from database
-        # XXX: Too much voodoo
         if ($refetch) {
-            # XXX: Support composite PK
-            $criteria = array($pk[0] => $this->get($pk[0]));
-            $self = static::lookup($criteria);
-            $this->ht = $self->ht;
+            // Preserve non database information such as list relationships
+            // across the refetch
+            $this->ht =
+                static::objects()->filter($this->getPk())->values()->one()
+                + $this->ht;
+        }
+        if ($wasnew) {
+            // Attempt to update foreign, unsaved objects with the PK of
+            // this newly created object
+            foreach (static::$meta['joins'] as $prop => $j) {
+                if (isset($this->ht[$prop])
+                    && ($foreign = $this->ht[$prop])
+                    && in_array($j['local'], $pk)
+                ) {
+                    if ($foreign instanceof VerySimpleModel
+                        && null === $foreign->get($j['fkey'][1])
+                    ) {
+                        $foreign->set($j['fkey'][1], $this->get($j['local']));
+                    }
+                    elseif ($foreign instanceof InstrumentedList) {
+                        foreach ($foreign as $item) {
+                            if (null === $item->get($j['fkey'][1]))
+                                $item->set($j['fkey'][1], $this->get($j['local']));
+                        }
+                    }
+                }
+            }
+            $this->__onload();
         }
         $this->dirty = array();
-        return $this->get($pk[0]);
+        return true;
     }
 
     static function create($ht=false) {
@@ -256,17 +483,87 @@ class VerySimpleModel {
                 $i->set($field, $value);
         return $i;
     }
+
+    private function getPk() {
+        $pk = array();
+        foreach ($this::$meta['pk'] as $f)
+            $pk[$f] = $this->ht[$f];
+        return $pk;
+    }
+}
+
+/**
+ * AnnotatedModel
+ *
+ * Simple wrapper class which allows wrapping and write-protecting of
+ * annotated fields retrieved from the database. Instances of this class
+ * will delegate most all of the heavy lifting to the wrapped Model instance.
+ */
+class AnnotatedModel {
+
+    var $model;
+    var $annotations;
+
+    function __construct($model, $annotations) {
+        $this->model = $model;
+        $this->annotations = $annotations;
+    }
+
+    function __get($what) {
+        return $this->get($what);
+    }
+    function get($what) {
+        if (isset($this->annotations[$what]))
+            return $this->annotations[$what];
+        return $this->model->get($what, null);
+    }
+    function __set($what, $to) {
+        return $this->set($what, $to);
+    }
+    function set($what, $to) {
+        if (isset($this->annotations[$what]))
+            throw new OrmException('Annotated fields are read-only');
+        return $this->model->set($what, $to);
+    }
+
+    // Delegate everything else to the model
+    function __call($what, $how) {
+        return call_user_func_array(array($this->model, $what), $how);
+    }
 }
 
 class SqlFunction {
+    var $alias;
+
     function SqlFunction($name) {
         $this->func = $name;
         $this->args = array_slice(func_get_args(), 1);
     }
 
-    function toSql($compiler=false) {
-        $args = (count($this->args)) ? implode(',', db_input($this->args)) : "";
-        return sprintf('%s(%s)', $this->func, $args);
+    function input($what, $compiler, $model) {
+        if ($what instanceof SqlFunction)
+            $A = $what->toSql($compiler, $model);
+        elseif ($what instanceof Q)
+            $A = $compiler->compileQ($what, $model);
+        else
+            $A = $compiler->input($what);
+        return $A;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $args = array();
+        foreach ($this->args as $A) {
+            $args[] = $this->input($A, $compiler, $model);
+        }
+        return sprintf('%s(%s)%s', $this->func, implode(',', $args),
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
+    }
+
+    function getAlias() {
+        return $this->alias;
+    }
+    function setAlias($alias) {
+        $this->alias = $alias;
     }
 
     static function __callStatic($func, $args) {
@@ -276,26 +573,227 @@ class SqlFunction {
     }
 }
 
-class QuerySet implements IteratorAggregate, ArrayAccess {
+class SqlCase extends SqlFunction {
+    var $cases = array();
+    var $else = false;
+
+    static function N() {
+        return new static('CASE');
+    }
+
+    function when($expr, $result) {
+        $this->cases[] = array($expr, $result);
+        return $this;
+    }
+    function otherwise($result) {
+        $this->else = $result;
+        return $this;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $cases = array();
+        foreach ($this->cases as $A) {
+            list($expr, $result) = $A;
+            $expr = $this->input($expr, $compiler, $model);
+            $result = $this->input($result, $compiler, $model);
+            $cases[] = "WHEN {$expr} THEN {$result}";
+        }
+        if ($this->else) {
+            $else = $this->input($this->else, $compiler, $model);
+            $cases[] = "ELSE {$else}";
+        }
+        return sprintf('CASE %s END%s', implode(' ', $cases),
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
+    }
+}
+
+class SqlExpr extends SqlFunction {
+    function __construct($args) {
+        $this->args = $args;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $O = array();
+        foreach ($this->args as $field=>$value) {
+            list($field, $op) = $compiler->getField($field, $model);
+            if (is_callable($op))
+                $O[] = call_user_func($op, $field, $value, $model);
+            else
+                $O[] = sprintf($op, $field, $compiler->input($value));
+        }
+        return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
+    }
+}
+
+class SqlExpression extends SqlFunction {
+    var $operator;
+    var $operands;
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $O = array();
+        foreach ($this->args as $operand) {
+            if ($operand instanceof SqlFunction)
+                $O[] = $operand->toSql($compiler, $model);
+            else
+                $O[] = $compiler->input($operand);
+        }
+        return implode(' '.$this->func.' ', $O)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '');
+    }
+
+    static function __callStatic($operator, $operands) {
+        switch ($operator) {
+            case 'minus':
+                $operator = '-'; break;
+            case 'plus':
+                $operator = '+'; break;
+            case 'times':
+                $operator = '*'; break;
+            case 'bitand':
+                $operator = '&'; break;
+            case 'bitor':
+                $operator = '|'; break;
+            default:
+                throw new InvalidArgumentException('Invalid operator specified');
+        }
+        return parent::__callStatic($operator, $operands);
+    }
+}
+
+class SqlInterval extends SqlFunction {
+    var $type;
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $A = $this->args[0];
+        if ($A instanceof SqlFunction)
+            $A = $A->toSql($compiler, $model);
+        else
+            $A = $compiler->input($A);
+        return sprintf('INTERVAL %s %s',
+            $A,
+            $this->func)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '');
+    }
+
+    static function __callStatic($interval, $args) {
+        if (count($args) != 1) {
+            throw new InvalidArgumentException("Interval expects a single interval value");
+        }
+        return parent::__callStatic($interval, $args);
+    }
+}
+
+class SqlField extends SqlFunction {
+    function __construct($field) {
+        $this->field = $field;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        list($field) = $compiler->getField($this->field, $model);
+        return $field;
+    }
+}
+
+class SqlCode extends SqlFunction {
+    function __construct($code) {
+        $this->code = $code;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        return $this->code;
+    }
+}
+
+class SqlAggregate extends SqlFunction {
+
+    var $func;
+    var $expr;
+    var $distinct=false;
+    var $constraint=false;
+
+    function __construct($func, $expr, $distinct=false, $constraint=false) {
+        $this->func = $func;
+        $this->expr = $expr;
+        $this->distinct = $distinct;
+        if ($constraint instanceof Q)
+            $this->constraint = $constraint;
+        elseif ($constraint)
+            $this->constraint = new Q($constraint);
+    }
+
+    static function __callStatic($func, $args) {
+        $distinct = @$args[1] ?: false;
+        $constraint = @$args[2] ?: false;
+        return new static($func, $args[0], $distinct, $constraint);
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $options = array('constraint' => $this->constraint, 'model' => true);
+
+        // For DISTINCT, require a field specification — not a relationship
+        // specification.
+        $E = $this->expr;
+        if ($E instanceof SqlFunction) {
+            $field = $E->toSql($compiler, $model, $alias);
+        }
+        else {
+        list($field, $rmodel) = $compiler->getField($E, $model, $options);
+        if ($this->distinct) {
+            $pk = false;
+            foreach ($rmodel::$meta['pk'] as $f) {
+                $pk |= false !== strpos($field, $f);
+            }
+            if (!$pk) {
+                // Try and use the foriegn primary key
+                if (count($rmodel::$meta['pk']) == 1) {
+                    list($field) = $compiler->getField(
+                        $this->expr . '__' . $rmodel::$meta['pk'][0],
+                        $model, $options);
+                }
+                else {
+                    throw new OrmException(
+                        sprintf('%s :: %s', $rmodel, $field) .
+                        ': DISTINCT aggregate expressions require specification of a single primary key field of the remote model'
+                    );
+                }
+            }
+        }
+        }
+
+        return sprintf('%s(%s%s)%s', $this->func,
+            $this->distinct ? 'DISTINCT ' : '', $field,
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
+    }
+
+    function getFieldName() {
+        return strtolower(sprintf('%s__%s', $this->args[0], $this->func));
+    }
+}
+
+class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countable {
     var $model;
 
     var $constraints = array();
-    var $exclusions = array();
     var $ordering = array();
     var $limit = false;
     var $offset = 0;
     var $related = array();
     var $values = array();
+    var $defer = array();
+    var $annotations = array();
+    var $extra = array();
+    var $distinct = array();
     var $lock = false;
 
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
 
     var $compiler = 'MySqlCompiler';
-    var $iterator = 'ModelInstanceIterator';
+    var $iterator = 'ModelInstanceManager';
 
     var $params;
     var $query;
+    var $count;
 
     function __construct($model) {
         $this->model = $model;
@@ -303,18 +801,35 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
     function filter() {
         // Multiple arrays passes means OR
-        $this->constraints[] = func_get_args();
+        foreach (func_get_args() as $Q) {
+            $this->constraints[] = $Q instanceof Q ? $Q : new Q($Q);
+        }
         return $this;
     }
 
     function exclude() {
-        $this->exclusions[] = func_get_args();
+        foreach (func_get_args() as $Q) {
+            $this->constraints[] = $Q instanceof Q ? $Q->negate() : Q::not($Q);
+        }
         return $this;
     }
 
-    function order_by() {
-        $this->ordering = array_merge($this->ordering, func_get_args());
+    function defer() {
+        foreach (func_get_args() as $f)
+            $this->defer[$f] = true;
         return $this;
+    }
+
+    function order_by($order) {
+        $this->ordering = array_merge($this->ordering,
+            is_array($order) ?  $order : func_get_args());
+        return $this;
+    }
+    function getSortFields() {
+        $ordering = $this->ordering;
+        if ($this->extra['order_by'])
+            $ordering = array_merge($ordering, $this->extra['order_by']);
+        return $ordering;
     }
 
     function lock($how=false) {
@@ -332,20 +847,48 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this;
     }
 
+    function isWindowed() {
+        return $this->limit || $this->offset;
+    }
+
     function select_related() {
         $this->related = array_merge($this->related, func_get_args());
         return $this;
     }
 
+    function extra(array $extra) {
+        foreach ($extra as $section=>$info) {
+            $this->extra[$section] = array_merge($this->extra[$section] ?: array(), $info);
+        }
+        return $this;
+    }
+
+    function distinct() {
+        foreach (func_get_args() as $D)
+            $this->distinct[] = $D;
+        return $this;
+    }
+
+    function models() {
+        $this->iterator = 'ModelInstanceManager';
+        $this->values = $this->related = array();
+        return $this;
+    }
+
     function values() {
-        $this->values = func_get_args();
+        foreach (func_get_args() as $A)
+            $this->values[$A] = $A;
         $this->iterator = 'HashArrayIterator';
+        // This disables related models
+        $this->related = false;
         return $this;
     }
 
     function values_flat() {
         $this->values = func_get_args();
         $this->iterator = 'FlatArrayIterator';
+        // This disables related models
+        $this->related = false;
         return $this;
     }
 
@@ -353,25 +896,93 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
         return $this->getIterator()->asArray();
     }
 
-    function one() {
+    function first() {
         $list = $this->limit(1)->all();
+        return $list[0];
+    }
+
+    /**
+     * one
+     *
+     * Finds and returns a single model instance based on the criteria in
+     * this QuerySet instance.
+     *
+     * Throws:
+     * DoesNotExist - if no such model exists with the given criteria
+     * ObjectNotUnique - if more than one model matches the given criteria
+     *
+     * Returns:
+     * (Object<Model>) a single instance of the sought model is guarenteed.
+     * If no such model or multiple models exist, an exception is thrown.
+     */
+    function one() {
+        $list = $this->all();
+        if (count($list) == 0)
+            throw new DoesNotExist();
+        elseif (count($list) > 1)
+            throw new ObjectNotUnique('One object was expected; however '
+                .'multiple objects in the database matched the query. '
+                .sprintf('In fact, there are %d matching objects.', count($list))
+            );
         // TODO: Throw error if more than one result from database
-        return $this[0];
+        return $list[0];
     }
 
     function count() {
+        // Defer to the iterator if fetching already started
+        if (isset($this->_iterator)) {
+            return $this->_iterator->count();
+        }
+        elseif (isset($this->_count)) {
+            return $this->_count;
+        }
         $class = $this->compiler;
         $compiler = new $class();
-        return $compiler->compileCount($this);
+        return $this->_count = $compiler->compileCount($this);
     }
 
-    function exists() {
+    /**
+     * exists
+     *
+     * Determines if there are any rows in this QuerySet. This can be
+     * achieved either by evaluating a SELECT COUNT(*) query or by
+     * attempting to fetch the first row from the recordset and return
+     * boolean success.
+     *
+     * Parameters:
+     * $fetch - (bool) TRUE if a compile and fetch should be attempted
+     *      instead of a SELECT COUNT(*). This would be recommended if an
+     *      accurate count is not required and the records would be fetched
+     *      if this method returns TRUE.
+     *
+     * Returns:
+     * (bool) TRUE if there would be at least one record in this QuerySet
+     */
+    function exists($fetch=false) {
+        if ($fetch) {
+            return (bool) $this[0];
+        }
         return $this->count() > 0;
+    }
+
+    function annotate($annotations) {
+        if (!is_array($annotations))
+            $annotations = func_get_args();
+        foreach ($annotations as $name=>$A) {
+            if ($A instanceof SqlAggregate) {
+                if (is_int($name))
+                    $name = $A->getFieldName();
+                $A->setAlias($name);
+            }
+            $this->annotations[$name] = $A;
+        }
+        return $this;
     }
 
     function delete() {
         $class = $this->compiler;
         $compiler = new $class();
+        // XXX: Mark all in-memory cached objects as deleted
         $ex = $compiler->compileBulkDelete($this);
         $ex->execute();
         return $ex->affected_rows();
@@ -422,23 +1033,70 @@ class QuerySet implements IteratorAggregate, ArrayAccess {
 
         // Load defaults from model
         $model = $this->model;
-        if (!$this->ordering && isset($model::$meta['ordering']))
-            $this->ordering = $model::$meta['ordering'];
+        $query = clone $this;
+        if (!$query->ordering && isset($model::$meta['ordering']))
+            $query->ordering = $model::$meta['ordering'];
+        if (false !== $query->related && !$query->values && $model::$meta['select_related'])
+            $query->related = $model::$meta['select_related'];
+        if (!$query->defer && $model::$meta['defer'])
+            $query->defer = $model::$meta['defer'];
 
         $class = $this->compiler;
         $compiler = new $class($options);
-        $this->query = $compiler->compileSelect($this);
+        $this->query = $compiler->compileSelect($query);
 
         return $this->query;
     }
+
+    /**
+     * Fetch a model class which can be used to render the QuerySet as a
+     * subquery to be used as a JOIN.
+     */
+    function asView() {
+        $unique = spl_object_hash($this);
+        $classname = "QueryView{$unique}";
+        $class = <<<EOF
+class {$classname} extends VerySimpleModel {
+    static \$meta = array(
+        'view' => true,
+    );
+    static \$queryset;
+
+    static function getQuery(\$compiler) {
+        return ' ('.static::\$queryset->getQuery().') ';
+    }
+}
+EOF;
+        eval($class); // Ugh
+        $classname::$queryset = $this;
+        return $classname;
+    }
+
+    function serialize() {
+        $info = get_object_vars($this);
+        unset($info['query']);
+        unset($info['limit']);
+        unset($info['offset']);
+        unset($info['_iterator']);
+        return serialize($info);
+    }
+
+    function unserialize($data) {
+        $data = unserialize($data);
+        foreach ($data as $name => $val) {
+            $this->{$name} = $val;
+        }
+    }
 }
 
-class ModelInstanceIterator implements Iterator, ArrayAccess {
-    var $model;
+class DoesNotExist extends Exception {}
+class ObjectNotUnique extends Exception {}
+
+abstract class ResultSet implements Iterator, ArrayAccess, Countable {
     var $resource;
-    var $cache = array();
     var $position = 0;
     var $queryset;
+    var $cache = array();
 
     function __construct($queryset=false) {
         $this->queryset = $queryset;
@@ -448,24 +1106,7 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
         }
     }
 
-    function buildModel($row) {
-        // TODO: Traverse to foreign keys
-        $model = new $this->model($row); # nolint
-        $model->__onload();
-        return $model;
-    }
-
-    function fillTo($index) {
-        while ($this->resource && $index >= count($this->cache)) {
-            if ($row = $this->resource->getArray()) {
-                $this->cache[] = $this->buildModel($row);
-            } else {
-                $this->resource->close();
-                $this->resource = null;
-                break;
-            }
-        }
-    }
+    abstract function fillTo($index);
 
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
@@ -506,9 +1147,173 @@ class ModelInstanceIterator implements Iterator, ArrayAccess {
     function offsetSet($a, $b) {
         throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
     }
+
+    // Countable interface
+    function count() {
+        return count($this->asArray());
+    }
 }
 
-class FlatArrayIterator extends ModelInstanceIterator {
+class ModelInstanceManager extends ResultSet {
+    var $model;
+    var $map;
+
+    static $objectCache = array();
+
+    function __construct($queryset=false) {
+        parent::__construct($queryset);
+        if ($queryset) {
+            $this->map = $this->resource->getMap();
+        }
+    }
+
+    function cache($model) {
+        $model::_inspect();
+        $key = sprintf('%s.%s',
+            $model::$meta->model, implode('.', $model->pk));
+        self::$objectCache[$key] = $model;
+    }
+
+    /**
+     * uncache
+     *
+     * Drop the cached reference to the model. If the model is deleted
+     * database-side. Lookups for the same model should not be short
+     * circuited to retrieve the cached reference.
+     */
+    static function uncache($model) {
+        $key = sprintf('%s.%s',
+            $model::$meta->model, implode('.', $model->pk));
+        unset(self::$objectCache[$key]);
+    }
+
+    static function checkCache($modelClass, $fields) {
+        $key = $modelClass;
+        foreach ($modelClass::$meta['pk'] as $f)
+            $key .= '.'.$fields[$f];
+        return @self::$objectCache[$key];
+    }
+
+    /**
+     * getOrBuild
+     *
+     * Builds a new model from the received fields or returns the model
+     * already stashed in the model cache. Caching helps to ensure that
+     * multiple lookups for the same model identified by primary key will
+     * fetch the exact same model. Therefore, changes made to the model
+     * anywhere in the project will be reflected everywhere.
+     *
+     * For annotated models (models build from querysets with annotations),
+     * the built or cached model is wrapped in an AnnotatedModel instance.
+     * The annotated fields are in the AnnotatedModel instance and the
+     * database-backed fields are managed by the Model instance.
+     */
+    function getOrBuild($modelClass, $fields, $cache=true) {
+        // Check for NULL primary key, used with related model fetching. If
+        // the PK is NULL, then consider the object to also be NULL
+        foreach ($modelClass::$meta['pk'] as $pkf) {
+            if (!isset($fields[$pkf])) {
+                return null;
+            }
+        }
+        $annotations = $this->queryset->annotations;
+        $extras = array();
+        // For annotations, drop them from the $fields list and add them to
+        // an $extras list. The fields passed to the root model should only
+        // be the root model's fields. The annotated fields will be wrapped
+        // using an AnnotatedModel instance.
+        if ($annotations && $modelClass == $this->model) {
+            foreach ($annotations as $name=>$A) {
+                if (isset($fields[$name])) {
+                    $extras[$name] = $fields[$name];
+                    unset($fields[$name]);
+                }
+            }
+        }
+        // Check the cache for the model instance first
+        if (!($m = self::checkCache($modelClass, $fields))) {
+            // Construct and cache the object
+            $m = new $modelClass($fields);
+            // XXX: defer may refer to fields not in this model
+            $m->__deferred__ = $this->queryset->defer;
+            $m->__onload();
+            if ($cache)
+                $this->cache($m);
+        }
+        // Wrap annotations in an AnnotatedModel
+        if ($extras) {
+            $m = new AnnotatedModel($m, $extras);
+        }
+        // TODO: If the model has deferred fields which are in $fields,
+        // those can be resolved here
+        return $m;
+    }
+
+    /**
+     * buildModel
+     *
+     * This method builds the model including related models from the record
+     * received. For related recordsets, a $map should be setup inside this
+     * object prior to using this method. The $map is assumed to have this
+     * configuration:
+     *
+     * array(array(<fieldNames>, <modelClass>, <relativePath>))
+     *
+     * Where $modelClass is the name of the foreign (with respect to the
+     * root model ($this->model), $fieldNames is the number and names of
+     * fields in the row for this model, $relativePath is the path that
+     * describes the relationship between the root model and this model,
+     * 'user__account' for instance.
+     */
+    function buildModel($row) {
+        // TODO: Traverse to foreign keys
+        if ($this->map) {
+            if ($this->model != $this->map[0][1])
+                throw new OrmException('Internal select_related error');
+
+            $offset = 0;
+            foreach ($this->map as $info) {
+                @list($fields, $model_class, $path) = $info;
+                $values = array_slice($row, $offset, count($fields));
+                $record = array_combine($fields, $values);
+                if (!$path) {
+                    // Build the root model
+                    $model = $this->getOrBuild($this->model, $record);
+                }
+                elseif ($model) {
+                    $i = 0;
+                    // Traverse the declared path and link the related model
+                    $tail = array_pop($path);
+                    $m = $model;
+                    foreach ($path as $field) {
+                        $m = $m->get($field);
+                    }
+                    $m->set($tail, $this->getOrBuild($model_class, $record));
+                }
+                $offset += count($fields);
+            }
+        }
+        else {
+            $model = $this->getOrBuild($this->model, $row);
+        }
+        return $model;
+    }
+
+    function fillTo($index) {
+        $func = ($this->map) ? 'getRow' : 'getArray';
+        while ($this->resource && $index >= count($this->cache)) {
+            if ($row = $this->resource->{$func}()) {
+                $this->cache[] = $this->buildModel($row);
+            } else {
+                $this->resource->close();
+                $this->resource = null;
+                break;
+            }
+        }
+    }
+}
+
+class FlatArrayIterator extends ResultSet {
     function __construct($queryset) {
         $this->resource = $queryset->getQuery();
     }
@@ -525,7 +1330,24 @@ class FlatArrayIterator extends ModelInstanceIterator {
     }
 }
 
-class InstrumentedList extends ModelInstanceIterator {
+class HashArrayIterator extends ResultSet {
+    function __construct($queryset) {
+        $this->resource = $queryset->getQuery();
+    }
+    function fillTo($index) {
+        while ($this->resource && $index >= count($this->cache)) {
+            if ($row = $this->resource->getArray()) {
+                $this->cache[] = $row;
+            } else {
+                $this->resource->close();
+                $this->resource = null;
+                break;
+            }
+        }
+    }
+}
+
+class InstrumentedList extends ModelInstanceManager {
     var $key;
     var $id;
     var $model;
@@ -545,15 +1367,17 @@ class InstrumentedList extends ModelInstanceIterator {
             throw new Exception(__('Attempting to add invalid object to list'));
 
         $object->set($this->key, $this->id);
-        $object->save();
 
         if ($at !== false)
             $this->cache[$at] = $object;
         else
             $this->cache[] = $object;
     }
-    function remove($object) {
-        $object->delete();
+    function remove($object, $delete=true) {
+        if ($delete)
+            $object->delete();
+        else
+            $object->set($this->key, null);
     }
 
     function reset() {
@@ -588,6 +1412,11 @@ class InstrumentedList extends ModelInstanceIterator {
         $this->fillTo($a);
         $this->cache[$a]->delete();
         $this->add($b, $a);
+    }
+
+    // QuerySet overriedes
+    function __call($what, $how) {
+        return call_user_func_array(array($this->objects(), $what), $how);
     }
 }
 
@@ -652,10 +1481,22 @@ class SqlCompiler {
      *
      * If no comparison function is declared in the field descriptor,
      * 'exact' is assumed.
+     *
+     * Parameters:
+     * $field - (string) name of the field to join
+     * $model - (VerySimpleModel) root model for references in the $field
+     *      parameter
+     * $options - (array) extra options for the compiler
+     *      'table' => return the table alias rather than the field-name
+     *      'model' => return the target model class rather than the operator
+     *      'constraint' => extra constraint for join clause
+     *
+     * Returns:
+     * (mixed) Usually array<field-name, operator> where field-name is the
+     * name of the field in the destination model, and operator is the
+     * requestion comparison method.
      */
     function getField($field, $model, $options=array()) {
-        $joins = array();
-
         // Break apart the field descriptor by __ (double-underbars). The
         // first part is assumed to be the root field in the given model.
         // The parts after each of the __ pieces are links to other tables.
@@ -665,41 +1506,71 @@ class SqlCompiler {
         $operator = static::$operators['exact'];
         if (!isset($options['table'])) {
             $field = array_pop($parts);
-            if (array_key_exists($field, static::$operators)) {
+            if (isset(static::$operators[$field])) {
                 $operator = static::$operators[$field];
                 $field = array_pop($parts);
             }
         }
 
         $path = array();
-        $crumb = '';
-        $alias = $this->quote($model::$meta['table']);
+        $rootModel = $model;
 
-        // Traverse through the parts and establish joins between the tables
-        // if the field is joined to a foreign model
-        if (count($parts) && isset($model::$meta['joins'][$parts[0]])) {
-            // Call pushJoin for each segment in the join path. A new
-            // JOIN fragment will need to be emitted and/or cached
-            foreach ($parts as $p) {
-                $path[] = $p;
-                $tip = implode('__', $path);
-                $info = $model::$meta['joins'][$p];
-                $alias = $this->pushJoin($crumb, $tip, $model, $info);
-                // Roll to foreign model
-                foreach ($info['constraint'] as $local => $foreign) {
-                    list($model, $f) = explode('.', $foreign);
-                    if (class_exists($model))
-                        break;
-                }
-                $crumb = $tip;
+        // Call pushJoin for each segment in the join path. A new JOIN
+        // fragment will need to be emitted and/or cached
+        $joins = array();
+        $push = function($p, $path, $model) use (&$joins) {
+            $model::_inspect();
+            if (!($info = $model::$meta['joins'][$p])) {
+                throw new OrmException(sprintf(
+                   'Model `%s` does not have a relation called `%s`',
+                    $model, $p));
             }
+            $crumb = implode('__', $path);
+            $tip = ($crumb) ? "{$crumb}__{$p}" : $p;
+            $joins[] = array($crumb, $tip, $model, $info);
+            // Roll to foreign model
+            return $info['fkey'];
+        };
+
+        foreach ($parts as $p) {
+            list($model) = $push($p, $path, $model);
+            $path[] = $p;
         }
+
+        // If comparing a relationship, join the foreign table
+        // This is a comparison with a relationship — use the foreign key
+        if (isset($model::$meta['joins'][$field])) {
+            list($model, $field) = $push($field, $path, $model);
+        }
+
+        // Add the conststraint as the last arg to the last join
+        if (isset($options['constraint'])) {
+            $joins[count($joins)-1][] = $options['constraint'];
+        }
+
+        // Apply the joins list to $this->pushJoin
+        foreach ($joins as $A) {
+            $alias = call_user_func_array(array($this, 'pushJoin'), $A);
+        }
+
+        if (!isset($alias)) {
+            // Determine the alias for the root model table
+            $alias = (isset($this->joins['']))
+                ? $this->joins['']['alias']
+                : $this->quote($rootModel::$meta['table']);
+        }
+
         if (isset($options['table']) && $options['table'])
             $field = $alias;
+        elseif (isset($this->annotations[$field]))
+            $field = $this->annotations[$field];
         elseif ($alias)
             $field = $alias.'.'.$this->quote($field);
         else
             $field = $this->quote($field);
+
+        if (isset($options['model']) && $options['model'])
+            $operator = $model;
         return array($field, $operator);
     }
 
@@ -711,14 +1582,14 @@ class SqlCompiler {
      * algorithm is short-circuited and the originally-assigned table alias
      * is returned immediately.
      */
-    function pushJoin($tip, $path, $model, $info) {
+    function pushJoin($tip, $path, $model, $info, $constraint=false) {
         // TODO: Build the join statement fragment and return the table
         // alias. The table alias will be useful where the join is used in
         // the WHERE and ORDER BY clauses
 
         // If the join already exists for the statement-being-compiled, just
         // return the alias being used.
-        if (isset($this->joins[$path]))
+        if (!$constraint && isset($this->joins[$path]))
             return $this->joins[$path]['alias'];
 
         // TODO: Support only using aliases if necessary. Use actual table
@@ -736,46 +1607,109 @@ class SqlCompiler {
         // TODO: Always use a table alias. This will further help with
         // coordination between the data returned from the database (where
         // table alias is available) and the corresponding data.
-        $this->joins[$path] = array(
-            'alias' => $alias,
-            'sql'=> $this->compileJoin($tip, $model, $alias, $info),
-        );
+        $T = array('alias' => $alias);
+        $this->joins[$path] = $T;
+        $this->joins[$path]['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
         return $alias;
+    }
+
+    /**
+     * compileQ
+     *
+     * Build a constraint represented in an arbitrarily nested Q instance.
+     * The placement of the compiled constraint is also considered and
+     * represented in the resulting CompiledExpression instance.
+     *
+     * Parameters:
+     * $Q - (Q) constraint represented in a Q instance
+     * $model - (VerySimpleModel) root model for all the field references in
+     *      the Q instance
+     * $slot - (int) slot for inputs to be placed. Useful to differenciate
+     *      inputs placed in the joins and where clauses for SQL engines
+     *      which do not support named parameters.
+     *
+     * Returns:
+     * (CompiledExpression) object containing the compiled expression (with
+     * AND, OR, and NOT operators added). Furthermore, the $type attribute
+     * of the CompiledExpression will allow the compiler to place the
+     * constraint properly in the WHERE or HAVING clause appropriately.
+     */
+    function compileQ(Q $Q, $model, $slot=false) {
+        $filter = array();
+        $type = CompiledExpression::TYPE_WHERE;
+        foreach ($Q->constraints as $field=>$value) {
+            // Handle nested constraints
+            if ($value instanceof Q) {
+                $filter[] = $T = $this->compileQ($value, $model, $slot);
+                // Bubble up HAVING constraints
+                if ($T instanceof CompiledExpression
+                        && $T->type == CompiledExpression::TYPE_HAVING)
+                    $type = $T->type;
+            }
+            // Handle relationship comparisons with model objects
+            elseif ($value instanceof VerySimpleModel) {
+                $criteria = array();
+                foreach ($value->pk as $f=>$v) {
+                    $f = $field . '__' . $f;
+                    $criteria[$f] = $v;
+                }
+                $filter[] = $this->compileQ(new Q($criteria), $model, $slot);
+            }
+            // Handle simple field = <value> constraints
+            else {
+                list($field, $op) = $this->getField($field, $model);
+                if ($field instanceof SqlAggregate) {
+                    // This constraint has to go in the HAVING clause
+                    $field = $field->toSql($this, $model);
+                    $type = CompiledExpression::TYPE_HAVING;
+                }
+                if ($value === null)
+                    $filter[] = sprintf('%s IS NULL', $field);
+                // Allow operators to be callable rather than sprintf
+                // strings
+                elseif (is_callable($op))
+                    $filter[] = call_user_func($op, $field, $value, $model);
+                else
+                    $filter[] = sprintf($op, $field, $this->input($value, $slot));
+            }
+        }
+        $glue = $Q->isOred() ? ' OR ' : ' AND ';
+        $clause = implode($glue, $filter);
+        if (count($filter) > 1)
+            $clause = '(' . $clause . ')';
+        if ($Q->isNegated())
+            $clause = 'NOT '.$clause;
+        return new CompiledExpression($clause, $type);
     }
 
     function compileConstraints($where, $model) {
         $constraints = array();
-        foreach ($where as $constraint) {
-            $filter = array();
-            foreach ($constraint as $field=>$value) {
-                list($field, $op) = $this->getField($field, $model);
-                // Allow operators to be callable rather than sprintf
-                // strings
-                if ($value === null)
-                    $filter[] = sprintf('%s IS NULL', $field);
-                elseif (is_callable($op))
-                    $filter[] = call_user_func($op, $field, $value);
-                else
-                    $filter[] = sprintf($op, $field, $this->input($value));
-            }
-            // Multiple constraints here are ANDed together
-            $constraints[] = implode(' AND ', $filter);
+        foreach ($where as $Q) {
+            $constraints[] = $this->compileQ($Q, $model);
         }
-        // Multiple constrains here are ORed together
-        $filter = implode(' OR ', $constraints);
-        if (count($constraints) > 1)
-            $filter = '(' . $filter . ')';
-        return $filter;
+        return $constraints;
     }
 
     function getParams() {
         return $this->params;
     }
 
-    function getJoins() {
+    function getJoins($queryset) {
         $sql = '';
         foreach ($this->joins as $j)
             $sql .= $j['sql'];
+        // Add extra items from QuerySet
+        if (isset($queryset->extra['tables'])) {
+            foreach ($queryset->extra['tables'] as $S) {
+                $join = ' JOIN ';
+                // Left joins require an ON () clause
+                if ($lastparen = strrpos($S, '(')) {
+                    if (preg_match('/\bon\b/i', substr($S, $lastparen - 4, 4)))
+                        $join = ' LEFT' . $join;
+                }
+                $sql .= $join.$S;
+            }
+        }
         return $sql;
     }
 
@@ -787,7 +1721,25 @@ class SqlCompiler {
     }
 }
 
+class CompiledExpression /* extends SplString */ {
+    const TYPE_WHERE =   0x0001;
+    const TYPE_HAVING =  0x0002;
+
+    var $text = '';
+
+    function __construct($clause, $type=self::TYPE_WHERE) {
+        $this->text = $clause;
+        $this->type = $type;
+    }
+
+    function __toString() {
+        return $this->text;
+    }
+}
+
 class DbEngine {
+
+    static $compiler = 'MySqlCompiler';
 
     function __construct($info) {
     }
@@ -797,7 +1749,22 @@ class DbEngine {
 
     // Gets a compiler compatible with this database engine that can compile
     // and execute a queryset or DML request.
-    function getCompiler() {
+    static function getCompiler() {
+        $class = static::$compiler;
+        return new $class();
+    }
+
+    static function delete(VerySimpleModel $model) {
+        ModelInstanceManager::uncache($model);
+        return static::getCompiler()->compileDelete($model);
+    }
+
+    static function save(VerySimpleModel $model) {
+        $compiler = static::getCompiler();
+        if ($model->__new__)
+            return $compiler->compileInsert($model);
+        else
+            return $compiler->compileUpdate($model);
     }
 }
 
@@ -806,6 +1773,8 @@ class MySqlCompiler extends SqlCompiler {
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
+        'startswith' => array('self', '__startswith'),
+        'endswith' => array('self', '__endswith'),
         'gt' => '%1$s > %2$s',
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
@@ -814,17 +1783,42 @@ class MySqlCompiler extends SqlCompiler {
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
+        'intersect' => array('self', '__find_in_set'),
     );
+
+    // Thanks, http://stackoverflow.com/a/3683868
+    function like_escape($what, $e='\\') {
+        return str_replace(array($e, '%', '_'), array($e.$e, $e.'%', $e.'_'), $what);
+    }
 
     function __contains($a, $b) {
         # {%a} like %{$b}%
-        return sprintf('%s LIKE %s', $a, $this->input($b = "%$b%"));
+        # Escape $b
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+    }
+    function __startswith($a, $b) {
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("$b%"));
+    }
+    function __endswith($a, $b) {
+        $b = $this->like_escape($b);
+        return sprintf('%s LIKE %s', $a, $this->input("%$b"));
     }
 
     function __in($a, $b) {
         if (is_array($b)) {
             $vals = array_map(array($this, 'input'), $b);
             $b = implode(', ', $vals);
+        }
+        // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
+        // the query as a JOIN and add the join constraint into the WHERE
+        // clause.
+        elseif ($b instanceof QuerySet && $b->isWindowed()) {
+            $f1 = $b->values[0];
+            $view = $b->asView();
+            $alias = $this->pushJoin($view, $a, $view, array('constraint'=>array()));
+            return sprintf('%s = %s.%s', $a, $alias, $this->quote($f1));
         }
         else {
             $b = $this->input($b);
@@ -838,7 +1832,20 @@ class MySqlCompiler extends SqlCompiler {
             : sprintf('%s IS NOT NULL', $a);
     }
 
-    function compileJoin($tip, $model, $alias, $info) {
+    function __find_in_set($a, $b) {
+        if (is_array($b)) {
+            $sql = array();
+            foreach (array_map(array($this, 'input'), $b) as $b) {
+                $sql[] = sprintf('FIND_IN_SET(%s, %s)', $b, $a);
+            }
+            $parens = count($sql) > 1;
+            $sql = implode(' OR ', $sql);
+            return $parens ? ('('.$sql.')') : $sql;
+        }
+        return sprintf('FIND_IN_SET(%s, %s)', $b, $a);
+    }
+
+    function compileJoin($tip, $model, $alias, $info, $extra=false) {
         $constraints = array();
         $join = ' JOIN ';
         if (isset($info['null']) && $info['null'])
@@ -848,29 +1855,76 @@ class MySqlCompiler extends SqlCompiler {
         else
             $table = $this->quote($model::$meta['table']);
         foreach ($info['constraint'] as $local => $foreign) {
-            list($rmodel, $right) = explode('.', $foreign);
-            // TODO: Support a constant constraint
-            $constraints[] = sprintf("%s.%s = %s.%s",
-                $table, $this->quote($local), $alias,
-                $this->quote($right)
-            );
+            list($rmodel, $right) = $foreign;
+            // Support a constant constraint with
+            // "'constant'" => "Model.field_name"
+            if ($local[0] == "'") {
+                $constraints[] = sprintf("%s.%s = %s",
+                    $alias, $this->quote($right),
+                    $this->input(trim($local, '\'"'))
+                );
+            }
+            // Support local constraint
+            // field_name => "'constant'"
+            elseif ($rmodel[0] == "'" && !$right) {
+                $constraints[] = sprintf("%s.%s = %s",
+                    $table, $this->quote($local),
+                    $this->input(trim($rmodel, '\'"'))
+                );
+            }
+            else {
+                $constraints[] = sprintf("%s.%s = %s.%s",
+                    $table, $this->quote($local), $alias,
+                    $this->quote($right)
+                );
+            }
         }
-        return $join.$this->quote($rmodel::$meta['table'])
-            .' '.$alias.' ON ('.implode(' AND ', $constraints).')';
+        // Support extra join constraints
+        if ($extra instanceof Q) {
+            $constraints[] = $this->compileQ($extra, $model);
+        }
+        if (!isset($rmodel))
+            $rmodel = $model;
+        // Support inline views
+        $table = ($rmodel::$meta['view'])
+            // XXX: Support parameters from the nested query
+            ? $rmodel::getQuery($this)
+            : $this->quote($rmodel::$meta['table']);
+        $base = "{$join}{$table} {$alias}";
+        if ($constraints)
+           $base .= ' ON ('.implode(' AND ', $constraints).')';
+        return $base;
     }
 
-    function input(&$what) {
+    /**
+     * input
+     *
+     * Generate a parameterized input for a database query. Input value is
+     * received by reference to avoid copying.
+     *
+     * Parameters:
+     * $what - (mixed) value to be sent to the database. No escaping is
+     *      necessary. Pass a raw value here.
+     *
+     * Returns:
+     * (string) token to be placed into the compiled SQL statement. For
+     * MySQL, this is always the string '?'.
+     */
+    function input($what, $slot=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
-            $this->params += $q->params;
-            return (string)$q;
+            $this->params = array_merge($this->params, $q->params);
+            return $q->sql;
         }
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
         }
+        elseif (!isset($what)) {
+            return 'NULL';
+        }
         else {
             $this->params[] = $what;
-            return '?';
+            return ':'.(count($this->params));
         }
     }
 
@@ -885,30 +1939,33 @@ class MySqlCompiler extends SqlCompiler {
      * called before ::getJoins(), because it may add joins into the
      * statement based on the relationships used in the where clause
      */
-    protected function getWhereClause($queryset) {
+    protected function getWhereHavingClause($queryset) {
         $model = $queryset->model;
-        $where_pos = array();
-        $where_neg = array();
-        foreach ($queryset->constraints as $where) {
-            $where_pos[] = $this->compileConstraints($where, $model);
+        $constraints = $this->compileConstraints($queryset->constraints, $model);
+        $where = $having = array();
+        foreach ($constraints as $C) {
+            if ($C->type == CompiledExpression::TYPE_WHERE)
+                $where[] = $C;
+            else
+                $having[] = $C;
         }
-        foreach ($queryset->exclusions as $where) {
-            $where_neg[] = $this->compileConstraints($where, $model);
+        if (isset($queryset->extra['where'])) {
+            foreach ($queryset->extra['where'] as $S) {
+                $where[] = "($S)";
+            }
         }
-
-        $where = '';
-        if ($where_pos || $where_neg) {
-            $where = ' WHERE '.implode(' AND ', $where_pos)
-                .implode(' AND NOT ', $where_neg);
-        }
-        return $where;
+        if ($where)
+            $where = ' WHERE '.implode(' AND ', $where);
+        if ($having)
+            $having = ' HAVING '.implode(' AND ', $having);
+        return array($where ?: '', $having ?: '');
     }
 
     function compileCount($queryset) {
         $model = $queryset->model;
         $table = $model::$meta['table'];
-        $where = $this->getWhereClause($queryset);
-        $joins = $this->getJoins();
+        list($where, $having) = $this->getWhereHavingClause($queryset);
+        $joins = $this->getJoins($queryset);
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
         $exec = new MysqlExecutor($sql, $this->params);
         $row = $exec->getArray();
@@ -917,46 +1974,161 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileSelect($queryset) {
         $model = $queryset->model;
-        $where = $this->getWhereClause($queryset);
+        // Use an alias for the root model table
+        $this->joins[''] = array('alias' => ($rootAlias = $this->nextAlias()));
 
+        // Compile the WHERE clause
+        $this->annotations = $queryset->annotations ?: array();
+        list($where, $having) = $this->getWhereHavingClause($queryset);
+
+        // Compile the ORDER BY clause
         $sort = '';
-        if ($queryset->ordering && !isset($this->options['nosort'])) {
+        if (($columns = $queryset->getSortFields()) && !isset($this->options['nosort'])) {
             $orders = array();
-            foreach ($queryset->ordering as $sort) {
+            foreach ($columns as $sort) {
                 $dir = 'ASC';
-                if (substr($sort, 0, 1) == '-') {
-                    $dir = 'DESC';
-                    $sort = substr($sort, 1);
+                if ($sort instanceof SqlFunction) {
+                    $field = $sort->toSql($this, $model);
                 }
-                list($field) = $this->getField($sort, $model);
+                else {
+                    if ($sort[0] == '-') {
+                        $dir = 'DESC';
+                        $sort = substr($sort, 1);
+                    }
+                    list($field) = $this->getField($sort, $model);
+                }
+                // TODO: Throw exception if $field can be indentified as
+                //       invalid
+                if ($field instanceof SqlFunction)
+                    $field = $field->toSql($this, $model);
+
                 $orders[] = $field.' '.$dir;
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
         }
 
-        // Include related tables
+        // Compile the field listing
         $fields = array();
-        $table = $model::$meta['table'];
+        $group_by = array();
+        $table = $this->quote($model::$meta['table']).' '.$rootAlias;
+        // Handle related tables
         if ($queryset->related) {
-            $fields = array($this->quote($table).'.*');
-            foreach ($queryset->related as $rel) {
-                // XXX: This is ugly
-                list($t) = $this->getField($rel, $model,
-                    array('table'=>true));
-                $fields[] = $t.'.*';
+            $count = 0;
+            $fieldMap = $theseFields = array();
+            $defer = $queryset->defer ?: array();
+            // Add local fields first
+            $model::_inspect();
+            foreach ($model::$meta['fields'] as $f) {
+                // Handle deferreds
+                if (isset($defer[$f]))
+                    continue;
+                $fields[$rootAlias . '.' . $this->quote($f)] = true;
+                $theseFields[] = $f;
             }
-        // Support only retrieving a list of values rather than a model
-        } elseif ($queryset->values) {
-            foreach ($queryset->values as $v) {
-                list($fields[]) = $this->getField($v, $model);
+            $fieldMap[] = array($theseFields, $model);
+            // Add the JOINs to this query
+            foreach ($queryset->related as $sr) {
+                // XXX: Sort related by the paths so that the shortest paths
+                //      are resolved first when building out the models.
+                $full_path = '';
+                $parts = array();
+                // Track each model traversal and fetch data for each of the
+                // models in the path of the related table
+                foreach (explode('__', $sr) as $field) {
+                    $full_path .= $field;
+                    $parts[] = $field;
+                    $theseFields = array();
+                    list($alias, $fmodel) = $this->getField($full_path, $model,
+                        array('table'=>true, 'model'=>true));
+                    $fmodel::_inspect();
+                    foreach ($fmodel::$meta['fields'] as $f) {
+                        // Handle deferreds
+                        if (isset($defer[$sr . '__' . $f]))
+                            continue;
+                        elseif (isset($fields[$alias.'.'.$this->quote($f)]))
+                            continue;
+                        $fields[$alias . '.' . $this->quote($f)] = true;
+                        $theseFields[] = $f;
+                    }
+                    if ($theseFields) {
+                        $fieldMap[] = array($theseFields, $fmodel, $parts);
+                    }
+                    $full_path .= '__';
+                }
             }
-        } else {
-            $fields[] = $this->quote($table).'.*';
         }
+        // Support retrieving only a list of values rather than a model
+        elseif ($queryset->values) {
+            foreach ($queryset->values as $alias=>$v) {
+                list($f) = $this->getField($v, $model);
+                $unaliased = $f;
+                if ($f instanceof SqlFunction)
+                    $fields[$f->toSql($this, $model, $alias)] = true;
+                else {
+                    if (!is_int($alias))
+                        $f .= ' AS '.$this->quote($alias);
+                    $fields[$f] = true;
+                }
+                // If there are annotations, add in these fields to the
+                // GROUP BY clause
+                if ($queryset->annotations)
+                    $group_by[] = $unaliased;
+            }
+        }
+        // Simple selection from one table
+        else {
+            if ($queryset->defer) {
+                $model::_inspect();
+                foreach ($model::$meta['fields'] as $f) {
+                    if (isset($queryset->defer[$f]))
+                        continue;
+                    $fields[$rootAlias .'.'. $this->quote($f)] = true;
+                }
+            }
+            else {
+                $fields[$rootAlias.'.*'] = true;
+            }
+        }
+        $fields = array_keys($fields);
+        // Add in annotations
+        if ($queryset->annotations) {
+            foreach ($queryset->annotations as $alias=>$A) {
+                // The root model will receive the annotations, add in the
+                // annotation after the root model's fields
+                $T = $A->toSql($this, $model, $alias);
+                if ($fieldMap) {
+                    array_splice($fields, count($fieldMap[0][0]), 0, array($T));
+                    $fieldMap[0][0][] = $A->getAlias();
+                }
+                else {
+                    // No field map — just add to end of field list
+                    $fields[] = $T;
+                }
+            }
+            // If no group by has been set yet, use the root model pk
+            if (!$group_by) {
+                foreach ($model::$meta['pk'] as $pk)
+                    $group_by[] = $rootAlias .'.'. $pk;
+            }
+        }
+        // Add in SELECT extras
+        if (isset($queryset->extra['select'])) {
+            foreach ($queryset->extra['select'] as $name=>$expr) {
+                if ($expr instanceof SqlFunction)
+                    $expr = $expr->toSql($this, false, $name);
+                $fields[] = $expr;
+            }
+        }
+        if (isset($queryset->distinct)) {
+            foreach ($queryset->distinct as $d)
+                list($group_by[]) = $this->getField($d, $model);
+        }
+        $group_by = $group_by ? ' GROUP BY '.implode(', ', $group_by) : '';
 
-        $joins = $this->getJoins();
+        $joins = $this->getJoins($queryset);
+
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
-            .$this->quote($table).$joins.$where.$sort;
+            .$table.$joins.$where.$group_by.$having.$sort;
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)
@@ -970,20 +2142,57 @@ class MySqlCompiler extends SqlCompiler {
             break;
         }
 
-        return new MysqlExecutor($sql, $this->params);
+        return new MysqlExecutor($sql, $this->params, $fieldMap);
     }
 
-    function compileUpdate() {
+    function __compileUpdateSet($model, array $pk) {
+        $fields = array();
+        foreach ($model->dirty as $field=>$old) {
+            if ($model->__new__ or !in_array($field, $pk)) {
+                $fields[] = sprintf('%s = %s', $this->quote($field),
+                    $this->input($model->get($field)));
+            }
+        }
+        return ' SET '.implode(', ', $fields);
     }
 
-    function compileInsert() {
+    function compileUpdate(VerySimpleModel $model) {
+        $pk = $model::$meta['pk'];
+        $sql = 'UPDATE '.$this->quote($model::$meta['table']);
+        $sql .= $this->__compileUpdateSet($model, $pk);
+        // Support PK updates
+        $criteria = array();
+        foreach ($pk as $f) {
+            $criteria[$f] = @$model->dirty[$f] ?: $model->get($f);
+        }
+        $sql .= ' WHERE '.$this->compileQ(new Q($criteria), $model);
+        $sql .= ' LIMIT 1';
+
+        return new MySqlExecutor($sql, $this->params);
+    }
+
+    function compileInsert(VerySimpleModel $model) {
+        $pk = $model::$meta['pk'];
+        $sql = 'INSERT INTO '.$this->quote($model::$meta['table']);
+        $sql .= $this->__compileUpdateSet($model, $pk);
+
+        return new MySqlExecutor($sql, $this->params);
+    }
+
+    function compileDelete($model) {
+        $table = $model::$meta['table'];
+
+        $where = ' WHERE '.implode(' AND ',
+            $this->compileConstraints(array(new Q($model->pk)), $model));
+        $sql = 'DELETE FROM '.$this->quote($table).$where.' LIMIT 1';
+        return new MySqlExecutor($sql, $this->params);
     }
 
     function compileBulkDelete($queryset) {
         $model = $queryset->model;
         $table = $model::$meta['table'];
-        $where = $this->getWhereClause($queryset);
-        $joins = $this->getJoins();
+        list($where, $having) = $this->getWhereHavingClause($queryset);
+        $joins = $this->getJoins($queryset);
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
             .$this->quote($table).$joins.$where;
         return new MysqlExecutor($sql, $this->params);
@@ -996,28 +2205,62 @@ class MySqlCompiler extends SqlCompiler {
         foreach ($what as $field=>$value)
             $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
         $set = implode(', ', $set);
-        $where = $this->getWhereClause($queryset);
-        $joins = $this->getJoins();
-        $sql = 'UPDATE '.$this->quote($table).' SET '.$set.$joins.$where;
+        list($where, $having) = $this->getWhereHavingClause($queryset);
+        $joins = $this->getJoins($queryset);
+        $sql = 'UPDATE '.$this->quote($table).$joins.' SET '.$set.$where;
         return new MysqlExecutor($sql, $this->params);
     }
 
     // Returns meta data about the table used to build queries
     function inspectTable($table) {
+        static $cache = array();
+
+        // XXX: Assuming schema is not changing — add support to track
+        //      current schema
+        if (isset($cache[$table]))
+            return $cache[$table];
+
+        $sql = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS '
+            .'WHERE TABLE_NAME = '.db_input($table).' AND TABLE_SCHEMA = DATABASE() '
+            .'ORDER BY ORDINAL_POSITION';
+        $ex = new MysqlExecutor($sql, array());
+        $columns = array();
+        while (list($column) = $ex->getRow()) {
+            $columns[] = $column;
+        }
+        return $cache[$table] = $columns;
     }
 }
 
-class MysqlExecutor {
+class MySqlExecutor {
 
     var $stmt;
     var $fields = array();
-
     var $sql;
     var $params;
+    // Array of [count, model] values representing which fields in the
+    // result set go with witch model.  Useful for handling select_related
+    // queries
+    var $map;
 
-    function __construct($sql, $params) {
+    function __construct($sql, $params, $map=null) {
         $this->sql = $sql;
         $this->params = $params;
+        $this->map = $map;
+    }
+
+    function getMap() {
+        return $this->map;
+    }
+
+    function fixupParams() {
+        $self = $this;
+        $params = array();
+        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+            $params[] = $self->params[$m[1]-1];
+            return '?';
+        }, $this->sql);
+        return array($sql, $params);
     }
 
     function _prepare() {
@@ -1026,11 +2269,12 @@ class MysqlExecutor {
     }
 
     function execute() {
-        if (!($this->stmt = db_prepare($this->sql)))
-            throw new Exception('Unable to prepare query: '.db_error()
-                .' '.$this->sql);
-        if (count($this->params))
-            $this->_bind($this->params);
+        list($sql, $params) = $this->fixupParams();
+        if (!($this->stmt = db_prepare($sql)))
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$sql);
+        if (count($params))
+            $this->_bind($params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
@@ -1050,6 +2294,10 @@ class MysqlExecutor {
                 $types .= 'd';
             elseif (is_string($p))
                 $types .= 's';
+            elseif ($p instanceof DateTime) {
+                $types .= 's';
+                $p = $p->format('Y-m-d h:i:s');
+            }
             // TODO: Emit error if param is null
             $ps[] = &$p;
         }
@@ -1061,8 +2309,7 @@ class MysqlExecutor {
     function _setup_output() {
         if (!($meta = $this->stmt->result_metadata()))
             throw new OrmException('Unable to fetch statment metadata: ', $this->stmt->error);
-        while ($f = $meta->fetch_field())
-            $this->fields[] = $f;
+        $this->fields = $meta->fetch_fields();
         $meta->free_result();
     }
 
@@ -1120,23 +2367,6 @@ class MysqlExecutor {
         return $output;
     }
 
-    function getStruct() {
-        $output = array();
-        $variables = array();
-
-        if (!isset($this->stmt))
-            $this->_prepare();
-
-        foreach ($this->fields as $f)
-            $variables[] = &$output[$f->table][$f->name]; // pass by reference
-
-        // TODO: Figure out what the table alias for the root model will be
-        call_user_func_array(array($this->stmt, 'bind_result'), $variables);
-        if (!$this->next())
-            return false;
-        return $output;
-    }
-
     function close() {
         if (!$this->stmt)
             return;
@@ -1154,7 +2384,80 @@ class MysqlExecutor {
     }
 
     function __toString() {
-        return $this->sql;
+        $self = $this;
+        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+            $p = $self->params[$m[1]-1];
+            return db_real_escape($p, is_string($p));
+        }, $this->sql);
+    }
+}
+
+class Q implements Serializable {
+    const NEGATED = 0x0001;
+    const ANY =     0x0002;
+
+    var $constraints;
+    var $flags;
+    var $negated = false;
+    var $ored = false;
+
+    function __construct($filter=array(), $flags=0) {
+        if (!is_array($filter))
+            $filter = array($filter);
+        $this->constraints = $filter;
+        $this->negated = $flags & self::NEGATED;
+        $this->ored = $flags & self::ANY;
+    }
+
+    function isNegated() {
+        return $this->negated;
+    }
+
+    function isOred() {
+        return $this->ored;
+    }
+
+    function negate() {
+        $this->negated = !$this->negated;
+        return $this;
+    }
+
+    function union() {
+        $this->ored = true;
+    }
+
+    function add($constraints) {
+        if (is_array($constraints))
+            $this->constraints = array_merge($this->constraints, $constraints);
+        elseif ($constraints instanceof static)
+            $this->constraints[] = $constraints;
+        else
+            throw new InvalidArgumentException('Expected an instance of Q or an array thereof');
+        return $this;
+    }
+
+    static function not($constraints) {
+        return new static($constraints, self::NEGATED);
+    }
+
+    static function any($constraints) {
+        return new static($constraints, self::ANY);
+    }
+
+    function serialize() {
+        return serialize(array(
+            'f' =>
+                ($this->negated ? self::NEGATED : 0)
+              | ($this->ored ? self::ANY : 0),
+            'c' => $this->constraints
+        ));
+    }
+
+    function unserialize($data) {
+        $data = unserialize($data);
+        $this->constraints = $data['c'];
+        $this->ored = $data['f'] & self::ANY;
+        $this->negated = $data['f'] & self::NEGATED;
     }
 }
 ?>

@@ -1,23 +1,29 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
+if (!defined('OSTSCPINC') || !$thisstaff
+        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+        die('Access Denied');
+
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
 
-$form = null;
+$forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
-    $form = $topic->getForm();
-    if ($_POST && $form) {
-        $form = $form->instanciate();
-        $form->isValid();
+    foreach ($topic->getForms() as $F) {
+        if (!$F->hasAnyVisibleFields())
+            continue;
+        if ($_POST) {
+            $F = $F->instanciate();
+            $F->isValidForClient();
+        }
+        $forms[] = $F;
     }
 }
 
 if ($_POST)
-    $info['duedate'] = Format::date($cfg->getDateFormat(),
-       strtotime($info['duedate']));
+    $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -41,6 +47,7 @@ if ($_POST)
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
+                <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
         <?php
@@ -80,7 +87,8 @@ if ($_POST)
                 <span style="display:inline-block;">
                     <input type="text" size=45 name="email" id="user-email"
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['email']; ?></font>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['email']; ?></div>
             </td>
         </tr>
         <tr>
@@ -88,7 +96,8 @@ if ($_POST)
             <td>
                 <span style="display:inline-block;">
                     <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['name']; ?></font>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['name']; ?></div>
             </td>
         </tr>
         <?php
@@ -143,7 +152,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics()) {
+                    if ($topics=Topic::getHelpTopics(false, false, true)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -154,9 +163,9 @@ if ($_POST)
                                 $id, ($info['topicId']==$id)?'selected="selected"':'',
                                 $selected, $name);
                         }
-                        if (count($topics) == 1 && !$form) {
+                        if (count($topics) == 1 && !$forms) {
                             if (($T = Topic::lookup($id)))
-                                $form =  $T->getForm();
+                                $forms =  $T->getForms();
                         }
                     }
                     ?>
@@ -219,12 +228,12 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
             </td>
         </tr>
 
         <?php
-        if($thisstaff->canAssignTickets()) { ?>
+        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
         <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -258,23 +267,16 @@ if ($_POST)
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) {
+            foreach ($forms as $form) {
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
         ?>
         </tbody>
-        <tbody> <?php
-        $tform = TicketForm::getInstance();
-        if ($_POST && !$tform->errors())
-            $tform->isValidForStaff();
-        $tform->render(true);
-        ?>
-        </tbody>
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if($thisstaff->canPostReply()) { ?>
+        if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
@@ -303,14 +305,17 @@ if ($_POST)
                 $signature = '';
                 if ($thisstaff->getDefaultSignatureType() == 'mine')
                     $signature = $thisstaff->getSignature(); ?>
-                <textarea class="richtext ifhtml draft draft-delete"
-                    data-draft-namespace="ticket.staff.response"
-                    data-signature="<?php
+                <textarea
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft draft-delete" data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
-                    style="width:80%;"><?php echo $info['response']; ?></textarea>
+                    style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+                ?></textarea>
                     <div class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
@@ -325,7 +330,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->canCloseTickets())
+                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -372,11 +377,14 @@ print $response_form->getField('attachments')->render();
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext ifhtml draft draft-delete"
+                <textarea
+                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        ?> draft draft-delete"
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
-                    data-draft-namespace="ticket.staff.note" name="note"
-                    cols="21" rows="6" style="width:80%;"
-                    ><?php echo $info['note']; ?></textarea>
+                    name="note" cols="21" rows="6" style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
+    echo $attrs; ?>><?php echo $draft ?: $info['note'];
+                ?></textarea>
             </td>
         </tr>
     </tbody>

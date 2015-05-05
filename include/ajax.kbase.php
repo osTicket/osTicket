@@ -50,11 +50,12 @@ class KbaseAjaxAPI extends AjaxController {
                  <a href="faq.php?id=%d">'.__('View').'</a> | <a href="faq.php?id=%d">'.__('Attachments (%d)').'</a>',
                 $faq->getQuestion(),
                 $faq->getAnswerWithImages(),
-                Format::db_daydatetime($faq->getUpdateDate()),
+                Format::daydatetime($faq->getUpdateDate()),
                 $faq->getId(),
                 $faq->getId(),
                 $faq->getNumAttachments());
-        if($thisstaff && $thisstaff->canManageFAQ()) {
+        if($thisstaff
+                && $thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) {
             $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">'.__('Edit').'</a>',$faq->getId());
 
         }

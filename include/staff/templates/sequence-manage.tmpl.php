@@ -20,7 +20,7 @@ foreach ($sequences as $e) {
         <i class="icon-sort-by-order"></i>
         <div style="display:inline-block" class="name"> <?php echo $e->getName(); ?> </div>
         <div class="manage-buttons pull-right">
-            <span class="faded">next</span>
+            <span class="faded"><?php echo __('next'); ?></span>
             <span class="current"><?php echo $e->current(); ?></span>
         </div>
         <div class="button-group">

@@ -11,9 +11,71 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
+include_once INCLUDE_DIR.'class.role.php';
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
+
+class EmailModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => EMAIL_TABLE,
+        'pk' => array('email_id'),
+        'joins' => array(
+            'priority' => array(
+                'constraint' => array('priority_id' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+                'null' => true,
+            ),
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+                'null' => true,
+            ),
+        )
+    );
+
+    const PERM_BANLIST = 'emails.banlist';
+
+    static protected $perms = array(
+            self::PERM_BANLIST => array(
+                'title' =>
+                /* @trans */ 'Banlist',
+                'desc'  =>
+                /* @trans */ 'Ability to add/remove emails from banlist via ticket interface',
+                'primary' => true,
+            ));
+
+    function getId() {
+        return $this->email_id;
+    }
+
+    function __toString() {
+        if ($this->name)
+            return sprintf('%s <%s>', $this->name, $this->email);
+
+        return $this->email;
+    }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+
+    static function getAddresses($options=array()) {
+        $objects = static::objects();
+        if ($options['smtp'])
+            $objects = $objects->filter(array('smtp_active'=>true));
+
+        $addresses = array();
+        foreach ($objects->values_flat('email_id', 'email') as $row) {
+            list($id, $email) = $row;
+            $addresses[$id] = $email;
+        }
+        return $addresses;
+    }
+}
+
+RolePermission::register(/* @trans */ 'Miscellaneous', EmailModel::getPermissions());
 
 class Email {
     var $id;

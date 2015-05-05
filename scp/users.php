@@ -14,6 +14,9 @@
 **********************************************************************/
 require('staff.inc.php');
 
+if (!$thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY))
+    Http::redirect('index.php');
+
 require_once INCLUDE_DIR.'class.note.php';
 
 $user = null;
@@ -25,6 +28,8 @@ if ($_POST) {
         case 'update':
             if (!$user) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), _N('end user', 'end users', 1));
+            } elseif (!$thisstaff->getRole()->hasPerm(User::PERM_EDIT)) {
+                $errors['err'] = __('Action denied. Contact admin for access');
             } elseif(($acct = $user->getAccount())
                     && !$acct->update($_POST, $errors)) {
                  $errors['err']=__('Unable to update user account information');

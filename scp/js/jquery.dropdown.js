@@ -37,7 +37,11 @@ if(jQuery) (function($) {
 		var trigger = $(this),
 			dropdown = $( $(this).attr('data-dropdown') ),
 			isOpen = trigger.hasClass('dropdown-open'),
-            rtl = $('html').hasClass('rtl');
+            rtl = $('html').hasClass('rtl'),
+            relative = trigger.offsetParent(),
+            offset = relative.offset();
+        if (relative.get(0) !== document.body)
+            offset.top -= relative.scrollTop();
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -50,9 +54,9 @@ if(jQuery) (function($) {
             dropdown.removeClass('anchor-right');
 
 		dropdown.css({
-				left: dropdown.hasClass('anchor-right') ?
-				trigger.offset().left - (dropdown.outerWidth() - trigger.outerWidth() - 4) : trigger.offset().left,
-				top: trigger.offset().top + trigger.outerHeight()
+				left: -offset.left + (dropdown.hasClass('anchor-right') ?
+				trigger.offset().left - (dropdown.outerWidth() - trigger.outerWidth() - 4) : trigger.offset().left),
+				top: -offset.top + trigger.offset().top + trigger.outerHeight()
 			}).show();
 		trigger.addClass('dropdown-open');
 	}
@@ -70,7 +74,7 @@ if(jQuery) (function($) {
 	$(function () {
 		$('body').on('click.dropdown', '[data-dropdown]', showMenu);
 		$('html').on('click.dropdown', hideDropdowns);
-		if( !$.browser.msie || ($.browser.msie && $.browser.version >= 9) ) {
+		if(document.addEventListener) {
 			$(window).on('resize.dropdown', hideDropdowns);
 		}
 	});

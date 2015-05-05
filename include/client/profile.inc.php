@@ -20,41 +20,30 @@ if ($acct = $thisclient->getAccount()) {
         </div>
     </td>
 </tr>
-    <td><?php echo __('Time Zone'); ?>:</td>
-    <td>
-        <select name="timezone_id" id="timezone_id">
-            <option value="0">&mdash; <?php echo __('Select Time Zone'); ?> &mdash;</option>
-            <?php
-            $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-            if(($res=db_query($sql)) && db_num_rows($res)){
-                while(list($id,$offset, $tz)=db_fetch_row($res)){
-                    $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                    echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                }
-            }
-            ?>
-        </select>
-        &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
-    </td>
-</tr>
-<tr>
-    <td width="180">
-        <?php echo __('Daylight Saving') ?>:
-    </td>
-    <td>
-        <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        <?php echo __('Observe daylight saving'); ?>
-        <em>(<?php echo __('Current Time'); ?>:
-            <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
-    </td>
-</tr>
+    <tr>
+        <td width="180">
+            <?php echo __('Time Zone');?>:
+        </td>
+        <td>
+            <select name="timezone" class="chosen-select" id="timezone-dropdown">
+                <option value=""><?php echo __('System Default'); ?></option>
+<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
+                <option value="<?php echo $zone; ?>" <?php
+                if ($info['timezone'] == $zone)
+                    echo 'selected="selected"';
+                ?>><?php echo str_replace('/', ' / ', $zone); ?></option>
+<?php } ?>
+            </select>
+            <div class="error"><?php echo $errors['timezone']; ?></div>
+        </td>
+    </tr>
     <tr>
         <td width="180">
             <?php echo __('Preferred Language'); ?>:
         </td>
         <td>
     <?php
-    $langs = Internationalization::availableLanguages(); ?>
+    $langs = Internationalization::getConfiguredSystemLanguages(); ?>
             <select name="lang">
                 <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
 <?php foreach($langs as $l) {
@@ -112,3 +101,10 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         window.location.href='index.php';"/>
 </p>
 </form>
+<script type="text/javascript">
+$('#timezone-dropdown').chosen({
+    header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
+    allow_single_deselect: true,
+    width: '350px'
+});
+</script>

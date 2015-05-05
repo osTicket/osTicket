@@ -29,12 +29,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 <?php
 if ($page)
     $config->renderCustomConfig();
-elseif ($form) { ?>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <tbody>
-<?php $form->render(); ?>
-    </tbody></table>
-<?php
+elseif ($form) {
+    include STAFFINC_DIR . 'templates/simple-form.tmpl.php';
 }
 else { ?>
     <tr><th><?php echo __('This plugin has no configurable settings'); ?><br>

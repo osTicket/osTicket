@@ -99,6 +99,19 @@ $tpl=$msgtemplates[$selected];
 <?php } ?>
 </div>
 
+<?php
+$invalid = array();
+if ($template instanceof EmailTemplate) {
+    if ($invalid = $template->getInvalidVariableUsage()) {
+    $invalid = array_unique($invalid); ?>
+    <div class="warning-banner"><?php echo
+        __('Some variables may not be a valid for this context. Please check for spelling errors and correct usage for this template.') ?>
+    <br/>
+    <code><?php echo implode(', ', $invalid); ?></code>
+</div>
+<?php }
+} ?>
+
 <div style="padding-bottom:3px;" class="faded"><strong><?php echo __('Email Subject and Body'); ?>:</strong></div>
 <div id="toolbar"></div>
 <div id="save" style="padding-top:5px;">
@@ -108,9 +121,11 @@ $tpl=$msgtemplates[$selected];
     </div>
     <input type="hidden" name="draft_id" value=""/>
     <textarea name="body" cols="21" rows="16" style="width:98%;" wrap="soft"
-        data-toolbar-external="#toolbar"
-        class="richtext draft" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>"
-        data-draft-object-id="<?php echo $tpl_id; ?>"><?php echo $info['body']; ?></textarea>
+        data-root-context="<?php echo $selected; ?>"
+        data-toolbar-external="#toolbar" class="richtext draft" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('tpl.'.$selected, $tpl_id, $info['body']);
+    echo $attrs; ?>><?php echo $draft ?: $info['body'];
+    ?></textarea>
 </div>
 
 <p style="text-align:center">

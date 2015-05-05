@@ -168,6 +168,8 @@ $manage_content = function($title, $content) use ($contents) {
     $notes = explode('. ', $notes);
     $notes = $notes[0];
     ?><tr><td colspan="2">
+    <div style="display:inline-block;margin:0 36px">
+    <i class="icon-file-text pull-left icon-2x" style="color:#bbb;margin:0 -36px"></i>
     <a href="#ajax.php/content/<?php echo $id; ?>/manage"
     onclick="javascript:
         $.dialog($(this).attr('href').substr(1), 201);
@@ -179,10 +181,11 @@ $manage_content = function($title, $content) use ($contents) {
         $.dialog($(this).attr('href').substr(1), 201);
     return false;"><?php
     echo Format::htmlchars($title); ?></a><br/>
-    <span class="faded"><?php
+        <span class="faded"><?php
         echo Format::display($notes); ?>
-    <em>(<?php echo sprintf(__('Last Updated %s'), Format::db_datetime($upd));
-        ?>)</em></span></span></td></tr><?php
+    <em>(<?php echo sprintf(__('Last Updated %s'), Format::datetime($upd));
+        ?>)</em></span>
+    </div></td></tr><?php
 }; ?>
         <tr>
             <th colspan="2">

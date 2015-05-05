@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.topic.php');
+include_once(INCLUDE_DIR.'class.faq.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 $topic=null;
@@ -35,7 +36,9 @@ if($_POST){
             }
             break;
         case 'create':
-            if(($id=Topic::create($_POST,$errors))){
+            $_topic = Topic::create();
+            if ($_topic->update($_POST, $errors)) {
+                $topic = $_topic;
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['topic']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -58,10 +61,13 @@ if($_POST){
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.TOPIC_TABLE.' SET isactive=1 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Topic::objects()->filter(array(
+                            'topic_id__in' => $_POST['ids'],
+                        ))->update(array(
+                            'isactive' => true,
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected help topic', 'selected help topics', $count));
@@ -74,10 +80,14 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.TOPIC_TABLE.' SET isactive=0 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')'
-                            .' AND topic_id <> '.db_input($cfg->getDefaultTopicId());
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = Topic::objects()->filter(array(
+                            'topic_id__in'=>$_POST['ids'],
+                        ))->exclude(array(
+                            'topic_id'=>$cfg->getDefaultTopicId(),
+                        ))->update(array(
+                            'isactive' => false,
+                        ));
+                        if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected help topic', 'selected help topics', $count));
@@ -90,11 +100,9 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Topic::lookup($v)) && $t->delete())
-                                $i++;
-                        }
+                        $i = Topic::objects()->filter(array(
+                            'topic_id__in'=>$_POST['ids']
+                        ))->delete();
 
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s'),

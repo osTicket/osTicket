@@ -4,7 +4,7 @@ if(!defined('OSTCLIENTINC')) die('Access Denied');
 $email=Format::input($_POST['luser']?:$_GET['e']);
 $passwd=Format::input($_POST['lpasswd']?:$_GET['t']);
 
-$content = Page::lookup(Page::getIdByType('banner-client'));
+$content = Page::lookupByType('banner-client');
 
 if ($content) {
     list($title, $body) = $ost->replaceTemplateVariables(

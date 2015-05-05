@@ -18,6 +18,9 @@
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once(INCLUDE_DIR.'class.file.php');
 
+// Later version of osTicket dropped/undefined the table
+@define('TICKET_ATTACHMENT_TABLE', TABLE_PREFIX.'ticket_attachment');
+
 class AttachmentMigrater extends MigrationTask {
     var $description = "Attachment migration from disk to database";
 
@@ -188,7 +191,7 @@ class AttachmentMigrater extends MigrationTask {
             # TODO: Get the size and mime/type of each file.
             #
             # NOTE: If filesize() fails and file_get_contents() doesn't,
-            # then the AttachmentFile::save() method will automatically
+            # then the AttachmentFile::create() method will automatically
             # estimate the filesize based on the length of the string data
             # received in $info['data'] -- ie. no need to do that here.
             #
@@ -228,9 +231,9 @@ class AttachmentMigrater extends MigrationTask {
         return $this->errorList;
     }
 
-    // This is the AttachmentFile::save() method from osTicket 1.7.6. It's
+    // This is the AttachmentFile::create() method from osTicket 1.7.6. It's
     // been ported here so that further changes to the %file table and the
-    // AttachmentFile::save() method do not affect upgrades from osTicket
+    // AttachmentFile::create() method do not affect upgrades from osTicket
     // 1.6 to osTicket 1.8 and beyond.
     function saveAttachment($file) {
 

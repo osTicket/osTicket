@@ -37,17 +37,15 @@
       - type: state # notrans
         name: state # notrans
         label: State
-        required: true
         sort: 1
-        edit_mask: 63
+        flags: 0x770F1
         configuration:
             prompt: State of a ticket
       - type: memo # notrans
         name: description # notrans
         label: Description
-        required: false
         sort: 3
-        edit_mask: 15
+        flags: 0x73021
         configuration:
             rows: 2
             cols: 40

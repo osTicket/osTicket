@@ -617,6 +617,8 @@ class Spyc {
 
     if (is_numeric($value)) {
       if ($value === '0') return 0;
+      if (stripos($value, '0x') === 0)
+        $value = hexdec($value);
       if (rtrim ($value, 0) === $value)
         $value = (float)$value;
       return $value;
