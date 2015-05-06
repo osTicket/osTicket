@@ -61,22 +61,36 @@ if ($task->isOverdue())
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
-        <td width="20%" class="has_bottom_border">
-            <h2><a
-                id="reload-task"
-                href="tasks.php?id=<?php echo $task->getId(); ?>"
-                <?php
-                if ($ticket) {
+        <td width="70%" class="has_bottom_border">
+            <?php
+            if ($ticket) { ?>
+                <strong>
+                <a id="tasks" href="#"> All Tasks (<?php echo $ticket->getNumTasks(); ?>)</a>
+                &nbsp;/&nbsp;
+                <?php echo $task->getTitle(); ?>
+                &nbsp;&mdash;&nbsp;
+                <a
+                    id="reload-task" class="preview"
+                    <?php
                     echo ' class="preview" ';
                     echo sprintf('data-preview="#tasks/%d/preview" ', $task->getId());
                     echo sprintf('href="#tasks/%d" ', $task->getId());
-                } else { ?>
-                    href="tasks.php?id=<?php echo $task->getId(); ?>"
-                <?php
-                } ?>
+                    ?>
+                ><?php
+                echo sprintf('#%s', $task->getNumber()); ?></a>
+                </strong>
+            <?php
+            } else { ?>
+               <h2>
+                <a
+                id="reload-task"
+                href="tasks.php?id=<?php echo $task->getId(); ?>"
+                href="tasks.php?id=<?php echo $task->getId(); ?>"
                 ><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
-            </h2>
+               </h2>
+            <?php
+            } ?>
         </td>
         <td width="auto" class="flush-right has_bottom_border">
             <?php
@@ -88,7 +102,7 @@ if ($task->isOverdue())
                 <a class="task-action"
                     href="#task-options"><i
                     class="icon-reorder"></i> <?php
-                    echo __('Options'); ?></a>
+                    echo __('Actions'); ?></a>
             </span>
             <div id="action-dropdown-task-options"
                 class="action-dropdown anchor-right">
@@ -337,7 +351,7 @@ else
 
 <script type="text/javascript">
 $(function() {
-    $(document).on('click', 'li.active a#ticket_tasks', function(e) {
+    $(document).on('click', 'li.active a#ticket_tasks, a#tasks', function(e) {
         e.preventDefault();
         $('div#task_content').hide().empty();
         $('div#tasks_content').show();
