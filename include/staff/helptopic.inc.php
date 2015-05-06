@@ -370,7 +370,7 @@ foreach ($forms as $F) {
             <th><?php echo __('Variable'); ?></th>
         </tr>
     <?php
-        foreach ($F->getFields() as $f) { ?>
+        foreach ($F->getDynamicFields() as $f) { ?>
         <tr>
             <td><input type="checkbox" name="fields[]" value="<?php
                 echo $f->get('id'); ?>" <?php
@@ -440,21 +440,20 @@ $(function() {
             }
         });
     });
-
+    $('table#topic-forms').sortable({
+      items: 'tbody',
+      handle: 'td.handle',
+      tolerance: 'pointer',
+      forcePlaceholderSize: true,
+      helper: function(e, ui) {
+        ui.children().each(function() {
+          $(this).children().each(function() {
+            $(this).width($(this).width());
+          });
+        });
+        ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
+        return ui;
+      }
+    }).disableSelection();
 });
-$('table#topic-forms').sortable({
-  items: 'tbody',
-  handle: 'td.handle',
-  tolerance: 'pointer',
-  forcePlaceholderSize: true,
-  helper: function(e, ui) {
-    ui.children().each(function() {
-      $(this).children().each(function() {
-        $(this).width($(this).width());
-      });
-    });
-    ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
-    return ui;
-  }
-}).disableSelection();
 </script>

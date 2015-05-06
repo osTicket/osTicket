@@ -127,14 +127,6 @@ class Form {
         return $this->_clean;
     }
 
-    function disableFields(array $ids) {
-        foreach ($this->getFields() as $F) {
-            if (in_array($F->get('id'), $ids)) {
-                $F->disable();
-            }
-        }
-    }
-
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }

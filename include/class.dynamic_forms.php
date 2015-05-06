@@ -153,6 +153,14 @@ class DynamicForm extends VerySimpleModel {
         return $inst;
     }
 
+    function disableFields(array $ids) {
+        foreach ($this->getFields() as $F) {
+            if (in_array($F->get('id'), $ids)) {
+                $F->disable();
+            }
+        }
+    }
+
     function getTranslateTag($subtag) {
         return _H(sprintf('form.%s.%s', $subtag, $this->id));
     }
@@ -986,15 +994,18 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             // XXX: Should source be $this?
-            $form = new SimpleForm($this->getFields(), $this->getSource(),
+            $fields = $this->getFields();
+            if (isset($this->extra)) {
+                $x = JsonDataParser::decode($this->extra) ?: array();
+                foreach ($x['disable'] ?: array() as $id) {
+                    unset($fields[$id]);
+                }
+            }
+            $form = new SimpleForm($fields, $this->getSource(),
             array(
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),
             ));
-            if (isset($this->extra)) {
-                $x = JsonDataParser::decode($this->extra) ?: array();
-                $form->disableFields($x['disable'] ?: array());
-            }
             $this->_form = $form;
         }
         return $this->_form;
