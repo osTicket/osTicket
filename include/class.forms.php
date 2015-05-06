@@ -3314,7 +3314,7 @@ class AssignmentForm extends Form {
                     'default'=>'',
                     'configuration' => array(
                         'html' => true,
-                        'size' => 'large',
+                        'size' => 'small',
                         'placeholder' => __('Optional reason for the assignment'),
                         ),
                     )
