@@ -53,8 +53,9 @@ jQuery(function() {
     },
     getHelpTips = (function() {
         var dfd, cache = {};
-        return function(namespace) {
-            var namespace = namespace
+        return function(elem) {
+            var namespace =
+                   $(elem).closest('[data-tip-namespace]').data('tipNamespace')
                 || $('#content').data('tipNamespace')
                 || $('meta[name=tip-namespace]').attr('content');
             if (!namespace)
@@ -147,7 +148,7 @@ jQuery(function() {
             clearTimeout(tip_timer);
         });
 
-        getHelpTips().then(function(tips) {
+        getHelpTips(elem).then(function(tips) {
             var href = elem.attr('href');
             if (href) {
                 section = tips[elem.attr('href').substr(1)];
