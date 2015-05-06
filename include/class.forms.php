@@ -56,7 +56,7 @@ class Form {
 
     function setFields($fields) {
 
-        if (!is_array($fields))
+        if (!is_array($fields) && !$fields instanceof Traversable)
             return;
 
         $this->fields = $fields;
