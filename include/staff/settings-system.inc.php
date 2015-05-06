@@ -274,7 +274,9 @@ $gmtime = Misc::gmtime();
 </p>
 </form>
 <script type="text/javascript">
-$('#secondary_langs').sortable({
-    cursor: 'move'
+$(function() {
+    $('#secondary_langs').sortable({
+        cursor: 'move'
+    });
 });
 </script>
