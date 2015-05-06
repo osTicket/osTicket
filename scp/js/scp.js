@@ -800,6 +800,11 @@ $.changeHash = function(hash, quiet) {
   }
 };
 
+// Forms — submit, stay on same tab
+$(document).on('submit', 'form', function() {
+    $(this).attr('action', $(this).attr('action') + window.location.hash);
+});
+
 //Collaborators
 $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
     e.preventDefault();
