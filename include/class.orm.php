@@ -2321,6 +2321,10 @@ class MySqlExecutor {
                 $types .= 's';
                 $p = $p->format('Y-m-d h:i:s');
             }
+            elseif (is_object($p)) {
+                $types .= 's';
+                $p = (string) $p;
+            }
             // TODO: Emit error if param is null
             $ps[] = &$p;
         }
