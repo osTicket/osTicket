@@ -192,7 +192,6 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
     }
 
-
     function viewUser($tid) {
         global $thisstaff;
 

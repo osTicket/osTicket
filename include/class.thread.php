@@ -42,6 +42,10 @@ class Thread extends VerySimpleModel {
             'entries' => array(
                 'reverse' => 'ThreadEntry.thread',
             ),
+            'events' => array(
+                'reverse' => 'ThreadEvent.thread',
+                'class' => 'ThreadEvents',
+            ),
         ),
     );
 
@@ -198,11 +202,16 @@ class Thread extends VerySimpleModel {
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
+        $events = $this->getEvents();
         include STAFFINC_DIR . 'templates/thread-entries.tmpl.php';
     }
 
     function getEntry($id) {
         return ThreadEntry::lookup($id, $this->getId());
+    }
+
+    function getEvents() {
+        return $this->events;
     }
 
     /**
@@ -1406,6 +1415,244 @@ implements TemplateVariable {
 
 RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
+class ThreadEvent extends VerySimpleModel {
+    static $meta = array(
+        'table' => TICKET_EVENT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
+            ),
+            'staff' => array(
+                'constraint' => array(
+                    'uid' => 'Staff.staff_id',
+                ),
+                'null' => true,
+            ),
+            'user' => array(
+                'constraint' => array(
+                    'uid' => 'User.id',
+                ),
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array(
+                    'dept_id' => 'Dept.id',
+                ),
+                'null' => true,
+            ),
+        ),
+    );
+
+    // Valid events for database storage
+    const ASSIGNED  = 'assigned';
+    const CLOSED    = 'closed';
+    const CREATED   = 'created';
+    const COLLAB    = 'collab';
+    const EDITED    = 'edited';
+    const ERROR     = 'error';
+    const OVERDUE   = 'overdue';
+    const REOPENED  = 'reopened';
+    const STATUS    = 'status';
+    const TRANFERRED = 'transferred';
+    const VIEWED    = 'viewed';
+
+    const MODE_STAFF = 1;
+    const MODE_CLIENT = 2;
+
+    var $_data;
+
+    function getUserName() {
+        if ($this->uid && $this->uid_type == 'S')
+            return $this->staff->getName();
+        if ($this->uid && $this->uid_type == 'U')
+            return $this->user->getName();
+        return $this->username;
+    }
+
+    function getIcon() {
+        $icons = array(
+            'assigned' => 'hand-right',
+            'collab' => 'group',
+            'created' => 'magic',
+            'overdue' => 'time',
+        );
+        return @$icons[$this->state] ?: 'chevron-sign-right';
+    }
+
+    function getDescription() {
+        static $descs;
+        if (!isset($descs))
+            $descs = array(
+            'assigned:staff' => __('<b>{username}</b> assigned this to <strong>{<Staff>data.staff}</strong> {timestamp}'),
+            'assigned:team' => __('<b>{username}</b> assigned this to <strong>{<Team>data.team}</strong> {timestamp}'),
+            'assigned:claim' => __('<b>{username}</b> claimed this {timestamp}'),
+            'collab:org' => __('Collaborators for {<Organization>data.org} organization added'),
+            'collab:del' => function($evt) {
+                $data = $evt->getData();
+                $base = __('<b>{username}</b> removed %s from the collaborators.');
+                return $data['del']
+                    ? Format::htmlchars(sprintf($base, implode(', ', $data['del'])))
+                    : 'somebody';
+            },
+            'collab:add' => function($evt) {
+                $data = $evt->getData();
+                $base = __('<b>{username}</b> added %s as collaborators {timestamp}');
+                $collabs = array();
+                if ($data['add']) {
+                    foreach ($data['add'] as $c) {
+                        $collabs[] = '<b>'.Format::htmlchars($c).'</b>';
+                    }
+                }
+                return $collabs
+                    ? sprintf($base, implode(', ', $collabs))
+                    : 'somebody';
+            },
+            'created' => __('<strong>Created</strong> by <b>{username}</b> {timestamp}'),
+            'edited:owner' => __('<b>{username}</b> changed ownership to {<User>data.owner} {timestamp}'),
+            'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
+            'overdue' => __('Flagged as overdue by the system {timestamp}'),
+            'transferred' => __('<b>{username}</b> transferred this to {dept} {timestamp}'),
+        );
+        $self = $this;
+        $data = $this->getData();
+        $state = $this->state;
+        if (is_array($data)) {
+            foreach (array_keys($data) as $k)
+                if (isset($descs[$state . ':' . $k]))
+                    $state .= ':' . $k;
+        }
+        $description = $descs[$state];
+        if (is_callable($description))
+            $description = $description($this);
+
+        return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
+            function ($m) use ($self) {
+                switch ($m['key']) {
+                case 'username':
+                    return $self->getUserName();
+                case 'timestamp':
+                    return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                        date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
+                        Format::daydatetime($self->timestamp),
+                        Format::relativeTime(Misc::db2gmtime($self->timestamp))
+                    );
+                case 'dept':
+                    if ($dept = $this->getDept())
+                        return $dept->getLocalName();
+                case 'data':
+                    $val = $self->getData($m['data']);
+                    if ($m['type'] && class_exists($m['type']))
+                        $val = $m['type']::lookup($val);
+                    return (string) $val;
+                }
+                return $m[0];
+            },
+            $description
+        );
+    }
+
+    function getDept() {
+        return $this->dept;
+    }
+
+    function getData($key=false) {
+        if (!isset($this->_data))
+            $this->_data = JsonDataParser::decode($this->data);
+        return ($key) ? @$this->_data[$key] : $this->_data;
+    }
+
+    function render($mode) {
+        if ($mode == self::MODE_STAFF) {
+            $event = $this;
+            include STAFFINC_DIR . 'templates/thread-event.tmpl.php';
+        }
+    }
+
+    static function create($ht=false) {
+        $inst = parent::create($ht);
+        $inst->timestamp = SqlFunction::NOW();
+
+        global $thisstaff, $thisclient;
+        if ($thisstaff) {
+            $inst->uid_type = 'S';
+            $inst->uid = $thisstaff->getId();
+        }
+        else if ($thisclient) {
+            $inst->uid_type = 'U';
+            $inst->uid = $thisclient->getId();
+        }
+
+        return $inst;
+    }
+
+    static function forTicket($ticket, $state) {
+        $inst = static::create(array(
+            'staff_id' => $ticket->getStaffId(),
+            'team_id' => $ticket->getTeamId(),
+            'dept_id' => $ticket->getDeptId(),
+            'topic_id' => $ticket->getTopicId(),
+        ));
+        if (!isset($inst->uid_type) && $state == self::CREATED) {
+            $inst->uid_type = 'U';
+            $inst->uid = $ticket->getOwnerId();
+        }
+        return $inst;
+    }
+}
+
+class ThreadEvents extends InstrumentedList {
+    function annul($event) {
+        $this->queryset
+            ->filter(array('state' => $event))
+            ->update(array('annulled' => 1));
+    }
+
+    function log($object, $state, $data=null, $annul=null, $username=null) {
+        if ($object instanceof Ticket)
+            $event = ThreadEvent::forTicket($object, $state);
+        else
+            $event = ThreadEvent::create();
+
+        # Annul previous entries if requested (for instance, reopening a
+        # ticket will annul an 'closed' entry). This will be useful to
+        # easily prevent repeated statistics.
+        if ($annul) {
+            $this->annul($annul);
+        }
+
+        if ($username === null) {
+            if ($thisstaff) {
+                $username = $thisstaff->getUserName();
+            }
+            else if ($thisclient) {
+                if ($thisclient->hasAccount)
+                    $username = $thisclient->getAccount()->getUserName();
+                if (!$username)
+                    $username = $thisclient->getEmail();
+            }
+            else {
+                # XXX: Security Violation ?
+                $username = 'SYSTEM';
+            }
+        }
+        $event->username = $username;
+        $event->state = $state;
+
+        if ($data) {
+            if (is_array($data))
+                $data = JsonDataEncoder::encode($data);
+            if (!is_string($data))
+                throw new InvalidArgumentException('Data must be string or array');
+            $event->data = $data;
+        }
+
+        $this->add($event);
+
+        // Save event immediately
+        return $event->save();
+    }
+}
 
 class ThreadEntryBody /* extends SplString */ {
 

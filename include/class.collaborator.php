@@ -35,8 +35,10 @@ implements EmailContact, ITicketUser {
     );
 
     function __toString() {
-        return Format::htmlchars(sprintf('%s <%s>', $this->getName(),
-                $this->getEmail()));
+        return Format::htmlchars($this->toString());
+    }
+    function toString() {
+        return sprintf('%s <%s>', $this->getName(), $this->getEmail());
     }
 
     function getId() {

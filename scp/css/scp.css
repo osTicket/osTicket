@@ -55,9 +55,20 @@ div#header a {
     color: #666;
     color: rgba(0,0,0,0.5);
 }
+.faded b {
+    color: #333;
+    color: rgba(0,0,0,0.75);
+}
+.faded strong {
+    color: #444;
+    color: rgba(0,0,0,0.6);
+}
 .faded-more {
     color: #aaa;
     color: rgba(0,0,0,0.4);
+}
+time[title]:hover {
+    text-decoration: underline;
 }
 
 .small[class^="icon-"],
@@ -912,7 +923,7 @@ table.thread-entry th, #ticket_notes table th {
 }
 
 #response_options {
-    margin-top:30px;
+    margin-top:10px;
 }
 
 #response_options > form {
@@ -1403,7 +1414,7 @@ h2 > i.help-tip {
   background-color:#e9f5ff;
 }
 
-time {
+time.faq {
     display:inline-block;
     float:right;
     color:#777;
@@ -2216,4 +2227,18 @@ td.indented {
 }
 .sticky.bar .content {
   margin: auto;
+}
+
+.thread-event {
+    padding: 15px 5px 5px;
+}
+.thread-event .type-icon {
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    padding: 5px 8px;
+    margin-right: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.2em;
+    border: 1px solid #eee;
 }
