@@ -41,7 +41,7 @@
 
     constructor: Typeahead
 
-  , select: function () {
+  , select: function (e) {
       var val = JSON.parse(this.$menu.find('.active').attr('data-value'))
         , text
 
@@ -51,7 +51,8 @@
       this.$element.val(text)
 
       if (typeof this.onselect == "function")
-          this.onselect(val)
+          if (false === this.onselect(val, e))
+              return;
 
       return this.hide()
     }
@@ -252,7 +253,7 @@
         case 9: // tab
         case 13: // enter
           if (!this.shown) return
-          this.select()
+          this.select(e)
           break
 
         case 27: // escape
@@ -298,7 +299,7 @@
   , click: function (e) {
       e.stopPropagation()
       e.preventDefault()
-      this.select()
+      this.select(e)
     }
 
   , mouseenter: function (e) {

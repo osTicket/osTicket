@@ -1803,11 +1803,13 @@ RedactorPlugins.contexttypeahead = function() {
       }
     },
 
-    select: function(item) {
+    select: function(item, event) {
       var current = this.selection.getCurrent(),
           sel     = this.selection.get(),
           range   = this.sel.getRangeAt(0),
           cursorAt = range.endOffset,
+          // TODO: Consume immediately following `}` symbols
+          plugin  = this.contexttypeahead,
           search  = new RegExp(/%\{([^}]*)(\}?)$/);
 
       // FIXME: ENTER will end up here, but current will be empty
@@ -1818,7 +1820,9 @@ RedactorPlugins.contexttypeahead = function() {
       // Set cursor at the end of the expanded text
       var left = current.textContent.substring(0, cursorAt),
           right = current.textContent.substring(cursorAt),
-          newLeft = left.replace(search, '%{' + item.variable + '}');
+          autoExpand = event.target.nodeName == 'I',
+          selected = item.variable + (autoExpand ? '.' : '')
+          newLeft = left.replace(search, '%{' + selected + '}');
 
       current.textContent = newLeft
         // Drop the remaining part of a variable block, if any
@@ -1827,7 +1831,12 @@ RedactorPlugins.contexttypeahead = function() {
       this.range.setStart(current, newLeft.length - 1);
       this.range.setEnd(current, newLeft.length - 1);
       this.selection.addRange();
-      return this.contexttypeahead.destroy();
+      if (!autoExpand)
+          return plugin.destroy();
+
+      plugin.typeahead.val(selected);
+      plugin.typeahead.typeahead('lookup');
+      return false;
     }
   };
 };
