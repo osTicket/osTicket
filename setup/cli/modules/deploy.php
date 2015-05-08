@@ -151,7 +151,7 @@ class Deployment extends Unpacker {
 
         # Locate the upload folder
         $root = $this->find_root_folder();
-        $rootPattern = str_replace("\\","\\\\", $this->find_root_folder()); //need for windows case
+        $rootPattern = str_replace("\\","\\\\", $root); //need for windows case
 
         $exclusions = array("$rootPattern/include", "$rootPattern/.git*",
             "*.sw[a-z]","*.md", "*.txt");
