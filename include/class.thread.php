@@ -1420,14 +1420,28 @@ class ThreadEvent extends VerySimpleModel {
         'table' => TICKET_EVENT_TABLE,
         'pk' => array('id'),
         'joins' => array(
-            'thread' => array(
-                'constraint' => array('thread_id' => 'Thread.id'),
-            ),
-            'staff' => array(
+            // Originator of activity
+            'agent' => array(
                 'constraint' => array(
                     'uid' => 'Staff.staff_id',
                 ),
                 'null' => true,
+            ),
+            // Agent assignee
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                ),
+                'null' => true,
+            ),
+            'team' => array(
+                'constraint' => array(
+                    'team_id' => 'Team.team_id',
+                ),
+                'null' => true,
+            ),
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
             ),
             'user' => array(
                 'constraint' => array(
@@ -1462,9 +1476,16 @@ class ThreadEvent extends VerySimpleModel {
 
     var $_data;
 
+    function getAvatar($size=16) {
+        if ($this->uid && $this->uid_type == 'S')
+            return $this->agent->get_gravatar($size);
+        if ($this->uid && $this->uid_type == 'U')
+            return $this->user->get_gravatar($size);
+    }
+
     function getUserName() {
         if ($this->uid && $this->uid_type == 'S')
-            return $this->staff->getName();
+            return $this->agent->getName();
         if ($this->uid && $this->uid_type == 'U')
             return $this->user->getName();
         return $this->username;
@@ -1472,10 +1493,10 @@ class ThreadEvent extends VerySimpleModel {
 
     function getIcon() {
         $icons = array(
-            'assigned' => 'hand-right',
-            'collab' => 'group',
-            'created' => 'magic',
-            'overdue' => 'time',
+            'assigned'  => 'hand-right',
+            'collab'    => 'group',
+            'created'   => 'magic',
+            'overdue'   => 'time',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -1484,6 +1505,7 @@ class ThreadEvent extends VerySimpleModel {
         static $descs;
         if (!isset($descs))
             $descs = array(
+            'assigned' => __('Assignee changed by <b>{username}</b> to <strong>{assignees}</strong> {timestamp}'),
             'assigned:staff' => __('<b>{username}</b> assigned this to <strong>{<Staff>data.staff}</strong> {timestamp}'),
             'assigned:team' => __('<b>{username}</b> assigned this to <strong>{<Team>data.team}</strong> {timestamp}'),
             'assigned:claim' => __('<b>{username}</b> claimed this {timestamp}'),
@@ -1497,22 +1519,22 @@ class ThreadEvent extends VerySimpleModel {
             },
             'collab:add' => function($evt) {
                 $data = $evt->getData();
-                $base = __('<b>{username}</b> added %s as collaborators {timestamp}');
+                $base = __('<b>{username}</b> added <strong>%s</strong> as collaborators {timestamp}');
                 $collabs = array();
                 if ($data['add']) {
                     foreach ($data['add'] as $c) {
-                        $collabs[] = '<b>'.Format::htmlchars($c).'</b>';
+                        $collabs[] = Format::htmlchars($c);
                     }
                 }
                 return $collabs
                     ? sprintf($base, implode(', ', $collabs))
                     : 'somebody';
             },
-            'created' => __('<strong>Created</strong> by <b>{username}</b> {timestamp}'),
+            'created' => __('Created by <b>{username}</b> {timestamp}'),
             'edited:owner' => __('<b>{username}</b> changed ownership to {<User>data.owner} {timestamp}'),
             'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
             'overdue' => __('Flagged as overdue by the system {timestamp}'),
-            'transferred' => __('<b>{username}</b> transferred this to {dept} {timestamp}'),
+            'transferred' => __('<b>{username}</b> transferred this to <strong>{dept}</strong> {timestamp}'),
         );
         $self = $this;
         $data = $this->getData();
@@ -1529,14 +1551,32 @@ class ThreadEvent extends VerySimpleModel {
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
             function ($m) use ($self) {
                 switch ($m['key']) {
+                case 'assignees':
+                    $assignees = array();
+                    if ($S = $this->staff) {
+                        $url = $S->get_gravatar(16);
+                        $assignees[] =
+                            "<img class=\"avatar\" src=\"{$url}\"> ".$S->getName();
+                    }
+                    if ($T = $this->team) {
+                        $assignees[] = $T->getLocalName();
+                    }
+                    return implode('/', $assignees);
                 case 'username':
-                    return $self->getUserName();
+                    $name = $self->getUserName();
+                    if ($url = $self->getAvatar())
+                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    return $name;
                 case 'timestamp':
                     return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
                         date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
                         Format::daydatetime($self->timestamp),
                         Format::relativeTime(Misc::db2gmtime($self->timestamp))
                     );
+                case 'agent':
+                    $st = $this->agent;
+                    if ($url = $self->getAvatar())
+                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
                 case 'dept':
                     if ($dept = $this->getDept())
                         return $dept->getLocalName();

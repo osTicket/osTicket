@@ -463,7 +463,7 @@ a.Icon:hover {
     background:#fff;
 }
 
-a:not(.re-icon) {
+a {
     color:#184E81;
 }
 
@@ -854,7 +854,6 @@ h2 .reload {
 table.thread-entry {
     margin-top:10px;
     border:1px solid #aaa;
-    border-bottom:2px solid #aaa;
 }
 
 #ticket_notes table {
@@ -891,16 +890,107 @@ table.thread-entry th, #ticket_notes table th {
     text-align:right;
 }
 
-.thread-entry.message th {
+.thread-entry {
+    margin-top: 15px;
+}
+.thread-entry.avatar {
+    margin-left: 60px;
+}
+.thread-entry.message.avatar {
+    margin-right: 60px;
+    margin-left: 0;
+}
+.thread-entry > .avatar {
+    margin-left: -60px;
+    display:inline-block;
+    width:48px;
+    height:auto;
+    border-radius: 5px;
+}
+.thread-entry.message > .avatar {
+    margin-left: initial;
+    margin-right: -60px;
+}
+img.avatar {
+    border-radius: inherit;
+}
+.thread-entry .header {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: 5px 5px 0 0;
+}
+.thread-entry.avatar .header:before {
+  position: absolute;
+  top: 7px;
+  right: -9px;
+  content: '';
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 9px solid #CCC;
+  border-left-color: rgba(0,0,0,0.3);
+  display: inline-block;
+}
+.thread-entry.avatar .header:after {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  display: inline-block;
+}
+
+.thread-entry.avatar .header {
+    position: relative;
+}
+
+.thread-entry.message .header {
     background:#C3D9FF;
 }
-
-.thread-entry.response th {
-    background:#FFE0B3;
+.thread-entry.avatar.message .header:after {
+    border-left:9px solid #C3D9FF;
 }
 
-.thread-entry.note th {
+.thread-entry.response .header {
+    background:#FFE0B3;
+}
+.thread-entry.avatar.response .header:before,
+.thread-entry.avatar.note .header:before {
+    top: 7px;
+    left: -9px;
+    right: initial;
+    border-left: none;
+    border-right: 9px solid #CCC;
+    border-right-color: rgba(0,0,0,0.2);
+}
+.thread-entry.avatar.response .header:after,
+.thread-entry.avatar.note .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 9px solid #FFE0B3;
+}
+
+.thread-entry.note .header {
     background:#FFE;
+}
+.thread-entry.avatar.note .header:after {
+    border-right-color: #FFE;
+}
+.thread-entry .header .title {
+    max-width: 500px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom:2px solid #aaa;
+    border-radius: 0 0 5px 5px;
 }
 
 #ticket_notes table td {
@@ -1836,6 +1926,23 @@ div.selected-signature .inner {
     top: 4px;
     right: 5px;
 }
+.muted-button:hover {
+    border: 1px solid #aaa;
+    border: 1px solid rgba(0,0,0,0.3);
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    color: black;
+}
+.muted-button {
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin: -1px 0 -1px 5px;
+  border: 1px solid rgba(0,0,0,0.15);
+  color: #666;
+  color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.1);
+  background: linear-gradient(0, rgba(0,0,0,0.1), rgba(255,255,255,0.1));
+}
 
 .sortable-rows tr td:hover {
     cursor: move;
@@ -2230,15 +2337,39 @@ td.indented {
 }
 
 .thread-event {
-    padding: 15px 5px 5px;
+    padding: 15px 2px 0;
 }
-.thread-event .type-icon {
+.thread-event.action {
+    margin-left: 60px;
+}
+.type-icon {
     border-radius: 8px;
     background-color: #f4f4f4;
-    padding: 5px 8px;
+    padding: 4px 6px;
     margin-right: 5px;
     text-align: center;
     display: inline-block;
-    font-size: 1.2em;
+    font-size: 1.1em;
     border: 1px solid #eee;
+    vertical-align: top;
+}
+.type-icon.dark {
+    border-color: #666;
+    background-color: #949494;
+}
+.thread-event img.avatar {
+    vertical-align: middle;
+    border-radius: 3px;
+    width: auto;
+    max-height: 24px;
+    margin: -3px 3px 0;
+}
+.thread-event .description {
+    margin-left: -30px;
+    padding-top: 6px;
+    padding-left: 30px;
+    display: inline-block;
+    width: 822px;
+    width: calc(100% - 46px);
+    line-height: 1.4em;
 }

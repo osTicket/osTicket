@@ -1,23 +1,23 @@
 <?php
 $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
+$user = $entry->getUser() ?: $entry->getStaff();
+$name = $user ? $user->getName() : $entry->poster;
+if ($user && ($url = $user->get_gravatar(48)))
+    $avatar = "<img class=\"avatar\" src=\"{$url}\"> ";
 ?>
 
-<table class="thread-entry <?php echo $entryTypes[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
-    <tr>
-        <th colspan="4" width="100%">
-        <div>
-            <span class="pull-left">
-            <span style="display:inline-block"><?php
-                echo Format::datetime($entry->created);?></span>
-            <span style="display:inline-block;padding:0 1em;max-width: 500px" class="faded title truncate"><?php
-                echo $entry->title; ?></span>
-            </span>
+<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<?php if ($avatar) { ?>
+    <span class="<?php echo ($entry->type == 'M') ? 'pull-right' : 'pull-left'; ?> avatar">
+<?php echo $avatar; ?>
+    </span>
+<?php } ?>
+    <div class="header">
         <div class="pull-right">
 <?php           if ($entry->hasActions()) {
             $actions = $entry->getActions(); ?>
-            <span class="action-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry->getId(); ?>">
+            <span class="muted-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry->getId(); ?>">
                 <i class="icon-caret-down"></i>
-                <span ><i class="icon-cog"></i></span>
             </span>
             <div id="entry-action-more-<?php echo $entry->getId(); ?>" class="action-dropdown anchor-right">
         <ul class="title">
@@ -34,7 +34,6 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
         </ul>
         </div>
 <?php           } ?>
-            <span style="vertical-align:middle">
                 <span style="vertical-align:middle;" class="textra">
         <?php if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
                 <span class="label label-bare" title="<?php
@@ -42,22 +41,28 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
                 ?>"><?php echo __('Edited'); ?></span>
         <?php } ?>
                 </span>
-                <span style="vertical-align:middle;"
-                    class="tmeta faded title"><?php
-                    echo Format::htmlchars($entry->getName()); ?></span>
-            </span>
         </div>
-        </th>
-    </tr>
-    <tr><td colspan="4" class="thread-body" id="thread-id-<?php
+<?php
+            echo sprintf(__('<b>%s</b> posted %s'), $name,
+                sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                    date(DateTime::W3C, Misc::db2gmtime($entry->created)),
+                    Format::daydatetime($entry->created),
+                    Format::relativeTime(Misc::db2gmtime($entry->created))
+                )
+            ); ?>
+            <span style="max-width:500px" class="faded title truncate"><?php
+                echo $entry->title; ?></span>
+            </span>
+    </div>
+    <div class="thread-body" id="thread-id-<?php
         echo $entry->getId(); ?>"><div><?php
-        echo $entry->getBody()->toHtml(); ?></div></td></tr>
+        echo $entry->getBody()->toHtml(); ?></div>
+    </div>
     <?php
     $urls = null;
     if ($entry->has_attachments
         && ($urls = $entry->getAttachmentUrls())) { ?>
-    <tr>
-        <td class="info" colspan="4"><?php
+    <div><?php
             foreach ($entry->attachments as $A) {
                 if ($A->inline) continue;
                 $size = '';
@@ -70,8 +75,7 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
             target="_blank"><?php echo Format::htmlchars($A->file->name);
         ?></a><?php echo $size;?>&nbsp;
 <?php               } ?>
-        </td>
-    </tr> <?php
+    </div> <?php
     }
     if ($urls) { ?>
         <script type="text/javascript">
@@ -82,5 +86,4 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
         </script>
 <?php
     } ?>
-</table>
-
+</div>
