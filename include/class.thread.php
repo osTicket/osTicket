@@ -993,14 +993,19 @@ class ThreadEntry {
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
-                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
+                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))
+                && ($staff = Staff::getIdByEmail($mailinfo['email']))) {
             //We have a valid ticket and user
-            if ($ticket->getUserId() == $user->getId() //owner
+            if (!empty($staff) || $ticket->getUserId() == $user->getId() //owner
                     ||  ($c = Collaborator::lookup( // check if collaborator
                             array('userId' => $user->getId(),
                                   'ticketId' => $ticket->getId())))) {
 
-                $mailinfo['userId'] = $user->getId();
+                if (empty($staff))
+	                $mailinfo['userId'] = $user->getId();
+                else
+	                $mailinfo['staffId'] = $staff;
+	                
                 return $ticket->getLastMessage();
             }
         }
