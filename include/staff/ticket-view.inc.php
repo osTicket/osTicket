@@ -42,6 +42,8 @@ if (!$errors['err']) {
                 $lock->getStaffName());
     elseif (($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
+    elseif (!Validator::is_valid_email($ticket->getEmail()))
+        $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
 }
 
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
