@@ -993,9 +993,13 @@ class ThreadEntry {
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
-                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
+                && (($user = User::lookup(array('emails__address' => $mailinfo['email'])))
+                    || ($staff = Staff::getIdByEmail($mailinfo['email'])))) {
            
-            $staff = Staff::getIdByEmail($mailinfo['email']);
+            //staff member could also be a user so no use re-loading staff variable if user is set
+            if (!empty($user)) 
+                $staff = Staff::getIdByEmail($mailinfo['email']);
+                
             //We have a valid ticket and user
             if (!empty($staff) || $ticket->getUserId() == $user->getId() //owner
                     ||  ($c = Collaborator::lookup( // check if collaborator
