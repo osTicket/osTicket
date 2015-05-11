@@ -54,14 +54,10 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
-    <tr>
-        <td width="20%" class="has_bottom_border">
-             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
-             title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
-             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
-        </td>
-        <td width="auto" class="flush-right has_bottom_border">
+<div class="has_bottom_border">
+    <div class="sticky bar">
+       <div class="content">
+        <div class="pull-right flush-right">
             <?php
             if ($role->hasPerm(EmailModel::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
@@ -166,9 +162,15 @@ if($ticket->isOverdue())
                 }?>
               </ul>
             </div>
-        </td>
-    </tr>
-</table>
+        </div>
+        <div class="flush-left">
+             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
+             title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
+             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
+        </div>
+    </div>
+  </div>
+</div>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
         <td width="50%">
@@ -407,7 +409,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
 
-<div id="response_options">
+<div class="sticky bar stop" id="response_options">
     <ul class="tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>

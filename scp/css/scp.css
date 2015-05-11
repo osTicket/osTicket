@@ -2185,3 +2185,18 @@ td.indented {
 .form-simple select, .form-simple input, .form-simple textarea {
     margin-left: 0;
 }
+.sticky.bar.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  width: 100%;
+  border-bottom: 5px solid #ffffff;
+  background-color: white;
+  padding: 10px 20px 5px;
+  box-sizing: border-box;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
+.sticky.bar .content {
+  margin: auto;
+}
