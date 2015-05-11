@@ -33,7 +33,7 @@ if($_POST && !$errors && $filter){
         case 'update':
             if(!$rule){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban rule'));
-            }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])){
+            }elseif(!$_POST['val'] || !Validator::is_valid_email($_POST['val'])){
                 $errors['err']=$errors['val']=__('Valid email address required');
             }elseif(!$errors){
                 $vars=array('what'=>'email',
@@ -52,7 +52,7 @@ if($_POST && !$errors && $filter){
         case 'add':
             if(!$filter) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban list'));
-            }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])) {
+            }elseif(!$_POST['val'] || !Validator::is_valid_email($_POST['val'])) {
                 $errors['err']=$errors['val']=__('Valid email address required');
             }elseif(BanList::includes(trim($_POST['val']))) {
                 $errors['err']=$errors['val']=__('Email already in the ban list');

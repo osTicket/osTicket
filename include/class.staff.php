@@ -454,7 +454,7 @@ implements EmailContact {
         if(!$vars['lastname'])
             $errors['lastname']=__('Last name is required');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');

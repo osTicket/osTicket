@@ -25,8 +25,8 @@ if($_POST){
     if(!$_POST['email_id'] || !($email=Email::lookup($_POST['email_id'])))
         $errors['email_id']=__('Select from email address');
 
-    if(!$_POST['email'] || !Validator::is_email($_POST['email']))
-        $errors['email']=__('To email address required');
+    if(!$_POST['email'] || !Validator::is_valid_email($_POST['email']))
+        $errors['email']=__('Valid recipient email address required');
 
     if(!$_POST['subj'])
         $errors['subj']=__('Subject required');
