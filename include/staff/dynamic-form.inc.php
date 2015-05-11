@@ -289,7 +289,7 @@ if ($form && count($langs) > 1) { ?>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
+    <h3 class="drag-handle"><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>

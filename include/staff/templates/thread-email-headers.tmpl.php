@@ -1,4 +1,4 @@
-<h3><?php echo __('Raw Email Headers'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Raw Email Headers'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 

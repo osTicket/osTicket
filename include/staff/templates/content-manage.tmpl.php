@@ -1,4 +1,4 @@
-<h3><?php echo __('Manage Content'); ?> &mdash; <?php echo Format::htmlchars($content->getName()); ?></h3>
+<h3 class="drag-handle"><?php echo __('Manage Content'); ?> &mdash; <?php echo Format::htmlchars($content->getName()); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 

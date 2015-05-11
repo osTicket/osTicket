@@ -317,14 +317,14 @@ var scp_prep = function() {
             top : (w.innerHeight() / 7),
             left : (w.width() - $this.outerWidth()) / 2
         });
-        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
     });
 
 
     $('.dialog').each(function() {
         $this=$(this);
         $this.resize();
-        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
     });
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {

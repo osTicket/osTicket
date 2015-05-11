@@ -1,4 +1,4 @@
-<h3><?php echo __('Ticket Collaborators'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Ticket Collaborators'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <?php
 if($info && $info['msg']) {

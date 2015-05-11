@@ -4,7 +4,7 @@ $info=($_POST && $errors)?Format::input($_POST):@Format::htmlchars($org->getInfo
 if (!$info['title'])
     $info['title'] = Format::htmlchars($org->getName());
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php

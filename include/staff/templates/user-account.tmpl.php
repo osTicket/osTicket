@@ -5,7 +5,7 @@ $access = (isset($info['_target']) && $info['_target'] == 'access');
 if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>

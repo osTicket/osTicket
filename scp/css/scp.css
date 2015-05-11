@@ -1565,7 +1565,7 @@ time {
     -webkit-box-sizing: content-box;
 }
 
-.dialog.draggable h3:hover {
+.dialog.draggable h3.drag-handle:hover {
     cursor: move;
 }
 
