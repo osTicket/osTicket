@@ -996,7 +996,7 @@ class ThreadEntry {
                 && (($user = User::lookup(array('emails__address' => $mailinfo['email'])))
                     || ($staff = Staff::getIdByEmail($mailinfo['email'])))) {
            
-            //staff member could also be a user so no use re-loading staff variable if user is set
+            //staff member could also be a user so no use re-loading staff variable if user is not set
             if (!empty($user)) 
                 $staff = Staff::getIdByEmail($mailinfo['email']);
                 
