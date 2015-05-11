@@ -718,7 +718,7 @@ class TextboxField extends FormField {
         $config = $this->getConfiguration();
         $validators = array(
             '' =>       null,
-            'email' =>  array(array('Validator', 'is_email'),
+            'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
                 __('Enter a valid phone number')),
