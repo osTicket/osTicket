@@ -2165,6 +2165,7 @@ td.indented {
 }
 .accordian dt.active a {
   color: #184E81;
+  text-decoration: none;
 }
 .accordian dt:not(.active) a i {
   display: none;
