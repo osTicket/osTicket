@@ -224,6 +224,10 @@ class HtmlInlineElement {
             }
             else {
                 $more = $c;
+                if (!$after_block)
+                    // Prepend a newline. Block elements should start to the
+                    // far left
+                    $output .= "\n";
             }
             $after_block = ($c instanceof HtmlBlockElement);
             if ($more instanceof PreFormattedText)
@@ -246,6 +250,7 @@ class HtmlInlineElement {
             break;
         }
         if ($this->footnotes) {
+            $output = rtrim($output, "\n");
             $output .= "\n\n" . str_repeat('-', $width/2) . "\n";
             $id = 1;
             foreach ($this->footnotes as $name=>$content)
@@ -369,14 +374,7 @@ class HtmlBlockElement extends HtmlInlineElement {
         $mb = $this->getStyle('margin-bottom', 0);
         $output .= str_repeat("\n", (int)$mb);
 
-        // Add leading newline if not preceed by <br/>
-        if (!($pn = $this->node->previousSibling)
-            || !in_array(strtolower($pn->nodeName), array('br','hr'))
-        ) {
-            $output = "\n" . $output;
-        }
-
-        return $output;
+        return $output."\n";
     }
 
     function borderize($what, $width) {
@@ -409,7 +407,7 @@ class HtmlBrElement extends HtmlBlockElement {
 
 class HtmlHrElement extends HtmlBlockElement {
     function render($width, $options) {
-        return "\n".str_repeat("\xE2\x94\x80", $width)."\n";
+        return str_repeat("\xE2\x94\x80", $width)."\n";
     }
     function getWeight() { return 1; }
     function getMinWidth() { return 0; }
@@ -434,7 +432,7 @@ class HtmlHeadlineElement extends HtmlBlockElement {
                 return $headline;
         }
         $length = max(array_map('mb_strwidth2', explode("\n", $headline)));
-        $headline .= "\n" . str_repeat($line, $length) . "\n";
+        $headline .= str_repeat($line, $length) . "\n";
         return $headline;
     }
 }
