@@ -479,6 +479,8 @@ var scp_prep = function() {
        }
     });
   });
+
+  $('[data-toggle="tooltip"]').tooltip()
 };
 
 $(document).ready(scp_prep);

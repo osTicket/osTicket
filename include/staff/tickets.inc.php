@@ -465,7 +465,8 @@ return false;">
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span
                     class="truncate"><?php echo $subject; ?></span></a>
 <?php               if ($T['attachment_count'])
-                        echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
+                        echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
+                            .$T['attachment_count'].'"></i>';
                     if ($threadcount > 1) { ?>
                         <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
                             <small><?php echo $threadcount; ?></small>
@@ -474,7 +475,8 @@ return false;">
                 </td>
                 <td nowrap><div><?php
                     if ($T['collab_count'])
-                        echo '<span class="pull-right faded-more"><i class="icon-group"></i></span>';
+                        echo '<span class="pull-right faded-more" data-toggle="tooltip" title="'
+                            .$T['collab_count'].'"><i class="icon-group"></i></span>';
                     ?><span class="truncate" style="max-width:<?php
                         echo $T['collab_count'] ? '150px' : '170px'; ?>"><?php
                     $un = new PersonsName($T['user__name']);
