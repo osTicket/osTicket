@@ -441,9 +441,12 @@ class Format {
             $strftimeFallback, $timezone, $user=false) {
         global $cfg;
 
-        if ($timestamp && $fromDb) {
+        if (!$timestamp)
+            return '';
+
+        if ($fromDb)
             $timestamp = Misc::db2gmtime($timestamp);
-        }
+
         if (class_exists('IntlDateFormatter')) {
             $formatter = new IntlDateFormatter(
                 Internationalization::getCurrentLocale($user),
