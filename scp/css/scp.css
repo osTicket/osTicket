@@ -842,54 +842,6 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
-
-#toggle_ticket_thread {
-    background:url(../images/icons/open.gif) 10px 50% no-repeat;
-}
-
-#toggle_notes {
-    background:url(../images/icons/note.gif) 10px 50% no-repeat;
-}
-
-table.thread-entry {
-    margin-top:10px;
-    border:1px solid #aaa;
-}
-
-#ticket_notes table {
-    margin-top:10px;
-    border:1px solid #ddd;
-    border-bottom:2px solid #ddd;
-}
-
-table.thread-entry th, #ticket_notes table th {
-    text-align:left;
-    border-bottom:1px solid #aaa;
-    font-size:10pt;
-    padding:5px;
-}
-
-#ticket_notes table th {
-    text-align:left;
-    border-bottom:1px solid #ddd;
-    font-size:10pt;
-    padding:5px;
-    background:#F4FAFF;
-}
-
-#ticket_notes table th em {
-    font-weight:normal;
-    font-size:10pt;
-    color:#666;
-}
-
-#ticket_notes .date {
-    font-weight:normal;
-    font-size:10pt;
-    color:#888;
-    text-align:right;
-}
-
 .thread-entry {
     margin-top: 15px;
 }
@@ -915,7 +867,7 @@ img.avatar {
     border-radius: inherit;
 }
 .thread-entry .header {
-    padding: 8px;
+    padding: 8px 0.9em;
     border: 1px solid #ccc;
     border-color: rgba(0,0,0,0.2);
     border-radius: 5px 5px 0 0;
@@ -927,18 +879,18 @@ img.avatar {
   content: '';
   border-top: 9px solid transparent;
   border-bottom: 9px solid transparent;
-  border-left: 9px solid #CCC;
-  border-left-color: rgba(0,0,0,0.3);
+  border-left: 9px solid #9cadcc;
   display: inline-block;
 }
 .thread-entry.avatar .header:after {
   position: absolute;
   top: 7px;
-  right: -8px;
+  right: -9px;
   content: '';
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
   display: inline-block;
+  margin-top: 1px;
 }
 
 .thread-entry.avatar .header {
@@ -949,7 +901,8 @@ img.avatar {
     background:#C3D9FF;
 }
 .thread-entry.avatar.message .header:after {
-    border-left:9px solid #C3D9FF;
+    border-left: 9px solid #C3D9FF;
+    margin-right: 1px;
 }
 
 .thread-entry.response .header {
@@ -962,15 +915,25 @@ img.avatar {
     right: initial;
     border-left: none;
     border-right: 9px solid #CCC;
-    border-right-color: rgba(0,0,0,0.2);
+}
+.thread-entry.note:not(.avatar) .header {
+    background-color: #f4f4f4;
+    background-color: rgba(0,0,0,0.05);
+}
+.thread-entry.avatar.response .header:before {
+    border-right-color: #ccb3af;
+}
+.thread-entry.avatar.note .header:before {
+    border-right-color: #ccccb0;
 }
 .thread-entry.avatar.response .header:after,
 .thread-entry.avatar.note .header:after {
     top: 7px;
-    left: -8px;
+    left: -9px;
     right: initial;
     border-left: none;
     border-right: 9px solid #FFE0B3;
+    margin-left: 1px;
 }
 
 .thread-entry.note .header {
@@ -991,6 +954,28 @@ img.avatar {
     border-top: none;
     border-bottom:2px solid #aaa;
     border-radius: 0 0 5px 5px;
+}
+.thread-body .attachments {
+  background-color: #f4faff;
+  margin: 0 -0.9em;
+  position: relative;
+  top: 0.9em;
+  padding: 0.3em 0.9em;
+  border-top: 1px dotted #ccc;
+  border-top-color: rgba(0,0,0,0.2);
+  border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments .filesize {
+  margin-left: 0.5em;
+}
+.thread-body .attachment-info {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+}
+.thread-body .attachment-info .filename {
+  max-width: 80%;
+  max-width: calc(100% - 70px);
 }
 
 #ticket_notes table td {
@@ -2245,6 +2230,7 @@ button a:hover {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: bottom;
 }
 td.indented {
     padding-left: 20px;

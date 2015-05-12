@@ -2,6 +2,7 @@
 $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
+$avatar = '';
 if ($user && ($url = $user->get_gravatar(48)))
     $avatar = "<img class=\"avatar\" src=\"{$url}\"> ";
 ?>
@@ -54,30 +55,31 @@ if ($user && ($url = $user->get_gravatar(48)))
                 echo $entry->title; ?></span>
             </span>
     </div>
-    <div class="thread-body" id="thread-id-<?php
-        echo $entry->getId(); ?>"><div><?php
-        echo $entry->getBody()->toHtml(); ?></div>
-    </div>
-    <?php
-    $urls = null;
-    if ($entry->has_attachments
-        && ($urls = $entry->getAttachmentUrls())) { ?>
-    <div><?php
-            foreach ($entry->attachments as $A) {
-                if ($A->inline) continue;
-                $size = '';
-                if ($A->file->size)
-                    $size = sprintf('<em>(%s)</em>',
-                        Format::file_size($A->file->size));
+    <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">
+        <div><?php echo $entry->getBody()->toHtml(); ?></div>
+<?php
+    if ($entry->has_attachments) { ?>
+    <div class="attachments"><?php
+        foreach ($entry->attachments as $A) {
+            if ($A->inline)
+                continue;
+            $size = '';
+            if ($A->file->size)
+                $size = sprintf('<small class="filesize faded">%s</small>', Format::file_size($A->file->size));
 ?>
-        <a class="Icon file no-pjax" href="<?php echo $A->file->getDownloadUrl();
+        <span class="attachment-info">
+        <i class="icon-paperclip icon-flip-horizontal"></i>
+        <a class="no-pjax truncate filename" href="<?php echo $A->file->getDownloadUrl();
             ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
             target="_blank"><?php echo Format::htmlchars($A->file->name);
-        ?></a><?php echo $size;?>&nbsp;
-<?php               } ?>
-    </div> <?php
-    }
-    if ($urls) { ?>
+        ?></a><?php echo $size;?>
+        </span>
+<?php   }  ?>
+    </div>
+<?php } ?>
+    </div>
+<?php
+    if ($urls = $entry->getAttachmentUrls()) { ?>
         <script type="text/javascript">
             $('#thread-id-<?php echo $entry->getId(); ?>')
                 .data('urls', <?php
