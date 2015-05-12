@@ -627,6 +627,19 @@ class FormField {
     }
 
     /**
+     * Describe the difference between the to two values. Note that the
+     * values should be passed through ::parse() or to_php() before
+     * utilizing this method.
+     */
+    function whatChanged($before, $after) {
+        if ($before)
+            $desc = __('changed from <strong>%2$s</strong> to <strong>%1$s</strong>');
+        else
+            $desc = __('set to <strong>%1$s</strong>');
+        return sprintf($desc, $this->display($after), $this->display($before));
+    }
+
+    /**
      * Convert the field data to something matchable by filtering. The
      * primary use of this is for ticket filtering.
      */
@@ -1310,6 +1323,37 @@ class ChoiceField extends FormField {
         if (is_array($value))
             return implode(', ', $value);
         return (string) $value;
+    }
+
+    function whatChanged($before, $after) {
+        $before = (array) $before;
+        $after = (array) $after;
+        $added = array_diff($after, $before);
+        $deleted = array_diff($before, $after);
+        $added = array_map(array($this, 'display'), $added);
+        $deleted = array_map(array($this, 'display'), $deleted);
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed to <strong>%1$s</strong>'),
+                $this->display($after));
+        }
+        return $desc;
     }
 
     /*

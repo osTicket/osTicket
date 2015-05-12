@@ -1497,6 +1497,8 @@ class ThreadEvent extends VerySimpleModel {
             'collab'    => 'group',
             'created'   => 'magic',
             'overdue'   => 'time',
+            'transferred' => 'share-alt',
+            'edited'    => 'pencil',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -1535,6 +1537,26 @@ class ThreadEvent extends VerySimpleModel {
             'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
             'overdue' => __('Flagged as overdue by the system {timestamp}'),
             'transferred' => __('<b>{username}</b> transferred this to <strong>{dept}</strong> {timestamp}'),
+            'edited:fields' => function($evt) {
+                $base = __('Updated by <b>{username}</b> {timestamp} — %s');
+                $data = $evt->getData();
+                $fields = $changes = array();
+                foreach (DynamicFormField::objects()->filter(array(
+                    'id__in' => array_keys($data['fields'])
+                )) as $F) {
+                    $fields[$F->id] = $F;
+                }
+                foreach ($data['fields'] as $id=>$f) {
+                    $field = $fields[$id];
+                    list($old, $new) = $f;
+                    $impl = $field->getImpl($field);
+                    $before = $impl->to_php($old);
+                    $after = $impl->to_php($new);
+                    $changes[] = sprintf('<strong>%s</strong> %s',
+                        $field->getLocal('label'), $impl->whatChanged($before, $after));
+                }
+                return sprintf($base, implode(', ', $changes));
+            },
         );
         $self = $this;
         $data = $this->getData();

@@ -2578,7 +2578,6 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>__('Select a valid SLA'));
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
 
-        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>__('A reason for the update is required'));
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
@@ -2629,16 +2628,16 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        if(!$vars['note'])
-            $vars['note']=sprintf(_S('Ticket details updated by %s'), $thisstaff->getName());
-
-        $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
+        if ($vars['note'])
+            $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
         // Decide if we need to keep the just selected SLA
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
+        $changes = array();
         foreach ($forms as $f) {
+            $changes += $f->getChanges();
             // Drop deleted forms
             $idx = array_search($f->getId(), $vars['forms']);
             if ($idx === false) {
@@ -2649,6 +2648,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 $f->save();
             }
         }
+
+        $this->logEvent('edited', array('fields' => $changes));
 
         // Reload the ticket so we can do further checking
         $this->reload();
