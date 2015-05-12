@@ -712,18 +712,22 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
-CREATE TABLE `%TABLE_PREFIX%ticket_event` (
-  `ticket_id` int(11) unsigned NOT NULL default '0',
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
+CREATE TABLE `%TABLE_PREFIX%thread_event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL,
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
-  `staff` varchar(255) NOT NULL default 'SYSTEM',
+  `state` enum('created','closed','reopened','assigned','transferred','overdue','edited','viewed','error','collab','resent') NOT NULL,
+  `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
+  `username` varchar(128) NOT NULL default 'SYSTEM',
+  `uid` int(11) unsigned DEFAULT NULL,
+  `uid_type` char(1) NOT NULL DEFAULT 'S',
   `annulled` tinyint(1) unsigned NOT NULL default '0',
   `timestamp` datetime NOT NULL,
-  KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
+  KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
 
