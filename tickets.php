@@ -35,7 +35,7 @@ if($_REQUEST['id']) {
 if (!$ticket && $thisclient->isGuest())
     Http::redirect('view.php');
 
-$tform = TicketForm::getInstance()->getForm();
+$tform = TicketForm::objects()->one()->getForm();
 $messageField = $tform->getField('message');
 $attachments = $messageField->getWidget()->getAttachments();
 
