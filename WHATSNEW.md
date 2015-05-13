@@ -10,6 +10,7 @@ osTicket v1.8.10
   * Preserve internal note formatting on new ticket by staff if HTML is
     disabled (#2001)
   * Fix deployment on Windows® platforms, thanks @yadimon (#2033)
+  * Fix corruption of some html content (0072c46)
 
 osTicket v1.8.9
 ===============
