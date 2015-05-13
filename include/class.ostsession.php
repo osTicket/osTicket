@@ -66,6 +66,7 @@ class osTicketSession {
         }
         catch (Exception $x) {
             // Use the database for sessions
+            trigger_error($x->getMessage(), E_USER_WARNING);
             $this->backend = new self::$backends['db']($this->ttl);
         }
 
