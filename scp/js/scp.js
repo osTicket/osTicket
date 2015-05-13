@@ -450,13 +450,13 @@ var scp_prep = function() {
          stop = $('div.sticky.bar.stop'),
          stopAt,
          visible = false;
-     if (stop.length)
-       stopAt = stop.offset().top - $that.height();
 
      $that.find('.content').width($that.width());
      $(window).scroll(function (event) {
        // what the y position of the scroll is
        var y = $(this).scrollTop();
+       if (stop.length)
+         stopAt = stop.offset().top - $that.height();
 
        // whether that's below the form
        if (y >= top && (!stopAt || stopAt > y)) {
