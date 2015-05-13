@@ -31,6 +31,9 @@ $sort_options = array(
 $use_subquery = true;
 
 $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+// Stash current queue view
+$_SESSION['::Q'] = $queue_name;
+
 switch ($queue_name) {
 case 'closed':
     $status='closed';

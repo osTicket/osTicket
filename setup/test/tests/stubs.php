@@ -163,4 +163,12 @@ class NumberFormatter {
 class Aws_Route53_Client {
     function changeResourceRecordSets() {}
 }
+
+class Memcache {
+    function addServer() {}
+    function pconnect() {}
+    function replace() {}
+    function set() {}
+    function get() {}
+}
 ?>

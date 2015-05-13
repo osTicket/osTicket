@@ -36,9 +36,12 @@ if($_REQUEST['id']) {
 }
 
 //Lookup user if id is available.
-if ($_REQUEST['uid'])
+if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-
+}
+elseif (!isset($_GET['status']) && isset($_SESSION['::Q'])) {
+    $_GET['status'] = $_REQUEST['status'] = $_SESSION['::Q'];
+}
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',

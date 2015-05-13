@@ -189,7 +189,7 @@ $info['id']=$staff->getId();
                   }
                   ?>
                 </select>
-                <em><?php echo __('(This can be selectected when replying to a ticket)');?></em>
+                <em><?php echo __('(This can be selected when replying to a ticket)');?></em>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['default_signature_type']; ?></span>
             </td>
         </tr>

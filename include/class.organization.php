@@ -374,7 +374,8 @@ implements TemplateVariable {
                 $this->save();
             }
             $entry->setSource($vars);
-            $entry->save();
+            if ($entry->save())
+                $this->updated = SqlFunction::NOW();
         }
 
         // Set flags

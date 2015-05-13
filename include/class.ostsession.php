@@ -15,11 +15,17 @@
 **********************************************************************/
 
 class osTicketSession {
+    static $backends = array(
+        'db'        => 'DbSessionBackend',
+        'memcache'  => 'MemcacheSessionBackend',
+        'system'    => 'FallbackSessionBackend',
+    );
 
     var $ttl = SESSION_TTL;
     var $data = '';
     var $data_hash = '';
     var $id = '';
+    var $backend;
 
     function osTicketSession($ttl=0){
         $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
@@ -49,24 +55,41 @@ class osTicketSession {
         session_set_cookie_params($ttl, ROOT_PATH, $domain,
             osTicket::is_https());
 
-        //Set handlers.
-        session_set_save_handler(
-            array(&$this, 'open'),
-            array(&$this, 'close'),
-            array(&$this, 'read'),
-            array(&$this, 'write'),
-            array(&$this, 'destroy'),
-            array(&$this, 'gc')
-        );
+        if (!defined('SESSION_BACKEND'))
+            define('SESSION_BACKEND', 'db');
 
-        //Start the session.
+        try {
+            $bk = SESSION_BACKEND;
+            if (!class_exists(self::$backends[$bk]))
+                $bk = 'db';
+            $this->backend = new self::$backends[$bk]($this->ttl);
+        }
+        catch (Exception $x) {
+            // Use the database for sessions
+            trigger_error($x->getMessage(), E_USER_WARNING);
+            $this->backend = new self::$backends['db']($this->ttl);
+        }
+
+        if ($this->backend instanceof SessionBackend) {
+            // Set handlers.
+            session_set_save_handler(
+                array($this->backend, 'open'),
+                array($this->backend, 'close'),
+                array($this->backend, 'read'),
+                array($this->backend, 'write'),
+                array($this->backend, 'destroy'),
+                array($this->backend, 'gc')
+            );
+        }
+
+        // Start the session.
         session_start();
     }
 
     function regenerate_id(){
         $oldId = session_id();
         session_regenerate_id();
-        $this->destroy($oldId);
+        $this->backend->destroy($oldId);
     }
 
     static function destroyCookie() {
@@ -86,13 +109,56 @@ class osTicketSession {
             ini_get('session.cookie_httponly'));
     }
 
-    function open($save_path, $session_name){
-        return (true);
+    /* helper functions */
+
+    function get_online_users($sec=0){
+        $sql='SELECT user_id FROM '.SESSION_TABLE.' WHERE user_id>0 AND session_expire>NOW()';
+        if($sec)
+            $sql.=" AND TIME_TO_SEC(TIMEDIFF(NOW(),session_updated))<$sec";
+
+        $users=array();
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($uid)=db_fetch_row($res))
+                $users[] = $uid;
+        }
+
+        return $users;
     }
 
-    function close(){
-        return (true);
+    /* ---------- static function ---------- */
+    static function start($ttl=0) {
+        return new static($ttl);
     }
+}
+
+abstract class SessionBackend {
+    var $isnew = false;
+    var $ttl;
+
+    function __construct($ttl) {
+        $this->ttl = $ttl;
+    }
+
+    function open($save_path, $session_name) {
+        return true;
+    }
+
+    function close() {
+        return true;
+    }
+
+    function getTTL() {
+        return $this->ttl;
+    }
+
+    abstract function read($id);
+    abstract function write($id, $data);
+    abstract function destroy($id);
+    abstract function gc($maxlife);
+}
+
+class DbSessionBackend
+extends SessionBackend {
 
     function read($id){
         $this->isnew = false;
@@ -146,30 +212,100 @@ class osTicketSession {
         $sql='DELETE FROM '.SESSION_TABLE.' WHERE session_expire<NOW()';
         db_query($sql);
     }
+}
 
-    /* helper functions */
+class MemcacheSessionBackend
+extends SessionBackend {
+    var $memcache;
+    var $servers = array();
 
-    function getTTL(){
-        return $this->ttl;
+    function __construct($ttl) {
+        parent::__construct($ttl);
+
+        if (!extension_loaded('memcache'))
+            throw new Exception('Memcached extension is missing');
+        if (!defined('MEMCACHE_SERVERS'))
+            throw new Exception('MEMCACHE_SERVERS must be defined');
+
+        $servers = explode(',', MEMCACHE_SERVERS);
+        $this->memcache = new Memcache();
+
+        foreach ($servers as $S) {
+            @list($host, $port) = explode(':', $S);
+            if (strpos($host, '/') !== false)
+                // Use port '0' for unix sockets
+                $port = 0;
+            else
+                $port = $port ?: ini_get('memcache.default_port') ?: 11211;
+            $this->servers[] = array(trim($host), (int) trim($port));
+            // FIXME: Crash or warn if invalid $host or $port
+        }
     }
 
-    function get_online_users($sec=0){
-        $sql='SELECT user_id FROM '.SESSION_TABLE.' WHERE user_id>0 AND session_expire>NOW()';
-        if($sec)
-            $sql.=" AND TIME_TO_SEC(TIMEDIFF(NOW(),session_updated))<$sec";
+    function getKey($id) {
+        return sha1($id.SECRET_SALT);
+    }
 
-        $users=array();
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($uid)=db_fetch_row($res))
-                $users[] = $uid;
+    function read($id) {
+        $key = $this->getKey($id);
+
+        // Try distributed read first
+        foreach ($this->servers as $S) {
+            list($host, $port) = $S;
+            $this->memcache->addServer($host, $port);
+        }
+        $data = $this->memcache->get($key);
+
+        // Read from other servers on failure
+        if ($data === false && count($this->servers) > 1) {
+            foreach ($this->servers as $S) {
+                list($host, $port) = $S;
+                $this->memcache->pconnect($host, $port);
+                if ($data = $this->memcache->get($key))
+                    break;
+            }
         }
 
-        return $users;
+        // No session data on record -- new session
+        $this->isnew = $data === false;
+
+        return $data;
     }
 
-    /* ---------- static function ---------- */
-    function start($ttl=0) {
-        return New osTicketSession($ttl);
+    function write($id, $data) {
+        if (defined('DISABLE_SESSION') && $this->isnew)
+            return;
+
+        $key = $this->getKey($id);
+        foreach ($this->servers as $S) {
+            list($host, $port) = $S;
+            $this->memcache->pconnect($host, $port);
+            if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
+                $this->memcache->set($key, $data, 0, $this->getTTL());
+        }
+    }
+
+    function destroy($id) {
+        $key = $this->getKey($id);
+        foreach ($this->servers as $S) {
+            list($host, $port) = $S;
+            $this->memcache->pconnect($host, $port);
+            $this->memcache->replace($key, '', 0, 1);
+            $this->memcache->delete($key, 0);
+        }
+    }
+
+    function gc($maxlife) {
+        // Memcache does this automatically
     }
 }
+
+class FallbackSessionBackend {
+    // Use default PHP settings, with some edits for best experience
+    function __construct() {
+        // FIXME: Consider extra possible security tweaks such as adjusting
+        // the session.save_path
+    }
+}
+
 ?>

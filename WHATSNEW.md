@@ -1,3 +1,38 @@
+osTicket v1.9.8
+===============
+### Enhancements
+  * Update user information for existing users when importing CSV (#1993)
+  * Agent names are consistently formatted and sorted throughout the system (#1972)
+  * Memcache session backend support. (See `include/ost-sampleconfig.php`) (#2031)
+  * Email domain validation includes DNS record verification (#2042)
+  * Make ticket queue selection sticky (aa2dc85)
+
+### Improvements
+  * Fix incorrect mapping of ISO charsets to ISO-8859-1, thanks @nerull7
+  * Fix unnecessary drop of ticket CDATA table because of update to deleted
+    field (#1932)
+  * Fix inability to create or update organization custom data (#1942)
+  * Fix inability to update some fields of user custom data (#1942)
+  * Fix filtering user custom data for email tickets (#1943)
+  * Fix missing email headers resulting in incorrectly threaded emails when
+    delivered (#1947)
+  * Cleanup file data when removing custom file uploads (#1942)
+  * Fix crash when exporting PDF and PHAR extension is not enabled
+  * Fix crash processing some TNEF documents (89f3ed7, #1956)
+  * Fix handling of GBK charset when gb2312 is advertised (#2000)
+  * Fix link to client ticket listing when logged in, thanks @neewy (#1952)
+  * Disambiguate staff and collaborators when processing a some emails (#1983)
+  * Fix several i18n phrase and layout issues (#1958, #1962, #2039)
+  * Improve detection of some bounce notices with alternative content (#1994)
+  * Fix image URL rewrite when pasting existing images, from a KB article for
+    instance (#1960)
+  * Preserve internal note formatting on new ticket by staff if HTML is
+    disabled (#2001)
+  * Touch organization `updated` timestamp on custom data update (#2007)
+  * Fix deployment on Windows® platforms, thanks @yadimon (#2033)
+  * Fix upgrade crash if retrying an old, failed upgrade from v1.6 (#1995)
+  * Fix corruption of some html content (9ae01bf)
+
 osTicket v1.9.7
 ===============
 ### Enhancements

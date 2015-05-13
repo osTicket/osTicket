@@ -549,7 +549,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if(!$vars['lastname'])
             $errors['lastname']=__('Last name is required');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
@@ -761,7 +761,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail($template='pwreset-staff') {
+    function sendResetEmail($template='pwreset-staff', $log=true) {
         global $ost, $cfg;
 
         $content = Page::lookupByType($template);
@@ -785,7 +785,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>$log);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
@@ -927,7 +927,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if ($this->save() && $this->updateTeams($vars['teams'])) {
             if ($vars['welcome_email'])
-                $this->sendResetEmail('registration-staff');
+                $this->sendResetEmail('registration-staff', false);
             return true;
         }
 

@@ -140,7 +140,7 @@ class Validator {
 
     /*** Functions below can be called directly without class instance.
          Validator::func(var..);  (nolint) ***/
-    function is_email($email, $list=false) {
+    function is_email($email, $list=false, $verify=false) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
         if (!($mails = Mail_RFC822::parseAddressList($email)) || PEAR::isError($mails))
@@ -156,8 +156,16 @@ class Validator {
                 return false;
         }
 
+        if ($verify && !checkdnsrr($m->host, 'MX'))
+            return false;
+
         return true;
     }
+
+    function is_valid_email($email) {
+        return self::is_email($email, false, true);
+    }
+
     function is_phone($phone) {
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);

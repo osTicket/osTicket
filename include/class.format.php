@@ -212,7 +212,7 @@ class Format {
             $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
-            'balance' => 1, //balance and close unclosed tags.
+            'balance' => 0, // No balance — corrupts poorly formatted Outlook html
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
             'deny_attribute' => 'id',
