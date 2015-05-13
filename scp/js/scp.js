@@ -37,7 +37,10 @@ function checkbox_checker(formObj, min, max) {
 
 var scp_prep = function() {
 
-    $("input:not(.dp):visible:enabled:first").focus();
+    var id = getURLTicketVars()["id"];
+    var a = getURLTicketVars()["a"];
+    if(getPage() != "tickets.php" || (id == null || a != null)) 
+            $("input:not(.dp):visible:enabled:first").focus();
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
@@ -850,4 +853,15 @@ function __(s) {
   if ($.oststrings && $.oststrings[s])
     return $.oststrings[s];
   return s;
+}
+function getURLTicketVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+function getPage() {
+	var sPath=window.location.pathname;
+	return sPath.substring(sPath.lastIndexOf('/') + 1);
 }
