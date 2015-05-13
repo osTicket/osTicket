@@ -193,6 +193,7 @@ $(function() {
                 window.location.href = 'users.php';
             else
                 window.location.href = window.location.href;
+            return false;
          }, {
             onshow: function() { $('#user-search').focus(); }
          });
