@@ -664,7 +664,7 @@ implements EmailContact {
             if ($vars['teams'])
                 $staff->updateTeams($vars['teams']);
             if ($vars['welcome_email'])
-                $staff->sendResetEmail('registration-staff');
+                $staff->sendResetEmail('registration-staff', false);
             Signal::send('model.created', $staff);
         }
 
@@ -680,7 +680,7 @@ implements EmailContact {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail($template='pwreset-staff') {
+    function sendResetEmail($template='pwreset-staff', $log=true) {
         global $ost, $cfg;
 
         $content = Page::lookup(Page::getIdByType($template));
@@ -704,7 +704,7 @@ implements EmailContact {
         if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>$log);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
