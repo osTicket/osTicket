@@ -110,7 +110,7 @@ class Export {
         return false;
     }
 
-    static function saveTasks(sql, $filename, $how='csv') {
+    static function saveTasks($sql, $filename, $how='csv') {
         return false;
     }
 

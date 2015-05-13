@@ -2505,7 +2505,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
     }
 
     // Threadable interface
-    function postThreadEntry($type, $vars) {
+    function postThreadEntry($type, $vars, $options=array()) {
         $errors = array();
         switch ($type) {
         case 'M':
