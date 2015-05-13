@@ -288,12 +288,14 @@ class Task extends TaskModel implements Threadable {
         return $thread;
     }
 
-    function postThreadEntry($type, $vars) {
+    function postThreadEntry($type, $vars, $options=array()) {
         $errors = array();
+        $poster = isset($options['poster']) ? $options['poster'] : null;
+        $alert = isset($options['alert']) ? $options['alert'] : true;
         switch ($type) {
         case 'N':
         default:
-            return $this->postNote($vars, $errors);
+            return $this->postNote($vars, $errors, $poster, $alert);
         }
     }
 

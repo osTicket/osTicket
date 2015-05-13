@@ -110,6 +110,10 @@ class Export {
         return false;
     }
 
+    static function saveTasks(sql, $filename, $how='csv') {
+        return false;
+    }
+
     static function saveUsers($sql, $filename, $how='csv') {
 
         $exclude = array('name', 'email');

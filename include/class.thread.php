@@ -1983,6 +1983,6 @@ abstract class ThreadEntryAction {
 interface Threadable {
     function getThreadId();
     function getThread();
-    function postThreadEntry($type, $vars);
+    function postThreadEntry($type, $vars, $options=array());
 }
 ?>

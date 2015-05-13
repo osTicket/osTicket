@@ -120,7 +120,13 @@ class ThreadAjaxAPI extends AjaxController {
                 $thread->getObject()->postThreadEntry('N',
                         array(
                             'title' => __('New Collaborator Added'),
-                            'note' => $note));
+                            'note' => $note
+                            ),
+                        array(
+                            'poster' => $thisstaff,
+                            'alert' => false
+                            )
+                        );
                 $info = array('msg' => sprintf(__('%s added as a collaborator'),
                             Format::htmlchars($c->getName())));
                 return self::_collaborators($thread, $info);
