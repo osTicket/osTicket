@@ -39,7 +39,9 @@ if($_REQUEST['id']) {
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
 }
-elseif (!isset($_REQUEST['status']) && isset($_SESSION['::Q'])) {
+elseif (!isset($_REQUEST['advsid']) && @$_REQUEST['a'] != 'search'
+    && !isset($_REQUEST['status']) && isset($_SESSION['::Q'])
+) {
     $_REQUEST['status'] = $_SESSION['::Q'];
 }
 // Configure form for file uploads
