@@ -1,3 +1,16 @@
+osTicket v1.8.10
+================
+### Improvements
+  * Fix crash processing some TNEF documents (85053e8)
+  * Fix incorrect mapping of ISO charsets to ISO-8859-1, thanks @nerull7
+  * Fix handling of GBK charset when gb2312 is advertised (#2000)
+  * Disambiguate staff and collaborators when processing a some emails (#1983)
+  * Improve detection of some bounce notices with alternative content (#1994)
+  * Fix upgrade crash if retrying an old, failed upgrade from v1.6 (#1995)
+  * Preserve internal note formatting on new ticket by staff if HTML is
+    disabled (#2001)
+  * Fix deployment on Windows® platforms, thanks @yadimon (#2033)
+
 osTicket v1.8.9
 ===============
 ### Enhancements
