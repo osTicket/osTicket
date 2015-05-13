@@ -306,7 +306,8 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
 <div style="margin-bottom:20px; padding-top:10px;">
-<div>
+<div class="sticky bar">
+    <div class="content">
         <div class="pull-left flush-left">
             <h2><a href="<?php echo $refresh_url; ?>"
                 title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
@@ -336,6 +337,7 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
             <?php
             } ?>
         </div>
+    </div>
 </div>
 <div class="clear" style="margin-bottom:10px;"></div>
 <form action="tickets.php" method="POST" name='tickets' id="tickets">

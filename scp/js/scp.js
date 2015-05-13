@@ -436,6 +436,46 @@ var scp_prep = function() {
    if (window.location.hash) {
      $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
    }
+
+   // Make sticky bars float on scroll
+   // Thanks, https://stackoverflow.com/a/17166225/1025836
+   $('.sticky.bar').each(function() {
+     var $that = $(this),
+         placeholder = $('<div class="sticky placeholder">').insertBefore($that),
+         offset = $that.offset(),
+         top = offset.top - parseFloat($that.css('marginTop').replace(/auto/, 100)),
+         stop = $('div.sticky.bar.stop'),
+         stopAt,
+         visible = false;
+     if (stop.length)
+       stopAt = stop.offset().top - $that.height();
+
+     $that.find('.content').width($that.width());
+     $(window).scroll(function (event) {
+       // what the y position of the scroll is
+       var y = $(this).scrollTop();
+
+       // whether that's below the form
+       if (y >= top && (!stopAt || stopAt > y)) {
+         // if so, add the fixed class
+         if (!visible) {
+           visible = true;
+           setTimeout(function() {
+             placeholder.height($that.height());
+             $that.addClass('fixed').css('top', '-'+$that.height()+'px')
+                .animate({top:0}, {easing: 'swing', duration:'fast'});
+           }, 1);
+         }
+       } else {
+         // otherwise remove it
+         visible = false;
+         setTimeout(function() {
+           placeholder.removeAttr('style');
+           $that.stop().removeClass('fixed');
+         }, 1);
+       }
+    });
+  });
 };
 
 $(document).ready(scp_prep);
