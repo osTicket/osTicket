@@ -86,10 +86,19 @@ $tasks->filter(Q::any($visibility));
 
 // Add in annotations
 $tasks->annotate(array(
-    //'collab_count' => SqlAggregate::COUNT('collaborators'),
-    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
-    'thread_count' => SqlAggregate::COUNT('thread__entries'),
-    // 'isopen' => new SqlExpr(array('flags__hasbit' => TaskModel::ISOPEN)),
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
+    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
+       ->when(new SqlField('thread__entries__attachments__inline'), null)
+       ->otherwise(new SqlField('thread__entries__attachments')),
+        true
+    ),
+    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(
+            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
+            null)
+        ->otherwise(new SqlField('thread__entries__id')),
+       true
+    ),
 ));
 
 $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',

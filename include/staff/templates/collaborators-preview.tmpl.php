@@ -2,7 +2,7 @@
 <table border="0" cellspacing="" cellpadding="1">
 <colgroup><col style="min-width: 250px;"></col></colgroup>
 <?php
-if (($users=$ticket->getCollaborators())) {?>
+if (($users=$thread->getCollaborators())) {?>
 <?php
     foreach($users as $user) {
         echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
@@ -12,16 +12,16 @@ if (($users=$ticket->getCollaborators())) {?>
                 $user->getEmail());
     }
 }  else {
-    echo "<strong>".__("Ticket doesn't have any collaborators.")."</strong>";
+    echo "<strong>".__("Thread doesn't have any collaborators.")."</strong>";
 }?>
 </table>
 <?php
 $options = array();
 
 $options[] = sprintf(
-        '<a class="collaborators" id="managecollab" href="#tickets/%d/collaborators">%s</a>',
-        $ticket->getId(),
-        $ticket->getNumCollaborators()
+        '<a class="collaborators" id="managecollab" href="#thread/%d/collaborators">%s</a>',
+        $thread->getId(),
+        $thread->getNumCollaborators()
         ? __('Manage Collaborators') : __('Add Collaborator')
         );
 

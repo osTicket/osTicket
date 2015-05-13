@@ -181,7 +181,7 @@ class TaskModel extends VerySimpleModel {
 RolePermission::register(/* @trans */ 'Tasks', TaskModel::getPermissions());
 
 
-class Task extends TaskModel {
+class Task extends TaskModel implements Threadable {
     var $form;
     var $entry;
 
@@ -269,6 +269,10 @@ class Task extends TaskModel {
         return $assignees ? implode($glue, $assignees):'';
     }
 
+    function getThreadId() {
+        return $this->thread->getId();
+    }
+
     function getThread() {
         return $this->thread;
     }
@@ -282,6 +286,15 @@ class Task extends TaskModel {
         if ($type && is_array($type))
             $thread->filter(array('type__in' => $type));
         return $thread;
+    }
+
+    function postThreadEntry($type, $vars) {
+        $errors = array();
+        switch ($type) {
+        case 'N':
+        default:
+            return $this->postNote($vars, $errors);
+        }
     }
 
     function getForm() {

@@ -23,6 +23,13 @@ echo '<ul class="tabs" id="task-preview">';
 echo '
         <li class="active"><a href="#summary"
             ><i class="icon-list-alt"></i>&nbsp;'.__('Task Summary').'</a></li>';
+if ($task->getThread()->getNumCollaborators()) {
+    echo sprintf('
+        <li><a id="collab_tab" href="#collab"
+            ><i class="icon-fixed-width icon-group
+            faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
+            $task->getThread()->getNumCollaborators());
+}
 echo '</ul>';
 echo '<div id="task-preview_container">';
 echo '<div class="tab_content" id="summary">';
@@ -72,9 +79,37 @@ echo '
     </table>';
 echo '</div>';
 ?>
-</div>
 <?php
 //TODO: add link to view if the user has permission
-
-echo '</div>';
 ?>
+<div class="hidden tab_content" id="collab">
+    <table border="0" cellspacing="" cellpadding="1">
+        <colgroup><col style="min-width: 250px;"></col></colgroup>
+        <?php
+        if (($collabs=$task->getThread()->getCollaborators())) {?>
+        <?php
+            foreach($collabs as $collab) {
+                echo sprintf('<tr><td %s><i class="icon-%s"></i>
+                        <a href="users.php?id=%d" class="no-pjax">%s</a> <em>&lt;%s&gt;</em></td></tr>',
+                        ($collab->isActive()? '' : 'class="faded"'),
+                        ($collab->isActive()? 'comments' :  'comment-alt'),
+                        $collab->getUserId(),
+                        $collab->getName(),
+                        $collab->getEmail());
+            }
+        }  else {
+            echo __("Task doesn't have any collaborators.");
+        }?>
+    </table>
+    <br>
+    <?php
+    echo sprintf('<span><a class="collaborators"
+                            href="#thread/%d/collaborators">%s</a></span>',
+                            $task->getThreadId(),
+                            $task->getThread()->getNumCollaborators()
+                                ? __('Manage Collaborators') : __('Add Collaborator')
+                                );
+    ?>
+</div>
+</div>
+</div>

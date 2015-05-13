@@ -61,7 +61,7 @@ if ($task->isOverdue())
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
-        <td width="70%" class="has_bottom_border">
+        <td width="<?php echo $ticket ? '70%' : '20%'; ?>" class="has_bottom_border">
             <?php
             if ($ticket) { ?>
                 <strong>
@@ -157,6 +157,34 @@ if (!$ticket) { ?>
                         <th width="100"><?php echo __('Status');?>:</th>
                         <td><?php echo $task->getStatus(); ?></td>
                     </tr>
+
+                    <tr>
+                        <th><?php echo __('Create Date');?>:</th>
+                        <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
+                    </tr>
+                    <?php
+                    if($task->isOpen()){ ?>
+                    <tr>
+                        <th><?php echo __('Due Date');?>:</th>
+                        <td><?php echo $task->duedate ?
+                        Format::datetime($task->duedate) : '<span
+                        class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
+                    </tr>
+                    <?php
+                    }else { ?>
+                    <tr>
+                        <th><?php echo __('Close Date');?>:</th>
+                        <td><?php echo 0 ?
+                        Format::datetime($task->getCloseDate()) : ''; ?></td>
+                    </tr>
+                    <?php
+                    }
+                    ?>
+                </table>
+            </td>
+            <td width="50%" style="vertical-align:top">
+                <table cellspacing="0" cellpadding="4" width="100%" border="0">
+
                     <tr>
                         <th><?php echo __('Department');?>:</th>
                         <td><?php echo Format::htmlchars($task->dept->getName()); ?></td>
@@ -189,36 +217,24 @@ if (!$ticket) { ?>
                     </tr>
                     <?php
                     } ?>
-                </table>
-            </td>
-            <td width="50%" style="vertical-align:top">
-                <table cellspacing="0" cellpadding="4" width="100%" border="0">
                     <tr>
-                        <th><?php echo __('SLA Plan');?>:</th>
-                        <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
+                        <th><?php echo __('Collaborators');?>:</th>
+                        <td>
+                            <?php
+                            $collaborators = __('Add Participants');
+                            if ($task->getThread()->getNumCollaborators())
+                                $collaborators = sprintf(__('Participants (%d)'),
+                                        $task->getThread()->getNumCollaborators());
+
+                            echo sprintf('<span><a class="collaborators preview"
+                                    href="#thread/%d/collaborators"><span
+                                    id="t%d-collaborators">%s</span></a></span>',
+                                    $task->getThreadId(),
+                                    $task->getThreadId(),
+                                    $collaborators);
+                           ?>
+                        </td>
                     </tr>
-                    <tr>
-                        <th><?php echo __('Create Date');?>:</th>
-                        <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
-                    </tr>
-                    <?php
-                    if($task->isOpen()){ ?>
-                    <tr>
-                        <th><?php echo __('Due Date');?>:</th>
-                        <td><?php echo $task->duedate ?
-                        Format::datetime($task->duedate) : '<span
-                        class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
-                    </tr>
-                    <?php
-                    }else { ?>
-                    <tr>
-                        <th><?php echo __('Close Date');?>:</th>
-                        <td><?php echo 0 ?
-                        Format::datetime($task->getCloseDate()) : ''; ?></td>
-                    </tr>
-                    <?php
-                    }
-                    ?>
                 </table>
             </td>
         </tr>

@@ -119,7 +119,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(404, __('Unknown action'));
 
 
-        $errors = $e = array();
+        $info = $errors = $e = array();
         $inc = null;
         $i = $count = 0;
         if ($_POST) {

@@ -510,18 +510,19 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <td>
                     <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
                         <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
-                        style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
+                        style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
                     $recipients = __('Add Recipients');
-                    if ($ticket->getNumCollaborators())
+                    if ($ticket->getThread()->getNumCollaborators())
                         $recipients = sprintf(__('Recipients (%d of %d)'),
-                                $ticket->getNumActiveCollaborators(),
-                                $ticket->getNumCollaborators());
+                                $ticket->getThread()->getNumActiveCollaborators(),
+                                $ticket->getThread()->getNumCollaborators());
 
                     echo sprintf('<span><a class="collaborators preview"
-                            href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
-                            $ticket->getId(),
+                            href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
+                            $ticket->getThreadId(),
+                            $ticket->getThreadId(),
                             $recipients);
                    ?>
                 </td>

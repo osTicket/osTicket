@@ -883,35 +883,6 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         return $entries;
     }
 
-    //Collaborators
-    function getNumCollaborators() {
-        return count($this->getCollaborators());
-    }
-
-    function getNumActiveCollaborators() {
-
-        if (!isset($this->ht['active_collaborators']))
-            $this->ht['active_collaborators'] = count($this->getActiveCollaborators());
-
-        return $this->ht['active_collaborators'];
-    }
-
-    function getActiveCollaborators() {
-        return $this->getCollaborators(array('isactive'=>1));
-    }
-
-
-    function getCollaborators($criteria=array()) {
-
-        if ($criteria)
-            return Collaborator::forThread($this->getThreadId(), $criteria);
-
-        if (!isset($this->collaborators))
-            $this->collaborators = Collaborator::forThread($this->getThreadId());
-
-        return $this->collaborators;
-    }
-
     //UserList of recipients  (owner + collaborators)
     function getRecipients() {
 

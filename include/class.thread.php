@@ -46,6 +46,7 @@ class Thread extends VerySimpleModel {
     );
 
     var $_object;
+    var $_collaborators; // Cache for collabs
 
     function getId() {
         return $this->id;
@@ -89,6 +90,108 @@ class Thread extends VerySimpleModel {
         return $base;
     }
 
+    // Collaborators
+    function getNumCollaborators() {
+        return $this->collaborators->count();
+    }
+
+    function getNumActiveCollaborators() {
+
+        if (!isset($this->ht['active_collaborators']))
+            $this->ht['active_collaborators'] = count($this->getActiveCollaborators());
+
+        return $this->ht['active_collaborators'];
+    }
+
+    function getActiveCollaborators() {
+        return $this->getCollaborators(array('isactive'=>1));
+    }
+
+    function getCollaborators($criteria=array()) {
+
+        if ($this->_collaborators && !$criteria)
+            return $this->_collaborators;
+
+        $collaborators = $this->collaborators
+            ->filter(array('thread_id' => $this->getId()));
+
+        if (isset($criteria['isactive']))
+            $collaborators->filter(array('isactive' => $criteria['isactive']));
+
+        // TODO: sort by name of the user
+        $collaborators->order_by('user__name');
+
+        if (!$criteria)
+            $this->_collaborators = $collaborators;
+
+        return $collaborators;
+    }
+
+    function addCollaborator($user, $vars, &$errors) {
+
+        if (!$user)
+            return null;
+
+        $vars = array_merge(array(
+                'threadId' => $this->getId(),
+                'userId' => $user->getId()), $vars);
+        if (!($c=Collaborator::add($vars, $errors)))
+            return null;
+
+        $this->_collaborators = null;
+
+        return $c;
+    }
+
+    function updateCollaborators($vars, &$errors) {
+        global $thisstaff;
+
+        if (!$thisstaff) return;
+
+        //Deletes
+        if($vars['del'] && ($ids=array_filter($vars['del']))) {
+            $collabs = array();
+            foreach ($ids as $k => $cid) {
+                if (($c=Collaborator::lookup($cid))
+                        && $c->getThreadId() == $this->getId()
+                        && $c->delete())
+                     $collabs[] = $c;
+            }
+
+            $this->getObject()->postThreadEntry('N',
+                    array(
+                        'title' => _S('Collaborators Removed'),
+                        'note' => implode("<br>", $collabs)));
+        }
+
+        //statuses
+        $cids = null;
+        if($vars['cid'] && ($cids=array_filter($vars['cid']))) {
+            $this->collaborators->filter(array(
+                'thread_id' => $this->getId(),
+                'id__in' => $cids
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 1,
+            ));
+        }
+
+        if ($cids) {
+            $this->collaborators->filter(array(
+                'thread_id' => $this->getId(),
+                Q::not(array('id__in' => $cids))
+            ))->update(array(
+                'updated' => SqlFunction::NOW(),
+                'isactive' => 0,
+            ));
+        }
+
+        unset($this->ht['active_collaborators']);
+        $this->_collaborators = null;
+
+        return true;
+    }
+    // Render thread
     function render($type=false) {
 
         $entries = $this->getEntries();
@@ -1878,6 +1981,8 @@ abstract class ThreadEntryAction {
 }
 
 interface Threadable {
+    function getThreadId();
+    function getThread();
     function postThreadEntry($type, $vars);
 }
 ?>
