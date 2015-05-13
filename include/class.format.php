@@ -366,7 +366,7 @@ class Format {
             },
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'elements' => '*+iframe',
-            'spec' => 'span=data-src,width,height',
+            'spec' => 'span=data-src,width,height;img=data-cid',
         );
         return Format::html($text, $config);
     }
@@ -441,9 +441,12 @@ class Format {
             $strftimeFallback, $timezone, $user=false) {
         global $cfg;
 
-        if ($timestamp && $fromDb) {
+        if (!$timestamp)
+            return '';
+
+        if ($fromDb)
             $timestamp = Misc::db2gmtime($timestamp);
-        }
+
         if (class_exists('IntlDateFormatter')) {
             $formatter = new IntlDateFormatter(
                 Internationalization::getCurrentLocale($user),

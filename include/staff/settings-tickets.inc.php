@@ -7,6 +7,17 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <form action="settings.php?t=tickets" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
+
+<ul class="clean tabs">
+    <li class="active"><a href="#settings"><i class="icon-asterisk"></i>
+        <?php echo __('Settings'); ?></a></li>
+    <li><a href="#autoresp"><i class="icon-mail-reply-all"></i>
+        <?php echo __('Autoresponder'); ?></a></li>
+    <li><a href="#alerts"><i class="icon-bell-alt"></i>
+        <?php echo __('Alerts and Notices'); ?></a></li>
+</ul>
+
+<div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -279,6 +290,16 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <?php } ?>
     </tbody>
 </table>
+</div>
+<div class="hidden tab_content" id="autoresp"
+    data-tip-namespace="settings.autoresponder">
+    <?php include STAFFINC_DIR . 'settings-autoresp.inc.php'; ?>
+</div>
+<div class="hidden tab_content" id="alerts"
+    data-tip-namespace="settings.alerts">
+    <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+
 <p style="padding-left:250px;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">

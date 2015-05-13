@@ -6,7 +6,8 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
     <div>
-        <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+        <input id="query" type="search" size="20" name="q" autofocus
+            value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <select name="cid" id="cid">
             <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php

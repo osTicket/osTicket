@@ -4,10 +4,10 @@
 #
 ---
 core:
-    time_format: 'h:i A'
-    date_format: 'm/d/Y'
-    datetime_format: 'm/d/Y g:i a'
-    daydatetime_format: 'D, M j Y g:ia'
+    time_format: 'hh:mm a'
+    date_format: 'MM/dd/y'
+    datetime_format: 'MM/dd/y h:mm a'
+    daydatetime_format: 'EEE, MMM d y h:mm a'
     default_priority_id: 2
     enable_daylight_saving: 0
 

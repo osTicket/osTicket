@@ -35,7 +35,13 @@ if ($entries) {
             </div>
 <?php           } ?>
                 <span style="vertical-align:middle">
-                    <span style="vertical-align:middle;" class="textra"></span>
+                    <span style="vertical-align:middle;" class="textra">
+        <?php if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
+                <span class="label label-bare" title="<?php
+        echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated), 'You');
+                ?>"><?php echo __('Edited'); ?></span>
+        <?php } ?>
+                    </span>
                     <span style="vertical-align:middle;"
                         class="tmeta faded title"><?php
                         echo Format::htmlchars($entry->getName()); ?></span>
@@ -60,7 +66,8 @@ if ($entries) {
                             Format::file_size($A->file->size));
 ?>
             <a class="Icon file no-pjax" href="<?php echo $A->file->getDownloadUrl();
-                ?>" target="_blank"><?php echo Format::htmlchars($A->file->name);
+                ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
+                target="_blank"><?php echo Format::htmlchars($A->file->name);
             ?></a><?php echo $size;?>&nbsp;
 <?php               } ?>
             </td>

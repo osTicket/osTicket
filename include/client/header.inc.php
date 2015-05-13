@@ -8,11 +8,17 @@ $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 header("Content-Type: text/html; charset=UTF-8");
 ?>
 <!DOCTYPE html>
-<html <?php
+<html<?php
 if (($lang = Internationalization::getCurrentLanguage())
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
-    echo 'dir="rtl" class="rtl"';
+    echo ' dir="rtl" class="rtl"';
+if ($lang) {
+    $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
+    $langs = Internationalization::rfc1766($langs);
+    echo ' lang="' . $lang . '"';
+    header("Content-Language: ".implode(', ', $langs));
+}
 ?>>
 <head>
     <meta charset="utf-8">
@@ -33,7 +39,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/chosen.min.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
@@ -43,10 +49,29 @@ if (($lang = Internationalization::getCurrentLanguage())
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.full.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
+    }
+
+    // Offer alternate links for search engines
+    // @see https://support.google.com/webmasters/answer/189077?hl=en
+    if (($all_langs = Internationalization::getConfiguredSystemLanguages())
+        && (count($all_langs) > 1)
+    ) {
+        $langs = Internationalization::rfc1766(array_keys($all_langs));
+        $qs = array();
+        parse_str($_SERVER['QUERY_STRING'], $qs);
+        foreach ($langs as $L) {
+            $qs['lang'] = $L; ?>
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>?<?php
+            echo http_build_query($qs); ?>" hreflang="<?php echo $L; ?>" />
+<?php
+        } ?>
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
+            hreflang="x-default";
+<?php
     }
     ?>
 </head>

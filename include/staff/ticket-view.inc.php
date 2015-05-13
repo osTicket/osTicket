@@ -213,10 +213,13 @@ if($ticket->isOverdue())
                             ><?php echo Format::htmlchars($ticket->getName());
                         ?></span></a>
                         <?php
-                        if($user) {
-                            echo sprintf('&nbsp;&nbsp;<a href="tickets.php?a=search&uid=%d" title="%s" data-dropdown="#action-dropdown-stats">(<b>%d</b>)</a>',
-                                    urlencode($user->getId()), __('Related Tickets'), $user->getNumTickets());
-                        ?>
+                        if ($user) { ?>
+                            <a href="tickets.php?<?php echo Http::build_query(array(
+                                'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
+                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                            data-dropdown="#action-dropdown-stats">
+                            (<b><?php echo $user->getNumTickets(); ?></b>)
+                            </a>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
                                     <?php
@@ -234,16 +237,48 @@ if($ticket->isOverdue())
                                     <li><a href="users.php?id=<?php echo
                                     $user->getId(); ?>"><i class="icon-user
                                     icon-fixed-width"></i> <?php echo __('Manage User'); ?></a></li>
-<?php       if ($user->getOrgId()) { ?>
+<?php   } ?>
+                                </ul>
+                            </div>
+<?php   if ($user->getOrgId()) { ?>
+                &nbsp; <span style="display:inline-block">
+                    <i class="icon-building"></i>
+                    <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
+                        <a href="tickets.php?<?php echo Http::build_query(array(
+                            'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
+                        )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                        data-dropdown="#action-dropdown-org-stats">
+                        (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
+                        </a>
+                    </span>
+                            <div id="action-dropdown-org-stats" class="action-dropdown anchor-right">
+                                <ul>
+<?php   if ($open = $user->getNumOpenOrganizationTickets()) { ?>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'status' => 'open', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-folder-open-alt icon-fixed-width"></i>
+                                    <?php echo sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open); ?>
+                                    </a></li>
+<?php   }
+        if ($closed = $user->getNumClosedOrganizationTickets()) { ?>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'status' => 'closed', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-folder-close-alt icon-fixed-width"></i>
+                                    <?php echo sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed); ?>
+                                    </a></li>
+                                    <li><a href="tickets.php?<?php echo Http::build_query(array(
+                                        'a' => 'search', 'orgid' => $user->getOrgId()
+                                    )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
+<?php   }
+        if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i
                                         class="icon-building icon-fixed-width"></i> <?php
                                         echo __('Manage Organization'); ?></a></li>
-<?php       }
-        } ?>
+<?php   } ?>
                                 </ul>
                             </div>
-                    <?php
-                        }
+<?php   } # end if (user->org)
+                        } # end if ($user)
                     ?>
                     </td>
                 </tr>
@@ -433,7 +468,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content" action="tickets.php?id=<?php
+    <form id="reply" class="tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -475,18 +510,19 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <td>
                     <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
                         <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
-                        style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
+                        style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
                     $recipients = __('Add Recipients');
-                    if ($ticket->getNumCollaborators())
+                    if ($ticket->getThread()->getNumCollaborators())
                         $recipients = sprintf(__('Recipients (%d of %d)'),
-                                $ticket->getNumActiveCollaborators(),
-                                $ticket->getNumCollaborators());
+                                $ticket->getThread()->getNumActiveCollaborators(),
+                                $ticket->getThread()->getNumCollaborators());
 
                     echo sprintf('<span><a class="collaborators preview"
-                            href="#tickets/%d/collaborators"><span id="recipients">%s</span></a></span>',
-                            $ticket->getId(),
+                            href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
+                            $ticket->getThreadId(),
+                            $ticket->getThreadId(),
                             $recipients);
                    ?>
                 </td>
@@ -622,7 +658,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </form>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="note" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>#note" name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -705,7 +741,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
    </form>
     <?php
     if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
-    <form id="transfer" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="transfer" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
         echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
@@ -766,7 +802,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     } ?>
     <?php
     if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
-    <form id="assign" class="hidden tab_content" action="tickets.php?id=<?php
+    <form id="assign" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
          echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -1010,5 +1046,5 @@ foreach (AttachmentFile::objects()->filter(array(
         'filename' => $file->name,
     );
 } ?>
-$.showImagesInline(<?php echo JsonDataEncoder::encode($urls); ?>);
+$('#ticket_thread').data('imageUrls', <?php echo JsonDataEncoder::encode($urls); ?>);
 </script>

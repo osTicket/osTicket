@@ -153,6 +153,14 @@ class DynamicForm extends VerySimpleModel {
         return $inst;
     }
 
+    function disableFields(array $ids) {
+        foreach ($this->getFields() as $F) {
+            if (in_array($F->get('id'), $ids)) {
+                $F->disable();
+            }
+        }
+    }
+
     function getTranslateTag($subtag) {
         return _H(sprintf('form.%s.%s', $subtag, $this->id));
     }
@@ -236,7 +244,7 @@ class DynamicForm extends VerySimpleModel {
         // New translations (?)
         if ($vars['trans'] && is_array($vars['trans'])) {
             foreach ($vars['trans'] as $lang=>$parts) {
-                if (!Internationalization::isLanguageInstalled($lang))
+                if (!Internationalization::isLanguageEnabled($lang))
                     continue;
                 foreach ($parts as $T => $content) {
                     $content = trim($content);
@@ -471,7 +479,8 @@ class TicketForm extends DynamicForm {
         // field.id=ans.field_id
         // where entry.object_type='T' group by entry.object_id;
         $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
-                (ticket_id)) AS ' . static::getCrossTabQuery('T', 'ticket_id');
+            (ticket_id)) DEFAULT CHARSET=utf8 AS '
+            . static::getCrossTabQuery('T', 'ticket_id');
         db_query($sql);
     }
 
@@ -985,15 +994,18 @@ class DynamicFormEntry extends VerySimpleModel {
     function getForm() {
         if (!isset($this->_form)) {
             // XXX: Should source be $this?
-            $form = new SimpleForm($this->getFields(), $this->getSource(),
+            $fields = $this->getFields();
+            if (isset($this->extra)) {
+                $x = JsonDataParser::decode($this->extra) ?: array();
+                foreach ($x['disable'] ?: array() as $id) {
+                    unset($fields[$id]);
+                }
+            }
+            $form = new SimpleForm($fields, $this->getSource(),
             array(
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),
             ));
-            if (isset($this->extra)) {
-                $x = JsonDataParser::decode($this->extra) ?: array();
-                $form->disableFields($x['disable'] ?: array());
-            }
             $this->_form = $form;
         }
         return $this->_form;

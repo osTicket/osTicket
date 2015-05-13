@@ -47,10 +47,10 @@ class ModelMeta implements ArrayAccess {
 
         if (!$meta['table'])
             throw new OrmConfigurationException(
-                __('Model does not define meta.table'), $model);
+                sprintf(__('%s: Model does not define meta.table'), $model));
         elseif (!$meta['pk'])
             throw new OrmConfigurationException(
-                __('Model does not define meta.pk'), $model);
+                sprintf(__('%s: Model does not define meta.pk'), $model));
 
         // Ensure other supported fields are set and are arrays
         foreach (array('pk', 'ordering', 'defer') as $f) {
@@ -141,7 +141,20 @@ class ModelMeta implements ArrayAccess {
     }
 
     function inspectFields() {
-        return DbEngine::getCompiler()->inspectTable($this['table']);
+        static $cache;
+        if (!isset($cache))
+            $cache = function_exists('apc_fetch');
+        if ($cache) {
+            $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
+            if ($fields = apc_fetch($key)) {
+                return $fields;
+            }
+        }
+        $fields = DbEngine::getCompiler()->inspectTable($this['table']);
+        if ($cache) {
+            apc_store($key, $fields);
+        }
+        return $fields;
     }
 }
 
@@ -172,10 +185,17 @@ class VerySimpleModel {
             $j = static::$meta['joins'][$field];
             // Support instrumented lists and such
             if (isset($j['list']) && $j['list']) {
-                $fkey = $j['fkey'];
+                $class = $j['fkey'][0];
+                $fkey = array();
+                // Localize the foreign key constraint
+                foreach ($j['constraint'] as $local=>$foreign) {
+                    list($_klas,$F) = $foreign;
+                    $fkey[$F ?: $_klas] = ($local[0] == "'")
+                        ? trim($local, "'") : $this->ht[$local];
+                }
                 $v = $this->ht[$field] = new InstrumentedList(
-                    // Send Model, Foriegn-Field, Local-Id
-                    array($fkey[0], $fkey[1], $this->get($j['local']))
+                    // Send Model, [Foriegn-Field => Local-Id]
+                    array($class, $fkey)
                 );
                 return $v;
             }
@@ -1349,29 +1369,32 @@ class HashArrayIterator extends ResultSet {
 
 class InstrumentedList extends ModelInstanceManager {
     var $key;
-    var $id;
     var $model;
 
     function __construct($fkey, $queryset=false) {
-        list($model, $this->key, $this->id) = $fkey;
+        list($model, $this->key) = $fkey;
         if (!$queryset)
-            $queryset = $model::objects()->filter(array($this->key=>$this->id));
+            $queryset = $model::objects()->filter($this->key);
         parent::__construct($queryset);
         $this->model = $model;
-        if (!$this->id)
-            $this->resource = null;
     }
 
     function add($object, $at=false) {
         if (!$object || !$object instanceof $this->model)
             throw new Exception(__('Attempting to add invalid object to list'));
 
-        $object->set($this->key, $this->id);
+        foreach ($this->key as $field=>$value)
+            $object->set($field, $value);
+
+        if (!$object->__new__)
+            $object->save();
 
         if ($at !== false)
             $this->cache[$at] = $object;
         else
             $this->cache[] = $object;
+
+        return $object;
     }
     function remove($object, $delete=true) {
         if ($delete)
@@ -2297,6 +2320,10 @@ class MySqlExecutor {
             elseif ($p instanceof DateTime) {
                 $types .= 's';
                 $p = $p->format('Y-m-d h:i:s');
+            }
+            elseif (is_object($p)) {
+                $types .= 's';
+                $p = (string) $p;
             }
             // TODO: Emit error if param is null
             $ps[] = &$p;

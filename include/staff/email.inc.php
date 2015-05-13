@@ -55,7 +55,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Email Address');?>
             </td>
             <td>
-                <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>

@@ -167,14 +167,12 @@ class Draft extends VerySimpleModel {
      * are cleaned up.
      */
     static function deleteForNamespace($namespace, $staff_id=false) {
-        $sql = 'DELETE attach FROM '.ATTACHMENT_TABLE.' attach
-                INNER JOIN '.DRAFT_TABLE.' draft
-                ON (attach.object_id = draft.id AND attach.`type`=\'D\')
-                WHERE draft.`namespace` LIKE '.db_input($namespace);
+        $attachments = Attachment::objects()
+            ->filter(array('draft__namespace__like' => $namespace));
         if ($staff_id)
-            $sql .= ' AND draft.staff_id='.db_input($staff_id);
-        if (!db_query($sql))
-            return false;
+            $attachments->filter(array('draft__staff_id' => $staff_id));
+
+        $attachments->delete();
 
         $criteria = array('namespace__like'=>$namespace);
         if ($staff_id)
@@ -183,11 +181,10 @@ class Draft extends VerySimpleModel {
     }
 
     static function cleanup() {
-        // Keep client drafts for two weeks (14 days)
+        // Keep drafts for two weeks (14 days)
         $sql = 'DELETE FROM '.DRAFT_TABLE
-            ." WHERE `namespace` LIKE 'ticket.client.%'
-            AND ((updated IS NULL AND datediff(now(), created) > 14)
-                OR datediff(now(), updated) > 14)";
+            ." WHERE (updated IS NULL AND datediff(now(), created) > 14)
+                OR datediff(now(), updated) > 14";
         return db_query($sql);
     }
 }

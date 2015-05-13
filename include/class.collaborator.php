@@ -51,6 +51,10 @@ implements EmailContact, ITicketUser {
         return $this->created;
     }
 
+    function getThreadId() {
+        return $this->thread_id;
+    }
+
     function getTicketId() {
         if ($this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
             return $this->thread->object_id;
@@ -140,18 +144,5 @@ implements EmailContact, ITicketUser {
         return false;
     }
 
-    static function forThread($tid, $criteria=array()) {
-
-        $collaborators = static::objects()
-            ->filter(array('thread_id' => $tid));
-
-        if (isset($criteria['isactive']))
-            $collaborators->filter(array('isactive' => $criteria['isactive']));
-
-        // TODO: sort by name of the user
-        $collaborators->order_by('user__name');
-
-        return $collaborators;
-    }
 }
 ?>

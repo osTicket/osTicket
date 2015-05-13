@@ -1,4 +1,4 @@
-<h3><?php echo __('Original Thread Entry'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Original Thread Entry'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 
@@ -6,7 +6,21 @@
 
 <?php
 $E = $entry;
-do { ?>
+$i = 0;
+$omniscient = $thisstaff->getRole()->hasPerm(ThreadEntry::PERM_EDIT);
+do {
+    $i++;
+    if (!$omniscient
+        // The current version is always visible
+        && $i > 1
+        // If you originally posted it, you can see all the edits
+        && $E->staff_id != $thisstaff->getId()
+        // You can see your own edits
+        //  && $E->editor != $thisstaff->getId()
+    ) {
+        // Skip edits made by other agents
+        continue;
+    } ?>
 <dt>
     <a href="#"><i class="icon-copy"></i>
     <strong><?php if ($E->title)
@@ -48,11 +62,13 @@ $(function() {
 
     var allPanels = $('dd', A).hide().removeClass('hidden');
     $('dt > a', A).click(function() {
-      $('dt', A).removeClass('active');
-      allPanels.slideUp();
-      $(this).parent().addClass('active').next().slideDown();
+      if (!$(this).parent().is('.active')) {
+        $('dt', A).removeClass('active');
+        allPanels.slideUp();
+        $(this).parent().addClass('active').next().slideDown();
+      }
       return false;
     });
-    allPanels.last().show();
+    allPanels.last().show().prev().addClass('active');
   }, 100);
 });

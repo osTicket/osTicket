@@ -70,7 +70,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <span>
-                <input type="text" size="30" name="ipaddr" value="<?php echo $info['ipaddr']; ?>">
+                <input type="text" size="30" name="ipaddr" value="<?php echo $info['ipaddr']; ?>"i
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['ipaddr']; ?></span>
                 <i class="help-tip icon-question-sign" href="#ip_addr"></i>
                 </span>

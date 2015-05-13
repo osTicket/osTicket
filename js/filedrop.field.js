@@ -349,8 +349,8 @@
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);
 
-    (opts.link || this).on('click', function(e){
-      $('#' + opts.fallback_id).trigger(e);
+    (opts.link || this).click(function(e) {
+      $('#' + opts.fallback_id).trigger('click');
       return false;
     });
 

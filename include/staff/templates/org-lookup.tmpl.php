@@ -9,7 +9,7 @@ if ($info['search'] === false)
 
 ?>
 <div id="the-lookup-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo $msg_info; ?></p></div>
@@ -17,7 +17,8 @@ if ($info['search'] === false)
 if ($info['search'] !== false) { ?>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
-    placeholder="Search by name" id="org-search" autocorrect="off" autocomplete="off"/>
+    placeholder="Search by name" id="org-search"
+    autofocus autocorrect="off" autocomplete="off"/>
 </div>
 <?php
 }

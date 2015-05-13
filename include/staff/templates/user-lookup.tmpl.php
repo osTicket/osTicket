@@ -1,5 +1,5 @@
 <div id="the-lookup-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -10,9 +10,9 @@ if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
     : __('Search existing users.');
 ?></p></div>
 <div style="margin-bottom:10px;">
-    <input type="text" class="search-input" style="width:100%;"
+    <input type="search" class="search-input" style="width:100%;"
     placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
-    autocorrect="off" autocomplete="off"/>
+    autofocus autocorrect="off" autocomplete="off"/>
 </div>
 <?php
 }

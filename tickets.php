@@ -35,7 +35,7 @@ if($_REQUEST['id']) {
 if (!$ticket && $thisclient->isGuest())
     Http::redirect('view.php');
 
-$tform = TicketForm::objects()->one();
+$tform = TicketForm::objects()->one()->getForm();
 $messageField = $tform->getField('message');
 $attachments = $messageField->getWidget()->getAttachments();
 
@@ -130,8 +130,6 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
-if ($tform instanceof DynamicFormEntry)
-    $tform = $tform->getForm();
 print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>

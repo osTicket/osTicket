@@ -99,7 +99,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('To');?>:
             </td>
             <td>
-                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>

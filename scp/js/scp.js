@@ -37,7 +37,10 @@ function checkbox_checker(formObj, min, max) {
 
 var scp_prep = function() {
 
-    $("input:not(.dp):visible:enabled:first").focus();
+    $("input[autofocus]:visible:enabled:first").each(function() {
+      if ($(this).val())
+        $(this).blur();
+    });
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
@@ -314,14 +317,14 @@ var scp_prep = function() {
             top : (w.innerHeight() / 7),
             left : (w.width() - $this.outerWidth()) / 2
         });
-        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
     });
 
 
     $('.dialog').each(function() {
         $this=$(this);
         $this.resize();
-        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
     });
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
@@ -447,13 +450,13 @@ var scp_prep = function() {
          stop = $('div.sticky.bar.stop'),
          stopAt,
          visible = false;
-     if (stop.length)
-       stopAt = stop.offset().top - $that.height();
 
      $that.find('.content').width($that.width());
      $(window).scroll(function (event) {
        // what the y position of the scroll is
        var y = $(this).scrollTop();
+       if (stop.length)
+         stopAt = stop.offset().top - $that.height();
 
        // whether that's below the form
        if (y >= top && (!stopAt || stopAt > y)) {
@@ -476,6 +479,8 @@ var scp_prep = function() {
        }
     });
   });
+
+  $('[data-toggle="tooltip"]').tooltip()
 };
 
 $(document).ready(scp_prep);
@@ -561,6 +566,16 @@ $(document).keydown(function(e) {
         e.stopPropagation();
         return false;
     }
+});
+
+
+$(document).on('focus', 'form.spellcheck textarea, form.spellcheck input[type=text]', function() {
+  var $this = $(this);
+  if ($this.attr('lang') !== undefined)
+    return;
+  var lang = $(this).closest('[lang]').attr('lang');
+  if (lang)
+    $(this).attr({'spellcheck':'true', 'lang': lang});
 });
 
 $.toggleOverlay = function (show) {
@@ -663,7 +678,7 @@ $.sysAlert = function (title, msg, cb) {
         $.toggleOverlay(true);
         $('#title', $dialog).html(title);
         $('#body', $dialog).html(msg);
-        $dialog.show();
+        $dialog.resize().show();
         if (cb)
             $dialog.find('input.ok.close').click(cb);
     } else {
@@ -700,7 +715,7 @@ $.confirm = function(message, title) {
                     .click(function() {  hide(); D.resolve(); })
         ))).append($('<div class="clear"></div>'));
     $.toggleOverlay(true);
-    $popup.show();
+    $popup.resize().show();
     return D.promise();
 };
 
@@ -787,6 +802,11 @@ $.changeHash = function(hash, quiet) {
   }
 };
 
+// Forms — submit, stay on same tab
+$(document).on('submit', 'form', function() {
+    $(this).attr('action', $(this).attr('action') + window.location.hash);
+});
+
 //Collaborators
 $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
     e.preventDefault();
@@ -804,21 +824,10 @@ $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
 // NOTE: getConfig should be global
 getConfig = (function() {
     var dfd = $.Deferred(),
-        requested = null;
+        requested = false;
     return function() {
-        if (dfd.state() != 'resolved' && !requested)
-            requested = $.ajax({
-                url: "ajax.php/config/scp",
-                dataType: 'json',
-                success: function (json_config) {
-                    dfd.resolve(json_config);
-                },
-                error: function() {
-                    requested = null;
-                }
-            });
         return dfd;
-    }
+    };
 })();
 
 $(document).on('pjax:click', function(options) {
@@ -834,7 +843,7 @@ $(document).on('pjax:click', function(options) {
         if ($(this).data('timer'))
             clearTimeout($(this).data('timer'));
     });
-    $('.tip_box').remove();
+    $('.tip_box, .typeahead.dropdown-menu').remove();
 });
 
 $(document).on('pjax:start', function() {
@@ -871,6 +880,17 @@ $(document).on('pjax:complete', function() {
     $.toggleOverlay(false);
     $('#overlay').removeAttr('style');
 });
+
+// Enable PJAX for the staff interface
+if ($.support.pjax) {
+  $(document).on('click', 'a', function(event) {
+    var $this = $(this);
+    if (!$this.hasClass('no-pjax')
+        && !$this.closest('.no-pjax').length
+        && $this.attr('href')[0] != '#')
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
+  })
+}
 
 // Quick note interface
 $(document).on('click.note', '.quicknote .action.edit-note', function() {

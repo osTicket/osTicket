@@ -31,7 +31,8 @@ if ($thisclient && $thisclient->isGuest()
     <tr>
         <td colspan="2" width="100%">
             <h1>
-                <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?> &nbsp;
+                <b><?php echo $ticket->getSubject(); ?></b>
+                <small>#<?php echo $ticket->getNumber(); ?></small>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><span class="Icon refresh">&nbsp;</span></a>
 <div class="pull-right">
     <a class="action-button" href="tickets.php?a=print&id=<?php
@@ -39,7 +40,7 @@ if ($thisclient && $thisclient->isGuest()
 <?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
-                <a class="action-button pull-right" href="tickets.php?a=edit&id=<?php
+                <a class="action-button" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
 <?php } ?>
 </div>
@@ -49,6 +50,11 @@ if ($thisclient && $thisclient->isGuest()
     <tr>
         <td width="50%">
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+                <thead>
+                    <tr><td class="headline" colspan="2">
+                        <?php echo __('Basic Ticket Information'); ?>
+                    </td></tr>
+                </thead>
                 <tr>
                     <th width="100"><?php echo __('Ticket Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
@@ -65,6 +71,11 @@ if ($thisclient && $thisclient->isGuest()
        </td>
        <td width="50%">
            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+                <thead>
+                    <tr><td class="headline" colspan="2">
+                        <?php echo __('User Information'); ?>
+                    </td></tr>
+                </thead>
                <tr>
                    <th width="100"><?php echo __('Name');?>:</th>
                    <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
@@ -81,32 +92,40 @@ if ($thisclient && $thisclient->isGuest()
        </td>
     </tr>
     <tr>
+        <td colspan="2">
+<!-- Custom Data -->
 <?php
-foreach (DynamicFormEntry::forTicket($ticket->getId()) as $idx=>$form) {
-    $answers = $form->getAnswers();
-    if ($idx > 0 and $idx % 2 == 0) { ?>
-        </tr><tr>
-    <?php } ?>
-    <td width="50%">
-        <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
-    <?php foreach ($answers as $answer) {
-        if (in_array($answer->getField()->get('name'), array('name', 'email', 'subject')))
-            continue;
-        elseif (!$answer->getField()->isVisibleToUsers())
-            continue;
-        ?>
-        <tr>
-        <th width="100"><?php echo $answer->getField()->get('label');
-            ?>:</th>
-        <td><?php echo $answer->display(); ?></td>
-        </tr>
-    <?php } ?>
-    </table></td>
-<?php } ?>
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+    // Skip core fields shown earlier in the ticket view
+    $answers = $form->getAnswers()->exclude(Q::any(array(
+        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
+        'field__name__in' => array('subject', 'priority'),
+        Q::not(array('field__flags__hasbit' => DynamicFormField::FLAG_CLIENT_VIEW)),
+    )));
+    if (count($answers) == 0)
+        continue;
+    ?>
+        <table class="custom-data" cellspacing="0" cellpadding="4" width="100%" border="0">
+        <tr><td colspan="2" class="headline flush-left"><?php echo $form->getTitle(); ?></th></tr>
+        <?php foreach($answers as $a) {
+            if (!($v = $a->display())) continue; ?>
+            <tr>
+                <th><?php
+    echo $a->getField()->get('label');
+                ?>:</th>
+                <td><?php
+    echo $v;
+                ?></td>
+            </tr>
+            <?php } ?>
+        </table>
+    <?php
+    $idx++;
+} ?>
+    </td>
 </tr>
 </table>
 <br>
-<div class="subject"><?php echo __('Subject'); ?>: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
 <div id="ticketThread">
 <?php
 if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
@@ -128,16 +147,27 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
             </th></tr>
             <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
             <?php
-            if($entry->has_attachments
-                    && ($urls = $entry->getAttachmentUrls())
-                    && ($links = $entry->getAttachmentsLinks())) { ?>
-                <tr><td class="info"><?php echo $links; ?></td></tr>
-<?php       }
-            if ($urls) { ?>
-                <script type="text/javascript">
-                    $(function() { showImagesInline(<?php echo
-                        JsonDataEncoder::encode($urls); ?>); });
-                </script>
+            $urls = null;
+            if ($entry->has_attachments
+                && ($urls = $entry->getAttachmentUrls())) { ?>
+            <tr>
+                <td class="info"><?php
+                    foreach ($entry->attachments as $A) {
+                        if ($A->inline) continue;
+                        $size = '';
+                        if ($A->file->size)
+                            $size = sprintf('<em>(%s)</em>',
+                                Format::file_size($A->file->size));
+?>
+                &nbsp; <i class="icon-paperclip"></i>
+                <a class="no-pjax" href="<?php echo $A->file->getDownloadUrl();
+                    ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
+                        target="_blank">
+                <?php echo Format::htmlchars($A->file->name);
+                ?></a><?php echo $size;?>&nbsp;
+<?php               } ?>
+                </td>
+            </tr>
 <?php       } ?>
         </table>
     <?php
@@ -152,46 +182,37 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
     <div id="msg_notice"><?php echo $msg; ?></div>
 <?php }elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
-<?php } ?>
-
-<?php
+<?php }
 
 if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
-<form id="reply" action="tickets.php?id=<?php echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
+<form id="reply" action="tickets.php?id=<?php echo $ticket->getId();
+?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
     <h2><?php echo __('Post a Reply');?></h2>
     <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <input type="hidden" name="a" value="reply">
-    <table border="0" cellspacing="0" cellpadding="3" style="width:100%">
-        <tr>
-            <td colspan="2">
-                <?php
-                if($ticket->isClosed()) {
-                    $msg='<b>'.__('Ticket will be reopened on message post').'</b>';
-                } else {
-                    $msg=__('To best assist you, we request that you be specific and detailed');
-                }
-                ?>
-                <span id="msg"><em><?php echo $msg; ?> </em></span><font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
-                <br/>
-                <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
-                        ?> draft" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
-    echo $attrs; ?>><?php echo $draft ?: $info['message'];
-                ?></textarea>
-        <?php
-        if ($messageField->isAttachmentsEnabled()) { ?>
-<?php
-            print $attachments->render(array('client'=>true));
-            print $attachments->getForm()->getMedia();
-?>
-        <?php
-        } ?>
-            </td>
-        </tr>
-    </table>
-    <p style="padding-left:165px;">
+    <div>
+        <p><em><?php
+         echo __('To best assist you, we request that you be specific and detailed'); ?></em>
+        <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
+        </p>
+        <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
+            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                ?> draft" <?php
+list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
+echo $attrs; ?>><?php echo $draft ?: $info['message'];
+            ?></textarea>
+    <?php
+    if ($messageField->isAttachmentsEnabled()) {
+        print $attachments->render(array('client'=>true));
+    } ?>
+    </div>
+<?php if ($ticket->isClosed()) { ?>
+    <div class="warning-banner">
+        <?php echo __('Ticket will be reopened on message post'); ?>
+    </div>
+<?php } ?>
+    <p style="text-align:center">
         <input type="submit" value="<?php echo __('Post Reply');?>">
         <input type="reset" value="<?php echo __('Reset');?>">
         <input type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
@@ -199,3 +220,18 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
 </form>
 <?php
 } ?>
+<script type="text/javascript">
+<?php
+// Hover support for all inline images
+$urls = array();
+foreach (AttachmentFile::objects()->filter(array(
+    'attachments__thread_entry__thread__id' => $ticket->getThreadId(),
+    'attachments__inline' => true,
+)) as $file) {
+    $urls[strtolower($file->getKey())] = array(
+        'download_url' => $file->getDownloadUrl(),
+        'filename' => $file->name,
+    );
+} ?>
+showImagesInline(<?php echo JsonDataEncoder::encode($urls); ?>);
+</script>

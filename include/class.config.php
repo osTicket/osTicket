@@ -999,12 +999,6 @@ class OsticketConfig extends Config {
             case 'access':
                 return $this->updateAccessSettings($vars, $errors);
                 break;
-            case 'autoresp':
-                return $this->updateAutoresponderSettings($vars, $errors);
-                break;
-            case 'alerts':
-                return $this->updateAlertsSettings($vars, $errors);
-                break;
             case 'kb':
                 return $this->updateKBSettings($vars, $errors);
                 break;
@@ -1113,6 +1107,9 @@ class OsticketConfig extends Config {
 
         if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
             $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
+
+        $this->updateAutoresponderSettings($vars, $errors);
+        $this->updateAlertsSettings($vars, $errors);
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;

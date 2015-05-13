@@ -155,6 +155,8 @@ JS
         ) {
             // Replace previous edit --------------------------
             $original = $old->getParent();
+            // Link the new entry to the old id
+            $entry->pid = $old->pid;
             // Drop the previous edit, and base this edit off the original
             $old->delete();
             $old = $original;
@@ -221,9 +223,11 @@ class TEA_OrigThreadEntry extends ThreadEntryAction {
     }
 
     private function trigger__get() {
-        $entry = $this->entry->getParent();
-        if (!$entry)
+        global $thisstaff;
+
+        if (!$this->entry->getParent())
             Http::response(404, 'No history for this entry');
+        $entry = $this->entry;
         include STAFFINC_DIR . 'templates/thread-entry-view.tmpl.php';
     }
 }

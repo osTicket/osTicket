@@ -8,6 +8,7 @@ $selected_test = (isset($argv[1])) ? $argv[1] : false;
 require_once 'bootstrap.php';
 require_once "tests/class.test.php";
 
+$root = get_osticket_root_path();
 $fails = array();
 
 require_once INCLUDE_DIR . 'class.i18n.php';

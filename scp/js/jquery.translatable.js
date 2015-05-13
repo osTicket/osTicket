@@ -60,6 +60,7 @@
         .focus($.proxy(function() { this.addClass('focus'); }, this.$container))
         .blur($.proxy(function() { this.removeClass('focus'); }, this.$container));
       getConfig().then($.proxy(function(c) {
+        this.attr({'spellcheck': 'true', 'lang': c.primary_language})
         $('<span class="flag"></span>')
           .addClass('flag-' + c.primary_lang_flag)
           .insertAfter(this);
@@ -113,6 +114,8 @@
           .text(info.name)
           .prepend($('<span>').addClass('flag flag-'+info.flag))
           .append($('<input type="text" data-lang="'+lang+'">')
+            .attr('lang', lang)
+            .attr('spellcheck', 'true')
             .attr('dir', info.direction || 'ltr')
             .on('change keydown', $.proxy(this.showCommit, this))
             .val(text)

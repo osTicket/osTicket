@@ -30,7 +30,7 @@ $roles = Role::getActiveRoles();
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2> <?php echo $group ?: __('New Group'); ?></h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#group">
         <i class="icon-file"></i> <?php echo __('Group'); ?></a></li>
     <li><a href="#departments">
@@ -54,7 +54,7 @@ $roles = Role::getActiveRoles();
             <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td>
                 <input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"
-                data-translate-tag="<?php echo $trans['name']; ?>"/>
+                autofocus data-translate-tag="<?php echo $trans['name']; ?>"/>
                 <span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

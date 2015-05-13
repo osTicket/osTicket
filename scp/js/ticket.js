@@ -328,7 +328,9 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                    .append($('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                      .attr('download', info.filename)
+                    )
                 );
             e.data('wrapped', true);
         }
@@ -341,6 +343,9 @@ $.refreshTicketView = function() {
 }
 
 var ticket_onload = function($) {
+    if (0 === $('#ticket_thread').length)
+        return;
+
     //Start watching the form for activity.
     autoLock.Init();
 
@@ -419,11 +424,12 @@ var ticket_onload = function($) {
         });
     });
 
-    $('.thread-body').each(function() {
-        var urls = $(this).data('urls');
-        if (urls)
-            $.showImagesInline(urls, $(this).data('id'));
-    });
+    $.showImagesInline($('#ticket_thread').data('imageUrls'));
+
+    var last_entry = $('#ticket_thread .thread-entry').last().offset().top - 50;
+    $('html, body').animate({
+        scrollTop: last_entry
+    }, 1000);
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });

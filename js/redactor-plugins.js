@@ -93,7 +93,7 @@ RedactorPlugins.fontcolor = function()
 			{
 				var color = colors[z];
 
-				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px;"></a>');
+				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px; box-sizing: border-box;"></a>');
 				$swatch.css('background-color', color);
 				$swatch.on('click', func);
 
@@ -790,16 +790,35 @@ RedactorPlugins.imagepaste = function() {
           return true;
 
       this.$editor.on('paste.imagepaste', $.proxy(this.imagepaste.buildEventPaste, this));
+
+      // Capture the selection position every so often as Redactor seems to
+      // drop it when attempting an image paste before `paste` browser event
+      // fires
+      var that = this,
+          plugin = this.imagepaste;
+      setInterval(function() {
+        if (plugin.inpaste)
+          return;
+        plugin.offset = that.caret.getOffset() || plugin.offset;
+      }, 300);
     },
+    offset: 0,
+    inpaste: false,
     buildEventPaste: function(e)
     {
       var event = e.originalEvent || e,
           fileUpload = false,
           files = [],
           i, file,
-          cd = event.clipboardData;
+          plugin = this.imagepaste,
+          cd = event.clipboardData,
+          self = this, node,
+          bail = function() {
+            plugin.inpaste = false;
+          };
+      plugin.inpaste = true;
 
-      if (typeof(cd) === 'undefined') return;
+      if (typeof(cd) === 'undefined') return bail();
 
       if (cd.items && cd.items.length)
       {
@@ -824,23 +843,41 @@ RedactorPlugins.imagepaste = function() {
           }
         }
       }
-      var self = this, node;
-      this.opts.imageUploadCallback = function(image, json) {
-        // Redactor just has a bloody hard time inserting for some dumb
-        // reason.
-      };
 
-      if (files.length) {
-        // clipboard upload
-        var I = setInterval(function() {
-          if (!self.focus.isFocused())
-            return;
-          clearInterval(I);
-          self.clean.singleLine = false;
-          for (i = 0, k = files.length; i < k; i++)
-            self.upload.directUpload(files[i], e);
-        }, 5);
-      }
+      if (!files.length)
+        return bail();
+
+      // Clipboard upload
+
+      setTimeout(function() {
+        // We need to allow the paste operation to settle, so we can set
+        // self.clean.singleLine and not have to cleared by some other running
+        // code
+
+        var oldIUC = self.opts.imageUploadCallback;
+        self.opts.imageUploadCallback = function(image, json) {
+          self.$editor.find('.-image-upload-placeholder').remove();
+          self.opts.imageUploadCallback = oldIUC;
+          // Add a zero-width space so that the caret:getOffset will find
+          // locations after pictures if only <br> tags exist otherwise. In
+          // other words, ensure there is at least one character after the
+          // image for text character counting. Additionally, Redactor will
+          // strip the zero-width space when saving
+          $(document.createTextNode("\u200b")).insertAfter($(image));
+          bail();
+        };
+
+        // Place the cursor back in the box!
+        self.caret.setOffset(plugin.offset);
+
+        // Add cool wait cursor
+        self.insert.htmlWithoutClean('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+
+        // Upload clipboard files
+        self.clean.singleLine = false;
+        for (i = 0, k = files.length; i < k; i++)
+          self.upload.directUpload(files[i], e);
+      }, 1);
     }
   };
 };
@@ -1766,11 +1803,13 @@ RedactorPlugins.contexttypeahead = function() {
       }
     },
 
-    select: function(item) {
+    select: function(item, event) {
       var current = this.selection.getCurrent(),
           sel     = this.selection.get(),
           range   = this.sel.getRangeAt(0),
           cursorAt = range.endOffset,
+          // TODO: Consume immediately following `}` symbols
+          plugin  = this.contexttypeahead,
           search  = new RegExp(/%\{([^}]*)(\}?)$/);
 
       // FIXME: ENTER will end up here, but current will be empty
@@ -1781,7 +1820,9 @@ RedactorPlugins.contexttypeahead = function() {
       // Set cursor at the end of the expanded text
       var left = current.textContent.substring(0, cursorAt),
           right = current.textContent.substring(cursorAt),
-          newLeft = left.replace(search, '%{' + item.variable + '}');
+          autoExpand = event.target.nodeName == 'I',
+          selected = item.variable + (autoExpand ? '.' : '')
+          newLeft = left.replace(search, '%{' + selected + '}');
 
       current.textContent = newLeft
         // Drop the remaining part of a variable block, if any
@@ -1790,7 +1831,12 @@ RedactorPlugins.contexttypeahead = function() {
       this.range.setStart(current, newLeft.length - 1);
       this.range.setEnd(current, newLeft.length - 1);
       this.selection.addRange();
-      return this.contexttypeahead.destroy();
+      if (!autoExpand)
+          return plugin.destroy();
+
+      plugin.typeahead.val(selected);
+      plugin.typeahead.typeahead('lookup');
+      return false;
     }
   };
 };

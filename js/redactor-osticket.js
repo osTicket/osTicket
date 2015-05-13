@@ -53,8 +53,8 @@ RedactorPlugins.draft = function() {
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
             var trash = this.draft.deleteButton =
-                this.button.add('deleteDraft', __('Delete Draft'),
-                    this.draft.deleteDraft);
+                this.button.add('deleteDraft', __('Delete Draft'))
+            this.button.addCallback(trash, this.draft.deleteDraft);
             this.button.setAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
@@ -268,6 +268,14 @@ $(function() {
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
+                'initCallback': function() {
+                    if (this.$element.data('width'))
+                        this.$editor.width(this.$element.data('width'));
+                    this.$editor.attr('spellcheck', 'true');
+                    var lang = this.$editor.closest('[lang]').attr('lang');
+                    if (lang)
+                        this.$editor.attr('lang', lang);
+                },
                 'linkSize': 100000,
                 'definedLinks': 'ajax.php/config/links'
             }, options||{});

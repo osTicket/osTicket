@@ -883,35 +883,6 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         return $entries;
     }
 
-    //Collaborators
-    function getNumCollaborators() {
-        return count($this->getCollaborators());
-    }
-
-    function getNumActiveCollaborators() {
-
-        if (!isset($this->ht['active_collaborators']))
-            $this->ht['active_collaborators'] = count($this->getActiveCollaborators());
-
-        return $this->ht['active_collaborators'];
-    }
-
-    function getActiveCollaborators() {
-        return $this->getCollaborators(array('isactive'=>1));
-    }
-
-
-    function getCollaborators($criteria=array()) {
-
-        if ($criteria)
-            return Collaborator::forThread($this->getThreadId(), $criteria);
-
-        if (!isset($this->collaborators))
-            $this->collaborators = Collaborator::forThread($this->getThreadId());
-
-        return $this->collaborators;
-    }
-
     //UserList of recipients  (owner + collaborators)
     function getRecipients() {
 
@@ -1836,7 +1807,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                     return new FormattedDate($this->getCloseDate());
                 break;
             case 'last_update':
-                return new FormattedDate($upd);
+                return new FormattedDate($this->last_update);
             case 'user':
                 return $this->getOwner();
             default:
@@ -2534,7 +2505,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
     }
 
     // Threadable interface
-    function postThreadEntry($type, $vars) {
+    function postThreadEntry($type, $vars, $options=array()) {
         $errors = array();
         switch ($type) {
         case 'M':
@@ -3123,7 +3094,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if ($vars['topicId']) {
             if ($topic=Topic::lookup($vars['topicId'])) {
                 foreach ($topic_forms as $topic_form) {
-                    $TF = $topic_form->getForm()->getForm($vars);
+                    $TF = $topic_form->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }

@@ -270,6 +270,10 @@ class osTicket {
             $e->getTraceAsString());
         $error .= nl2br("\n\n---- "._S('Backtrace')." ----\n".$bt);
 
+        // Prevent recursive loops through this code path
+        if (substr_count($bt, __FUNCTION__) > 1)
+            return;
+
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
 

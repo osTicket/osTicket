@@ -1,4 +1,4 @@
-<h3><?php echo __('Ticket Collaborators'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Collaborators'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <?php
 if($info && $info['msg']) {
@@ -6,9 +6,9 @@ if($info && $info['msg']) {
 } ?>
 <hr/>
 <?php
-if(($users=$ticket->getCollaborators())) {?>
+if(($users=$thread->getCollaborators())) {?>
 <div id="manage_collaborators">
-<form method="post" class="collaborators" action="#tickets/<?php echo $ticket->getId(); ?>/collaborators">
+<form method="post" class="collaborators" action="#thread/<?php echo $thread->getId(); ?>/collaborators">
     <table border="0" cellspacing="1" cellpadding="1" width="100%">
     <?php
     foreach($users as $user) {
@@ -16,7 +16,7 @@ if(($users=$ticket->getCollaborators())) {?>
         echo sprintf('<tr>
                         <td>
                             <input type="checkbox" name="cid[]" id="c%d" value="%d" %s>
-                            <a class="collaborator" href="#collaborators/%d/view">%s</a>
+                            <a class="collaborator" href="#thread/%d/collaborators/%d/view">%s</a>
                             <span class="faded"><em>%s</em></span></td>
                         <td width="10">
                             <input type="hidden" name="del[]" id="d%d" value="">
@@ -26,6 +26,7 @@ if(($users=$ticket->getCollaborators())) {?>
                     $user->getId(),
                     $user->getId(),
                     $checked,
+                    $thread->getId(),
                     $user->getId(),
                     Format::htmlchars($user->getName()),
                     $user->getEmail(),
@@ -36,7 +37,7 @@ if(($users=$ticket->getCollaborators())) {?>
     </table>
     <hr style="margin-top:1em"/>
     <div><a class="collaborator"
-        href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator"
+        href="#thread/<?php echo $thread->getId(); ?>/add-collaborator"
         ><i class="icon-plus-sign"></i> <?php echo __('Add New Collaborator'); ?></a></div>
     <div id="savewarning" style="display:none; padding-top:2px;"><p
     id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
@@ -57,15 +58,22 @@ if(($users=$ticket->getCollaborators())) {?>
     echo __("Bro, not sure how you got here!");
 }
 
-if ($_POST && $ticket && $ticket->getNumCollaborators()) {
+if ($_POST && $thread && $thread->getNumCollaborators()) {
+
+    $collaborators = sprintf('Participants (%d)',
+            $thread->getNumCollaborators());
+
     $recipients = sprintf(__('Recipients (%d of %d)'),
-          $ticket->getNumActiveCollaborators(),
-          $ticket->getNumCollaborators());
+          $thread->getNumActiveCollaborators(),
+          $thread->getNumCollaborators());
     ?>
     <script type="text/javascript">
         $(function() {
             $('#emailcollab').show();
-            $('#recipients').html('<?php echo $recipients; ?>');
+            $('#t<?php echo $thread->getId(); ?>-recipients')
+            .html('<?php echo $recipients; ?>');
+            $('#t<?php echo $thread->getId(); ?>-collaborators')
+            .html('<?php echo $collaborators; ?>');
             });
     </script>
 <?php

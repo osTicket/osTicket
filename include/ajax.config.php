@@ -46,7 +46,7 @@ class ConfigAjaxAPI extends AjaxController {
               'has_rtl'         => $rtl,
               'lang_flag'       => strtolower($info['flag'] ?: $locale ?: $sl),
               'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
-              'primary_language' => $primary,
+              'primary_language' => Internationalization::rfc1766($primary),
               'secondary_languages' => $cfg->getSecondaryLanguages(),
               'page_size'       => $thisstaff->getPageLimit(),
         );
@@ -70,7 +70,7 @@ class ConfigAjaxAPI extends AjaxController {
             'lang'            => $lang,
             'short_lang'      => $sl,
             'has_rtl'         => $rtl,
-            'primary_language' => $cfg->getPrimaryLanguage(),
+            'primary_language' => Internationalization::rfc1766($cfg->getPrimaryLanguage()),
             'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
 

@@ -89,7 +89,7 @@ if ($topics = Topic::getAllHelpTopics()) {
     <?php } ?>
     </select>
     <script type="text/javascript">
-        $(function() { $("#help-topic-selection").chosen(); });
+        $(function() { $("#help-topic-selection").select2(); });
     </script>
 <?php } ?>
     </div>

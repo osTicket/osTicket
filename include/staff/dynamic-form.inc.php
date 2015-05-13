@@ -15,7 +15,7 @@ if($form && $_REQUEST['a']!='add') {
     $translations = CustomDataTranslation::allTranslations($trans, 'phrase');
     $_keys = array_flip($trans);
     foreach ($translations as $t) {
-        if (!Internationalization::isLanguageInstalled($t->lang))
+        if (!Internationalization::isLanguageEnabled($t->lang))
             continue;
         // Create keys of [trans][de_DE][title] for instance
         $info['trans'][$t->lang][$_keys[$t->object_hash]]
@@ -73,7 +73,7 @@ if ($form && count($langs) > 1) { ?>
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
             <div class="required"><?php echo __('Title'); ?>:</div>
             <div>
-            <input type="text" name="title" size="60"
+            <input type="text" name="title" size="60" autofocus
                 value="<?php echo $info['title']; ?>"/>
                 <i class="help-tip icon-question-sign" href="#form_title"></i>
                 <div class="error"><?php
@@ -289,7 +289,7 @@ if ($form && count($langs) > 1) { ?>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
-    <h3><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
+    <h3 class="drag-handle"><i class="icon-trash"></i> <?php echo __('Remove Existing Data?'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p>

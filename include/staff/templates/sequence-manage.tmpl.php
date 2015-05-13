@@ -1,4 +1,4 @@
-<h3><i class="icon-wrench"></i> <?php echo __('Manage Sequences'); ?></i></h3>
+<h3 class="drag-handle"><i class="icon-wrench"></i> <?php echo __('Manage Sequences'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo __(
 'Sequences are used to generate sequential numbers. Various sequences can be

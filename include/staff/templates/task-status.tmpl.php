@@ -5,7 +5,7 @@ if (!$info[':title'])
     $info[':title'] = __('Change Tasks Status');
 
 ?>
-<h3><?php echo $info[':title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info[':title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>

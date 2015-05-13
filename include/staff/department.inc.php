@@ -32,7 +32,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('Department');?></h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#settings">
         <i class="icon-file"></i> <?php echo __('Settings'); ?></a></li>
     <li><a href="#access">
@@ -72,7 +72,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
             <td>
                 <input data-translate-tag="<?php echo $dept ? $dept->getTranslateTag() : '';
-                ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

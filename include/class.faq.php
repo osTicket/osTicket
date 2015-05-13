@@ -316,8 +316,8 @@ class FAQ extends VerySimpleModel {
 
     function getVisibleAttachments() {
         return array_merge(
-            $this->attachments->getSeparates() ?: array(),
-            $this->getLocalAttachments());
+            $this->attachments->getSeparates()->all() ?: array(),
+            $this->getLocalAttachments()->all());
     }
 
     function getAttachmentsLinks($separator=' ',$target='') {

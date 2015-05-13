@@ -25,7 +25,7 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2> <?php echo $role ?: __('New Role'); ?></h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#definition">
         <i class="icon-file"></i> <?php echo __('Definition'); ?></a></li>
     <li><a href="#permissions">
@@ -49,7 +49,8 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
             <td width="180" class="required"><?php echo __('Name'); ?>:</td>
             <td>
                 <input size="50" type="text" name="name" value="<?php echo
-                $info['name']; ?>" data-translate-tag="<?php echo $trans['name']; ?>"/>
+                $info['name']; ?>" data-translate-tag="<?php echo $trans['name']; ?>"
+                autofocus/>
                 <span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

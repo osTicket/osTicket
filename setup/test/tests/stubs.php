@@ -37,6 +37,7 @@ class mysqli_result {
 class ReflectionClass {
     function getMethods() {}
     function getConstants() {}
+    function newInstanceArgs() {}
 }
 
 class DomNode {

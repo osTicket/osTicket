@@ -56,7 +56,7 @@ class Form {
 
     function setFields($fields) {
 
-        if (!is_array($fields))
+        if (!is_array($fields) && !$fields instanceof Traversable)
             return;
 
         $this->fields = $fields;
@@ -125,14 +125,6 @@ class Form {
             unset($this->_clean[""]);
         }
         return $this->_clean;
-    }
-
-    function disableFields(array $ids) {
-        foreach ($this->getFields() as $F) {
-            if (in_array($F->get('id'), $ids)) {
-                $F->disable();
-            }
-        }
     }
 
     function errors($formOnly=false) {
@@ -438,7 +430,7 @@ class FormField {
         return $this->_errors;
     }
     function addError($message, $index=false) {
-        if ($field)
+        if ($index)
             $this->_errors[$index] = $message;
         else
             $this->_errors[] = $message;
@@ -1622,6 +1614,14 @@ class ThreadEntryField extends FormField {
         return false;
     }
 
+    function getMedia() {
+        $config = $this->getConfiguration();
+        $media = parent::getMedia() ?: array();
+        if ($config['attachments'])
+            $media = array_merge_recursive($media, FileUploadWidget::$media);
+        return $media;
+    }
+
     function getConfigurationOptions() {
         global $cfg;
 
@@ -2576,10 +2576,17 @@ class TextboxWidget extends Widget {
             $disabled = 'disabled="disabled"';
         if (isset($config['translatable']) && $config['translatable'])
             $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        $type = static::$input_type;
+        $types = array(
+            'email' => 'email',
+            'phone' => 'tel',
+        );
+        if ($type == 'text' && isset($types[$config['validator']]))
+            $type = $types[$config['validator']];
         $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
             $config['placeholder']));
         ?>
-        <input type="<?php echo static::$input_type; ?>"
+        <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
                 $size, $maxlength, $classes, $autocomplete, $disabled,
@@ -2669,7 +2676,7 @@ class PhoneNumberWidget extends Widget {
         $config = $this->field->getConfiguration();
         list($phone, $ext) = explode("X", $this->value);
         ?>
-        <input id="<?php echo $this->id; ?>" type="text" name="<?php echo $this->name; ?>" value="<?php
+        <input id="<?php echo $this->id; ?>" type="tel" name="<?php echo $this->name; ?>" value="<?php
         echo Format::htmlchars($phone); ?>"/><?php
         // Allow display of extension field even if disabled if the phone
         // number being edited has an extension
@@ -2745,13 +2752,13 @@ class ChoicesWidget extends Widget {
             id="<?php echo $this->id; ?>"
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
-                echo ' multiple="multiple" class="chosen-select"'; ?>>
+                echo ' multiple="multiple"'; ?>>
             <?php if (!$have_def && !$config['multiselect']) { ?>
             <option value="<?php echo $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
 <?php
         }
-        $this->emitChoices($choices, $values); ?>
+        $this->emitChoices($choices, $values, $have_def, $def_key); ?>
         </select>
         <?php
         if ($config['multiselect']) {
@@ -2759,17 +2766,17 @@ class ChoicesWidget extends Widget {
         <script type="text/javascript">
         $(function() {
             $("#<?php echo $this->id; ?>")
-            .chosen({'disable_search_threshold':10, 'width': '250px'});
+            .select2({'minimumResultsForSearch':10, 'width': '350px'});
         });
         </script>
        <?php
         }
     }
 
-    function emitChoices($choices, $values=array()) {
+    function emitChoices($choices, $values=array(), $have_def=false, $def_key=null) {
         reset($choices);
         if (is_array(current($choices)) || current($choices) instanceof Traversable)
-            return $this->emitComplexChoices($choices, $values);
+            return $this->emitComplexChoices($choices, $values, $have_def, $def_key);
 
         foreach ($choices as $key => $name) {
             if (!$have_def && $key == $def_key)
@@ -2781,7 +2788,7 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function emitComplexChoices($choices, $values=array()) {
+    function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
         foreach ($choices as $label => $group) { ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {
@@ -3307,7 +3314,7 @@ class AssignmentForm extends Form {
                     'default'=>'',
                     'configuration' => array(
                         'html' => true,
-                        'size' => 'large',
+                        'size' => 'small',
                         'placeholder' => __('Optional reason for the assignment'),
                         ),
                     )
