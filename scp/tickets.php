@@ -36,9 +36,12 @@ if($_REQUEST['id']) {
 }
 
 //Lookup user if id is available.
-if ($_REQUEST['uid'])
+if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-
+}
+elseif (!isset($_REQUEST['status']) && isset($_SESSION['::Q'])) {
+    $_REQUEST['status'] = $_SESSION['::Q'];
+}
 // Configure form for file uploads
 $response_form = new Form(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -385,7 +388,7 @@ $open_name = _P('queue-name',
 if($cfg->showAnsweredTickets()) {
     $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
                             'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php',
+                            'href'=>'tickets.php?status=open',
                             'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
@@ -394,7 +397,7 @@ if($cfg->showAnsweredTickets()) {
 
         $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php',
+                               'href'=>'tickets.php?status=open',
                                'iconclass'=>'Ticket'),
                             (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
     }

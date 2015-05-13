@@ -57,6 +57,9 @@ switch(strtolower($_REQUEST['status'])){ //Status is overloaded
         }
 }
 
+// Stash current queue view
+$_SESSION['::Q'] = $_REQUEST['status'];
+
 $qwhere ='';
 /*
    STRICT DEPARTMENTS BASED PERMISSION!
