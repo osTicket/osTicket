@@ -685,7 +685,7 @@ implements TemplateVariable {
         if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
             return '';
 
-        if (!$list && count($mails) > 1)
+        if (count($mails) > 1)
             return '';
 
         $info = $mails[0];

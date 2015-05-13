@@ -430,7 +430,7 @@ class FormField {
         return $this->_errors;
     }
     function addError($message, $index=false) {
-        if ($field)
+        if ($index)
             $this->_errors[$index] = $message;
         else
             $this->_errors[] = $message;
@@ -2758,7 +2758,7 @@ class ChoicesWidget extends Widget {
                 echo $def_val; ?> &mdash;</option>
 <?php
         }
-        $this->emitChoices($choices, $values); ?>
+        $this->emitChoices($choices, $values, $have_def, $def_key); ?>
         </select>
         <?php
         if ($config['multiselect']) {
@@ -2773,10 +2773,10 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function emitChoices($choices, $values=array()) {
+    function emitChoices($choices, $values=array(), $have_def=false, $def_key=null) {
         reset($choices);
         if (is_array(current($choices)) || current($choices) instanceof Traversable)
-            return $this->emitComplexChoices($choices, $values);
+            return $this->emitComplexChoices($choices, $values, $have_def, $def_key);
 
         foreach ($choices as $key => $name) {
             if (!$have_def && $key == $def_key)
@@ -2788,7 +2788,7 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function emitComplexChoices($choices, $values=array()) {
+    function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
         foreach ($choices as $label => $group) { ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {

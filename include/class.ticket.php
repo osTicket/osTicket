@@ -1836,7 +1836,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                     return new FormattedDate($this->getCloseDate());
                 break;
             case 'last_update':
-                return new FormattedDate($upd);
+                return new FormattedDate($this->last_update);
             case 'user':
                 return $this->getOwner();
             default:
