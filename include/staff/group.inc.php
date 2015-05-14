@@ -29,7 +29,6 @@ $roles = Role::getActiveRoles();
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2> <?php echo $group ?: __('New Group'); ?></h2>
-<br>
 <ul class="clean tabs">
     <li class="active"><a href="#group">
         <i class="icon-file"></i> <?php echo __('Group'); ?></a></li>

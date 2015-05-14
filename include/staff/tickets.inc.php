@@ -359,7 +359,7 @@ return false;">
         </div>
     </div>
 </div>
-<div class="clear" style="margin-bottom:10px;"></div>
+<div class="clear"></div>
 <form action="tickets.php" method="POST" name='tickets' id="tickets">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >

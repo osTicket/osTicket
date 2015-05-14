@@ -17,7 +17,7 @@ elseif($ticket->isOverdue())
 
 echo sprintf(
         '<div style="width:600px; padding: 2px 2px 0 5px;" id="t%s">
-         <h2>'.__('Ticket #%s').': %s</h2><br>',
+         <h2>'.__('Ticket #%s').': %s</h2>',
          $ticket->getNumber(),
          $ticket->getNumber(),
          Format::htmlchars($ticket->getSubject()));

@@ -24,7 +24,6 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2> <?php echo $role ?: __('New Role'); ?></h2>
-<br>
 <ul class="clean tabs">
     <li class="active"><a href="#definition">
         <i class="icon-file"></i> <?php echo __('Definition'); ?></a></li>

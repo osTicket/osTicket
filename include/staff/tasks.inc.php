@@ -223,7 +223,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
             ?>
         </div>
 </div>
-<div class="clear" style="margin-bottom:10px;"></div>
+<div class="clear"></div>
 <form action="tasks.php" method="POST" name='tasks' id="tasks">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >

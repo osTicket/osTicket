@@ -768,7 +768,7 @@ div.section-break h3 {
 }
 
 h2 {
-    margin:0;
+    margin:0 0 0.7em;
     padding:0;
     font-size:12pt;
     color:#0A568E;
@@ -2003,7 +2003,7 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-    padding: 5px 0;
+    padding: 12px 0;
 }
 .left-tabs {
     margin-left: 48px;
