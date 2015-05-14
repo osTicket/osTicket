@@ -662,6 +662,18 @@ implements TemplateVariable {
         return parent::delete();
     }
 
+    function deleteAllTickets() {
+        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        foreach($this->tickets as $ticket) {
+            if (!$T = Ticket::lookup($ticket->getId()))
+                continue;
+            if (!$T->setStatus($deleted))
+                return false;
+        }
+        $this->tickets->reset();
+        return true;
+    }
+
     static function lookupByEmail($email) {
         return static::lookup(array('emails__address'=>$email));
     }

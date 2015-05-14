@@ -699,8 +699,9 @@ $.sysAlert = function (title, msg, cb) {
     }
 };
 
-$.confirm = function(message, title) {
+$.confirm = function(message, title, options) {
     title = title || __('Please Confirm');
+    options = options || {};
     var D = $.Deferred(),
       $popup = $('.dialog#popup'),
       hide = function() {
@@ -708,7 +709,7 @@ $.confirm = function(message, title) {
           $popup.hide();
       };
       $('div#popup-loading', $popup).hide();
-      $('div.body', $popup).empty()
+      var body = $('div.body', $popup).empty()
         .append($('<h3></h3>').text(title))
         .append($('<a class="close" href="#"><i class="icon-remove-circle"></i></a>'))
         .append($('<hr/>'))
@@ -716,7 +717,20 @@ $.confirm = function(message, title) {
             .text(message)
         ).append($('<div></div>')
             .append($('<b>').text(__('Please confirm to continue.')))
-        ).append($('<hr style="margin-top:1em"/>'))
+        );
+
+      if (Object.keys(options).length)
+          body.append('<hr>');
+      $.each(options, function(k, v) {
+        body.append($('<div>')
+          .html('&nbsp;'+v)
+          .prepend($('<input type="checkbox">')
+            .attr('name', k)
+          )
+        );
+      });
+
+      body.append($('<hr style="margin-top:1em"/>'))
         .append($('<p class="full-width"></p>')
             .append($('<span class="buttons pull-left"></span>')
                 .append($('<input type="button" class="close"/>')
@@ -725,7 +739,7 @@ $.confirm = function(message, title) {
             )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
-                    .click(function() {  hide(); D.resolve(); })
+                    .click(function() {  hide(); D.resolve(body.find('input').serializeArray()); })
         ))).append($('<div class="clear"></div>'));
     $.toggleOverlay(true);
     $popup.resize().show();

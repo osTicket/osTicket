@@ -261,14 +261,20 @@ $(function() {
             ids.push($(this).val());
         });
         if (ids.length) {
-          var submit = function() {
+          var submit = function(data) {
             $form.find('#action').val(action);
             $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
+            if (data)
+              $.each(data, function() { $form.append($('<input type="hidden">').attr('name', this.name).val(this.value)); });
             $form.find('#selected-count').val(ids.length);
             $form.submit();
           };
+          var options = {};
+          if (action === 'delete')
+              options['deletetickets']
+                =  __('Also delete all associated tickets and attachments');
           if (!confirmed)
-              $.confirm(__('You sure?')).then(submit);
+              $.confirm(__('You sure?'), undefined, options).then(submit);
           else
               submit();
         }

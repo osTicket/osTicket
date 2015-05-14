@@ -1409,7 +1409,7 @@ class InstrumentedList extends ModelInstanceManager {
 
     // QuerySet delegates
     function count() {
-        return $this->queryset->count();
+        return $this->objects()->count();
     }
     function exists() {
         return $this->queryset->exists();
