@@ -337,9 +337,19 @@ $.showImagesInline = function(urls, thread_id) {
     });
 };
 
-$.refreshTicketView = function() {
-    if (0 === $('.dialog:visible').length)
-        $.pjax({url: document.location.href, container:'#pjax-container'});
+$.refreshTicketView = function(interval) {
+    var refresh =
+    window.ticket_refresh = setInterval(function() {
+      if ($('table.list input.ckb[name=tids\\[\\]]:checked').length)
+        // Skip the refresh b/c items are checked
+        return;
+      else if (0 < $('.dialog:visible').length)
+        // Dialog open — skip refresh
+        return;
+
+      clearInterval(refresh);
+      $.pjax({url: document.location.href, container:'#pjax-container'});
+    }, interval);
 }
 
 var ticket_onload = function($) {

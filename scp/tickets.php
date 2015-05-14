@@ -538,10 +538,8 @@ if($ticket) {
         $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
-    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate())) {
-        $js = "clearTimeout(window.ticket_refresh);
-               window.ticket_refresh = setTimeout($.refreshTicketView,"
-            .($min*60000).");";
+    if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {
+        $js = "$.refreshTicketView({$min}*60000);";
         $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
             $js);
     }
