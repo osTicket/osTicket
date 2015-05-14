@@ -889,7 +889,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if (!isset($this->recipients)) {
             $list = new UserList();
             $list->add($this->getOwner());
-            if ($collabs = $this->getActiveCollaborators()) {
+            if ($collabs = $this->getThread()->getActiveCollaborators()) {
                 foreach ($collabs as $c)
                     $list->add($c);
             }
