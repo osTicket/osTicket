@@ -167,7 +167,7 @@ class VariableReplacer {
         foreach ($scope as $name => $info) {
             if ($exclude === $name)
                 continue;
-            if (isset($info['class']) && $recurse) {
+            if ($recurse && is_array($info) && isset($info['class'])) {
                 $items[$name] = $info['desc'];
                 foreach (static::compileScope($info['class']::getVarScope(), $recurse-1,
                     @$info['exclude'] ?: $name)
