@@ -442,7 +442,7 @@ var scp_prep = function() {
 
    // Make sticky bars float on scroll
    // Thanks, https://stackoverflow.com/a/17166225/1025836
-   $('.sticky.bar').each(function() {
+   $('div.sticky.bar:not(.stop)').each(function() {
      var $that = $(this),
          placeholder = $('<div class="sticky placeholder">').insertBefore($that),
          offset = $that.offset(),
@@ -451,12 +451,21 @@ var scp_prep = function() {
          stopAt,
          visible = false;
 
+     if (stop.length) {
+       var onmove = function() {
+         // Recalc when pictures pop in
+         stopAt = stop.offset().top;
+       };
+       $('#ticket_thread .thread-body img').each(function() {
+         this.onload = onmove;
+       });
+       onmove();
+     }
+
      $that.find('.content').width($that.width());
      $(window).scroll(function (event) {
        // what the y position of the scroll is
        var y = $(this).scrollTop();
-       if (stop.length)
-         stopAt = stop.offset().top - $that.height();
 
        // whether that's below the form
        if (y >= top && (!stopAt || stopAt > y)) {
@@ -464,18 +473,22 @@ var scp_prep = function() {
          if (!visible) {
            visible = true;
            setTimeout(function() {
-             placeholder.height($that.height());
              $that.addClass('fixed').css('top', '-'+$that.height()+'px')
                 .animate({top:0}, {easing: 'swing', duration:'fast'});
+             placeholder.height($that.height());
+             $that.find('[data-dropdown]').dropdown('hide');
            }, 1);
          }
        } else {
          // otherwise remove it
-         visible = false;
-         setTimeout(function() {
-           placeholder.removeAttr('style');
-           $that.stop().removeClass('fixed');
-         }, 1);
+         if (visible) {
+           visible = false;
+           setTimeout(function() {
+             placeholder.removeAttr('style');
+             $that.find('[data-dropdown]').dropdown('hide');
+             $that.stop().removeClass('fixed');
+           }, 1);
+         }
        }
     });
   });

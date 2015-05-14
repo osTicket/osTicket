@@ -2208,9 +2208,9 @@ td.indented {
   left: 0;
   z-index: 6;
   width: 100%;
-  border-bottom: 5px solid #ffffff;
   background-color: white;
-  padding: 10px 20px 5px;
+  background-color: rgba(255,255,255,0.9);
+  padding: 10px 20px;
   box-sizing: border-box;
   box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }

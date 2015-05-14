@@ -426,10 +426,18 @@ var ticket_onload = function($) {
 
     $.showImagesInline($('#ticket_thread').data('imageUrls'));
 
-    var last_entry = $('#ticket_thread .thread-entry').last().offset().top - 50;
-    $('html, body').animate({
-        scrollTop: last_entry
-    }, 1000);
+    var last_entry = $('#ticket_thread .thread-entry').last(),
+        frame = 0;
+    $('html, body').delay(500).animate({
+        scrollTop: last_entry.offset().top - 50,
+    }, {
+        duration: 750,
+        step: function(now, fx) {
+            // Recalc end target every few frames
+            if (++frame % 6 == 0)
+                fx.end = last_entry.offset().top - 50;
+        }
+    });
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });
