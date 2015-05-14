@@ -502,7 +502,7 @@ class Format {
         return self::__formatDate($timestamp,
             $format ?: $cfg->getTimeFormat(), $fromDb,
             IDF_NONE, IDF_SHORT,
-            '%x', $timezone ?: $cfg->getTimezone(), $user);
+            '%X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
     function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
@@ -511,7 +511,7 @@ class Format {
         return self::__formatDate($timestamp,
             $format ?: $cfg->getDateFormat(), $fromDb,
             IDF_SHORT, IDF_NONE,
-            '%X', $timezone ?: $cfg->getTimezone(), $user);
+            '%x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
     function datetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
@@ -520,7 +520,7 @@ class Format {
         return self::__formatDate($timestamp,
                 $cfg->getDateTimeFormat(), $fromDb,
                 IDF_SHORT, IDF_SHORT,
-                '%X %x', $timezone ?: $cfg->getTimezone(), $user);
+                '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
     function daydatetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
@@ -529,7 +529,7 @@ class Format {
         return self::__formatDate($timestamp,
                 $cfg->getDayDateTimeFormat(), $fromDb,
                 IDF_FULL, IDF_SHORT,
-                '%X %x', $timezone ?: $cfg->getTimezone(), $user);
+                '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
     function getStrftimeFormat($format) {
