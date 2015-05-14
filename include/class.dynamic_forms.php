@@ -1214,6 +1214,7 @@ class DynamicFormEntry extends VerySimpleModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
 
+        $wasnew = $this->__new__;
         if (!parent::save($refetch || count($this->dirty)))
             return false;
 
@@ -1228,9 +1229,15 @@ class DynamicFormEntry extends VerySimpleModel {
             ) {
                 continue;
             }
-            // Set the entry ID here so that $field->getClean() can use the
+            // Set the entry here so that $field->getClean() can use the
             // entry-id if necessary
             $a->entry = $this;
+
+            // If this is a new entry, then ensure that the field is
+            // connected to the data associated with this entry
+            if ($wasnew)
+                $field->setForm($this);
+
             try {
                 $val = $field->to_database($field->getClean());
             }
