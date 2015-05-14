@@ -31,7 +31,7 @@ $tickets->annotate(array(
     'thread_count' => SqlAggregate::COUNT('thread__entries'),
 ));
 
-$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name');
+$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
 
 TicketForm::ensureDynamicDataView();
 
@@ -73,7 +73,7 @@ if ($results) { ?>
             <?php
             } ?>
             <th width="70"><?php echo __('Ticket'); ?></th>
-            <th width="120"><?php echo __('Date'); ?></th>
+            <th width="120"><?php echo __('Last Updated'); ?></th>
             <th width="70"><?php echo __('Status'); ?></th>
             <th width="380"><?php echo __('Subject'); ?></th>
             <?php
@@ -128,7 +128,7 @@ if ($results) { ?>
                 title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                 data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
-            <td align="center" nowrap><?php echo Format::datetime($T['effective_date']); ?></td>
+            <td align="center" nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
             <td><?php echo $status; ?></td>
             <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
                 style="max-width: 230px;"
