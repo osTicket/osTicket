@@ -15,6 +15,7 @@
 **********************************************************************/
 
 include_once INCLUDE_DIR.'class.charset.php';
+require_once INCLUDE_DIR.'class.variable.php';
 
 class Format {
 
