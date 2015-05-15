@@ -100,7 +100,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
 
 
     function _getListItemEditForm($source=null, $item=false) {
-        return new Form(array(
+        return new SimpleForm(array(
             'value' => new TextboxField(array(
                 'required' => true,
                 'label' => __('Value'),
