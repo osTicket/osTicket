@@ -135,7 +135,7 @@ abstract class SessionBackend {
     var $isnew = false;
     var $ttl;
 
-    function __construct($ttl) {
+    function __construct($ttl=SESSION_TTL) {
         $this->ttl = $ttl;
     }
 
