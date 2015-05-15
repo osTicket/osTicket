@@ -1660,7 +1660,13 @@ class SelectionField extends FormField {
             return array($i=>$choices[$i]);
 
         // Query the store by value or extra (abbrv.)
-        if (($list=$this->getList()) && ($i=$list->getItem($value)))
+        if (!($list=$this->getList()))
+            return null;
+
+        if ($i = $list->getItem($value))
+            return array($i->getId() => $i->getValue());
+
+        if ($i = $list->getItem($value, true))
             return array($i->getId() => $i->getValue());
 
         return null;
