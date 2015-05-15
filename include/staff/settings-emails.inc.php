@@ -82,6 +82,15 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#admins_email_address"></i>
             </td>
         </tr>
+        <tr>
+            <td width="180" class="required"><?php echo __("Verify Email Addresses");?>:</td>
+            <td>
+                <input type="checkbox" name="verify_email_addrs" <?php
+                    if ($config['verify_email_addrs']) echo 'checked="checked"'; ?>>
+                <?php echo __('Verify email address domain'); ?>
+                <i class="help-tip icon-question-sign" href="#verify_email_addrs"></i>
+            </td>
+        </tr>
         <tr><th colspan=2><em><strong><?php echo __('Incoming Emails'); ?>:</strong>&nbsp;
             </em></th>
         <tr>
