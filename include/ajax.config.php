@@ -97,5 +97,35 @@ class ConfigAjaxAPI extends AjaxController {
 
         return $links;
     }
+
+    /**
+     * Ajax: GET /config/date-format?format=<format>
+     *
+     * Formats the user's current date and time according to the given
+     * format in INTL codes.
+     *
+     * Get-Arguments:
+     * format - (string) format string used to format the current date and
+     *      time (from the user's perspective)
+     *
+     * Returns:
+     * (string) Current sequence number, optionally formatted
+     *
+     * Throws:
+     * 403 - Not logged in
+     * 400 - ?format missing
+     */
+    function dateFormat() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!isset($_GET['format']))
+            Http::response(400, '?format is required');
+
+        return Format::htmlchars(Format::__formatDate(
+            Misc::gmtime(), $_GET['format'], false, null, null, '', 'UTC'
+        ));
+    }
 }
 ?>

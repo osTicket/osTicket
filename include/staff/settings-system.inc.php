@@ -127,6 +127,7 @@ $gmtime = Misc::gmtime();
                 </em>
             </th>
         </tr>
+<?php if (extension_loaded('intl')) { ?>
         <tr><td width="220" class="required"><?php echo __('Default Locale');?>:</td>
             <td>
                 <select name="default_locale">
@@ -143,6 +144,7 @@ $gmtime = Misc::gmtime();
                 </select>
             </td>
         </tr>
+<?php } ?>
         <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
                 <?php
@@ -178,26 +180,39 @@ $gmtime = Misc::gmtime();
         <tr>
             <td width="220" class="indented required"><?php echo __('Time Format');?>:</td>
             <td>
-                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
+                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>" class="date-format-preview">
                     &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
-                    <em><?php echo Format::time(null, false); ?></em></td>
+                    <em><?php echo Format::time(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="time_format">
+                    <?php echo Format::time('now'); ?>
+                </span>
+            </td>
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Date Format');?>:</td>
-            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
+            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>" class="date-format-preview">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
                         <em><?php echo Format::date(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="date_format">
+                    <?php echo Format::date('now'); ?>
+                </span>
             </td>
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Date and Time Format');?>:</td>
-            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
+            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>" class="date-format-preview">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
                         <em><?php echo Format::datetime(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="datetime_format">
+                    <?php echo Format::datetime('now'); ?>
+                </span>
             </td>
         </tr>
         <tr><td width="220" class="indented required"><?php echo __('Day, Date and Time Format');?>:</td>
-            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
+            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>" class="date-format-preview">
                         &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
                         <em><?php echo Format::daydatetime(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="daydatetime_format">
+                    <?php echo Format::daydatetime('now'); ?>
+                </span>
             </td>
         </tr>
     </tbody>
@@ -277,6 +292,18 @@ $gmtime = Misc::gmtime();
 $(function() {
     $('#secondary_langs').sortable({
         cursor: 'move'
+    });
+    var prev = [];
+    $('input.date-format-preview').keyup(function() {
+        var name = $(this).attr('name'),
+            div = $('span.date-format-preview[data-for='+name+']'),
+            current = $(this).val();
+        if (prev[name] && prev[name] == current)
+            return;
+        prev[name] = current;
+        div.text('...');
+        $.get('ajax.php/config/date-format', {format:$(this).val()})
+            .done(function(html) { div.html(html); });
     });
 });
 </script>

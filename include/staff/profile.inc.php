@@ -112,6 +112,7 @@ $info['id']=$staff->getId();
             </td>
         </tr>
 <?php } ?>
+<?php if (extension_loaded('intl')) { ?>
         <tr><td width="220"><?php echo __('Preferred Locale');?>:</td>
             <td>
                 <select name="locale">
@@ -125,6 +126,7 @@ $info['id']=$staff->getId();
                 </select>
             </td>
         </tr>
+<?php } ?>
         <tr>
             <td width="180"><?php echo __('Maximum Page size');?>:</td>
             <td>

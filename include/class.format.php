@@ -533,7 +533,12 @@ class Format {
     }
 
     function getStrftimeFormat($format) {
-        static $dateToStrftime = array(
+        static $codes, $ids;
+
+        if (!isset($codes)) {
+            // This array is flipped because of duplicated formats on the
+            // intl side due to slight differences in the libraries
+            $codes = array(
             '%d' => 'dd',
             '%a' => 'EEE',
             '%e' => 'd',
@@ -563,17 +568,24 @@ class Format {
 
             '%z' => 'ZZZ',
             '%Z' => 'z',
-        );
+            );
 
-        $flipped = array_flip($dateToStrftime);
-        krsort($flipped);
-        // Also establish a list of ids, so we can do a creative replacement
-        // without clobbering the common letters in the formats
-        $ids = array_keys($flipped);
-        $ids = array_flip($ids);
-        foreach ($flipped as $icu=>$date) {
-            $format = str_replace($date, chr($ids[$icu]), $format);
+            $flipped = array_flip($codes);
+            krsort($flipped);
+
+            // Also establish a list of ids, so we can do a creative replacement
+            // without clobbering the common letters in the formats
+            $keys = array_keys($flipped);
+            $ids = array_combine($keys, array_map('chr', array_flip($keys)));
+
+            // Now create an array from the id codes back to strftime codes
+            $codes = array_combine($ids, $flipped);
         }
+        // $ids => array(intl => #id)
+        // $codes => array(#id => strftime)
+        $format = str_replace(array_keys($ids), $ids, $format);
+        $format = str_replace($ids, $codes, $format);
+
         return preg_replace_callback('`[\x00-\x1f]`',
             function($m) use ($ids) {
                 return $ids[ord($m[0])];

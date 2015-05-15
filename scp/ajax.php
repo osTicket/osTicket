@@ -50,7 +50,8 @@ $dispatcher = patterns('',
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp'),
-        url_get('^links', 'templateLinks')
+        url_get('^links', 'templateLinks'),
+        url_get('^date-format', 'dateFormat')
     )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
