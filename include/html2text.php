@@ -48,6 +48,7 @@ function convert_html_to_text($html, $width=74) {
     $elements->getRoot()->addStylesheet(
         HtmlStylesheet::fromArray(array(
             'html' => array('white-space' => 'pre'), # Don't wrap footnotes
+            'center' => array('text-align' => 'center'),
             'p' => array('margin-bottom' => '1em'),
             'pre' => array('white-space' => 'pre'),
             'u' => array('text-decoration' => 'underline'),
@@ -117,6 +118,7 @@ function identify_node($node, $parent=null) {
         case "head":
         case "html":
         case "body":
+        case "center":
         case "div":
         case "p":
         case "pre":
@@ -172,9 +174,10 @@ class HtmlInlineElement {
         $this->parent = $parent;
         $this->node = $node;
         $this->traverse($node);
+        $this->style = new CssStyleRules();
         if ($node instanceof DomElement
                 && ($style = $this->node->getAttribute('style')))
-            $this->style = new CssStyleRules($style);
+            $this->style->add($style);
     }
 
     function traverse($node) {
@@ -216,6 +219,10 @@ class HtmlInlineElement {
                 case 'normal':
                 default:
                     if ($after_block) $more = ltrim($more);
+                    if ($this instanceof HtmlBlockElement && trim($more) == '')
+                        // Ignore pure whitespace in-between elements inside
+                        // block elements
+                        $more = '';
                     $more = preg_replace('/[ \r\n\t\f]+/mu', ' ', $more);
                 }
             }
@@ -272,6 +279,10 @@ class HtmlInlineElement {
         return $this->weight;
     }
 
+    function setStyle($property, $value) {
+        $this->style->set($property, $value);
+    }
+
     function getStyle($property, $default=null, $tag=false, $classes=false) {
         if ($this->style && $this->style->has($property))
             return $this->style->get($property, $default);
@@ -318,6 +329,14 @@ class HtmlInlineElement {
 
 class HtmlBlockElement extends HtmlInlineElement {
     var $min_width = false;
+    var $pad_left;
+    var $pad_right;
+
+    function __construct($node, $parent) {
+        parent::__construct($node, $parent);
+        $this->pad_left = str_repeat(' ', $this->getStyle('padding-left', 0.0));
+        $this->pad_right = str_repeat(' ', $this->getStyle('padding-right', 0.0));
+    }
 
     function render($width, $options) {
         // Allow room for the border.
@@ -329,11 +348,15 @@ class HtmlBlockElement extends HtmlInlineElement {
         $output = parent::render($width, $options);
         if ($output instanceof PreFormattedText)
             // TODO: Consider CSS rules
-            return new PreFormattedText("\n" . $output);
+            return $output;
 
+        // Leading and trailing whitespace is ignored in block elements
         $output = trim($output);
         if (!strlen($output))
             return "";
+
+        // Padding
+        $width -= strlen($this->pad_left) + strlen($this->pad_right);
 
         // Wordwrap the content to the width
         switch ($this->ws) {
@@ -347,9 +370,6 @@ class HtmlBlockElement extends HtmlInlineElement {
                 $output = mb_wordwrap($output, $width, "\n", true);
         }
 
-        // Apply stylesheet styles
-        // TODO: Padding
-
         // Justification
         static $aligns = array(
             'left' => STR_PAD_RIGHT,
@@ -357,10 +377,19 @@ class HtmlBlockElement extends HtmlInlineElement {
             'center' => STR_PAD_BOTH,
         );
         $talign = $this->getStyle('text-align', 'none');
+        $self = $this;
         if (isset($aligns[$talign])) {
             // Explode lines, justify, implode again
-            $output = array_map(function($l) use ($talign, $aligns, $width) {
-                return mb_str_pad($l, $width, ' ', $aligns[$talign]);
+            $output = array_map(function($l) use ($talign, $aligns, $width, $self) {
+                return $self->pad_left.mb_str_pad($l, $width, ' ', $aligns[$talign]).$self->pad_right;
+            }, explode("\n", $output)
+            );
+            $output = implode("\n", $output);
+        }
+        // Apply left and right padding, if specified
+        elseif ($this->pad_left || $this->pad_right) {
+            $output = array_map(function($l) use ($self) {
+                return $self->pad_left.$l.$self->pad_right;
             }, explode("\n", $output)
             );
             $output = implode("\n", $output);
@@ -371,7 +400,8 @@ class HtmlBlockElement extends HtmlInlineElement {
             $output = self::borderize($output, $width);
 
         // Margin
-        $mb = $this->getStyle('margin-bottom', 0);
+        $mb = $this->getStyle('margin-bottom', 0.0)
+            + $this->getStyle('padding-bottom', 0.0);
         $output .= str_repeat("\n", (int)$mb);
 
         return $output."\n";
@@ -395,7 +425,7 @@ class HtmlBlockElement extends HtmlInlineElement {
                         explode(' ', $c->wholeText))), $this->min_width);
             }
         }
-        return $this->min_width;
+        return $this->min_width + strlen($this->pad_left) + strlen($this->pad_right);
     }
 }
 
@@ -553,11 +583,23 @@ class HtmlCodeElement extends HtmlInlineElement {
 }
 
 class HtmlTable extends HtmlBlockElement {
+    var $body;
+    var $foot;
+    var $rows;
+    var $border = true;
+    var $padding = true;
+
     function __construct($node, $parent) {
         $this->body = array();
         $this->foot = array();
         $this->rows = &$this->body;
         parent::__construct($node, $parent);
+        $A = $this->node->getAttribute('border');
+        if (isset($A))
+            $this->border = (bool) $A;
+        $A = $this->node->getAttribute('cellpadding');
+        if (isset($A))
+            $this->padding = (bool) $A;
     }
 
     function getMinWidth() {
@@ -566,7 +608,7 @@ class HtmlTable extends HtmlBlockElement {
                 foreach ($r as $cell)
                     $this->min_width = max($this->min_width, $cell->getMinWidth());
         }
-        return $this->min_width + 4;
+        return $this->min_width + ($this->border ? 2 : 0) + ($this->padding ? 2 : 0);
     }
 
     function getWeight() {
@@ -665,6 +707,7 @@ class HtmlTable extends HtmlBlockElement {
             $i = 0;
             foreach ($r as $cell) {
                 for ($j=0; $j<$cell->cols; $j++) {
+                    // TODO: Use cell-specified width
                     $weights[$i] = max($weights[$i], $cell->getWeight());
                     $mins[$i] = max($mins[$i], $cell->getMinWidth());
                 }
@@ -673,7 +716,8 @@ class HtmlTable extends HtmlBlockElement {
         }
 
         # Subtract internal padding and borders from the available width
-        $inner_width = $width - $cols*3 - 1;
+        $inner_width = $width - ($this->border ? $cols + 1 : 0)
+            - ($this->padding ? $cols*2 : 0);
 
         # Optimal case, where the preferred width of all the columns is
         # doable
@@ -692,7 +736,9 @@ class HtmlTable extends HtmlBlockElement {
                 $widths[] = (int)($inner_width * $c / $total);
             $this->_fixupWidths($widths, $mins);
         }
-        $outer_width = array_sum($widths) + $cols*3 + 1;
+        $outer_width = array_sum($widths)
+            + ($this->border ? $cols + 1 : 0)
+            + ($this->padding ? $cols * 2 : 0);
 
         $contents = array();
         $heights = array();
@@ -708,7 +754,8 @@ class HtmlTable extends HtmlBlockElement {
                 # Compute the effective cell width for spanned columns
                 # Add extra space for the unneeded border padding for
                 # spanned columns
-                $cwidth = ($cell->cols - 1) * 3;
+                $cwidth = ($this->border ? ($cell->cols - 1) : 0)
+                    + ($this->padding ? ($cell->cols - 1) * 2 : 0);
                 for ($j = 0; $j < $cell->cols; $j++)
                     $cwidth += $widths[$x+$j];
                 # Stash the computed width so it doesn't need to be
@@ -716,7 +763,8 @@ class HtmlTable extends HtmlBlockElement {
                 $cell->width = $cwidth;
                 unset($data);
                 $data = explode("\n", $cell->render($cwidth, $options));
-                $heights[$y] = max(count($data), $heights[$y]);
+                // NOTE: block elements have trailing newline
+                $heights[$y] = max(count($data)-1, $heights[$y]);
                 $contents[$y][$i] = &$data;
                 $x += $cell->cols;
             }
@@ -724,29 +772,34 @@ class HtmlTable extends HtmlBlockElement {
 
         # Build the header
         $header = "";
-        for ($i = 0; $i < $cols; $i++)
-            $header .= "+-" . str_repeat("-", $widths[$i]) . "-";
-        $header .= "+";
+        if ($this->border) {
+            $padding = $this->padding ? '-' : '';
+            for ($i = 0; $i < $cols; $i++) {
+                $header .= '+'.$padding.str_repeat("-", $widths[$i]).$padding;
+            }
+            $header .= "+\n";
+        }
 
         # Emit the rows
-        $output = "\n";
         if (isset($this->caption)) {
             $this->caption = $this->caption->render($outer_width, $options);
         }
+        $border = $this->border ? '|' : '';
+        $padding = $this->padding ? ' ' : '';
         foreach ($rows as $y=>$r) {
-            $output .= $header . "\n";
+            $output .= $header;
             for ($x = 0, $k = 0; $k < $heights[$y]; $k++) {
-                $output .= "|";
+                $output .= $border;
                 foreach ($r as $x=>$cell) {
                     $content = (isset($contents[$y][$x][$k]))
                         ? $contents[$y][$x][$k] : "";
-                    $output .= " ".mb_str_pad($content, $cell->width)." |";
+                    $output .= $padding.mb_str_pad($content, $cell->width).$padding.$border;
                     $x += $cell->cols;
                 }
                 $output .= "\n";
             }
         }
-        $output .= $header . "\n";
+        $output .= $header;
         return new PreFormattedText($output);
     }
 }
@@ -759,10 +812,14 @@ class HtmlTableCell extends HtmlBlockElement {
 
         if (!$this->cols) $this->cols = 1;
         if (!$this->rows) $this->rows = 1;
+
+        // Upgrade old attributes
+        if ($A = $this->node->getAttribute('align'))
+            $this->setStyle('text-align', $A);
     }
 
     function render($width, $options) {
-        return ltrim(parent::render($width, $options));
+        return parent::render($width, $options);
     }
 
     function getWeight() {
@@ -821,13 +878,48 @@ class HtmlStylesheet {
 class CssStyleRules {
     var $rules = array();
 
-    function __construct($rules) {
+    static $compact_rules = array(
+        'padding' => 1,
+    );
+
+    function __construct($rules='') {
+        if ($rules)
+            $this->add($rules);
+    }
+
+    function add($rules) {
         foreach (explode(';', $rules) as $r) {
             if (strpos($r, ':') === false)
                 continue;
             list($prop, $val) = explode(':', $r);
-            $this->rules[trim($prop)] = trim($val);
+            $prop = trim($prop);
             // TODO: Explode compact rules, like 'border', 'margin', etc.
+            if (isset(self::$compact_rules[$prop]))
+                $this->expand($prop, trim($val));
+            else
+                $this->rules[$prop] = trim($val);
+        }
+    }
+
+    function expand($prop, $val) {
+        switch (strtolower($prop)) {
+        case 'padding':
+            @list($a, $b, $c, $d) = preg_split('/\s+/', $val);
+            if (!isset($b)) {
+                $d = $c = $b = $a;
+            }
+            elseif (!isset($c)) {
+                $d = $b;
+                $c = $a;
+            }
+            elseif (!isset($d)) {
+                $d = $b;
+            }
+            $this->rules['padding-top'] = $a;
+            $this->styles['padding-right'] = $b;
+            $this->rules['padding-bottom'] = $c;
+            $this->rules['padding-left'] = $d;
+
         }
     }
 
@@ -853,18 +945,26 @@ class CssStyleRules {
         return $val;
     }
 
-    static function convert($value, $units) {
+    function set($prop, $value) {
+        $this->rules[$prop] = $value;
+    }
+
+    static function convert($value, $units, $max=0) {
         if ($value === null)
             return $value;
 
         // Converts common CSS units to units of characters
         switch ($units) {
+            default:
+                if (substr($units, -1) == '%') {
+                    return ((float) $value) * 0.01 * $max;
+                }
             case 'px':
-                return $value / 20.0;
+                // 600px =~ 60chars
+                return (int) ($value / 10.0);
             case 'pt':
                 return $value / 12.0;
             case 'em':
-            default:
                 return $value;
         }
     }
