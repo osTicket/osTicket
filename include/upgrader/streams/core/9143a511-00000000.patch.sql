@@ -1,3 +1,9 @@
+/**
+ * @signature 959aca6ed189cd918d227a3ea8a135a3
+ * @version v1.9.6
+ * @title Retire `private`, `required`, and `edit_mask` for fields
+ *
+ */
 
 ALTER TABLE `%TABLE_PREFIX%ticket_event`
   ADD `id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST,
@@ -26,3 +32,10 @@ UPDATE `%TABLE_PREFIX%thread_event` A1
     LEFT JOIN `%TABLE_PREFIX%staff` A2 ON (A2.`username` = A1.`username`)
     SET A1.`uid` = A2.`staff_id`
     WHERE A1.`username` != 'SYSTEM';
+
+ALTER TABLE `%TABLE_PREFIX%user_email`
+  ADD `flags` int(10) unsigned NOT NULL DEFAULT 0 AFTER `user_id`;
+
+UPDATE `%TABLE_PREFIX%config`
+    SET `value` = '00000000000000000000000000000000'
+    WHERE `key` = 'schema_signature' AND `namespace` = 'core';

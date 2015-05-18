@@ -871,6 +871,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
 CREATE TABLE `%TABLE_PREFIX%user_email` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `user_id` int(10) unsigned NOT NULL,
+  `flags` int(10) unsigned NOT NULL DEFAULT 0,
   `address` varchar(128) NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `address` (`address`),
