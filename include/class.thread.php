@@ -49,6 +49,9 @@ class Thread extends VerySimpleModel {
         ),
     );
 
+    const MODE_STAFF = 1;
+    const MODE_CLIENT = 2;
+
     var $_object;
     var $_collaborators; // Cache for collabs
 
@@ -196,14 +199,15 @@ class Thread extends VerySimpleModel {
         return true;
     }
     // Render thread
-    function render($type=false) {
+    function render($type=false, $mode=self::MODE_STAFF) {
 
         $entries = $this->getEntries();
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
         $events = $this->getEvents();
-        include STAFFINC_DIR . 'templates/thread-entries.tmpl.php';
+        $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
+        include $inc . 'templates/thread-entries.tmpl.php';
     }
 
     function getEntry($id) {
@@ -1533,6 +1537,8 @@ class ThreadEvent extends VerySimpleModel {
                     : 'somebody';
             },
             'created' => __('Created by <b>{username}</b> {timestamp}'),
+            'closed' => __('Closed by <b>{username}</b> {timestamp}'),
+            'reopened' => __('Reopened by <b>{username}</b> {timestamp}'),
             'edited:owner' => __('<b>{username}</b> changed ownership to {<User>data.owner} {timestamp}'),
             'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
             'overdue' => __('Flagged as overdue by the system {timestamp}'),
@@ -1625,10 +1631,9 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function render($mode) {
-        if ($mode == self::MODE_STAFF) {
-            $event = $this;
-            include STAFFINC_DIR . 'templates/thread-event.tmpl.php';
-        }
+        $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
+        $event = $this;
+        include $inc . 'templates/thread-event.tmpl.php';
     }
 
     static function create($ht=false) {

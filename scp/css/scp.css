@@ -832,9 +832,6 @@ h2 .reload {
     border:1px solid #f90;
 }
 
-
-
-
 #ticket_actions {
     padding:5px;
     background:#eee;
@@ -843,7 +840,18 @@ h2 .reload {
     margin:0;
 }
 .thread-entry {
-    margin-top: 15px;
+    margin-bottom: 15px;
+    z-index: 0;
+}
+.thread-entry::after {
+  content: "";
+  border-bottom: 2px solid white;
+  display: block;
+}
+.thread-entry::before {
+  content: "";
+  display: block;
+  border-top: 2px solid white;
 }
 .thread-entry.avatar {
     margin-left: 60px;
@@ -875,20 +883,20 @@ img.avatar {
 .thread-entry.avatar .header:before {
   position: absolute;
   top: 7px;
-  right: -9px;
+  right: -8px;
   content: '';
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 9px solid #9cadcc;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #9cadcc;
   display: inline-block;
 }
 .thread-entry.avatar .header:after {
   position: absolute;
   top: 7px;
-  right: -9px;
+  right: -8px;
   content: '';
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
   display: inline-block;
   margin-top: 1px;
 }
@@ -901,7 +909,7 @@ img.avatar {
     background:#C3D9FF;
 }
 .thread-entry.avatar.message .header:after {
-    border-left: 9px solid #C3D9FF;
+    border-left: 7px solid #C3D9FF;
     margin-right: 1px;
 }
 
@@ -911,14 +919,13 @@ img.avatar {
 .thread-entry.avatar.response .header:before,
 .thread-entry.avatar.note .header:before {
     top: 7px;
-    left: -9px;
+    left: -8px;
     right: initial;
     border-left: none;
-    border-right: 9px solid #CCC;
+    border-right: 8px solid #CCC;
 }
 .thread-entry.note:not(.avatar) .header {
     background-color: #f4f4f4;
-    background-color: rgba(0,0,0,0.05);
 }
 .thread-entry.avatar.response .header:before {
     border-right-color: #ccb3af;
@@ -929,10 +936,10 @@ img.avatar {
 .thread-entry.avatar.response .header:after,
 .thread-entry.avatar.note .header:after {
     top: 7px;
-    left: -9px;
+    left: -8px;
     right: initial;
     border-left: none;
-    border-right: 9px solid #FFE0B3;
+    border-right: 7px solid #FFE0B3;
     margin-left: 1px;
 }
 
@@ -949,7 +956,7 @@ img.avatar {
     margin-left: 15px;
 }
 
-.thread-body {
+.thread-entry .thread-body {
     border: 1px solid #ddd;
     border-top: none;
     border-bottom:2px solid #aaa;
@@ -2106,7 +2113,7 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-    padding: 5px 0;
+    margin: 5px 0;
 }
 .left-tabs {
     margin-left: 48px;
@@ -2322,10 +2329,26 @@ td.indented {
   margin: auto;
 }
 
-.thread-event {
-    padding: 15px 2px 0;
+#ticket_thread::before {
+  border-left: 2px dotted #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+  position: absolute;
+  margin-left: 74px;
+  z-index: -1;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
 }
-.thread-event.action {
+#ticket_thread {
+  z-index: 0;
+  position: relative;
+  border-bottom: 2px solid #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+.thread-event {
+    padding: 0 2px 15px;
     margin-left: 60px;
 }
 .type-icon {
@@ -2338,6 +2361,16 @@ td.indented {
     font-size: 1.1em;
     border: 1px solid #eee;
     vertical-align: top;
+}
+.thread-event .type-icon::after {
+  content: "";
+  border: 16px solid white;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: -3px;
+  right: 0;
+  z-index: -1;
 }
 .type-icon.dark {
     border-color: #666;
@@ -2355,7 +2388,7 @@ td.indented {
     padding-top: 6px;
     padding-left: 30px;
     display: inline-block;
-    width: 822px;
-    width: calc(100% - 46px);
+    width: 772px;
+    width: calc(100% - 95px);
     line-height: 1.4em;
 }

@@ -126,55 +126,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 </tr>
 </table>
 <br>
+
 <div id="ticketThread">
 <?php
-if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
-    $threadType=array('M' => 'message', 'R' => 'response');
-    foreach($thread as $entry) {
-
-        //Making sure internal notes are not displayed due to backend MISTAKES!
-        if(!$threadType[$entry->type]) continue;
-        $poster = $entry->poster;
-        if($entry->type=='R' && ($cfg->hideStaffName() || !$entry->staff_id))
-            $poster = ' ';
-        ?>
-        <table class="thread-entry <?php echo $threadType[$entry->type]; ?>" cellspacing="0" cellpadding="1" width="800" border="0">
-            <tr><th><div>
-<?php echo Format::datetime($entry->created); ?>
-                &nbsp;&nbsp;<span class="textra"></span>
-                <span><?php echo $poster; ?></span>
-            </div>
-            </th></tr>
-            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry->getBody()->toHtml()); ?></div></td></tr>
-            <?php
-            $urls = null;
-            if ($entry->has_attachments
-                && ($urls = $entry->getAttachmentUrls())) { ?>
-            <tr>
-                <td class="info"><?php
-                    foreach ($entry->attachments as $A) {
-                        if ($A->inline) continue;
-                        $size = '';
-                        if ($A->file->size)
-                            $size = sprintf('<em>(%s)</em>',
-                                Format::file_size($A->file->size));
-?>
-                &nbsp; <i class="icon-paperclip"></i>
-                <a class="no-pjax" href="<?php echo $A->file->getDownloadUrl();
-                    ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
-                        target="_blank">
-                <?php echo Format::htmlchars($A->file->name);
-                ?></a><?php echo $size;?>&nbsp;
-<?php               } ?>
-                </td>
-            </tr>
-<?php       } ?>
-        </table>
-    <?php
-    }
-}
+    $ticket->getThread()->render(array('M', 'R'), Thread::MODE_CLIENT);
 ?>
 </div>
+
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>

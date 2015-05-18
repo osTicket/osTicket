@@ -726,7 +726,7 @@ label.required, span.required {
     border-radius: 4px;
 }
 #reply {
-  margin-top: 20px;
+  margin-top: 5px;
   padding: 10px;
   background: #f9f9f9;
   border: 1px solid #ccc;
@@ -854,44 +854,6 @@ a.refresh {
 .infoTable th {
   text-align: left;
   padding: 3px 8px;
-}
-#ticketThread table.response,
-#ticketThread table.message {
-  margin-top: 10px;
-  border: 1px solid #aaa;
-  border-bottom: 2px solid #aaa;
-}
-#ticketThread table th {
-  text-align: left;
-  border-bottom: 1px solid #aaa;
-  font-size: 12px;
-  padding: 5px;
-}
-#ticketThread table th span {
-  font-weight: normal;
-  color: #888;
-  padding-left: 20px;
-}
-#ticketThread .message th {
-  background: #d8efff;
-}
-#ticketThread .response th {
-  background: #ddd;
-}
-#ticketThread .info {
-  padding: 2px;
-  background: #f9f9f9;
-  border-top: 1px solid #ddd;
-  height: 16px;
-  line-height: 16px;
-}
-#ticketThread .info a {
-  display: inline-block;
-  margin: 5px 10px 5px 0;
-  height: 16px;
-  line-height: 16px;
-  background-position: 0 50%;
-  background-repeat: no-repeat;
 }
 .action-button {
   -webkit-border-radius: 3px;
@@ -1048,6 +1010,7 @@ img.sign-in-image {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: bottom;
 }
 .image-hover a.action-button:hover,
 .image-hover a.action-button {
@@ -1078,4 +1041,221 @@ table.custom-data .headline {
 }
 #ticketInfo h1 small {
     font-weight: normal;
+}
+.thread-entry {
+    margin-bottom: 15px;
+}
+.thread-entry.avatar {
+    margin-left: 60px;
+}
+.thread-entry.response.avatar {
+    margin-right: 60px;
+    margin-left: 0;
+}
+.thread-entry > .avatar {
+    margin-left: -60px;
+    display:inline-block;
+    width:48px;
+    height:auto;
+    border-radius: 5px;
+}
+.thread-entry.response > .avatar {
+    margin-left: initial;
+    margin-right: -60px;
+}
+img.avatar {
+    border-radius: inherit;
+}
+.thread-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: 5px 5px 0 0;
+}
+.thread-entry.avatar .header:before {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #b0b0b0;
+  display: inline-block;
+}
+.thread-entry.avatar .header:after {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.thread-entry.avatar .header {
+    position: relative;
+}
+
+.thread-entry.response .header {
+    background:#dddddd;
+}
+.thread-entry.avatar.response .header:after {
+    border-left: 7px solid #dddddd;
+    margin-right: 1px;
+}
+
+.thread-entry.message .header {
+    background:#C3D9FF;
+}
+.thread-entry.avatar.message .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+.thread-entry.avatar.message .header:before {
+    border-right-color: #9cadcc;
+}
+.thread-entry.avatar.message .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #c3d9ff;
+    margin-left: 1px;
+}
+
+.thread-entry .header .title {
+    max-width: 500px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.thread-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom:2px solid #aaa;
+    border-radius: 0 0 5px 5px;
+}
+.thread-body .attachments {
+  background-color: #f4faff;
+  margin: 0 -0.9em;
+  position: relative;
+  top: 0.9em;
+  padding: 0.3em 0.9em;
+  border-top: 1px dotted #ccc;
+  border-top-color: rgba(0,0,0,0.2);
+  border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments .filesize {
+  margin-left: 0.5em;
+}
+.thread-body .attachment-info {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+}
+.thread-body .attachment-info .filename {
+  max-width: 80%;
+  max-width: calc(100% - 70px);
+}
+.label {
+  font-size: 11px;
+  padding: 1px 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 14px;
+  color: #ffffff;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999999;
+}
+.label-bare {
+  background-color: transparent;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #999999;
+  color: #999999;
+  text-shadow: none;
+}
+.thread-event {
+    padding: 0px 2px 15px;
+    margin-left: 60px;
+}
+.type-icon {
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    padding: 4px 6px;
+    margin-right: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.1em;
+    border: 1px solid #eee;
+    vertical-align: top;
+}
+.type-icon.dark {
+    border-color: #666;
+    background-color: #949494;
+}
+.thread-event img.avatar {
+    vertical-align: middle;
+    border-radius: 3px;
+    width: auto;
+    max-height: 24px;
+    margin: -3px 3px 0;
+}
+.thread-event .description {
+    margin-left: -30px;
+    padding-top: 6px;
+    padding-left: 30px;
+    display: inline-block;
+    width: 642px;
+    width: calc(100% - 95px);
+    line-height: 1.4em;
+}
+.thread-event .type-icon {
+  position:relative;
+}
+.thread-event .type-icon::after {
+  content: "";
+  border: 16px solid white;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: -3px;
+  right: 0;
+  z-index: -1;
+}
+.thread-entry::after {
+  content: "";
+  border-bottom: 2px solid white;
+  display: block;
+}
+.thread-entry::before {
+  content: "";
+  display: block;
+  border-top: 2px solid white;
+}
+#ticketThread::before {
+  border-left: 2px dotted #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+  position: absolute;
+  margin-left: 74px;
+  z-index: -1;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+#ticketThread {
+  z-index: 0;
+  position: relative;
+  border-bottom: 2px solid #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
 }

@@ -2649,7 +2649,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             }
         }
 
-        $this->logEvent('edited', array('fields' => $changes));
+        if ($changes)
+            $this->logEvent('edited', array('fields' => $changes));
 
         // Reload the ticket so we can do further checking
         $this->reload();
