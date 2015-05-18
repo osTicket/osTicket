@@ -799,12 +799,10 @@ CREATE TABLE `%TABLE_PREFIX%task` (
 -- pages
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `content_id` int(10) unsigned NOT NULL default '0',
   `isactive` tinyint(1) unsigned NOT NULL default '0',
   `type` varchar(32) NOT NULL default 'other',
   `name` varchar(255) NOT NULL,
   `body` text NOT NULL,
-  `lang` varchar(16) NOT NULL default 'en_US',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
