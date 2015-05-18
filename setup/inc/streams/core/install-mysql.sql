@@ -632,6 +632,8 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `type` char(1) NOT NULL default '',
   `flags` int(11) unsigned NOT NULL default '0',
   `poster` varchar(128) NOT NULL default '',
+  `editor` int(10) unsigned NULL,
+  `editor_type` char(1) NULL,
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),
   `body` text NOT NULL,
