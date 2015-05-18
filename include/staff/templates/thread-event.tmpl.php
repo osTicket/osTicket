@@ -3,6 +3,6 @@
           <i class="faded icon-<?php echo $event->getIcon(); ?>"></i>
         </span>
         <span class="faded description">
-            <?php echo $event->getDescription(); ?>
+            <?php echo $event->getDescription(ThreadEvent::MODE_STAFF); ?>
         </span>
 </div>

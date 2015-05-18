@@ -1507,7 +1507,7 @@ class ThreadEvent extends VerySimpleModel {
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
 
-    function getDescription() {
+    function getDescription($mode=self::MODE_STAFF) {
         static $descs;
         if (!isset($descs))
             $descs = array(
@@ -1543,7 +1543,7 @@ class ThreadEvent extends VerySimpleModel {
             'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
             'overdue' => __('Flagged as overdue by the system {timestamp}'),
             'transferred' => __('<b>{username}</b> transferred this to <strong>{dept}</strong> {timestamp}'),
-            'edited:fields' => function($evt) {
+            'edited:fields' => function($evt) use ($mode) {
                 $base = __('Updated by <b>{username}</b> {timestamp} — %s');
                 $data = $evt->getData();
                 $fields = $changes = array();
@@ -1554,6 +1554,8 @@ class ThreadEvent extends VerySimpleModel {
                 }
                 foreach ($data['fields'] as $id=>$f) {
                     $field = $fields[$id];
+                    if ($mode == self::MODE_CLIENT && !$field->isVisibleToUsers())
+                        continue;
                     list($old, $new) = $f;
                     $impl = $field->getImpl($field);
                     $before = $impl->to_php($old);
@@ -1561,6 +1563,8 @@ class ThreadEvent extends VerySimpleModel {
                     $changes[] = sprintf('<strong>%s</strong> %s',
                         $field->getLocal('label'), $impl->whatChanged($before, $after));
                 }
+                if (!$changes)
+                    return '';
                 return sprintf($base, implode(', ', $changes));
             },
         );
