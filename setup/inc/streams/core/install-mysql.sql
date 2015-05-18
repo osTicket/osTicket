@@ -117,7 +117,7 @@ CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `pid` int(10) unsigned DEFAULT NULL,
     `type` varchar(8) NOT NULL DEFAULT 'G',
-    `deletable` tinyint(1) NOT NULL DEFAULT 1,
+    `flags` int(10) unsigned NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
     `name` varchar(64) NOT NULL DEFAULT '',

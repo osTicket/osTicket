@@ -40,6 +40,13 @@ ALTER TABLE `%TABLE_PREFIX%thread_entry`
   ADD `editor` int(10) unsigned NULL AFTER `poster`,
   ADD `editor_type` char(1) NULL AFTER `editor`;
 
+ALTER TABLE `%TABLE_PREFIX%form`
+  CHANGE `deletable` `flags` int(10) unsigned NOT NULL DEFAULT 1;
+
+-- Previous versions did not correctly mark the internal forms as NOT deletable
+UPDATE `%TABLE_PREFIX%form`
+  SET `flags` = 0 WHERE `type` IN ('T','U','C','O','A');
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'
