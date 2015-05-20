@@ -1,6 +1,6 @@
 /**
  * @signature 1ee831c854fe9f35115a3e672916bb91
- * @version v1.9.6
+ * @version v1.10.0
  * @title Make editable content translatable and add queues
  *
  * This patch adds support for translatable administratively editable

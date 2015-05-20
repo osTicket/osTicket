@@ -1,5 +1,5 @@
 /**
- * @version v1.9.6
+ * @version v1.10.0
  * @signature 5cd0a25a54fd27ed95f00d62edda4c6d
  * @title Add support for ticket tasks
  *

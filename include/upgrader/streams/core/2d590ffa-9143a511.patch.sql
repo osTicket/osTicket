@@ -1,7 +1,7 @@
-/*
+/**
+ * @version v1.10.0
+ * @title Add collaborators to tasks
  * @signature 9143a511719555e8f8f09b49523bd022
- * @version v1.9.6
- * @title All collaborators have threads
  *
  * This patch renames the %ticket_lock table to just %lock, which allows for
  * it to be considered more flexible. Instead, it joins the lock to the
