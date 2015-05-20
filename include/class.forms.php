@@ -2241,6 +2241,10 @@ class FileUploadField extends FormField {
         return $this->attachments ? $this->attachments->getAll() : array();
     }
 
+    function setAttachments(GenericAttachments $att) {
+        $this->attachments = $att;
+    }
+
     function getConfiguration() {
         $config = parent::getConfiguration();
         $_types = self::getFileTypes();

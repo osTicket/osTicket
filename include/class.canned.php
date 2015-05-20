@@ -110,8 +110,7 @@ class Canned {
                 'attachments__type'=>'C',
                 'attachments__object_id'=>$this->getId(),
                 'attachments__inline' => $inlines,
-            ))
-            ->all();
+            ));
     }
 
     function getNumFilters() {

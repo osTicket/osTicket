@@ -50,8 +50,8 @@ if ($_POST) {
                 $keepers = $canned_form->getField('attachments')->getClean();
                 $attachments = $canned->attachments->getSeparates(); //current list of attachments.
                 foreach($attachments as $k=>$file) {
-                    if($file['id'] && !in_array($file['id'], $keepers)) {
-                        $canned->attachments->delete($file['id']);
+                    if(isset($file->id) && !in_array($file->id, $keepers)) {
+                        $canned->attachments->delete($file->id);
                     }
                 }
 
