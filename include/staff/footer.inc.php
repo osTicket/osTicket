@@ -41,6 +41,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 </div>
 
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
+<script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="./js/scp.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
@@ -49,7 +50,6 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
-<script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="./js/jquery.translatable.js"></script>
 <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
 <script type="text/javascript" src="./js/bootstrap-tooltip.js"></script>

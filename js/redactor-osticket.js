@@ -342,7 +342,7 @@ $(function() {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor)
-                redactor.destroy();
+                redactor.core.destroy();
         });
     };
     findRichtextBoxes();
