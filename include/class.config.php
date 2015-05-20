@@ -258,18 +258,23 @@ class OsticketConfig extends Config {
         return $this->get('default_timezone');
     }
 
-    function getTimezone() {
+    function getTimezone($user=false) {
         global $thisstaff, $thisclient;
 
-        if ($thisstaff)
-            $zone = $thisstaff->getTimezone();
-        #elseif ($thisclient)
-        #    $zone = $thisclient->getTimezone();
-        else
+        $user = $user ?: $thisstaff;
+
+        if (!$user && $thisclient)
+            $user = $thisclient->getAccount();
+
+        if ($user)
+            $zone = $user->getTimezone();
+
+        if (!$zone)
             $zone = $this->get('default_timezone');
 
         if (!$zone)
             $zone = ini_get('date.timezone');
+
         return $zone;
     }
 
