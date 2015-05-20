@@ -38,9 +38,6 @@ if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
     $order = 'ASC';
 }
 
-if ($order_column && strpos($order_column,',')) {
-    $order_column=str_replace(','," $order,",$order_column);
-}
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 
@@ -84,7 +81,7 @@ $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('staff.php', $qs);
 $showing = $pageNav->showing().' '._N('agent', 'agents', $count);
 $qstr = '&amp;'. Http::build_query($qs);
-$qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$qstr .= '&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 
 // add limits.
 $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
