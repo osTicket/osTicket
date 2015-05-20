@@ -57,7 +57,7 @@ div#header a {
 }
 .faded-more {
     color: #aaa;
-    color: rgba(0,0,0,0.4);
+    color: rgba(0,0,0,0.35);
 }
 
 .small[class^="icon-"],

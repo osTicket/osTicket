@@ -26,9 +26,19 @@ if (!$thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING)) {
 }
 
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
-    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
-    'thread_count' => SqlAggregate::COUNT('thread__entries'),
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
+    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
+       ->when(new SqlField('thread__entries__attachments__inline'), null)
+       ->otherwise(new SqlField('thread__entries__attachments')),
+        true
+    ),
+    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(
+            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
+            null)
+        ->otherwise(new SqlField('thread__entries__id')),
+       true
+    ),
 ));
 
 $tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
@@ -134,14 +144,18 @@ if ($results) { ?>
                 style="max-width: 230px;"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
+                    if ($T['attachment_count'])
+                        echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
+                            .$T['attachment_count'].'"></i>';
                     if ($threadcount > 1) { ?>
                             <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
                             <small><?php echo $threadcount; ?></small></span>
 <?php               }
                     if ($T['attachments'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
-                    if ($T['collaborators'])
-                        echo '<i class="icon-group faded-more"></i>';
+                    if ($T['collab_count'])
+                        echo '<span class="faded-more" data-toggle="tooltip" title="'
+                            .$T['collab_count'].'"><i class="icon-group"></i></span>';
                 ?>
             </span></td>
             <?php
