@@ -29,7 +29,7 @@ foreach ($form->getFields() as $name=>$field) { ?>
 ?>
 <div id="extra-fields"></div>
 <hr/>
-<select id="search-add-new-field" name="new-field" style="max-width: 100%;">
+<select id="search-add-new-field" name="new-field" style="max-width: 300px;">
     <option value="">— <?php echo __('Add Other Field'); ?> —</option>
 <?php
 foreach ($matches as $name => $fields) { ?>
