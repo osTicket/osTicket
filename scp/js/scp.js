@@ -260,8 +260,10 @@ var scp_prep = function() {
             });
         },
         onselect: function (obj) {
+            var form = $('#basic-ticket-search').closest('form');
+            form.find('input[name=search-type]').val('email');
             $('#basic-ticket-search').val(obj.value);
-            $('#basic-ticket-search').closest('form').submit();
+            form.submit();
         },
         property: "matches"
     });

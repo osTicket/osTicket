@@ -77,7 +77,7 @@ case 'search':
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
         // Use an index if possible
-        if (Validator::is_email($_REQUEST['query'])) {
+        if ($_REQUEST['search-type'] == 'email') {
             $tickets = $tickets->filter(array(
                 'user__emails__address' => $_REQUEST['query'],
             ));
@@ -314,7 +314,9 @@ return false;">
         <tr>
             <td><input type="search" id="basic-ticket-search" name="query"
                 autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off"></td>
+                autocomplete="off" autocorrect="off" autocapitalize="off">
+                <input type="hidden" name="search-type" value=""/>
+            </td>
             <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
             <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
                 $.dialog('ajax.php/tickets/search', 201);"
