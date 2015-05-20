@@ -539,7 +539,7 @@ if($ticket) {
 
     //set refresh rate if the user has it configured
     if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {
-        $js = "$.refreshTicketView({$min}*60000);";
+        $js = "+function(){ var qq = setInterval(function() { if ($.refreshTicketView === undefined) return; clearInterval(qq); $.refreshTicketView({$min}*60000); }, 200); }();";
         $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
             $js);
     }
