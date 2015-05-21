@@ -1028,6 +1028,17 @@ class OsticketConfig extends Config {
         $f['default_timezone']=array('type'=>'string',   'required'=>1, 'error'=>__('Default Timezone is required'));
         $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
 
+        // Make sure the selected backend is valid
+        $storagebk = null;
+        if (isset($vars['default_storage_bk'])) {
+            try {
+                $storagebk = FileStorageBackend::lookup($vars['default_storage_bk']);
+
+            } catch (Exception $ex) {
+                $errors['default_storage_bk'] = $ex->getMessage();
+            }
+        }
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
@@ -1038,6 +1049,10 @@ class OsticketConfig extends Config {
                 unset($vars['secondary_langs'][$i]);
         }
         $secondary_langs = implode(',', $vars['secondary_langs']);
+
+        if ($storagebk)
+            $this->update('default_storage_bk', $storagebk->getBkChar());
+
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -1057,6 +1072,7 @@ class OsticketConfig extends Config {
             'default_locale'=>$vars['default_locale'],
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,
+            'max_file_size' => $vars['max_file_size'],
         ));
     }
 
@@ -1119,9 +1135,6 @@ class OsticketConfig extends Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
-        if (isset($vars['default_storage_bk']))
-            $this->update('default_storage_bk', $vars['default_storage_bk']);
-
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
             'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,
@@ -1139,7 +1152,6 @@ class OsticketConfig extends Config {
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
-            'max_file_size'=>$vars['max_file_size'],
         ));
     }
 

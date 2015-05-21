@@ -115,3 +115,23 @@ secondary_language:
         The interface will be available in these languages, and custom
         content, such as thank-you pages and help topic names, will be
         translatable to these languages.
+
+# Attachments
+attachments:
+    title: Attachment Settings and Storage
+    content: >
+        Configure how attachments are stored.
+
+default_storage_bk:
+    title: File Storage Backend
+    content: >
+        Choose how attachments are stored.
+        <br<br>
+        Additional storage backends can be added by installing storage plugins
+
+max_file_size:
+    title: Maximum File Size
+    content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket and task replies.
