@@ -16,7 +16,7 @@ $TZ_TIMEZONE = @$TZ_TIMEZONE ?: '';
         ?>><?php echo str_replace('/',' / ',$zone); ?></option>
 <?php } ?>
     </select>
-    <button class="action-button" onclick="javascript:
+    <button type="button" class="action-button" onclick="javascript:
 $('head').append($('<script>').attr('src', '<?php
     echo ROOT_PATH; ?>js/jstz.min.js'));
 var recheck = setInterval(function() {

@@ -644,6 +644,7 @@ class SavedSearch extends VerySimpleModel {
                 'configuration' => array(
                     'size' => 40,
                     'length' => 400,
+                    'autofocus' => true,
                     'classes' => 'full-width headline',
                     'placeholder' => __('Keywords — Optional'),
                 ),

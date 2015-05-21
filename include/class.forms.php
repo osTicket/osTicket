@@ -2576,6 +2576,8 @@ class TextboxWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         if (isset($config['autocomplete']))
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+        if (isset($config['autofocus']))
+            $autofocus = 'autofocus';
         if (isset($config['disabled']))
             $disabled = 'disabled="disabled"';
         if (isset($config['translatable']) && $config['translatable'])
@@ -2594,7 +2596,7 @@ class TextboxWidget extends Widget {
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
                 $size, $maxlength, $classes, $autocomplete, $disabled,
-                $translatable, $placeholder))); ?>
+                $translatable, $placeholder, $autofocus))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         <?php

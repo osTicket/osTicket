@@ -56,12 +56,12 @@ foreach ($matches as $name => $fields) { ?>
     </dt>
     <dd>
         <span>
-            <button onclick="javascript:$(this).closest('form').attr({
+            <button type="button" onclick="javascript:$(this).closest('form').attr({
 'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'});"><i class="icon-chevron-left"></i> Load</button>
             <?php if ($thisstaff->isAdmin()) { ?>
                 <button><i class="icon-bullhorn"></i> <?php echo __('Publish'); ?></button>
             <?php } ?>
-            <button onclick="javascript:
+            <button type="button" onclick="javascript:
 $.ajax({
     url: 'ajax.php/tickets/search/<?php echo $S->id; ?>',
     type: 'POST',
@@ -77,7 +77,7 @@ return false;
 "><i class="icon-save"></i> <?php echo __('Update'); ?></button>
         </span>
         <span class="pull-right">
-            <button title="<?php echo __('Delete'); ?>" onclick="javascript:
+            <button type="button" title="<?php echo __('Delete'); ?>" onclick="javascript:
     if (!confirm(__('You sure?'))) return false;
     var that = this;
     $.ajax({
@@ -142,7 +142,8 @@ return false;
     <div id="search-hint" class="pull-left">
     </div>
     <div class="buttons pull-right">
-        <button class="button" id="do_search"><i class="icon-search"></i> <?php echo __('Search'); ?></button>
+        <button class="button" type="submit" id="do_search"><i class="icon-search"></i>
+            <?php echo __('Search'); ?></button>
     </div>
 </div>
 

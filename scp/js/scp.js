@@ -634,6 +634,7 @@ $.dialog = function (url, codes, cb, options) {
             queue: false,
             complete: function() { if (options.onshow) options.onshow(); }
         });
+        $("input[autofocus]:visible:enabled:first", $popup).focus();
         var submit_button = null;
         $(document).off('.dialog');
         $(document).on('click.dialog',
