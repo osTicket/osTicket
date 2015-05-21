@@ -861,7 +861,6 @@ getConfig = (function() {
 })();
 
 $(document).on('pjax:click', function(options) {
-    clearInterval(window.ticket_refresh);
     // Release ticket lock (maybe)
     if ($.autoLock !== undefined)
         $.autoLock.releaseLock();
@@ -885,6 +884,8 @@ $(document).on('pjax:start', function() {
     $.toggleOverlay(false);
     // Close tooltips
     $('.tip_box').remove();
+    // Cancel refreshes
+    clearInterval(window.ticket_refresh);
 });
 
 $(document).on('pjax:send', function(event) {

@@ -149,8 +149,6 @@ case 'open':
 }
 
 // Apply primary ticket status
-if (!isset($status) && isset($_GET['status']))
-    $status = $_GET['status'];
 if ($status)
     $tickets->filter(array('status__state'=>$status));
 
