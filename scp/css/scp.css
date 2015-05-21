@@ -1011,7 +1011,7 @@ ul.tabs.vertical {
 }
 ul.tabs.vertical.left {
     float: left;
-    margin-right: 19px;
+    margin-right: 9px;
 }
 
 ul.tabs.vertical li {
@@ -2003,6 +2003,8 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
+}
+.tab_content:not(.left) {
     padding: 12px 0;
 }
 .left-tabs {
