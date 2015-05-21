@@ -203,15 +203,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             throw new PasswordUpdateFailed(
                 __('Authentication backend does not support password updates'));
         }
-        if (!$bk->setPassword($this, $new, $current)) {
-            // Backend should throw PasswordUpdateFailed directly
-            return false;
-        }
+        // Backend should throw PasswordUpdateFailed directly
+        $rv = $bk->setPassword($this, $new, $current);
 
         // Successfully updated authentication tokens
         $this->change_passwd = 0;
         $this->cancelResetTokens();
         $this->passwdreset = SqlFunction::NOW();
+
+        return $rv;
     }
 
     function canAccess($something) {
@@ -865,8 +865,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             elseif(!$vars['passwd1'] && !$vars['id']) {
                 $errors['passwd1']=__('Temporary password is required');
                 $errors['temppasswd']=__('Required');
-            } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
-                $errors['passwd1']=__('Password must be at least 6 characters');
             }
         }
 
@@ -915,8 +913,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->notes = Format::sanitize($vars['notes']);
 
+        // Update the user's password if requested
         if ($vars['passwd1']) {
-            $this->passwd = Passwd::hash($vars['passwd1']);
+            try {
+                $this->setPassword($vars['passwd1'], null);
+            }
+            catch (BadPassword $ex) {
+                $errors['passwd1'] = $ex->getMessage();
+            }
+            catch (PasswordUpdateFailed $ex) {
+                // TODO: Add a warning banner or crash the update
+            }
             if (isset($vars['change_passwd']))
                 $this->change_passwd = 1;
         }
