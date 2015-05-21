@@ -612,7 +612,7 @@ implements TemplateVariable {
         global $cfg;
 
         if (!$body instanceof ThreadEntryBody) {
-            if ($cfg->isHtmlThreadEnabled())
+            if ($cfg->isRichTextEnabled())
                 $body = new HtmlThreadEntryBody($body);
             else
                 $body = new TextThreadEntryBody($body);
@@ -1221,7 +1221,7 @@ implements TemplateVariable {
 
 
         if (!$vars['body'] instanceof ThreadEntryBody) {
-            if ($cfg->isHtmlThreadEnabled())
+            if ($cfg->isRichTextEnabled())
                 $vars['body'] = new HtmlThreadEntryBody($vars['body']);
             else
                 $vars['body'] = new TextThreadEntryBody($vars['body']);

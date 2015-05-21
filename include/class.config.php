@@ -365,7 +365,7 @@ class OsticketConfig extends Config {
         return $this->get('passwd_reset_period');
     }
 
-    function isHtmlThreadEnabled() {
+    function isRichTextEnabled() {
         return $this->get('enable_html_thread');
     }
 
@@ -1073,6 +1073,7 @@ class OsticketConfig extends Config {
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,
             'max_file_size' => $vars['max_file_size'],
+            'enable_html_thread' => isset($vars['enable_html_thread']) ? 1 : 0,
         ));
     }
 
@@ -1150,7 +1151,6 @@ class OsticketConfig extends Config {
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
-            'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
         ));
     }

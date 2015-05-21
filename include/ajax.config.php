@@ -39,7 +39,7 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
-              'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+              'html_thread'     => (bool) $cfg->isRichTextEnabled(),
               'date_format'     => $cfg->getDateFormat(true),
               'lang'            => $lang,
               'short_lang'      => $sl,
@@ -66,7 +66,7 @@ class ConfigAjaxAPI extends AjaxController {
         }
 
         $config=array(
-            'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+            'html_thread'     => (bool) $cfg->isRichTextEnabled(),
             'lang'            => $lang,
             'short_lang'      => $sl,
             'has_rtl'         => $rtl,

@@ -306,7 +306,7 @@ if ($_POST)
                 if ($thisstaff->getDefaultSignatureType() == 'mine')
                     $signature = $thisstaff->getSignature(); ?>
                 <textarea
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                         ?> draft draft-delete" data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
@@ -378,7 +378,7 @@ print $response_form->getField('attachments')->render();
         <tr>
             <td colspan=2>
                 <textarea
-                    class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                         ?> draft draft-delete"
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
                     name="note" cols="21" rows="6" style="width:80%;" <?php

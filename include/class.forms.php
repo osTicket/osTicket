@@ -2989,7 +2989,7 @@ class ThreadEntryWidget extends Widget {
         ?>: <span class="error">*</span></span><br/>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
-            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+            class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
             $draft ?: Format::htmlchars($this->value); ?></textarea>

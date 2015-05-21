@@ -579,7 +579,7 @@ class MailFetcher {
     function getBody($mid) {
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
+        if ($cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($mid, 'text/html', $this->charset))
                 $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))

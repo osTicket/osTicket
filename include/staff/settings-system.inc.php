@@ -121,6 +121,15 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Enable Rich Text'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_html_thread" <?php
+                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
+                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Date and Time Options'); ?></b>&nbsp;
                 <i class="help-tip icon-question-sign" href="#date_time_options"></i>

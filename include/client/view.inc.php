@@ -197,7 +197,7 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
         <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
         </p>
         <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
-            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+            class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft" <?php
 list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);
 echo $attrs; ?>><?php echo $draft ?: $info['message'];

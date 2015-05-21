@@ -576,7 +576,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         'Start writing your response here. Use canned responses from the drop-down above'
                         ); ?>"
                         rows="9" wrap="soft"
-                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
     echo $attrs; ?>><?php echo $draft ?: $info['response'];
@@ -691,7 +691,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="<?php echo __('Note details'); ?>"
                         rows="9" wrap="soft"
-                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
     echo $attrs; ?>><?php echo $draft ?: $info['note'];
@@ -786,7 +786,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <td>
                     <textarea name="transfer_comments" id="transfer_comments"
                         placeholder="<?php echo __('Enter reasons for the transfer'); ?>"
-                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> no-bar" cols="80" rows="7" wrap="soft"><?php
                         echo $info['transfer_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['transfer_comments']; ?></span>
@@ -887,7 +887,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <textarea name="assign_comments" id="assign_comments"
                         cols="80" rows="7" wrap="soft"
                         placeholder="<?php echo __('Enter reasons for the assignment or instructions for assignee'); ?>"
-                        class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> no-bar"><?php echo $info['assign_comments']; ?></textarea>
                     <span class="error"><?php echo $errors['assign_comments']; ?></span><br>
                 </td>

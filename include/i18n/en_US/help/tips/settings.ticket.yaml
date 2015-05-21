@@ -122,12 +122,6 @@ staff_identity_masking:
         If enabled, this will hide the Agent’s name from the Client during any
         communication.
 
-enable_html_ticket_thread:
-    title: Enable HTML Ticket Thread
-    content: >
-        If enabled, this will permit the use of rich text formatting between
-        Clients and Agents.
-
 ticket_attachment_settings:
     title: Ticket Thread Attachments
     content: >

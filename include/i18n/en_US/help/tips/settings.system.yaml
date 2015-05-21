@@ -77,6 +77,12 @@ default_name_formatting:
       - title: Supported Email Template Variables
         href: http://osticket.com/wiki/Email_templates
 
+enable_richtext:
+    title: Enable Rich Text
+    content: >
+        If enabled, this will permit the use of rich text formatting between
+        Clients and Agents.
+
 # Date and time options
 date_time_options:
     title: Date &amp; Time Options
