@@ -465,11 +465,15 @@ class Format {
             return $formatter->format($timestamp);
         }
         // Fallback using strftime
+        static $user_timezone;
+        if (!isset($user_timezone))
+            $user_timezone = new DateTimeZone($cfg->getTimezone() ?: date_default_timezone_get());
+
         $format = self::getStrftimeFormat($format);
-        // TODO: Properly convert to local time
+        // Properly convert to user local time
         $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
-        $time->setTimeZone(new DateTimeZone($cfg->getTimezone() ?: date_default_timezone_get()));
-        $timestamp = $time->getTimestamp();
+        $offset = $user_timezone->getOffset($time);
+        $timestamp = $time->getTimestamp() + $offset;
         return strftime($format ?: $strftimeFallback, $timestamp);
     }
 
