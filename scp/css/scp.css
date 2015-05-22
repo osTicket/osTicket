@@ -2211,11 +2211,49 @@ td.indented {
   z-index: 6;
   width: 100%;
   background-color: white;
-  background-color: rgba(255,255,255,0.9);
+  background-color: rgba(255,255,255,0.95);
   padding: 10px 20px;
   box-sizing: border-box;
   box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
 .sticky.bar .content {
   margin: auto;
+}
+.sticky.bar.fixed .notsticky {
+  display: none !important;
+}
+.sticky.bar.opaque {
+  background-color: white;
+}
+.sticky.bar.fixed h2 {
+  margin: 0;
+}
+.sticky.bar:not(.fixed) .sticky.only {
+    display:none;
+}
+.scroll-up {
+  display:none;
+}
+@media screen and (min-width: 1040px) {
+  .scroll-up {
+    display: inline;
+    background-color: #eee;
+    background-color: rgba(0,0,0,0.1);
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    padding: 8px 8px 5px;
+    border-radius: 0 0 5px 5px;
+    border: 1px dotted #888;
+    border-top: none;
+    color: #888 !important;
+    box-shadow: 0 3px 8px -6px rgba(0,0,0,0.9);
+  }
+  .scroll-up:hover {
+    background-color: #444;
+    background-color: rgba(0,0,0,0.7);
+    color: #ddd !important;
+    color: rgba(255,255,255,0.8) !important;
+    border-color:transparent;
+  }
 }

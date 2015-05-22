@@ -164,6 +164,9 @@ if($ticket->isOverdue())
                 }?>
               </ul>
             </div>
+            <a class="only sticky scroll-up" href="#" onclick="javascript: $('html, body').animate({scrollTop: 0}, 'fast'); return false;"
+                ><i class="icon-chevron-up icon-large"></i>
+            </a>
         </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"

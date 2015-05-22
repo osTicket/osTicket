@@ -326,7 +326,7 @@ return false;">
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
 <div style="margin-bottom:20px; padding-top:10px;">
-<div class="sticky bar">
+<div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">
             <h2><a href="<?php echo $refresh_url; ?>"
@@ -334,7 +334,7 @@ return false;">
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
-            <span style="display:inline-block">
+            <span class="notsticky" style="display:inline-block">
                 <span style="vertical-align: baseline">Sort:</span>
             <select name="sort" onchange="javascript: $.pjax({
                 url:'?' + addSearchParam('sort', $(this).val()),
@@ -356,6 +356,9 @@ return false;">
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php
             } ?>
+            <a class="only sticky scroll-up" href="#" onclick="javascript: $('html, body').animate({scrollTop: 0}, 'fast'); return false;"
+                ><i class="icon-chevron-up icon-large"></i>
+            </a>
         </div>
     </div>
 </div>
