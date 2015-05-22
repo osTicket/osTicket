@@ -63,7 +63,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         $faqs->filter(array('category_id'=>$_REQUEST['cid']));
 
     if ($_REQUEST['topicId'])
-        $faqs->filter(array('topic_id'=>$_REQUEST['topicId']));
+        $faqs->filter(array('topics__topic_id'=>$_REQUEST['topicId']));
 
     if ($_REQUEST['q'])
         $faqs->filter(Q::ANY(array(
