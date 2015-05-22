@@ -1178,6 +1178,9 @@ class ThreadEntry {
                 .' WHERE `id`='.db_input($entry->getId());
             if (!db_query($sql) || !db_affected_rows())
                 return false;
+
+            // Set the $entry here for search indexing
+            $entry->ht['body'] = $body;
         }
 
         // Email message id
@@ -1532,9 +1535,14 @@ class HtmlThreadBody extends ThreadBody {
     }
 
     function getSearchable() {
-        // <br> -> \n
-        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body);
-        $body = Format::htmldecode(Format::striptags($body));
+        // Replace tag chars with spaces (to ensure words are separated)
+        $body = Format::html($this->body, array('hook_tag' => function($el, $attributes=0) {
+            static $non_ws = array('wbr' => 1);
+            return (isset($non_ws[$el])) ? '' : ' ';
+        }));
+        // Collapse multiple white-spaces
+        $body = html_entity_decode($body, ENT_QUOTES);
+        $body = preg_replace('`\s+`u', ' ', $body);
         return Format::searchable($body);
     }
 
