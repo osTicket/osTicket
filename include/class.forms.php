@@ -1326,10 +1326,10 @@ class ChoiceField extends FormField {
     }
 
     function whatChanged($before, $after) {
-        $before = (array) $before;
-        $after = (array) $after;
-        $added = array_diff($after, $before);
-        $deleted = array_diff($before, $after);
+        $B = (array) $before;
+        $A = (array) $after;
+        $added = array_diff($A, $B);
+        $deleted = array_diff($B, $A);
         $added = array_map(array($this, 'display'), $added);
         $deleted = array_map(array($this, 'display'), $deleted);
 
@@ -1350,8 +1350,8 @@ class ChoiceField extends FormField {
         }
         else {
             $desc = sprintf(
-                __('changed to <strong>%1$s</strong>'),
-                $this->display($after));
+                __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>'),
+                $this->display($before), $this->display($after));
         }
         return $desc;
     }
@@ -1734,6 +1734,8 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
+        elseif (is_array($value))
+            list($value, $id) = $value;
         elseif ($id === false)
             $id = $value;
         if ($id)

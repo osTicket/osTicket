@@ -2361,6 +2361,7 @@ td.indented {
     font-size: 1.1em;
     border: 1px solid #eee;
     vertical-align: top;
+    position: relative;
 }
 .thread-event .type-icon::after {
   content: "";
