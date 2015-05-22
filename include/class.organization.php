@@ -407,9 +407,16 @@ implements TemplateVariable {
         if (!parent::delete())
             return false;
 
+        // Remove users from this organization
+        User::objects()
+            ->filter(array('org' => $this))
+            ->update(array('org_id' => 0));
+
         foreach ($this->getDynamicData(false) as $entry) {
-            $entry->delete();
+            if (!$entry->delete())
+                return false;
         }
+        return true;
     }
 
     static function fromVars($vars) {
