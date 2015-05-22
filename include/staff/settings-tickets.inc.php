@@ -209,7 +209,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('EndUser Attachment Settings');?>:</td>
+            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
             <td>
 <?php
                 $tform = TicketForm::objects()->one()->getForm();

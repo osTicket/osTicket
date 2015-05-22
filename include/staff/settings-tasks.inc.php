@@ -79,28 +79,25 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                  </td>
             </tr>
             <tr>
-                <td width="180" class="required">
-                    <?php echo __('Default SLA');?>:
-                </td>
+                <th colspan="2">
+                    <em><b><?php echo __('Attachments');?></b>:</em>
+                </th>
+            </tr>
+            <tr>
+                <td width="180"><?php echo __('Task Attachment Settings');?>:</td>
                 <td>
-                    <span>
-                    <select name="default_task_sla_id">
-                        <option value="0">&mdash; <?php echo __('None');?> &mdash;</option>
-                        <?php
-                        if($slas=SLA::getSLAs()) {
-                            foreach($slas as $id => $name) {
-                                echo sprintf('<option value="%d" %s>%s</option>',
-                                        $id,
-                                        ($config['default_task_sla_id'] &&
-                                         $id==$config['default_task_sla_id'])?'selected="selected"':'',
-                                        $name);
-                            }
-                        }
-                        ?>
-                    </select>
-                    &nbsp;<span class="error">*&nbsp;<?php
-                        echo $errors['default_task_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
-                    </span>
+    <?php
+                    $tform = TaskForm::objects()->one()->getForm();
+                    $f = $tform->getField('description');
+    ?>
+                    <a class="action-button field-config" style="overflow:inherit"
+                        href="#ajax.php/form/field-config/<?php
+                            echo $f->get('id'); ?>"
+                        onclick="javascript:
+                            $.dialog($(this).attr('href').substr(1), [201]);
+                            return false;
+                        "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
+                    <i class="help-tip icon-question-sign" href="#task_attachment_settings"></i>
                 </td>
             </tr>
         </tbody>
