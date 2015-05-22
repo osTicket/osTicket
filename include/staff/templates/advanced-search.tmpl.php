@@ -45,9 +45,10 @@ foreach ($matches as $name => $fields) { ?>
 </select>
 
 </div>
-<div class="span6" style="border-left: 1px solid #888;">
+<div class="span6" style="border-left:1px solid #888;position:relative;padding-bottom:26px;">
 <div style="margin-bottom: 0.5em;"><b style="font-size: 110%;"><?php echo __('Saved Searches'); ?></b></div>
-<div id="saved-searches" class="accordian">
+<hr>
+<div id="saved-searches" class="accordian" style="max-height:200px;overflow-y:auto;">
 <?php foreach (SavedSearch::forStaff($thisstaff) as $S) { ?>
     <dt class="saved-search">
         <a href="#" class="load-search"><?php echo $S->title; ?>
@@ -57,10 +58,7 @@ foreach ($matches as $name => $fields) { ?>
     <dd>
         <span>
             <button type="button" onclick="javascript:$(this).closest('form').attr({
-'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'});"><i class="icon-chevron-left"></i> Load</button>
-            <?php if ($thisstaff->isAdmin()) { ?>
-                <button><i class="icon-bullhorn"></i> <?php echo __('Publish'); ?></button>
-            <?php } ?>
+'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> Load</button>
             <button type="button" onclick="javascript:
 $.ajax({
     url: 'ajax.php/tickets/search/<?php echo $S->id; ?>',
@@ -96,11 +94,11 @@ return false;
     </dd>
 <?php } ?>
 </div>
-<div>
+<div style="position:absolute;bottom:0">
+<hr>
     <form method="post">
     <fieldset>
     <input name="title" type="text" size="30" placeholder="Enter a title for the search"/>
-    <span class="action-buttons">
         <span class="action-button">
             <a href="#tickets/search/create" onclick="javascript:
 $.ajax({
@@ -121,18 +119,7 @@ $.ajax({
 return false;
 "><i class="icon-save"></i> <?php echo __('Save'); ?></a>
         </span>
-        <span class="action-button pull-right" data-dropdown="#save-dropdown-more">
-            <i class="icon-caret-down pull-right"></i>
-        </span>
-    </span>
     </fieldset>
-    <div id="save-dropdown-more" class="action-dropdown anchor-right">
-      <ul>
-        <li><a href="#queue/create">
-            <i class="icon-list"></i> <?php echo __('Create Queue'); ?></a>
-        </li>
-      </ul>
-    </div>
 </div>
 </div>
 </div>
@@ -148,6 +135,12 @@ return false;
 </div>
 
 </form>
+
+<style type="text/css">
+#advanced-search .span6 .select2 {
+  max-width: 300px !important;
+}
+</style>
 
 <script type="text/javascript">
 $(function() {

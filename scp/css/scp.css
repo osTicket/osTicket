@@ -2162,7 +2162,7 @@ td.indented {
 }
 .accordian dt a {
   color: black;
-  font-weight: bold;
+  font-weight: 500;
   display: block;
 }
 .accordian dt.active a {
