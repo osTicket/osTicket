@@ -1020,6 +1020,7 @@ class OsticketConfig extends Config {
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk URL is required'));
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
+        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
@@ -1073,6 +1074,7 @@ class OsticketConfig extends Config {
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,
             'max_file_size' => $vars['max_file_size'],
+            'autolock_minutes' => $vars['autolock_minutes'],
             'enable_html_thread' => isset($vars['enable_html_thread']) ? 1 : 0,
         ));
     }
@@ -1111,7 +1113,6 @@ class OsticketConfig extends Config {
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
-        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
 
 
         if($vars['enable_captcha']) {
@@ -1144,7 +1145,6 @@ class OsticketConfig extends Config {
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
-            'autolock_minutes'=>$vars['autolock_minutes'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,

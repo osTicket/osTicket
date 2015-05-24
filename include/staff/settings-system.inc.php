@@ -61,6 +61,37 @@ $gmtime = Misc::gmtime();
                 <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>
         </tr>
+        <tr>
+            <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
+            <td>
+                <select name="name_format">
+                <?php foreach (PersonsName::allFormats() as $n=>$f) {
+                    list($desc, $func) = $f;
+                    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
+                                    <option value="<?php echo $n; ?>" <?php echo $selected;
+                                        ?>><?php echo __($desc); ?></option>
+                <?php } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Collision Avoidance Duration'); ?>:</td>
+            <td>
+                <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
+                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;<?php echo __('minutes'); ?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#collision_avoidance"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Enable Rich Text'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_html_thread" <?php
+                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
+                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
+            </td>
+        </tr>
 
         <tr><td><?php echo __('Default Page Size');?>:</td>
             <td>
@@ -104,29 +135,6 @@ $gmtime = Misc::gmtime();
                     } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#purge_logs"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
-            <td>
-                <select name="name_format">
-                <?php foreach (PersonsName::allFormats() as $n=>$f) {
-                    list($desc, $func) = $f;
-                    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
-                                    <option value="<?php echo $n; ?>" <?php echo $selected;
-                                        ?>><?php echo __($desc); ?></option>
-                <?php } ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Enable Rich Text'); ?>:</td>
-            <td>
-                <input type="checkbox" name="enable_html_thread" <?php
-                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
-                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
-                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
             </td>
         </tr>
         <tr>

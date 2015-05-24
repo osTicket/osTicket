@@ -83,6 +83,14 @@ enable_richtext:
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
 
+collision_avoidance:
+    title: Agent Collision Avoidance
+    content: >
+        Enter the maximum length of time an Agent is allowed to hold a lock
+        on a ticket or task without any activity.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
+
 # Date and time options
 date_time_options:
     title: Date &amp; Time Options

@@ -68,14 +68,6 @@ maximum_open_tickets:
         <br><br>
         Enter <span class="doc-desc-opt">0 </span> if you prefer to disable this limitation.
 
-agent_collision_avoidance:
-    title: Agent Collision Avoidance
-    content: >
-        Enter the maximum length of time an Agent is allowed to hold a lock
-        on a ticket without any activity.
-        <br><br>
-        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
-
 email_ticket_priority:
     title: Email Ticket Priority
     content: >
