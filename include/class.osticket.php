@@ -313,7 +313,8 @@ class osTicket {
             return false;
 
         //Alert admin if enabled...
-        if($alert && $this->getConfig()->getLogLevel() >= $level)
+        $alert = $alert && !$this->isUpgradePending();
+        if ($alert && $this->getConfig()->getLogLevel() >= $level)
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.

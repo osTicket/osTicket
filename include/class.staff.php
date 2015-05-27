@@ -386,7 +386,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     function getTimezone() {
-        return $this->timezone;
+        if (isset($this->timezone))
+            return $this->timezone;
     }
 
     function getLocale() {

@@ -48,7 +48,7 @@ UPDATE `%TABLE_PREFIX%form`
   SET `flags` = 0 WHERE `type` IN ('T','U','C','O','A');
 
 ALTER TABLE `%TABLE_PREFIX%team`
-  ADD `flags` int(10) unsigned NOTN ULL default 1 AFTER `lead_id`;
+  ADD `flags` int(10) unsigned NOT NULL default 1 AFTER `lead_id`;
 
 UPDATE `%TABLE_PREFIX%team`
   SET `flags` = CASE WHEN `isenabled` THEN 1 ELSE 0 END
@@ -59,9 +59,9 @@ ALTER TABLE `%TABLE_PREFIX%department`
   ADD `flags` int(10) unsigned NOT NULL default 0 AFTER `manager_id`;
 
 UPDATE `%TABLE_PREFIX%department` A1
-  JOIN (SELECT `value` FROM `%TABLE_PREFIX%config`) `config`
-    ON (`config`.`namespace` = CONCAT('dept.', A1.`id`) AND `config`.`key` = 'assign_members_only')
-  SET A1.`flags` = 1 WHERE `config`.`value` != '';
+  JOIN `%TABLE_PREFIX%config` A2
+    ON (A2.`namespace` = CONCAT('dept.', A1.`id`) AND A2.`key` = 'assign_members_only')
+  SET A1.`flags` = 1 WHERE A2.`value` != '';
 
 -- Migrate %config[namespace=sla.x, key=transient]
 ALTER TABLE `%TABLE_PREFIX%sla`
@@ -84,9 +84,9 @@ ALTER TABLE `%TABLE_PREFIX%list`
   ADD `configuration` text NOT NULL DEFAULT '' AFTER `type`;
 
 UPDATE `%TABLE_PREFIX%list` A1
-  JOIN (SELECT `value` FROM `%TABLE_PREFIX%config`) `config`
-    ON (`config`.`namespace` = CONCAT('list.', A1.`id`) AND `config`.`key` = 'configuration')
-  SET A1.`configuration` = `config`.`value`;
+  JOIN `%TABLE_PREFIX%config` A2
+    ON (A2.`namespace` = CONCAT('list.', A1.`id`) AND A2.`key` = 'configuration')
+  SET A1.`configuration` = A2.`value`;
 
 -- Rebuild %ticket__cdata as UTF8
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket__cdata`;

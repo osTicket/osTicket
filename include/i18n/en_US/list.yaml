@@ -32,7 +32,7 @@
   properties:
     title: Ticket Status Properties
     instructions: Properties that can be set on a ticket status.
-    deletable: false
+    flags: 0
     fields:
       - type: state # notrans
         name: state # notrans
