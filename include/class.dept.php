@@ -408,7 +408,7 @@ implements TemplateVariable {
             $this->getConfig()->destroy();
         }
 
-        return $num;
+        return true;
     }
 
     function __toString() {

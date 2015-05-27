@@ -176,11 +176,10 @@ extends InstrumentedList {
     }
 
     function deleteAll($inline_only=false){
-        $objects = $this;
         if ($inline_only)
-            $objects = $objects->filter(array('inline' => 1));
+            return $this->objects()->filter(array('inline' => 1))->delete();
 
-        return $objects->delete();
+        return parent::expunge();
     }
 
     function deleteInlines() {

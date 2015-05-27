@@ -45,6 +45,7 @@ class Page extends VerySimpleModel {
     function getHashtable() {
         $base = $this->ht;
         unset($base['topics']);
+        unset($base['attachments']);
         return $base;
     }
 

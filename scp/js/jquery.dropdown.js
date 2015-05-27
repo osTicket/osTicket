@@ -55,7 +55,7 @@ if(jQuery) (function($) {
 
 		dropdown.css({
 				left: -offset.left + (dropdown.hasClass('anchor-right') ?
-				trigger.offset().left - (dropdown.outerWidth() - trigger.outerWidth() - 4) : trigger.offset().left),
+				trigger.offset().left - (dropdown.outerWidth() - trigger.outerWidth() - 7) : trigger.offset().left),
 				top: -offset.top + trigger.offset().top + trigger.outerHeight()
 			}).show();
 		trigger.addClass('dropdown-open');
