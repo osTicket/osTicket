@@ -348,7 +348,7 @@ class DbTimezone {
     }
 
     function get_by_dst($preliminary_timezone) {
-        $rules = [];
+        $rules = array();
         foreach (self::$dst_rules['years'] as $Y) {
             $rules[] = $this->dst_dates($Y);
         }

@@ -464,8 +464,15 @@ var scp_prep = function() {
        onmove();
      }
 
+     // Drop the sticky bar on PJAX navigation
+     $(document).on('pjax:click', function() {
+         placeholder.removeAttr('style');
+         $that.stop().removeClass('fixed');
+         $(window).off('.sticky');
+     });
+
      $that.find('.content').width($that.width());
-     $(window).scroll(function (event) {
+     $(window).on('scroll.sticky', function (event) {
        // what the y position of the scroll is
        var y = $(this).scrollTop();
 
