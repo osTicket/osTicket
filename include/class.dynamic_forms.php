@@ -189,9 +189,11 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function delete() {
+
         if (!$this->isDeletable())
             return false;
 
+        // Soft Delete: Mark the form as deleted.
         $this->setFlag(self::FLAG_DELETED);
         return $this->save();
     }
