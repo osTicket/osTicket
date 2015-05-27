@@ -3123,6 +3123,14 @@ class FileUploadWidget extends Widget {
     function getValue() {
         $data = $this->field->getSource();
         $ids = array();
+        $base = parent::getValue();
+        if (is_array($base)) {
+            foreach ($base as $info) {
+                list($id, $name) = explode(',', $info, 2);
+                // Keep the values as the IDs
+                $ids[$name] = $id;
+            }
+        }
         // Handle manual uploads (IE<10)
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
@@ -3132,13 +3140,13 @@ class FileUploadWidget extends Widget {
                 }
                 catch (FileUploadError $ex) {}
             }
-            return array_merge($ids, parent::getValue() ?: array());
+            return $ids;
         }
         // If no value was sent, assume an empty list
         elseif ($data && is_array($data) && !isset($data[$this->name]))
             return array();
 
-        return parent::getValue();
+        return $ids;
     }
 }
 

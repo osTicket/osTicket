@@ -1,6 +1,6 @@
 /**
  * @signature 959aca6ed189cd918d227a3ea8a135a3
- * @version v1.9.6
+ * @version v1.10.0
  * @title Retire `private`, `required`, and `edit_mask` for fields
  *
  */
@@ -108,6 +108,10 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%_search`;
 
 UPDATE `%TABLE_PREFIX%config` SET `value` = '1'
   WHERE `key` = 'reindex' and `namespace` = 'mysqlsearch';
+
+-- Support varying names for duplicated content
+ALTER TABLE `%TABLE_PREFIX%attachment`
+  ADD `name` varchar(255) NULL default NULL AFTER `file_id`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

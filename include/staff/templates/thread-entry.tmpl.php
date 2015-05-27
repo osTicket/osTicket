@@ -70,8 +70,8 @@ if ($user && ($url = $user->get_gravatar(48)))
         <span class="attachment-info">
         <i class="icon-paperclip icon-flip-horizontal"></i>
         <a class="no-pjax truncate filename" href="<?php echo $A->file->getDownloadUrl();
-            ?>" download="<?php echo Format::htmlchars($A->file->name); ?>"
-            target="_blank"><?php echo Format::htmlchars($A->file->name);
+            ?>" download="<?php echo Format::htmlchars($A->getFilename()); ?>"
+            target="_blank"><?php echo Format::htmlchars($A->getFilename());
         ?></a><?php echo $size;?>
         </span>
 <?php   }  ?>

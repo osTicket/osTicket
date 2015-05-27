@@ -877,7 +877,7 @@ implements TemplateVariable {
     Save attachment to the DB.
     @file is a mixed var - can be ID or file hashtable.
     */
-    function saveAttachment(&$file) {
+    function saveAttachment(&$file, $name=false) {
 
         $inline = is_array($file) && @$file['inline'];
 
@@ -898,6 +898,21 @@ implements TemplateVariable {
             'file_id' => $fileId,
             'inline' => $inline ? 1 : 0,
         ));
+
+        // Record varying file names in the attachment record
+        if (is_array($file) && isset($file['name'])) {
+            $filename = $file['name'];
+        }
+        elseif (is_string($name)) {
+            $filename = $name;
+        }
+        if ($filename) {
+            // This should be a noop since the ORM caches on PK
+            $file = AttachmentFile::lookup($fileId);
+            if ($file->name != $filename)
+                $att->name = $filename;
+        }
+
         if (!$att->save())
             return false;
         return $att;
@@ -905,9 +920,10 @@ implements TemplateVariable {
 
     function saveAttachments($files) {
         $attachments = array();
-        foreach ($files as $file)
-           if (($A = $this->saveAttachment($file)))
+        foreach ($files as $name=>$file) {
+           if (($A = $this->saveAttachment($file, $name)))
                $attachments[] = $A;
+        }
 
         return $attachments;
     }
@@ -921,7 +937,7 @@ implements TemplateVariable {
         foreach ($this->attachments as $att) {
             $json[$att->file->getKey()] = array(
                 'download_url' => $att->file->getDownloadUrl(),
-                'filename' => $att->file->name,
+                'filename' => $att->getFilename(),
             );
         }
 
