@@ -62,6 +62,9 @@ implements TemplateVariable {
     function getName() {
         return $this->name;
     }
+    function getLocalName() {
+        return $this->getLocal('name');
+    }
 
     function getNumMembers() {
         return $this->members->count();

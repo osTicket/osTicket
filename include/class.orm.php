@@ -193,7 +193,8 @@ class VerySimpleModel {
                     $fkey[$F ?: $_klas] = ($local[0] == "'")
                         ? trim($local, "'") : $this->ht[$local];
                 }
-                $v = $this->ht[$field] = new InstrumentedList(
+                $manager = @$j['class'] ?: 'InstrumentedList';
+                $v = $this->ht[$field] = new $manager(
                     // Send Model, [Foriegn-Field => Local-Id]
                     array($class, $fkey)
                 );

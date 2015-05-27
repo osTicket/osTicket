@@ -1168,6 +1168,23 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->getForm()->render($staff, $title, $options);
     }
 
+    function getChanges() {
+        $fields = array();
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
+            if (!$field->hasData() || $field->isPresentationOnly())
+                continue;
+            $val = $v = $field->to_database($field->getClean());
+            if (is_array($val))
+                $v = $val[0];
+            if ($a->value == $v)
+                continue;
+            $before = $field->to_database($a->getValue());
+            $fields[$field->get('id')] = array($before, $val);
+        }
+        return $fields;
+    }
+
     /**
      * addMissingFields
      *
@@ -1487,6 +1504,38 @@ class SelectionField extends FormField {
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
         return $value;
+    }
+
+    // PHP 5.4 Move this to a trait
+    function whatChanged($before, $after) {
+        $before = (array) $before;
+        $after = (array) $after;
+        $added = array_diff($after, $before);
+        $deleted = array_diff($before, $after);
+        $added = array_map(array($this, 'display'), $added);
+        $deleted = array_map(array($this, 'display'), $deleted);
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed to <strong>%1$s</strong>'),
+                $this->display($after));
+        }
+        return $desc;
     }
 
     function asVar($value, $id=false) {

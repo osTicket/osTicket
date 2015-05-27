@@ -714,7 +714,7 @@ class Format {
         return $text;
     }
 
-    function relativeTime($to, $from=false) {
+    function relativeTime($to, $from=false, $granularity=1) {
         $timestamp = $to ?: Misc::gmtime();
         if (gettype($timestamp) === 'string')
             $timestamp = strtotime($timestamp);
@@ -723,6 +723,9 @@ class Format {
             $from = strtotime($from);
         $timeDiff = $from - $timestamp;
         $absTimeDiff = abs($timeDiff);
+
+        // Roll back to the nearest multiple of $granularity
+        $absTimeDiff -= $absTimeDiff % $granularity;
 
         // within 2 seconds
         if ($absTimeDiff <= 2) {
@@ -758,7 +761,7 @@ class Format {
         $days2 = 2 * 86400;
         if ($absTimeDiff < $days2) {
             // XXX: yesterday / tomorrow?
-          return $absTimeDiff >= 0 ? __('1 day ago') : __('in 1 day');
+          return $absTimeDiff >= 0 ? __('yesterday') : __('tomorrow');
         }
 
         // within 29 days

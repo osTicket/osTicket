@@ -943,6 +943,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         $this->collaborators = null;
         $this->recipients = null;
 
+        $this->logEvent('collab', array('add' => array($c->toString())));
+
         return $c;
     }
 
@@ -959,11 +961,10 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 if (($c=Collaborator::lookup($cid))
                         && $c->getTicketId() == $this->getId()
                         && $c->delete())
-                     $collabs[] = $c;
+                     $collabs[] = (string) $c;
             }
 
-            $this->logNote(_S('Collaborators Removed'),
-                    implode("<br>", $collabs), $thisstaff, false);
+            $this->logEvent('collab', array('del' => $collabs));
         }
 
         //statuses
@@ -1164,6 +1165,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             }
         }
 
+        $hadStatus = $this->getStatusId();
         if ($this->getStatusId() == $status->getId())
             return true;
 
@@ -1196,7 +1198,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 if ($this->isClosed()) {
                     $sql .= ',closed=NULL, lastupdate=NOW(), reopened=NOW() ';
                     $ecb = function ($t) {
-                        $t->logEvent('reopened', 'closed');
+                        $t->logEvent('reopened', false, 'closed');
                     };
                 }
 
@@ -1228,12 +1230,15 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 $note .= sprintf('<hr>%s', $comments);
                 // Send out alerts if comments are included
                 $alert = true;
+                $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
             }
-
-            $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
         }
         // Log events via callback
-        if ($ecb) $ecb($this);
+        if ($ecb)
+            $ecb($this);
+        elseif ($hadStatus)
+            // Don't log the initial status change
+            $this->logEvent('edited', array('status' => $status->getId()));
 
         return true;
     }
@@ -1662,13 +1667,16 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
         $this->reload();
 
+        $user_comments = (bool) $comments;
         $comments = $comments ?: _S('Ticket assignment');
         $assigner = $thisstaff ?: _S('SYSTEM (Auto Assignment)');
 
         //Log an internal note - no alerts on the internal note.
-        $note = $this->logNote(
-            sprintf(_S('Ticket Assigned to %s'), $assignee->getName()),
-            $comments, $assigner, false);
+        if ($user_comments) {
+            $note = $this->logNote(
+                sprintf(_S('Ticket Assigned to %s'), $assignee->getName()),
+                $comments, $assigner, false);
+        }
 
         //See if we need to send alerts
         if(!$alert || !$cfg->alertONAssignment()) return true; //No alerts!
@@ -1971,8 +1979,11 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         /*** log the transfer comments as internal note - with alerts disabled - ***/
         $title=sprintf(_S('Ticket transferred from %1$s to %2$s'),
             $currentDept, $this->getDeptName());
-        $comments=$comments?$comments:$title;
-        $note = $this->logNote($title, $comments, $thisstaff, false);
+
+        if ($comments) {
+            $note = $this->logNote($title, $comments, $thisstaff, false);
+        }
+        $comments = $comments ?: $title;
 
         $this->logEvent('transferred');
 
@@ -2004,11 +2015,13 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             if($cfg->alertDeptManagerONTransfer() && $dept && ($manager=$dept->getManager()))
                 $recipients[]= $manager;
 
-            $sentlist=array();
-            $options = array(
-                'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences(),
-                'thread'=>$note);
+            $sentlist = $options = array();
+            if ($note) {
+                $options += array(
+                    'inreplyto'=>$note->getEmailMessageId(),
+                    'references'=>$note->getEmailReferences(),
+                    'thread'=>$note);
+            }
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
@@ -2030,9 +2043,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if ($dept->assignMembersOnly() && !$dept->isMember($thisstaff))
             return false;
 
-        $comments = sprintf(_S('Ticket claimed by %s'), $thisstaff->getName());
-
-        return $this->assignToStaff($thisstaff->getId(), $comments, false);
+        return $this->assignToStaff($thisstaff->getId(), null, false);
     }
 
     function assignToStaff($staff, $note, $alert=true) {
@@ -2044,7 +2055,14 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             return false;
 
         $this->onAssign($staff, $note, $alert);
-        $this->logEvent('assigned');
+
+        global $thisstaff;
+        $data = array();
+        if ($staff->getId() == $thisstaff->getId())
+            $data['claim'] = true;
+        else
+            $data['staff'] = $staff->getId();
+        $this->logEvent('assigned', $data);
 
         return true;
     }
@@ -2063,7 +2081,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             $this->setStaffId(0);
 
         $this->onAssign($team, $note, $alert);
-        $this->logEvent('assigned');
+        $this->logEvent('assigned', array('team' => $team->getId()));
 
         return true;
     }
@@ -2134,18 +2152,15 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         $this->collaborators = null;
         $this->recipients = null;
 
-        //Log an internal note
-        $note = sprintf(_S('%s changed ticket ownership to %s'),
-                $thisstaff->getName(), $user->getName());
-
-        //Remove the new owner from list of collaborators
+        // Remove the new owner from list of collaborators
         $c = Collaborator::lookup(array(
-                    'user_id' => $user->getId(),
-                    'thread_id' => $this->getThreadId()));
-        if ($c && $c->delete())
-            $note.= ' '._S('(removed as collaborator)');
+            'user_id' => $user->getId(),
+            'thread_id' => $this->getThreadId()
+        ));
+        if ($c)
+            $c->delete();
 
-        $this->logNote('Ticket ownership changed', $note);
+        $this->logEvent('edited', array('owner' => $user->getId()));
 
         return true;
     }
@@ -2184,18 +2199,11 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
                 if (($user=User::fromVars($recipient)))
                     if ($c=$this->addCollaborator($user, $info, $errors))
-                        $collabs[] = sprintf('%s%s',
-                            (string) $c,
-                            $recipient['source']
-                                ? " ".sprintf(_S('via %s'), $recipient['source'])
-                                : ''
-                            );
+                        $collabs[] = array((string)$c, $recipient['source']);
             }
             //TODO: Can collaborators add others?
             if ($collabs) {
-                //TODO: Change EndUser to name of  user.
-                $this->logNote(_S('Collaborators added by end user'),
-                        implode("<br>", $collabs), _S('End User'), false);
+                $this->logEvent('collab', array('add' => $collabs));
             }
         }
 
@@ -2411,31 +2419,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function logEvent($state, $annul=null, $staff=null) {
-        global $thisstaff;
-
-        if ($staff === null) {
-            if ($thisstaff) $staff=$thisstaff->getUserName();
-            else $staff='SYSTEM';               # XXX: Security Violation ?
-        }
-        # Annul previous entries if requested (for instance, reopening a
-        # ticket will annul an 'closed' entry). This will be useful to
-        # easily prevent repeated statistics.
-        if ($annul) {
-            db_query('UPDATE '.TICKET_EVENT_TABLE.' SET annulled=1'
-                .' WHERE ticket_id='.db_input($this->getId())
-                  .' AND state='.db_input($annul));
-        }
-
-        return db_query('INSERT INTO '.TICKET_EVENT_TABLE
-            .' SET ticket_id='.db_input($this->getId())
-            .', staff_id='.db_input($this->getStaffId())
-            .', team_id='.db_input($this->getTeamId())
-            .', dept_id='.db_input($this->getDeptId())
-            .', topic_id='.db_input($this->getTopicId())
-            .', timestamp=NOW(), state='.db_input($state)
-            .', staff='.db_input($staff))
-            && db_affected_rows() == 1;
+    function logEvent($state, $data=null, $annul=null, $staff=null) {
+        $this->getThread()->getEvents()->log($this, $state, $data, $annul, $staff);
     }
 
     //Insert Internal Notes
@@ -2593,7 +2578,6 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>__('Select a valid SLA'));
         $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
 
-        $fields['note']     = array('type'=>'text',     'required'=>1, 'error'=>__('A reason for the update is required'));
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
@@ -2644,16 +2628,16 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         if(!db_query($sql) || !db_affected_rows())
             return false;
 
-        if(!$vars['note'])
-            $vars['note']=sprintf(_S('Ticket details updated by %s'), $thisstaff->getName());
-
-        $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
+        if ($vars['note'])
+            $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
         // Decide if we need to keep the just selected SLA
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
+        $changes = array();
         foreach ($forms as $f) {
+            $changes += $f->getChanges();
             // Drop deleted forms
             $idx = array_search($f->getId(), $vars['forms']);
             if ($idx === false) {
@@ -2664,6 +2648,9 @@ implements RestrictedAccess, Threadable, TemplateVariable {
                 $f->save();
             }
         }
+
+        if ($changes)
+            $this->logEvent('edited', array('fields' => $changes));
 
         // Reload the ticket so we can do further checking
         $this->reload();
@@ -3262,10 +3249,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             }
             //TODO: Can collaborators add others?
             if ($collabs) {
-                //TODO: Change EndUser to name of  user.
-                $ticket->logNote(sprintf(_S('Collaborators for %s organization added'),
-                        $org->getName()),
-                    implode("<br>", $collabs), $org->getName(), false);
+                $ticket->logEvent('collab', array('org' => $org->getId()));
             }
         }
 
@@ -3418,11 +3402,6 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
-        else {
-            // Not assignment and no internal note - log activity
-            $ticket->logActivity(_S('New Ticket by Agent'),
-                sprintf(_S('Ticket created by agent - %s'), $thisstaff->getName()));
-        }
 
         $ticket->reload();
 
@@ -3493,9 +3472,8 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
-                if(($ticket=Ticket::lookup($id)) && $ticket->markOverdue())
-                    $ticket->logActivity(_S('Ticket Marked Overdue'),
-                        _S('Ticket flagged as overdue by the system.'));
+                if ($ticket=Ticket::lookup($id))
+                    $ticket->markOverdue();
             }
         } else {
             //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.

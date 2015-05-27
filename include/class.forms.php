@@ -627,6 +627,19 @@ class FormField {
     }
 
     /**
+     * Describe the difference between the to two values. Note that the
+     * values should be passed through ::parse() or to_php() before
+     * utilizing this method.
+     */
+    function whatChanged($before, $after) {
+        if ($before)
+            $desc = __('changed from <strong>%2$s</strong> to <strong>%1$s</strong>');
+        else
+            $desc = __('set to <strong>%1$s</strong>');
+        return sprintf($desc, $this->display($after), $this->display($before));
+    }
+
+    /**
      * Convert the field data to something matchable by filtering. The
      * primary use of this is for ticket filtering.
      */
@@ -1312,6 +1325,37 @@ class ChoiceField extends FormField {
         return (string) $value;
     }
 
+    function whatChanged($before, $after) {
+        $B = (array) $before;
+        $A = (array) $after;
+        $added = array_diff($A, $B);
+        $deleted = array_diff($B, $A);
+        $added = array_map(array($this, 'display'), $added);
+        $deleted = array_map(array($this, 'display'), $deleted);
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>'),
+                $this->display($before), $this->display($after));
+        }
+        return $desc;
+    }
+
     /*
      Return criteria to which the choice should be filtered by
      */
@@ -1690,6 +1734,8 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
+        elseif (is_array($value))
+            list($value, $id) = $value;
         elseif ($id === false)
             $id = $value;
         if ($id)
