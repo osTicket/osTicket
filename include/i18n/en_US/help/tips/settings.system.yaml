@@ -66,17 +66,6 @@ purge_logs:
         Determine how long you would like to keep <span
         class="doc-desc-title">System Logs</span> before they are deleted.
 
-default_name_formatting:
-    title: Default Name Formatting
-    content: >
-        Choose a format for names throughout the system. Email templates
-        will use it for names if no other format is specified in the
-        variable.
-
-    links:
-      - title: Supported Email Template Variables
-        href: http://osticket.com/wiki/Email_templates
-
 enable_richtext:
     title: Enable Rich Text
     content: >

@@ -157,6 +157,8 @@ class OsticketConfig extends Config {
         'enable_html_thread' => true,
         'allow_attachments' =>  true,
         'name_format' =>        'full', # First Last
+        'agent_name_format' =>  'full', # First Last
+        'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -405,8 +407,12 @@ class OsticketConfig extends Config {
         return $this->get('autolock_minutes');
     }
 
-    function getDefaultNameFormat() {
-        return $this->get('name_format');
+    function getAgentNameFormat() {
+        return $this->get('agent_name_format');
+    }
+
+    function getClientNameFormat() {
+        return $this->get('client_name_format');
     }
 
     function getDefaultDeptId() {
@@ -1001,8 +1007,11 @@ class OsticketConfig extends Config {
             case 'pages':
                 return $this->updatePagesSettings($vars, $errors);
                 break;
-            case 'access':
-                return $this->updateAccessSettings($vars, $errors);
+            case 'agents':
+                return $this->updateAgentsSettings($vars, $errors);
+                break;
+            case 'users':
+                return $this->updateUsersSettings($vars, $errors);
                 break;
             case 'kb':
                 return $this->updateKBSettings($vars, $errors);
@@ -1079,13 +1088,11 @@ class OsticketConfig extends Config {
         ));
     }
 
-    function updateAccessSettings($vars, &$errors) {
+    function updateAgentsSettings($vars, &$errors) {
         $f=array();
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
-        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
             'error'=>__('Valid password reset window required'));
-
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1096,14 +1103,29 @@ class OsticketConfig extends Config {
             'staff_login_timeout'=>$vars['staff_login_timeout'],
             'staff_session_timeout'=>$vars['staff_session_timeout'],
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
+            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
+            'pw_reset_window'=>$vars['pw_reset_window'],
+            'agent_name_format'=>$vars['agent_name_format'],
+
+        ));
+    }
+
+    function updateUsersSettings($vars, &$errors) {
+        $f=array();
+        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
-            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
-            'pw_reset_window'=>$vars['pw_reset_window'],
             'clients_only'=>isset($vars['clients_only'])?1:0,
             'client_registration'=>$vars['client_registration'],
             'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
+            'client_name_format'=>$vars['client_name_format'],
+
         ));
     }
 

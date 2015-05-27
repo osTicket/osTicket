@@ -23,16 +23,14 @@ $settingOptions=array(
         array(__('Ticket Settings and Options'), 'settings.ticket'),
     'tasks' =>
         array(__('Task Settings and Options'), 'settings.tasks'),
+    'agents' =>
+        array(__('Agent Settings and Options'), 'settings.agents'),
+    'users' =>
+        array(__('User Settings and Options'), 'settings.users'),
     'pages' =>
         array(__('Site Pages'), 'settings.pages'),
-    'access' =>
-        array(__('Access Control'), 'settings.access'),
     'kb' =>
         array(__('Knowledgebase Settings'), 'settings.kb'),
-    'autoresp' =>
-        array(__('Autoresponder Settings'), 'settings.autoresponder'),
-    'alerts' =>
-        array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';

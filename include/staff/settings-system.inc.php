@@ -62,20 +62,6 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
-            <td>
-                <select name="name_format">
-                <?php foreach (PersonsName::allFormats() as $n=>$f) {
-                    list($desc, $func) = $f;
-                    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
-                                    <option value="<?php echo $n; ?>" <?php echo $selected;
-                                        ?>><?php echo __($desc); ?></option>
-                <?php } ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
-            </td>
-        </tr>
-        <tr>
             <td><?php echo __('Collision Avoidance Duration'); ?>:</td>
             <td>
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
