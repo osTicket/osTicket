@@ -46,6 +46,9 @@ class DynamicForm extends VerySimpleModel {
         'O' => 'Organization Information',
     );
 
+    const FLAG_DELETABLE    = 0x0001;
+    const FLAG_DELETED      = 0x0002;
+
     var $_form;
     var $_fields;
     var $_has_data = false;
@@ -124,7 +127,11 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function isDeletable() {
-        return $this->get('deletable');
+        return $this->flags & self::FLAG_DELETABLE;
+    }
+
+    function setFlag($flag) {
+        $this->flags |= $flag;
     }
 
     function hasAnyVisibleFields($user=false) {
@@ -173,6 +180,7 @@ class DynamicForm extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
+        // XXX: This should go to an update routine
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
         if ($rv = parent::save($refetch | $this->dirty))
@@ -181,10 +189,13 @@ class DynamicForm extends VerySimpleModel {
     }
 
     function delete() {
+
         if (!$this->isDeletable())
             return false;
-        else
-            return parent::delete();
+
+        // Soft Delete: Mark the form as deleted.
+        $this->setFlag(self::FLAG_DELETED);
+        return $this->save();
     }
 
     function getExportableFields($exclude=array()) {
@@ -278,7 +289,7 @@ class DynamicForm extends VerySimpleModel {
 
     static function buildDynamicDataView($cdata) {
         $sql = 'CREATE TABLE `'.$cdata['table'].'` (PRIMARY KEY
-                ('.$cdata['object_id'].')) AS '
+                ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
              .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
         db_query($sql);
     }
@@ -874,12 +885,15 @@ class DynamicFormField extends VerySimpleModel {
         if (!$this->get('label'))
             $this->addError(
                 __("Label is required for custom form fields"), "label");
-        if ($this->get('required') && !$this->get('name'))
+        if (($this->isRequiredForStaff() || $this->isRequiredForUsers())
+            && !$this->get('name')
+        ) {
             $this->addError(
                 __("Variable name is required for required fields"
                 /* `required` is a visibility setting fields */
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
+        }
         if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
             $this->addError(__(
                 'Invalid character in variable name. Please use letters and numbers only.'
@@ -1170,6 +1184,23 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function render($staff=true, $title=false, $options=array()) {
         return $this->getForm()->render($staff, $title, $options);
+    }
+
+    function getChanges() {
+        $fields = array();
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
+            if (!$field->hasData() || $field->isPresentationOnly())
+                continue;
+            $val = $v = $field->to_database($field->getClean());
+            if (is_array($val))
+                $v = $val[0];
+            if ($a->value == $v)
+                continue;
+            $before = $field->to_database($a->getValue());
+            $fields[$field->get('id')] = array($before, $val);
+        }
+        return $fields;
     }
 
     /**
@@ -1492,6 +1523,38 @@ class SelectionField extends FormField {
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
         return $value;
+    }
+
+    // PHP 5.4 Move this to a trait
+    function whatChanged($before, $after) {
+        $before = (array) $before;
+        $after = (array) $after;
+        $added = array_diff($after, $before);
+        $deleted = array_diff($before, $after);
+        $added = array_map(array($this, 'display'), $added);
+        $deleted = array_map(array($this, 'display'), $deleted);
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed to <strong>%1$s</strong>'),
+                $this->display($after));
+        }
+        return $desc;
     }
 
     function asVar($value, $id=false) {

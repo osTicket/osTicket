@@ -600,6 +600,15 @@ $(document).on('focus', 'form.spellcheck textarea, form.spellcheck input[type=te
     $(this).attr({'spellcheck':'true', 'lang': lang});
 });
 
+$(document).on('click', '.thread-entry-group a', function() {
+    var inner = $(this).parent().find('.thread-entry-group-inner');
+    if (inner.is(':visible'))
+      inner.slideUp();
+    else
+      inner.slideDown();
+    return false;
+});
+
 $.toggleOverlay = function (show) {
   if (typeof(show) === 'undefined') {
     return $.toggleOverlay(!$('#overlay').is(':visible'));

@@ -56,6 +56,10 @@ class Attachment extends VerySimpleModel {
         return $this->file;
     }
 
+    function getFilename() {
+        return $this->name ?: $this->file->name;
+    }
+
     function getHashtable() {
         return $this->ht;
     }
@@ -117,7 +121,8 @@ extends InstrumentedList {
 
     function upload($files, $inline=false, $lang=false) {
         $i=array();
-        if (!is_array($files)) $files=array($files);
+        if (!is_array($files))
+            $files = array($files);
         foreach ($files as $file) {
             if (is_numeric($file))
                 $fileId = $file;
@@ -134,6 +139,18 @@ extends InstrumentedList {
                 'file_id' => $fileId,
                 'inline' => $_inline ? 1 : 0,
             )));
+
+            // Record varying file names in the attachment record
+            if (is_array($file) && isset($file['name'])) {
+                $filename = $file['name'];
+            }
+            if ($filename) {
+                // This should be a noop since the ORM caches on PK
+                $file = $F ?: AttachmentFile::lookup($fileId);
+                // XXX: This is not Unicode safe
+                if ($file && 0 !== strcasecmp($file->name, $filename))
+                    $att->name = $filename;
+            }
             if ($lang)
                 $att->lang = $lang;
 

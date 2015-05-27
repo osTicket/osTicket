@@ -425,7 +425,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
-<ul  class="tabs threads" id="ticket_tabs" >
+<ul  class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
     <li><a id="ticket_tasks" href="#tasks"
             data-url="<?php
@@ -440,6 +440,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     <?php
     $ticket->getThread()->render(array('M', 'R', 'N'));
     ?>
+    </div>
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>

@@ -72,8 +72,8 @@ $gmtime = Misc::gmtime();
         <tr>
             <td><?php echo __('Enable Rich Text'); ?>:</td>
             <td>
-                <input type="checkbox" name="enable_html_thread" <?php
-                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
+                <input type="checkbox" name="enable_richtext" <?php
+                echo $config['enable_richtext']?'checked="checked"':''; ?>>
                 <?php echo __('Enable html in thread entries and email correspondence.'); ?>
                 <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
             </td>

@@ -49,6 +49,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
+            $changes = array();
             foreach ($forms as $form) {
                 $form->setSource($_POST);
                 if (!$form->isValid())
@@ -56,11 +57,13 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
             }
         }
         if (!$errors) {
-            foreach ($forms as $f) $f->save();
+            foreach ($forms as $f) {
+                $changes += $f->getChanges();
+                $f->save();
+            }
+            if ($changes)
+                $ticket->logEvent('edited', array('fields' => $changes));
             $_REQUEST['a'] = null; //Clear edit action - going back to view.
-            $ticket->logNote(__('Ticket details updated'), sprintf(
-                __('Ticket details were updated by client %s &lt;%s&gt;'),
-                $thisclient->getName(), $thisclient->getEmail()));
         }
         break;
     case 'reply':

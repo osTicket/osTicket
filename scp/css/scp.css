@@ -55,9 +55,20 @@ div#header a {
     color: #666;
     color: rgba(0,0,0,0.5);
 }
+.faded b {
+    color: #333;
+    color: rgba(0,0,0,0.75);
+}
+.faded strong {
+    color: #444;
+    color: rgba(0,0,0,0.6);
+}
 .faded-more {
     color: #aaa;
     color: rgba(0,0,0,0.35);
+}
+time[title]:hover {
+    text-decoration: underline;
 }
 
 .small[class^="icon-"],
@@ -452,7 +463,7 @@ a.Icon:hover {
     background:#fff;
 }
 
-a:not(.re-icon) {
+a {
     color:#184E81;
 }
 
@@ -821,9 +832,6 @@ h2 .reload {
     border:1px solid #f90;
 }
 
-
-
-
 #ticket_actions {
     padding:5px;
     background:#eee;
@@ -831,65 +839,150 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
-
-#toggle_ticket_thread {
-    background:url(../images/icons/open.gif) 10px 50% no-repeat;
+.thread-entry {
+    margin-bottom: 15px;
+    z-index: 0;
+}
+.thread-entry::after {
+  content: "";
+  border-bottom: 2px solid white;
+  display: block;
+}
+.thread-entry::before {
+  content: "";
+  display: block;
+  border-top: 2px solid white;
+}
+.thread-entry.avatar {
+    margin-left: 60px;
+}
+.thread-entry.message.avatar {
+    margin-right: 60px;
+    margin-left: 0;
+}
+.thread-entry > .avatar {
+    margin-left: -60px;
+    display:inline-block;
+    width:48px;
+    height:auto;
+    border-radius: 5px;
+}
+.thread-entry.message > .avatar {
+    margin-left: initial;
+    margin-right: -60px;
+}
+img.avatar {
+    border-radius: inherit;
+}
+.thread-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: 5px 5px 0 0;
+}
+.thread-entry.avatar .header:before {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #9cadcc;
+  display: inline-block;
+}
+.thread-entry.avatar .header:after {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  display: inline-block;
+  margin-top: 1px;
 }
 
-#toggle_notes {
-    background:url(../images/icons/note.gif) 10px 50% no-repeat;
+.thread-entry.avatar .header {
+    position: relative;
 }
 
-table.thread-entry {
-    margin-top:10px;
-    border:1px solid #aaa;
-    border-bottom:2px solid #aaa;
-}
-
-#ticket_notes table {
-    margin-top:10px;
-    border:1px solid #ddd;
-    border-bottom:2px solid #ddd;
-}
-
-table.thread-entry th, #ticket_notes table th {
-    text-align:left;
-    border-bottom:1px solid #aaa;
-    font-size:10pt;
-    padding:5px;
-}
-
-#ticket_notes table th {
-    text-align:left;
-    border-bottom:1px solid #ddd;
-    font-size:10pt;
-    padding:5px;
-    background:#F4FAFF;
-}
-
-#ticket_notes table th em {
-    font-weight:normal;
-    font-size:10pt;
-    color:#666;
-}
-
-#ticket_notes .date {
-    font-weight:normal;
-    font-size:10pt;
-    color:#888;
-    text-align:right;
-}
-
-.thread-entry.message th {
+.thread-entry.message .header {
     background:#C3D9FF;
 }
-
-.thread-entry.response th {
-    background:#FFE0B3;
+.thread-entry.avatar.message .header:after {
+    border-left: 7px solid #C3D9FF;
+    margin-right: 1px;
 }
 
-.thread-entry.note th {
+.thread-entry.response .header {
+    background:#FFE0B3;
+}
+.thread-entry.avatar.response .header:before,
+.thread-entry.avatar.note .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+.thread-entry.note:not(.avatar) .header {
+    background-color: #f4f4f4;
+}
+.thread-entry.avatar.response .header:before {
+    border-right-color: #ccb3af;
+}
+.thread-entry.avatar.note .header:before {
+    border-right-color: #ccccb0;
+}
+.thread-entry.avatar.response .header:after,
+.thread-entry.avatar.note .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #FFE0B3;
+    margin-left: 1px;
+}
+
+.thread-entry.note .header {
     background:#FFE;
+}
+.thread-entry.avatar.note .header:after {
+    border-right-color: #FFE;
+}
+.thread-entry .header .title {
+    max-width: 500px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.thread-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom:2px solid #aaa;
+    border-radius: 0 0 5px 5px;
+}
+.thread-body .attachments {
+  background-color: #f4faff;
+  margin: 0 -0.9em;
+  position: relative;
+  top: 0.9em;
+  padding: 0.3em 0.9em;
+  border-top: 1px dotted #ccc;
+  border-top-color: rgba(0,0,0,0.2);
+  border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments .filesize {
+  margin-left: 0.5em;
+}
+.thread-body .attachment-info {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+}
+.thread-body .attachment-info .filename {
+  max-width: 80%;
+  max-width: calc(100% - 70px);
 }
 
 #ticket_notes table td {
@@ -912,7 +1005,7 @@ table.thread-entry th, #ticket_notes table th {
 }
 
 #response_options {
-    margin-top:30px;
+    margin-top:10px;
 }
 
 #response_options > form {
@@ -1403,7 +1496,7 @@ h2 > i.help-tip {
   background-color:#e9f5ff;
 }
 
-time {
+time.faq {
     display:inline-block;
     float:right;
     color:#777;
@@ -1825,6 +1918,23 @@ div.selected-signature .inner {
     top: 4px;
     right: 5px;
 }
+.muted-button:hover {
+    border: 1px solid #aaa;
+    border: 1px solid rgba(0,0,0,0.3);
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    color: black;
+}
+.muted-button {
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin: -1px 0 -1px 5px;
+  border: 1px solid rgba(0,0,0,0.15);
+  color: #666;
+  color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.1);
+  background: linear-gradient(0, rgba(0,0,0,0.1), rgba(255,255,255,0.1));
+}
 
 .sortable-rows tr td:hover {
     cursor: move;
@@ -2006,6 +2116,7 @@ tr.disabled th {
 }
 .tab_content:not(.left) {
     padding: 12px 0;
+    margin: 5px 0;
 }
 .left-tabs {
     margin-left: 48px;
@@ -2129,6 +2240,7 @@ button a:hover {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: bottom;
 }
 td.indented {
     padding-left: 20px;
@@ -2256,4 +2368,69 @@ td.indented {
     color: rgba(255,255,255,0.8) !important;
     border-color:transparent;
   }
+}
+
+#ticket_thread::before {
+  border-left: 2px dotted #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+  position: absolute;
+  margin-left: 74px;
+  z-index: -1;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+#ticket_thread {
+  z-index: 0;
+  position: relative;
+  border-bottom: 2px solid #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+.thread-event {
+    padding: 0 2px 15px;
+    margin-left: 60px;
+}
+.type-icon {
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    padding: 4px 6px;
+    margin-right: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.1em;
+    border: 1px solid #eee;
+    vertical-align: top;
+    position: relative;
+}
+.thread-event .type-icon::after {
+  content: "";
+  border: 16px solid white;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: -3px;
+  right: 0;
+  z-index: -1;
+}
+.type-icon.dark {
+    border-color: #666;
+    background-color: #949494;
+}
+.thread-event img.avatar {
+    vertical-align: middle;
+    border-radius: 3px;
+    width: auto;
+    max-height: 24px;
+    margin: -3px 3px 0;
+}
+.thread-event .description {
+    margin-left: -30px;
+    padding-top: 6px;
+    padding-left: 30px;
+    display: inline-block;
+    width: 772px;
+    width: calc(100% - 95px);
+    line-height: 1.4em;
 }

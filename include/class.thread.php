@@ -42,8 +42,15 @@ class Thread extends VerySimpleModel {
             'entries' => array(
                 'reverse' => 'ThreadEntry.thread',
             ),
+            'events' => array(
+                'reverse' => 'ThreadEvent.thread',
+                'broker' => 'ThreadEvents',
+            ),
         ),
     );
+
+    const MODE_STAFF = 1;
+    const MODE_CLIENT = 2;
 
     var $_object;
     var $_collaborators; // Cache for collabs
@@ -192,17 +199,23 @@ class Thread extends VerySimpleModel {
         return true;
     }
     // Render thread
-    function render($type=false) {
+    function render($type=false, $mode=self::MODE_STAFF) {
 
         $entries = $this->getEntries();
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
-        include STAFFINC_DIR . 'templates/thread-entries.tmpl.php';
+        $events = $this->getEvents();
+        $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
+        include $inc . 'templates/thread-entries.tmpl.php';
     }
 
     function getEntry($id) {
         return ThreadEntry::lookup($id, $this->getId());
+    }
+
+    function getEvents() {
+        return $this->events;
     }
 
     /**
@@ -864,7 +877,7 @@ implements TemplateVariable {
     Save attachment to the DB.
     @file is a mixed var - can be ID or file hashtable.
     */
-    function saveAttachment(&$file) {
+    function saveAttachment(&$file, $name=false) {
 
         $inline = is_array($file) && @$file['inline'];
 
@@ -885,6 +898,21 @@ implements TemplateVariable {
             'file_id' => $fileId,
             'inline' => $inline ? 1 : 0,
         ));
+
+        // Record varying file names in the attachment record
+        if (is_array($file) && isset($file['name'])) {
+            $filename = $file['name'];
+        }
+        elseif (is_string($name)) {
+            $filename = $name;
+        }
+        if ($filename) {
+            // This should be a noop since the ORM caches on PK
+            $file = AttachmentFile::lookup($fileId);
+            if ($file->name != $filename)
+                $att->name = $filename;
+        }
+
         if (!$att->save())
             return false;
         return $att;
@@ -892,9 +920,10 @@ implements TemplateVariable {
 
     function saveAttachments($files) {
         $attachments = array();
-        foreach ($files as $file)
-           if (($A = $this->saveAttachment($file)))
+        foreach ($files as $name=>$file) {
+           if (($A = $this->saveAttachment($file, $name)))
                $attachments[] = $A;
+        }
 
         return $attachments;
     }
@@ -908,7 +937,7 @@ implements TemplateVariable {
         foreach ($this->attachments as $att) {
             $json[$att->file->getKey()] = array(
                 'download_url' => $att->file->getDownloadUrl(),
-                'filename' => $att->file->name,
+                'filename' => $att->getFilename(),
             );
         }
 
@@ -1406,6 +1435,311 @@ implements TemplateVariable {
 
 RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
+class ThreadEvent extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_EVENT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            // Originator of activity
+            'agent' => array(
+                'constraint' => array(
+                    'uid' => 'Staff.staff_id',
+                ),
+                'null' => true,
+            ),
+            // Agent assignee
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                ),
+                'null' => true,
+            ),
+            'team' => array(
+                'constraint' => array(
+                    'team_id' => 'Team.team_id',
+                ),
+                'null' => true,
+            ),
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
+            ),
+            'user' => array(
+                'constraint' => array(
+                    'uid' => 'User.id',
+                ),
+                'null' => true,
+            ),
+            'dept' => array(
+                'constraint' => array(
+                    'dept_id' => 'Dept.id',
+                ),
+                'null' => true,
+            ),
+        ),
+    );
+
+    // Valid events for database storage
+    const ASSIGNED  = 'assigned';
+    const CLOSED    = 'closed';
+    const CREATED   = 'created';
+    const COLLAB    = 'collab';
+    const EDITED    = 'edited';
+    const ERROR     = 'error';
+    const OVERDUE   = 'overdue';
+    const REOPENED  = 'reopened';
+    const STATUS    = 'status';
+    const TRANFERRED = 'transferred';
+    const VIEWED    = 'viewed';
+
+    const MODE_STAFF = 1;
+    const MODE_CLIENT = 2;
+
+    var $_data;
+
+    function getAvatar($size=16) {
+        if ($this->uid && $this->uid_type == 'S')
+            return $this->agent->get_gravatar($size);
+        if ($this->uid && $this->uid_type == 'U')
+            return $this->user->get_gravatar($size);
+    }
+
+    function getUserName() {
+        if ($this->uid && $this->uid_type == 'S')
+            return $this->agent->getName();
+        if ($this->uid && $this->uid_type == 'U')
+            return $this->user->getName();
+        return $this->username;
+    }
+
+    function getIcon() {
+        $icons = array(
+            'assigned'  => 'hand-right',
+            'collab'    => 'group',
+            'created'   => 'magic',
+            'overdue'   => 'time',
+            'transferred' => 'share-alt',
+            'edited'    => 'pencil',
+        );
+        return @$icons[$this->state] ?: 'chevron-sign-right';
+    }
+
+    function getDescription($mode=self::MODE_STAFF) {
+        static $descs;
+        if (!isset($descs))
+            $descs = array(
+            'assigned' => __('Assignee changed by <b>{username}</b> to <strong>{assignees}</strong> {timestamp}'),
+            'assigned:staff' => __('<b>{username}</b> assigned this to <strong>{<Staff>data.staff}</strong> {timestamp}'),
+            'assigned:team' => __('<b>{username}</b> assigned this to <strong>{<Team>data.team}</strong> {timestamp}'),
+            'assigned:claim' => __('<b>{username}</b> claimed this {timestamp}'),
+            'collab:org' => __('Collaborators for {<Organization>data.org} organization added'),
+            'collab:del' => function($evt) {
+                $data = $evt->getData();
+                $base = __('<b>{username}</b> removed %s from the collaborators.');
+                return $data['del']
+                    ? Format::htmlchars(sprintf($base, implode(', ', $data['del'])))
+                    : 'somebody';
+            },
+            'collab:add' => function($evt) {
+                $data = $evt->getData();
+                $base = __('<b>{username}</b> added <strong>%s</strong> as collaborators {timestamp}');
+                $collabs = array();
+                if ($data['add']) {
+                    foreach ($data['add'] as $c) {
+                        $collabs[] = Format::htmlchars($c);
+                    }
+                }
+                return $collabs
+                    ? sprintf($base, implode(', ', $collabs))
+                    : 'somebody';
+            },
+            'created' => __('Created by <b>{username}</b> {timestamp}'),
+            'closed' => __('Closed by <b>{username}</b> {timestamp}'),
+            'reopened' => __('Reopened by <b>{username}</b> {timestamp}'),
+            'edited:owner' => __('<b>{username}</b> changed ownership to {<User>data.owner} {timestamp}'),
+            'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
+            'overdue' => __('Flagged as overdue by the system {timestamp}'),
+            'transferred' => __('<b>{username}</b> transferred this to <strong>{dept}</strong> {timestamp}'),
+            'edited:fields' => function($evt) use ($mode) {
+                $base = __('Updated by <b>{username}</b> {timestamp} — %s');
+                $data = $evt->getData();
+                $fields = $changes = array();
+                foreach (DynamicFormField::objects()->filter(array(
+                    'id__in' => array_keys($data['fields'])
+                )) as $F) {
+                    $fields[$F->id] = $F;
+                }
+                foreach ($data['fields'] as $id=>$f) {
+                    $field = $fields[$id];
+                    if ($mode == self::MODE_CLIENT && !$field->isVisibleToUsers())
+                        continue;
+                    list($old, $new) = $f;
+                    $impl = $field->getImpl($field);
+                    $before = $impl->to_php($old);
+                    $after = $impl->to_php($new);
+                    $changes[] = sprintf('<strong>%s</strong> %s',
+                        $field->getLocal('label'), $impl->whatChanged($before, $after));
+                }
+                if (!$changes)
+                    return '';
+                return sprintf($base, implode(', ', $changes));
+            },
+        );
+        $self = $this;
+        $data = $this->getData();
+        $state = $this->state;
+        if (is_array($data)) {
+            foreach (array_keys($data) as $k)
+                if (isset($descs[$state . ':' . $k]))
+                    $state .= ':' . $k;
+        }
+        $description = $descs[$state];
+        if (is_callable($description))
+            $description = $description($this);
+
+        return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
+            function ($m) use ($self) {
+                switch ($m['key']) {
+                case 'assignees':
+                    $assignees = array();
+                    if ($S = $this->staff) {
+                        $url = $S->get_gravatar(16);
+                        $assignees[] =
+                            "<img class=\"avatar\" src=\"{$url}\"> ".$S->getName();
+                    }
+                    if ($T = $this->team) {
+                        $assignees[] = $T->getLocalName();
+                    }
+                    return implode('/', $assignees);
+                case 'username':
+                    $name = $self->getUserName();
+                    if ($url = $self->getAvatar())
+                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    return $name;
+                case 'timestamp':
+                    return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                        date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
+                        Format::daydatetime($self->timestamp),
+                        Format::relativeTime(Misc::db2gmtime($self->timestamp))
+                    );
+                case 'agent':
+                    $st = $this->agent;
+                    if ($url = $self->getAvatar())
+                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                case 'dept':
+                    if ($dept = $this->getDept())
+                        return $dept->getLocalName();
+                case 'data':
+                    $val = $self->getData($m['data']);
+                    if ($m['type'] && class_exists($m['type']))
+                        $val = $m['type']::lookup($val);
+                    return (string) $val;
+                }
+                return $m[0];
+            },
+            $description
+        );
+    }
+
+    function getDept() {
+        return $this->dept;
+    }
+
+    function getData($key=false) {
+        if (!isset($this->_data))
+            $this->_data = JsonDataParser::decode($this->data);
+        return ($key) ? @$this->_data[$key] : $this->_data;
+    }
+
+    function render($mode) {
+        $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
+        $event = $this;
+        include $inc . 'templates/thread-event.tmpl.php';
+    }
+
+    static function create($ht=false) {
+        $inst = parent::create($ht);
+        $inst->timestamp = SqlFunction::NOW();
+
+        global $thisstaff, $thisclient;
+        if ($thisstaff) {
+            $inst->uid_type = 'S';
+            $inst->uid = $thisstaff->getId();
+        }
+        else if ($thisclient) {
+            $inst->uid_type = 'U';
+            $inst->uid = $thisclient->getId();
+        }
+
+        return $inst;
+    }
+
+    static function forTicket($ticket, $state) {
+        $inst = static::create(array(
+            'staff_id' => $ticket->getStaffId(),
+            'team_id' => $ticket->getTeamId(),
+            'dept_id' => $ticket->getDeptId(),
+            'topic_id' => $ticket->getTopicId(),
+        ));
+        if (!isset($inst->uid_type) && $state == self::CREATED) {
+            $inst->uid_type = 'U';
+            $inst->uid = $ticket->getOwnerId();
+        }
+        return $inst;
+    }
+}
+
+class ThreadEvents extends InstrumentedList {
+    function annul($event) {
+        $this->queryset
+            ->filter(array('state' => $event))
+            ->update(array('annulled' => 1));
+    }
+
+    function log($object, $state, $data=null, $annul=null, $username=null) {
+        if ($object instanceof Ticket)
+            $event = ThreadEvent::forTicket($object, $state);
+        else
+            $event = ThreadEvent::create();
+
+        # Annul previous entries if requested (for instance, reopening a
+        # ticket will annul an 'closed' entry). This will be useful to
+        # easily prevent repeated statistics.
+        if ($annul) {
+            $this->annul($annul);
+        }
+
+        if ($username === null) {
+            if ($thisstaff) {
+                $username = $thisstaff->getUserName();
+            }
+            else if ($thisclient) {
+                if ($thisclient->hasAccount)
+                    $username = $thisclient->getAccount()->getUserName();
+                if (!$username)
+                    $username = $thisclient->getEmail();
+            }
+            else {
+                # XXX: Security Violation ?
+                $username = 'SYSTEM';
+            }
+        }
+        $event->username = $username;
+        $event->state = $state;
+
+        if ($data) {
+            if (is_array($data))
+                $data = JsonDataEncoder::encode($data);
+            if (!is_string($data))
+                throw new InvalidArgumentException('Data must be string or array');
+            $event->data = $data;
+        }
+
+        $this->add($event);
+
+        // Save event immediately
+        return $event->save();
+    }
+}
 
 class ThreadEntryBody /* extends SplString */ {
 

@@ -501,7 +501,7 @@ class FormField {
      */
 
     function isEditable() {
-        return (($this->get('edit_mask') & 32) == 0);
+        return (($this->get('flags') & DynamicFormField::FLAG_MASK_EDIT) == 0);
     }
 
     /**
@@ -627,6 +627,19 @@ class FormField {
      */
     function asVarType() {
         return false;
+    }
+
+    /**
+     * Describe the difference between the to two values. Note that the
+     * values should be passed through ::parse() or to_php() before
+     * utilizing this method.
+     */
+    function whatChanged($before, $after) {
+        if ($before)
+            $desc = __('changed from <strong>%2$s</strong> to <strong>%1$s</strong>');
+        else
+            $desc = __('set to <strong>%1$s</strong>');
+        return sprintf($desc, $this->display($after), $this->display($before));
     }
 
     /**
@@ -1315,6 +1328,37 @@ class ChoiceField extends FormField {
         return (string) $value;
     }
 
+    function whatChanged($before, $after) {
+        $B = (array) $before;
+        $A = (array) $after;
+        $added = array_diff($A, $B);
+        $deleted = array_diff($B, $A);
+        $added = array_map(array($this, 'display'), $added);
+        $deleted = array_map(array($this, 'display'), $deleted);
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>'),
+                $this->display($before), $this->display($after));
+        }
+        return $desc;
+    }
+
     /*
      Return criteria to which the choice should be filtered by
      */
@@ -1693,6 +1737,8 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
+        elseif (is_array($value))
+            list($value, $id) = $value;
         elseif ($id === false)
             $id = $value;
         if ($id)
@@ -3079,9 +3125,9 @@ class FileUploadWidget extends Widget {
     }
 
     function getValue() {
+        $ids = array();
         // Handle manual uploads (IE<10)
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
-            $ids = array();
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
                     $F = $this->field->uploadFile($file);
@@ -3089,10 +3135,25 @@ class FileUploadWidget extends Widget {
                 }
                 catch (FileUploadError $ex) {}
             }
-            return array_merge($ids, parent::getValue() ?: array());
+            return $ids;
         }
+
         // If no value was sent, assume an empty list
-        return parent::getValue() ?: array();
+        $base = parent::getValue();
+        if (!$base)
+            return array();
+
+        if (is_array($base)) {
+            foreach ($base as $info) {
+                @list($id, $name) = explode(',', $info, 2);
+                // Keep the values as the IDs
+                if ($name)
+                    $ids[$name] = $id;
+                else
+                    $ids[] = $id;
+            }
+        }
+        return $ids;
     }
 }
 

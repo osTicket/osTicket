@@ -33,6 +33,9 @@ implements TemplateVariable {
         ),
     );
 
+    const FLAG_ENABLED  = 0x0001;
+    const FLAG_NOALERTS = 0x0002;
+
     var $_members;
 
     function asVar() {
@@ -61,6 +64,9 @@ implements TemplateVariable {
 
     function getName() {
         return $this->name;
+    }
+    function getLocalName() {
+        return $this->getLocal('name');
     }
 
     function getNumMembers() {
@@ -98,6 +104,8 @@ implements TemplateVariable {
 
     function getHashtable() {
         $base = $this->ht;
+        $base['isenabled'] = $this->isEnabled();
+        $base['noalerts'] = !$this->alertsEnabled();
         unset($base['staffmembers']);
         return $base;
     }
@@ -107,7 +115,7 @@ implements TemplateVariable {
     }
 
     function isEnabled() {
-        return $this->isenabled;
+        return $this->flags & self::FLAG_ENABLED;
     }
 
     function isActive() {
@@ -115,7 +123,7 @@ implements TemplateVariable {
     }
 
     function alertsEnabled() {
-        return !$this->noalerts;
+        return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
 
     function getTranslateTag($subtag) {
@@ -150,8 +158,9 @@ implements TemplateVariable {
                 && in_array($this->lead_id, $vars['remove']))
             $vars['lead_id'] =0 ;
 
-        $this->isenabled = $vars['isenabled'];
-        $this->noalerts = isset($vars['noalerts']) ? $vars['noalerts'] : 0;
+        $this->flags =
+              ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
+            | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
         $this->lead_id = $vars['lead_id'] ?: 0;
         $this->name = $vars['name'];
         $this->notes = Format::sanitize($vars['notes']);
@@ -222,13 +231,13 @@ implements TemplateVariable {
         if (!$teams || $criteria) {
             $teams = array();
             $query = static::objects()
-                ->values_flat('team_id', 'name', 'isenabled')
+                ->values_flat('team_id', 'name', 'flags')
                 ->order_by('name');
 
             if (isset($criteria['active']) && $criteria['active']) {
                 $query->annotate(array('members_count'=>SqlAggregate::COUNT('members')))
                 ->filter(array(
-                    'isenabled'=>1,
+                    'flags__hasbit'=>self::FLAG_ENABLED,
                     'members__staff__isactive'=>1,
                     'members__staff__onvacation'=>0,
                     'members__staff__group__flags__hasbit'=>Group::FLAG_ENABLED,
@@ -239,7 +248,8 @@ implements TemplateVariable {
             $items = array();
             foreach ($query as $row) {
                 //TODO: Fix enabled - flags is a bit field.
-                list($id, $name, $enabled) = $row;
+                list($id, $name, $flags) = $row;
+                $enabled = $flags & self::FLAG_ENABLED;
                 $items[$id] = sprintf('%s%s',
                     self::getLocalById($id, 'name', $name),
                     ($enabled || isset($criteria['active']))

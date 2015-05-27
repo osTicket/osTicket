@@ -21,6 +21,7 @@ CREATE TABLE `%TABLE_PREFIX%attachment` (
   `object_id` int(11) unsigned NOT NULL,
   `type` char(1) NOT NULL,
   `file_id` int(11) unsigned NOT NULL,
+  `name` varchar(255) NULL default NULL,
   `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `lang` varchar(16),
   PRIMARY KEY  (`id`),
@@ -83,9 +84,7 @@ CREATE TABLE `%TABLE_PREFIX%sequence` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
-  `isactive` tinyint(1) unsigned NOT NULL default '1',
-  `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
-  `disable_overdue_alerts` tinyint(1) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default 3,
   `grace_period` int(10) unsigned NOT NULL default '0',
   `name` varchar(64) NOT NULL default '',
   `notes` text,
@@ -117,7 +116,7 @@ CREATE TABLE `%TABLE_PREFIX%form` (
     `id` int(11) unsigned NOT NULL auto_increment,
     `pid` int(10) unsigned DEFAULT NULL,
     `type` varchar(8) NOT NULL DEFAULT 'G',
-    `deletable` tinyint(1) NOT NULL DEFAULT 1,
+    `flags` int(10) unsigned NOT NULL DEFAULT 1,
     `title` varchar(255) NOT NULL,
     `instructions` varchar(512),
     `name` varchar(64) NOT NULL DEFAULT '',
@@ -134,9 +133,6 @@ CREATE TABLE `%TABLE_PREFIX%form_field` (
     `flags` int(10) unsigned DEFAULT 1,
     `type` varchar(255) NOT NULL DEFAULT 'text',
     `label` varchar(255) NOT NULL,
-    `required` tinyint(1) NOT NULL DEFAULT 0,
-    `private` tinyint(1) NOT NULL DEFAULT 0,
-    `edit_mask` tinyint(1) NOT NULL DEFAULT 0,
     `name` varchar(64) NOT NULL,
     `configuration` text,
     `sort` int(11) unsigned NOT NULL,
@@ -178,6 +174,7 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
     `masks` int(11) unsigned NOT NULL DEFAULT 0,
     `type` VARCHAR( 16 ) NULL DEFAULT NULL,
+    `configuration` text NOT NULL DEFAULT '',
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
@@ -209,6 +206,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `email_id` int(10) unsigned NOT NULL default '0',
   `autoresp_email_id` int(10) unsigned NOT NULL default '0',
   `manager_id` int(10) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default 0,
   `name` varchar(128) NOT NULL default '',
   `signature` text NOT NULL,
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
@@ -593,8 +591,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE `%TABLE_PREFIX%team` (
   `team_id` int(10) unsigned NOT NULL auto_increment,
   `lead_id` int(10) unsigned NOT NULL default '0',
-  `isenabled` tinyint(1) unsigned NOT NULL default '1',
-  `noalerts` tinyint(1) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOTN ULL default 1,
   `name` varchar(125) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
@@ -635,6 +632,8 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `type` char(1) NOT NULL default '',
   `flags` int(11) unsigned NOT NULL default '0',
   `poster` varchar(128) NOT NULL default '',
+  `editor` int(10) unsigned NULL,
+  `editor_type` char(1) NULL,
   `source` varchar(32) NOT NULL default '',
   `title` varchar(255),
   `body` text NOT NULL,
@@ -677,6 +676,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
+  `source_extra` varchar(40) NULL default NULL,
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
   `duedate` datetime default NULL,
@@ -712,18 +712,22 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_event`;
-CREATE TABLE `%TABLE_PREFIX%ticket_event` (
-  `ticket_id` int(11) unsigned NOT NULL default '0',
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
+CREATE TABLE `%TABLE_PREFIX%thread_event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` int(11) unsigned NOT NULL default '0',
   `staff_id` int(11) unsigned NOT NULL,
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred','overdue') NOT NULL,
-  `staff` varchar(255) NOT NULL default 'SYSTEM',
+  `state` enum('created','closed','reopened','assigned','transferred','overdue','edited','viewed','error','collab','resent') NOT NULL,
+  `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
+  `username` varchar(128) NOT NULL default 'SYSTEM',
+  `uid` int(11) unsigned DEFAULT NULL,
+  `uid_type` char(1) NOT NULL DEFAULT 'S',
   `annulled` tinyint(1) unsigned NOT NULL default '0',
   `timestamp` datetime NOT NULL,
-  KEY `ticket_state` (`ticket_id`, `state`, `timestamp`),
+  KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
 
@@ -778,7 +782,6 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   `object_type` char(1) NOT NULL,
   `number` varchar(20) DEFAULT NULL,
   `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
   `team_id` int(10) unsigned NOT NULL DEFAULT '0',
   `lock_id` int(11) unsigned NOT NULL DEFAULT '0',
@@ -798,12 +801,10 @@ CREATE TABLE `%TABLE_PREFIX%task` (
 -- pages
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `content_id` int(10) unsigned NOT NULL default '0',
   `isactive` tinyint(1) unsigned NOT NULL default '0',
   `type` varchar(32) NOT NULL default 'other',
   `name` varchar(255) NOT NULL,
   `body` text NOT NULL,
-  `lang` varchar(16) NOT NULL default 'en_US',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -872,6 +873,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
 CREATE TABLE `%TABLE_PREFIX%user_email` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `user_id` int(10) unsigned NOT NULL,
+  `flags` int(10) unsigned NOT NULL DEFAULT 0,
   `address` varchar(128) NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `address` (`address`),

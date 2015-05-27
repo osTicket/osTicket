@@ -82,7 +82,7 @@ class Mailer {
     function addAttachment(Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$attachment->file_id] = $attachment->file;
+        $this->attachments[$attachment->file_id] = $attachment;
     }
 
     function addFile(AttachmentFile $file) {
@@ -433,7 +433,10 @@ class Mailer {
                     $file = false;
                     foreach ($self->attachments as $id=>$F) {
                         if (strcasecmp($F->getKey(), $match[1]) === 0) {
-                            $file = $F;
+                            if ($F instanceof Attachment)
+                                $file = $F->getFile();
+                            else
+                                $file = $F;
                             break;
                         }
                     }
@@ -452,8 +455,16 @@ class Mailer {
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
             foreach($attachments as $id=>$file) {
+                // Read the filename from the Attachment if possible
+                if ($file instanceof Attachment) {
+                    $filename = $file->getFilename();
+                    $file = $file->getFile();
+                }
+                else {
+                    $filename = $file->getName();
+                }
                 $mime->addAttachment($file->getData(),
-                    $file->getType(), $file->getName(),false);
+                    $file->getType(), $filename, false);
             }
         }
 
