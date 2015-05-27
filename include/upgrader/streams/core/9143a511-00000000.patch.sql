@@ -88,6 +88,9 @@ UPDATE `%TABLE_PREFIX%list` A1
     ON (`config`.`namespace` = CONCAT('list.', A1.`id`) AND `config`.`key` = 'configuration')
   SET A1.`configuration` = `config`.`value`;
 
+-- Rebuild %ticket__cdata as UTF8
+DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket__cdata`;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'

@@ -287,7 +287,7 @@ class DynamicForm extends VerySimpleModel {
 
     static function buildDynamicDataView($cdata) {
         $sql = 'CREATE TABLE `'.$cdata['table'].'` (PRIMARY KEY
-                ('.$cdata['object_id'].')) AS '
+                ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
              .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
         db_query($sql);
     }
