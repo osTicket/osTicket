@@ -173,6 +173,7 @@ CREATE TABLE `%TABLE_PREFIX%list` (
     `sort_mode` enum('Alpha', '-Alpha', 'SortCol') NOT NULL DEFAULT 'Alpha',
     `masks` int(11) unsigned NOT NULL DEFAULT 0,
     `type` VARCHAR( 16 ) NULL DEFAULT NULL,
+    `configuration` text NOT NULL DEFAULT '',
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,

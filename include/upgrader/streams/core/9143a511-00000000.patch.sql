@@ -79,6 +79,15 @@ UPDATE `%TABLE_PREFIX%sla` A1
 ALTER TABLE `%TABLE_PREFIX%ticket`
   ADD `source_extra` varchar(40) NULL default NULL AFTER `source`;
 
+-- Retire %config[namespace=list.x, key=configuration]
+ALTER TABLE `%TABLE_PREFIX%list`
+  ADD `configuration` text NOT NULL DEFAULT '' AFTER `type`;
+
+UPDATE `%TABLE_PREFIX%list` A1
+  JOIN (SELECT `value` FROM `%TABLE_PREFIX%config`) `config`
+    ON (`config`.`namespace` = CONCAT('list.', A1.`id`) AND `config`.`key` = 'configuration')
+  SET A1.`configuration` = `config`.`value`;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'

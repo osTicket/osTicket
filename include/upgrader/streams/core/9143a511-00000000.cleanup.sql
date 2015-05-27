@@ -58,3 +58,6 @@ ALTER TABLE `%TABLE_PREFIX%sla`
 
 DELETE FROM `%TABLE_PREFIX%config`
 WHERE `key`='transient' AND `namespace` LIKE 'sla.%';
+
+DELETE FROM `%TABLE_PREFIX%config`
+WHERE `key`='configuration' AND `namespace` LIKE 'list.%';

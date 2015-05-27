@@ -148,12 +148,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     var $_items;
     var $_form;
-    var $_config;
-
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
-        $this->_config = new Config('list.'.$this->getId());
-    }
 
     function getId() {
         return $this->get('id');
@@ -318,7 +312,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function getConfiguration() {
-        return JsonDataParser::parse($this->_config->get('configuration'));
+        return JsonDataParser::parse($this->configuration);
     }
 
     function getTranslateTag($subtag) {
@@ -402,6 +396,10 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     static function create($ht=false, &$errors=array()) {
+        if (isset($ht['configuration'])) {
+            $ht['configuration'] = JsonDataEncoder::encode($ht['configuration']);
+        }
+
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
 
@@ -410,12 +408,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $ht['properties']['type'] = 'L'.$inst->getId();
             $form = DynamicForm::create($ht['properties']);
             $form->save();
-        }
-
-        if (isset($ht['configuration'])) {
-            $inst->save();
-            $c = new Config('list.'.$inst->getId());
-            $c->set('configuration', JsonDataEncoder::encode($ht['configuration']));
         }
 
         if (isset($ht['items'])) {
