@@ -209,6 +209,7 @@ class Mailer {
         if (count($parts) < 2)
             return $rv;
 
+        $self = get_called_class();
         $decoders = array(
         'A' => function($id, $tag) use ($sig) {
             // Old format was VA-B-C-D@sig, where C was the packed tag and D
@@ -221,11 +222,11 @@ class Mailer {
             }
             return false;
         },
-        'B' => function($id, $tag) {
+        'B' => function($id, $tag) use ($self) {
             $format = 'Vuid/VentryId/VthreadId/auserClass/a*sig';
             if ($tag && ($tag = base64_decode($tag))) {
                 $info = unpack($format, $tag);
-                $sysid = static::getSystemMessageIdCode();
+                $sysid = $self::getSystemMessageIdCode();
                 $shorttag = substr($tag, 0, 13);
                 $chksig = substr(hash_hmac('sha1', $shorttag.$id.$sysid,
                     SECRET_SALT, true), -5);
