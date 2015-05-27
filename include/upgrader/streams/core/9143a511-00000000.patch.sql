@@ -63,6 +63,19 @@ UPDATE `%TABLE_PREFIX%department` A1
     ON (`config`.`namespace` = CONCAT('dept.', A1.`id`) AND `config`.`key` = 'assign_members_only')
   SET A1.`flags` = 1 WHERE `config`.`value` != '';
 
+-- Migrate %config[namespace=sla.x, key=transient]
+ALTER TABLE `%TABLE_PREFIX%sla`
+  ADD `flags` int(10) unsigned NOT NULL default 3 AFTER `id`;
+
+UPDATE `%TABLE_PREFIX%sla` A1
+  SET A1.`flags` =
+      (CASE WHEN A1.`isactive` THEN 1 ELSE 0 END)
+    | (CASE WHEN A1.`enable_priority_escalation` THEN 2 ELSE 0 END)
+    | (CASE WHEN A1.`disable_overdue_alerts` THEN 4 ELSE 0 END)
+    | (CASE WHEN (SELECT `value` FROM `%TABLE_PREFIX%config` `config`
+            WHERE`config`.`namespace` = CONCAT('sla.', A1.`id`) AND `config`.`key` = 'transient')
+            = '1' THEN 8 ELSE 0 END);
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'

@@ -83,9 +83,7 @@ CREATE TABLE `%TABLE_PREFIX%sequence` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
-  `isactive` tinyint(1) unsigned NOT NULL default '1',
-  `enable_priority_escalation` tinyint(1) unsigned NOT NULL default '1',
-  `disable_overdue_alerts` tinyint(1) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default 3,
   `grace_period` int(10) unsigned NOT NULL default '0',
   `name` varchar(64) NOT NULL default '',
   `notes` text,

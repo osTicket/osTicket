@@ -41,9 +41,20 @@ SET @s = (SELECT IF(
 PREPARE stmt FROM @s;
 EXECUTE stmt;
 
+-- Retire %team.[flag fields]
 ALTER TABLE `%TABLE_PREFIX%team`
     DROP `isenabled`,
     DROP `noalerts`;
 
+-- Retire %dept.[flag fields]
 DELETE FROM `%TABLE_PREFIX%config`
 WHERE `key`='assign_members_only' AND `namespace` LIKE 'dept.%';
+
+-- Retire %sla.[flag fields]
+ALTER TABLE `%TABLE_PREFIX%sla`
+  DROP `isactive`,
+  DROP `enable_priority_escalation`,
+  DROP `disable_overdue_alerts`;
+
+DELETE FROM `%TABLE_PREFIX%config`
+WHERE `key`='transient' AND `namespace` LIKE 'sla.%';
