@@ -91,6 +91,18 @@ UPDATE `%TABLE_PREFIX%list` A1
 -- Rebuild %ticket__cdata as UTF8
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket__cdata`;
 
+-- Move `enable_html_thread` to `enable_richtext`
+UPDATE `%TABLE_PREFIX%config`
+  SET `key` = 'enable_richtext'
+  WHERE `namespace` = 'core' AND `key` = 'enable_html_thread';
+
+SET @name_format = (SELECT `value` FROM `%TABLE_PREFIX%config` A1
+    WHERE A1.`namespace` = 'core' AND A1.`key` = 'name_format');
+INSERT INTO `%TABLE_PREFIX%config`
+    (`namespace`, `key`, `value`) VALUES
+    ('core', 'agent_name_format', @name_format),
+    ('core', 'client_name_format', @name_format);
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'

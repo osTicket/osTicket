@@ -154,7 +154,7 @@ class OsticketConfig extends Config {
     var $defaults = array(
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
-        'enable_html_thread' => true,
+        'enable_richtext' => true,
         'allow_attachments' =>  true,
         'name_format' =>        'full', # First Last
         'auto_claim_tickets'=>  true,
@@ -361,7 +361,7 @@ class OsticketConfig extends Config {
     }
 
     function isHtmlThreadEnabled() {
-        return $this->get('enable_html_thread');
+        return $this->get('enable_richtext');
     }
 
     function getClientTimeout() {
@@ -1132,7 +1132,7 @@ class OsticketConfig extends Config {
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
-            'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
+            'enable_richtext'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
         ));
