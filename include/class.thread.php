@@ -1421,7 +1421,7 @@ RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
 class ThreadEvent extends VerySimpleModel {
     static $meta = array(
-        'table' => TICKET_EVENT_TABLE,
+        'table' => THREAD_EVENT_TABLE,
         'pk' => array('id'),
         'joins' => array(
             // Originator of activity
