@@ -606,6 +606,8 @@ class MysqlSearchBackend extends SearchBackend {
         // FILES ------------------------------------
 
         // Flush non-full batch of records
+        $this->__index(null, true);
+
         if (!$this->_reindexed) {
             // Stop rebuilding the index
             $this->getConfig()->set('reindex', 0);
