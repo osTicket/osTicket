@@ -674,6 +674,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `flags` int(10) unsigned NOT NULL default '0',
   `ip_address` varchar(64) NOT NULL default '',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
+  `source_extra` varchar(40) NULL default NULL,
   `isoverdue` tinyint(1) unsigned NOT NULL default '0',
   `isanswered` tinyint(1) unsigned NOT NULL default '0',
   `duedate` datetime default NULL,

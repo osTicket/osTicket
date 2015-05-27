@@ -76,6 +76,9 @@ UPDATE `%TABLE_PREFIX%sla` A1
             WHERE`config`.`namespace` = CONCAT('sla.', A1.`id`) AND `config`.`key` = 'transient')
             = '1' THEN 8 ELSE 0 END);
 
+ALTER TABLE `%TABLE_PREFIX%ticket`
+  ADD `source_extra` varchar(40) NULL default NULL AFTER `source`;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'
