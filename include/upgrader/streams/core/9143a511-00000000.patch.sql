@@ -103,6 +103,12 @@ INSERT INTO `%TABLE_PREFIX%config`
     ('core', 'agent_name_format', @name_format),
     ('core', 'client_name_format', @name_format);
 
+-- Drop search table and turn on reindexing
+DROP TABLE IF EXISTS `%TABLE_PREFIX%_search`;
+
+UPDATE `%TABLE_PREFIX%config` SET `value` = '1'
+  WHERE `key` = 'reindex' and `namespace` = 'mysqlsearch';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'
