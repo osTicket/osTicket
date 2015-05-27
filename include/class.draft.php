@@ -21,15 +21,18 @@ class Draft extends VerySimpleModel {
     static $meta = array(
         'table' => DRAFT_TABLE,
         'pk' => array('id'),
+        'joins' => array(
+            'attachments' => array(
+                'constraint' => array(
+                    "'D'" => 'Attachment.type',
+                    'id' => 'Attachment.object_id',
+                ),
+                'list' => true,
+                'null' => true,
+                'broker' => 'GenericAttachments',
+            ),
+        ),
     );
-
-    var $attachments;
-
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
-        if (isset($this->id))
-            $this->attachments = new GenericAttachments($this->id, 'D');
-    }
 
     function getId() { return $this->id; }
     function getBody() { return $this->body; }

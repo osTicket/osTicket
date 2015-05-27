@@ -32,11 +32,12 @@ class FAQ extends VerySimpleModel {
             ),
             'attachments' => array(
                 'constraint' => array(
-                    "'F'" => 'GenericAttachment.type',
-                    'faq_id' => 'GenericAttachment.object_id',
+                    "'F'" => 'Attachment.type',
+                    'faq_id' => 'Attachment.object_id',
                 ),
                 'list' => true,
                 'null' => true,
+                'broker' => 'GenericAttachments',
             ),
             'topics' => array(
                 'constraint' => array(
@@ -57,24 +58,20 @@ class FAQ extends VerySimpleModel {
                 'primary' => true,
             ));
 
-    var $attachments;
     var $topics;
     var $_local;
+    var $_attachments;
 
     const VISIBILITY_PRIVATE = 0;
     const VISIBILITY_PUBLIC = 1;
     const VISIBILITY_FEATURED = 2;
-
-    function __onload() {
-        if (isset($this->faq_id))
-            $this->attachments = new GenericAttachments($this->getId(), 'F');
-    }
 
     /* ------------------> Getter methods <--------------------- */
     function getId() { return $this->faq_id; }
     function getHashtable() {
         $base = $this->ht;
         unset($base['category']);
+        unset($base['attachments']);
         return $base;
     }
     function getKeywords() { return $this->keywords; }
@@ -148,10 +145,6 @@ class FAQ extends VerySimpleModel {
     function setKeywords($words) { $this->keywords = $words; }
     function setNotes($text) { $this->notes = $text; }
 
-    /* For ->attach() and ->detach(), use $this->attachments() (nolint) */
-    function attach($file) { return $this->attachments->add($file); }
-    function detach($file) { return $this->attachments->remove($file); }
-
     function publish() {
         $this->setPublished(1);
         return $this->save();
@@ -169,7 +162,7 @@ class FAQ extends VerySimpleModel {
 
     function printPdf() {
         global $thisstaff;
-        require_once(INCLUDE_DIR.'mpdf/mpdf.php');
+        require_once(INCLUDE_DIR.'class.pdf.php');
 
         $paper = 'Letter';
         if ($thisstaff)
@@ -180,7 +173,7 @@ class FAQ extends VerySimpleModel {
         include STAFFINC_DIR . 'templates/faq-print.tmpl.php';
         $html = ob_get_clean();
 
-        $pdf = new mPDF('', $paper);
+        $pdf = new mPDFWithLocalImages('', $paper);
         // Setup HTML writing and load default thread stylesheet
         $pdf->WriteHtml(
             '<style>
@@ -190,7 +183,7 @@ class FAQ extends VerySimpleModel {
             .thread-body { font-family: serif; }'
             .file_get_contents(ROOT_DIR.'css/thread.css')
             .'</style>'
-            .'<div>'.$html.'</div>');
+            .'<div>'.$html.'</div>', 0, true, true);
 
         $pdf->Output(Format::slugify($faq->getQuestion()) . '.pdf', 'I');
     }
@@ -215,8 +208,11 @@ class FAQ extends VerySimpleModel {
     function getLocalQuestion($lang=false) {
         return $this->_getLocal('question', $lang);
     }
-    function getLocalAnswerWithImages($lang=false) {
+    function getLocalAnswer($lang=false) {
         return $this->_getLocal('answer', $lang);
+    }
+    function getLocalAnswerWithImages($lang=false) {
+        return Format::viewableImages($this->getLocalAnswer($lang));
     }
     function _getLocal($what, $lang=false) {
         if (!$lang) {
@@ -241,8 +237,10 @@ class FAQ extends VerySimpleModel {
     }
 
     function getLocalAttachments($lang=false) {
-        return $this->attachments->getSeparates(
-            $lang ?: $this->getDisplayLang());
+        return $this->attachments->getSeparates()->filter(Q::any(array(
+            'lang__isnull' => true,
+            'lang' => $lang ?: $this->getDisplayLang(),
+        )));
     }
 
     function updateTopics($ids){
@@ -314,16 +312,18 @@ class FAQ extends VerySimpleModel {
         return true;
     }
 
-    function getVisibleAttachments() {
-        return array_merge(
-            $this->attachments->getSeparates()->all() ?: array(),
-            $this->getLocalAttachments()->all());
+    function getAttachments($lang=false) {
+        $att = $this->attachments;
+        if ($lang)
+            $att = $att->window(array('lang'=>$lang));
+
+        return $att;
     }
 
     function getAttachmentsLinks($separator=' ',$target='') {
 
         $str='';
-        if ($attachments = $this->getVisibleAttachments()) {
+        if ($attachments = $this->getLocalAttachments()->all()) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
             if($attachment['size'])
@@ -441,15 +441,15 @@ class FAQ extends VerySimpleModel {
         // Delete removed attachments.
         if (isset($vars['files'])) {
             $keepers = $vars['files'];
-            if (($attachments = $this->attachments->getSeparates())) {
-                foreach($attachments as $file) {
-                    if($file['id'] && !in_array($file['id'], $keepers))
-                        $this->attachments->delete($file['id']);
-                }
-            }
         }
-        // Upload new attachments IF any.
-        $this->attachments->upload($keepers);
+        else {
+            $keepers = array();
+        }
+
+        $images = Draft::getAttachmentIds($vars['answer']);
+        $images = array_map(function($i) { return $i['id']; }, $images);
+        $keepers = array_merge($keepers, $images);
+        $this->getAttachments()->keepOnlyFileIds($keepers);
 
         // Handle language-specific attachments
         // ----------------------
@@ -463,21 +463,11 @@ class FAQ extends VerySimpleModel {
 
                 $keepers = $vars['files_'.$lang];
 
-                // Delete removed attachments.
-                if (($attachments = $this->attachments->getSeparates($lang))) {
-                    foreach ($attachments as $file) {
-                        if ($file['id'] && !in_array($file['id'], $keepers))
-                            $this->attachments->delete($file['id']);
-                    }
-                }
-                // Upload new attachments IF any.
-                $this->attachments->upload($keepers, false, $lang);
+                // FIXME: Include inline images in translated content
+
+                $this->getAttachments()->keepOnlyFileIds($keepers, false, $lang);
             }
         }
-
-        // Inline images (attached to the draft)
-        $this->attachments->deleteInlines();
-        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
 
         if (isset($vars['trans']) && !$this->saveTranslations($vars))
             return false;

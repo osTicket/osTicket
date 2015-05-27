@@ -507,7 +507,7 @@ class EmailTemplate {
 
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
-        $this->attachments = new GenericAttachments($this->id, 'T');
+        $this->attachments = GenericAttachments::forIdAndType($this->id, 'T');
 
         return true;
     }
@@ -586,12 +586,10 @@ class EmailTemplate {
         $this->reload();
 
         // Inline images (attached to the draft)
-        if (isset($vars['draft_id']) && $vars['draft_id']) {
-            if ($draft = Draft::lookup($vars['draft_id'])) {
-                $this->attachments->deleteInlines();
-                $this->attachments->upload($draft->getAttachmentIds($this->getBody()), true);
-            }
-        }
+        $keepers = Draft::getAttachmentIds($this->getBody());
+        // Just keep the IDs only
+        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $this->attachments->keepOnlyFileIds($keepers, true);
 
         return true;
     }

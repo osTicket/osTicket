@@ -119,6 +119,9 @@ class Form {
                 if (!$field->hasData())
                     continue;
 
+                // Prefer indexing by field.id if indexing numerically
+                if (is_int($key) && $field->get('id'))
+                    $key = $field->get('id');
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
                     = $field->getClean();
             }
@@ -2233,7 +2236,7 @@ class FileUploadField extends FormField {
         if (!isset($this->attachments) && ($a = $this->getAnswer())
             && ($e = $a->getEntry()) && ($e->get('id'))
         ) {
-            $this->attachments = new GenericAttachments(
+            $this->attachments = GenericAttachments::forIdAndType(
                 // Combine the field and entry ids to make the key
                 sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
                 'E');
@@ -2304,19 +2307,7 @@ class FileUploadField extends FormField {
     function to_database($value) {
         $this->getFiles();
         if (isset($this->attachments)) {
-            $ids = array();
-            // Handle deletes
-            foreach ($this->attachments->getAll() as $f) {
-                if (!in_array($f->id, $value))
-                    $this->attachments->delete($f->id);
-                else
-                    $ids[] = $f->id;
-            }
-            // Handle new files
-            foreach ($value as $id) {
-                if (!in_array($id, $ids))
-                    $this->attachments->upload($id);
-            }
+            $this->attachments->keepOnlyFileIds($value);
         }
         return JsonDataEncoder::encode($value);
     }
@@ -3037,19 +3028,26 @@ class FileUploadWidget extends Widget {
         $mimetypes = array_filter($config['__mimetypes'],
             function($t) { return strpos($t, '/') !== false; }
         );
-        $files = array();
-        foreach ($this->value ?: array() as $fid) {
-            $found = false;
-            foreach ($attachments as $f) {
-                $file = $f->file;
-                $files[] = array(
-                    'id' => $file->getId(),
-                    'name' => $file->getName(),
-                    'type' => $file->getType(),
-                    'size' => $file->getSize(),
-                    'download_url' => $file->getDownloadUrl(),
-                );
-            }
+        $files = $F = array();
+        $new = array_fill_keys($this->field->getClean(), 1);
+        foreach ($attachments as $f) {
+            $F[] = $f->file;
+            unset($new[$file->id]);
+        }
+        // Add in newly added files not yet saved (if redisplaying after an
+        // error)
+        if ($new) {
+            $F = array_merge($F, AttachmentFile::objects()->filter(array(
+                'id__in' => array_keys($new)))->all());
+        }
+        foreach ($F as $file) {
+            $files[] = array(
+                'id' => $file->getId(),
+                'name' => $file->getName(),
+                'type' => $file->getType(),
+                'size' => $file->getSize(),
+                'download_url' => $file->getDownloadUrl(),
+            );
         }
         ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
@@ -3081,10 +3079,9 @@ class FileUploadWidget extends Widget {
     }
 
     function getValue() {
-        $data = $this->field->getSource();
-        $ids = array();
         // Handle manual uploads (IE<10)
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES[$this->name])) {
+            $ids = array();
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
                     $F = $this->field->uploadFile($file);
@@ -3095,10 +3092,7 @@ class FileUploadWidget extends Widget {
             return array_merge($ids, parent::getValue() ?: array());
         }
         // If no value was sent, assume an empty list
-        elseif ($data && is_array($data) && !isset($data[$this->name]))
-            return array();
-
-        return parent::getValue();
+        return parent::getValue() ?: array();
     }
 }
 

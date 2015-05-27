@@ -130,23 +130,13 @@ else {
         // Multi-lingual system
         foreach ($langs as $lang) {
             $attachments = $faq_form->getField('attachments.'.$lang);
-            if ($files = $faq->attachments->getSeparates($lang)) {
-                $ids = array();
-                foreach ($files as $f)
-                    $ids[] = $f['id'];
-                $attachments->value = $ids;
-            }
+            $attachments->setAttachments($faq->getAttachments($lang));
         }
     }
     if ($faq) {
         // Common attachments
         $attachments = $faq_form->getField('attachments');
-        if ($files = $faq->attachments->getSeparates()) {
-            $ids = array();
-            foreach ($files as $f)
-                $ids[] = $f['id'];
-            $attachments->value = $ids;
-        }
+        $attachments->setAttachments($faq->getAttachments());
     }
 }
 

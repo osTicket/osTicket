@@ -24,15 +24,19 @@ class Page extends VerySimpleModel {
             'topics' => array(
                 'reverse' => 'Topic.page',
             ),
+            'attachments' => array(
+                'constraint' => array(
+                    "'P'" => 'Attachment.type',
+                    'id' => 'Attachment.object_id',
+                ),
+                'list' => true,
+                'null' => true,
+                'broker' => 'GenericAttachments',
+            ),
         ),
     );
 
-    var $attachments;
     var $_local;
-
-    function __onload() {
-        $this->attachments = new GenericAttachments($this->id, 'P');
-    }
 
     function getId() {
         return $this->id;
@@ -285,9 +289,9 @@ class Page extends VerySimpleModel {
             $rv = $this->saveTranslations($vars, $errors);
 
         // Attach inline attachments from the editor
-        $this->attachments->deleteInlines();
-        $this->attachments->upload(
-            Draft::getAttachmentIds($vars['body']), true);
+        $keepers = Draft::getAttachmentIds($vars['body']);
+        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $this->attachments->keepOnlyFileIds($keepers, true);
 
         if ($rv)
             return $rv;

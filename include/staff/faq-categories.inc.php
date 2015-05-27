@@ -15,7 +15,6 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
                 ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
                 ->filter(array('faq_count__gt'=>0))
                 ->order_by('name');
-print $categories;
             foreach ($categories as $C) {
                 echo sprintf('<option value="%d" %s>%s (%d)</option>',
                     $C->getId(),

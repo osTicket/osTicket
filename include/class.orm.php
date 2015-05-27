@@ -96,6 +96,12 @@ class ModelMeta implements ArrayAccess {
                     = explode('.', $foreign);
             }
         }
+        if ($j['list'] && !isset($j['broker'])) {
+            $j['broker'] = 'InstrumentedList';
+        }
+        if ($j['broker'] && !class_exists($j['broker'])) {
+            throw new OrmException($j['broker'] . ': List broker does not exist');
+        }
         foreach ($constraint as $local => $foreign) {
             list($class, $field) = $foreign;
             if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
@@ -193,7 +199,7 @@ class VerySimpleModel {
                     $fkey[$F ?: $_klas] = ($local[0] == "'")
                         ? trim($local, "'") : $this->ht[$local];
                 }
-                $v = $this->ht[$field] = new InstrumentedList(
+                $v = $this->ht[$field] = new $j['broker'](
                     // Send Model, [Foriegn-Field => Local-Id]
                     array($class, $fkey)
                 );
@@ -1381,7 +1387,11 @@ class InstrumentedList extends ModelInstanceManager {
 
     function add($object, $at=false) {
         if (!$object || !$object instanceof $this->model)
-            throw new Exception(__('Attempting to add invalid object to list'));
+            throw new Exception(sprintf(
+                'Attempting to add invalid object to list. Expected <%s>, but got <%s>',
+                $this->model,
+                get_class($object)
+            ));
 
         foreach ($this->key as $field=>$value)
             $object->set($field, $value);
@@ -1405,6 +1415,23 @@ class InstrumentedList extends ModelInstanceManager {
 
     function reset() {
         $this->cache = array();
+    }
+
+    /**
+     * Reduce the list to a subset using a simply key/value constraint. New
+     * items added to the subset will have the constraint automatically
+     * added to all new items.
+     */
+    function window($constraint) {
+        $model = $this->model;
+        $meta = $model::$meta;
+        $key = $this->key;
+        foreach ($constraint as $field=>$value) {
+            if (!is_string($field) || false === in_array($field, $meta['fields']))
+                throw new OrmException('InstrumentedList windowing must be performed on local fields only');
+            $key[$field] = $value;
+        }
+        return new static(array($this->model, $key), $this->filter($constraint));
     }
 
     // QuerySet delegates

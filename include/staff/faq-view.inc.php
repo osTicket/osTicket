@@ -12,14 +12,14 @@ $category=$faq->getCategory();
 </div>
 
 <div class="pull-right sidebar faq-meta">
-<?php if ($attachments = $faq->getVisibleAttachments()) { ?>
+<?php if ($attachments = $faq->getLocalAttachments()->all()) { ?>
 <section>
     <strong><?php echo __('Attachments');?>:</strong>
 <?php foreach ($attachments as $att) { ?>
     <div>
-    <a href="file.php?h=<?php echo $att['download']; ?>" class="no-pjax">
+    <a href="<?php echo $att->file->getDownloadUrl(); ?>" class="no-pjax">
         <i class="icon-file"></i>
-        <?php echo Format::htmlchars($att['name']); ?>
+        <?php echo Format::htmlchars($att->file->name); ?>
     </a>
     </div>
 <?php } ?>
@@ -67,24 +67,22 @@ if ($otherLangs) { ?>
 
 <div class="faq-content">
 <div class="faq-manage pull-right">
-    <button>
-    <i class="icon-print"></i>
 <?php
 $query = array();
 parse_str($_SERVER['QUERY_STRING'], $query);
 $query['a'] = 'print';
 $query['id'] = $faq->getId();
 $query = http_build_query($query); ?>
-    <a href="faq.php?<?php echo $query; ?>" class="no-pjax"><?php
-        echo __('Print'); ?>
-    </a></button>
+    <a href="faq.php?<?php echo $query; ?>" class="no-pjax action-button">
+    <i class="icon-print"></i>
+        <?php echo __('Print'); ?>
+    </a>
 <?php
 if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
-    <button>
+    <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="action-button">
     <i class="icon-edit"></i>
-    <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit"><?php
-        echo __('Edit FAQ'); ?>
-    </a></button>
+        <?php echo __('Edit FAQ'); ?>
+    </a>
 <?php } ?>
 </div>
 
@@ -92,7 +90,7 @@ if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
 </div>
 
 <div class="faded"><?php echo __('Last updated');?>
-    <?php echo Format::daydatetime($category->getUpdateDate()); ?>
+    <?php echo Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?>
 </div>
 <br/>
 <div class="thread-body bleed">

@@ -48,27 +48,17 @@ if ($_POST) {
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
                 $keepers = $canned_form->getField('attachments')->getClean();
-                $attachments = $canned->attachments->getSeparates(); //current list of attachments.
-                foreach($attachments as $k=>$file) {
-                    if(isset($file->id) && !in_array($file->id, $keepers)) {
-                        $canned->attachments->delete($file->id);
-                    }
-                }
-
-                //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                if ($keepers)
-                    $canned->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
-                    $canned->attachments->deleteInlines();
-                    $canned->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']),
-                        true);
+                    $images = $draft->getAttachmentIds($_POST['response']);
+                    $images = array_map(function($i) { return $i['id']; }, $images);
+                    $keepers = array_merge($keepers, $images);
                 }
 
-                $canned->reload();
+                // Upload NEW attachments IF ANY - TODO: validate attachment types??
+                $canned->attachments->keepOnlyFileIds($keepers);
 
                 // XXX: Handle nicely notifying a user that the draft was
                 // deleted | OR | show the draft for the user on the name
@@ -83,18 +73,19 @@ if ($_POST) {
             }
             break;
         case 'create':
-            if(($id=Canned::create($_POST, $errors))) {
+            $premade = FAQ::create();
+            if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
-                if (($c=Canned::lookup($id)) && $keepers)
-                    $c->attachments->upload($keepers);
+                if ($keepers)
+                    $premade->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
-                if ($c && isset($_POST['draft_id'])
+                if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id'])))
-                    $c->attachments->upload(
+                    $premade->attachments->upload(
                         $draft->getAttachmentIds($_POST['response']), true);
 
                 // Delete this user's drafts for new canned-responses

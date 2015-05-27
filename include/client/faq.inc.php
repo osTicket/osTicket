@@ -17,10 +17,11 @@ $category=$faq->getCategory();
 <div class="article-title flush-left">
 <?php echo $faq->getLocalQuestion() ?>
 </div>
-<div class="faded"><?php echo __('Last updated').' '.Format::daydatetime($category->getUpdateDate()); ?></div>
+<div class="faded"><?php echo __('Last updated').' '
+    . Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?></div>
 <br/>
 <div class="thread-body bleed">
-<?php echo Format::safe_html($faq->getLocalAnswerWithImages()); ?>
+<?php echo $faq->getLocalAnswerWithImages(); ?>
 </div>
 </div>
 </div>
@@ -35,8 +36,8 @@ $category=$faq->getCategory();
     <input type="submit" style="display:none" value="search"/>
     </form>
 </div>
-<div class="content">
-<?php if ($attachments = $faq->getVisibleAttachments()) { ?>
+<div class="content"><?php
+    if ($attachments = $faq->getLocalAttachments()->all()) { ?>
 <section>
     <strong><?php echo __('Attachments');?>:</strong>
 <?php foreach ($attachments as $att) { ?>
@@ -48,17 +49,16 @@ $category=$faq->getCategory();
     </div>
 <?php } ?>
 </section>
-<?php } ?>
-
-<?php if ($faq->getHelpTopics()->count()) { ?>
+<?php }
+if ($faq->getHelpTopics()->count()) { ?>
 <section>
     <strong><?php echo __('Help Topics'); ?></strong>
 <?php foreach ($faq->getHelpTopics() as $topic) { ?>
     <div><?php echo $topic->getFullName(); ?></div>
 <?php } ?>
 </section>
-<?php } ?>
-</div>
+<?php }
+?></div>
 </div>
 </div>
 

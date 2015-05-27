@@ -632,7 +632,10 @@ $.dialog = function (url, codes, cb, options) {
         $('div.body', $popup).slideDown({
             duration: 300,
             queue: false,
-            complete: function() { if (options.onshow) options.onshow(); }
+            complete: function() {
+                if (options.onshow) options.onshow();
+                $(this).removeAttr('style');
+            }
         });
         $("input[autofocus]:visible:enabled:first", $popup).focus();
         var submit_button = null;

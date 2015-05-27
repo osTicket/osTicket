@@ -90,25 +90,30 @@ class Attachment extends VerySimpleModel {
     }
 }
 
-class GenericAttachment extends VerySimpleModel {
-    static $meta = array(
-        'table' => ATTACHMENT_TABLE,
-        'pk' => array('id'),
-    );
-}
+class GenericAttachments
+extends InstrumentedList {
 
-class GenericAttachments {
+    var $lang;
 
-    var $id;
-    var $type;
+    function getId() { return $this->key['object_id']; }
+    function getType() { return $this->key['type']; }
 
-    function GenericAttachments($object_id, $type) {
-        $this->id = $object_id;
-        $this->type = $type;
+    /**
+     * Drop attachments whose file_id values are not in the included list,
+     * additionally, add new files whose IDs are in the list provided.
+     */
+    function keepOnlyFileIds($ids, $inline=false, $lang=false) {
+        $new = array_fill_keys($ids, 1);
+        foreach ($this as $A) {
+            $idx = array_search($A->file_id, $ids);
+            if ($idx === false && (!$A->lang || $A->lang == $lang))
+                // Not in the $ids list, delete
+                $this->remove($A);
+            unset($new[$A->file_id]);
+        }
+        // Everything remaining in $new is truly new
+        $this->upload(array_keys($new), $inline, $lang);
     }
-
-    function getId() { return $this->id; }
-    function getType() { return $this->type; }
 
     function upload($files, $inline=false, $lang=false) {
         $i=array();
@@ -125,12 +130,10 @@ class GenericAttachments {
 
             $_inline = isset($file['inline']) ? $file['inline'] : $inline;
 
-            $att = Attachment::create(array(
-                'type' => $this->getType(),
-                'object_id' => $this->getId(),
+            $att = $this->add(Attachment::create(array(
                 'file_id' => $fileId,
                 'inline' => $_inline ? 1 : 0,
-            ));
+            )));
             if ($lang)
                 $att->lang = $lang;
 
@@ -139,31 +142,12 @@ class GenericAttachments {
             $att->save();
             $i[] = $fileId;
         }
-
         return $i;
     }
 
     function save($file, $inline=true) {
-
-        if (is_numeric($file))
-            $fileId = $file;
-        elseif (is_array($file) && isset($file['id']))
-            $fileId = $file['id'];
-        elseif ($file = AttachmentFile::create($file))
-            $fileId = $file->getId();
-        else
-            return false;
-
-        $att = Attachment::create(array(
-            'type' => $this->getType(),
-            'object_id' => $this->getId(),
-            'file_id' => $fileId,
-            'inline' => $inline ? 1 : 0,
-        ));
-        if (!$att->save())
-            return false;
-
-        return $fileId;
+        $ids = $this->upload($file, $inline);
+        return $ids[0];
     }
 
     function getInlines($lang=false) { return $this->_getList(false, true, $lang); }
@@ -171,34 +155,43 @@ class GenericAttachments {
     function getAll($lang=false) { return $this->_getList(true, true, $lang); }
     function count($lang=false) { return count($this->getSeparates($lang)); }
 
-    function _getList($separate=false, $inlines=false, $lang=false) {
-        return Attachment::objects()->filter(array(
-            'type' => $this->getType(),
-            'object_id' => $this->getId(),
-        ));
+    function _getList($separates=false, $inlines=false, $lang=false) {
+        $base = $this;
+
+        if ($separates && !$inline)
+            $base = $base->filter(array('inline' => 0));
+        elseif (!$separates && $inline)
+            $base = $base->filter(array('inline' => 1));
+
+        if ($lang)
+            $base = $base->filter(array('lang' => $lang));
+        else
+            $base = $base->filter(array('lang__isnull' => true));
+
+        return $base;
     }
 
     function delete($file_id) {
-        return Attachment::objects()->filter(array(
-            'type' => $this->getType(),
-            'object_id' => $this->getId(),
-            'file_id' => $file_id,
-        ))->delete();
+        return $this->objects()->filter(array('file_id'=>$file_id))->delete();
     }
 
     function deleteAll($inline_only=false){
-        $objects = Attachment::objects()->filter(array(
-            'type' => $this->getType(),
-            'object_id' => $this->getId(),
-        ));
+        $objects = $this;
         if ($inline_only)
-            $objects->filter(array('inline' => 1));
+            $objects = $objects->filter(array('inline' => 1));
 
         return $objects->delete();
     }
 
     function deleteInlines() {
         return $this->deleteAll(true);
+    }
+
+    static function forIdAndType($id, $type) {
+        return new static(array(
+            'Attachment',
+            array('object_id' => $id, 'type' => $type)
+        ));
     }
 }
 ?>
