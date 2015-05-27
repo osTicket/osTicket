@@ -664,7 +664,7 @@ class Task extends TaskModel implements Threadable {
         $where2 = '';
 
         if(($teams=$staff->getTeams()))
-            $where[] = ' ( flags.team_id IN('.implode(',', db_input(array_filter($teams)))
+            $where[] = ' ( task.team_id IN('.implode(',', db_input(array_filter($teams)))
                         .') AND '
                         .sprintf('task.flags & %d != 0 ', TaskModel::ISOPEN)
                         .')';

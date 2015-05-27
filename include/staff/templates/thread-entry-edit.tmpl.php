@@ -31,7 +31,7 @@
 <?php } ?>
     name="body"
     class="large <?php
-        if ($cfg->isHtmlThreadEnabled() && $this->entry->format == 'html')
+        if ($cfg->isRichTextEnabled() && $this->entry->format == 'html')
             echo 'richtext';
     ?>"><?php echo Format::viewableImages($this->entry->body);
 ?></textarea>

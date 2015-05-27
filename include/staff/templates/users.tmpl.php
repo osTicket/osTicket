@@ -92,7 +92,7 @@ if ($num) { ?>
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
 
-                $name = new PersonsName($row['name']);
+                $name = new UsersName($row['name']);
                 $status = 'Active';
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))

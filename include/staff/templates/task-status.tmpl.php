@@ -76,7 +76,7 @@ $action = $info[':action'] ?: ('#tasks/mass/'. $action);
                         ?>
                         <textarea name="comments" id="comments"
                             cols="50" rows="3" wrap="soft" style="width:100%"
-                            class="<?php if ($cfg->isHtmlThreadEnabled()) echo 'richtext';
+                            class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> no-bar"
                             placeholder="<?php echo $placeholder; ?>"><?php
                             echo $info['comments']; ?></textarea>

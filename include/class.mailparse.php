@@ -303,7 +303,7 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($cfg && $cfg->isHtmlThreadEnabled()) {
+        if ($cfg && $cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($this->struct,'text/html'))
                 $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($this->struct,'text/plain'))

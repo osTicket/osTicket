@@ -155,13 +155,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Agent Collision Avoidance Duration'); ?>:</td>
-            <td>
-                <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
-                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;<?php echo __('minutes'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#agent_collision_avoidance"></i>
-            </td>
-        </tr>
-        <tr>
             <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
@@ -204,21 +197,12 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Enable HTML Ticket Thread'); ?>:</td>
-            <td>
-                <input type="checkbox" name="enable_html_thread" <?php
-                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
-                <?php echo __('Enable rich text in ticket thread and autoresponse emails.'); ?>
-                <i class="help-tip icon-question-sign" href="#enable_html_ticket_thread"></i>
-            </td>
-        </tr>
-        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('EndUser Attachment Settings');?>:</td>
+            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
             <td>
 <?php
                 $tform = TicketForm::objects()->one()->getForm();
@@ -234,60 +218,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
             </td>
         </tr>
-        <tr>
-            <td width="180"><?php echo __(
-                // Maximum size for agent-uploaded files (via SCP)
-                'Agent Maximum File Size');?>:</td>
-            <td>
-                <select name="max_file_size">
-                    <option value="262144">&mdash; <?php echo __('Small'); ?> &mdash;</option>
-                    <?php $next = 512 << 10;
-                    $max = strtoupper(ini_get('upload_max_filesize'));
-                    $limit = (int) $max;
-                    if (!$limit) $limit = 2 << 20; # 2M default value
-                    elseif (strpos($max, 'K')) $limit <<= 10;
-                    elseif (strpos($max, 'M')) $limit <<= 20;
-                    elseif (strpos($max, 'G')) $limit <<= 30;
-                    while ($next <= $limit) {
-                        // Select the closest, larger value (in case the
-                        // current value is between two)
-                        $diff = $next - $config['max_file_size'];
-                        $selected = ($diff >= 0 && $diff < $next / 2)
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $next; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($next);
-                             ?></option><?php
-                        $next *= 2;
-                    }
-                    // Add extra option if top-limit in php.ini doesn't fall
-                    // at a power of two
-                    if ($next < $limit * 2) {
-                        $selected = ($limit == $config['max_file_size'])
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $limit; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($limit);
-                             ?></option><?php
-                    }
-                    ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#max_file_size"></i>
-                <div class="error"><?php echo $errors['max_file_size']; ?></div>
-            </td>
-        </tr>
-        <?php if (($bks = FileStorageBackend::allRegistered())
-                && count($bks) > 1) { ?>
-        <tr>
-            <td width="180"><?php echo __('Store Attachments'); ?>:</td>
-            <td><select name="default_storage_bk"><?php
-                foreach ($bks as $char=>$class) {
-                    $selected = $config['default_storage_bk'] == $char
-                        ? 'selected="selected"' : '';
-                    ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
-                    ><?php echo $class::$desc; ?></option><?php
-                } ?>
-            </td>
-        </tr>
-        <?php } ?>
     </tbody>
 </table>
 </div>

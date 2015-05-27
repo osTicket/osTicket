@@ -417,7 +417,7 @@ class Mailer {
             $isHtml = false;
         }
 
-        if ($isHtml && $cfg && $cfg->isHtmlThreadEnabled()) {
+        if ($isHtml && $cfg && $cfg->isRichTextEnabled()) {
             // Pick a domain compatible with pear Mail_Mime
             $matches = array();
             if (preg_match('#(@[0-9a-zA-Z\-\.]+)#', $this->getFromAddress(), $matches)) {

@@ -2282,7 +2282,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
         foreach ($canned->attachments->getAll() as $file)
             $files[] = $file['id'];
 
-        if ($cfg->isHtmlThreadEnabled())
+        if ($cfg->isRichTextEnabled())
             $response = new HtmlThreadEntryBody(
                     $this->replaceVars($canned->getHtml()));
         else
@@ -3413,7 +3413,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
-            if (!$cfg->isHtmlThreadEnabled()) {
+            if (!$cfg->isRichTextEnabled()) {
                 $vars['note'] = new TextThreadBody($vars['note']);
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
@@ -3438,7 +3438,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
 
             $message = (string) $ticket->getLastMessage();
             if($response) {
-                $message .= ($cfg->isHtmlThreadEnabled()) ? "<br><br>" : "\n\n";
+                $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();
             }
 

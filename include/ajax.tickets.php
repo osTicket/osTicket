@@ -340,7 +340,7 @@ class TicketsAjaxAPI extends AjaxController {
             $response = "<br/><blockquote>{$response->asVar()}</blockquote><br/>";
 
             //  Return text if html thread is not enabled
-            if (!$cfg->isHtmlThreadEnabled())
+            if (!$cfg->isRichTextEnabled())
                 $response = Format::html2text($response, 90);
             else
                 $response = Format::viewableImages($response);
@@ -349,7 +349,7 @@ class TicketsAjaxAPI extends AjaxController {
             return Format::json_encode(array('response' => $response));
         }
 
-        if (!$cfg->isHtmlThreadEnabled())
+        if (!$cfg->isRichTextEnabled())
             $format.='.plain';
 
         $varReplacer = function (&$var) use($ticket) {

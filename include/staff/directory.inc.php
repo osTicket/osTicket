@@ -37,11 +37,11 @@ $sortOptions=array('name'=>array('firstname','lastname'),'email'=>'email','dept'
                    'created'=>'created','login'=>'lastlogin');
 $orderWays=array('DESC'=>'-','ASC'=>'');
 
-switch ($cfg->getDefaultNameFormat()) {
+switch ($cfg->getAgentNameFormat()) {
 case 'last':
 case 'lastfirst':
 case 'legal':
-    $sortOptions['name'] = 'staff.lastname, staff.firstname';
+    $sortOptions['name'] = array('lastname', 'firstname');
     break;
 // Otherwise leave unchanged
 }
