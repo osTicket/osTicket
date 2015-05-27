@@ -21,7 +21,10 @@ implements TemplateVariable {
         'pk' => array('id'),
     );
 
-    //TODO: Use flags
+    const FLAG_ACTIVE       = 0x0001;
+    const FLAG_ESCALATE     = 0x0002;
+    const FLAG_NOALERTS     = 0x0004;
+    const FLAG_TRANSIENT    = 0x0008;
 
     var $_config;
 
@@ -37,19 +40,13 @@ implements TemplateVariable {
         return $this->grace_period;
     }
 
-    function getHashtable() {
-        $this->getHashtable();
-    }
-
     function getInfo() {
-        return array_merge($this->getConfig()->getInfo(), $this->ht);
-    }
-
-    function getConfig() {
-        if (!isset($this->_config))
-            $this->_config = new SlaConfig($this->getId());
-
-        return $this->_config;
+        $base = $this->ht;
+        $base['isactive'] = $this->flags & self::FLAG_ACTIVE;
+        $base['disable_overdue_alerts'] = $this->flags & self::FLAG_NOALERTS;
+        $base['enable_priority_escalation'] = $this->flags & self::FLAG_ESCALATE;
+        $base['transient'] = $this->flags & self::FLAG_TRANSIENT;
+        return $base;
     }
 
     function getCreateDate() {
@@ -61,15 +58,15 @@ implements TemplateVariable {
     }
 
     function isActive() {
-        return ($this->isactive);
+        return $this->flags & self::FLAG_ACTIVE;
     }
 
     function isTransient() {
-        return $this->getConfig()->get('transient', false);
+        return $this->flags & self::FLAG_TRANSIENT;
     }
 
     function sendAlerts() {
-        return $this->disable_overdue_alerts;
+        return 0 === ($this->flags & self::FLAG_NOALERTS);
     }
 
     function alertOnOverdue() {
@@ -77,7 +74,7 @@ implements TemplateVariable {
     }
 
     function priorityEscalation() {
-        return ($this->enable_priority_escalation);
+        return $this->flags && self::FLAG_ESCALATE;
     }
 
     function getTranslateTag($subtag) {
@@ -123,17 +120,17 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
-        $this->isactive = $vars['isactive'];
         $this->name = $vars['name'];
         $this->grace_period = $vars['grace_period'];
-        $this->disable_overdue_alerts = isset($vars['disable_overdue_alerts']) ? 1 : 0;
-        $this->enable_priority_escalation = isset($vars['enable_priority_escalation'])? 1: 0;
         $this->notes = Format::sanitize($vars['notes']);
+        $this->flags =
+              ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
+            | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
+            | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
+            | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
 
-        if ($this->save()) {
-            $this->getConfig()->set('transient', isset($vars['transient']) ? 1 : 0);
+        if ($this->save())
             return true;
-        }
 
         if (isset($this->id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
@@ -176,10 +173,11 @@ implements TemplateVariable {
 
        $slas = self::objects()
            ->order_by('name')
-           ->values_flat('id', 'name', 'isactive', 'grace_period');
+           ->values_flat('id', 'name', 'flags', 'grace_period');
 
         $entries = array();
         foreach ($slas as $row) {
+            $row[2] = $row[2] & self::FLAG_ACTIVE;
             $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
                         /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
                         self::getLocalById($row[0], 'name', $row[1]),
@@ -209,15 +207,6 @@ implements TemplateVariable {
         $sla = self::create($vars);
         $sla->save();
         return $sla;
-    }
-}
-
-require_once(INCLUDE_DIR.'class.config.php');
-class SlaConfig extends Config {
-    var $table = CONFIG_TABLE;
-
-    function __construct($id) {
-        parent::__construct("sla.$id");
     }
 }
 ?>

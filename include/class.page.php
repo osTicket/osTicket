@@ -275,13 +275,9 @@ class Page extends VerySimpleModel {
         $this->isactive = (bool) $vars['isactive'];
         $this->notes = Format::sanitize($vars['notes']);
 
-        if (!isset($this->id)) {
-            if ($this->save()) {
-                $this->content_id = $this->id;
-                $rv = $this->save();
-            }
-        }
-        elseif ($this->save())
+        $isnew = !isset($this->id);
+        $rv = $this->save();
+        if (!$isnew)
             $rv = $this->saveTranslations($vars, $errors);
 
         // Attach inline attachments from the editor

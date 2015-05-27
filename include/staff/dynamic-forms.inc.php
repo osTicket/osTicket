@@ -7,8 +7,12 @@
 <div class="clear"></div>
 
 <?php
+$other_forms = DynamicForm::objects()
+    ->filter(array('type'=>'G'))
+    ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED));
+
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = DynamicForm::objects()->filter(array('type__in'=>array('G')))->count();
+$count = $other_forms->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
 $showing=$pageNav->showing().' '._N('form','forms',$count);
@@ -56,8 +60,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
         </tr>
     </thead>
     <tbody>
-    <?php foreach (DynamicForm::objects()->filter(array('type'=>'G'))
-                ->order_by('title')
+<?php foreach ($other_forms->order_by('title')
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart()) as $form) {
             $sel=false;
