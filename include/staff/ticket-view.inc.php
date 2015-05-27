@@ -435,13 +435,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
             echo sprintf('&nbsp;(%d)', $ticket->getNumTasks());
         ?></a></li>
 </ul>
+
 <div id="ticket_tabs_container">
     <div id="ticket_thread" data-thread-id="<?php echo $ticket->getThread()->getId(); ?>" class="tab_content">
-    <?php
-    $ticket->getThread()->render(array('M', 'R', 'N'));
-    ?>
+    <div id="thread-items">
+    <?php $ticket->getThread()->render(array('M', 'R', 'N')); ?>
     </div>
-<div class="clear" style="padding-bottom:10px;"></div>
+<div class="clear"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>
 <?php }elseif($msg) { ?>

@@ -1004,10 +1004,6 @@ img.avatar {
      background:#f9f9f9;
 }
 
-#response_options {
-    margin-top:10px;
-}
-
 #response_options > form {
     padding:0 10px;
 }
@@ -2116,7 +2112,6 @@ tr.disabled th {
 }
 .tab_content:not(.left) {
     padding: 12px 0;
-    margin: 5px 0;
 }
 .left-tabs {
     margin-left: 48px;
@@ -2370,7 +2365,7 @@ td.indented {
   }
 }
 
-#ticket_thread::before {
+#thread-items::before {
   border-left: 2px dotted #ddd;
   border-bottom-color: rgba(0,0,0,0.1);
   position: absolute;
@@ -2382,11 +2377,12 @@ td.indented {
   right: 0;
   left: 0;
 }
-#ticket_thread {
+#thread-items {
   z-index: 0;
   position: relative;
-  border-bottom: 2px solid #ddd;
-  border-bottom-color: rgba(0,0,0,0.1);
+  padding-top: 0;
+  padding-bottom: 15px;
+  margin-top: 5px;
 }
 .thread-event {
     padding: 0 2px 15px;

@@ -591,14 +591,13 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE `%TABLE_PREFIX%team` (
   `team_id` int(10) unsigned NOT NULL auto_increment,
   `lead_id` int(10) unsigned NOT NULL default '0',
-  `flags` int(10) unsigned NOTN ULL default 1,
+  `flags` int(10) unsigned NOT NULL default 1,
   `name` varchar(125) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`team_id`),
   UNIQUE KEY `name` (`name`),
-  KEY `isnabled` (`isenabled`),
   KEY `lead_id` (`lead_id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -727,6 +726,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `uid_type` char(1) NOT NULL DEFAULT 'S',
   `annulled` tinyint(1) unsigned NOT NULL default '0',
   `timestamp` datetime NOT NULL,
+  PRIMARY KEY (`id`),
   KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
@@ -794,7 +794,6 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   KEY `staff_id` (`staff_id`),
   KEY `team_id` (`team_id`),
   KEY `created` (`created`),
-  KEY `sla_id` (`sla_id`),
   KEY `object` (`object_id`,`object_type`)
 ) DEFAULT CHARSET=utf8;
 

@@ -149,6 +149,7 @@ class Internationalization {
                 if (($premade = Canned::create($c))
                         && isset($c['attachments'])) {
                     $premade->attachments->upload($c['attachments']);
+                    $premade->save();
                 }
             }
         }

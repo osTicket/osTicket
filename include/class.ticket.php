@@ -247,7 +247,7 @@ implements RestrictedAccess, Threadable, TemplateVariable {
             .' ,count(distinct task.id) as tasks'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.id) '
-            .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
+            .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.flags & 1 = 1) '
             .' LEFT JOIN '.LOCK_TABLE.' tlock
                 ON ( ticket.lock_id=tlock.lock_id AND tlock.expire>NOW()) '
             .' LEFT JOIN '.TASK_TABLE.' task

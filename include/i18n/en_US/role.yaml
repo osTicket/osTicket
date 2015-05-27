@@ -31,7 +31,7 @@
     task.reply,
     task.close,
     task.delete,
-    kb.premade,
+    canned.manage,
     faq.manage,
     stats.agents,
     emails.banlist,
@@ -43,7 +43,8 @@
     org.create,
     org.edit,
     org.delete,
-    search.all]
+    search.all,
+    thread.edit]
 
 - id: 2
   flags: 1
@@ -64,7 +65,7 @@
     task.transfer,
     task.reply,
     task.close,
-    kb.premade,
+    canned.manage,
     faq.manage,
     stats.agents,
     emails.banlist,

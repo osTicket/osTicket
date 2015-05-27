@@ -1,7 +1,7 @@
 /**
- * @signature 959aca6ed189cd918d227a3ea8a135a3
+ * @signature 0d6099a650cc7884eb59a040feab2ce8
  * @version v1.10.0
- * @title Retire `private`, `required`, and `edit_mask` for fields
+ * @title Add events to the ticket thread
  *
  */
 
@@ -115,5 +115,5 @@ ALTER TABLE `%TABLE_PREFIX%attachment`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = '0d6099a650cc7884eb59a040feab2ce8'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
