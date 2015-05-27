@@ -194,7 +194,7 @@ if($ticket->isOverdue())
                 </tr>
                 <tr>
                     <th><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::relativeTime($ticket->getCreateDate()); ?></td>
+                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
             </table>
         </td>
