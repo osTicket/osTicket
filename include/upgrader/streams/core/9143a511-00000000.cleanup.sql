@@ -26,3 +26,21 @@ SET @s = (SELECT IF(
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;
+
+-- DROP IF EXISTS `%task.sla_id`
+SET @s = (SELECT IF(
+    (SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = '%TABLE_PREFIX%task'
+        AND table_schema = DATABASE()
+        AND column_name = 'sla_id'
+    ) > 0,
+    "SELECT 1",
+    "ALTER TABLE `%TABLE_PREFIX%task` DROP `sla_id`"
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+
+ALTER TABLE `%TABLE_PREFIX%team`
+    DROP `isenabled`,
+    DROP `noalerts`;

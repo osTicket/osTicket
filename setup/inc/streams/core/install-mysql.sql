@@ -590,8 +590,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE `%TABLE_PREFIX%team` (
   `team_id` int(10) unsigned NOT NULL auto_increment,
   `lead_id` int(10) unsigned NOT NULL default '0',
-  `isenabled` tinyint(1) unsigned NOT NULL default '1',
-  `noalerts` tinyint(1) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOTN ULL default 1,
   `name` varchar(125) NOT NULL default '',
   `notes` text,
   `created` datetime NOT NULL,
@@ -781,7 +780,6 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   `object_type` char(1) NOT NULL,
   `number` varchar(20) DEFAULT NULL,
   `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `sla_id` int(10) unsigned NOT NULL DEFAULT '0',
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
   `team_id` int(10) unsigned NOT NULL DEFAULT '0',
   `lock_id` int(11) unsigned NOT NULL DEFAULT '0',

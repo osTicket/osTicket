@@ -47,6 +47,13 @@ ALTER TABLE `%TABLE_PREFIX%form`
 UPDATE `%TABLE_PREFIX%form`
   SET `flags` = 0 WHERE `type` IN ('T','U','C','O','A');
 
+ALTER TABLE `%TABLE_PREFIX%team`
+  ADD `flags` int(10) unsigned NOTN ULL default 1 AFTER `lead_id`;
+
+UPDATE `%TABLE_PREFIX%team`
+  SET `flags` = CASE WHEN `isenabled` THEN 1 ELSE 0 END
+              + CASE WHEN `noalerts` THEN 2 ELSE 0 END;
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'
