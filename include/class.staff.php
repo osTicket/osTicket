@@ -454,7 +454,7 @@ implements EmailContact {
         if(!$vars['lastname'])
             $errors['lastname']=__('Last name is required');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
@@ -664,7 +664,7 @@ implements EmailContact {
             if ($vars['teams'])
                 $staff->updateTeams($vars['teams']);
             if ($vars['welcome_email'])
-                $staff->sendResetEmail('registration-staff');
+                $staff->sendResetEmail('registration-staff', false);
             Signal::send('model.created', $staff);
         }
 
@@ -680,7 +680,7 @@ implements EmailContact {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail($template='pwreset-staff') {
+    function sendResetEmail($template='pwreset-staff', $log=true) {
         global $ost, $cfg;
 
         $content = Page::lookup(Page::getIdByType($template));
@@ -704,7 +704,7 @@ implements EmailContact {
         if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>$log);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
@@ -753,7 +753,7 @@ implements EmailContact {
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']=__('Username already in use');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in use system email');

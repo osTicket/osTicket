@@ -65,7 +65,7 @@ if($_POST && $_POST['s']) {
 
             if(!$_POST['email'])
                 $errors['email'] = __('Required');
-            elseif(!Validator::is_email($_POST['email']))
+            elseif(!Validator::is_valid_email($_POST['email']))
                 $errors['email'] = __('Invalid');
 
             if(!$_POST['alerts'] && !$_POST['news'])
