@@ -54,6 +54,15 @@ UPDATE `%TABLE_PREFIX%team`
   SET `flags` = CASE WHEN `isenabled` THEN 1 ELSE 0 END
               + CASE WHEN `noalerts` THEN 2 ELSE 0 END;
 
+-- Migrate %config[namespace=dept.x, key=alert_members_only]
+ALTER TABLE `%TABLE_PREFIX%department`
+  ADD `flags` int(10) unsigned NOT NULL default 0 AFTER `manager_id`;
+
+UPDATE `%TABLE_PREFIX%department` A1
+  JOIN (SELECT `value` FROM `%TABLE_PREFIX%config`) `config`
+    ON (`config`.`namespace` = CONCAT('dept.', A1.`id`) AND `config`.`key` = 'assign_members_only')
+  SET A1.`flags` = 1 WHERE `config`.`value` != '';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '00000000000000000000000000000000'

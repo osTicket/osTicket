@@ -62,11 +62,7 @@ implements TemplateVariable {
     const ALERTS_DEPT_AND_GROUPS = 1;
     const ALERTS_DEPT_ONLY = 0;
 
-    function getConfig() {
-        if (!isset($this->config))
-            $this->config = new Config('dept.'. $this->getId());
-        return $this->config;
-    }
+    const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
 
     function asVar() {
         return $this->getName();
@@ -301,7 +297,7 @@ implements TemplateVariable {
     }
 
     function assignMembersOnly() {
-        return $this->getConfig()->get('assign_members_only', 0);
+        return $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
     }
 
     function isGroupMembershipEnabled() {
@@ -314,11 +310,12 @@ implements TemplateVariable {
             foreach (static::$meta['joins'] as $k => $v)
                 unset($ht[$k]);
 
+        $ht['assign_members_only'] = $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
         return $ht;
     }
 
     function getInfo() {
-        return $this->getConfig()->getInfo() + $this->getHashtable();
+        return $this->getHashtable();
     }
 
     function getAllowedGroups() {
@@ -368,7 +365,6 @@ implements TemplateVariable {
 
     function updateSettings($vars) {
         $this->updateGroups($vars['groups'] ?: array(), $vars);
-        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
         $this->path = $this->getFullPath();
         $this->save();
         return true;
@@ -386,10 +382,8 @@ implements TemplateVariable {
             return 0;
         }
 
-        parent::delete();
         $id = $this->getId();
-        $sql='DELETE FROM '.DEPT_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())) {
+        if (parent::delete()) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
             db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
@@ -403,9 +397,6 @@ implements TemplateVariable {
 
             //Delete group access
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
-
-            // Destrory config settings
-            $this->getConfig()->destroy();
         }
 
         return $num;
@@ -602,6 +593,7 @@ implements TemplateVariable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
+        $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
 
         if ($this->save())
             return $this->updateSettings($vars);

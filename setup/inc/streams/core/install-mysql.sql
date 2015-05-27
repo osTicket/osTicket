@@ -206,6 +206,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `email_id` int(10) unsigned NOT NULL default '0',
   `autoresp_email_id` int(10) unsigned NOT NULL default '0',
   `manager_id` int(10) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default 0,
   `name` varchar(128) NOT NULL default '',
   `signature` text NOT NULL,
   `ispublic` tinyint(1) unsigned NOT NULL default '1',

@@ -44,3 +44,6 @@ EXECUTE stmt;
 ALTER TABLE `%TABLE_PREFIX%team`
     DROP `isenabled`,
     DROP `noalerts`;
+
+DELETE FROM `%TABLE_PREFIX%config`
+WHERE `key`='assign_members_only' AND `namespace` LIKE 'dept.%';
