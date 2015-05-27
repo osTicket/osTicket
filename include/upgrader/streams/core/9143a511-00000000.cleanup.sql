@@ -61,3 +61,9 @@ WHERE `key`='transient' AND `namespace` LIKE 'sla.%';
 
 DELETE FROM `%TABLE_PREFIX%config`
 WHERE `key`='configuration' AND `namespace` LIKE 'list.%';
+
+-- Orphan users who don't know they're orphans
+UPDATE `%TABLE_PREFIX%user` A1
+  LEFT JOIN `%TABLE_PREFIX%organization` A2 ON (A1.`org_id` = A2.`id`)
+  SET A1.`org_id` = 0
+  WHERE A2.`id` IS NULL;
