@@ -846,7 +846,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                                     continue;
 
                                 if (!is_object($name))
-                                    $name = new PersonsName($name);
+                                    $name = new AgentsName($name);
 
                                 $k="s$id";
                                 echo sprintf('<option value="%s" %s>%s</option>',

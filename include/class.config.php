@@ -156,7 +156,6 @@ class OsticketConfig extends Config {
         'pw_reset_window' =>    30,
         'enable_html_thread' => true,
         'allow_attachments' =>  true,
-        'name_format' =>        'full', # First Last
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
@@ -1072,7 +1071,6 @@ class OsticketConfig extends Config {
             'max_page_size'=>$vars['max_page_size'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
-            'name_format'=>$vars['name_format'],
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],

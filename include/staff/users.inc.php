@@ -163,7 +163,7 @@ else
                 if (!$U['name'])
                     list($name) = explode('@', $U['default_email__address']);
                 else
-                    $name = new PersonsName($U['name']);
+                    $name = new UsersName($U['name']);
 
                 // Account status
                 if ($U['account__id'])

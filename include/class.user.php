@@ -280,7 +280,7 @@ implements TemplateVariable {
             list($name) = explode('@', $this->getDefaultEmailAddress(), 2);
         else
             $name = $this->name;
-        return new PersonsName($name);
+        return new UsersName($name);
     }
 
     function getUpdateDate() {
@@ -742,10 +742,10 @@ implements TemplateVariable {
     function __construct($name, $format=null) {
         global $cfg;
 
-        if ($format && !isset(static::$formats[$format]))
+        if ($format && isset(static::$formats[$format]))
             $this->format = $format;
-        elseif($cfg)
-            $this->format = $cfg->getDefaultNameFormat();
+        else
+            $this->format = 'original';
 
         if (!is_array($name)) {
             $this->parts = static::splitName($name);
@@ -922,6 +922,28 @@ implements TemplateVariable {
     }
 
 }
+
+class AgentsName extends PersonsName {
+    function __construct($name, $format=null) {
+        global $cfg;
+
+        if (!$format && $cfg)
+            $format = $cfg->getAgentNameFormat();
+
+        parent::__construct($name, $format);
+    }
+}
+
+class UsersName extends PersonsName {
+    function __construct($name, $format=null) {
+        global $cfg;
+        if (!$format && $cfg)
+            $format = $cfg->getClientNameFormat();
+
+        parent::__construct($name, $format);
+    }
+}
+
 
 class UserEmail extends UserEmailModel {
     static function ensure($address) {

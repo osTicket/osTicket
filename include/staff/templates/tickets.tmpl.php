@@ -109,7 +109,7 @@ if ($results) { ?>
 
         $assigned='';
         if ($T['staff_id'])
-            $assigned = new PersonsName(array(
+            $assigned = new AgentsName(array(
                 'first' => $T['staff__firstname'],
                 'last' => $T['staff__lastname']
             ));

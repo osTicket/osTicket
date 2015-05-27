@@ -253,7 +253,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     function getName() {
-        return new PersonsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
+        return new AgentsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
     }
 
     function getFirstName() {
@@ -709,7 +709,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ));
         }
 
-        switch ($cfg->getDefaultNameFormat()) {
+        switch ($cfg->getAgentNameFormat()) {
         case 'last':
         case 'lastfirst':
         case 'legal':

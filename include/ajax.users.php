@@ -35,7 +35,7 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-                $name = new PersonsName(array('first' => $u['first'], 'last' => $u['last']));
+                $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
                 $users[] = array('email' => $u['email'], 'name'=>$name,
                     'info' => "{$u['email']} - $name (remote)",
                     'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
@@ -68,7 +68,7 @@ class UsersAjaxAPI extends AjaxController {
                             break;
                         }
                     }
-                    $name = Format::htmlchars(new PersonsName($name));
+                    $name = Format::htmlchars(new UsersName($name));
                     $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                         "id" => $id, "/bin/true" => $_REQUEST['q']);
                 }

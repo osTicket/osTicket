@@ -177,7 +177,7 @@ implements TemplateVariable {
                 ));
 
             $members->distinct('staff_id');
-            switch ($cfg->getDefaultNameFormat()) {
+            switch ($cfg->getAgentNameFormat()) {
             case 'last':
             case 'lastfirst':
             case 'legal':

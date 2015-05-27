@@ -268,7 +268,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
             $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
             $assinee ='';
             if ($T['staff_id']) {
-                $staff =  new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']);
+                $staff =  new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
                 $assignee = sprintf('<span class="Icon staffAssigned">%s</span>',
                         Format::truncate((string) $staff, 40));
             } elseif($T['team_id']) {

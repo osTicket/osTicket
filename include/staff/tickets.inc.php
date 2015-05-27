@@ -430,7 +430,7 @@ return false;">
                 $lc='';
                 if ($showassigned) {
                     if ($T['staff_id'])
-                        $lc = new PersonsName($T['staff__firstname'].' '.$T['staff__lastname']);
+                        $lc = new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
                     elseif ($T['team_id'])
                         $lc = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
                 }
@@ -482,7 +482,7 @@ return false;">
                             .$T['collab_count'].'"><i class="icon-group"></i></span>';
                     ?><span class="truncate" style="max-width:<?php
                         echo $T['collab_count'] ? '150px' : '170px'; ?>"><?php
-                    $un = new PersonsName($T['user__name']);
+                    $un = new UsersName($T['user__name']);
                         echo Format::htmlchars($un);
                     ?></span></div></td>
                 <?php
