@@ -19,7 +19,13 @@
 class OrmException extends Exception {}
 class OrmConfigurationException extends Exception {}
 // Database fields/tables do not match codebase
-class InconsistentModelException extends OrmException {}
+class InconsistentModelException extends OrmException {
+    function __construct() {
+        // Drop the model cache (just incase)
+        ModelMeta::flushModelCache();
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+    }
+}
 
 /**
  * Meta information about a model including edges (relationships), table
