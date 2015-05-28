@@ -129,7 +129,6 @@ class Internationalization {
             $sql = 'INSERT INTO '.PAGE_TABLE.' SET type='.db_input($type)
                 .', name='.db_input($page['name'])
                 .', body='.db_input($page['body'])
-                .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
             if (db_query($sql) && ($id = db_insert_id())
@@ -138,9 +137,6 @@ class Internationalization {
         }
         // Default Language
         $_config->set('system_language', $this->langs[0]);
-
-        // content_id defaults to the `id` field value
-        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
 
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
