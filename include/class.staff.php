@@ -864,7 +864,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 && (!isset($this->staff_id) || $uid!=$this->getId()))
             $errors['username']=__('Username already in use');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in use system email');

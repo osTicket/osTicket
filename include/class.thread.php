@@ -1352,6 +1352,9 @@ implements TemplateVariable {
             $entry->body = $body;
             if (!$entry->save())
                 return false;
+
+            // Set the $entry here for search indexing
+            $entry->ht['body'] = $body;
         }
 
         // Save mail message id, if available
@@ -1929,9 +1932,14 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getSearchable() {
-        // <br> -> \n
-        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body); # <?php
-        $body = Format::htmldecode(Format::striptags($body));
+        // Replace tag chars with spaces (to ensure words are separated)
+        $body = Format::html($this->body, array('hook_tag' => function($el, $attributes=0) {
+            static $non_ws = array('wbr' => 1);
+            return (isset($non_ws[$el])) ? '' : ' ';
+        }));
+        // Collapse multiple white-spaces
+        $body = html_entity_decode($body, ENT_QUOTES);
+        $body = preg_replace('`\s+`u', ' ', $body);
         return Format::searchable($body);
     }
 

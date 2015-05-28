@@ -169,6 +169,7 @@ class OsticketConfig extends Config {
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
+        'verify_email_addrs' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -661,6 +662,10 @@ class OsticketConfig extends Config {
 
     function getAdminEmail() {
          return $this->get('admin_email');
+    }
+
+    function verifyEmailAddrs() {
+        return (bool) $this->get('verify_email_addrs');
     }
 
     function getReplySeparator() {
@@ -1273,6 +1278,7 @@ class OsticketConfig extends Config {
             'alert_email_id'=>$vars['alert_email_id'],
             'default_smtp_id'=>$vars['default_smtp_id'],
             'admin_email'=>$vars['admin_email'],
+            'verify_email_addrs'=>isset($vars['verify_email_addrs']) ? 1 : 0,
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,

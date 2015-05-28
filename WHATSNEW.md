@@ -185,6 +185,14 @@ database engines other than MySQL. The ORM was originally introduced in
 osTicket v1.8.0, but has seen the greatest boost in capability in this release.
 About 47% of the SQL queries are removed between v1.9.7 and v1.10
 
+osTicket v1.9.8.1
+=================
+### Enhancements
+  * Add option to disable email address verification
+
+### Improvements
+  * Fix crash upgrading from osTicket v1.6
+
 osTicket v1.9.8
 ===============
 ### Enhancements
