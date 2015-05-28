@@ -40,8 +40,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 'constraint' => array('group_id' => 'Group.id'),
             ),
             'teams' => array(
-                'null' => true,
-                'list' => true,
                 'reverse' => 'TeamMember.staff',
             ),
         ),
