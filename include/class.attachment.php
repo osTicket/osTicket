@@ -175,9 +175,9 @@ extends InstrumentedList {
     function _getList($separates=false, $inlines=false, $lang=false) {
         $base = $this;
 
-        if ($separates && !$inline)
+        if ($separates && !$inlines)
             $base = $base->filter(array('inline' => 0));
-        elseif (!$separates && $inline)
+        elseif (!$separates && $inlines)
             $base = $base->filter(array('inline' => 1));
 
         if ($lang)

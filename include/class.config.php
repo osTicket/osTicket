@@ -246,7 +246,7 @@ class OsticketConfig extends Config {
         return md5(self::getDBVersion());
     }
 
-    function getDBTimezone() {
+    function getDbTimezone() {
         if (!$this->exists('db_timezone')) {
             require_once INCLUDE_DIR . 'class.timezone.php';
             $this->persist('db_timezone', DbTimezone::determine());

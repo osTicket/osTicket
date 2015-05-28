@@ -147,7 +147,7 @@ class DbTimezone {
     }
 
     function lookup_key() {
-        list($january_offset, $juneoffset) =
+        list($january_offset, $june_offset) =
             $this->get_date_offset(
                 mktime(0, 0, 0, 1, 2, self::BASELINE_YEAR),
                 mktime(0, 0, 0, 6, 2, self::BASELINE_YEAR));
@@ -180,7 +180,7 @@ class DbTimezone {
         $yearstart = mktime(0, 0, 1, 1, 1, $year);
         $yearend = mktime(23, 59, 59, 12, 31, $year);
         $current = $yearstart;
-        list($offset) = $this->get_date_offset($current);
+        list($date_offset) = $this->get_date_offset($current);
         $dst_start = null;
         $dst_end = null;
 
@@ -190,18 +190,17 @@ class DbTimezone {
             $current += 86400;
         }
 
-        foreach ($this->get_date_offset($checks) as $offset) {
-
-            if ($dateToCheckOffset !== $offset) {
-                if ($dateToCheckOffset < $offset) {
-                    $dst_start = $dateToCheck;
+        foreach ($this->get_date_offset($checks) as $i=>$offset) {
+            if ($offset !== $date_offset) {
+                if ($offset < $date_offset) {
+                    $dst_start = $checks[$i];
                 }
-                if ($dateToCheckOffset > $offset) {
-                    $dst_end = $dateToCheck;
+                if ($offset > $date_offset) {
+                    $dst_end = $checks[$i];
                 }
-                $offset = $dateToCheckOffset;
             }
         }
+        // $offset will remain the last item in ::get_date_offset($checks)
 
         if ($dst_start && $dst_end) {
             return array(
@@ -216,7 +215,7 @@ class DbTimezone {
     function find_dst_fold($a_date, $padding=self::DAY, $iterator=self::HOUR) {
         $date_start = $a_date - $padding;
         $date_end = $a_date + $padding;
-        list($offset) = $this->get_date_offset($date_start);
+        list($date_offset) = $this->get_date_offset($date_start);
 
         $current = $date_start;
 
@@ -228,9 +227,9 @@ class DbTimezone {
                 $current += $iterator;
             }
 
-            foreach ($this->get_date_offset($checks) as $offset) {
-                if ($dateToCheckOffset !== $offset) {
-                    $dst_change = $dateToCheck;
+            foreach ($this->get_date_offset($checks) as $i=>$offset) {
+                if ($offset !== $date_offset) {
+                    $dst_change = $checks[$i];
                     break;
                 }
             }
@@ -249,7 +248,7 @@ class DbTimezone {
         return $dst_change;
     }
 
-    function windows7_adaptions($rule_list, $preliminary_timezone, $score, $sample) {
+    function windows7_adaptations($rule_list, $preliminary_timezone, $score, $sample) {
         if ($score !== 'N/A') {
             return $score;
         }
@@ -294,7 +293,7 @@ class DbTimezone {
 
     function best_dst_match($rule_list, $preliminary_timezone) {
         $self = $this;
-        $score_sample = function ($sample) use ($rule_list, $self) {
+        $score_sample = function ($sample) use ($rule_list, $self, $preliminary_timezone) {
             $score = 0;
 
             for ($j = 0; $j < count($rule_list); $j++) {

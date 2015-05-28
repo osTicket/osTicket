@@ -1601,12 +1601,12 @@ class ThreadEvent extends VerySimpleModel {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
-                    if ($S = $this->staff) {
+                    if ($S = $self->staff) {
                         $url = $S->get_gravatar(16);
                         $assignees[] =
                             "<img class=\"avatar\" src=\"{$url}\"> ".$S->getName();
                     }
-                    if ($T = $this->team) {
+                    if ($T = $self->team) {
                         $assignees[] = $T->getLocalName();
                     }
                     return implode('/', $assignees);
@@ -1622,12 +1622,14 @@ class ThreadEvent extends VerySimpleModel {
                         Format::relativeTime(Misc::db2gmtime($self->timestamp))
                     );
                 case 'agent':
-                    $st = $this->agent;
+                    $name = $self->agent->getName();
                     if ($url = $self->getAvatar())
                         $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    return $name;
                 case 'dept':
-                    if ($dept = $this->getDept())
+                    if ($dept = $self->getDept())
                         return $dept->getLocalName();
+                    return __('None');
                 case 'data':
                     $val = $self->getData($m['data']);
                     if ($m['type'] && class_exists($m['type']))
@@ -1696,6 +1698,8 @@ class ThreadEvents extends InstrumentedList {
     }
 
     function log($object, $state, $data=null, $annul=null, $username=null) {
+        global $thisstaff, $thisclient;
+
         if ($object instanceof Ticket)
             $event = ThreadEvent::forTicket($object, $state);
         else

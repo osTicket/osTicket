@@ -3078,7 +3078,7 @@ class FileUploadWidget extends Widget {
         $new = array_fill_keys($this->field->getClean(), 1);
         foreach ($attachments as $f) {
             $F[] = $f->file;
-            unset($new[$file->id]);
+            unset($new[$f->id]);
         }
         // Add in newly added files not yet saved (if redisplaying after an
         // error)
