@@ -110,7 +110,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
     <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <tbody>
 <?php
-$res = db_query('select distinct(`type`), content_id, notes, name, updated from '
+$res = db_query('select distinct(`type`), id, notes, name, updated from '
     .PAGE_TABLE
     .' where isactive=1 group by `type`');
 $contents = array();

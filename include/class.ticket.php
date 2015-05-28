@@ -53,9 +53,6 @@ class TicketModel extends VerySimpleModel {
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
             ),
-            'events' => array(
-                'reverse' => 'TicketEvent.ticket',
-            ),
             'sla' => array(
                 'constraint' => array('sla_id' => 'Sla.id'),
                 'null' => true,
@@ -3365,7 +3362,7 @@ implements RestrictedAccess, Threadable {
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
                 ON (status.id=T1.status_id AND status.state="open") '
-            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
+            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '
             .' WHERE isoverdue=0 '
             .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
             .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
