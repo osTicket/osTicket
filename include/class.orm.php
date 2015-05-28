@@ -110,7 +110,7 @@ class ModelMeta implements ArrayAccess {
         else {
             foreach ($j['constraint'] as $local => $foreign) {
                 list($class, $field) = $constraint[$local]
-                    = explode('.', $foreign);
+                    = is_array($foreign) ? $foreign : explode('.', $foreign);
             }
         }
         if ($j['list'] && !isset($j['broker'])) {
