@@ -1028,8 +1028,6 @@ implements RestrictedAccess, Threadable {
         if ($this->getStatusId() == $status->getId())
             return true;
 
-        $this->status = $status;
-
         //TODO: move this up.
         $ecb = null;
         switch($status->getState()) {
@@ -1069,6 +1067,7 @@ implements RestrictedAccess, Threadable {
 
         }
 
+        $this->status = $status;
         if (!$this->save())
             return false;
 
@@ -1076,17 +1075,11 @@ implements RestrictedAccess, Threadable {
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
         if ($current_status = $this->getStatus()) {
-            $note = sprintf(__('Status changed from %1$s to %2$s by %3$s'),
-                    $this->getStatus(),
-                    $status,
-                    $thisstaff ?: 'SYSTEM');
-
             $alert = false;
             if ($comments) {
-                $note .= sprintf('<hr>%s', $comments);
                 // Send out alerts if comments are included
                 $alert = true;
-                $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
+                $this->logNote(__('Status Changed'), $comments, $thisstaff, $alert);
             }
         }
         // Log events via callback
@@ -1140,7 +1133,7 @@ implements RestrictedAccess, Threadable {
         if (!($status=$this->getStatus()->getReopenStatus()))
             $status = $cfg->getDefaultTicketStatusId();
 
-        return $status ? $this->setStatus($status, 'Reopened') : false;
+        return $status ? $this->setStatus($status) : false;
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
@@ -2381,8 +2374,7 @@ implements RestrictedAccess, Threadable {
         if ($vars['note_status_id']
             && ($status=TicketStatus::lookup($vars['note_status_id']))
         ) {
-            if ($this->setStatus($status))
-                $this->reload();
+            $this->setStatus($status);
         }
 
         $activity = $vars['activity'] ?: _S('New Internal Note');
@@ -3293,8 +3285,6 @@ implements RestrictedAccess, Threadable {
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
-
-        $ticket->reload();
 
         if (!$cfg->notifyONNewStaffTicket()
             || !isset($vars['alertuser'])

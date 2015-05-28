@@ -1522,6 +1522,8 @@ class ThreadEvent extends VerySimpleModel {
             'overdue'   => 'time',
             'transferred' => 'share-alt',
             'edited'    => 'pencil',
+            'closed'    => 'thumbs-up-alt',
+            'reopened'  => 'rotate-right',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }

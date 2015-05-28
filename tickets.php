@@ -103,7 +103,6 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
     default:
         $errors['err']=__('Unknown action');
     }
-    $ticket->reload();
 }
 elseif (is_object($ticket) && $ticket->getId()) {
     switch(strtolower($_REQUEST['a'])) {
