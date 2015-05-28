@@ -37,6 +37,8 @@ class ModelMeta implements ArrayAccess {
         'select_related' => array(),
         'view' => false,
     );
+    static $model_cache;
+
     var $model;
 
     function __construct($model) {
@@ -147,20 +149,24 @@ class ModelMeta implements ArrayAccess {
     }
 
     function inspectFields() {
-        static $cache;
-        if (!isset($cache))
-            $cache = function_exists('apc_fetch');
-        if ($cache) {
+        if (!isset(self::$model_cache))
+            self::$model_cache = function_exists('apc_fetch');
+        if (self::$model_cache) {
             $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
             if ($fields = apc_fetch($key)) {
                 return $fields;
             }
         }
         $fields = DbEngine::getCompiler()->inspectTable($this['table']);
-        if ($cache) {
+        if (self::$model_cache) {
             apc_store($key, $fields);
         }
         return $fields;
+    }
+
+    static function flushModelCache() {
+        if (self::$model_cache)
+            @apc_clear_cache('user');
     }
 }
 

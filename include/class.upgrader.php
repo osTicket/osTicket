@@ -72,8 +72,10 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done')
+        if ($state == 'done') {
             $this->createUpgradedTicket();
+            ModelMeta::flushModelCache();
+        }
     }
 
     function createUpgradedTicket() {
