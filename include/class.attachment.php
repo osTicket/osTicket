@@ -128,7 +128,9 @@ extends InstrumentedList {
                 $fileId = $file;
             elseif (is_array($file) && isset($file['id']))
                 $fileId = $file['id'];
-            elseif ($F = AttachmentFile::upload($file))
+            elseif (isset($file['tmp_name']) && ($F = AttachmentFile::upload($file)))
+                $fileId = $F->getId();
+            elseif ($F = AttachmentFile::create($file))
                 $fileId = $F->getId();
             else
                 continue;
