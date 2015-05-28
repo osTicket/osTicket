@@ -73,7 +73,7 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'thread' => array(
-                'reverse' => 'Thread.ticket',
+                'reverse' => 'TicketThread.ticket',
                 'list' => false,
                 'null' => true,
             ),
@@ -220,6 +220,7 @@ implements RestrictedAccess, Threadable {
     );
 
     var $lastMsgId;
+    var $last_message;
 
     var $owner;     // TicketOwner
     var $_user;      // EndUser
@@ -3075,9 +3076,10 @@ implements RestrictedAccess, Threadable {
         $ticket = parent::create(array(
             'created' => SqlFunction::NOW(),
             'lastupdate' => SqlFunction::NOW(),
+            'number' => $number,
             'user' => $user,
-            'dept' => $deptId,
-            'topicId' => $topicId,
+            'dept_id' => $deptId,
+            'topic_id' => $topicId,
             'ip_address' => $ipaddress,
             'source' => $source,
         ));

@@ -42,6 +42,8 @@ class ModelMeta implements ArrayAccess {
         'defer' => array(),
         'select_related' => array(),
         'view' => false,
+        'joins' => array(),
+        'foreign_keys' => array(),
     );
     static $model_cache;
 
@@ -68,7 +70,7 @@ class ModelMeta implements ArrayAccess {
                 sprintf(__('%s: Model does not define meta.pk'), $model));
 
         // Ensure other supported fields are set and are arrays
-        foreach (array('pk', 'ordering', 'defer') as $f) {
+        foreach (array('pk', 'ordering', 'defer', 'select_related') as $f) {
             if (!isset($meta[$f]))
                 $meta[$f] = array();
             elseif (!is_array($meta[$f]))
@@ -76,8 +78,6 @@ class ModelMeta implements ArrayAccess {
         }
 
         // Break down foreign-key metadata
-        if (!isset($meta['joins']))
-            $meta['joins'] = array();
         foreach ($meta['joins'] as $field => &$j) {
             $this->processJoin($j);
             if ($j['local'])
@@ -327,7 +327,7 @@ class VerySimpleModel {
             else
                 throw new InvalidArgumentException(
                     sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
-                    $j['fkey'][0], get_class($value)));
+                    $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
 
             // Capture the foreign key id value
             $field = $j['local'];
@@ -2058,6 +2058,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileCount($queryset) {
         $model = $queryset->model;
+        $model::_inspect();
         $table = $model::$meta['table'];
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
