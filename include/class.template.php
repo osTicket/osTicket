@@ -161,8 +161,7 @@ class EmailTemplateGroup {
         'task.overdue.alert'=>array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'Overdue Task Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue
-            task.',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue task.',
         ),
     );
 

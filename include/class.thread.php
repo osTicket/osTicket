@@ -499,6 +499,9 @@ class Thread extends VerySimpleModel {
 
         $this->entries->delete();
 
+        // Null out the events
+        $this->events->update(array('thread_id' => 0));
+
         return true;
     }
 

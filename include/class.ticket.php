@@ -144,14 +144,6 @@ class TicketModel extends VerySimpleModel {
          ));
     }
 
-    function delete() {
-
-        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
-            return true;
-
-        return false;
-    }
-
     static function registerCustomData(DynamicForm $form) {
         if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
             $cdata_class = <<<EOF
