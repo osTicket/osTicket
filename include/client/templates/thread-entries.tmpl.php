@@ -25,7 +25,7 @@ if (count($entries)) {
         //       changes in dates between thread items.
         foreach ($entries as $entry) {
             // Emit all events prior to this entry
-            while ($event && $event->timestamp <= $entry->created) {
+            while ($event && $event->timestamp < $entry->created) {
                 $event->render(ThreadEvent::MODE_CLIENT);
                 $events->next();
                 $event = $events->current();

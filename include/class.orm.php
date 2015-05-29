@@ -1105,7 +1105,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
-        if (!$query->ordering && isset($model::$meta['ordering']))
+        if (!$options['nosort'] && !$query->ordering && isset($model::$meta['ordering']))
             $query->ordering = $model::$meta['ordering'];
         if (false !== $query->related && !$query->values && $model::$meta['select_related'])
             $query->related = $model::$meta['select_related'];
@@ -1310,6 +1310,12 @@ class ModelInstanceManager extends ResultSet {
             $m->__onload();
             if ($cache)
                 $this->cache($m);
+        }
+        elseif (get_class($m) != $modelClass) {
+            // Change the class of the object to be returned to match what
+            // was expected
+            // TODO: Emit a warning?
+            $m = new $modelClass($m->ht);
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {
@@ -1904,7 +1910,7 @@ class MySqlCompiler extends SqlCompiler {
     function __in($a, $b) {
         if (is_array($b)) {
             $vals = array_map(array($this, 'input'), $b);
-            $b = implode(', ', $vals);
+            $b = '('.implode(', ', $vals).')';
         }
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
         // the query as a JOIN and add the join constraint into the WHERE
@@ -1918,7 +1924,7 @@ class MySqlCompiler extends SqlCompiler {
         else {
             $b = $this->input($b);
         }
-        return sprintf('%s IN (%s)', $a, $b);
+        return sprintf('%s IN %s', $a, $b);
     }
 
     function __isnull($a, $b) {
@@ -2009,7 +2015,7 @@ class MySqlCompiler extends SqlCompiler {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($this->params, $q->params);
-            return $q->sql;
+            return '('.$q->sql.')';
         }
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
@@ -2079,7 +2085,7 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the ORDER BY clause
         $sort = '';
-        if (($columns = $queryset->getSortFields()) && !isset($this->options['nosort'])) {
+        if ($columns = $queryset->getSortFields()) {
             $orders = array();
             foreach ($columns as $sort) {
                 $dir = 'ASC';
@@ -2106,6 +2112,7 @@ class MySqlCompiler extends SqlCompiler {
         // Compile the field listing
         $fields = array();
         $group_by = array();
+        $model::_inspect();
         $table = $this->quote($model::$meta['table']).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
@@ -2113,7 +2120,6 @@ class MySqlCompiler extends SqlCompiler {
             $fieldMap = $theseFields = array();
             $defer = $queryset->defer ?: array();
             // Add local fields first
-            $model::_inspect();
             foreach ($model::$meta['fields'] as $f) {
                 // Handle deferreds
                 if (isset($defer[$f]))

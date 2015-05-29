@@ -647,20 +647,20 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastRespondent() {
-
         if (!isset($this->lastrespondent)) {
             $this->lastresponent = Staff::objects()
                 ->filter(array(
                 'staff_id' => static::objects()
                     ->filter(array(
-                        'thread__entry__type' => 'R',
-                        'thread__entry__staff_id__gt' => 0
+                        'thread__entries__type' => 'R',
+                        'thread__entries__staff_id__gt' => 0
                     ))
-                    ->values_flat('thread__entry__staff_id')
-                    ->order_by('-thread__entry__id')
-                    ->first()
+                    ->values_flat('thread__entries__staff_id')
+                    ->order_by('-thread__entries__id')
+                    ->limit(1)
                 ))
-                ->first();
+                ->first()
+                ?: false;
         }
         return $this->lastrespondent;
     }
@@ -799,7 +799,7 @@ implements RestrictedAccess, Threadable {
         return $fields[0];
     }
 
-    function addCollaborator($user, $vars, &$errors) {
+    function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if (!$user || $user->getId() == $this->getOwnerId())
             return null;
@@ -813,7 +813,8 @@ implements RestrictedAccess, Threadable {
         $this->collaborators = null;
         $this->recipients = null;
 
-        $this->logEvent('collab', array('add' => array($c->toString())));
+        if ($event)
+            $this->logEvent('collab', array('add' => array($c->toString())));
 
         return $c;
     }
@@ -1020,9 +1021,9 @@ implements RestrictedAccess, Threadable {
         if ($this->getStatusId() == $status->getId())
             return true;
 
-        //TODO: move this up.
+        // Perform checks on the *new* status, _before_ the status changes
         $ecb = null;
-        switch($status->getState()) {
+        switch ($status->getState()) {
             case 'closed':
                 if ($this->getMissingRequiredFields()) {
                     $errors['err'] = sprintf(__(
@@ -1034,7 +1035,7 @@ implements RestrictedAccess, Threadable {
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
                     $this->staff = $thisstaff;
-                $this->clearOverdue();
+                $this->clearOverdue(false);
 
                 $ecb = function($t) {
                     $t->logEvent('closed');
@@ -1046,7 +1047,7 @@ implements RestrictedAccess, Threadable {
                 if ($this->isClosed()) {
                     $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
-                        $t->logEvent('reopened', false, 'closed');
+                        $t->logEvent('reopened', false, null, 'closed');
                     };
                 }
 
@@ -1066,7 +1067,7 @@ implements RestrictedAccess, Threadable {
         // Log status change b4 reload — if currently has a status. (On new
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
-        if ($current_status = $this->getStatus()) {
+        if ($hadStatus) {
             $alert = false;
             if ($comments) {
                 // Send out alerts if comments are included
@@ -1782,7 +1783,7 @@ implements RestrictedAccess, Threadable {
         return true;
     }
 
-    function clearOverdue() {
+    function clearOverdue($save=true) {
         if (!$this->isOverdue())
             return true;
 
@@ -1798,7 +1799,7 @@ implements RestrictedAccess, Threadable {
         if ($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
             $this->sla = null;
 
-        return $this->save();
+        return $save ? $this->save() : true;
     }
 
     //Dept Tranfer...with alert.. done by staff
@@ -2066,14 +2067,14 @@ implements RestrictedAccess, Threadable {
                     continue;
 
                 if (($user=User::fromVars($recipient)))
-                    if ($c=$this->addCollaborator($user, $info, $errors))
+                    if ($c=$this->addCollaborator($user, $info, $errors, false))
                         // FIXME: This feels very unwise — should be a
                         // string indexed array for future
                         $collabs[] = array((string)$c, $recipient['source']);
             }
             // TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logEvent('collab', array('add' => $collabs));
+                $this->logEvent('collab', array('add' => $collabs), $message->user);
             }
         }
 
@@ -2310,8 +2311,8 @@ implements RestrictedAccess, Threadable {
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function logEvent($state, $data=null, $annul=null, $staff=null) {
-        $this->getThread()->getEvents()->log($this, $state, $data, $annul, $staff);
+    function logEvent($state, $data=null, $user=null, $annul=null) {
+        $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
 
     //Insert Internal Notes
@@ -2566,11 +2567,11 @@ implements RestrictedAccess, Threadable {
         }
 
         Signal::send('model.updated', $this);
-        return true;
+        return $this->save();
     }
 
    /*============== Static functions. Use Ticket::function(params); =============nolint*/
-    function getIdByNumber($number, $email=null, $ticket=false) {
+    static function getIdByNumber($number, $email=null, $ticket=false) {
 
         if (!$number)
             return 0;
@@ -2592,8 +2593,8 @@ implements RestrictedAccess, Threadable {
         }
     }
 
-    function lookupByNumber($number, $email=null) {
-        return self::getIdByNumber($number, $email, true);
+    static function lookupByNumber($number, $email=null) {
+        return static::getIdByNumber($number, $email, true);
     }
 
     static function isTicketNumberUnique($number) {
@@ -3105,6 +3106,9 @@ implements RestrictedAccess, Threadable {
 
         $dept = $ticket->getDept();
 
+        // Start tracking ticket lifecycle events (created should come first!)
+        $ticket->logEvent('created', null, $thisstaff ?: $user);
+
         // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
             $pris = $org->autoAddPrimaryContactsAsCollabs();
@@ -3148,11 +3152,10 @@ implements RestrictedAccess, Threadable {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId'], _S('Auto Assignment'));
+                 $ticket->assignToStaff($vars['staffId']);
             if ($vars['teamId'])
                 // No team alert if also assigned to an individual agent
-                $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'),
-                    !$vars['staffId']);
+                $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
         }
 
         // Update the estimated due date in the database
@@ -3207,9 +3210,6 @@ implements RestrictedAccess, Threadable {
         ) {
             $ticket->onOpenLimit($autorespond && strcasecmp($origin, 'staff'));
         }
-
-        /* Start tracking ticket lifecycle events */
-        $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
         Signal::send('ticket.created', $ticket);

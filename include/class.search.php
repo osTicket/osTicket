@@ -450,7 +450,8 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $ticket = Ticket::lookup($row[0]);
+            if (!($ticket = Ticket::lookup($row[0])))
+                continue;
             $cdata = $ticket->loadDynamicData();
             $content = array();
             foreach ($cdata as $k=>$a)

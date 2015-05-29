@@ -45,7 +45,8 @@ if ($user && ($url = $user->get_gravatar(48)))
         </div>
 <?php
         echo sprintf(__('<b>%s</b> posted %s'), $name,
-            sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+            sprintf('<a name="entry-%d" href="#entry-%1$s"><time class="relative" datetime="%s" title="%s">%s</time></a>',
+                $entry->id,
                 date(DateTime::W3C, Misc::db2gmtime($entry->created)),
                 Format::daydatetime($entry->created),
                 Format::relativeTime(Misc::db2gmtime($entry->created))
@@ -57,6 +58,7 @@ if ($user && ($url = $user->get_gravatar(48)))
     </div>
     <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
+        <div class="clear"></div>
 <?php
     if ($entry->has_attachments) { ?>
     <div class="attachments"><?php

@@ -22,7 +22,7 @@ CREATE TABLE `%TABLE_PREFIX%_ticket_thread_evt`
     WHERE `object_type` = 'T';
 
 UPDATE `%TABLE_PREFIX%thread_event` A1
-    JOIN `%TABLE_PREFIX%_ticket_thread_evt` A2 ON (A1.`thread_id` = A2.`object_id`)
+    LEFT JOIN `%TABLE_PREFIX%_ticket_thread_evt` A2 ON (A1.`thread_id` = A2.`object_id`)
     SET A1.`thread_id` = A2.`id`;
 
 DROP TABLE `%TABLE_PREFIX%_ticket_thread_evt`;

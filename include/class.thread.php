@@ -1553,6 +1553,10 @@ class ThreadEvent extends VerySimpleModel {
                 $collabs = array();
                 if ($data['add']) {
                     foreach ($data['add'] as $c) {
+                        if (is_array($c))
+                            $c = sprintf(__("%s via %a"
+                                /* e.g. "Me <me@company.me> via Email (to)" */),
+                                $c[0], $c[1]);
                         $collabs[] = Format::htmlchars($c);
                     }
                 }
@@ -1666,34 +1670,31 @@ class ThreadEvent extends VerySimpleModel {
         include $inc . 'templates/thread-event.tmpl.php';
     }
 
-    static function create($ht=false) {
+    static function create($ht=false, $user=false) {
         $inst = parent::create($ht);
         $inst->timestamp = SqlFunction::NOW();
 
         global $thisstaff, $thisclient;
-        if ($thisstaff) {
+        $user = is_object($user) ? $user : $thisstaff ?: $thisclient;
+        if ($user instanceof Staff) {
             $inst->uid_type = 'S';
-            $inst->uid = $thisstaff->getId();
+            $inst->uid = $user->getId();
         }
-        else if ($thisclient) {
+        elseif ($user instanceof User) {
             $inst->uid_type = 'U';
-            $inst->uid = $thisclient->getId();
+            $inst->uid = $user->getId();
         }
 
         return $inst;
     }
 
-    static function forTicket($ticket, $state) {
+    static function forTicket($ticket, $state, $user=false) {
         $inst = static::create(array(
             'staff_id' => $ticket->getStaffId(),
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
             'topic_id' => $ticket->getTopicId(),
-        ));
-        if (!isset($inst->uid_type) && $state == self::CREATED) {
-            $inst->uid_type = 'U';
-            $inst->uid = $ticket->getOwnerId();
-        }
+        ), $user);
         return $inst;
     }
 }
@@ -1705,13 +1706,27 @@ class ThreadEvents extends InstrumentedList {
             ->update(array('annulled' => 1));
     }
 
-    function log($object, $state, $data=null, $annul=null, $username=null) {
+    /**
+     * Add an event to the thread activity log.
+     *
+     * Parameters:
+     * $object - Object to log activity for
+     * $state - State name of the activity (one of 'created', 'edited',
+     *      'deleted', 'closed', 'reopened', 'error', 'collab', 'resent',
+     *      'assigned', 'transferred')
+     * $data - (array?) Details about the state change
+     * $user - (string|User|Staff) user triggering the state change
+     * $annul - (state) a corresponding state change that is annulled by
+     *      this event
+     */
+    function log($object, $state, $data=null, $user=null, $annul=null) {
         global $thisstaff, $thisclient;
 
         if ($object instanceof Ticket)
-            $event = ThreadEvent::forTicket($object, $state);
+            // TODO: Use $object->createEvent()
+            $event = ThreadEvent::forTicket($object, $state, $user);
         else
-            $event = ThreadEvent::create();
+            $event = ThreadEvent::create(false, $user);
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
@@ -1720,11 +1735,14 @@ class ThreadEvents extends InstrumentedList {
             $this->annul($annul);
         }
 
-        if ($username === null) {
-            if ($thisstaff) {
-                $username = $thisstaff->getUserName();
+        $username = $user;
+        $user = is_object($user) ? $user : $thisclient ?: $thisstaff;
+        if (!is_string($username)) {
+            if ($user instanceof Staff) {
+                $username = $user->getUserName();
             }
-            else if ($thisclient) {
+            // XXX: Use $user here
+            elseif ($thisclient) {
                 if ($thisclient->hasAccount)
                     $username = $thisclient->getAccount()->getUserName();
                 if (!$username)
@@ -2097,6 +2115,7 @@ implements TemplateVariable {
 
     static $types = array(
         ObjectModel::OBJECT_TYPE_TASK => 'TaskThread',
+        ObjectModel::OBJECT_TYPE_TICKET => 'TicketThread',
     );
 
     var $counts;

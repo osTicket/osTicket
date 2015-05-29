@@ -57,6 +57,7 @@ if ($user && ($url = $user->get_gravatar(48)))
     </div>
     <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
+        <div class="clear"></div>
 <?php
     if ($entry->has_attachments) { ?>
     <div class="attachments"><?php
