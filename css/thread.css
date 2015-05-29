@@ -31,6 +31,8 @@
   background-color: #ffffff;
   margin: 0;
   padding: 0.5em;
+  word-wrap: break-word;
+  overflow-x: auto;
 }
 .thread-body a:focus {
   outline: thin dotted;
