@@ -2391,6 +2391,9 @@ td.indented {
     padding: 0 2px 15px;
     margin-left: 60px;
 }
+.thread-event a {
+    color: inherit;
+}
 .type-icon {
     border-radius: 8px;
     background-color: #f4f4f4;

@@ -381,10 +381,10 @@ class Thread extends VerySimpleModel {
             // Try not to destroy the format of the body
             $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
                 $mailinfo['email']);
-            if ($body instanceof HtmlThreadBody)
+            if ($body instanceof HtmlThreadEntryBody)
                 $header = nl2br(Format::htmlchars($header));
             // Add the banner to the top of the message
-            if ($body instanceof ThreadBody)
+            if ($body instanceof ThreadEntryBody)
                 $body->prepend($header);
             $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
@@ -565,6 +565,7 @@ implements TemplateVariable {
     const FLAG_EDITED                   = 0x0002;
     const FLAG_HIDDEN                   = 0x0004;
     const FLAG_GUARDED                  = 0x0008;   // No replace on edit
+    const FLAG_RESENT                   = 0x0010;
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -760,6 +761,17 @@ implements TemplateVariable {
 
     function getUser() {
         return $this->user;
+    }
+
+    function getEditor() {
+        static $types = array(
+            'U' => 'User',
+            'S' => 'Staff',
+        );
+        if (!isset($types[$this->editor_type]))
+            return null;
+
+        return $types[$this->editor_type]::lookup($this->editor);
     }
 
     function getName() {
@@ -1527,6 +1539,7 @@ class ThreadEvent extends VerySimpleModel {
             'edited'    => 'pencil',
             'closed'    => 'thumbs-up-alt',
             'reopened'  => 'rotate-right',
+            'resent'    => 'reply-all icon-flip-horizontal',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -1595,6 +1608,7 @@ class ThreadEvent extends VerySimpleModel {
                     return '';
                 return sprintf($base, implode(', ', $changes));
             },
+            'resent' => __('<b>{username}</b> resent <strong><a href="#thread-entry-{data.entry}">a previous response</a></strong> {timestamp}'),
         );
         $self = $this;
         $data = $this->getData();

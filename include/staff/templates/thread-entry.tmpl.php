@@ -38,9 +38,13 @@ if ($user && ($url = $user->get_gravatar(48)))
         <span style="vertical-align:middle;" class="textra">
 <?php   if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
             <span class="label label-bare" title="<?php
-        echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated), 'You');
+            echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated),
+                ($editor = $entry->getEditor()) ? $editor->getName() : '');
                 ?>"><?php echo __('Edited'); ?></span>
-        <?php } ?>
+<?php   } ?>
+<?php   if ($entry->flags & ThreadEntry::FLAG_RESENT) { ?>
+            <span class="label label-bare"><?php echo __('Resent'); ?></span>
+<?php   } ?>
         </span>
         </div>
 <?php
@@ -56,11 +60,15 @@ if ($user && ($url = $user->get_gravatar(48)))
             echo $entry->title; ?></span>
         </span>
     </div>
-    <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">
+    <div class="thread-body">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
         <div class="clear"></div>
 <?php
-    if ($entry->has_attachments) { ?>
+    // The strangeness here is because .has_attachments is an annotation from
+    // Thread::getEntries(); however, this template may be used in other
+    // places such as from thread entry editing
+    if (isset($entry->has_attachments) ? $entry->has_attachments
+            : $entry->attachments->filter(array('inline'=>0))->count()) { ?>
     <div class="attachments"><?php
         foreach ($entry->attachments as $A) {
             if ($A->inline)
@@ -83,7 +91,7 @@ if ($user && ($url = $user->get_gravatar(48)))
 <?php
     if ($urls = $entry->getAttachmentUrls()) { ?>
         <script type="text/javascript">
-            $('#thread-id-<?php echo $entry->getId(); ?>')
+            $('#thread-entry-<?php echo $entry->getId(); ?>')
                 .data('urls', <?php
                     echo JsonDataEncoder::encode($urls); ?>)
                 .data('id', <?php echo $entry->getId(); ?>);

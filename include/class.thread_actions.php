@@ -88,12 +88,12 @@ $.dialog(url, [201], function(xhr, resp) {
   var json = JSON.parse(resp);
   if (!json || !json.thread_id)
     return;
-  $('#thread-id-'+json.thread_id)
-    .attr('id', 'thread-id-' + json.new_id)
-    .find('div')
-    .html(json.body)
-    .closest('td')
-    .effect('highlight')
+  $('#thread-entry-'+json.thread_id)
+    .attr('id', 'thread-entry-' + json.new_id)
+    .html(json.entry)
+    .find('.thread-body')
+    .delay(500)
+    .effect('highlight');
 }, {size:'large'});
 JS
         , $this->getAjaxUrl());
@@ -118,10 +118,10 @@ JS
     }
 
     function updateEntry($guard=false) {
+        global $thisstaff;
+
         $old = $this->entry;
-        $type = ($old->format == 'html')
-            ? 'HtmlThreadEntryBody' : 'TextThreadEntryBody';
-        $new = new $type($_POST['body']);
+        $new = ThreadEntryBody::fromFormattedText($_POST['body'], $old->format);
 
         if ($new->getClean() == $old->body)
             // No update was performed
@@ -139,7 +139,7 @@ JS
             'pid' => $old->id,
 
             // Add in new stuff
-            'title' => $_POST['title'],
+            'title' => Format::htmlchars($_POST['title']),
             'body' => $new,
             'ip_address' => $_SERVER['REMOTE_ADDR'],
         ));
@@ -151,6 +151,8 @@ JS
         // that way for email header lookups and such to remain consistent
 
         if ($old->flags & ThreadEntry::FLAG_EDITED
+            // If editing another person's edit, make a new entry
+            and ($old->editor == $thisstaff->getId() && $old->editor_type == 'S')
             and !($old->flags & ThreadEntry::FLAG_GUARDED)
         ) {
             // Replace previous edit --------------------------
@@ -162,20 +164,24 @@ JS
             $old = $original;
         }
 
-        // Mark the new entry as edited (but not hidden)
-        $entry->flags = ($old->flags & ~ThreadEntry::FLAG_HIDDEN)
+        // Mark the new entry as edited (but not hidden nor guarded)
+        $entry->flags = ($old->flags & ~(ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))
             | ThreadEntry::FLAG_EDITED;
 
         // Guard against deletes on future edit if requested. This is done
         // if an email was triggered by the last edit. In such a case, it
-        // should not be replace by a subsequent edit.
+        // should not be replaced by a subsequent edit.
         if ($guard)
             $entry->flags |= ThreadEntry::FLAG_GUARDED;
 
-        // Sort in the same place in the thread — XXX: Add a `sequence` id
+        // Log the editor
+        $entry->editor = $thisstaff->getId();
+        $entry->editor_type = 'S';
+
+        // Sort in the same place in the thread
         $entry->created = $old->created;
         $entry->updated = SqlFunction::NOW();
-        $entry->save();
+        $entry->save(true);
 
         // Hide the old entry from the object thread
         $old->flags |= ThreadEntry::FLAG_HIDDEN;
@@ -190,10 +196,14 @@ JS
         if (!($entry = $this->updateEntry()))
             return $this->trigger__get();
 
+        ob_start();
+        include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
+        $content = ob_get_clean();
+
         Http::response('201', JsonDataEncoder::encode(array(
-            'thread_id' => $this->entry->id,
+            'thread_id' => $this->entry->id, # This is the old id!
             'new_id' => $entry->id,
-            'body' => $entry->getBody()->toHtml(),
+            'entry' => $content,
         )));
     }
 }
@@ -250,13 +260,17 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
         if (!($entry = $this->updateEntry($resend)))
             return $this->trigger__get();
 
-        if (@$_POST['commit'] == 'resend')
+        if ($resend)
             $this->resend($entry);
 
+        ob_start();
+        include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
+        $content = ob_get_clean();
+
         Http::response('201', JsonDataEncoder::encode(array(
-            'thread_id' => $this->entry->id,
+            'thread_id' => $this->entry->id, # This is the old id!
             'new_id' => $entry->id,
-            'body' => $entry->getBody()->toHtml(),
+            'entry' => $content,
         )));
     }
 
@@ -299,6 +313,13 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
         }
         // TODO: Add an option to the dialog
         $ticket->notifyCollaborators($response, array('signature' => $signature));
+
+        // Log an event that the item was resent
+        $ticket->logEvent('resent', array('entry' => $response->id));
+
+        // Flag the entry as resent
+        $response->flags |= ThreadEntry::FLAG_RESENT;
+        $response->save();
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_EditAndResendThreadEntry');

@@ -305,7 +305,7 @@ $.showNonLocalImage = function(div) {
 $.showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
         ? '.thread-body img[data-cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
+        : '.thread-body#thread-entry-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
         var e = $(el),
             cid = e.data('cid').toLowerCase(),

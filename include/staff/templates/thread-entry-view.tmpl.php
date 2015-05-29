@@ -16,7 +16,7 @@ do {
         // If you originally posted it, you can see all the edits
         && $E->staff_id != $thisstaff->getId()
         // You can see your own edits
-        //  && $E->editor != $thisstaff->getId()
+        && ($E->editor != $thisstaff->getId() || $E->editor_type != 'S')
     ) {
         // Skip edits made by other agents
         continue;
@@ -26,7 +26,8 @@ do {
     <strong><?php if ($E->title)
         echo Format::htmlchars($E->title).' — '; ?></strong>
     <em><?php if (strpos($E->updated, '0000-') === false)
-        echo sprintf(__('Edited on %s'), Format::datetime($E->updated));
+        echo sprintf(__('Edited on %s by %s'), Format::datetime($E->updated),
+            ($editor = $E->getEditor()) ? $editor->getName() : '');
     else
         echo __('Original'); ?></em>
     </a>

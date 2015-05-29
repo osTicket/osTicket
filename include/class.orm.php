@@ -588,6 +588,7 @@ class AnnotatedModel {
             return $this->annotations[$what];
         return $this->model->get($what, null);
     }
+
     function __set($what, $to) {
         return $this->set($what, $to);
     }
@@ -595,6 +596,10 @@ class AnnotatedModel {
         if (isset($this->annotations[$what]))
             throw new OrmException('Annotated fields are read-only');
         return $this->model->set($what, $to);
+    }
+
+    function __isset($what) {
+        return isset($this->annotations[$what]) || $this->model->__isset($what);
     }
 
     // Delegate everything else to the model

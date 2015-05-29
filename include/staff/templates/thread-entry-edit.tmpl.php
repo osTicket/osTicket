@@ -33,7 +33,7 @@
     class="large <?php
         if ($cfg->isRichTextEnabled() && $this->entry->format == 'html')
             echo 'richtext';
-    ?>"><?php echo Format::viewableImages($this->entry->body);
+    ?>"><?php echo htmlspecialchars(Format::viewableImages($this->entry->body));
 ?></textarea>
 
 <?php if ($this->entry->type == 'R') { ?>
