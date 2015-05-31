@@ -1794,7 +1794,7 @@ class PasswordWidget extends TextboxWidget {
         parent::parseValue();
         // Show empty box unless failed POST
         if ($_SERVER['REQUEST_METHOD'] != 'POST'
-                || $this->field->getForm()->isValid())
+                || !$this->field->getForm()->isValid())
             $this->value = '';
     }
 }
