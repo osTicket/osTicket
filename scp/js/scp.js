@@ -261,7 +261,7 @@ var scp_prep = function() {
         },
         onselect: function (obj) {
             var form = $('#basic-ticket-search').closest('form');
-            form.find('input[name=search-type]').val('email');
+            form.find('input[name=search-type]').val('typeahead');
             $('#basic-ticket-search').val(obj.value);
             form.submit();
         },

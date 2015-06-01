@@ -77,18 +77,28 @@ case 'search':
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
         // Use an index if possible
-        if ($_REQUEST['search-type'] == 'email') {
+        if ($_REQUEST['search-type'] == 'typeahead' && Validator::is_email($_REQUEST['query'])) {
             $tickets = $tickets->filter(array(
                 'user__emails__address' => $_REQUEST['query'],
             ));
         }
         else {
-            $tickets = $tickets->filter(Q::any(array(
+            $basic_search = Q::any(array(
                 'number__startswith' => $_REQUEST['query'],
                 'user__name__contains' => $_REQUEST['query'],
                 'user__emails__address__contains' => $_REQUEST['query'],
                 'user__org__name__contains' => $_REQUEST['query'],
-            )));
+            ));
+            if (!$_REQUEST['search-type']) {
+                // [Search] click, consider keywords too. This is a
+                // relatively ugly hack. SearchBackend::find() add in a
+                // constraint for the search. We need to pop that off and
+                // include it as an OR with the above constraints
+                $tickets = $ost->searcher->find($_REQUEST['query'], $tickets);
+                $keywords = array_pop($tickets->constraints);
+                $basic_search->add($keywords);
+            }
+            $tickets->filter($basic_search);
         }
         break;
     } elseif (isset($_SESSION['advsearch'])) {
