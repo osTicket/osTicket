@@ -293,20 +293,6 @@ $.autoLock = autoLock;
 /*
    UI & form events
 */
-$.showNonLocalImage = function(div) {
-    var $div = $(div),
-        $img = $div.append($('<img>')
-          .attr('src', $div.data('src'))
-          .attr('alt', $div.attr('alt'))
-          .attr('title', $div.attr('title'))
-          .attr('style', $div.data('style'))
-        );
-    if ($div.attr('width'))
-        $img.width($div.attr('width'));
-    if ($div.attr('height'))
-        $img.height($div.attr('height'));
-};
-
 $.showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
         ? '.thread-body img[data-cid]'
@@ -358,7 +344,7 @@ $.refreshTicketView = function(interval) {
 }
 
 var ticket_onload = function($) {
-    if (0 === $('#ticket_thread').length)
+    if (0 === $('#ticketThread').length)
         return;
 
     //Start watching the form for activity.
@@ -397,66 +383,6 @@ var ticket_onload = function($) {
             $cc.show();
      });
 
-    // Optionally show external images
-    $('.thread-entry').each(function(i, te) {
-        var extra = $(te).find('.textra'),
-            imgs = $(te).find('.non-local-image[data-src]');
-        if (!extra) return;
-        if (!imgs.length) return;
-        extra.append($('<a>')
-          .addClass("action-button pull-right show-images")
-          .css({'font-weight':'normal'})
-          .text(' ' + __('Show Images'))
-          .click(function(ev) {
-            imgs.each(function(i, img) {
-              $.showNonLocalImage(img);
-              $(img).removeClass('non-local-image')
-                // Remove placeholder sizing
-                .css({'display':'inline-block'})
-                .width('auto')
-                .height('auto')
-                .removeAttr('width')
-                .removeAttr('height');
-              extra.find('.show-images').hide();
-            });
-          })
-          .prepend($('<i>')
-            .addClass('icon-picture')
-          )
-        );
-        imgs.each(function(i, img) {
-            var $img = $(img);
-            // Save a copy of the original styling
-            $img.data('style', $img.attr('style'));
-            $img.removeAttr('style');
-            // If the image has a 'height' attribute, use it, otherwise, use
-            // 40px
-            $img.height(($img.attr('height') || '40') + 'px');
-            // Ensure the image placeholder is visible width-wise
-            if (!$img.width())
-                $img.width(($img.attr('width') || '80') + 'px');
-            // TODO: Add a hover-button to show just one image
-        });
-    });
-
-    $.showImagesInline($('#ticket_thread').data('imageUrls'));
-
-    var last_entry = $('#ticket_thread .thread-entry').last(),
-        frame = 0;
-    $('html, body').delay(500).animate({
-        scrollTop: last_entry.offset().top - 50,
-    }, {
-        duration: 750,
-        step: function(now, fx) {
-            // Recalc end target every few frames
-            if (++frame % 6 == 0)
-                fx.end = last_entry.offset().top - 50;
-        }
-    });
-
-    $('div.thread-body a').each(function() {
-        $(this).attr('target', '_blank');
-    });
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });

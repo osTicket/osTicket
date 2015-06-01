@@ -212,7 +212,12 @@ class Thread extends VerySimpleModel {
         return true;
     }
     // Render thread
-    function render($type=false, $mode=self::MODE_STAFF) {
+    function render($type=false, $options=array()) {
+
+        $mode = $options['mode'] ?: self::MODE_STAFF;
+
+        // Register thread actions prior to rendering the thread.
+        include_once INCLUDE_DIR . 'class.thread_actions.php';
 
         $entries = $this->getEntries();
         if ($type && is_array($type))

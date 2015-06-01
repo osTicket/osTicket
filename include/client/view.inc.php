@@ -127,11 +127,12 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 </table>
 <br>
 
-<div id="ticketThread">
 <?php
-    $ticket->getThread()->render(array('M', 'R'), Thread::MODE_CLIENT);
+    $ticket->getThread()->render(array('M', 'R'), array(
+                'mode' => Thread::MODE_CLIENT,
+                'html-id' => 'ticketThread')
+            );
 ?>
-</div>
 
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>

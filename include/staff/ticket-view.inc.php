@@ -1,6 +1,4 @@
 <?php
-include_once INCLUDE_DIR . 'class.thread_actions.php';
-
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
 
@@ -434,10 +432,16 @@ $tcount = $ticket->getThreadEntries($types)->count();
 </ul>
 
 <div id="ticket_tabs_container">
-    <div id="ticket_thread" data-thread-id="<?php echo $ticket->getThread()->getId(); ?>" class="tab_content">
-    <div id="thread-items">
-    <?php $ticket->getThread()->render(array('M', 'R', 'N')); ?>
-    </div>
+<div id="ticket_thread" class="tab_content">
+<?php
+    // Render ticket thread
+    $ticket->getThread()->render(
+            array('M', 'R', 'N'),
+            array(
+                'html-id' => 'ticketThread',
+                'mode' => Thread::MODE_STAFF)
+            );
+?>
 <div class="clear"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>
@@ -1035,18 +1039,4 @@ $(function() {
 }();
 <?php } ?>
 });
-
-<?php
-// Hover support for all inline images
-$urls = array();
-foreach (AttachmentFile::objects()->filter(array(
-    'attachments__thread_entry__thread__id' => $ticket->getThreadId(),
-    'attachments__inline' => true,
-)) as $file) {
-    $urls[strtolower($file->getKey())] = array(
-        'download_url' => $file->getDownloadUrl(),
-        'filename' => $file->name,
-    );
-} ?>
-$('#ticket_thread').data('imageUrls', <?php echo JsonDataEncoder::encode($urls); ?>);
 </script>
