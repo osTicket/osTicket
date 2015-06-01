@@ -265,7 +265,7 @@ class MailFetcher {
 
     function getHeaderInfo($mid) {
 
-        if(!($headerinfo=imap_headerinfo($this->mbox, $mid)) || !$headerinfo->from)
+        if(!($headerinfo=imap_rfc822_parse_headers(imap_fetchheader($this->mbox, $mid))) || !$headerinfo->from)
             return null;
 
         $raw_header = $this->getHeader($mid);
