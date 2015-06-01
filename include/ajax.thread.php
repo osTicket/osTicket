@@ -114,19 +114,6 @@ class ThreadAjaxAPI extends AjaxController {
             // FIXME: Refuse to add ticket owner??
             if (($c=$thread->addCollaborator($user,
                             array('isactive'=>1), $errors))) {
-                $note = Format::htmlchars(sprintf(__('%s <%s> added as a collaborator'),
-                            Format::htmlchars($c->getName()), $c->getEmail()));
-
-                $thread->getObject()->postThreadEntry('N',
-                        array(
-                            'title' => __('New Collaborator Added'),
-                            'note' => $note
-                            ),
-                        array(
-                            'poster' => $thisstaff,
-                            'alert' => false
-                            )
-                        );
                 $info = array('msg' => sprintf(__('%s added as a collaborator'),
                             Format::htmlchars($c->getName())));
                 return self::_collaborators($thread, $info);

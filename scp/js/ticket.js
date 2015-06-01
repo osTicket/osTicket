@@ -448,6 +448,10 @@ var ticket_onload = function($) {
                 fx.end = last_entry.offset().top - 50;
         }
     });
+
+    $('div.thread-body a').each(function() {
+        $(this).attr('target', '_blank');
+    });
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });

@@ -60,7 +60,7 @@ if ($user && ($url = $user->get_gravatar(48)))
             echo $entry->title; ?></span>
         </span>
     </div>
-    <div class="thread-body">
+    <div class="thread-body no-pjax">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
         <div class="clear"></div>
 <?php

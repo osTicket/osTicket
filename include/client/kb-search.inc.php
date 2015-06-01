@@ -5,7 +5,7 @@
 <?php
     if ($faqs->exists(true)) {
         echo '<div id="faq">'.sprintf(__('%d FAQs matched your search criteria.'),
-            count($faqs->all()))
+            $faqs->count())
             .'<ol>';
         foreach ($faqs as $F) {
             echo sprintf(

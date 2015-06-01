@@ -420,12 +420,16 @@
 	margin: 0;
 	margin-bottom: 10px;
 	border: none;
+    background: none;
+	box-shadow: none !important;
+    text-indent: 0 !important;
+}
+
+.thread-body pre {
     background: #f5f5f5;
     background-color: rgba(0,0,0,0.05);
     border-radius: 5px;
     padding: 0.5em;
-	box-shadow: none !important;
-    text-indent: 0 !important;
 }
 
 .thread-body iframe,

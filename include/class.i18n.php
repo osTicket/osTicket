@@ -280,6 +280,10 @@ class Internationalization {
     // Algorithm borrowed from Drupal 7 (locale.inc)
     static function getDefaultLanguage() {
         global $cfg;
+        static $lang;
+
+        if (isset($lang))
+            return $lang;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
             return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
@@ -358,10 +362,9 @@ class Internationalization {
           }
         }
 
-        if (self::isLanguageInstalled($best_match_langcode))
-            return $best_match_langcode;
-        else
-            return $cfg->getPrimaryLanguage();
+        return $lang = self::isLanguageInstalled($best_match_langcode)
+            ? $best_match_langcode
+            : $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {

@@ -2124,8 +2124,16 @@ class FileUploadField extends FormField {
     static function getFileTypes() {
         static $filetypes;
 
-        if (!isset($filetypes))
-            $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        if (!isset($filetypes)) {
+            if (function_exists('apc_fetch')) {
+                $key = md5(SECRET_SALT . GIT_VERSION . 'filetypes');
+                $filetypes = apc_fetch($key);
+            }
+            if (!$filetypes)
+                $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+            if ($key)
+                apc_store($key, $filetypes, 7200);
+        }
         return $filetypes;
     }
 

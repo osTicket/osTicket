@@ -208,7 +208,8 @@ class Ticket extends TicketModel
 implements RestrictedAccess, Threadable {
 
     static $meta = array(
-        'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread'),
+        'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread',
+            'user__default_email'),
     );
 
     var $lastMsgId;
@@ -229,12 +230,15 @@ implements RestrictedAccess, Threadable {
     function loadDynamicData() {
         if (!isset($this->_answers)) {
             $this->_answers = array();
-            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
-                foreach ($form->getAnswers() as $answer) {
-                    $tag = mb_strtolower($answer->field->name)
-                        ?: 'field.' . $answer->field->id;
-                        $this->_answers[$tag] = $answer;
-                }
+            foreach (DynamicFormEntryAnswer::objects()
+                ->filter(array(
+                    'entry__object_id' => $this->getId(),
+                    'entry__object_type' => 'T'
+                )) as $answer
+            ) {
+                $tag = mb_strtolower($answer->field->name)
+                    ?: 'field.' . $answer->field->id;
+                    $this->_answers[$tag] = $answer;
             }
         }
         return $this->_answers;
@@ -804,17 +808,10 @@ implements RestrictedAccess, Threadable {
         if (!$user || $user->getId() == $this->getOwnerId())
             return null;
 
-        $vars = array_merge(array(
-                'threadId' => $this->getThreadId(),
-                'userId' => $user->getId()), $vars);
-        if (!($c=Collaborator::add($vars, $errors)))
-            return null;
-
-        $this->collaborators = null;
-        $this->recipients = null;
-
-        if ($event)
-            $this->logEvent('collab', array('add' => array($c->toString())));
+        if ($c = $this->getThread()->addCollaborator($user, $vars, $errors, $event)) {
+            $this->collaborators = null;
+            $this->recipients = null;
+        }
 
         return $c;
     }
@@ -2070,7 +2067,10 @@ implements RestrictedAccess, Threadable {
                     if ($c=$this->addCollaborator($user, $info, $errors, false))
                         // FIXME: This feels very unwise — should be a
                         // string indexed array for future
-                        $collabs[] = array((string)$c, $recipient['source']);
+                        $collabs[$c->user_id] = array(
+                            'name' => $c->getName()->getOriginal(),
+                            'src' => $recipient['source'],
+                        );
             }
             // TODO: Can collaborators add others?
             if ($collabs) {

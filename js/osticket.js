@@ -133,6 +133,10 @@ $(document).ready(function(){
             // TODO: Add a hover-button to show just one image
         });
     });
+
+    $('div.thread-body a').each(function() {
+        $(this).attr('target', '_blank');
+    });
 });
 
 showImagesInline = function(urls, thread_id) {

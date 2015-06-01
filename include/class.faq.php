@@ -367,10 +367,10 @@ class FAQ extends VerySimpleModel {
     }
 
     static function allPublic() {
-        return static::objects()->exclude(array(
+        return static::objects()->exclude(Q::any(array(
             'ispublished'=>self::VISIBILITY_PRIVATE,
             'category__ispublic'=>Category::VISIBILITY_PRIVATE,
-        ));
+        )));
     }
 
     static function countPublishedFAQs() {

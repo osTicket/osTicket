@@ -274,23 +274,21 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered');
 
 // Add in annotations
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
-    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
-       ->when(new SqlField('thread__entries__attachments__inline'), null)
-       ->otherwise(new SqlField('thread__entries__attachments')),
-        true
-    ),
-    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
-        ->when(
-            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
-            null)
-        ->otherwise(new SqlField('thread__entries__id')),
-       true
-    ),
+    'collab_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
+    'attachment_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('entries__attachments__inline' => 0))
+        ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+    'thread_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(Q::not(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN)))
+        ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
 // Save the query to the session for exporting
