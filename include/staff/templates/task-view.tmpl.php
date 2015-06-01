@@ -59,13 +59,15 @@ if ($task->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
-    <tr>
-        <td width="<?php echo $ticket ? '70%' : '20%'; ?>" class="has_bottom_border">
+
+<div class="has_bottom_border" class="sticky bar stop">
+    <div class="sticky bar">
+       <div class="content">
+        <div class="pull-left flush-left">
             <?php
             if ($ticket) { ?>
                 <strong>
-                <a id="tasks" href="#"> All Tasks (<?php echo $ticket->getNumTasks(); ?>)</a>
+                <a id="ticket-tasks" href="#"> All Tasks (<?php echo $ticket->getNumTasks(); ?>)</a>
                 &nbsp;/&nbsp;
                 <?php echo $task->getTitle(); ?>
                 &nbsp;&mdash;&nbsp;
@@ -88,11 +90,12 @@ if ($task->isOverdue())
                 href="tasks.php?id=<?php echo $task->getId(); ?>"
                 ><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
+                <span class="faded notsticky">&nbsp;&mdash; &nbsp;<?php echo $task->getTitle(); ?></span>
                </h2>
             <?php
             } ?>
-        </td>
-        <td width="auto" class="flush-right has_bottom_border">
+        </div>
+        <div class="flush-right">
             <?php
             if ($ticket) { ?>
             <span
@@ -143,9 +146,10 @@ if ($task->isOverdue())
            <?php
                 }
            } ?>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+   </div>
+</div>
 
 <?php
 if (!$ticket) { ?>
@@ -279,14 +283,18 @@ if (!$ticket) { ?>
 } ?>
 <div class="clear"></div>
 <div id="task_thread_container">
-    <div id="task_thread_content" data-thread-id="<?php echo
-    $task->getThread()->getId(); ?>" class="tab_content">
-    <?php
-    $task->getThread()->render(array('M', 'R', 'N'));
-    ?>
+    <div id="task_thread_content" class="tab_content">
+     <?php
+     $task->getThread()->render(array('M', 'R', 'N'),
+             array(
+                 'mode' => Thread::MODE_STAFF,
+                 'container' => 'taskThread'
+                 )
+             );
+     ?>
    </div>
 </div>
-<div class="clear" style="padding-bottom:10px;"></div>
+<div class="clear"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>
 <?php }elseif($msg) { ?>
@@ -301,7 +309,7 @@ if ($ticket)
 else
     $action = 'tasks.php?id='.$task->getId();
 ?>
-<div id="response_options">
+<div id="response_options" class="sticky bar stop">
     <ul class="tabs"></ul>
     <form id="<?php echo $ticket? 'ticket_task_note': 'task_note'; ?>"
         action="<?php echo $action; ?>"
@@ -367,7 +375,8 @@ else
 
 <script type="text/javascript">
 $(function() {
-    $(document).on('click', 'li.active a#ticket_tasks, a#tasks', function(e) {
+    $(document).off('.tasks-content');
+    $(document).on('click.tasks-content', 'a#ticket-tasks', function(e) {
         e.preventDefault();
         $('div#task_content').hide().empty();
         $('div#tasks_content').show();

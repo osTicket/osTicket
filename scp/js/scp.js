@@ -435,6 +435,15 @@ var scp_prep = function() {
        }
    });
 
+    // Scroll to a stop or top on scroll-up click
+     $(document).off('click.scroll-up');
+     $(document).on('click.scroll-up', 'a.scroll-up', function() {
+        $stop = $(this).data('stop');
+        $('html, body').animate({scrollTop: ($stop ? $stop : 0)}, 'fast');
+        return false;
+      });
+
+
    // Make translatable fields translatable
    $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
 
@@ -449,9 +458,14 @@ var scp_prep = function() {
          placeholder = $('<div class="sticky placeholder">').insertBefore($that),
          offset = $that.offset(),
          top = offset.top - parseFloat($that.css('marginTop').replace(/auto/, 100)),
-         stop = $('div.sticky.bar.stop'),
+         stop = $('div.sticky.bar.stop').filter(':visible'),
          stopAt,
          visible = false;
+
+     // Append scroll-up icon and set stop point for this sticky
+     $('.content', $that)
+     .append($('<a class="only sticky scroll-up" href="#" data-stop='
+             + (placeholder.offset().top-75) +' ><i class="icon-chevron-up icon-large"></i></a>'));
 
      if (stop.length) {
        var onmove = function() {
@@ -465,7 +479,7 @@ var scp_prep = function() {
      }
 
      // Drop the sticky bar on PJAX navigation
-     $(document).on('pjax:click', function() {
+     $(document).on('pjax:start', function() {
          placeholder.removeAttr('style');
          $that.stop().removeClass('fixed');
          $(window).off('.sticky');
