@@ -132,14 +132,20 @@ if ($count) { ?>
 </div>
 <script type="text/javascript">
 $(function() {
+
+    $(document).off('click.tasks');
     $(document).on('click.tasks', 'tbody.tasks a, a#reload-task', function(e) {
         e.preventDefault();
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
         var $container = $('div#task_content');
-        $container.load(url, function () {
+        var $stop = $('ul#ticket_tabs').offset().top;
+        $.pjax({url: url, container: $container, push: false, scrollTo: $stop})
+        .done(
+            function() {
+            $container.show();
             $('.tip_box').remove();
             $('div#tasks_content').hide();
-        }).show();
+            });
         return false;
      });
     // Ticket Tasks
