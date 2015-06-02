@@ -81,6 +81,12 @@ class TicketModel extends VerySimpleModel {
                 'reverse' => 'TicketCData.ticket',
                 'list' => false,
             ),
+            'entries' => array(
+                'constraint' => array(
+                    "'T'" => 'DynamicFormEntry.object_type',
+                    'ticket_id' => 'DynamicFormEntry.object_id',
+                ),
+            ),
         )
     );
 

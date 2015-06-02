@@ -795,6 +795,7 @@ class SavedSearch extends VerySimpleModel {
         foreach ($form->getFields() as $f) {
             if (substr($f->get('name'), -7) == '+search' && $f->getClean()) {
                 $name = substr($f->get('name'), 0, -7);
+                $filter = new Q();
                 // Determine the search method and fetch the original field
                 if (($M = $form->getField("{$name}+method"))
                     && ($method = $M->getClean())
@@ -816,12 +817,6 @@ class SavedSearch extends VerySimpleModel {
                         );
                         $column = $field->get('name') ?: 'field_'.$field->get('id');
                         list($type,$id) = explode('!', $name, 2);
-                        $OP = $other_paths[$type];
-                        if ($type == ':field') {
-                            $DF = DynamicFormField::lookup($id);
-                            TicketModel::registerCustomData($DF->form);
-                            $OP = 'cdata+'.$DF->form->id.'__';
-                        }
                         // XXX: Last mile — find a better idea
                         switch (array($type, $column)) {
                         case array(':user', 'name'):
@@ -834,13 +829,21 @@ class SavedSearch extends VerySimpleModel {
                             $name = 'user__org__name';
                             break;
                         default:
+                            if ($type == ':field' && $id) {
+                                $name = 'entries__answers__value';
+                                $filter->add(array('entries__answers__field_id' => $id));
+                                break;
+                            }
+                            $OP = $other_paths[$type];
                             $name = $OP . $column;
                         }
                     }
 
                     // Add the criteria to the QuerySet
-                    if ($Q = $field->getSearchQ($method, $value, $name))
-                        $qs = $qs->filter($Q);
+                    if ($Q = $field->getSearchQ($method, $value, $name)) {
+                        $filter->add($Q);
+                        $qs = $qs->filter($filter);
+                    }
                 }
             }
         }

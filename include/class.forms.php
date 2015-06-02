@@ -1252,6 +1252,18 @@ class BooleanField extends FormField {
             'set.not' => null,
         );
     }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case 'set':
+            return new Q(array($name => '1'));
+        case 'set.not':
+            return new Q(array($name => '0'));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
+    }
 }
 
 class ChoiceField extends FormField {
