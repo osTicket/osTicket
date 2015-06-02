@@ -388,6 +388,10 @@ class FormField {
         $this->ht[$field] = $value;
     }
 
+    function getId() {
+        return $this->ht['id'];
+    }
+
     /**
      * getClean
      *
@@ -422,7 +426,7 @@ class FormField {
         return $this->_clean;
     }
     function reset() {
-        $this->_clean = $this->_widget = null;
+        $this->value = $this->_clean = $this->_widget = null;
     }
 
     function getValue() {
@@ -2918,7 +2922,9 @@ class CheckboxWidget extends Widget {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                return false;
+                // Indeterminite. Likely false, but consider current field
+                // value
+                return null;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();

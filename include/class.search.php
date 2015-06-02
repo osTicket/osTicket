@@ -327,6 +327,8 @@ class MysqlSearchBackend extends SearchBackend {
     function find($query, QuerySet $criteria) {
         global $thisstaff;
 
+        $criteria = clone $criteria;
+
         $mode = ' IN BOOLEAN MODE';
         #if (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
@@ -627,11 +629,11 @@ class SavedSearch extends VerySimpleModel {
             // added to the form. The state will be loaded below
             foreach ($state as $k=>$v) {
                 $info = array();
-                if (!preg_match('/^:(\w+)!(\d+)\+search/', $k, $info)) {
+                if (!preg_match('/^:(\w+)(?:!(\d+))?\+search/', $k, $info)) {
                     continue;
                 }
                 list($k,) = explode('+', $k, 2);
-                $source['fields'][] = ":{$info[1]}!{$info[2]}";
+                $source['fields'][] = $k;
             }
         }
         return $this->getForm($source);
@@ -644,6 +646,7 @@ class SavedSearch extends VerySimpleModel {
         $searchable = $this->getCurrentSearchFields($source);
         $fields = array(
             'keywords' => new TextboxField(array(
+                'id' => 3001,
                 'configuration' => array(
                     'size' => 40,
                     'length' => 400,
@@ -675,36 +678,42 @@ class SavedSearch extends VerySimpleModel {
 
     function getCurrentSearchFields($source=false) {
         $core = array(
-            'state' =>      new TicketStateChoiceField(array(
-                'label' => __('State'),
-            )),
             'status_id' =>  new TicketStatusChoiceField(array(
+                'id' => 3101,
                 'label' => __('Status'),
             )),
-            'flags' =>      new TicketFlagChoiceField(array(
-                'label' => __('Flags'),
-            )),
             'dept_id'   =>  new DepartmentChoiceField(array(
+                'id' => 3102,
                 'label' => __('Department'),
             )),
             'assignee'  =>  new AssigneeChoiceField(array(
+                'id' => 3103,
                 'label' => __('Assignee'),
             )),
             'topic_id'  =>  new HelpTopicChoiceField(array(
+                'id' => 3104,
                 'label' => __('Help Topic'),
             )),
             'created'   =>  new DateTimeField(array(
+                'id' => 3105,
                 'label' => __('Created'),
             )),
             'duedate'   =>  new DateTimeField(array(
+                'id' => 3106,
                 'label' => __('Due Date'),
             )),
         );
+
+        $extended = self::getExtendedTicketFields();
 
         // Add 'other' fields added dynamically
         if (is_array($source) && isset($source['fields'])) {
             foreach ($source['fields'] as $f) {
                 $info = array();
+                if (isset($extended[$f])) {
+                    $core[$f] = $extended[$f];
+                    continue;
+                }
                 if (!preg_match('/^:(\w+)!(\d+)/', $f, $info)) {
                     continue;
                 }
@@ -718,27 +727,56 @@ class SavedSearch extends VerySimpleModel {
                 }
             }
         }
-
         return $core;
     }
 
+    static function getExtendedTicketFields() {
+        return array(
+#            ':user' =>       new UserChoiceField(array(
+#                'label' => __('Ticket Owner'),
+#            )),
+#            ':org' =>        new OrganizationChoiceField(array(
+#                'label' => __('Organization'),
+#            )),
+            ':source' =>     new TicketSourceChoiceField(array(
+                'id' => 3201,
+                'label' => __('Source'),
+            )),
+            ':state' =>      new TicketStateChoiceField(array(
+                'id' => 3202,
+                'label' => __('State'),
+            )),
+            ':flags' =>      new TicketFlagChoiceField(array(
+                'id' => 3203,
+                'label' => __('Flags'),
+            )),
+        );
+    }
+
     static function getSearchField($field, $name) {
+        $baseId = $field->getId() * 20;
         $pieces = array();
         $pieces["{$name}+search"] = new BooleanField(array(
-            'configuration' => array('desc' => $field->get('label'))
+            'id' => $baseId + 50000,
+            'configuration' => array(
+                'desc' => $field->get('label'),
+            ),
         ));
         $methods = $field->getSearchMethods();
         $pieces["{$name}+method"] = new ChoiceField(array(
+            'id' => $baseId + 50001,
             'choices' => $methods,
             'default' => key($methods),
             'visibility' => new VisibilityConstraint(new Q(array(
                 "{$name}+search__eq" => true,
             )), VisibilityConstraint::HIDDEN),
         ));
+        $offs = 0;
         foreach ($field->getSearchMethodWidgets() as $m=>$w) {
             if (!$w)
                 continue;
             list($class, $args) = $w;
+            $args['id'] = $baseId + 50002 + $offs++;
             $args['required'] = true;
             $args['visibility'] = new VisibilityConstraint(new Q(array(
                     "{$name}+method__eq" => $m,
@@ -1006,6 +1044,29 @@ class TicketFlagChoiceField extends ChoiceField {
             $Q->negate();
         if ($Q->constraints)
             return $Q;
+    }
+}
+
+class TicketSourceChoiceField extends ChoiceField {
+    function getChoices() {
+        return array(
+            'w' => __('Web'),
+            'e' => __('Email'),
+            'p' => __('Phone'),
+            'a' => __('API'),
+            'o' => __('Other'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'source');
     }
 }
 

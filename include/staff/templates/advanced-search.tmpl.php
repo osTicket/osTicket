@@ -16,14 +16,16 @@ foreach ($form->errors(true) ?: array() as $message) {
 
 foreach ($form->getFields() as $name=>$field) { ?>
     <fieldset id="field<?php echo $field->getWidget()->id;
-        ?>" <?php if (!$field->isVisible()) echo 'style="display:none;"'; ?>>
+        ?>" <?php if (!$field->isVisible()) echo 'class="hidden"'; ?>>
         <?php echo $field->render(); ?>
         <?php foreach ($field->errors() as $E) {
             ?><div class="error"><?php echo $E; ?></div><?php
         } ?>
     </fieldset>
-    <?php if ($name[0] == ':') { ?>
-    <input type="hidden" name="fields[]" value="<?php echo $name; ?>"/>
+    <?php if ($name[0] == ':' && substr($name, -7) == '+search') {
+        list($N,) = explode('+', $name, 2);
+?>
+    <input type="hidden" name="fields[]" value="<?php echo $N; ?>"/>
     <?php }
 }
 ?>
@@ -38,7 +40,7 @@ foreach ($matches as $name => $fields) { ?>
     foreach ($fields as $id => $desc) { ?>
         <option value="<?php echo $id; ?>" <?php
             if (isset($state[$id])) echo 'disabled="disabled"';
-        ?>><?php echo $desc; ?></option>
+        ?>><?php echo ($desc instanceof FormField ? $desc->getLocal('label') : $desc); ?></option>
 <?php } ?>
     </optgroup>
 <?php } ?>

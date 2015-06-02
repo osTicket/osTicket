@@ -155,7 +155,8 @@ class DynamicForm{$form->id} extends DynamicForm {
         return \$instance;
     }
 }
-class TicketCdataForm{$form->id} {
+class TicketCdataForm{$form->id}
+extends VerySimpleModel {
     static \$meta = array(
         'view' => true,
         'pk' => array('ticket_id'),
@@ -171,13 +172,19 @@ class TicketCdataForm{$form->id} {
 }
 EOF;
             eval($cdata_class);
-            static::$meta['joins']['cdata+'.$form->id] = array(
-                'reverse' => 'TicketCdataForm'.$form->id.'.ticket',
-                'null' => true,
+            $join = array(
+                'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                'list' => true,
             );
             // This may be necessary if the model has already been inspected
             if (static::$meta instanceof ModelMeta)
-                static::$meta->processJoin(static::$meta['joins']['cdata+'.$form->id]);
+                static::$meta->addJoin('cdata+'.$form->id, $join);
+            else {
+                static::$meta['joins']['cdata+'.$form->id] = array(
+                    'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                    'list' => true,
+                );
+            }
         }
     }
 

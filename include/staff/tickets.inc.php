@@ -97,6 +97,9 @@ case 'search':
                 $tickets = $ost->searcher->find($_REQUEST['query'], $tickets);
                 $keywords = array_pop($tickets->constraints);
                 $basic_search->add($keywords);
+                // FIXME: The subquery technique below will crash with
+                //        keyword search
+                $use_subquery = false;
             }
             $tickets->filter($basic_search);
         }

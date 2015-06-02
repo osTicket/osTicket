@@ -158,6 +158,11 @@ class ModelMeta implements ArrayAccess {
         $j['constraint'] = $constraint;
     }
 
+    function addJoin($name, array $join) {
+        $this->base['joins'][$name] = $join;
+        $this->processJoin($this->base['joins'][$name]);
+    }
+
     function offsetGet($field) {
         if (!isset($this->base[$field]))
             $this->setupLazy($field);
