@@ -105,9 +105,7 @@ case 'search':
         }
         break;
     } elseif (isset($_SESSION['advsearch'])) {
-        // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
-        $form->loadState($_SESSION['advsearch']);
         $tickets = $search->mangleQuerySet($tickets, $form);
         $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')

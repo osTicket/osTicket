@@ -621,22 +621,25 @@ class SavedSearch extends VerySimpleModel {
         )));
     }
 
-    function getFormFromSession($key, $source=false) {
-        if (isset($_SESSION[$key])) {
-            $source = $source ?: array();
-            $state = $_SESSION[$key];
-            // Pull out 'other' fields from the state so the fields will be
-            // added to the form. The state will be loaded below
-            foreach ($state as $k=>$v) {
-                $info = array();
-                if (!preg_match('/^:(\w+)(?:!(\d+))?\+search/', $k, $info)) {
-                    continue;
-                }
-                list($k,) = explode('+', $k, 2);
-                $source['fields'][] = $k;
+    function loadFromState($source=false) {
+        // Pull out 'other' fields from the state so the fields will be
+        // added to the form. The state will be loaded below
+        $state = $source ?: array();
+        foreach ($state as $k=>$v) {
+            $info = array();
+            if (!preg_match('/^:(\w+)(?:!(\d+))?\+search/', $k, $info)) {
+                continue;
             }
+            list($k,) = explode('+', $k, 2);
+            $state['fields'][] = $k;
         }
-        return $this->getForm($source);
+        return $this->getForm($state);
+    }
+
+    function getFormFromSession($key) {
+        if (isset($_SESSION[$key])) {
+            return $this->loadFromState($_SESSION[$key]);
+        }
     }
 
     function getForm($source=false) {
@@ -660,7 +663,10 @@ class SavedSearch extends VerySimpleModel {
             $fields = array_merge($fields, self::getSearchField($field, $name));
         }
 
-        $form = new SimpleForm($fields, $source);
+        // Don't send the state as the souce because it is not in the
+        // ::parse format (it's in ::to_php format). Instead, source is set
+        // via ::loadState() below
+        $form = new AdvancedSearchForm($fields, $source);
         $form->addValidator(function($form) {
             $selected = 0;
             foreach ($form->getFields() as $F) {
@@ -673,6 +679,8 @@ class SavedSearch extends VerySimpleModel {
             if (!$selected)
                 $form->addError(__('No fields selected for searching'));
         });
+        if ($source)
+            $form->loadState($source);
         return $form;
     }
 
@@ -704,10 +712,9 @@ class SavedSearch extends VerySimpleModel {
             )),
         );
 
-        $extended = self::getExtendedTicketFields();
-
         // Add 'other' fields added dynamically
         if (is_array($source) && isset($source['fields'])) {
+            $extended = self::getExtendedTicketFields();
             foreach ($source['fields'] as $f) {
                 $info = array();
                 if (isset($extended[$f])) {
@@ -788,7 +795,7 @@ class SavedSearch extends VerySimpleModel {
 
     function mangleQuerySet(QuerySet $qs, $form=false) {
         $form = $form ?: $this->getForm();
-        $searchable = $this->getCurrentSearchFields($form->getSource());
+        $searchable = $this->getCurrentSearchFields($form->state);
         $qs = clone $qs;
 
         // Figure out fields to search on
@@ -885,6 +892,15 @@ class SavedSearch extends VerySimpleModel {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
         return parent::save($refetch || $this->dirty);
+    }
+}
+
+class AdvancedSearchForm extends SimpleForm {
+    var $state;
+
+    function __construct($fields, $state) {
+        parent::__construct($fields);
+        $this->state = $state;
     }
 }
 

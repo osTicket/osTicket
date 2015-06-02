@@ -473,7 +473,6 @@ if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
     $form = $search->getFormFromSession('advsearch');
-    $form->loadState($_SESSION['advsearch']);
     $tickets = TicketModel::objects();
     $tickets = $search->mangleQuerySet($tickets, $form);
     $count = $tickets->count();

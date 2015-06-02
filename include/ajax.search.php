@@ -29,10 +29,7 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(403, 'Agent login required');
 
         $search = SavedSearch::create();
-        // Don't send the state as the souce because it is not in the
-        // ::parse format (it's in ::to_php format)
-        $form = $search->getFormFromSession('advsearch');
-        $form->loadState($_SESSION['advsearch']);
+        $form = $search->getFormFromSession('advsearch') ?: $search->getForm();
         $matches = self::_getSupportedTicketMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
@@ -64,8 +61,6 @@ class SearchAjaxAPI extends AjaxController {
             break;
 
         default:
-            // The "extended" fields are build automatically and rooted from
-            // the base of the ID numbers
             $extended = SavedSearch::getExtendedTicketFields();
 
             if (isset($extended[$name])) {
@@ -205,11 +200,12 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(404, 'No such saved search');
         }
 
-        $form = $search->getForm();
-        if ($state = JsonDataParser::parse($search->config))
+        if ($state = JsonDataParser::parse($search->config)) {
+            $form = $search->loadFromState($state);
             $form->loadState($state);
-
+        }
         $matches = self::_getSupportedTicketMatches();
+
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 

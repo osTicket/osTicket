@@ -16,7 +16,8 @@ foreach ($form->errors(true) ?: array() as $message) {
 
 foreach ($form->getFields() as $name=>$field) { ?>
     <fieldset id="field<?php echo $field->getWidget()->id;
-        ?>" <?php if (!$field->isVisible()) echo 'class="hidden"'; ?>>
+        ?>" <?php if (!$field->isVisible()) echo 'class="hidden"'; ?>
+        <?php if (substr($field->get('name'), -7) === '+search') echo 'class="advanced-search-field"'; ?>>
         <?php echo $field->render(); ?>
         <?php foreach ($field->errors() as $E) {
             ?><div class="error"><?php echo $E; ?></div><?php
