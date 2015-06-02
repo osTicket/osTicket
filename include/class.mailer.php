@@ -523,8 +523,14 @@ class Mailer {
         $mail = mail::factory('mail');
         // Ensure the To: header is properly encoded.
         $to = $headers['To'];
-        return PEAR::isError($mail->send($to, $headers, $body))?false:$messageId;
+        $result = $mail->send($to, $headers, $body);
+        if(!PEAR::isError($result))
+            return $messageId;
 
+        $alert=sprintf(__("Unable to email via php mail function:%1\$s\n\n%2\$s\n"),
+                $to, $result->getMessage());
+        $this->logError($alert);
+        return false;
     }
 
     function logError($error) {
