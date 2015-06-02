@@ -514,7 +514,7 @@ class Mailer {
             // Force reconnect on next ->send()
             unset($smtp_connections[$key]);
 
-            $alert=sprintf(__("Unable to email via SMTP:%1\$s:%2\$d [%3\$s]\n\n%4\$s\n"),
+            $alert=sprintf(_S("Unable to email via SMTP:%1\$s:%2\$d [%3\$s]\n\n%4\$s\n"),
                     $smtp['host'], $smtp['port'], $smtp['username'], $result->getMessage());
             $this->logError($alert);
         }
@@ -527,7 +527,7 @@ class Mailer {
         if(!PEAR::isError($result))
             return $messageId;
 
-        $alert=sprintf(__("Unable to email via php mail function:%1\$s\n\n%2\$s\n"),
+        $alert=sprintf(_S("Unable to email via php mail function:%1\$s\n\n%2\$s\n"),
                 $to, $result->getMessage());
         $this->logError($alert);
         return false;
@@ -536,7 +536,7 @@ class Mailer {
     function logError($error) {
         global $ost;
         //NOTE: Admin alert override - don't email when having email trouble!
-        $ost->logError(__('Mailer Error'), $error, false);
+        $ost->logError(_S('Mailer Error'), $error, false);
     }
 
     /******* Static functions ************/
