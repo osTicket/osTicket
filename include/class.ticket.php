@@ -2520,8 +2520,8 @@ implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
-        $this->topic_id = $vars['topic_id'];
-        $this->sla_id = $vars['sla_id'];
+        $this->topic_id = $vars['topicId'];
+        $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
             ? date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))
