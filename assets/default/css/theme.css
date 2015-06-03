@@ -118,6 +118,12 @@ fieldset {
 a {
   color: #0072bc;
   text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1px;
+}
+a:hover {
+    border-bottom: 1px dotted #0072bc;
+    margin-bottom: 0;
 }
 h1 {
   color: #00AEEF;
@@ -789,9 +795,6 @@ label.required, span.required {
   font-size: 1em;
   background-image: url('../images/icons/thread.gif?1319556657');
 }
-.Icon:hover {
-  text-decoration: underline;
-}
 #ticketTable {
   border: 1px solid #aaa;
   border-left: none;
@@ -828,25 +831,22 @@ label.required, span.required {
 #ticketTable tr.alt td {
   background: #f9f9f9;
 }
-#ticketSearchForm {
-  display: inline-block;
-  float: left;
-  padding: 0 0 5px 0;
+i.refresh {
+  color: #0a0;
+  font-size: 80%;
+  vertical-align: middle;
 }
-a.refresh {
-  display: block;
-  width: auto;
-  float: right;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  padding: 0 10px 0 28px;
-  border: 1px solid #aaa;
-  margin-left: 10px;
-  color: #333;
-  background-position: 5px 50%;
-  background-repeat: no-repeat;
-  background-image: url('../images/icons/refresh.png');
+.states small {
+    font-size: 70%;
+}
+.active.state {
+    font-weight: bold;
+}
+.search.well {
+    padding: 10px;
+    background-color: rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+    margin-top: -15px;
 }
 .infoTable {
   background: #F4FAFF;
@@ -1152,6 +1152,10 @@ img.avatar {
 }
 .thread-body .attachments .filesize {
   margin-left: 0.5em;
+}
+.thread-body .attachments a,
+.thread-body .attachments a:hover {
+  text-decoration: none;
 }
 .thread-body .attachment-info {
     margin-right: 10px;

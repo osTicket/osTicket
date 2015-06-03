@@ -1096,7 +1096,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Aggregate works like annotate, except that it sets up values
         // fetching which will disable model creation
         $this->annotate($annotations);
-        $this->values_flat();
+        $this->values();
         // Disable other fields from being fetched
         $this->aggregated = true;
         $this->related = false;
@@ -2267,7 +2267,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by) {
+            if (!$group_by && !$queryset->aggregated) {
                 foreach ($model::getMeta('pk') as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
