@@ -941,8 +941,9 @@ implements TemplateVariable {
         }
         if ($filename) {
             // This should be a noop since the ORM caches on PK
-            $file = AttachmentFile::lookup($fileId);
-            if ($file->name != $filename)
+            $F = $F ?: AttachmentFile::lookup($fileId);
+            // XXX: This is not Unicode safe
+            if ($F && 0 !== strcasecmp($F->name, $filename))
                 $att->name = $filename;
         }
 
