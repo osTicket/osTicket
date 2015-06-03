@@ -154,6 +154,7 @@ if ($thisstaff->hasPerm(TaskModel::PERM_CREATE)) {
 
 
 $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
+$ost->addExtraHeader('<script type="text/javascript" src="js/thread.js"></script>');
 $ost->addExtraHeader('<meta name="tip-namespace" content="tasks.queue" />',
     "$('#content').data('tipNamespace', 'tasks.queue');");
 
