@@ -155,6 +155,11 @@ class TaskModel extends VerySimpleModel {
         return $this->duedate;
     }
 
+    function getCloseDate() {
+        // TODO: have true close date
+        return $this->isClosed() ? $this->updated : '';
+    }
+
     function isOpen() {
         return $this->hasFlag(self::ISOPEN);
     }
@@ -274,6 +279,14 @@ class Task extends TaskModel implements Threadable {
         $assignees = $this->getAssignees();
 
         return $assignees ? implode($glue, $assignees):'';
+    }
+
+    function getParticipants() {
+        $participants = array();
+        foreach ($this->getThread()->collaborators as $c)
+            $participants[] = $c->getName();
+
+        return $participants ? implode(', ', $participants) : ' ';
     }
 
     function getThreadId() {
@@ -560,6 +573,27 @@ class Task extends TaskModel implements Threadable {
             $this->setStatus($vars['task_status']);
 
         return $note;
+    }
+
+    function pdfExport($options=array()) {
+        global $thisstaff;
+
+        require_once(INCLUDE_DIR.'class.pdf.php');
+        if (!isset($options['psize'])) {
+            if ($_SESSION['PAPER_SIZE'])
+                $psize = $_SESSION['PAPER_SIZE'];
+            elseif (!$thisstaff || !($psize = $thisstaff->getDefaultPaperSize()))
+                $psize = 'Letter';
+
+            $options['psize'] = $psize;
+        }
+
+        $pdf = new Task2PDF($this, $options);
+        $name = 'Task-'.$this->getNumber().'.pdf';
+        Http::download($name, 'application/pdf', $pdf->Output($name, 'S'));
+        //Remember what the user selected - for autoselect on the next print.
+        $_SESSION['PAPER_SIZE'] = $options['psize'];
+        exit;
     }
 
     static function lookupIdByNumber($number) {

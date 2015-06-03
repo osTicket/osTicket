@@ -89,4 +89,35 @@ class Ticket2PDF extends mPDFWithLocalImages
         $this->WriteHtml($html, 0, true, true);
     }
 }
+
+
+// Task print
+class Task2PDF extends mPDFWithLocalImages {
+
+    var $options = array();
+    var $task = null;
+
+    function __construct($task, $options=array()) {
+
+        $this->task = $task;
+        $this->options = $options;
+
+        parent::__construct('', $this->options['psize']);
+        $this->_print();
+    }
+
+    function _print() {
+        global $thisstaff, $cfg;
+
+        if (!($task=$this->task) || !$thisstaff)
+            return;
+
+        ob_start();
+        include STAFFINC_DIR.'templates/task-print.tmpl.php';
+        $html = ob_get_clean();
+        $this->WriteHtml($html, 0, true, true);
+
+    }
+}
+
 ?>

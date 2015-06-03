@@ -178,8 +178,7 @@ if (!$ticket) { ?>
                     }else { ?>
                     <tr>
                         <th><?php echo __('Close Date');?>:</th>
-                        <td><?php echo 0 ?
-                        Format::datetime($task->getCloseDate()) : ''; ?></td>
+                        <td><?php echo Format::datetime($task->getCloseDate()); ?></td>
                     </tr>
                     <?php
                     }
@@ -212,7 +211,7 @@ if (!$ticket) { ?>
                         <th width="100"><?php echo __('Closed By');?>:</th>
                         <td>
                             <?php
-                            if (0 && ($staff = $task->getStaff()))
+                            if (($staff = $task->getStaff()))
                                 echo Format::htmlchars($staff->getName());
                             else
                                 echo '<span class="faded">&mdash; '.__('Unknown').' &mdash;</span>';
