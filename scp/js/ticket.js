@@ -214,7 +214,7 @@ var autoLock = {
             async: false,
             cache: false,
             success: function() {
-                autoLock.lockId = 0;
+                autoLock.destroy();
             }
         });
     },
@@ -281,6 +281,11 @@ var autoLock = {
           function () { autoLock.monitorEvents(); },
           time || 30000
         );
+    },
+
+    destroy: function() {
+        autoLock.clearTimeout();
+        autoLock.lockId = 0;
     }
 };
 $.autoLock = autoLock;
