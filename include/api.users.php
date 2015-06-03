@@ -7,7 +7,7 @@ class UsersApiController extends ApiController {
 
     public function create($format) {
 		
-		$key = $this->requireApiKey());
+        $key = $this->requireApiKey();
 
         if(!$key)
             return $this->exerr(401, __('API key not authorized'));
