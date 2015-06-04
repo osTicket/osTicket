@@ -1572,10 +1572,12 @@ implements RestrictedAccess, Threadable {
             );
             // Send the alerts.
             $sentlist = array();
-            $options = array(
-                'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences(),
-                'thread'=>$note);
+            $options = $note instanceof ThreadEntry
+                ? array(
+                    'inreplyto'=>$note->getEmailMessageId(),
+                    'references'=>$note->getEmailReferences(),
+                    'thread'=>$note)
+                : array();
             foreach ($recipients as $k=>$staff) {
                 if (!is_object($staff)
                     || !$staff->isAvailable()
@@ -3165,7 +3167,7 @@ implements RestrictedAccess, Threadable {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId']);
+                 $ticket->assignToStaff($vars['staffId'], false);
             if ($vars['teamId'])
                 // No team alert if also assigned to an individual agent
                 $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
