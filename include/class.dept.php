@@ -55,7 +55,6 @@ implements TemplateVariable {
     var $config;
 
     var $template;
-    var $email;
     var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
@@ -128,13 +127,10 @@ implements TemplateVariable {
     function getAlertEmail() {
         global $cfg;
 
-        if (!$this->email && ($id = $this->getEmailId())) {
-            $this->email = Email::lookup($id);
-        }
-        if (!$this->email && $cfg) {
-            $this->email = $cfg->getAlertEmail();
-        }
-        return $this->email;
+        if ($this->email)
+            return $this->email;
+
+        return $cfg ? $cfg->getDefaultEmail() : null;
     }
 
     function getEmail() {
