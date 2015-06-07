@@ -1941,10 +1941,11 @@ implements RestrictedAccess, Threadable {
 
         global $thisstaff;
         $data = array();
-        if ($staff->getId() == $thisstaff->getId())
+        if ($thisstaff && $staff->getId() == $thisstaff->getId())
             $data['claim'] = true;
         else
             $data['staff'] = $staff->getId();
+
         $this->logEvent('assigned', $data);
 
         return true;
