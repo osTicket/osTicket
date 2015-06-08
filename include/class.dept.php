@@ -26,7 +26,7 @@ implements TemplateVariable {
                 'null' => true,
             ),
             'email' => array(
-                'constraint' => array('email_id' => 'EmailModel.email_id'),
+                'constraint' => array('email_id' => 'Email.email_id'),
                 'null' => true,
              ),
             'sla' => array(

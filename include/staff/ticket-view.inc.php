@@ -61,7 +61,7 @@ if($ticket->isOverdue())
        <div class="content">
         <div class="pull-right flush-right">
             <?php
-            if ($role->hasPerm(EmailModel::PERM_BANLIST)
+            if ($role->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
@@ -147,7 +147,7 @@ if($ticket->isOverdue())
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
 
-<?php           if ($role->hasPerm(EmailModel::PERM_BANLIST)) {
+<?php           if ($role->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(

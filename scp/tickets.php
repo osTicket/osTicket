@@ -318,7 +318,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
+                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
@@ -329,7 +329,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
+                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');

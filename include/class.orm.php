@@ -299,6 +299,11 @@ class VerySimpleModel {
 
         if (isset($default))
             return $default;
+
+        // For new objects, assume the field is NULLable
+        if ($this->__new__)
+            return null;
+
         // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));

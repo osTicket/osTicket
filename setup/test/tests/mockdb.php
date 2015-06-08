@@ -19,6 +19,11 @@ function db_query($sql) {
     return $__db->query($sql);
 }
 
+function db_prepare($sql) {
+    global $__db;
+    return $__db->prepare($sql);
+}
+
 function db_fetch_row($res) {
     return $res->fetch_row();
 }
@@ -58,6 +63,12 @@ class MockDbSource {
         return new MockDbCursor($this->data[$hash] ?: array());
     }
 
+    function prepare($sql) {
+        $cursor = $this->query($sql);
+        $cursor->param_count = preg_match_all('/ \? /', $sql);
+        return $cursor;
+    }
+
     function addRecordset($hash, &$data) {
         $this->data[$hash] = $data;
     }
@@ -82,5 +93,37 @@ class MockDbCursor {
 
     function num_rows() {
         return count($this->data);
+    }
+
+    function fetch() {
+        return $this->fetch_array();
+    }
+
+    function execute() {
+        return $this;
+    }
+    function bind_result() {
+        return true;
+    }
+    function bind_param() {
+        return true;
+    }
+    function store_result() {
+        return true;
+    }
+    function result_metadata() {
+        return new DbMetaData();
+    }
+
+    function close() {
+        return true;
+    }
+}
+
+class DbMetaData {
+    function fetch_fields() {
+        return array();
+    }
+    function free_result() {
     }
 }

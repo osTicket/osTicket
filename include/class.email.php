@@ -15,7 +15,7 @@ include_once INCLUDE_DIR.'class.role.php';
 include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
 
-class EmailModel extends VerySimpleModel {
+class Email extends VerySimpleModel {
     static $meta = array(
         'table' => EMAIL_TABLE,
         'pk' => array('email_id'),
@@ -46,6 +46,12 @@ class EmailModel extends VerySimpleModel {
                 'primary' => true,
             ));
 
+
+    var $address;
+
+    var $dept;
+    var $mail_proto;
+
     function getId() {
         return $this->email_id;
     }
@@ -57,71 +63,17 @@ class EmailModel extends VerySimpleModel {
         return $this->email;
     }
 
-    static function getPermissions() {
-        return self::$perms;
-    }
 
-    static function getAddresses($options=array()) {
-        $objects = static::objects();
-        if ($options['smtp'])
-            $objects = $objects->filter(array('smtp_active'=>true));
+    function __onload() {
+        $this->mail_proto = $this->get('mail_protocol');
+        if ($this->mail_encryption == 'SSL')
+            $this->mail_proto .= "/".$this->mail_encryption;
 
-        $addresses = array();
-        foreach ($objects->values_flat('email_id', 'email') as $row) {
-            list($id, $email) = $row;
-            $addresses[$id] = $email;
-        }
-        return $addresses;
-    }
-}
-
-RolePermission::register(/* @trans */ 'Miscellaneous', EmailModel::getPermissions());
-
-class Email {
-    var $id;
-    var $address;
-
-    var $dept;
-    var $ht;
-
-    function Email($id) {
-        $this->id=0;
-        $this->load($id);
-    }
-
-    function load($id=0) {
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT * FROM '.EMAIL_TABLE.' WHERE email_id='.db_input($id);
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-
-        $this->ht=db_fetch_array($res);
-        $this->ht['mail_proto'] = $this->ht['mail_protocol'];
-        if ($this->ht['mail_encryption'] == 'SSL')
-            $this->ht['mail_proto'] .= "/".$this->ht['mail_encryption'];
-
-        $this->id=$this->ht['email_id'];
-        $this->address=$this->ht['name']?($this->ht['name'].'<'.$this->ht['email'].'>'):$this->ht['email'];
-
-        $this->dept = null;
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load();
-    }
-
-    function getId() {
-        return $this->id;
+        $this->address=$this->name?($this->name.'<'.$this->email.'>'):$this->email;
     }
 
     function getEmail() {
-        return $this->ht['email'];
+        return $this->email;
     }
 
     function getAddress() {
@@ -129,41 +81,37 @@ class Email {
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->name;
     }
 
     function getPriorityId() {
-        return $this->ht['priority_id'];
+        return $this->priority_id;
     }
 
     function getDeptId() {
-        return $this->ht['dept_id'];
+        return $this->dept_id;
     }
 
     function getDept() {
-
-        if(!$this->dept && $this->getDeptId())
-            $this->dept=Dept::lookup($this->getDeptId());
-
         return $this->dept;
     }
 
     function getTopicId() {
-        return $this->ht['topic_id'];
+        return $this->topic_id;
     }
 
     function getTopic() {
-        // Topic::lookup will do validation on the ID, no need to duplicate
-        // code here
-        return Topic::lookup($this->getTopicId());
+        return $this->topic;
     }
 
     function autoRespond() {
-        return (!$this->ht['noautoresp']);
+        return !$this->noautoresp;
     }
 
     function getPasswd() {
-        return $this->ht['userpass']?Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']):'';
+        if (!$this->userpass)
+            return '';
+        return Crypto::decrypt($this->userpass, SECRET_SALT, $this->userid);
     }
 
     function getHashtable() {
@@ -179,18 +127,18 @@ class Email {
         /*NOTE: Do not change any of the tags - otherwise mail fetching will fail */
         $info = array(
                 //Mail server info
-                'host'  => $this->ht['mail_host'],
-                'port'  => $this->ht['mail_port'],
-                'protocol'  => $this->ht['mail_protocol'],
-                'encryption' => $this->ht['mail_encryption'],
-                'username'  => $this->ht['userid'],
-                'password' => Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid']),
+                'host'  => $this->mail_host,
+                'port'  => $this->mail_port,
+                'protocol'  => $this->mail_protocol,
+                'encryption' => $this->mail_encryption,
+                'username'  => $this->userid,
+                'password' => Crypto::decrypt($this->userpass, SECRET_SALT, $this->userid),
                 //osTicket specific
                 'email_id'  => $this->getId(), //Required for email routing to work.
-                'max_fetch' => $this->ht['mail_fetchmax'],
-                'delete_mail' => $this->ht['mail_delete'],
-                'archive_folder' => $this->ht['mail_archivefolder']
-                );
+                'max_fetch' => $this->mail_fetchmax,
+                'delete_mail' => $this->mail_delete,
+                'archive_folder' => $this->mail_archivefolder
+        );
 
         return $info;
     }
@@ -198,24 +146,24 @@ class Email {
     function isSMTPEnabled() {
 
         return (
-                $this->ht['smtp_active']
+                $this->smtp_active
                     && ($info=$this->getSMTPInfo())
                     && (!$info['auth'] || $info['password'])
                 );
     }
 
     function allowSpoofing() {
-        return ($this->ht['smtp_spoofing']);
+        return ($this->smtp_spoofing);
     }
 
     function getSMTPInfo() {
 
         $info = array (
-                'host' => $this->ht['smtp_host'],
-                'port' => $this->ht['smtp_port'],
-                'auth' => (bool) $this->ht['smtp_auth'],
-                'username' => $this->ht['userid'],
-                'password' => Crypto::decrypt($this->ht['userpass'], SECRET_SALT, $this->ht['userid'])
+                'host' => $this->smtp_host,
+                'port' => $this->smtp_port,
+                'auth' => (bool) $this->smtp_auth,
+                'username' => $this->userid,
+                'password' => Crypto::decrypt($this->userpass, SECRET_SALT, $this->userid)
                 );
 
         return $info;
@@ -240,75 +188,57 @@ class Email {
         return $this->send($to, $subject, $message, $attachments, $options);
     }
 
-    function update($vars,&$errors) {
-        $vars=$vars;
-        $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
-
-        if(!$this->save($this->getId(), $vars, $errors))
-            return false;
-
-        $this->reload();
-
-        return true;
-    }
-
-
    function delete() {
         global $cfg;
         //Make sure we are not trying to delete default emails.
         if(!$cfg || $this->getId()==$cfg->getDefaultEmailId() || $this->getId()==$cfg->getAlertEmailId()) //double...double check.
             return 0;
 
-        $sql='DELETE FROM '.EMAIL_TABLE.' WHERE email_id='.db_input($this->getId()).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())) {
-            $sql='UPDATE '.DEPT_TABLE.' SET autoresp_email_id=0 '.
-                 ',email_id='.db_input($cfg->getDefaultEmailId()).
-                 ' WHERE email_id='.db_input($this->getId());
-            db_query($sql);
-        }
+        if (!parent::delete())
+            return false;
 
-        return $num;
+        Dept::objects()
+            ->filter(array('email_id' => $this->getId()))
+            ->update(array(
+                'autoresp_email_id' => 0,
+                'email_id' => $cfg->getDefaultEmailId()
+            ));
+
+        return true;
     }
 
-
-   function __toString() {
-
-       $email = $this->getEmail();
-       if ($this->getName())
-           $email = sprintf('%s <%s>', $this->getName(), $this->getEmail());
-
-       return $email;
-   }
 
     /******* Static functions ************/
 
-   function getIdByEmail($email) {
+   static function getIdByEmail($email) {
+        $qs = static::objects()->filter(array('email' => $email))
+            ->values_flat('email_id');
 
-        $sql='SELECT email_id FROM '.EMAIL_TABLE.' WHERE email='.db_input($email);
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        return db_result($res);
+        $row = $qs->first();
+        return $row ? $row[0] : false;
     }
 
-    function lookup($var) {
-        $id=is_numeric($var)?$var:Email::getIdByEmail($var);
-        return ($id && is_numeric($id) && ($email=new Email($id)) && $email->getId())?$email:null;
+    static function create($vars=false) {
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
     }
 
-    function create($vars,&$errors) {
-        return Email::save(0,$vars,$errors);
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
     }
 
-
-    function save($id,$vars,&$errors) {
+    function update($vars, &$errors=false) {
         global $cfg;
 
-        //very basic checks
-
+        // very basic checks
+        $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
         $vars['name']=Format::striptags(trim($vars['name']));
         $vars['email']=trim($vars['email']);
 
+        $id = isset($this->email_id) ? $this->getId() : 0;
         if($id && $id!=$vars['id'])
             $errors['err']=__('Internal error. Get technical help.');
 
@@ -374,19 +304,24 @@ class Email {
         }
 
         //abort on errors
-        if($errors) return false;
+        if ($errors)
+            return false;
 
         if(!$errors && ($vars['mail_host'] && $vars['userid'])) {
-            $sql='SELECT email_id FROM '.EMAIL_TABLE
-                .' WHERE mail_host='.db_input($vars['mail_host']).' AND userid='.db_input($vars['userid']);
-            if($id)
-                $sql.=' AND email_id!='.db_input($id);
+            $existing = static::objects()
+                ->filter(array(
+                    'mail_host' => $vars['mail_host'],
+                    'userid' => $vars['userid']
+                ));
 
-            if(db_num_rows(db_query($sql)))
+            if ($id)
+                $existing->filter(array('email_id' => $id));
+
+            if ($existing->exists())
                 $errors['userid']=$errors['host']=__('Host/userid combination already in use.');
         }
 
-        $passwd=$vars['passwd']?$vars['passwd']:$vars['cpasswd'];
+        $passwd = $vars['passwd'] ?: $vars['cpasswd'];
         if(!$errors && $vars['mail_active']) {
             //note: password is unencrypted at this point...MailFetcher expect plain text.
             $fetcher = new MailFetcher(
@@ -432,56 +367,77 @@ class Email {
 
         if($errors) return false;
 
-        $sql='updated=NOW(),mail_errors=0, mail_lastfetch=NULL'.
-             ',email='.db_input($vars['email']).
-             ',name='.db_input(Format::striptags($vars['name'])).
-             ',dept_id='.db_input($vars['dept_id']).
-             ',priority_id='.db_input($vars['priority_id']).
-             ',topic_id='.db_input($vars['topic_id']).
-             ',noautoresp='.db_input(isset($vars['noautoresp'])?1:0).
-             ',userid='.db_input($vars['userid']).
-             ',mail_active='.db_input($vars['mail_active']).
-             ',mail_host='.db_input($vars['mail_host']).
-             ',mail_protocol='.db_input($vars['mail_protocol']?$vars['mail_protocol']:'POP').
-             ',mail_encryption='.db_input($vars['mail_encryption']).
-             ',mail_port='.db_input($vars['mail_port']?$vars['mail_port']:0).
-             ',mail_fetchfreq='.db_input($vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0).
-             ',mail_fetchmax='.db_input($vars['mail_fetchmax']?$vars['mail_fetchmax']:0).
-             ',smtp_active='.db_input($vars['smtp_active']).
-             ',smtp_host='.db_input($vars['smtp_host']).
-             ',smtp_port='.db_input($vars['smtp_port']?$vars['smtp_port']:0).
-             ',smtp_auth='.db_input($vars['smtp_auth']).
-             ',smtp_spoofing='.db_input(isset($vars['smtp_spoofing'])?1:0).
-             ',notes='.db_input(Format::sanitize($vars['notes']));
+        $this->mail_errors = 0;
+        $this->mail_lastfetch = null;
+        $this->email = $vars['email'];
+        $this->name = Format::striptags($vars['name']);
+        $this->dept_id = $vars['dept_id'];
+        $this->priority_id = $vars['priority_id'];
+        $this->topic_id = $vars['topic_id'];
+        $this->noautoresp = isset($vars['noautoresp'])?1:0;
+        $this->userid = $vars['userid'];
+        $this->mail_active = $vars['mail_active'];
+        $this->mail_host = $vars['mail_host'];
+        $this->mail_protocol = $vars['mail_protocol']?$vars['mail_protocol']:'POP';
+        $this->mail_encryption = $vars['mail_encryption'];
+        $this->mail_port = $vars['mail_port']?$vars['mail_port']:0;
+        $this->mail_fetchfreq = $vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0;
+        $this->mail_fetchmax = $vars['mail_fetchmax']?$vars['mail_fetchmax']:0;
+        $this->smtp_active = $vars['smtp_active'];
+        $this->smtp_host = $vars['smtp_host'];
+        $this->smtp_port = $vars['smtp_port']?$vars['smtp_port']:0;
+        $this->smtp_auth = $vars['smtp_auth'];
+        $this->smtp_spoofing = isset($vars['smtp_spoofing'])?1:0;
+        $this->notes = Format::sanitize($vars['notes']);
 
         //Post fetch email handling...
-        if($vars['postfetch'] && !strcasecmp($vars['postfetch'],'delete'))
-            $sql.=',mail_delete=1,mail_archivefolder=NULL';
-        elseif($vars['postfetch'] && !strcasecmp($vars['postfetch'],'archive') && $vars['mail_archivefolder'])
-            $sql.=',mail_delete=0,mail_archivefolder='.db_input($vars['mail_archivefolder']);
-        else
-            $sql.=',mail_delete=0,mail_archivefolder=NULL';
+        if ($vars['postfetch'] && !strcasecmp($vars['postfetch'],'delete')) {
+            $this->mail_delete = 1;
+            $this->mail_archivefolder = null;
+        }
+        elseif($vars['postfetch'] && !strcasecmp($vars['postfetch'],'archive') && $vars['mail_archivefolder']) {
+            $this->mail_delete = 0;
+            $this->mail_archivefolder = $vars['mail_archivefolder'];
+        }
+        else {
+            $this->mail_delete = 0;
+            $this->mail_archivefolder = null;
+        }
 
-        if($vars['passwd']) //New password - encrypt.
-            $sql.=',userpass='.db_input(Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']));
+        if ($vars['passwd']) //New password - encrypt.
+            $this->userpass = Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']);
 
-        if($id) { //update
-            $sql='UPDATE '.EMAIL_TABLE.' SET '.$sql.' WHERE email_id='.db_input($id);
-            if(db_query($sql) && db_affected_rows())
-                return true;
+        if ($this->save())
+            return true;
 
+        if ($id) { //update
             $errors['err']=sprintf(__('Unable to update %s.'), __('this email'))
                .' '.__('Internal error occurred');
-        }else {
-            $sql='INSERT INTO '.EMAIL_TABLE.' SET '.$sql.',created=NOW()';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
+        }
+        else {
             $errors['err']=sprintf(__('Unable to add %s.'), __('this email'))
                .' '.__('Internal error occurred');
         }
 
         return false;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+
+    static function getAddresses($options=array()) {
+        $objects = static::objects();
+        if ($options['smtp'])
+            $objects = $objects->filter(array('smtp_active'=>true));
+
+        $addresses = array();
+        foreach ($objects->values_flat('email_id', 'email') as $row) {
+            list($id, $email) = $row;
+            $addresses[$id] = $email;
+        }
+        return $addresses;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Email::getPermissions());
 ?>

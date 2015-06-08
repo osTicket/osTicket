@@ -28,7 +28,7 @@ if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])]))
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = EmailModel::objects()->count();
+$count = Email::objects()->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('emails.php', $qs);
@@ -66,7 +66,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
         $ids = ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
         if ($count):
             $defaultId=$cfg->getDefaultEmailId();
-            $emails = EmailModel::objects()
+            $emails = Email::objects()
                 ->order_by(sprintf('%s%s',
                             strcasecmp($order, 'DESC') ? '' : '-',
                             $order_column))

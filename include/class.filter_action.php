@@ -493,7 +493,7 @@ class FA_SendEmail extends TriggerAction {
 
     function getConfigurationOptions() {
         $choices = array('' => __('Default System Email'));
-        $choices += EmailModel::getAddresses();
+        $choices += Email::getAddresses();
 
         return array(
             'recipients' => new TextboxField(array(
