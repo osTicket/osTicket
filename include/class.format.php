@@ -116,11 +116,79 @@ class Format {
         return $len ? wordwrap($text, $len, "\n", true) : $text;
     }
 
-    function html($html, $config=array('balance'=>1)) {
+    function html_balance($html, $remove_empty=true) {
+        if (!extension_loaded('dom'))
+            return $html;
+
+        if (!trim($html))
+            return $html;
+
+        $doc = new DomDocument();
+        $xhtml = '<?xml encoding="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+            // Wrap the content in a <div> because libxml would use a <p>
+            . "<div>$html</div>";
+        $doc->encoding = 'utf-8';
+        $doc->preserveWhitespace = false;
+        $doc->recover = true;
+        if (false === @$doc->loadHTML($xhtml))
+            return $html;
+
+        if ($remove_empty) {
+            // Remove empty nodes
+            $xpath = new DOMXPath($doc);
+            static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+                'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+            do {
+                $done = true;
+                $nodes = $xpath->query('//*[not(text()) and not(node())]');
+                foreach ($nodes as $n) {
+                    if (isset($eE[$n->nodeName]))
+                        continue;
+                    $n->parentNode->removeChild($n);
+                    $done = false;
+                }
+            } while (!$done);
+        }
+
+        static $phpversion;
+        if (!isset($phpversion))
+            $phpversion = phpversion();
+
+        $body = $doc->getElementsByTagName('body');
+        if (!$body->length)
+            return $html;
+
+        if ($phpversion > '5.3.6') {
+            $html = $doc->saveHTML($doc->getElementsByTagName('body')->item(0)->firstChild);
+        }
+        else {
+            $html = $doc->saveHTML();
+            $html = preg_replace('`^<!DOCTYPE.+?>|<\?xml .+?>|</?html>|</?body>|</?head>|<meta .+?/?>`', '', $html); # <?php
+        }
+        return preg_replace('`^<div>|</div>$`', '', $html);
+    }
+
+    function html($html, $config=array()) {
         require_once(INCLUDE_DIR.'htmLawed.php');
         $spec = false;
         if (isset($config['spec']))
             $spec = $config['spec'];
+
+        // Add in htmLawed defaults
+        $config += array(
+            'balance' => 1,
+        );
+
+        // Attempt to balance using libxml. htmLawed will corrupt HTML with
+        // balancing to fix improper HTML at the same time. For instance,
+        // some email clients may wrap block elements inside inline
+        // elements. htmLawed will change such block elements to inlines to
+        // make the HTML correct.
+        if ($config['balance'] && extension_loaded('dom')) {
+            $html = self::html_balance($html);
+            $config['balance'] = 0;
+        }
+
         return htmLawed($html, $config, $spec);
     }
 
@@ -201,7 +269,7 @@ class Format {
         }
     }
 
-    function safe_html($html, $spec=false) {
+    function safe_html($html, $spec=false, $balance=1) {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
             array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
@@ -213,7 +281,7 @@ class Format {
             $html);
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
-            'balance' => 0, // No balance — corrupts poorly formatted Outlook html
+            'balance' => $balance,
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
             'deny_attribute' => 'id',
@@ -296,6 +364,7 @@ class Format {
             $text);
 
         //make urls clickable.
+        $text = self::html_balance($text, false);
         $text = Format::clickableurls($text);
 
         if ($inline_images)
