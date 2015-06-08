@@ -51,8 +51,10 @@ class DomElement {
 }
 
 class DomDocument {
+    function getElementsByTagName() {}
     function loadHTML() {}
     function loadXML() {}
+    function saveHTML() {}
 }
 
 class Exception {
