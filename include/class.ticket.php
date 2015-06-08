@@ -665,7 +665,7 @@ implements RestrictedAccess, Threadable {
 
     function getLastRespondent() {
         if (!isset($this->lastrespondent)) {
-            $this->lastresponent = Staff::objects()
+            $this->lastrespondent = Staff::objects()
                 ->filter(array(
                 'staff_id' => static::objects()
                     ->filter(array(
@@ -2272,7 +2272,7 @@ implements RestrictedAccess, Threadable {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
 
-        $this->lastrespondent = null; // XXX: Set to $response->staff?
+        $this->lastrespondent = $response->staff;
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
