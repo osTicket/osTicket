@@ -762,7 +762,7 @@ class MailFetcher {
         }
         // Allow continuation of thread without initial message or note
         elseif (($thread = Thread::lookupByEmailHeaders($vars))
-            && ($message = $entry->postEmail($vars))
+            && ($message = $thread->postEmail($vars))
         ) {
             // NOTE: This might not be a "ticket"
             $ticket = $thread->getObject();

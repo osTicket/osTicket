@@ -245,6 +245,10 @@ class  EndUser extends BaseAuthenticatedUser {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
+    function getNumTopicTickets($topic_id) {
+        return ($stats=$this->getTicketStats())?$stats['topics'][$topic_id]:0;
+    }
+
     function getNumOrganizationTickets() {
         if (!($stats=$this->getTicketStats()))
             return 0;
@@ -272,58 +276,20 @@ class  EndUser extends BaseAuthenticatedUser {
     }
 
     private function getStats() {
+        $basic = Ticket::objects()
+            ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
+            ->values('status__state', 'topic_id')
+            ->filter(Q::any(array(
+                'user_id' => $this->getId(),
+                'thread__collaborators__user_id' => $this->getId(),
+            )));
 
-        $where = ' WHERE ticket.user_id = '.db_input($this->getId())
-                .' OR collab.user_id = '.db_input($this->getId()).' ';
-
-        $where2 = ' WHERE user.org_id > 0 AND user.org_id = '.db_input($this->getOrgId()).' ';
-
-        $join  =  'LEFT JOIN '.THREAD_TABLE.' thread
-                    ON (ticket.ticket_id = thread.object_id and thread.object_type = \'T\')
-                   LEFT JOIN '.THREAD_COLLABORATOR_TABLE.' collab
-                    ON (collab.thread_id=thread.id
-                            AND collab.user_id = '.db_input($this->getId()).' ) ';
-
-        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                . $join
-                . $where
-
-                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                . $join
-                . $where
-
-                .'UNION SELECT \'org-open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id) '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\' ) '
-                . $join
-                . $where2
-
-                .'UNION SELECT \'org-closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.USER_TABLE.' user ON (ticket.user_id = user.id) '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                . $join
-                . $where2;
-
-        $res = db_query($sql);
-        $stats = array();
-        while($row = db_fetch_row($res)) {
-            $stats[$row[0]] = $row[1];
+        $stats = array('open' => 0, 'closed' => 0, 'topics' => array());
+        foreach ($basic as $row) {
+            $stats[$row['status__state']] += $row['count'];
+            if ($row['topic_id'])
+                $stats['topics'][$row['topic_id']] += $row['count'];
         }
-
         return $stats;
     }
 

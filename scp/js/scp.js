@@ -261,7 +261,7 @@ var scp_prep = function() {
         },
         onselect: function (obj) {
             var form = $('#basic-ticket-search').closest('form');
-            form.find('input[name=search-type]').val('email');
+            form.find('input[name=search-type]').val('typeahead');
             $('#basic-ticket-search').val(obj.value);
             form.submit();
         },
@@ -1068,3 +1068,31 @@ function addSearchParam(key, value) {
     //this will reload the page, it's likely better to store this until finished
     return kvp.join('&');
 }
+
+// Periodically adjust relative times
+window.relativeAdjust = setInterval(function() {
+  // Thanks, http://stackoverflow.com/a/7641822/1025836
+  var prettyDate = function(time) {
+    var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
+        diff = (((new Date()).getTime() - date.getTime()) / 1000),
+        day_diff = Math.floor(diff / 86400);
+
+    if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) return;
+
+    return day_diff == 0 && (
+         diff < 60 && __("just now")
+      || diff < 120 && __("about a minute ago")
+      || diff < 3600 && __("%d minutes ago").replace('%d', Math.floor(diff/60))
+      || diff < 7200 && __("about an hour ago")
+      || diff < 86400 &&  __("%d hours ago").replace('%d', Math.floor(diff/3600))
+    )
+    || day_diff == 1 && __("yesterday")
+    || day_diff < 7 && __("%d days ago").replace('%d', day_diff);
+    // Longer dates don't need to change dynamically
+  };
+  $('time.relative[datetime]').each(function() {
+    var rel = prettyDate($(this).attr('datetime'));
+    if (rel) $(this).text(rel);
+  });
+}, 20000);
+

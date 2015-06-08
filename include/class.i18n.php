@@ -129,7 +129,6 @@ class Internationalization {
             $sql = 'INSERT INTO '.PAGE_TABLE.' SET type='.db_input($type)
                 .', name='.db_input($page['name'])
                 .', body='.db_input($page['body'])
-                .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
             if (db_query($sql) && ($id = db_insert_id())
@@ -139,17 +138,14 @@ class Internationalization {
         // Default Language
         $_config->set('system_language', $this->langs[0]);
 
-        // content_id defaults to the `id` field value
-        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
-
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
-                if (($premade = Canned::create($c))
-                        && isset($c['attachments'])) {
+                if (!($premade = Canned::create($c)) || !$premade->save())
+                    continue;
+                if (isset($c['attachments'])) {
                     $premade->attachments->upload($c['attachments']);
-                    $premade->save();
                 }
             }
         }
@@ -284,6 +280,10 @@ class Internationalization {
     // Algorithm borrowed from Drupal 7 (locale.inc)
     static function getDefaultLanguage() {
         global $cfg;
+        static $lang;
+
+        if (isset($lang))
+            return $lang;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
             return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
@@ -362,10 +362,9 @@ class Internationalization {
           }
         }
 
-        if (self::isLanguageInstalled($best_match_langcode))
-            return $best_match_langcode;
-        else
-            return $cfg->getPrimaryLanguage();
+        return $lang = self::isLanguageInstalled($best_match_langcode)
+            ? $best_match_langcode
+            : $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {

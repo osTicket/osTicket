@@ -82,7 +82,7 @@ $stats= $thisstaff->getTasksStats();
 
 // Clear advanced search upon request
 if (isset($_GET['clear_filter']))
-    unset($_SESSION['advsearch']);
+    unset($_SESSION['advsearch:tasks']);
 
 //Navigation
 $nav->setTabActive('tasks');
@@ -94,7 +94,7 @@ $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')'
                        'title'=>__('Open Tasks'),
                        'href'=>'tasks.php?status=open',
                        'iconclass'=>'Ticket'),
-                    ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
+                    ((!$_REQUEST['status'] && !isset($_SESSION['advsearch:tasks'])) || $_REQUEST['status']=='open'));
 
 if ($stats['assigned']) {
 
@@ -124,11 +124,11 @@ if ($stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 }
 
-if (isset($_SESSION['advsearch'])) {
+if (isset($_SESSION['advsearch:tasks'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
-    $form = $search->getFormFromSession('advsearch');
-    $form->loadState($_SESSION['advsearch']);
+    $form = $search->getFormFromSession('advsearch:tasks');
+    $form->loadState($_SESSION['advsearch:tasks']);
     $tasks = Task::objects();
     $tasks = $search->mangleQuerySet($tasks, $form);
     $count = $tasks->count();

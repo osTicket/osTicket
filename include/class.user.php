@@ -51,7 +51,7 @@ class UserModel extends VerySimpleModel {
             'account' => array(
                 'list' => false,
                 'null' => true,
-                'reverse' => 'UserAccount.user',
+                'reverse' => 'ClientAccount.user',
             ),
             'org' => array(
                 'null' => true,

@@ -22,23 +22,14 @@ require_once(INCLUDE_DIR.'class.ajax.php');
 
 class SearchAjaxAPI extends AjaxController {
 
-    static function ensureConsistentFormFieldIds($reset=false) {
-        // Maintain unique form field IDs over the life of the session
-        FormField::$uid = $reset ?: 1000;
-    }
-
     function getAdvancedSearchDialog() {
         global $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        self::ensureConsistentFormFieldIds();
         $search = SavedSearch::create();
-        // Don't send the state as the souce because it is not in the
-        // ::parse format (it's in ::to_php format)
-        $form = $search->getFormFromSession('advsearch');
-        $form->loadState($_SESSION['advsearch']);
+        $form = $search->getFormFromSession('advsearch') ?: $search->getForm();
         $matches = self::_getSupportedTicketMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
@@ -50,7 +41,7 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        list($type, $id) = explode('!', $name, 2);
+        @list($type, $id) = explode('!', $name, 2);
 
         switch (strtolower($type)) {
         case ':ticket':
@@ -62,17 +53,23 @@ class SearchAjaxAPI extends AjaxController {
                 list(,$id) = explode('!', $id, 2);
             if (!($field = DynamicFormField::lookup($id)))
                 Http::response(404, 'No such field: ', print_r($id, true));
+
+            $impl = $field->getImpl();
+            $impl->set('label', sprintf('%s / %s',
+                $field->form->getLocal('title'), $field->getLocal('label')
+            ));
             break;
+
         default:
+            $extended = SavedSearch::getExtendedTicketFields();
+
+            if (isset($extended[$name])) {
+                $impl = $extended[$name];
+                break;
+            }
             Http::response(400, 'No such field type');
         }
 
-        self::ensureConsistentFormFieldIds($_GET['ff_uid']);
-
-        $impl = $field->getImpl();
-        $impl->set('label', sprintf('%s / %s',
-            $field->form->getLocal('title'), $field->getLocal('label')
-        ));
         $fields = SavedSearch::getSearchField($impl, $name);
         $form = new SimpleForm($fields);
         // Check the box to search the field by default
@@ -96,7 +93,6 @@ class SearchAjaxAPI extends AjaxController {
         global $thisstaff;
 
         $search = SavedSearch::create();
-        self::ensureConsistentFormFieldIds();
 
         $form = $search->getForm($_POST);
         if (!$form->isValid()) {
@@ -132,7 +128,6 @@ class SearchAjaxAPI extends AjaxController {
             else
                 $data[$name] = $info['value'];
         }
-        self::ensureConsistentFormFieldIds();
         $form = $search->getForm($data);
         if (!$data || !$form->isValid()) {
             Http::response(422, 'Validation errors exist on form');
@@ -152,7 +147,9 @@ class SearchAjaxAPI extends AjaxController {
 
     function _getSupportedTicketMatches() {
         // User information
-        $matches = array();
+        $matches = array(
+            __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
+        );
         foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
             $form = $F::objects()->one();
             $fields = &$matches[$form->getLocal('title')];
@@ -203,12 +200,12 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(404, 'No such saved search');
         }
 
-        self::ensureConsistentFormFieldIds();
-        $form = $search->getForm();
-        if ($state = JsonDataParser::parse($search->config))
+        if ($state = JsonDataParser::parse($search->config)) {
+            $form = $search->loadFromState($state);
             $form->loadState($state);
-
+        }
         $matches = self::_getSupportedTicketMatches();
+
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 

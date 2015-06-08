@@ -11,7 +11,7 @@ a { color: #2a67ac; display: inline-block; }
 .hidden { display: none;}
 .error { color:#f00;}
 
-#header { height: 72px; margin-bottom: 20px; width: 100%; }
+#header { min-height: 72px; margin-bottom: 20px; width: 100%; }
 #header #logo { width: 280px; height: 72px; display: block; float: left; }
 #header .info { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #2a67ac; color: #444; text-align: right; float: right; }
 #header ul { margin: 0; padding: 0; text-align: right; }

@@ -21,7 +21,7 @@ $(document).ready(function(){
         left : ($(window).width() / 2 - 160)
      });
 
-    $("form :input").change(function() {
+    $(document).on('change', "form :input:not(.nowarn)", function() {
         var fObj = $(this).closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
@@ -30,7 +30,7 @@ $(document).ready(function(){
                 return __("Are you sure you want to leave? Any changes or info you've entered will be discarded!");
              });
         }
-       });
+    });
 
     $("form :input[type=reset]").click(function() {
         var fObj = $(this).closest('form');
@@ -132,6 +132,10 @@ $(document).ready(function(){
                 $img.width(($img.attr('width') || '80') + 'px');
             // TODO: Add a hover-button to show just one image
         });
+    });
+
+    $('div.thread-body a').each(function() {
+        $(this).attr('target', '_blank');
     });
 });
 

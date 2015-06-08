@@ -2,10 +2,13 @@
 <div class="span8">
 <?php
     $categories = Category::objects()
-        ->exclude(Q::any(array('ispublic'=>false, 'faqs__ispublished'=>false)))
+        ->exclude(Q::any(array(
+            'ispublic'=>Category::VISIBILITY_PRIVATE,
+            'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+        )))
         ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
         ->filter(array('faq_count__gt'=>0));
-    if ($categories->all()) { ?>
+    if ($categories->exists(true)) { ?>
         <div><?php echo __('Click on the category to browse FAQs.'); ?></div>
         <ul id="kb">
 <?php
@@ -18,7 +21,7 @@
                 <?php echo Format::safe_html($C->getLocalDescriptionWithImages()); ?>
             </div>
 <?php       foreach ($C->faqs
-                    ->exclude(array('ispublished'=>false))
+                    ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
                     ->order_by('-views')->limit(5) as $F) { ?>
                 <div class="popular-faq"><i class="icon-file-alt"></i>
                 <a href="faq.php?id=<?php echo $F->getId(); ?>">

@@ -77,24 +77,35 @@ case 'search':
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
         // Use an index if possible
-        if ($_REQUEST['search-type'] == 'email') {
+        if ($_REQUEST['search-type'] == 'typeahead' && Validator::is_email($_REQUEST['query'])) {
             $tickets = $tickets->filter(array(
                 'user__emails__address' => $_REQUEST['query'],
             ));
         }
         else {
-            $tickets = $tickets->filter(Q::any(array(
+            $basic_search = Q::any(array(
                 'number__startswith' => $_REQUEST['query'],
                 'user__name__contains' => $_REQUEST['query'],
                 'user__emails__address__contains' => $_REQUEST['query'],
                 'user__org__name__contains' => $_REQUEST['query'],
-            )));
+            ));
+            if (!$_REQUEST['search-type']) {
+                // [Search] click, consider keywords too. This is a
+                // relatively ugly hack. SearchBackend::find() add in a
+                // constraint for the search. We need to pop that off and
+                // include it as an OR with the above constraints
+                $tickets = $ost->searcher->find($_REQUEST['query'], $tickets);
+                $keywords = array_pop($tickets->constraints);
+                $basic_search->add($keywords);
+                // FIXME: The subquery technique below will crash with
+                //        keyword search
+                $use_subquery = false;
+            }
+            $tickets->filter($basic_search);
         }
         break;
     } elseif (isset($_SESSION['advsearch'])) {
-        // XXX: De-duplicate and simplify this code
         $form = $search->getFormFromSession('advsearch');
-        $form->loadState($_SESSION['advsearch']);
         $tickets = $search->mangleQuerySet($tickets, $form);
         $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
@@ -274,23 +285,21 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate');
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered');
 
 // Add in annotations
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
-    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
-       ->when(new SqlField('thread__entries__attachments__inline'), null)
-       ->otherwise(new SqlField('thread__entries__attachments')),
-        true
-    ),
-    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
-        ->when(
-            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
-            null)
-        ->otherwise(new SqlField('thread__entries__id')),
-       true
-    ),
+    'collab_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
+    'attachment_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('entries__attachments__inline' => 0))
+        ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+    'thread_count' => TicketThread::objects()
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(Q::not(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN)))
+        ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
 // Save the query to the session for exporting

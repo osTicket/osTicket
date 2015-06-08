@@ -317,7 +317,7 @@ class Format {
         global $ost;
 
         // Find all text between tags
-        $text = preg_replace_callback(':^[^<]+|>[^<]+:',
+        return preg_replace_callback(':^[^<]+|>[^<]+:',
             function($match) {
                 // Scan for things that look like URLs
                 return preg_replace_callback(
@@ -344,32 +344,6 @@ class Format {
                     $match[0]);
             },
             $text);
-
-        // Now change @href and @src attributes to come back through our
-        // system as well
-        $config = array(
-            'hook_tag' => function($e, $a=0) use ($target) {
-                static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
-                    'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
-                if ($e == 'a' && $a) {
-                    $a['target'] = $target;
-                    $a['class'] = 'no-pjax';
-                }
-
-                $at = '';
-                if (is_array($a)) {
-                    foreach ($a as $k=>$v)
-                        $at .= " $k=\"$v\"";
-                    return "<{$e}{$at}".(isset($eE[$e])?" /":"").">";
-                } else {
-                    return "</{$e}>";
-                }
-            },
-            'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
-            'elements' => '*+iframe',
-            'spec' => 'span=data-src,width,height;img=data-cid',
-        );
-        return Format::html($text, $config);
     }
 
     function stripEmptyLines($string) {
@@ -379,18 +353,9 @@ class Format {
 
     function viewableImages($html, $script=false) {
         $cids = $images = array();
-        // Try and get information for all the files in one query
-        if (preg_match_all('/"cid:([\w._-]{32})"/', $html, $cids)) {
-            foreach (AttachmentFile::objects()
-                ->filter(array('key__in' => $cids[1]))
-                as $file
-            ) {
-                $images[strtolower($file->getKey())] = $file;
-            }
-        }
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($script, $images) {
-            if (!($file = $images[strtolower($match[1])]))
+            if (!($file = AttachmentFile::lookup($match[1])))
                 return $match[0];
             return sprintf('"%s" data-cid="%s"',
                 $file->getDownloadUrl(false, 'inline', $script), $match[1]);
@@ -441,6 +406,7 @@ class Format {
     function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
             $strftimeFallback, $timezone, $user=false) {
         global $cfg;
+        static $cache;
 
         if (!$timestamp)
             return '';
@@ -449,18 +415,28 @@ class Format {
             $timestamp = Misc::db2gmtime($timestamp);
 
         if (class_exists('IntlDateFormatter')) {
-            $formatter = new IntlDateFormatter(
-                Internationalization::getCurrentLocale($user),
-                $dayType,
-                $timeType,
-                $timezone,
-                IntlDateFormatter::GREGORIAN,
-                $format ?: null
-            );
-            if ($cfg->isForce24HourTime()) {
-                $format = str_replace(array('a', 'h'), array('', 'H'),
-                    $formatter->getPattern());
-                $formatter->setPattern($format);
+            $locale = Internationalization::getCurrentLocale($user);
+            $key = "{$locale}:{$dayType}:{$timeType}:{$timezone}:{$format}";
+            if (!isset($cache[$key])) {
+                // Setting up the IntlDateFormatter is pretty expensive, so
+                // cache it since there aren't many variations of the
+                // arguments passed to the constructor
+                $cache[$key] = $formatter = new IntlDateFormatter(
+                    $locale,
+                    $dayType,
+                    $timeType,
+                    $timezone,
+                    IntlDateFormatter::GREGORIAN,
+                    $format ?: null
+                );
+                if ($cfg->isForce24HourTime()) {
+                    $format = str_replace(array('a', 'h'), array('', 'H'),
+                        $formatter->getPattern());
+                    $formatter->setPattern($format);
+                }
+            }
+            else {
+                $formatter = $cache[$key];
             }
             return $formatter->format($timestamp);
         }

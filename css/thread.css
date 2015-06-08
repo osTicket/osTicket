@@ -66,7 +66,7 @@
 .thread-body kbd,
 .thread-body pre,
 .thread-body samp {
-  font-family: monospace, serif;
+  font-family: 'Source Code Pro', 'Monaco', 'Consolas', monospace, serif;
   font-size: 1em;
 }
 .thread-body pre {
@@ -420,9 +420,16 @@
 	margin: 0;
 	margin-bottom: 10px;
 	border: none;
-	background: none !important;
+    background: none;
 	box-shadow: none !important;
     text-indent: 0 !important;
+}
+
+.thread-body pre {
+    background: #f5f5f5;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 5px;
+    padding: 0.5em;
 }
 
 .thread-body iframe,

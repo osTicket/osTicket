@@ -42,10 +42,10 @@ case 'search':
             'cdata__title__contains' => $_REQUEST['query'],
         )));
         break;
-    } elseif (isset($_SESSION['advsearch'])) {
+    } elseif (isset($_SESSION['advsearch:tasks'])) {
         // XXX: De-duplicate and simplify this code
-        $form = $search->getFormFromSession('advsearch');
-        $form->loadState($_SESSION['advsearch']);
+        $form = $search->getFormFromSession('advsearch:tasks');
+        $form->loadState($_SESSION['advsearch:tasks']);
         $tasks = $search->mangleQuerySet($tasks, $form);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';

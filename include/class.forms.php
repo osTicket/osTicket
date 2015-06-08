@@ -388,6 +388,10 @@ class FormField {
         $this->ht[$field] = $value;
     }
 
+    function getId() {
+        return $this->ht['id'];
+    }
+
     /**
      * getClean
      *
@@ -422,7 +426,7 @@ class FormField {
         return $this->_clean;
     }
     function reset() {
-        $this->_clean = $this->_widget = null;
+        $this->value = $this->_clean = $this->_widget = null;
     }
 
     function getValue() {
@@ -1247,6 +1251,18 @@ class BooleanField extends FormField {
             'set' => null,
             'set.not' => null,
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case 'set':
+            return new Q(array($name => '1'));
+        case 'set.not':
+            return new Q(array($name => '0'));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }
 
@@ -2124,8 +2140,16 @@ class FileUploadField extends FormField {
     static function getFileTypes() {
         static $filetypes;
 
-        if (!isset($filetypes))
-            $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+        if (!isset($filetypes)) {
+            if (function_exists('apc_fetch')) {
+                $key = md5(SECRET_SALT . GIT_VERSION . 'filetypes');
+                $filetypes = apc_fetch($key);
+            }
+            if (!$filetypes)
+                $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
+            if ($key)
+                apc_store($key, $filetypes, 7200);
+        }
         return $filetypes;
     }
 
@@ -2910,7 +2934,9 @@ class CheckboxWidget extends Widget {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                return false;
+                // Indeterminite. Likely false, but consider current field
+                // value
+                return null;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();

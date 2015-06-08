@@ -70,6 +70,9 @@ div#header a {
 time[title]:hover {
     text-decoration: underline;
 }
+a time.relative {
+    color: initial;
+}
 
 .small[class^="icon-"],
 .small[class*=" icon-"] {
@@ -1610,10 +1613,6 @@ time.faq {
     width:100%;
 }
 
-#advanced-search div.closed_by, #advanced-search span.spinner {
-    display:none;
-}
-
 .dialog fieldset {
     margin:0;
     padding:0 0;
@@ -1669,40 +1668,12 @@ time.faq {
     vertical-align: top;
 }
 
-#advanced-search .query input {
-    width:100%;
-    padding: 4px;
-    margin-bottom: 10px;
-}
-
-#advanced-search .date_range {
-    margin-bottom: 5px;
-}
-#advanced-search .date_range input {
-    width:227px;
-    width: calc(49% - 73px);
-}
-
-#advanced-search .date_range i {
-    display:inline-block;
-    margin-left:3px;
-    position:relative;
-    top:5px;
-    width:16px;
-    height:16px;
-    background:url(../images/cal.png) bottom left no-repeat;
-}
-
-#advanced-search fieldset.sorting select {
-    width:130px;
-}
-
-#advanced-search p {
-    text-align:center;
-}
-
 .search-dropdown {
     padding-left: 19px;
+}
+
+.advanced-search-field {
+    margin-top: 5px !important;
 }
 
 .dialog input[type="submit"],
@@ -2387,6 +2358,9 @@ td.indented {
 .thread-event {
     padding: 0 2px 15px;
     margin-left: 60px;
+}
+.thread-event a {
+    color: inherit;
 }
 .type-icon {
     border-radius: 8px;

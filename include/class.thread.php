@@ -86,15 +86,20 @@ class Thread extends VerySimpleModel {
         return $this->entries->count();
     }
 
+    var $_entries;
     function getEntries($criteria=false) {
-        $base = $this->entries->annotate(array(
-            'has_attachments' => SqlAggregate::COUNT('attachments', false,
-                new Q(array('attachments__inline'=>0)))
-        ));
-        $base->exclude(array('flags__hasbit'=>ThreadEntry::FLAG_HIDDEN));
-        if ($criteria)
-            $base->filter($criteria);
-        return $base;
+        if (!isset($this->_entries)) {
+            $this->_entries = $this->entries->annotate(array(
+                'has_attachments' => SqlAggregate::COUNT(SqlCase::N()
+                    ->when(array('attachments__inline'=>0), 1)
+                    ->otherwise(null)
+                ),
+            ));
+            $this->_entries->exclude(array('flags__hasbit'=>ThreadEntry::FLAG_HIDDEN));
+            if ($criteria)
+                $this->_entries->filter($criteria);
+        }
+        return $this->_entries;
     }
 
     // Collaborators
@@ -134,7 +139,7 @@ class Thread extends VerySimpleModel {
         return $collaborators;
     }
 
-    function addCollaborator($user, $vars, &$errors) {
+    function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if (!$user)
             return null;
@@ -146,6 +151,16 @@ class Thread extends VerySimpleModel {
             return null;
 
         $this->_collaborators = null;
+
+        if ($event)
+            $this->getEvents()->log($this->getObject(),
+                'collab',
+                array('add' => array($user->getId() => array(
+                        'name' => $user->getName()->getOriginal(),
+                        'src' => @$vars['source'],
+                    ))
+                )
+            );
 
         return $c;
     }
@@ -164,11 +179,9 @@ class Thread extends VerySimpleModel {
                         && $c->delete())
                      $collabs[] = $c;
             }
-
-            $this->getObject()->postThreadEntry('N',
-                    array(
-                        'title' => _S('Collaborators Removed'),
-                        'note' => implode("<br>", $collabs)));
+            $this->getEvents()->log($this->getObject(), 'collab', array(
+                'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
+            ));
         }
 
         //statuses
@@ -204,6 +217,11 @@ class Thread extends VerySimpleModel {
         $entries = $this->getEntries();
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
+
+        // Precache all the attachments on this thread
+        AttachmentFile::objects()->filter(array(
+            'attachments__thread_entry__thread__id' => $this->id
+        ))->all();
 
         $events = $this->getEvents();
         $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
@@ -381,10 +399,10 @@ class Thread extends VerySimpleModel {
             // Try not to destroy the format of the body
             $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
                 $mailinfo['email']);
-            if ($body instanceof HtmlThreadBody)
+            if ($body instanceof HtmlThreadEntryBody)
                 $header = nl2br(Format::htmlchars($header));
             // Add the banner to the top of the message
-            if ($body instanceof ThreadBody)
+            if ($body instanceof ThreadEntryBody)
                 $body->prepend($header);
             $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
@@ -499,6 +517,9 @@ class Thread extends VerySimpleModel {
 
         $this->entries->delete();
 
+        // Null out the events
+        $this->events->update(array('thread_id' => 0));
+
         return true;
     }
 
@@ -562,6 +583,7 @@ implements TemplateVariable {
     const FLAG_EDITED                   = 0x0002;
     const FLAG_HIDDEN                   = 0x0004;
     const FLAG_GUARDED                  = 0x0008;   // No replace on edit
+    const FLAG_RESENT                   = 0x0010;
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -759,6 +781,17 @@ implements TemplateVariable {
         return $this->user;
     }
 
+    function getEditor() {
+        static $types = array(
+            'U' => 'User',
+            'S' => 'Staff',
+        );
+        if (!isset($types[$this->editor_type]))
+            return null;
+
+        return $types[$this->editor_type]::lookup($this->editor);
+    }
+
     function getName() {
         if ($this->staff_id)
             return $this->staff->getName();
@@ -908,8 +941,9 @@ implements TemplateVariable {
         }
         if ($filename) {
             // This should be a noop since the ORM caches on PK
-            $file = AttachmentFile::lookup($fileId);
-            if ($file->name != $filename)
+            $F = $F ?: AttachmentFile::lookup($fileId);
+            // XXX: This is not Unicode safe
+            if ($F && 0 !== strcasecmp($F->name, $filename))
                 $att->name = $filename;
         }
 
@@ -1522,83 +1556,23 @@ class ThreadEvent extends VerySimpleModel {
             'overdue'   => 'time',
             'transferred' => 'share-alt',
             'edited'    => 'pencil',
+            'closed'    => 'thumbs-up-alt',
+            'reopened'  => 'rotate-right',
+            'resent'    => 'reply-all icon-flip-horizontal',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
 
     function getDescription($mode=self::MODE_STAFF) {
-        static $descs;
-        if (!isset($descs))
-            $descs = array(
-            'assigned' => __('Assignee changed by <b>{username}</b> to <strong>{assignees}</strong> {timestamp}'),
-            'assigned:staff' => __('<b>{username}</b> assigned this to <strong>{<Staff>data.staff}</strong> {timestamp}'),
-            'assigned:team' => __('<b>{username}</b> assigned this to <strong>{<Team>data.team}</strong> {timestamp}'),
-            'assigned:claim' => __('<b>{username}</b> claimed this {timestamp}'),
-            'collab:org' => __('Collaborators for {<Organization>data.org} organization added'),
-            'collab:del' => function($evt) {
-                $data = $evt->getData();
-                $base = __('<b>{username}</b> removed %s from the collaborators.');
-                return $data['del']
-                    ? Format::htmlchars(sprintf($base, implode(', ', $data['del'])))
-                    : 'somebody';
-            },
-            'collab:add' => function($evt) {
-                $data = $evt->getData();
-                $base = __('<b>{username}</b> added <strong>%s</strong> as collaborators {timestamp}');
-                $collabs = array();
-                if ($data['add']) {
-                    foreach ($data['add'] as $c) {
-                        $collabs[] = Format::htmlchars($c);
-                    }
-                }
-                return $collabs
-                    ? sprintf($base, implode(', ', $collabs))
-                    : 'somebody';
-            },
-            'created' => __('Created by <b>{username}</b> {timestamp}'),
-            'closed' => __('Closed by <b>{username}</b> {timestamp}'),
-            'reopened' => __('Reopened by <b>{username}</b> {timestamp}'),
-            'edited:owner' => __('<b>{username}</b> changed ownership to {<User>data.owner} {timestamp}'),
-            'edited:status' => __('<b>{username}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}'),
-            'overdue' => __('Flagged as overdue by the system {timestamp}'),
-            'transferred' => __('<b>{username}</b> transferred this to <strong>{dept}</strong> {timestamp}'),
-            'edited:fields' => function($evt) use ($mode) {
-                $base = __('Updated by <b>{username}</b> {timestamp} — %s');
-                $data = $evt->getData();
-                $fields = $changes = array();
-                foreach (DynamicFormField::objects()->filter(array(
-                    'id__in' => array_keys($data['fields'])
-                )) as $F) {
-                    $fields[$F->id] = $F;
-                }
-                foreach ($data['fields'] as $id=>$f) {
-                    $field = $fields[$id];
-                    if ($mode == self::MODE_CLIENT && !$field->isVisibleToUsers())
-                        continue;
-                    list($old, $new) = $f;
-                    $impl = $field->getImpl($field);
-                    $before = $impl->to_php($old);
-                    $after = $impl->to_php($new);
-                    $changes[] = sprintf('<strong>%s</strong> %s',
-                        $field->getLocal('label'), $impl->whatChanged($before, $after));
-                }
-                if (!$changes)
-                    return '';
-                return sprintf($base, implode(', ', $changes));
-            },
-        );
-        $self = $this;
-        $data = $this->getData();
-        $state = $this->state;
-        if (is_array($data)) {
-            foreach (array_keys($data) as $k)
-                if (isset($descs[$state . ':' . $k]))
-                    $state .= ':' . $k;
-        }
-        $description = $descs[$state];
-        if (is_callable($description))
-            $description = $description($this);
+        // Abstract description
+        return $this->template(sprintf(
+            __('%s by {somebody} {timestamp}'),
+            $this->state
+        ));
+    }
 
+    function template($description) {
+        $self = $this;
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
             function ($m) use ($self) {
                 switch ($m['key']) {
@@ -1613,7 +1587,7 @@ class ThreadEvent extends VerySimpleModel {
                         $assignees[] = $T->getLocalName();
                     }
                     return implode('/', $assignees);
-                case 'username':
+                case 'somebody':
                     $name = $self->getUserName();
                     if ($url = $self->getAvatar())
                         $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
@@ -1657,39 +1631,52 @@ class ThreadEvent extends VerySimpleModel {
 
     function render($mode) {
         $inc = ($mode == self::MODE_STAFF) ? STAFFINC_DIR : CLIENTINC_DIR;
-        $event = $this;
+        $event = $this->getTypedEvent();
         include $inc . 'templates/thread-event.tmpl.php';
     }
 
-    static function create($ht=false) {
+    static function create($ht=false, $user=false) {
         $inst = parent::create($ht);
         $inst->timestamp = SqlFunction::NOW();
 
         global $thisstaff, $thisclient;
-        if ($thisstaff) {
+        $user = is_object($user) ? $user : $thisstaff ?: $thisclient;
+        if ($user instanceof Staff) {
             $inst->uid_type = 'S';
-            $inst->uid = $thisstaff->getId();
+            $inst->uid = $user->getId();
         }
-        else if ($thisclient) {
+        elseif ($user instanceof User) {
             $inst->uid_type = 'U';
-            $inst->uid = $thisclient->getId();
+            $inst->uid = $user->getId();
         }
 
         return $inst;
     }
 
-    static function forTicket($ticket, $state) {
+    static function forTicket($ticket, $state, $user=false) {
         $inst = static::create(array(
             'staff_id' => $ticket->getStaffId(),
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
             'topic_id' => $ticket->getTopicId(),
-        ));
-        if (!isset($inst->uid_type) && $state == self::CREATED) {
-            $inst->uid_type = 'U';
-            $inst->uid = $ticket->getOwnerId();
-        }
+        ), $user);
         return $inst;
+    }
+
+    function getTypedEvent() {
+        static $subclasses;
+
+        if (!isset($subclasses)) {
+            $parent = get_class($this);
+            $subclasses = array();
+            foreach (get_declared_classes() as $class) {
+                if (is_subclass_of($class, $parent))
+                    $subclasses[$class::$state] = $class;
+            }
+        }
+        if (!($class = $subclasses[$this->state]))
+            return $this;
+        return new $class($this->ht);
     }
 }
 
@@ -1700,13 +1687,27 @@ class ThreadEvents extends InstrumentedList {
             ->update(array('annulled' => 1));
     }
 
-    function log($object, $state, $data=null, $annul=null, $username=null) {
+    /**
+     * Add an event to the thread activity log.
+     *
+     * Parameters:
+     * $object - Object to log activity for
+     * $state - State name of the activity (one of 'created', 'edited',
+     *      'deleted', 'closed', 'reopened', 'error', 'collab', 'resent',
+     *      'assigned', 'transferred')
+     * $data - (array?) Details about the state change
+     * $user - (string|User|Staff) user triggering the state change
+     * $annul - (state) a corresponding state change that is annulled by
+     *      this event
+     */
+    function log($object, $state, $data=null, $user=null, $annul=null) {
         global $thisstaff, $thisclient;
 
         if ($object instanceof Ticket)
-            $event = ThreadEvent::forTicket($object, $state);
+            // TODO: Use $object->createEvent()
+            $event = ThreadEvent::forTicket($object, $state, $user);
         else
-            $event = ThreadEvent::create();
+            $event = ThreadEvent::create(false, $user);
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
@@ -1715,11 +1716,14 @@ class ThreadEvents extends InstrumentedList {
             $this->annul($annul);
         }
 
-        if ($username === null) {
-            if ($thisstaff) {
-                $username = $thisstaff->getUserName();
+        $username = $user;
+        $user = is_object($user) ? $user : $thisclient ?: $thisstaff;
+        if (!is_string($username)) {
+            if ($user instanceof Staff) {
+                $username = $user->getUserName();
             }
-            else if ($thisclient) {
+            // XXX: Use $user here
+            elseif ($thisclient) {
                 if ($thisclient->hasAccount)
                     $username = $thisclient->getAccount()->getUserName();
                 if (!$username)
@@ -1746,6 +1750,186 @@ class ThreadEvents extends InstrumentedList {
         // Save event immediately
         return $event->save();
     }
+}
+
+class AssignmentEvent extends ThreadEvent {
+    static $icon = 'hand-right';
+    static $state = 'assigned';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+        switch (true) {
+        case !is_array($data):
+        default:
+            $desc = __('Assignee changed by <b>{somebody}</b> to <strong>{assignees}</strong> {timestamp}');
+            break;
+        case isset($data['staff']):
+            $desc = __('<b>{somebody}</b> assigned this to <strong>{<Staff>data.staff}</strong> {timestamp}');
+            break;
+        case isset($data['team']):
+            $desc = __('<b>{somebody}</b> assigned this to <strong>{<Team>data.team}</strong> {timestamp}');
+            break;
+        case isset($data['claim']):
+            $desc = __('<b>{somebody}</b> claimed this {timestamp}');
+            break;
+        }
+        return $this->template($desc);
+    }
+}
+
+class CloseEvent extends ThreadEvent {
+    static $icon = 'thumbs-up-alt';
+    static $state = 'closed';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
+    }
+}
+
+class CollaboratorEvent extends ThreadEvent {
+    static $icon = 'group';
+    static $state = 'collab';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+        switch (true) {
+        case isset($data['org']):
+            $desc = __('Collaborators for {<Organization>data.org} organization added');
+            break;
+        case isset($data['del']):
+            $base = __('<b>{somebody}</b> removed <strong>%s</strong> from the collaborators {timestamp}');
+            $collabs = array();
+            $users = User::objects()->filter(array('id__in' => array_keys($data['del'])));
+            foreach ($data['del'] as $id=>$c) {
+                $U = false;
+                foreach ($users as $user) {
+                    if ($user->id == $id) {
+                        $U = $user;
+                        break;
+                    }
+                }
+                $collabs[] = Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c);
+            }
+            $desc = sprintf($base, implode(', ', $collabs));
+            break;
+        case isset($data['add']):
+            $base = __('<b>{somebody}</b> added <strong>%s</strong> as collaborators {timestamp}');
+            $collabs = array();
+            if ($data['add']) {
+                $users = User::objects()->filter(array('id__in' => array_keys($data['add'])));
+                foreach ($data['add'] as $id=>$c) {
+                    $U = false;
+                    foreach ($users as $user) {
+                        if ($user->id == $id) {
+                            $U = $user;
+                            break;
+                        }
+                    }
+                    $c = sprintf(__("%s via %s"
+                        /* e.g. "Me <me@company.me> via Email (to)" */),
+                        Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c),
+                        $c['src'] ?: '?'
+                    );
+                    $collabs[] = $c;
+                }
+            }
+            $desc = $collabs
+                ? sprintf($base, implode(', ', $collabs))
+                : 'somebody';
+            break;
+        }
+        return $this->template($desc);
+    }
+}
+
+class CreationEvent extends ThreadEvent {
+    static $icon = 'magic';
+    static $state = 'created';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Created by <b>{somebody}</b> {timestamp}'));
+    }
+}
+
+class EditEvent extends ThreadEvent {
+    static $icon = 'pencil';
+    static $state = 'edited';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+        switch (true) {
+        case isset($data['owner']):
+            $desc = __('<b>{somebody}</b> changed ownership to {<User>data.owner} {timestamp}');
+            break;
+        case isset($data['status']):
+            $desc = __('<b>{somebody}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}');
+            break;
+        case isset($data['fields']):
+            $base = __('Updated by <b>{somebody}</b> {timestamp} — %s');
+            $fields = $changes = array();
+            foreach (DynamicFormField::objects()->filter(array(
+                'id__in' => array_keys($data['fields'])
+            )) as $F) {
+                $fields[$F->id] = $F;
+            }
+            foreach ($data['fields'] as $id=>$f) {
+                $field = $fields[$id];
+                if ($mode == self::MODE_CLIENT && !$field->isVisibleToUsers())
+                    continue;
+                list($old, $new) = $f;
+                $impl = $field->getImpl($field);
+                $before = $impl->to_php($old);
+                $after = $impl->to_php($new);
+                $changes[] = sprintf('<strong>%s</strong> %s',
+                    $field->getLocal('label'), $impl->whatChanged($before, $after));
+            }
+            $desc = $changes
+                ? sprintf($base, implode(', ', $changes)) : '';
+            break;
+        }
+
+        return $this->template($desc);
+    }
+}
+
+class OverdueEvent extends ThreadEvent {
+    static $icon = 'time';
+    static $state = 'overdue';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Flagged as overdue by the system {timestamp}'));
+    }
+}
+
+class ReopenEvent extends ThreadEvent {
+    static $icon = 'rotate-right';
+    static $state = 'reopened';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Reopened by <b>{somebody}</b> {timestamp}'));
+    }
+}
+
+class ResendEvent extends ThreadEvent {
+    static $icon = 'reply-all icon-flip-horizontal';
+    static $state = 'resent';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('<b>{somebody}</b> resent <strong><a href="#thread-entry-{data.entry}">a previous response</a></strong> {timestamp}'));
+    }
+}
+
+class TransferEvent extends ThreadEvent {
+    static $icon = 'share-alt';
+    static $state = 'transferred';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('<b>{somebody}</b> transferred this to <strong>{dept}</strong> {timestamp}'));
+    }
+}
+
+class ViewEvent extends ThreadEvent {
+    static $state = 'viewed';
 }
 
 class ThreadEntryBody /* extends SplString */ {
@@ -2088,10 +2272,9 @@ class NoteThreadEntry extends ThreadEntry {
 // Object specific thread utils.
 class ObjectThread extends Thread
 implements TemplateVariable {
-    private $_entries = array();
-
     static $types = array(
         ObjectModel::OBJECT_TYPE_TASK => 'TaskThread',
+        ObjectModel::OBJECT_TYPE_TICKET => 'TicketThread',
     );
 
     var $counts;

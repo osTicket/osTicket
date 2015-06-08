@@ -36,6 +36,10 @@ if(!defined('SETUPINC')) die('Kwaheri!');
                     echo __('recommended for all installations');?></li>
                 <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar <?php echo __('extension');?> &mdash; <?php
                     echo __('recommended for plugins and language packs');?></li>
+                <li class="<?php echo extension_loaded('intl')?'yes':'no'; ?>">Intl <?php echo __('extension');?> &mdash; <?php
+                    echo __('recommended for improved localization');?></li>
+                <li class="<?php echo extension_loaded('apc')?'yes':'no'; ?>">APC <?php echo __('extension');?> &mdash; <?php
+                    echo __('(faster performance)');?></li>
             </ul>
             <div id="bar">
                 <form method="post" action="install.php">

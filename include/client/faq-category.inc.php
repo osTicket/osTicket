@@ -13,9 +13,11 @@ if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access
 <?php
 $faqs = FAQ::objects()
     ->filter(array('category'=>$category))
-    ->exclude(array('ispublished'=>false))
-    ->annotate(array('has_attachments'=>SqlAggregate::COUNT('attachments', false,
-        array('attachments__inline'=>0))))
+    ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
+    ->annotate(array('has_attachments' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(array('attachments__inline'=>0), 1)
+        ->otherwise(null)
+    )))
     ->order_by('-ispublished', 'question');
 
 if ($faqs->exists(true)) {

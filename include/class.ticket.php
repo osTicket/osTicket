@@ -73,13 +73,19 @@ class TicketModel extends VerySimpleModel {
                 'null' => true,
             ),
             'thread' => array(
-                'reverse' => 'Thread.ticket',
+                'reverse' => 'TicketThread.ticket',
                 'list' => false,
                 'null' => true,
             ),
             'cdata' => array(
                 'reverse' => 'TicketCData.ticket',
                 'list' => false,
+            ),
+            'entries' => array(
+                'constraint' => array(
+                    "'T'" => 'DynamicFormEntry.object_type',
+                    'ticket_id' => 'DynamicFormEntry.object_id',
+                ),
             ),
         )
     );
@@ -144,14 +150,6 @@ class TicketModel extends VerySimpleModel {
          ));
     }
 
-    function delete() {
-
-        if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
-            return true;
-
-        return false;
-    }
-
     static function registerCustomData(DynamicForm $form) {
         if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
             $cdata_class = <<<EOF
@@ -163,7 +161,8 @@ class DynamicForm{$form->id} extends DynamicForm {
         return \$instance;
     }
 }
-class TicketCdataForm{$form->id} {
+class TicketCdataForm{$form->id}
+extends VerySimpleModel {
     static \$meta = array(
         'view' => true,
         'pk' => array('ticket_id'),
@@ -179,13 +178,19 @@ class TicketCdataForm{$form->id} {
 }
 EOF;
             eval($cdata_class);
-            static::$meta['joins']['cdata+'.$form->id] = array(
-                'reverse' => 'TicketCdataForm'.$form->id.'.ticket',
-                'null' => true,
+            $join = array(
+                'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                'list' => true,
             );
             // This may be necessary if the model has already been inspected
             if (static::$meta instanceof ModelMeta)
-                static::$meta->processJoin(static::$meta['joins']['cdata+'.$form->id]);
+                static::$meta->addJoin('cdata+'.$form->id, $join);
+            else {
+                static::$meta['joins']['cdata+'.$form->id] = array(
+                    'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                    'list' => true,
+                );
+            }
         }
     }
 
@@ -216,10 +221,12 @@ class Ticket extends TicketModel
 implements RestrictedAccess, Threadable {
 
     static $meta = array(
-        'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread'),
+        'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread',
+            'user__default_email'),
     );
 
     var $lastMsgId;
+    var $last_message;
 
     var $owner;     // TicketOwner
     var $_user;      // EndUser
@@ -236,12 +243,15 @@ implements RestrictedAccess, Threadable {
     function loadDynamicData() {
         if (!isset($this->_answers)) {
             $this->_answers = array();
-            foreach (DynamicFormEntry::forTicket($this->getId(), true) as $form) {
-                foreach ($form->getAnswers() as $answer) {
-                    $tag = mb_strtolower($answer->field->name)
-                        ?: 'field.' . $answer->field->id;
-                        $this->_answers[$tag] = $answer;
-                }
+            foreach (DynamicFormEntryAnswer::objects()
+                ->filter(array(
+                    'entry__object_id' => $this->getId(),
+                    'entry__object_type' => 'T'
+                )) as $answer
+            ) {
+                $tag = mb_strtolower($answer->field->name)
+                    ?: 'field.' . $answer->field->id;
+                    $this->_answers[$tag] = $answer;
             }
         }
         return $this->_answers;
@@ -654,20 +664,20 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastRespondent() {
-
         if (!isset($this->lastrespondent)) {
             $this->lastresponent = Staff::objects()
                 ->filter(array(
                 'staff_id' => static::objects()
                     ->filter(array(
-                        'thread__entry__type' => 'R',
-                        'thread__entry__staff_id__gt' => 0
+                        'thread__entries__type' => 'R',
+                        'thread__entries__staff_id__gt' => 0
                     ))
-                    ->values_flat('thread__entry__staff_id')
-                    ->order_by('-thread__entry__id')
-                    ->first()
+                    ->values_flat('thread__entries__staff_id')
+                    ->order_by('-thread__entries__id')
+                    ->limit(1)
                 ))
-                ->first();
+                ->first()
+                ?: false;
         }
         return $this->lastrespondent;
     }
@@ -806,21 +816,15 @@ implements RestrictedAccess, Threadable {
         return $fields[0];
     }
 
-    function addCollaborator($user, $vars, &$errors) {
+    function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if (!$user || $user->getId() == $this->getOwnerId())
             return null;
 
-        $vars = array_merge(array(
-                'threadId' => $this->getThreadId(),
-                'userId' => $user->getId()), $vars);
-        if (!($c=Collaborator::add($vars, $errors)))
-            return null;
-
-        $this->collaborators = null;
-        $this->recipients = null;
-
-        $this->logEvent('collab', array('add' => array($c->toString())));
+        if ($c = $this->getThread()->addCollaborator($user, $vars, $errors, $event)) {
+            $this->collaborators = null;
+            $this->recipients = null;
+        }
 
         return $c;
     }
@@ -1027,11 +1031,9 @@ implements RestrictedAccess, Threadable {
         if ($this->getStatusId() == $status->getId())
             return true;
 
-        $this->status = $status;
-
-        //TODO: move this up.
+        // Perform checks on the *new* status, _before_ the status changes
         $ecb = null;
-        switch($status->getState()) {
+        switch ($status->getState()) {
             case 'closed':
                 if ($this->getMissingRequiredFields()) {
                     $errors['err'] = sprintf(__(
@@ -1043,7 +1045,7 @@ implements RestrictedAccess, Threadable {
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
                     $this->staff = $thisstaff;
-                $this->clearOverdue();
+                $this->clearOverdue(false);
 
                 $ecb = function($t) {
                     $t->logEvent('closed');
@@ -1055,7 +1057,7 @@ implements RestrictedAccess, Threadable {
                 if ($this->isClosed()) {
                     $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
-                        $t->logEvent('reopened', false, 'closed');
+                        $t->logEvent('reopened', false, null, 'closed');
                     };
                 }
 
@@ -1068,24 +1070,19 @@ implements RestrictedAccess, Threadable {
 
         }
 
+        $this->status = $status;
         if (!$this->save())
             return false;
 
         // Log status change b4 reload — if currently has a status. (On new
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
-        if ($current_status = $this->getStatus()) {
-            $note = sprintf(__('Status changed from %1$s to %2$s by %3$s'),
-                    $this->getStatus(),
-                    $status,
-                    $thisstaff ?: 'SYSTEM');
-
+        if ($hadStatus) {
             $alert = false;
             if ($comments) {
-                $note .= sprintf('<hr>%s', $comments);
                 // Send out alerts if comments are included
                 $alert = true;
-                $this->logNote(__('Status Changed'), $note, $thisstaff, $alert);
+                $this->logNote(__('Status Changed'), $comments, $thisstaff, $alert);
             }
         }
         // Log events via callback
@@ -1139,7 +1136,7 @@ implements RestrictedAccess, Threadable {
         if (!($status=$this->getStatus()->getReopenStatus()))
             $status = $cfg->getDefaultTicketStatusId();
 
-        return $status ? $this->setStatus($status, 'Reopened') : false;
+        return $status ? $this->setStatus($status) : false;
     }
 
     function onNewTicket($message, $autorespond=true, $alertstaff=true) {
@@ -1575,10 +1572,12 @@ implements RestrictedAccess, Threadable {
             );
             // Send the alerts.
             $sentlist = array();
-            $options = array(
-                'inreplyto'=>$note->getEmailMessageId(),
-                'references'=>$note->getEmailReferences(),
-                'thread'=>$note);
+            $options = $note instanceof ThreadEntry
+                ? array(
+                    'inreplyto'=>$note->getEmailMessageId(),
+                    'references'=>$note->getEmailReferences(),
+                    'thread'=>$note)
+                : array();
             foreach ($recipients as $k=>$staff) {
                 if (!is_object($staff)
                     || !$staff->isAvailable()
@@ -1796,7 +1795,7 @@ implements RestrictedAccess, Threadable {
         return true;
     }
 
-    function clearOverdue() {
+    function clearOverdue($save=true) {
         if (!$this->isOverdue())
             return true;
 
@@ -1812,7 +1811,7 @@ implements RestrictedAccess, Threadable {
         if ($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
             $this->sla = null;
 
-        return $this->save();
+        return $save ? $this->save() : true;
     }
 
     //Dept Tranfer...with alert.. done by staff
@@ -2081,14 +2080,17 @@ implements RestrictedAccess, Threadable {
                     continue;
 
                 if (($user=User::fromVars($recipient)))
-                    if ($c=$this->addCollaborator($user, $info, $errors))
+                    if ($c=$this->addCollaborator($user, $info, $errors, false))
                         // FIXME: This feels very unwise — should be a
                         // string indexed array for future
-                        $collabs[] = array((string)$c, $recipient['source']);
+                        $collabs[$c->user_id] = array(
+                            'name' => $c->getName()->getOriginal(),
+                            'src' => $recipient['source'],
+                        );
             }
             // TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logEvent('collab', array('add' => $collabs));
+                $this->logEvent('collab', array('add' => $collabs), $message->user);
             }
         }
 
@@ -2325,8 +2327,8 @@ implements RestrictedAccess, Threadable {
     }
 
     // History log -- used for statistics generation (pretty reports)
-    function logEvent($state, $data=null, $annul=null, $staff=null) {
-        $this->getThread()->getEvents()->log($this, $state, $data, $annul, $staff);
+    function logEvent($state, $data=null, $user=null, $annul=null) {
+        $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
 
     //Insert Internal Notes
@@ -2381,8 +2383,7 @@ implements RestrictedAccess, Threadable {
         if ($vars['note_status_id']
             && ($status=TicketStatus::lookup($vars['note_status_id']))
         ) {
-            if ($this->setStatus($status))
-                $this->reload();
+            $this->setStatus($status);
         }
 
         $activity = $vars['activity'] ?: _S('New Internal Note');
@@ -2522,8 +2523,8 @@ implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
-        $this->topic_id = $vars['topic_id'];
-        $this->sla_id = $vars['sla_id'];
+        $this->topic_id = $vars['topicId'];
+        $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
             ? date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))
@@ -2582,11 +2583,11 @@ implements RestrictedAccess, Threadable {
         }
 
         Signal::send('model.updated', $this);
-        return true;
+        return $this->save();
     }
 
    /*============== Static functions. Use Ticket::function(params); =============nolint*/
-    function getIdByNumber($number, $email=null, $ticket=false) {
+    static function getIdByNumber($number, $email=null, $ticket=false) {
 
         if (!$number)
             return 0;
@@ -2608,8 +2609,8 @@ implements RestrictedAccess, Threadable {
         }
     }
 
-    function lookupByNumber($number, $email=null) {
-        return self::getIdByNumber($number, $email, true);
+    static function lookupByNumber($number, $email=null) {
+        return static::getIdByNumber($number, $email, true);
     }
 
     static function isTicketNumberUnique($number) {
@@ -3076,9 +3077,10 @@ implements RestrictedAccess, Threadable {
         $ticket = parent::create(array(
             'created' => SqlFunction::NOW(),
             'lastupdate' => SqlFunction::NOW(),
+            'number' => $number,
             'user' => $user,
-            'dept' => $deptId,
-            'topicId' => $topicId,
+            'dept_id' => $deptId,
+            'topic_id' => $topicId,
             'ip_address' => $ipaddress,
             'source' => $source,
         ));
@@ -3119,6 +3121,9 @@ implements RestrictedAccess, Threadable {
         $ticket->loadDynamicData();
 
         $dept = $ticket->getDept();
+
+        // Start tracking ticket lifecycle events (created should come first!)
+        $ticket->logEvent('created', null, $thisstaff ?: $user);
 
         // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
@@ -3163,11 +3168,10 @@ implements RestrictedAccess, Threadable {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId'], _S('Auto Assignment'));
+                 $ticket->assignToStaff($vars['staffId'], false);
             if ($vars['teamId'])
                 // No team alert if also assigned to an individual agent
-                $ticket->assignToTeam($vars['teamId'], _S('Auto Assignment'),
-                    !$vars['staffId']);
+                $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
         }
 
         // Update the estimated due date in the database
@@ -3222,9 +3226,6 @@ implements RestrictedAccess, Threadable {
         ) {
             $ticket->onOpenLimit($autorespond && strcasecmp($origin, 'staff'));
         }
-
-        /* Start tracking ticket lifecycle events */
-        $ticket->logEvent('created');
 
         // Fire post-create signal (for extra email sending, searching)
         Signal::send('ticket.created', $ticket);
@@ -3292,8 +3293,6 @@ implements RestrictedAccess, Threadable {
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
-
-        $ticket->reload();
 
         if (!$cfg->notifyONNewStaffTicket()
             || !isset($vars['alertuser'])

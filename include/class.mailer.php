@@ -433,11 +433,10 @@ class Mailer {
                 function($match) use ($domain, $mime, $self) {
                     $file = false;
                     foreach ($self->attachments as $id=>$F) {
+                        if ($F instanceof Attachment)
+                            $F = $F->getFile();
                         if (strcasecmp($F->getKey(), $match[1]) === 0) {
-                            if ($F instanceof Attachment)
-                                $file = $F->getFile();
-                            else
-                                $file = $F;
+                            $file = $F;
                             break;
                         }
                     }
