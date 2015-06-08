@@ -548,7 +548,7 @@ implements TemplateVariable {
         'table' => THREAD_ENTRY_TABLE,
         'pk' => array('id'),
         'select_related' => array('staff', 'user', 'email_info'),
-        'ordering' => array('created'),
+        'ordering' => array('created', 'id'),
         'joins' => array(
             'thread' => array(
                 'constraint' => array('thread_id' => 'Thread.id'),
@@ -1704,7 +1704,7 @@ class ThreadEvents extends InstrumentedList {
         global $thisstaff, $thisclient;
 
         if ($object instanceof Ticket)
-            // TODO: Use $object->createEvent()
+            // TODO: Use $object->createEvent() (nolint)
             $event = ThreadEvent::forTicket($object, $state, $user);
         else
             $event = ThreadEvent::create(false, $user);

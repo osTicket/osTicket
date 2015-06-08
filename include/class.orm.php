@@ -1707,7 +1707,7 @@ class SqlCompiler {
             // Add the conststraint as the last arg to the last join
             if ($i == $last)
                 $constraint = $options['constraint'];
-            $alias = $this->pushJoin($A[0], $A[1], $A[2], $A[3], $contraint);
+            $alias = $this->pushJoin($A[0], $A[1], $A[2], $A[3], $constraint);
         }
 
         if (!isset($alias)) {
