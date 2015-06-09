@@ -150,6 +150,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('<b>Pending</b> Ticket Auto-Close'); ?>:</td>
+            <td>
+                <input type="text" name="autoclose_grace_period" size=4 value="<?php echo $config['autoclose_grace_period']; ?>">&nbsp;Day(s)&nbsp;
+                <font class="error"><?php echo $errors['autoclose_grace_period']; ?></font>
+                <i class="help-tip icon-question-sign" href="#autoclose_grace_period"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
