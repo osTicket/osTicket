@@ -42,6 +42,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
+    <link id="page_favicon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwUlEQVQ4T2NkwAWi6//jlANJLG1kBFFgAisAGvB/SQNWKcYYqDjQEFQDCNi6I9aSwd3dnQFkAMhwEI1hACFbYRphTmNkIMPWl31ZYP3iRdOALiDCr+i2ggwQExODegFqwMWLF1ECTF9fH8WvyLYihwVRLgCZjGwr0S549eoV3K/IthLtAnhIA6OLZBfANMPCAtlW5MDCGwa4XABLxpCkjCMW0F2AEkXQfIBiAL6MA077SJowvIBPM1wOpwFE6catCAA234uylrOCtgAAAABJRU5ErkJggg==" rel="icon" type="image/x-icon">
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
