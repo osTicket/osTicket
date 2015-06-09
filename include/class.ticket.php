@@ -2361,6 +2361,13 @@ class Ticket {
                 .'WHERE ticket.isanswered = 1 '
                 . $where
 
+                .'UNION SELECT \'pending\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.name=\'pending\') '
+                . $where
+
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
