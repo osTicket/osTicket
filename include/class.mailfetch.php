@@ -531,7 +531,7 @@ class MailFetcher {
                     if ($body = $this->getPart(
                         $mid, 'text/plain', $this->charset, $struct, false, 3, false
                     )) {
-                        return new TextThreadBody($body);
+                        return new TextThreadEntryBody($body);
                     }
                 }
             }

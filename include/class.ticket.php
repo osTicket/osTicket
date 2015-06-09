@@ -3289,7 +3289,7 @@ implements RestrictedAccess, Threadable {
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
             if (!$cfg->isRichTextEnabled()) {
-                $vars['note'] = new TextThreadBody($vars['note']);
+                $vars['note'] = new TextThreadEntryBody($vars['note']);
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }

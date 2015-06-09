@@ -279,7 +279,7 @@ class Mail_Parse {
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
             if ($body = $this->getPart($this->struct, 'text/plain', 3, false))
-                return new TextThreadBody($body);
+                return new TextThreadEntryBody($body);
         }
         return false;
     }
