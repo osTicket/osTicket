@@ -3025,6 +3025,7 @@ class Ticket {
 
         }
    }
+
    // Close Pending tickets based on Pending Ticket Auto-Close from config
    function ClosePending() {
 	global $cfg;
