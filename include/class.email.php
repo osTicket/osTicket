@@ -48,8 +48,6 @@ class Email extends VerySimpleModel {
 
 
     var $address;
-
-    var $dept;
     var $mail_proto;
 
     function getId() {
