@@ -24,6 +24,10 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Remove files from the destination that are no longer
                 included in this repository');
+        $this->options['git'] = array('-g','--git',
+            'action'=>'store_true',
+            'help'=>'Use `git ls-files -s` as files source. Eliminates
+                possibility of deploying untracked files');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -142,36 +146,41 @@ class Deployment extends Unpacker {
         return $source;
     }
 
-    function copyFile($source, $dest, $hash=false) {
+    function copyFile($source, $dest, $hash=false, $mode=0644) {
         $contents = $this->getEditedContents($source);
         if ($contents === false)
             // Regular file
-            return parent::copyFile($source, $dest, $hash);
+            return parent::copyFile($source, $dest, $hash, $mode);
 
         if (!file_put_contents($dest, $contents))
             $this->fail($dest.": Unable to apply rewrite rules");
 
-        return true;
+        $this->updateManifest($source, $hash);
+        return chmod($dest, $mode);
     }
 
     function unpackage($folder, $destination, $recurse=0, $exclude=false) {
-        return parent::unpackage($folder, $destination, $recurse, $exclude);
+        $use_git = $this->getOption('git', false);
+        if (!$use_git)
+            return parent::unpackage($folder, $destination, $recurse, $exclude);
 
-        // TODO: Consider using `git ls-files` for deployment
+        // Attempt to read from git using `git ls-files` for deployment
         if (substr($destination, -1) !== '/')
             $destination .= '/';
         $source = $this->source;
         if (substr($source, -1) != '/')
             $source .= '/';
+        $local = str_replace(array($source, '{,.}*'), array('',''), $folder);
 
         $pipes = array();
         $patterns = array();
         foreach ((array) $exclude as $x) {
             $patterns[] = str_replace($source, '', $x);
         }
-        $exclude = implode(' --exclude-per-directory=', $patterns);
+        $X = implode(' --exclude-per-directory=', $patterns);
+        chdir($source.$local);
         if (!($files = proc_open(
-            "git ls-files -s --exclude-standard --exclude-per-directory=$exclude $folder",
+            "git ls-files -s --full-name --exclude-standard --exclude-per-directory=$X -- .",
             array(1 => array('pipe', 'w')),
             $pipes
         ))) {
@@ -183,17 +192,18 @@ class Deployment extends Unpacker {
         while ($line = stream_get_line($pipes[1], 255, PHP_EOL)) {
             list($mode, $hash, , $path) = preg_split('/\s+/', $line);
             $src = $source.$path;
-            $dst = $destination.$path;
-            if (!$this->isChanged($src, false, $hash))
+            if ($this->exclude($exclude, $src))
                 continue;
+            if (!$this->isChanged($src, $hash))
+                continue;
+            $dst = $destination.$path;
             if ($verbose)
                 $this->stdout->write($dst."\n");
             if ($dryrun)
                 continue;
             if (!is_dir(dirname($dst)))
                 mkdir(dirname($dst), 0751, true);
-            // TODO: Consider the MODE value
-            $this->copyFile($src, $dst, $hash);
+            $this->copyFile($src, $dst, $hash, octdec($mode));
         }
     }
 
@@ -222,10 +232,10 @@ class Deployment extends Unpacker {
         # Prime the manifest system
         $this->readManifest($this->destination.'/.MANIFEST');
 
-        $exclusions = array("$rootPattern/include", "$rootPattern/.git*",
+        $exclusions = array("$rootPattern/include/*", "$rootPattern/.git*",
             "*.sw[a-z]","*.md", "*.txt");
         if (!$options['setup'])
-            $exclusions[] = "$rootPattern/setup";
+            $exclusions[] = "$rootPattern/setup/*";
 
         # Unpack everything but the include/ folder
         $this->unpackage("$root/{,.}*", $this->destination, -1,
