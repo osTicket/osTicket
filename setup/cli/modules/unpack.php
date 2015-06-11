@@ -135,9 +135,9 @@ class Unpacker extends Module {
         $this->manifest[$local] = $hash;
     }
 
-    function copyFile($src, $dest, $hash=false) {
+    function copyFile($src, $dest, $hash=false, $mode=0644) {
         $this->updateManifest($src, $hash);
-        return copy($src, $dest);
+        return copy($src, $dest) && chmod($dest, $mode);
     }
 
     /**
@@ -174,7 +174,7 @@ class Unpacker extends Module {
                     continue;
                 if (!is_dir($destination))
                     mkdir($destination, 0751, true);
-                $this->copyFile($file, $target);
+                $this->copyFile($file, $target, $hash);
             }
         }
         if ($recurse) {
