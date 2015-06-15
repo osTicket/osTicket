@@ -60,16 +60,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <div style="margin-top:20px"></div>
 
-<ul class="tabs" style="margin-top:9px;">
+<ul class="tabs clean" style="margin-top:9px;">
     <li class="active"><a href="#info"><?php echo __('Category Information'); ?></a></li>
     <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
 </ul>
 
 <div class="tab_content" id="info">
+
+<table width="100%"><tr>
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if (count($langs) > 1) { ?>
-    <ul class="vertical tabs left" style="margin-top:10px;">
+    <td valign="top">
+    <ul class="vertical tabs left" id="trans" style="margin-top:10px;">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$i) {
     list($lang, $locale) = explode('_', $tag);
@@ -81,11 +84,12 @@ if (count($langs) > 1) { ?>
     </a></li>
 <?php } ?>
     </ul>
+    </td>
 <?php
 } ?>
 
 
-
+<td id="trans_container">
 <?php foreach ($langs as $tag=>$i) {
     $code = $i['code'];
     $cname = 'name';
@@ -100,12 +104,12 @@ if (count($langs) > 1) { ?>
         $cname = "trans[$code][$cname]";
         $dname = "trans[$code][$dname]";
     } ?>
-    <div class="tab_content" style="margin:0 48px;<?php
-        if ($code != $cfg->getPrimaryLanguage()) echo "display:none;";
+    <div class="tab_content left <?php
+        if ($code != $cfg->getPrimaryLanguage()) echo "hidden";
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
     >
-    <div style="padding:8px 0;">
+    <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:
         <span class="error">*</span>
         <div class="faded"><?php echo __('Short descriptive name.');?></div>
@@ -125,6 +129,7 @@ if (count($langs) > 1) { ?>
         echo $desc; ?></textarea>
     </div>
 <?php } ?>
+    </td></tr></table>
 </div>
 
 

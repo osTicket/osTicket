@@ -1,6 +1,6 @@
 /**
  * @signature 36f6b32893c2b97c5104ab5302d2dd2e
- * @version v1.9.6
+ * @version v1.10.0
  * @title Add role-based access
  *
  * This patch adds support for role based access to group and departments

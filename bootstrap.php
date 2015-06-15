@@ -57,7 +57,7 @@ class Bootstrap {
                 && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
     }
 
-    function defineTables($prefix) {
+    static function defineTables($prefix) {
         #Tables being used sytem wide
         define('SYSLOG_TABLE',$prefix.'syslog');
         define('SESSION_TABLE',$prefix.'session');
@@ -94,14 +94,17 @@ class Bootstrap {
         define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
         define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
 
-        define('TICKET_TABLE',$prefix.'ticket');
         define('LOCK_TABLE',$prefix.'lock');
-        define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
+
+        define('TICKET_TABLE',$prefix.'ticket');
+        define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
+        define('THREAD_EVENT_TABLE',$prefix.'thread_event');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
 
-        define('TASK_TABLE',$prefix.'task');
+        define('TASK_TABLE', $prefix.'task');
+        define('TASK_CDATA_TABLE', $prefix.'task__cdata');
 
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
@@ -196,7 +199,6 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
-        require(INCLUDE_DIR.'class.timezone.php');
         require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers

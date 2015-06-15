@@ -92,7 +92,7 @@ if ($num) { ?>
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
 
-                $name = new PersonsName($row['name']);
+                $name = new UsersName($row['name']);
                 $status = 'Active';
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
@@ -159,7 +159,7 @@ if ($res && $num) { //Show options..
 } ?>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3><?php echo __('Please Confirm'); ?></h3>
+    <h3 class="drag-handle"><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="remove-users-confirm">

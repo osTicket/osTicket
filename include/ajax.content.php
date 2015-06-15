@@ -13,8 +13,9 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 if(!defined('INCLUDE_DIR')) die('!');
+
+require_once INCLUDE_DIR.'class.ajax.php';
 
 class ContentAjaxAPI extends AjaxController {
 
@@ -119,6 +120,11 @@ class ContentAjaxAPI extends AjaxController {
         switch ($type) {
         case 'none':
             break;
+        case 'agent':
+            if (!($staff = Staff::lookup($id)))
+                Http::response(404, 'No such staff member');
+            echo Format::viewableImages($staff->getSignature());
+            break;
         case 'mine':
             echo Format::viewableImages($thisstaff->getSignature());
             break;
@@ -144,7 +150,7 @@ class ContentAjaxAPI extends AjaxController {
         $langs = Internationalization::getConfiguredSystemLanguages();
         $translations = $content->getAllTranslations();
         $info = array(
-            'title' => $content->getTitle(),
+            'title' => $content->getName(),
             'body' => $content->getBody(),
         );
         foreach ($translations as $t) {
@@ -198,6 +204,23 @@ class ContentAjaxAPI extends AjaxController {
         $info = $_POST;
         $errors = Format::htmlchars($errors);
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
+    }
+
+    function context() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        if (!$_GET['root'])
+            Http::response(400, '`root` is required parameter');
+
+        $items = VariableReplacer::getContextForRoot($_GET['root']);
+
+        if (!$items)
+            Http::response(422, 'No such context');
+
+        header('Content-Type: application/json');
+        return $this->encode($items);
     }
 }
 ?>

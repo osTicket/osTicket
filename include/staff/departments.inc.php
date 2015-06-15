@@ -153,11 +153,11 @@ endif;
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="make_public-confirm">
-        <?php echo sprintf(__('Are you sure want to make %s <b>public</b>?'),
+        <?php echo sprintf(__('Are you sure you want to make %s <b>public</b>?'),
             _N('selected department', 'selected departments', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="make_private-confirm">
-        <?php echo sprintf(__('Are you sure want to make %s <b>private</b> (internal)?'),
+        <?php echo sprintf(__('Are you sure you want to make %s <b>private</b> (internal)?'),
             _N('selected department', 'selected departments', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

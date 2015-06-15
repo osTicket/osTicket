@@ -94,6 +94,10 @@ class DraftAjaxAPI extends AjaxController {
                     ))
                 );
 
+            // Paste uploads in Chrome will have a name of 'blob'
+            if ($file[0]['name'] == 'blob')
+                $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
+
             if (isset($file[0]['tmp_name'])) {
               $ids = $draft->attachments->upload($file);
             }
@@ -381,19 +385,20 @@ class DraftAjaxAPI extends AjaxController {
     function _findDraftBody($vars) {
         if (isset($vars['name'])) {
             $parts = array();
+            // Support nested `name`, like trans[lang]
             if (preg_match('`(\w+)(?:\[(\w+)\])?(?:\[(\w+)\])?`', $_POST['name'], $parts)) {
                 array_shift($parts);
                 $focus = $vars;
                 foreach ($parts as $p)
                     $focus = $focus[$p];
-                return urldecode($focus);
+                return $focus;
             }
         }
         $field_list = array('response', 'note', 'answer', 'body',
              'message', 'issue', 'description');
         foreach ($field_list as $field) {
             if (isset($vars[$field])) {
-                return urldecode($vars[$field]);
+                return $vars[$field];
             }
         }
 

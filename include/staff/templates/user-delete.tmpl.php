@@ -6,7 +6,7 @@ if (!$info['title'])
 $info['warn'] = __('Deleted users and tickets CANNOT be recovered');
 
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -35,7 +35,7 @@ if ($info['error']) {
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

@@ -95,6 +95,7 @@ if($_POST) {
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
+                 $form = $list->getForm(true);
                  $msg = sprintf(__('Successfully added %s'),
                     __('this custom list'));
             } elseif ($errors) {
@@ -154,7 +155,6 @@ if($_POST) {
             if (!$_POST["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'form_id' => $form->get('id'),
                 'sort' => $_POST["prop-sort-new-$i"] ?: ++$max_sort,
                 'label' => $_POST["prop-label-new-$i"],
                 'type' => $_POST["type-new-$i"],
@@ -163,15 +163,13 @@ if($_POST) {
                     | DynamicFormField::FLAG_AGENT_VIEW
                     | DynamicFormField::FLAG_AGENT_EDIT,
             ));
-            $field->setForm($form);
-            if ($field->isValid())
+            if ($field->isValid()) {
+                $form->fields->add($field);
                 $field->save();
+            }
             else
                 $errors["new-$i"] = $field->errors();
         }
-        // XXX: Move to an instrumented list that can handle this better
-        if (!$errors)
-            $form->_dfields = $form->_fields = null;
     }
 }
 

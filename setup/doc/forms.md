@@ -16,7 +16,7 @@ constructor.
 The simplest way to create forms is to instanciate the Form instance
 directly:
 
-    $form = new Form(array(
+    $form = new SimpleForm(array(
         'email' => new TextboxField(array('label'=>'Email Address')),
     );
 
@@ -34,7 +34,7 @@ the cleaned values from the form fields based on the data from the request.
 To create a class that defines the fields statically, one might write a
 trampoline constructor:
 
-    class UserForm extends Form {
+    class UserForm extends SimpleForm {
         function __construct() {
             $args = func_get_args();
             $fields = array(

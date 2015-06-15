@@ -14,8 +14,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 require_once(INCLUDE_DIR .'class.dynamic_forms.php');
+require_once(INCLUDE_DIR .'class.variable.php');
 
 /**
  * Interface for Custom Lists
@@ -148,12 +148,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     var $_items;
     var $_form;
-    var $_config;
-
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
-        $this->_config = new Config('list.'.$this->getId());
-    }
 
     function getId() {
         return $this->get('id');
@@ -227,20 +221,26 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $this->_items;
     }
 
+    function getItem($val, $extra=false) {
 
+        $items = DynamicListItem::objects()->filter(
+                array('list_id' => $this->getId()));
 
-    function getItem($val) {
-
-        $criteria = array('list_id' => $this->getId());
         if (is_int($val))
-            $criteria['id'] = $val;
+            $items->filter(array('id' => $val));
+        elseif ($extra)
+            $items->filter(array('extra' => $val));
         else
-            $criteria['value'] = $val;
+            $items->filter(array('value' => $val));
 
-         return DynamicListItem::lookup($criteria);
+
+        return $items->first();
     }
 
     function addItem($vars, &$errors) {
+
+        if (($item=$this->getItem($vars['value'])))
+            return $item;
 
         $item = DynamicListItem::create(array(
             'status' => 1,
@@ -312,7 +312,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function getConfiguration() {
-        return JsonDataParser::parse($this->_config->get('configuration'));
+        return JsonDataParser::parse($this->configuration);
     }
 
     function getTranslateTag($subtag) {
@@ -355,11 +355,20 @@ class DynamicList extends VerySimpleModel implements CustomList {
     function delete() {
         $fields = DynamicFormField::objects()->filter(array(
             'type'=>'list-'.$this->id))->count();
-        if ($fields == 0)
-            return parent::delete();
-        else
-            // Refuse to delete lists that are in use by fields
+
+        // Refuse to delete lists that are in use by fields
+        if ($fields != 0)
             return false;
+
+        if (!parent::delete())
+            return false;
+
+        if (($form = $this->getForm(false))) {
+            $form->delete(false);
+            $form->fields->delete();
+        }
+
+        return true;
     }
 
     private function createForm() {
@@ -396,6 +405,10 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     static function create($ht=false, &$errors=array()) {
+        if (isset($ht['configuration'])) {
+            $ht['configuration'] = JsonDataEncoder::encode($ht['configuration']);
+        }
+
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
 
@@ -404,12 +417,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $ht['properties']['type'] = 'L'.$inst->getId();
             $form = DynamicForm::create($ht['properties']);
             $form->save();
-        }
-
-        if (isset($ht['configuration'])) {
-            $inst->save();
-            $c = new Config('list.'.$inst->getId());
-            $c->set('configuration', JsonDataEncoder::encode($ht['configuration']));
         }
 
         if (isset($ht['items'])) {
@@ -511,7 +518,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             }
         }
 
-        // 'name' and 'email' MUST be in the headers
+        // 'value' MUST be in the headers
         if (!isset($headers['value']))
             return __('CSV file must include `value` column');
 
@@ -563,11 +570,11 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $items[] = $data;
         }
 
-        $errors = array();
         foreach ($items as $u) {
             $vars = array_combine($keys, $u);
-            $item = $this->addItem($vars);
-            if (!$item || !$item->setConfiguration($errors, $vars))
+            $errors = array();
+            $item = $this->addItem($vars, $errors);
+            if (!$item || !$item->setConfiguration($vars, $errors))
                 return sprintf(__('Unable to import item: %s'),
                     print_r($vars, true));
         }
@@ -696,16 +703,19 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array(), $source=false) {
+    function setConfiguration($vars, &$errors=array()) {
         $config = array();
-        foreach ($this->getConfigurationForm($source ?: $_POST)->getFields() as $field) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
             $config[$field->get('id')] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('properties', JsonDataEncoder::encode($config));
 
-        return count($errors) === 0;
+        if ($errors)
+            return false;
+
+        $this->set('properties', JsonDataEncoder::encode($config));
+
+        return $this->save();
     }
 
     function getConfigurationForm($source=null) {
@@ -737,7 +747,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $name = mb_strtolower($name);
         foreach ($this->getConfigurationForm()->getFields() as $field) {
             if (mb_strtolower($field->get('name')) == $name)
-                return $config[$field->get('id')];
+                return $field->asVar($config[$field->get('id')]);
         }
     }
 
@@ -939,7 +949,9 @@ class TicketStatusList extends CustomListHandler {
     }
 }
 
-class TicketStatus  extends VerySimpleModel implements CustomListItem {
+class TicketStatus
+extends VerySimpleModel
+implements CustomListItem, TemplateVariable {
 
     static $meta = array(
         'table' => TICKET_STATUS_TABLE,
@@ -1195,6 +1207,15 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $T != $tag ? $T : $default;
     }
 
+    // TemplateVariable interface
+    static function getVarScope() {
+        $base = array(
+            'name' => __('Status label'),
+            'state' => __('State name (e.g. open or closed)'),
+        );
+        return $base;
+    }
+
     function getConfiguration() {
 
         if (!$this->_settings) {
@@ -1226,9 +1247,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->_settings;
     }
 
-    function setConfiguration(&$errors=array()) {
+    function setConfiguration($vars, &$errors=array()) {
         $properties = array();
-        foreach ($this->getConfigurationForm($_POST)->getFields() as $f) {
+        foreach ($this->getConfigurationForm($vars)->getFields() as $f) {
             if ($this->isInternal() //Item is internal.
                     && !$f->isEditable())
                 continue;
@@ -1299,7 +1320,9 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->getName();
     }
 
-    static function create($ht) {
+    static function create($ht=false) {
+        if (!is_array($ht))
+            return null;
 
         if (!isset($ht['mode']))
             $ht['mode'] = 1;

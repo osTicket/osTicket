@@ -5,7 +5,7 @@ $access = (isset($info['_target']) && $info['_target'] == 'access');
 if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>
@@ -67,16 +67,10 @@ if ($info['error']) {
                     <?php echo __('Time Zone');?>:
                 </td>
                 <td>
-                    <select name="timezone" class="chosen-select" id="timezone-dropdown"
-                        data-placeholder="<?php echo __('System Default'); ?>">
-                        <option value=""></option>
-    <?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                        <option value="<?php echo $zone; ?>" <?php
-                        if ($info['timezone'] == $zone)
-                            echo 'selected="selected"';
-                        ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-    <?php } ?>
-                    </select>
+                    <?php
+                    $TZ_NAME = 'timezone';
+                    $TZ_TIMEZONE = $info['timezone'];
+                    include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
                     <div class="error"><?php echo $errors['timezone']; ?></div>
                 </td>
             </tr>
@@ -174,11 +168,4 @@ $(function() {
             $('tbody#password').show();
     });
 });
-!(function() {
-    $('#timezone-dropdown').chosen({
-        header: <?php echo JsonDataEncoder::encode(__('Time Zones')); ?>,
-        allow_single_deselect: true,
-        width: '350px'
-    });
-})();
 </script>

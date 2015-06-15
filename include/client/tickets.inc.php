@@ -1,29 +1,33 @@
 <?php
 if(!defined('OSTCLIENTINC') || !is_object($thisclient) || !$thisclient->isValid()) die('Access Denied');
 
+$settings = &$_SESSION['client:Q'];
+
+// Unpack search, filter, and sort requests
+if (isset($_REQUEST['clear']))
+    $settings = array();
+if (isset($_REQUEST['keywords']))
+    $settings['keywords'] = $_REQUEST['keywords'];
+if (isset($_REQUEST['topic_id']))
+    $settings['topic_id'] = $_REQUEST['topic_id'];
+if (isset($_REQUEST['status']))
+    $settings['status'] = $_REQUEST['status'];
+
 $tickets = TicketModel::objects();
 
 $qs = array();
 $status=null;
-if(isset($_REQUEST['status'])) { //Query string status has nothing to do with the real status used below.
-    $qs += array('status' => $_REQUEST['status']);
-    //Status we are actually going to use on the query...making sure it is clean!
-    $status=strtolower($_REQUEST['status']);
-    switch(strtolower($_REQUEST['status'])) {
-     case 'open':
-		$results_type=__('Open Tickets');
-        $tickets->filter(array('status__state'=>'open'));
+
+if ($settings['status'])
+    $status = strtolower($settings['status']);
+    switch ($status) {
+    default:
+        $status = 'open';
+    case 'open':
+    case 'closed':
+		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
+        $tickets->filter(array('status__state' => $status));
         break;
-     case 'closed':
-		$results_type=__('Closed Tickets');
-        $tickets->filter(array('status__state'=>'closed'));
-        break;
-     default:
-        $status=''; //ignore
-    }
-} elseif($thisclient->getNumOpenTickets()) {
-    $status='open'; //Defaulting to open
-	$results_type=__('Open Tickets');
 }
 
 $sortOptions=array('id'=>'number', 'subject'=>'cdata__subject',
@@ -49,15 +53,18 @@ $tickets->filter(Q::any(array(
 )));
 
 // Perform basic search
-$search=($_REQUEST['a']=='search' && $_REQUEST['q']);
-if($search) {
-    $qs += array('a' => $_REQUEST['a'], 'q' => $_REQUEST['q']);
-    if (is_numeric($_REQUEST['q'])) {
-        $tickets->filter(array('number__startswith'=>$_REQUEST['q']));
+if ($settings['keywords']) {
+    $q = $settings['keywords'];
+    if (is_numeric($q)) {
+        $tickets->filter(array('number__startswith'=>$q));
     } else { //Deep search!
         // Use the search engine to perform the search
-        $tickets = $ost->searcher->find($_REQUEST['q'], $tickets);
+        $tickets = $ost->searcher->find($q, $tickets);
     }
+}
+
+if ($settings['topic_id']) {
+    $tickets = $tickets->filter(array('topic_id' => $settings['topic_id']));
 }
 
 TicketForm::ensureDynamicDataView();
@@ -89,45 +96,69 @@ $tickets->values(
 );
 
 ?>
-<div class="row">
-  <div class="col-xs-9">
-    <h1><?php echo __('Tickets');?></h1>
-  </div>
-  <div class="col-xs-2">
-    <a class="refresh btn btn-success" href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"><?php echo __('Refresh'); ?></a>
-  </div>
-</div>
-    
-<br>
 <form action="tickets.php" method="get" id="ticketSearchForm">
   <div class="row">
     <div class="col-xs-12">
      <div class="input-group">
         <input type="hidden" name="a"  value="search">
-        <input type="text" class="form-control" name="q" size="20" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+        <input type="search" class="form-control" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
         <span class="input-group-btn">
-          <select name="status" class="btn">
-            <option value="">&mdash; <?php echo __('Any Status');?> &mdash;</option>
-            <option value="open"
-              <?php echo ($status=='open') ? 'selected="selected"' : '';?>>
-              <?php echo _P('ticket-status', 'Open');?> (<?php echo $thisclient->getNumOpenTickets(); ?>)</option>
-            <?php
-            if($thisclient->getNumClosedTickets()) {
-              ?>
-            <option value="closed"
-              <?php echo ($status=='closed') ? 'selected="selected"' : '';?>>
-              <?php echo __('Closed');?> (<?php echo $thisclient->getNumClosedTickets(); ?>)</option>
-            <?php
-            } ?>
-          </select>
+        <select name="topic_id" class="nowarn btn" onchange="javascript: this.form.submit(); ">
+            <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+<?php       foreach (Topic::getHelpTopics(true) as $id=>$name) {
+                $count = $thisclient->getNumTopicTickets($id);
+                if ($count == 0)
+                    continue;
+?>
+                <option value="<?php echo $id; ?>"
+                    <?php if ($settings['topic_id'] == $id) echo 'selected="selected"'; ?>
+                    ><?php echo sprintf('%s (%d)', Format::htmlchars($name),
+                    $thisclient->getNumTopicTickets($id)); ?></option>
+<?php       } ?>
+        </select>
         </span>
         <span class="input-group-btn">
-          <input type="submit" class="btn btn-default" value="<?php echo __('Go');?>">
+            <input type="submit" class="btn btn-default" value="<?php echo __('Search');?>">
         </span>
       </div>
    </div>
 </form>
+<?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
+<div style="margin-top:10px"><strong><a href="?clear" style="color:#777"><i class="icon-remove-circle"></i> <?php echo __('Clear all filters and sort'); ?></a></strong></div>
+<?php } ?>
 <div class="clearfix"></div>
+</div>
+<div class="row">
+    <div class="col-xs-6">
+        <h2>
+            <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
+                ><i class="refresh icon-refresh"></i>
+            <?php echo __('Tickets'); ?>
+            </a>
+        </h2>
+    </div>
+    <div class="col-xs-6">
+        <h2>
+            <div class="pull-right states">
+                <small>
+                    <i class="icon-file-alt"></i>
+                    <a class="state <?php if ($status == 'open') echo 'active'; ?>"
+                        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
+                        <?php echo sprintf('%s (%d)', _P('ticket-status', 'Open'), $thisclient->getNumOpenTickets()); ?>
+                    </a>
+                    &nbsp;
+                    <span style="color:lightgray">|</span>
+                    &nbsp;
+                    <i class="icon-file-text"></i>
+                    <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
+                        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
+                        <?php echo sprintf('%s (%d)', __('Closed'), $thisclient->getNumClosedTickets()); ?>
+                    </a>
+                </small>
+            </div>
+        </h2>
+    </div>
+</div>
 <table id="ticketTable" class="table table-striped table-hover table-condensed">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -187,7 +218,7 @@ $tickets->values(
         }
 
      } else {
-         echo '<tr><td colspan="6">'.__('Your query did not match any records').'</td></tr>';
+         echo '<tr><td colspan="5">'.__('Your query did not match any records').'</td></tr>';
      }
     ?>
     </tbody>

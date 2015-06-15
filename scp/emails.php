@@ -33,7 +33,9 @@ if($_POST){
             }
             break;
         case 'create':
-            if(($id=Email::create($_POST,$errors))){
+            $box = Email::create();
+            if ($box->update($_POST, $errors)) {
+                $id = $box->getId();
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){

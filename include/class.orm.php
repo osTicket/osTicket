@@ -19,7 +19,13 @@
 class OrmException extends Exception {}
 class OrmConfigurationException extends Exception {}
 // Database fields/tables do not match codebase
-class InconsistentModelException extends OrmException {}
+class InconsistentModelException extends OrmException {
+    function __construct() {
+        // Drop the model cache (just incase)
+        ModelMeta::flushModelCache();
+        call_user_func_array(array('parent', '__construct'), func_get_args());
+    }
+}
 
 /**
  * Meta information about a model including edges (relationships), table
@@ -36,24 +42,36 @@ class ModelMeta implements ArrayAccess {
         'defer' => array(),
         'select_related' => array(),
         'view' => false,
+        'joins' => array(),
+        'foreign_keys' => array(),
     );
+    static $model_cache;
+
     var $model;
 
     function __construct($model) {
         $this->model = $model;
-        $meta = $model::$meta + self::$base;
 
-        // TODO: Merge ModelMeta from parent model (if inherited)
+        // Merge ModelMeta from parent model (if inherited)
+        $parent = get_parent_class($this->model);
+        if (is_subclass_of($parent, 'VerySimpleModel')) {
+            $meta = $parent::getMeta()->extend($model::$meta);
+        }
+        else {
+            $meta = $model::$meta + self::$base;
+        }
 
-        if (!$meta['table'])
-            throw new OrmConfigurationException(
-                __('Model does not define meta.table'), $model);
-        elseif (!$meta['pk'])
-            throw new OrmConfigurationException(
-                __('Model does not define meta.pk'), $model);
+        if (!$meta['view']) {
+            if (!$meta['table'])
+                throw new OrmConfigurationException(
+                    sprintf(__('%s: Model does not define meta.table'), $this->model));
+            elseif (!$meta['pk'])
+                throw new OrmConfigurationException(
+                    sprintf(__('%s: Model does not define meta.pk'), $this->model));
+        }
 
         // Ensure other supported fields are set and are arrays
-        foreach (array('pk', 'ordering', 'defer') as $f) {
+        foreach (array('pk', 'ordering', 'defer', 'select_related') as $f) {
             if (!isset($meta[$f]))
                 $meta[$f] = array();
             elseif (!is_array($meta[$f]))
@@ -61,44 +79,88 @@ class ModelMeta implements ArrayAccess {
         }
 
         // Break down foreign-key metadata
-        if (!isset($meta['joins']))
-            $meta['joins'] = array();
         foreach ($meta['joins'] as $field => &$j) {
             $this->processJoin($j);
+            if ($j['local'])
+                $meta['foreign_keys'][$j['local']] = $field;
         }
         unset($j);
         $this->base = $meta;
     }
 
+    function extend($meta) {
+        if ($meta instanceof self)
+            $meta = $meta->base;
+        return $meta + $this->base + self::$base;
+    }
+
+    /**
+     * Adds some more information to a declared relationship. If the
+     * relationship is a reverse relation, then the information from the
+     * reverse relation is loaded into the local definition
+     *
+     * Compiled-Join-Structure:
+     * 'constraint' => array(local => array(foreign_field, foreign_class)),
+     *      Constraint used to construct a JOIN in an SQL query
+     * 'list' => boolean
+     *      TRUE if an InstrumentedList should be employed to fetch a list
+     *      of related items
+     * 'broker' => Handler for the 'list' property. Usually a subclass of
+     *      'InstrumentedList'
+     * 'null' => boolean
+     *      TRUE if relation is nullable
+     * 'fkey' => array(class, pk)
+     *      Classname and field of the first item in the constraint that
+     *      points to a PK field of a foreign model
+     * 'local' => string
+     *      The local field corresponding to the 'fkey' property
+     */
     function processJoin(&$j) {
+        $constraint = array();
         if (isset($j['reverse'])) {
             list($fmodel, $key) = explode('.', $j['reverse']);
+            // NOTE: It's ok if the forein meta data is not yet inspected.
             $info = $fmodel::$meta['joins'][$key];
-            $constraint = array();
             if (!is_array($info['constraint']))
                 throw new OrmConfigurationException(sprintf(__(
                     // `reverse` here is the reverse of an ORM relationship
                     '%s: Reverse does not specify any constraints'),
                     $j['reverse']));
             foreach ($info['constraint'] as $foreign => $local) {
-                list(,$field) = explode('.', $local);
-                $constraint[$field ?: $local] = "$fmodel.$foreign";
+                list($L,$field) = is_array($local) ? $local : explode('.', $local);
+                $constraint[$field ?: $L] = array($fmodel, $foreign);
             }
-            $j['constraint'] = $constraint;
             if (!isset($j['list']))
                 $j['list'] = true;
             if (!isset($j['null']))
                 // By default, reverse releationships can be empty lists
                 $j['null'] = true;
         }
-        // XXX: Make this better (ie. composite keys)
-        foreach ($j['constraint'] as $local => $foreign) {
-            list($class, $field) = explode('.', $foreign);
+        else {
+            foreach ($j['constraint'] as $local => $foreign) {
+                list($class, $field) = $constraint[$local]
+                    = is_array($foreign) ? $foreign : explode('.', $foreign);
+            }
+        }
+        if ($j['list'] && !isset($j['broker'])) {
+            $j['broker'] = 'InstrumentedList';
+        }
+        if ($j['broker'] && !class_exists($j['broker'])) {
+            throw new OrmException($j['broker'] . ': List broker does not exist');
+        }
+        foreach ($constraint as $local => $foreign) {
+            list($class, $field) = $foreign;
             if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
                 continue;
-            $j['fkey'] = array($class, $field);
+            $j['fkey'] = $foreign;
             $j['local'] = $local;
         }
+        $j['constraint'] = $constraint;
+    }
+
+    function addJoin($name, array $join) {
+        $this->base['joins'][$name] = $join;
+        $this->processJoin($this->base['joins'][$name]);
     }
 
     function offsetGet($field) {
@@ -136,7 +198,24 @@ class ModelMeta implements ArrayAccess {
     }
 
     function inspectFields() {
-        return DbEngine::getCompiler()->inspectTable($this['table']);
+        if (!isset(self::$model_cache))
+            self::$model_cache = function_exists('apc_fetch');
+        if (self::$model_cache) {
+            $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
+            if ($fields = apc_fetch($key)) {
+                return $fields;
+            }
+        }
+        $fields = DbEngine::getCompiler()->inspectTable($this['table']);
+        if (self::$model_cache) {
+            apc_store($key, $fields);
+        }
+        return $fields;
+    }
+
+    static function flushModelCache() {
+        if (self::$model_cache)
+            @apc_clear_cache('user');
     }
 }
 
@@ -160,18 +239,21 @@ class VerySimpleModel {
     function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
-        elseif (isset(static::$meta['joins'][$field])) {
-            // Make sure joins were inspected
-            if (!static::$meta instanceof ModelMeta)
-                static::_inspect();
-            $j = static::$meta['joins'][$field];
+        elseif (($joins = static::getMeta('joins')) && isset($joins[$field])) {
+            $j = $joins[$field];
             // Support instrumented lists and such
-            if (isset($this->ht[$j['local']])
-                    && isset($j['list']) && $j['list']) {
-                $fkey = $j['fkey'];
-                $v = $this->ht[$field] = new InstrumentedList(
-                    // Send Model, Foriegn-Field, Local-Id
-                    array($fkey[0], $fkey[1], $this->get($j['local']))
+            if (isset($j['list']) && $j['list']) {
+                $class = $j['fkey'][0];
+                $fkey = array();
+                // Localize the foreign key constraint
+                foreach ($j['constraint'] as $local=>$foreign) {
+                    list($_klas,$F) = $foreign;
+                    $fkey[$F ?: $_klas] = ($local[0] == "'")
+                        ? trim($local, "'") : $this->ht[$local];
+                }
+                $v = $this->ht[$field] = new $j['broker'](
+                    // Send Model, [Foriegn-Field => Local-Id]
+                    array($class, $fkey)
                 );
                 return $v;
             }
@@ -179,13 +261,13 @@ class VerySimpleModel {
             elseif (isset($j['fkey'])) {
                 $criteria = array();
                 foreach ($j['constraint'] as $local => $foreign) {
-                    list($klas,$F) = explode('.', $foreign);
+                    list($klas,$F) = $foreign;
                     if (class_exists($klas))
                         $class = $klas;
                     if ($local[0] == "'") {
                         $criteria[$F] = trim($local,"'");
                     }
-                    elseif ($foreign[0] == "'") {
+                    elseif ($F[0] == "'") {
                         // Does not affect the local model
                         continue;
                     }
@@ -217,6 +299,11 @@ class VerySimpleModel {
 
         if (isset($default))
             return $default;
+
+        // For new objects, assume the field is NULLable
+        if ($this->__new__)
+            return null;
+
         // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
@@ -230,42 +317,54 @@ class VerySimpleModel {
             || isset(static::$meta['joins'][$field]);
     }
     function __unset($field) {
-        unset($this->ht[$field]);
+        if ($this->__isset($field))
+            unset($this->ht[$field]);
+        else
+            unset($this->{$field});
     }
 
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
-        if (isset(static::$meta['joins'][$field])) {
-            static::_inspect();
-            $j = static::$meta['joins'][$field];
+        $related = false;
+        $joins = static::getMeta('joins');
+        if (isset($joins[$field])) {
+            $j = $joins[$field];
             if ($j['list'] && ($value instanceof InstrumentedList)) {
                 // Magic list property
                 $this->ht[$field] = $value;
                 return;
             }
             if ($value === null) {
+                $this->ht[$field] = $value;
                 if (in_array($j['local'], static::$meta['pk'])) {
                     // Reverse relationship — don't null out local PK
-                    $this->ht[$field] = $value;
                     return;
                 }
                 // Pass. Set local field to NULL in logic below
             }
             elseif ($value instanceof $j['fkey'][0]) {
-                if ($value->__new__)
-                    $value->save();
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                $value = $value->get($j['fkey'][1]);
+                if ($value->__new__)
+                    // save() will be performed when saving this object
+                    $value = null;
+                else
+                    $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             else
                 throw new InvalidArgumentException(
                     sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
-                    $j['fkey'][0], get_class($value)));
+                    $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
 
             // Capture the foreign key id value
             $field = $j['local'];
+        }
+        // elseif $field is in a relationship, adjust the relationship
+        elseif (isset(static::$meta['foreign_keys'][$field])) {
+            // meta->foreign_keys->{$field} points to the property of the
+            // foreign object. For instance 'object_id' points to 'object'
+            $related = static::$meta['foreign_keys'][$field];
         }
         $old = isset($this->ht[$field]) ? $this->ht[$field] : null;
         if ($old != $value) {
@@ -273,6 +372,11 @@ class VerySimpleModel {
             // replaced in the dirty array
             if (!array_key_exists($field, $this->dirty))
                 $this->dirty[$field] = $old;
+            if ($related)
+                // $related points to a foreign object propery. If setting a
+                // new object_id value, the relationship to object should be
+                // cleared and rebuilt
+                unset($this->ht[$related]);
         }
         $this->ht[$field] = $value;
     }
@@ -289,12 +393,17 @@ class VerySimpleModel {
     static function __oninspect() {}
 
     static function _inspect() {
-        if (!static::$meta instanceof ModelMeta) {
-            static::$meta = new ModelMeta(get_called_class());
+        static::$meta = new ModelMeta(get_called_class());
 
-            // Let the model participate
-            static::__oninspect();
-        }
+        // Let the model participate
+        static::__oninspect();
+    }
+
+    static function getMeta($key=false) {
+        if (!static::$meta instanceof ModelMeta)
+            static::_inspect();
+        $M = static::$meta;
+        return ($key) ? $M->offsetGet($key) : $M;
     }
 
     /**
@@ -339,8 +448,9 @@ class VerySimpleModel {
         // Model::lookup(1), where >1< is the pk value
         if (!is_array($criteria)) {
             $criteria = array();
+            $pk = static::getMeta('pk');
             foreach (func_get_args() as $i=>$f)
-                $criteria[static::$meta['pk'][$i]] = $f;
+                $criteria[$pk[$i]] = $f;
 
             // Only consult cache for PK lookup, which is assumed if the
             // values are passed as args rather than an array
@@ -356,7 +466,7 @@ class VerySimpleModel {
         }
     }
 
-    function delete($pk=false) {
+    function delete() {
         $ex = DbEngine::delete($this);
         try {
             $ex->execute();
@@ -373,17 +483,38 @@ class VerySimpleModel {
     }
 
     function save($refetch=false) {
+        if ($this->__deleted__)
+            throw new OrmException('Trying to update a deleted object');
+
+        $pk = static::getMeta('pk');
+        $wasnew = $this->__new__;
+
+        // First, if any foreign properties of this object are connected to
+        // another *new* object, then save those objects first and set the
+        // local foreign key field values
+        foreach (static::getMeta('joins') as $prop => $j) {
+            if (isset($this->ht[$prop])
+                && ($foreign = $this->ht[$prop])
+                && $foreign instanceof VerySimpleModel
+                && !in_array($j['local'], $pk)
+                && null === $this->get($j['local'])
+            ) {
+                if ($foreign->__new__ && !$foreign->save())
+                    return false;
+                $this->set($j['local'], $foreign->get($j['fkey'][1]));
+            }
+        }
+
+        // If there's nothing in the model to be saved, then we're done
         if (count($this->dirty) === 0)
             return true;
-        elseif ($this->__deleted__)
-            throw new OrmException('Trying to update a deleted object');
 
         $ex = DbEngine::save($this);
         try {
             $ex->execute();
             if ($ex->affected_rows() != 1) {
                 // This doesn't really signify an error. It just means that
-                // the database believe that the row did not change. For
+                // the database believes that the row did not change. For
                 // inserts though, it's a deal breaker
                 if ($this->__new__)
                     return false;
@@ -397,10 +528,7 @@ class VerySimpleModel {
             return false;
         }
 
-        $pk = static::$meta['pk'];
-        $wasnew = $this->__new__;
-
-        if ($this->__new__) {
+        if ($wasnew) {
             if (count($pk) == 1)
                 // XXX: Ensure AUTO_INCREMENT is set for the field
                 $this->ht[$pk[0]] = $ex->insert_id();
@@ -412,19 +540,38 @@ class VerySimpleModel {
             Signal::send('model.updated', $this, $data);
         }
         # Refetch row from database
-        # XXX: Too much voodoo
         if ($refetch) {
-            // Uncache so that the lookup will not be short-cirtuited to
-            // return this object
-            ModelInstanceManager::uncache($this);
-            $self = call_user_func_array(array(get_class($this), 'lookup'),
-                $this->get('pk'));
-            $this->ht = $self->ht;
+            // Preserve non database information such as list relationships
+            // across the refetch
+            $this->ht =
+                static::objects()->filter($this->getPk())->values()->one()
+                + $this->ht;
         }
-        if ($wasnew)
+        if ($wasnew) {
+            // Attempt to update foreign, unsaved objects with the PK of
+            // this newly created object
+            foreach (static::getMeta('joins') as $prop => $j) {
+                if (isset($this->ht[$prop])
+                    && ($foreign = $this->ht[$prop])
+                    && in_array($j['local'], $pk)
+                ) {
+                    if ($foreign instanceof VerySimpleModel
+                        && null === $foreign->get($j['fkey'][1])
+                    ) {
+                        $foreign->set($j['fkey'][1], $this->get($j['local']));
+                    }
+                    elseif ($foreign instanceof InstrumentedList) {
+                        foreach ($foreign as $item) {
+                            if (null === $item->get($j['fkey'][1]))
+                                $item->set($j['fkey'][1], $this->get($j['local']));
+                        }
+                    }
+                }
+            }
             $this->__onload();
+        }
         $this->dirty = array();
-        return $this->get($pk[0]);
+        return true;
     }
 
     static function create($ht=false) {
@@ -440,7 +587,7 @@ class VerySimpleModel {
 
     private function getPk() {
         $pk = array();
-        foreach ($this::$meta['pk'] as $f)
+        foreach ($this::getMeta('pk') as $f)
             $pk[$f] = $this->ht[$f];
         return $pk;
     }
@@ -471,6 +618,7 @@ class AnnotatedModel {
             return $this->annotations[$what];
         return $this->model->get($what, null);
     }
+
     function __set($what, $to) {
         return $this->set($what, $to);
     }
@@ -478,6 +626,10 @@ class AnnotatedModel {
         if (isset($this->annotations[$what]))
             throw new OrmException('Annotated fields are read-only');
         return $this->model->set($what, $to);
+    }
+
+    function __isset($what) {
+        return isset($this->annotations[$what]) || $this->model->__isset($what);
     }
 
     // Delegate everything else to the model
@@ -494,14 +646,20 @@ class SqlFunction {
         $this->args = array_slice(func_get_args(), 1);
     }
 
+    function input($what, $compiler, $model) {
+        if ($what instanceof SqlFunction)
+            $A = $what->toSql($compiler, $model);
+        elseif ($what instanceof Q)
+            $A = $compiler->compileQ($what, $model);
+        else
+            $A = $compiler->input($what);
+        return $A;
+    }
+
     function toSql($compiler, $model=false, $alias=false) {
         $args = array();
         foreach ($this->args as $A) {
-            if ($A instanceof SqlFunction)
-                $A = $A->toSql($compiler, $model);
-            else
-                $A = $compiler->input($A);
-            $args[] = $A;
+            $args[] = $this->input($A, $compiler, $model);
         }
         return sprintf('%s(%s)%s', $this->func, implode(',', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
@@ -518,6 +676,42 @@ class SqlFunction {
         $I = new static($func);
         $I->args = $args;
         return $I;
+    }
+}
+
+class SqlCase extends SqlFunction {
+    var $cases = array();
+    var $else = false;
+
+    static function N() {
+        return new static('CASE');
+    }
+
+    function when($expr, $result) {
+        if (is_array($expr))
+            $expr = new Q($expr);
+        $this->cases[] = array($expr, $result);
+        return $this;
+    }
+    function otherwise($result) {
+        $this->else = $result;
+        return $this;
+    }
+
+    function toSql($compiler, $model=false, $alias=false) {
+        $cases = array();
+        foreach ($this->cases as $A) {
+            list($expr, $result) = $A;
+            $expr = $this->input($expr, $compiler, $model);
+            $result = $this->input($result, $compiler, $model);
+            $cases[] = "WHEN {$expr} THEN {$result}";
+        }
+        if ($this->else) {
+            $else = $this->input($this->else, $compiler, $model);
+            $cases[] = "ELSE {$else}";
+        }
+        return sprintf('CASE %s END%s', implode(' ', $cases),
+            $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 }
 
@@ -646,17 +840,23 @@ class SqlAggregate extends SqlFunction {
 
         // For DISTINCT, require a field specification — not a relationship
         // specification.
-        list($field, $rmodel) = $compiler->getField($this->expr, $model, $options);
+        $E = $this->expr;
+        if ($E instanceof SqlFunction) {
+            $field = $E->toSql($compiler, $model, $alias);
+        }
+        else {
+        list($field, $rmodel) = $compiler->getField($E, $model, $options);
         if ($this->distinct) {
             $pk = false;
-            foreach ($rmodel::$meta['pk'] as $f) {
+            $fpk  = $rmodel::getMeta('pk');
+            foreach ($fpk as $f) {
                 $pk |= false !== strpos($field, $f);
             }
             if (!$pk) {
                 // Try and use the foriegn primary key
-                if (count($rmodel::$meta['pk']) == 1) {
+                if (count($fpk) == 1) {
                     list($field) = $compiler->getField(
-                        $this->expr . '__' . $rmodel::$meta['pk'][0],
+                        $this->expr . '__' . $fpk[0],
                         $model, $options);
                 }
                 else {
@@ -666,6 +866,7 @@ class SqlAggregate extends SqlFunction {
                     );
                 }
             }
+        }
         }
 
         return sprintf('%s(%s%s)%s', $this->func,
@@ -688,6 +889,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $related = array();
     var $values = array();
     var $defer = array();
+    var $aggregated = false;
     var $annotations = array();
     var $extra = array();
     var $distinct = array();
@@ -849,6 +1051,14 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->_count = $compiler->compileCount($this);
     }
 
+    function toSql($compiler, $model, $alias) {
+        // FIXME: Force root model of the compiler to $model
+        $exec = $this->getQuery(array('compiler' => get_class($compiler)));
+        foreach ($exec->params as $P)
+            $compiler->params[] = $P;
+        return "({$exec})".($alias ? " AS {$alias}" : '');
+    }
+
     /**
      * exists
      *
@@ -884,6 +1094,17 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
             }
             $this->annotations[$name] = $A;
         }
+        return $this;
+    }
+
+    function aggregate($annotations) {
+        // Aggregate works like annotate, except that it sets up values
+        // fetching which will disable model creation
+        $this->annotate($annotations);
+        $this->values();
+        // Disable other fields from being fetched
+        $this->aggregated = true;
+        $this->related = false;
         return $this;
     }
 
@@ -942,14 +1163,14 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
-        if (!$query->ordering && isset($model::$meta['ordering']))
-            $query->ordering = $model::$meta['ordering'];
-        if (!$query->related && !$query->values && $model::$meta['select_related'])
-            $query->related = $model::$meta['select_related'];
-        if (!$query->defer && $model::$meta['defer'])
-            $query->defer = $model::$meta['defer'];
+        if (!$options['nosort'] && !$query->ordering && $model::getMeta('ordering'))
+            $query->ordering = $model::getMeta('ordering');
+        if (false !== $query->related && !$query->values && $model::getMeta('select_related'))
+            $query->related = $model::getMeta('select_related');
+        if (!$query->defer && $model::getMeta('defer'))
+            $query->defer = $model::getMeta('defer');
 
-        $class = $this->compiler;
+        $class = $options['compiler'] ?: $this->compiler;
         $compiler = new $class($options);
         $this->query = $compiler->compileSelect($query);
 
@@ -1010,8 +1231,12 @@ abstract class ResultSet implements Iterator, ArrayAccess, Countable {
         $this->queryset = $queryset;
         if ($queryset) {
             $this->model = $queryset->model;
-            $this->resource = $queryset->getQuery();
         }
+    }
+
+    function prime() {
+        if (!isset($this->resource) && $this->queryset)
+            $this->resource = $this->queryset->getQuery();
     }
 
     abstract function fillTo($index);
@@ -1068,17 +1293,9 @@ class ModelInstanceManager extends ResultSet {
 
     static $objectCache = array();
 
-    function __construct($queryset=false) {
-        parent::__construct($queryset);
-        if ($queryset) {
-            $this->map = $this->resource->getMap();
-        }
-    }
-
     function cache($model) {
-        $model::_inspect();
         $key = sprintf('%s.%s',
-            $model::$meta->model, implode('.', $model->pk));
+            $model::$meta->model, implode('.', $model->get('pk')));
         self::$objectCache[$key] = $model;
     }
 
@@ -1096,8 +1313,8 @@ class ModelInstanceManager extends ResultSet {
     }
 
     static function checkCache($modelClass, $fields) {
-        $key = $modelClass;
-        foreach ($modelClass::$meta['pk'] as $f)
+        $key = $modelClass::$meta->model;
+        foreach ($modelClass::getMeta('pk') as $f)
             $key .= '.'.$fields[$f];
         return @self::$objectCache[$key];
     }
@@ -1119,7 +1336,7 @@ class ModelInstanceManager extends ResultSet {
     function getOrBuild($modelClass, $fields, $cache=true) {
         // Check for NULL primary key, used with related model fetching. If
         // the PK is NULL, then consider the object to also be NULL
-        foreach ($modelClass::$meta['pk'] as $pkf) {
+        foreach ($modelClass::getMeta('pk') as $pkf) {
             if (!isset($fields[$pkf])) {
                 return null;
             }
@@ -1147,6 +1364,12 @@ class ModelInstanceManager extends ResultSet {
             $m->__onload();
             if ($cache)
                 $this->cache($m);
+        }
+        elseif (get_class($m) != $modelClass) {
+            // Change the class of the object to be returned to match what
+            // was expected
+            // TODO: Emit a warning?
+            $m = new $modelClass($m->ht);
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {
@@ -1208,30 +1431,36 @@ class ModelInstanceManager extends ResultSet {
     }
 
     function fillTo($index) {
+        $this->prime();
         $func = ($this->map) ? 'getRow' : 'getArray';
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->{$func}()) {
                 $this->cache[] = $this->buildModel($row);
             } else {
                 $this->resource->close();
-                $this->resource = null;
+                $this->resource = false;
                 break;
             }
+        }
+    }
+
+    function prime() {
+        parent::prime();
+        if ($this->resource) {
+            $this->map = $this->resource->getMap();
         }
     }
 }
 
 class FlatArrayIterator extends ResultSet {
-    function __construct($queryset) {
-        $this->resource = $queryset->getQuery();
-    }
     function fillTo($index) {
+        $this->prime();
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->getRow()) {
                 $this->cache[] = $row;
             } else {
                 $this->resource->close();
-                $this->resource = null;
+                $this->resource = false;
                 break;
             }
         }
@@ -1239,16 +1468,14 @@ class FlatArrayIterator extends ResultSet {
 }
 
 class HashArrayIterator extends ResultSet {
-    function __construct($queryset) {
-        $this->resource = $queryset->getQuery();
-    }
     function fillTo($index) {
+        $this->prime();
         while ($this->resource && $index >= count($this->cache)) {
             if ($row = $this->resource->getArray()) {
                 $this->cache[] = $row;
             } else {
                 $this->resource->close();
-                $this->resource = null;
+                $this->resource = false;
                 break;
             }
         }
@@ -1257,42 +1484,71 @@ class HashArrayIterator extends ResultSet {
 
 class InstrumentedList extends ModelInstanceManager {
     var $key;
-    var $id;
-    var $model;
 
     function __construct($fkey, $queryset=false) {
-        list($model, $this->key, $this->id) = $fkey;
-        if (!$queryset)
-            $queryset = $model::objects()->filter(array($this->key=>$this->id));
+        list($model, $this->key) = $fkey;
+        if (!$queryset) {
+            $queryset = $model::objects()->filter($this->key);
+            if ($related = $model::getMeta('select_related'))
+                $queryset->select_related($related);
+        }
         parent::__construct($queryset);
         $this->model = $model;
-        if (!$this->id)
-            $this->resource = null;
     }
 
     function add($object, $at=false) {
         if (!$object || !$object instanceof $this->model)
-            throw new Exception(__('Attempting to add invalid object to list'));
+            throw new Exception(sprintf(
+                'Attempting to add invalid object to list. Expected <%s>, but got <%s>',
+                $this->model,
+                get_class($object)
+            ));
 
-        $object->set($this->key, $this->id);
-        $object->save();
+        foreach ($this->key as $field=>$value)
+            $object->set($field, $value);
+
+        if (!$object->__new__)
+            $object->save();
 
         if ($at !== false)
             $this->cache[$at] = $object;
         else
             $this->cache[] = $object;
+
+        return $object;
     }
-    function remove($object) {
-        $object->delete();
+    function remove($object, $delete=true) {
+        if ($delete)
+            $object->delete();
+        else
+            foreach ($this->key as $field=>$value)
+                $object->set($field, null);
     }
 
     function reset() {
         $this->cache = array();
     }
 
+    /**
+     * Reduce the list to a subset using a simply key/value constraint. New
+     * items added to the subset will have the constraint automatically
+     * added to all new items.
+     */
+    function window($constraint) {
+        $model = $this->model;
+        $fields = $model::getMeta('fields');
+        $key = $this->key;
+        foreach ($constraint as $field=>$value) {
+            if (!is_string($field) || false === in_array($field, $fields))
+                throw new OrmException('InstrumentedList windowing must be performed on local fields only');
+            $key[$field] = $value;
+        }
+        return new static(array($this->model, $key), $this->filter($constraint));
+    }
+
     // QuerySet delegates
     function count() {
-        return $this->queryset->count();
+        return $this->objects()->count();
     }
     function exists() {
         return $this->queryset->exists();
@@ -1412,51 +1668,58 @@ class SqlCompiler {
         $operator = static::$operators['exact'];
         if (!isset($options['table'])) {
             $field = array_pop($parts);
-            if (array_key_exists($field, static::$operators)) {
+            if (isset(static::$operators[$field])) {
                 $operator = static::$operators[$field];
                 $field = array_pop($parts);
             }
         }
 
-        $path = array();
-
-        // Determine the alias for the root model table
-        $alias = (isset($this->joins['']))
-            ? $this->joins['']['alias']
-            : $this->quote($model::$meta['table']);
+        $path = '';
+        $rootModel = $model;
 
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
-        $self = $this;
-        $push = function($p, $path, $extra=false) use (&$model, $self) {
-            $model::_inspect();
-            if (!($info = $model::$meta['joins'][$p])) {
+        $joins = array();
+        $push = function($p, $model) use (&$joins, &$path) {
+            $J = $model::getMeta('joins');
+            if (!($info = $J[$p])) {
                 throw new OrmException(sprintf(
                    'Model `%s` does not have a relation called `%s`',
                     $model, $p));
             }
-            $crumb = implode('__', $path);
-            $path[] = $p;
-            $tip = implode('__', $path);
-            $alias = $self->pushJoin($crumb, $tip, $model, $info, $extra);
+            $crumb = $path;
+            $path = ($path) ? "{$path}__{$p}" : $p;
+            $joins[] = array($crumb, $path, $model, $info);
             // Roll to foreign model
-            foreach ($info['constraint'] as $local => $foreign) {
-                list($model, $f) = explode('.', $foreign);
-                if (class_exists($model))
-                    break;
-            }
-            return array($alias, $f);
+            return $info['fkey'];
         };
 
-        foreach ($parts as $i=>$p) {
-            list($alias) = $push($p, $path, @$options['constraint']);
-            $path[] = $p;
+        foreach ($parts as $p) {
+            list($model) = $push($p, $model);
         }
 
         // If comparing a relationship, join the foreign table
         // This is a comparison with a relationship — use the foreign key
-        if (isset($model::$meta['joins'][$field])) {
-            list($alias, $field) = $push($field, $path, @$options['constraint']);
+        $J = $model::getMeta('joins');
+        if (isset($J[$field])) {
+            list($model, $field) = $push($field, $model);
+        }
+
+        // Apply the joins list to $this->pushJoin
+        $last = count($joins) - 1;
+        $constraint = false;
+        foreach ($joins as $i=>$A) {
+            // Add the conststraint as the last arg to the last join
+            if ($i == $last)
+                $constraint = $options['constraint'];
+            $alias = $this->pushJoin($A[0], $A[1], $A[2], $A[3], $constraint);
+        }
+
+        if (!isset($alias)) {
+            // Determine the alias for the root model table
+            $alias = (isset($this->joins['']))
+                ? $this->joins['']['alias']
+                : $this->quote($rootModel::getMeta('table'));
         }
 
         if (isset($options['table']) && $options['table'])
@@ -1507,8 +1770,8 @@ class SqlCompiler {
         // coordination between the data returned from the database (where
         // table alias is available) and the corresponding data.
         $T = array('alias' => $alias);
-        $this->joins[$path] = &$T;
-        $T['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
+        $this->joins[$path] = $T;
+        $this->joins[$path]['sql'] = $this->compileJoin($tip, $model, $alias, $info, $constraint);
         return $alias;
     }
 
@@ -1564,6 +1827,8 @@ class SqlCompiler {
                 }
                 if ($value === null)
                     $filter[] = sprintf('%s IS NULL', $field);
+                elseif ($value instanceof SqlField)
+                    $filter[] = sprintf($op, $field, $value->toSql($this, $model));
                 // Allow operators to be callable rather than sprintf
                 // strings
                 elseif (is_callable($op))
@@ -1669,12 +1934,6 @@ class DbEngine {
 
 class MySqlCompiler extends SqlCompiler {
 
-    // Consts for ::input()
-    const SLOT_JOINS = 1;
-    const SLOT_WHERE = 2;
-
-    protected $input_join_count = 0;
-
     static $operators = array(
         'exact' => '%1$s = %2$s',
         'contains' => array('self', '__contains'),
@@ -1714,7 +1973,7 @@ class MySqlCompiler extends SqlCompiler {
     function __in($a, $b) {
         if (is_array($b)) {
             $vals = array_map(array($this, 'input'), $b);
-            $b = implode(', ', $vals);
+            $b = '('.implode(', ', $vals).')';
         }
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
         // the query as a JOIN and add the join constraint into the WHERE
@@ -1728,7 +1987,7 @@ class MySqlCompiler extends SqlCompiler {
         else {
             $b = $this->input($b);
         }
-        return sprintf('%s IN (%s)', $a, $b);
+        return sprintf('%s IN %s', $a, $b);
     }
 
     function __isnull($a, $b) {
@@ -1758,23 +2017,23 @@ class MySqlCompiler extends SqlCompiler {
         if (isset($this->joins[$tip]))
             $table = $this->joins[$tip]['alias'];
         else
-            $table = $this->quote($model::$meta['table']);
+            $table = $this->quote($model::getMeta('table'));
         foreach ($info['constraint'] as $local => $foreign) {
-            list($rmodel, $right) = explode('.', $foreign);
+            list($rmodel, $right) = $foreign;
             // Support a constant constraint with
             // "'constant'" => "Model.field_name"
             if ($local[0] == "'") {
                 $constraints[] = sprintf("%s.%s = %s",
                     $alias, $this->quote($right),
-                    $this->input(trim($local, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($local, '\'"'))
                 );
             }
             // Support local constraint
             // field_name => "'constant'"
-            elseif ($foreign[0] == "'" && !$right) {
+            elseif ($rmodel[0] == "'" && !$right) {
                 $constraints[] = sprintf("%s.%s = %s",
                     $table, $this->quote($local),
-                    $this->input(trim($foreign, '\'"'), self::SLOT_JOINS)
+                    $this->input(trim($rmodel, '\'"'))
                 );
             }
             else {
@@ -1786,18 +2045,18 @@ class MySqlCompiler extends SqlCompiler {
         }
         // Support extra join constraints
         if ($extra instanceof Q) {
-            $constraints[] = $this->compileQ($extra, $model, self::SLOT_JOINS);
+            $constraints[] = $this->compileQ($extra, $model);
         }
         if (!isset($rmodel))
             $rmodel = $model;
         // Support inline views
-        $table = ($rmodel::$meta['view'])
+        $table = ($rmodel::getMeta('view'))
             // XXX: Support parameters from the nested query
             ? $rmodel::getQuery($this)
-            : $this->quote($rmodel::$meta['table']);
-        $base = "$join$table $alias";
+            : $this->quote($rmodel::getMeta('table'));
+        $base = "{$join}{$table} {$alias}";
         if ($constraints)
-            $base .= ' ON ('.implode(' AND ', $constraints).')';
+           $base .= ' ON ('.implode(' AND ', $constraints).')';
         return $base;
     }
 
@@ -1810,11 +2069,6 @@ class MySqlCompiler extends SqlCompiler {
      * Parameters:
      * $what - (mixed) value to be sent to the database. No escaping is
      *      necessary. Pass a raw value here.
-     * $slot - (int) clause location of the input in compiled SQL statement.
-     *      Currently, SLOT_JOINS and SLOT_WHERE is supported. SLOT_JOINS
-     *      inputs are inserted ahead of the SLOT_WHERE inputs as the joins
-     *      come logically before the where claused in the finalized
-     *      statement.
      *
      * Returns:
      * (string) token to be placed into the compiled SQL statement. For
@@ -1824,7 +2078,7 @@ class MySqlCompiler extends SqlCompiler {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($this->params, $q->params);
-            return $q->sql;
+            return '('.$q->sql.')';
         }
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this);
@@ -1833,16 +2087,8 @@ class MySqlCompiler extends SqlCompiler {
             return 'NULL';
         }
         else {
-            switch ($slot) {
-            case self::SLOT_JOINS:
-                // This should be inserted before the WHERE inputs
-                array_splice($this->params, $this->input_join_count++, 0,
-                    array($what));
-                break;
-            default:
-                $this->params[] = $what;
-            }
-            return '?';
+            $this->params[] = $what;
+            return ':'.(count($this->params));
         }
     }
 
@@ -1881,7 +2127,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileCount($queryset) {
         $model = $queryset->model;
-        $table = $model::$meta['table'];
+        $table = $model::getMeta('table');
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
         $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
@@ -1901,7 +2147,7 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the ORDER BY clause
         $sort = '';
-        if (($columns = $queryset->getSortFields()) && !isset($this->options['nosort'])) {
+        if ($columns = $queryset->getSortFields()) {
             $orders = array();
             foreach ($columns as $sort) {
                 $dir = 'ASC';
@@ -1913,30 +2159,34 @@ class MySqlCompiler extends SqlCompiler {
                         $dir = 'DESC';
                         $sort = substr($sort, 1);
                     }
-                    list($field) = $this->getField($sort, $model);
+                    // If the field is already an annotation, then don't
+                    // compile the annotation again below. It's included in
+                    // the select clause, which is sufficient
+                    if (isset($this->annotations[$sort]))
+                        $field = $this->quote($sort);
+                    else
+                        list($field) = $this->getField($sort, $model);
                 }
-                // TODO: Throw exception if $field can be indentified as
-                //       invalid
                 if ($field instanceof SqlFunction)
                     $field = $field->toSql($this, $model);
+                // TODO: Throw exception if $field can be indentified as
+                //       invalid
 
-                $orders[] = $field.' '.$dir;
+                $orders[] = "{$field} {$dir}";
             }
             $sort = ' ORDER BY '.implode(', ', $orders);
         }
 
         // Compile the field listing
-        $fields = array();
-        $group_by = array();
-        $table = $this->quote($model::$meta['table']).' '.$rootAlias;
+        $fields = $group_by = array();
+        $table = $this->quote($model::getMeta('table')).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
             $count = 0;
             $fieldMap = $theseFields = array();
             $defer = $queryset->defer ?: array();
             // Add local fields first
-            $model::_inspect();
-            foreach ($model::$meta['fields'] as $f) {
+            foreach ($model::getMeta('fields') as $f) {
                 // Handle deferreds
                 if (isset($defer[$f]))
                     continue;
@@ -1958,8 +2208,7 @@ class MySqlCompiler extends SqlCompiler {
                     $theseFields = array();
                     list($alias, $fmodel) = $this->getField($full_path, $model,
                         array('table'=>true, 'model'=>true));
-                    $fmodel::_inspect();
-                    foreach ($fmodel::$meta['fields'] as $f) {
+                    foreach ($fmodel::getMeta('fields') as $f) {
                         // Handle deferreds
                         if (isset($defer[$sr . '__' . $f]))
                             continue;
@@ -1994,10 +2243,9 @@ class MySqlCompiler extends SqlCompiler {
             }
         }
         // Simple selection from one table
-        else {
+        elseif (!$queryset->aggregated) {
             if ($queryset->defer) {
-                $model::_inspect();
-                foreach ($model::$meta['fields'] as $f) {
+                foreach ($model::getMeta('fields') as $f) {
                     if (isset($queryset->defer[$f]))
                         continue;
                     $fields[$rootAlias .'.'. $this->quote($f)] = true;
@@ -2024,8 +2272,8 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by) {
-                foreach ($model::$meta['pk'] as $pk)
+            if (!$group_by && !$queryset->aggregated) {
+                foreach ($model::getMeta('pk') as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
         }
@@ -2075,8 +2323,8 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function compileUpdate(VerySimpleModel $model) {
-        $pk = $model::$meta['pk'];
-        $sql = 'UPDATE '.$this->quote($model::$meta['table']);
+        $pk = $model::getMeta('pk');
+        $sql = 'UPDATE '.$this->quote($model::getMeta('table'));
         $sql .= $this->__compileUpdateSet($model, $pk);
         // Support PK updates
         $criteria = array();
@@ -2090,15 +2338,15 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function compileInsert(VerySimpleModel $model) {
-        $pk = $model::$meta['pk'];
-        $sql = 'INSERT INTO '.$this->quote($model::$meta['table']);
+        $pk = $model::getMeta('pk');
+        $sql = 'INSERT INTO '.$this->quote($model::getMeta('table'));
         $sql .= $this->__compileUpdateSet($model, $pk);
 
         return new MySqlExecutor($sql, $this->params);
     }
 
     function compileDelete($model) {
-        $table = $model::$meta['table'];
+        $table = $model::getMeta('table');
 
         $where = ' WHERE '.implode(' AND ',
             $this->compileConstraints(array(new Q($model->pk)), $model));
@@ -2108,7 +2356,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileBulkDelete($queryset) {
         $model = $queryset->model;
-        $table = $model::$meta['table'];
+        $table = $model::getMeta('table');
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
@@ -2118,7 +2366,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function compileBulkUpdate($queryset, array $what) {
         $model = $queryset->model;
-        $table = $model::$meta['table'];
+        $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
             $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
@@ -2150,7 +2398,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 }
 
-class MysqlExecutor {
+class MySqlExecutor {
 
     var $stmt;
     var $fields = array();
@@ -2171,17 +2419,28 @@ class MysqlExecutor {
         return $this->map;
     }
 
+    function fixupParams() {
+        $self = $this;
+        $params = array();
+        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+            $params[] = $self->params[$m[1]-1];
+            return '?';
+        }, $this->sql);
+        return array($sql, $params);
+    }
+
     function _prepare() {
         $this->execute();
         $this->_setup_output();
     }
 
     function execute() {
-        if (!($this->stmt = db_prepare($this->sql)))
+        list($sql, $params) = $this->fixupParams();
+        if (!($this->stmt = db_prepare($sql)))
             throw new InconsistentModelException(
-                'Unable to prepare query: '.db_error().' '.$this->sql);
-        if (count($this->params))
-            $this->_bind($this->params);
+                'Unable to prepare query: '.db_error().' '.$sql);
+        if (count($params))
+            $this->_bind($params);
         if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
@@ -2194,7 +2453,7 @@ class MysqlExecutor {
 
         $types = '';
         $ps = array();
-        foreach ($params as &$p) {
+        foreach ($params as $i=>&$p) {
             if (is_int($p) || is_bool($p))
                 $types .= 'i';
             elseif (is_float($p))
@@ -2204,6 +2463,10 @@ class MysqlExecutor {
             elseif ($p instanceof DateTime) {
                 $types .= 's';
                 $p = $p->format('Y-m-d h:i:s');
+            }
+            elseif (is_object($p)) {
+                $types .= 's';
+                $p = (string) $p;
             }
             // TODO: Emit error if param is null
             $ps[] = &$p;
@@ -2292,9 +2555,8 @@ class MysqlExecutor {
 
     function __toString() {
         $self = $this;
-        $x = 0;
-        return preg_replace_callback('/\?/', function($m) use ($self, &$x) {
-            $p = $self->params[$x++];
+        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+            $p = $self->params[$m[1]-1];
             return db_real_escape($p, is_string($p));
         }, $this->sql);
     }
@@ -2344,11 +2606,11 @@ class Q implements Serializable {
         return $this;
     }
 
-    static function not(array $constraints) {
+    static function not($constraints) {
         return new static($constraints, self::NEGATED);
     }
 
-    static function any(array $constraints) {
+    static function any($constraints) {
         return new static($constraints, self::ANY);
     }
 

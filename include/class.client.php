@@ -16,7 +16,7 @@
 require_once INCLUDE_DIR.'class.user.php';
 
 abstract class TicketUser
-implements EmailContact, ITicketUser {
+implements EmailContact, ITicketUser, TemplateVariable {
 
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
@@ -53,6 +53,19 @@ implements EmailContact, ITicketUser {
 
         return false;
 
+    }
+
+    // Required for Internationalization::getCurrentLanguage() in templates
+    function getLanguage() {
+        return $this->user->getLanguage();
+    }
+
+    static function getVarScope() {
+        return array(
+            'email' => __('Email address'),
+            'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
+            'ticket_link' => __('Auth. token used for auto-login'),
+        );
     }
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }
@@ -232,6 +245,23 @@ class  EndUser extends BaseAuthenticatedUser {
         return ($stats=$this->getTicketStats())?$stats['closed']:0;
     }
 
+    function getNumTopicTickets($topic_id) {
+        return ($stats=$this->getTicketStats())?$stats['topics'][$topic_id]:0;
+    }
+
+    function getNumOrganizationTickets() {
+        if (!($stats=$this->getTicketStats()))
+            return 0;
+
+        return $stats['org-open']+$stats['org-closed'];
+    }
+    function getNumOpenOrganizationTickets() {
+        return ($stats=$this->getTicketStats())?$stats['org-open']:0;
+    }
+    function getNumClosedOrganizationTickets() {
+        return ($stats=$this->getTicketStats())?$stats['org-closed']:0;
+    }
+
     function getAccount() {
         if ($this->_account === false)
             $this->_account =
@@ -246,38 +276,20 @@ class  EndUser extends BaseAuthenticatedUser {
     }
 
     private function getStats() {
+        $basic = Ticket::objects()
+            ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
+            ->values('status__state', 'topic_id')
+            ->filter(Q::any(array(
+                'user_id' => $this->getId(),
+                'thread__collaborators__user_id' => $this->getId(),
+            )));
 
-        $where = ' WHERE ticket.user_id = '.db_input($this->getId())
-                .' OR collab.user_id = '.db_input($this->getId()).' ';
-
-        $join  =  'LEFT JOIN '.THREAD_TABLE.' thread
-                    ON (ticket.ticket_id = thread.object_id and thread.object_type = \'T\')
-                   LEFT JOIN '.THREAD_COLLABORATOR_TABLE.' collab
-                    ON (collab.thread_id=thread.id
-                            AND collab.user_id = '.db_input($this->getId()).' ) ';
-
-        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                . $join
-                . $where
-
-                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                . $join
-                . $where;
-
-        $res = db_query($sql);
-        $stats = array();
-        while($row = db_fetch_row($res)) {
-            $stats[$row[0]] = $row[1];
+        $stats = array('open' => 0, 'closed' => 0, 'topics' => array());
+        foreach ($basic as $row) {
+            $stats[$row['status__state']] += $row['count'];
+            if ($row['topic_id'])
+                $stats['topics'][$row['topic_id']] += $row['count'];
         }
-
         return $stats;
     }
 

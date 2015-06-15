@@ -19,6 +19,7 @@
 if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
+include_once(INCLUDE_DIR.'class.report.php');
 
 /**
  * Overview Report
@@ -89,7 +90,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 COUNT(*)-COUNT(NULLIF(A1.state, "closed")) AS Closed,
                 COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened
             FROM '.$info['table'].' T1
-                LEFT JOIN '.TICKET_EVENT_TABLE.' A1
+                LEFT JOIN '.THREAD_EVENT_TABLE.' A1
                     ON (A1.'.$info['pk'].'=T1.'.$info['pk'].'
                          AND NOT annulled
                          AND (A1.timestamp BETWEEN '.$start.' AND '.$stop.'))
@@ -174,11 +175,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             $stop = $this->get('period', 'now');
         }
 
-        if ($start != 'last month')
-            $start = DateTime::createFromFormat($cfg->getDateFormat(),
-                $start)->format('U');
-        else
-            $start = strtotime($start);
+       $start = strtotime($start);
 
         if (substr($stop, 0, 1) == '+')
             $stop = strftime('%Y-%m-%d ', $start) . $stop;
@@ -193,7 +190,7 @@ class OverviewReportAjaxAPI extends AjaxController {
         list($start, $stop) = $this->_getDateRange();
 
         # Fetch all types of events over the timeframe
-        $res = db_query('SELECT DISTINCT(state) FROM '.TICKET_EVENT_TABLE
+        $res = db_query('SELECT DISTINCT(state) FROM '.THREAD_EVENT_TABLE
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
                 .' ORDER BY 1');
         $events = array();
@@ -203,7 +200,7 @@ class OverviewReportAjaxAPI extends AjaxController {
         # XXX: Implement annulled column from the %ticket_event table
         $res = db_query('SELECT state, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
                 .'COUNT(ticket_id)'
-            .' FROM '.TICKET_EVENT_TABLE
+            .' FROM '.THREAD_EVENT_TABLE
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
             .' GROUP BY state, DATE_FORMAT(timestamp, \'%Y-%m-%d\')'

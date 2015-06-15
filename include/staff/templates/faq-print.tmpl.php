@@ -8,5 +8,5 @@
 <br/>
 
 <div class="thread-body bleed">
-<?php echo $faq->getLocalAnswerWithImages(); ?>
+<?php echo $faq->getLocalAnswer(); ?>
 </div>

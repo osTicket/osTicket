@@ -140,7 +140,7 @@ class Validator {
 
     /*** Functions below can be called directly without class instance.
          Validator::func(var..);  (nolint) ***/
-    function is_email($email, $list=false) {
+    function is_email($email, $list=false, $verify=false) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
         if (!($mails = Mail_RFC822::parseAddressList($email)) || PEAR::isError($mails))
@@ -156,8 +156,22 @@ class Validator {
                 return false;
         }
 
+        // According to RFC2821, the domain (A record) can be treated as an
+        // MX if no MX records exist for the domain. Also, include a
+        // full-stop trailing char so that the default domain of the server
+        // is not added automatically
+        if ($verify and !count(dns_get_record($m->host.'.', DNS_MX)))
+            return 0 < count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
+
         return true;
     }
+
+    function is_valid_email($email) {
+        global $cfg;
+        // Default to FALSE for installation
+        return self::is_email($email, false, $cfg && $cfg->verifyEmailAddrs());
+    }
+
     function is_phone($phone) {
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);

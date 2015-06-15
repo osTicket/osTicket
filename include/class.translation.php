@@ -1009,7 +1009,10 @@ class CustomDataTranslation extends VerySimpleModel {
         return parent::save($refetch);
     }
 
-    static function create(array $ht=array()) {
+    static function create($ht=false) {
+        if (!is_array($ht))
+            return null;
+
         if (is_array($ht['text'])) {
             // The parent constructor does not honor arrays
             $ht['text'] = static::encodeComplex($ht['text']);

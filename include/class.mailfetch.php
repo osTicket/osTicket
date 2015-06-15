@@ -361,7 +361,7 @@ class MailFetcher {
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1, $recurseIntoRfc822=true) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -397,15 +397,21 @@ class MailFetcher {
                 && ($content = $this->tnef->getBody('text/html', $encoding)))
             return $content;
 
-        //Do recursive search
-        $text='';
-        if($struct && $struct->parts && $recurse) {
+        // Do recursive search
+        $text = '';
+        $ctype = $this->getMimeType($struct);
+        if ($struct && $struct->parts && $recurse
+            // Do not recurse into email (rfc822) attachments unless requested
+            && (strtolower($ctype) !== 'message/rfc822' || $recurseIntoRfc822)
+        ) {
             while(list($i, $substruct) = each($struct->parts)) {
-                if($partNumber)
+                if ($partNumber)
                     $prefix = $partNumber . '.';
-                if (($result=$this->getPart($mid, $mimeType, $encoding,
-                        $substruct, $prefix.($i+1), $recurse-1)))
-                    $text.=$result;
+                if ($result = $this->getPart($mid, $mimeType, $encoding,
+                    $substruct, $prefix.($i+1), $recurse-1, $recurseIntoRfc822)
+                ) {
+                    $text .= $result;
+                }
             }
         }
 
@@ -520,9 +526,13 @@ class MailFetcher {
         if (strtolower($ctype) == 'multipart/report') {
             foreach ($struct->parameters as $p) {
                 if (strtolower($p->attribute) == 'report-type'
-                        && $p->value == 'delivery-status') {
-                    return new TextThreadEntryBody( $this->getPart(
-                                $mid, 'text/plain', $this->charset, $struct, false, 1));
+                    && $p->value == 'delivery-status'
+                ) {
+                    if ($body = $this->getPart(
+                        $mid, 'text/plain', $this->charset, $struct, false, 3, false
+                    )) {
+                        return new TextThreadEntryBody($body);
+                    }
                 }
             }
         }
@@ -569,7 +579,7 @@ class MailFetcher {
     function getBody($mid) {
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
+        if ($cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($mid, 'text/html', $this->charset))
                 $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
@@ -658,7 +668,7 @@ class MailFetcher {
                 $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $data['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
+            $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
             $vars['flags']['bounce'] = true;
         }
@@ -752,7 +762,7 @@ class MailFetcher {
         }
         // Allow continuation of thread without initial message or note
         elseif (($thread = Thread::lookupByEmailHeaders($vars))
-            && ($message = $entry->postEmail($vars))
+            && ($message = $thread->postEmail($vars))
         ) {
             // NOTE: This might not be a "ticket"
             $ticket = $thread->getObject();

@@ -154,9 +154,10 @@ class OsticketConfig extends Config {
     var $defaults = array(
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
-        'enable_html_thread' => true,
+        'enable_richtext' =>    true,
         'allow_attachments' =>  true,
-        'name_format' =>        'full', # First Last
+        'agent_name_format' =>  'full', # First Last
+        'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -168,6 +169,7 @@ class OsticketConfig extends Config {
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
+        'verify_email_addrs' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -245,31 +247,35 @@ class OsticketConfig extends Config {
         return md5(self::getDBVersion());
     }
 
-    function getDBTZoffset() {
-        if (!$this->exists('db_tz_offset')) {
-            $sql='SELECT (TIME_TO_SEC(TIMEDIFF(NOW(), UTC_TIMESTAMP()))/3600) as db_tz_offset';
-            if(($res=db_query($sql)) && db_num_rows($res))
-                $this->persist('db_tz_offset', db_result($res));
+    function getDbTimezone() {
+        if (!$this->exists('db_timezone')) {
+            require_once INCLUDE_DIR . 'class.timezone.php';
+            $this->persist('db_timezone', DbTimezone::determine());
         }
-        return $this->get('db_tz_offset');
+        return $this->get('db_timezone');
     }
 
     function getDefaultTimezone() {
         return $this->get('default_timezone');
     }
 
-    function getTimezone() {
+    function getTimezone($user=false) {
         global $thisstaff, $thisclient;
 
-        if ($thisstaff)
-            $zone = $thisstaff->getTimezone();
-        #elseif ($thisclient)
-        #    $zone = $thisclient->getTimezone();
-        else
+        $user = $user ?: $thisstaff;
+
+        if (!$user && $thisclient && is_callable(array($thisclient, 'getTimezone')))
+            $user = $thisclient;
+
+        if ($user)
+            $zone = $user->getTimezone();
+
+        if (!$zone)
             $zone = $this->get('default_timezone');
 
         if (!$zone)
             $zone = ini_get('date.timezone');
+
         return $zone;
     }
 
@@ -360,8 +366,8 @@ class OsticketConfig extends Config {
         return $this->get('passwd_reset_period');
     }
 
-    function isHtmlThreadEnabled() {
-        return $this->get('enable_html_thread');
+    function isRichTextEnabled() {
+        return $this->get('enable_richtext');
     }
 
     function getClientTimeout() {
@@ -400,8 +406,12 @@ class OsticketConfig extends Config {
         return $this->get('autolock_minutes');
     }
 
-    function getDefaultNameFormat() {
-        return $this->get('name_format');
+    function getAgentNameFormat() {
+        return $this->get('agent_name_format');
+    }
+
+    function getClientNameFormat() {
+        return $this->get('client_name_format');
     }
 
     function getDefaultDeptId() {
@@ -654,6 +664,10 @@ class OsticketConfig extends Config {
          return $this->get('admin_email');
     }
 
+    function verifyEmailAddrs() {
+        return (bool) $this->get('verify_email_addrs');
+    }
+
     function getReplySeparator() {
         return $this->get('reply_separator');
     }
@@ -847,6 +861,88 @@ class OsticketConfig extends Config {
         return ($this->get('overlimit_notice_active'));
     }
 
+    /* Tasks */
+
+    function alertONNewTask() {
+        return ($this->get('task_alert_active'));
+    }
+
+    function alertAdminONNewTask() {
+        return ($this->get('task_alert_admin'));
+    }
+
+    function alertDeptManagerONNewTask() {
+        return ($this->get('task_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONNewTask() {
+        return ($this->get('task_alert_dept_members'));
+    }
+
+    function alertONTaskActivity() {
+        return ($this->get('task_activity_alert_active'));
+    }
+
+    function alertLastRespondentONTaskActivity() {
+        return ($this->get('task_activity_alert_laststaff'));
+    }
+
+    function alertAssignedONTaskActivity() {
+        return ($this->get('task_activity_alert_assigned'));
+    }
+
+    function alertDeptManagerONTaskActivity() {
+        return ($this->get('task_activity_alert_dept_manager'));
+    }
+
+    function alertONTaskTransfer() {
+        return ($this->get('task_transfer_alert_active'));
+    }
+
+    function alertAssignedONTaskTransfer() {
+        return ($this->get('task_transfer_alert_assigned'));
+    }
+
+    function alertDeptManagerONTaskTransfer() {
+        return ($this->get('task_transfer_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONTaskTransfer() {
+        return ($this->get('task_transfer_alert_dept_members'));
+    }
+
+    function alertONTaskAssignment() {
+        return ($this->get('task_assignment_alert_active'));
+    }
+
+    function alertStaffONTaskAssignment() {
+        return ($this->get('task_assignment_alert_staff'));
+    }
+
+    function alertTeamLeadONTaskAssignment() {
+        return ($this->get('task_assignment_alert_team_lead'));
+    }
+
+    function alertTeamMembersONTaskAssignment() {
+        return ($this->get('task_assignment_alert_team_members'));
+    }
+
+    function alertONOverdueTask() {
+        return ($this->get('task_overdue_alert_active'));
+    }
+
+    function alertAssignedONOverdueTask() {
+        return ($this->get('task_overdue_alert_assigned'));
+    }
+
+    function alertDeptManagerONOverdueTask() {
+        return ($this->get('task_overdue_alert_dept_manager'));
+    }
+
+    function alertDeptMembersONOverdueTask() {
+        return ($this->get('task_overdue_alert_dept_members'));
+    }
+
     /* Error alerts sent to admin email when enabled */
     function alertONSQLError() {
         return ($this->get('send_sql_errors'));
@@ -905,20 +1001,20 @@ class OsticketConfig extends Config {
             case 'tickets':
                 return $this->updateTicketsSettings($vars, $errors);
                 break;
+            case 'tasks':
+                return $this->updateTasksSettings($vars, $errors);
+                break;
             case 'emails':
                 return $this->updateEmailsSettings($vars, $errors);
                 break;
             case 'pages':
                 return $this->updatePagesSettings($vars, $errors);
                 break;
-            case 'access':
-                return $this->updateAccessSettings($vars, $errors);
+            case 'agents':
+                return $this->updateAgentsSettings($vars, $errors);
                 break;
-            case 'autoresp':
-                return $this->updateAutoresponderSettings($vars, $errors);
-                break;
-            case 'alerts':
-                return $this->updateAlertsSettings($vars, $errors);
+            case 'users':
+                return $this->updateUsersSettings($vars, $errors);
                 break;
             case 'kb':
                 return $this->updateKBSettings($vars, $errors);
@@ -936,6 +1032,7 @@ class OsticketConfig extends Config {
         $f['helpdesk_url']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk URL is required'));
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
+        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
@@ -943,6 +1040,17 @@ class OsticketConfig extends Config {
         $f['daydatetime_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Day, Datetime format is required'));
         $f['default_timezone']=array('type'=>'string',   'required'=>1, 'error'=>__('Default Timezone is required'));
         $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
+
+        // Make sure the selected backend is valid
+        $storagebk = null;
+        if (isset($vars['default_storage_bk'])) {
+            try {
+                $storagebk = FileStorageBackend::lookup($vars['default_storage_bk']);
+
+            } catch (Exception $ex) {
+                $errors['default_storage_bk'] = $ex->getMessage();
+            }
+        }
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -955,6 +1063,10 @@ class OsticketConfig extends Config {
         }
         $secondary_langs = implode(',', $vars['secondary_langs']);
 
+        if ($storagebk)
+            $this->update('default_storage_bk', $storagebk->getBkChar());
+
+
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
             'helpdesk_title'=>$vars['helpdesk_title'],
@@ -963,7 +1075,6 @@ class OsticketConfig extends Config {
             'max_page_size'=>$vars['max_page_size'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
-            'name_format'=>$vars['name_format'],
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
@@ -973,16 +1084,17 @@ class OsticketConfig extends Config {
             'default_locale'=>$vars['default_locale'],
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,
+            'max_file_size' => $vars['max_file_size'],
+            'autolock_minutes' => $vars['autolock_minutes'],
+            'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
         ));
     }
 
-    function updateAccessSettings($vars, &$errors) {
+    function updateAgentsSettings($vars, &$errors) {
         $f=array();
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
-        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
             'error'=>__('Valid password reset window required'));
-
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -993,14 +1105,29 @@ class OsticketConfig extends Config {
             'staff_login_timeout'=>$vars['staff_login_timeout'],
             'staff_session_timeout'=>$vars['staff_session_timeout'],
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
+            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
+            'pw_reset_window'=>$vars['pw_reset_window'],
+            'agent_name_format'=>$vars['agent_name_format'],
+
+        ));
+    }
+
+    function updateUsersSettings($vars, &$errors) {
+        $f=array();
+        $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+
+        if(!Validator::process($f, $vars, $errors) || $errors)
+            return false;
+
+        return $this->updateAll(array(
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
-            'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
-            'pw_reset_window'=>$vars['pw_reset_window'],
             'clients_only'=>isset($vars['clients_only'])?1:0,
             'client_registration'=>$vars['client_registration'],
             'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
+            'client_name_format'=>$vars['client_name_format'],
+
         ));
     }
 
@@ -1010,7 +1137,6 @@ class OsticketConfig extends Config {
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
-        $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
 
 
         if($vars['enable_captcha']) {
@@ -1029,11 +1155,11 @@ class OsticketConfig extends Config {
         if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
             $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
 
+        $this->updateAutoresponderSettings($vars, $errors);
+        $this->updateAlertsSettings($vars, $errors);
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
-
-        if (isset($vars['default_storage_bk']))
-            $this->update('default_storage_bk', $vars['default_storage_bk']);
 
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
@@ -1043,19 +1169,92 @@ class OsticketConfig extends Config {
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
-            'autolock_minutes'=>$vars['autolock_minutes'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
-            'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
-            'max_file_size'=>$vars['max_file_size'],
         ));
     }
 
+    function updateTasksSettings($vars, &$errors) {
+        $f=array();
+        $f['default_task_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+        $f['default_task_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
+
+        if (!preg_match('`(?!<\\\)#`', $vars['task_number_format']))
+            $errors['task_number_format'] = 'Task number format requires at least one hash character (#)';
+
+        Validator::process($f, $vars, $errors);
+
+        if ($vars['task_alert_active']
+                && (!isset($vars['task_alert_admin'])
+                    && !isset($vars['task_alert_dept_manager'])
+                    && !isset($vars['task_alert_dept_members'])
+                    && !isset($vars['task_alert_acct_manager']))) {
+            $errors['task_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_activity_alert_active']
+                && (!isset($vars['task_activity_alert_laststaff'])
+                    && !isset($vars['task_activity_alert_assigned'])
+                    && !isset($vars['task_activity_alert_dept_manager']))) {
+            $errors['task_activity_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_transfer_alert_active']
+                && (!isset($vars['task_transfer_alert_assigned'])
+                    && !isset($vars['task_transfer_alert_dept_manager'])
+                    && !isset($vars['task_transfer_alert_dept_members']))) {
+            $errors['task_transfer_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_overdue_alert_active']
+                && (!isset($vars['task_overdue_alert_assigned'])
+                    && !isset($vars['task_overdue_alert_dept_manager'])
+                    && !isset($vars['task_overdue_alert_dept_members']))) {
+            $errors['task_overdue_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($vars['task_assignment_alert_active']
+                && (!isset($vars['task_assignment_alert_staff'])
+                    && !isset($vars['task_assignment_alert_team_lead'])
+                    && !isset($vars['task_assignment_alert_team_members']))) {
+            $errors['task_assignment_alert_active'] = __('Select recipient(s)');
+        }
+
+        if ($errors)
+            return false;
+
+        return $this->updateAll(array(
+            'task_number_format'=>$vars['task_number_format'] ?: '######',
+            'task_sequence_id'=>$vars['task_sequence_id'] ?: 0,
+            'default_task_priority_id'=>$vars['default_task_priority_id'],
+            'default_task_sla_id'=>$vars['default_task_sla_id'],
+            'task_alert_active'=>$vars['task_alert_active'],
+            'task_alert_admin'=>isset($vars['task_alert_admin']) ? 1 : 0,
+            'task_alert_dept_manager'=>isset($vars['task_alert_dept_manager']) ? 1 : 0,
+            'task_alert_dept_members'=>isset($vars['task_alert_dept_members']) ? 1 : 0,
+            'task_activity_alert_active'=>$vars['task_activity_alert_active'],
+            'task_activity_alert_laststaff'=>isset($vars['task_activity_alert_laststaff']) ? 1 : 0,
+            'task_activity_alert_assigned'=>isset($vars['task_activity_alert_assigned']) ? 1 : 0,
+            'task_activity_alert_dept_manager'=>isset($vars['task_activity_alert_dept_manager']) ? 1 : 0,
+            'task_assignment_alert_active'=>$vars['task_assignment_alert_active'],
+            'task_assignment_alert_staff'=>isset($vars['task_assignment_alert_staff']) ? 1 : 0,
+            'task_assignment_alert_team_lead'=>isset($vars['task_assignment_alert_team_lead']) ? 1 : 0,
+            'task_assignment_alert_team_members'=>isset($vars['task_assignment_alert_team_members']) ? 1 : 0,
+            'task_transfer_alert_active'=>$vars['task_transfer_alert_active'],
+            'task_transfer_alert_assigned'=>isset($vars['task_transfer_alert_assigned']) ? 1 : 0,
+            'task_transfer_alert_dept_manager'=>isset($vars['task_transfer_alert_dept_manager']) ? 1 : 0,
+            'task_transfer_alert_dept_members'=>isset($vars['task_transfer_alert_dept_members']) ? 1 : 0,
+            'task_overdue_alert_active'=>$vars['task_overdue_alert_active'],
+            'task_overdue_alert_assigned'=>isset($vars['task_overdue_alert_assigned']) ? 1 : 0,
+            'task_overdue_alert_dept_manager'=>isset($vars['task_overdue_alert_dept_manager']) ? 1 : 0,
+            'task_overdue_alert_dept_members'=>isset($vars['task_overdue_alert_dept_members']) ? 1 : 0,
+        ));
+    }
 
     function updateEmailsSettings($vars, &$errors) {
         $f=array();
@@ -1079,6 +1278,7 @@ class OsticketConfig extends Config {
             'alert_email_id'=>$vars['alert_email_id'],
             'default_smtp_id'=>$vars['default_smtp_id'],
             'admin_email'=>$vars['admin_email'],
+            'verify_email_addrs'=>isset($vars['verify_email_addrs']) ? 1 : 0,
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,

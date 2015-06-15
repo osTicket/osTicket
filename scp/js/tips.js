@@ -53,8 +53,9 @@ jQuery(function() {
     },
     getHelpTips = (function() {
         var dfd, cache = {};
-        return function(namespace) {
-            var namespace = namespace
+        return function(elem) {
+            var namespace =
+                   $(elem).closest('[data-tip-namespace]').data('tipNamespace')
                 || $('#content').data('tipNamespace')
                 || $('meta[name=tip-namespace]').attr('content');
             if (!namespace)
@@ -76,8 +77,8 @@ jQuery(function() {
 
     var tip_id = 1;
     //Generic tip.
-    $('.tip')
-    .live('click mouseover', function(e) {
+    $(document)
+    .on('click mouseover', '.tip', function(e) {
         e.preventDefault();
         if (!this.rel)
             this.rel = 'tip-' + (tip_id++);
@@ -98,12 +99,12 @@ jQuery(function() {
             }
         }
     })
-    .live('mouseout', function(e) {
+    .on('mouseout', '.tip', function(e) {
         clearTimeout($(this).data('timer'));
     });
 
-    $('.help-tip')
-    .live('mouseover click', function(e) {
+    $(document)
+    .on('mouseover click', '.help-tip', function(e) {
         e.preventDefault();
 
         var elem = $(this),
@@ -143,11 +144,11 @@ jQuery(function() {
                 }
             }, 500);
 
-        elem.live('mouseout', function() {
+        elem.on('mouseout', function() {
             clearTimeout(tip_timer);
         });
 
-        getHelpTips().then(function(tips) {
+        getHelpTips(elem).then(function(tips) {
             var href = elem.attr('href');
             if (href) {
                 section = tips[elem.attr('href').substr(1)];
@@ -188,7 +189,8 @@ jQuery(function() {
     });
 
     //faq preview tip
-    $('.previewfaq').live('mouseover', function(e) {
+    $(document)
+    .on('mouseover', '.previewfaq', function(e) {
         e.preventDefault();
         var elem = $(this);
 
@@ -207,12 +209,12 @@ jQuery(function() {
                 showtip(url,elem,xoffset);
             }
         }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', '.previewfaq', function(e) {
         clearTimeout($(this).data('timer'));
     });
 
 
-    $('a.collaborators.preview').live('mouseover', function(e) {
+    $(document).on('mouseover', 'a.collaborators.preview', function(e) {
         e.preventDefault();
         var elem = $(this);
 
@@ -225,16 +227,16 @@ jQuery(function() {
         } else {
             showtip(url,elem,xoffset);
         }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', 'a.collaborators.preview', function(e) {
         clearTimeout($(this).data('timer'));
-    }).live('click', function(e) {
+    }).on('click', 'a.collaborators.preview', function(e) {
         clearTimeout($(this).data('timer'));
         $('.tip_box').remove();
     });
 
 
     // Tooltip preview
-    $('.preview').live('mouseover', function(e) {
+    $(document).on('mouseover', '.preview', function(e) {
         var elem = $(this);
         var vars = elem.attr('href').split('=');
         if (!elem.data('preview'))
@@ -255,7 +257,7 @@ jQuery(function() {
                 showtip(url,elem,xoffset);
             }
         }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', '.preview', function(e) {
         $(this).data('id', 0);
         clearTimeout($(this).data('timer'));
     });
@@ -266,7 +268,7 @@ jQuery(function() {
         $(this).parent().parent().remove();
     });
 
-    $(document).live('mouseup', function (e) {
+    $(document).on('mouseup', function (e) {
         var container = $('.tip_box');
         if (!container.is(e.target)
             && container.has(e.target).length === 0) {

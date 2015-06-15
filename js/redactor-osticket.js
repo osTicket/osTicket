@@ -53,8 +53,8 @@ RedactorPlugins.draft = function() {
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
             var trash = this.draft.deleteButton =
-                this.button.add('deleteDraft', __('Delete Draft'),
-                    this.draft.deleteDraft);
+                this.button.add('deleteDraft', __('Delete Draft'))
+            this.button.addCallback(trash, this.draft.deleteDraft);
             this.button.setAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
@@ -156,10 +156,10 @@ RedactorPlugins.signature = function() {
             else
                 this.$signatureBox.hide();
             $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                .on('change', false, false, $.proxy(this.updateSignature, this));
+                .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             if ($el.data('deptField'))
                 $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this));
+                    .on('change', false, false, $.proxy(this.signature.updateSignature, this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),
@@ -199,6 +199,9 @@ RedactorPlugins.signature = function() {
                 url += 'dept/' + dept;
             else
                 return inner.empty().parent().hide();
+        }
+        else if (selected == 'theirs' && $el.data('posterId')) {
+            url += 'agent/' + $el.data('posterId');
         }
         else if (type == 'none')
            return inner.empty().parent().hide();
@@ -251,12 +254,13 @@ $(function() {
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
                 'buttonSource': !el.hasClass('no-bar'),
-                'autoresize': !el.hasClass('no-bar'),
+                'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
+                'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
-                  ? ['imagepaste','imagemanager','definedlinks']
-                  : ['imagepaste','imagemanager','imageannotate','table','video','definedlinks','autolock'],
+                  ? ['imagemanager','definedlinks']
+                  : ['imagemanager','imageannotate','table','video','definedlinks','autolock'],
                 'imageUpload': 'tbd',
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
@@ -264,6 +268,14 @@ $(function() {
                 'tabFocus': false,
                 'toolbarFixedBox': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
+                'initCallback': function() {
+                    if (this.$element.data('width'))
+                        this.$editor.width(this.$element.data('width'));
+                    this.$editor.attr('spellcheck', 'true');
+                    var lang = this.$editor.closest('[lang]').attr('lang');
+                    if (lang)
+                        this.$editor.attr('lang', lang);
+                },
                 'linkSize': 100000,
                 'definedLinks': 'ajax.php/config/links'
             }, options||{});
@@ -291,7 +303,11 @@ $(function() {
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
+            options['plugins'].push('imagepaste');
             options.draftDelete = el.hasClass('draft-delete');
+        }
+        if (true || 'scp') { // XXX: Add this to SCP only
+            options['plugins'].push('contexttypeahead');
         }
         if (el.hasClass('fullscreen'))
             options['plugins'].push('fullscreen');
@@ -301,8 +317,8 @@ $(function() {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])
                 options['lang'] = c.short_lang;
-            if (c.has_rtl)
-                options['plugins'].push('textdirection');
+            //if (c.has_rtl)
+              //  options['plugins'].push('textdirection');
             if (el.find('rtl').length)
                 options['direction'] = 'rtl';
             el.redactor(options);
@@ -326,25 +342,17 @@ $(function() {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor)
-                redactor.destroy();
+                redactor.core.destroy();
         });
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
     $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
+});
 
-    // Monkey patch paste to show the loading bar
-    var oldImagePaste = $.Redactor.fn.paste.insertFromClipboard,
-        oldImageInsert = $.Redactor.fn.image.insert;
-    $.Redactor.fn.paste.insertFromClipboard = function() {
-        this.progress.show();
-        return oldImagePaste.apply(this, arguments);
-    };
-    $.Redactor.fn.image.insert = function() {
-        this.progress.hide();
-        return oldImageInsert.apply(this, arguments);
-    };
+$(document).on('focusout.redactor', 'div.redactor_richtext', function (e) {
+    $(this).siblings('textarea').trigger('change');
 });
 
 $(document).ajaxError(function(event, request, settings) {

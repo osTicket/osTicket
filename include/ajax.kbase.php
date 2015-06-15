@@ -26,7 +26,7 @@ class KbaseAjaxAPI extends AjaxController {
         if(!$id || !($canned=Canned::lookup($id)) || !$canned->isEnabled())
             Http::response(404, 'No such premade reply');
 
-        if (!$cfg->isHtmlThreadEnabled())
+        if (!$cfg->isRichTextEnabled())
             $format .= '.plain';
 
         return $canned->getFormattedResponse($format);

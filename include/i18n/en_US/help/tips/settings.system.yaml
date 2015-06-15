@@ -66,16 +66,19 @@ purge_logs:
         Determine how long you would like to keep <span
         class="doc-desc-title">System Logs</span> before they are deleted.
 
-default_name_formatting:
-    title: Default Name Formatting
+enable_richtext:
+    title: Enable Rich Text
     content: >
-        Choose a format for names throughout the system. Email templates
-        will use it for names if no other format is specified in the
-        variable.
+        If enabled, this will permit the use of rich text formatting between
+        Clients and Agents.
 
-    links:
-      - title: Supported Email Template Variables
-        href: http://osticket.com/wiki/Email_templates
+collision_avoidance:
+    title: Agent Collision Avoidance
+    content: >
+        Enter the maximum length of time an Agent is allowed to hold a lock
+        on a ticket or task without any activity.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
 # Date and time options
 date_time_options:
@@ -115,3 +118,23 @@ secondary_language:
         The interface will be available in these languages, and custom
         content, such as thank-you pages and help topic names, will be
         translatable to these languages.
+
+# Attachments
+attachments:
+    title: Attachment Settings and Storage
+    content: >
+        Configure how attachments are stored.
+
+default_storage_bk:
+    title: File Storage Backend
+    content: >
+        Choose how attachments are stored.
+        <br<br>
+        Additional storage backends can be added by installing storage plugins
+
+max_file_size:
+    title: Maximum File Size
+    content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket and task replies.

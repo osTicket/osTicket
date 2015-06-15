@@ -1,6 +1,6 @@
 /**
  * @signature 2d590ffab4a6a928f08cc97aace1399e
- * @version v1.9.6
+ * @version v1.10.0
  * @title Make fields disable-able per help topic
  *
  * This patch adds the ability to associate more than one extra form with a

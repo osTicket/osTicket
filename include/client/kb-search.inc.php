@@ -7,8 +7,8 @@
       </div>
       <?php
       if ($faqs->exists(true)) {
-        echo '<div class="panel-body text-muted">'.sprintf(__('%d FAQs matched your search criteria.').'</div>',
-            count($faqs->all()))
+        echo '<div class="panel-body text-muted">'.sprintf(__('%d FAQs matched your search criteria.'),
+            $faqs->count())
             .'<ul class="list-group">';
         foreach ($faqs as $F) {
             echo sprintf(

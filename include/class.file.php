@@ -25,6 +25,12 @@ class AttachmentFile extends VerySimpleModel {
             ),
         ),
     );
+    static $keyCache = array();
+
+    function __onload() {
+        // Cache for lookup in the ::lookupByHash method below
+        static::$keyCache[$this->key] = $this;
+    }
 
     function getHashtable() {
         return $this->ht;
@@ -437,6 +443,10 @@ class AttachmentFile extends VerySimpleModel {
         return $f;
     }
 
+    static function __create($file, &$errors) {
+        return static::create($file);
+    }
+
     /**
      * Migrate this file from the current backend to the backend specified.
      *
@@ -528,13 +538,11 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function lookupByHash($hash) {
-        static $keyCache = array();
-
-        if (isset($keyCache[$hash]))
-            return $keyCache[$hash];
+        if (isset(static::$keyCache[$hash]))
+            return static::$keyCache[$hash];
 
         // Cache a negative lookup if no such file exists
-        return $keyCache[$hash] = parent::lookup(array('key' => $hash));
+        return parent::lookup(array('key' => $hash));
     }
 
     static function lookup($id) {

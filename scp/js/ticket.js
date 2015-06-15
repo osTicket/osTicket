@@ -214,7 +214,7 @@ var autoLock = {
             async: false,
             cache: false,
             success: function() {
-                autoLock.lockId = 0;
+                autoLock.destroy();
             }
         });
     },
@@ -281,6 +281,11 @@ var autoLock = {
           function () { autoLock.monitorEvents(); },
           time || 30000
         );
+    },
+
+    destroy: function() {
+        autoLock.clearTimeout();
+        autoLock.lockId = 0;
     }
 };
 $.autoLock = autoLock;
@@ -305,7 +310,7 @@ $.showNonLocalImage = function(div) {
 $.showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
         ? '.thread-body img[data-cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
+        : '.thread-body#thread-entry-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
         var e = $(el),
             cid = e.data('cid').toLowerCase(),
@@ -328,19 +333,34 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                    .append($('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                      .attr('download', info.filename)
+                    )
                 );
             e.data('wrapped', true);
         }
     });
 };
 
-$.refreshTicketView = function() {
-    if (0 === $('.dialog:visible').length)
-        $.pjax({url: document.location.href, container:'#pjax-container'});
+$.refreshTicketView = function(interval) {
+    var refresh =
+    window.ticket_refresh = setInterval(function() {
+      if ($('table.list input.ckb[name=tids\\[\\]]:checked').length)
+        // Skip the refresh b/c items are checked
+        return;
+      else if (0 < $('.dialog:visible').length)
+        // Dialog open — skip refresh
+        return;
+
+      clearInterval(refresh);
+      $.pjax({url: document.location.href, container:'#pjax-container'});
+    }, interval);
 }
 
 var ticket_onload = function($) {
+    if (0 === $('#ticket_thread').length)
+        return;
+
     //Start watching the form for activity.
     autoLock.Init();
 
@@ -419,10 +439,23 @@ var ticket_onload = function($) {
         });
     });
 
-    $('.thread-body').each(function() {
-        var urls = $(this).data('urls');
-        if (urls)
-            $.showImagesInline(urls, $(this).data('id'));
+    $.showImagesInline($('#ticket_thread').data('imageUrls'));
+
+    var last_entry = $('#ticket_thread .thread-entry').last(),
+        frame = 0;
+    $('html, body').delay(500).animate({
+        scrollTop: last_entry.offset().top - 50,
+    }, {
+        duration: 750,
+        step: function(now, fx) {
+            // Recalc end target every few frames
+            if (++frame % 6 == 0)
+                fx.end = last_entry.offset().top - 50;
+        }
+    });
+
+    $('div.thread-body a').each(function() {
+        $(this).attr('target', '_blank');
     });
 };
 $(ticket_onload);

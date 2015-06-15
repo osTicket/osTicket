@@ -1,5 +1,5 @@
 <div id="the-lookup-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -10,9 +10,9 @@ if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
     : __('Search existing users.');
 ?></p></div>
 <div style="margin-bottom:10px;">
-    <input type="text" class="search-input" style="width:100%;"
+    <input type="search" class="search-input" style="width:100%;"
     placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
-    autocorrect="off" autocomplete="off"/>
+    autofocus autocorrect="off" autocomplete="off"/>
 </div>
 <?php
 }
@@ -44,7 +44,7 @@ if ($user) { ?>
     <table style="margin-top: 1em;">
 <?php foreach ($user->getDynamicData() as $entry) { ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

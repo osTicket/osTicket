@@ -310,9 +310,15 @@ class RolePermission {
         return static::$_permissions;
     }
 
-    static function register($group, $perms) {
-        static::$_permissions[$group] = array_merge(
-                            static::$_permissions[$group] ?: array(), $perms);
+    static function register($group, $perms, $prepend=false) {
+        if ($prepend) {
+            static::$_permissions[$group] = array_merge(
+                $perms, static::$_permissions[$group] ?: array());
+        }
+        else {
+            static::$_permissions[$group] = array_merge(
+                static::$_permissions[$group] ?: array(), $perms);
+        }
     }
 }
 ?>

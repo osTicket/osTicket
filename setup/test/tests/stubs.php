@@ -37,6 +37,7 @@ class mysqli_result {
 class ReflectionClass {
     function getMethods() {}
     function getConstants() {}
+    function newInstanceArgs() {}
 }
 
 class DomNode {
@@ -53,8 +54,10 @@ class DomElement {
 }
 
 class DomDocument {
+    function getElementsByTagName() {}
     function loadHTML() {}
     function loadXML() {}
+    function saveHTML() {}
 }
 
 class Exception {
@@ -156,7 +159,19 @@ class ResourceBundle {
     function getLocales() {}
 }
 
+class NumberFormatter {
+    function getSymbol() {}
+}
+
 class Aws_Route53_Client {
     function changeResourceRecordSets() {}
+}
+
+class Memcache {
+    function addServer() {}
+    function pconnect() {}
+    function replace() {}
+    function set() {}
+    function get() {}
 }
 ?>

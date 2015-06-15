@@ -36,16 +36,19 @@ if($_REQUEST['id']) {
 }
 
 //Lookup user if id is available.
-if ($_REQUEST['uid'])
+if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-
+}
+elseif (@!isset($_REQUEST['advanced']) && @$_REQUEST['a'] != 'search' && !isset($_GET['status']) && isset($_SESSION['::Q'])) {
+    $_GET['status'] = $_REQUEST['status'] = $_SESSION['::Q'];
+}
 // Configure form for file uploads
-$response_form = new Form(array(
+$response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:response',
         'configuration' => array('extensions'=>'')))
 ));
-$note_form = new Form(array(
+$note_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:note',
         'configuration' => array('extensions'=>'')))
@@ -168,7 +171,7 @@ if($_POST && !$errors):
                      $errors['assignId'] = __('Select assignee');
                  elseif ($_POST['assignId'][0]!='s' && $_POST['assignId'][0]!='t' && !$claim)
                      $errors['assignId']= sprintf('%s - %s',
-                             __('Invalid assignee '),
+                             __('Invalid assignee'),
                              __('get technical support'));
                  elseif ($_POST['assignId'][0]!='s'
                          && $dept->assignMembersOnly()
@@ -182,14 +185,6 @@ if($_POST && !$errors):
                      elseif($_POST['assignId'][0]=='t' && $id==$ticket->getTeamId())
                          $errors['assignId']=__('Ticket already assigned to the team.');
                  }
-
-                 //Comments are not required on self-assignment (claim)
-                 if($claim && !$_POST['assign_comments'])
-                     $_POST['assign_comments'] = sprintf(__('Ticket claimed by %s'),$thisstaff->getName());
-                 elseif(!$_POST['assign_comments'])
-                     $errors['assign_comments'] = __('Assignment comments required');
-                 elseif(strlen($_POST['assign_comments'])<5)
-                         $errors['assign_comments'] = __('Comment too short');
 
                  if(!$errors && $ticket->assign($_POST['assignId'], $_POST['assign_comments'], !$claim)) {
                      if($claim) {
@@ -323,7 +318,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
+                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
@@ -334,7 +329,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if (!$role->hasPerm(EmailModel::PERM_BANLIST)) {
+                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');
@@ -363,8 +358,6 @@ if($_POST && !$errors):
         default:
             $errors['err']=__('Unknown action');
         endswitch;
-        if($ticket && is_object($ticket))
-            $ticket->reload();//Reload ticket info following post processing
     }elseif($_POST['a']) {
 
         switch($_POST['a']) {
@@ -480,7 +473,6 @@ if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
     $form = $search->getFormFromSession('advsearch');
-    $form->loadState($_SESSION['advsearch']);
     $tickets = TicketModel::objects();
     $tickets = $search->mangleQuerySet($tickets, $form);
     $count = $tickets->count();
@@ -535,10 +527,8 @@ if($ticket) {
         $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
-    if(!$_POST && !$_REQUEST['a'] && ($min=$thisstaff->getRefreshRate())) {
-        $js = "clearTimeout(window.ticket_refresh);
-               window.ticket_refresh = setTimeout($.refreshTicketView,"
-            .($min*60000).");";
+    if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {
+        $js = "+function(){ var qq = setInterval(function() { if ($.refreshTicketView === undefined) return; clearInterval(qq); $.refreshTicketView({$min}*60000); }, 200); }();";
         $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
             $js);
     }

@@ -147,20 +147,18 @@ class OrganizationCdata extends VerySimpleModel {
 }
 
 
-class Organization extends OrganizationModel {
+class Organization extends OrganizationModel
+implements TemplateVariable {
     var $_entries;
     var $_forms;
 
     function addDynamicData($data) {
+        $entry = $this->addForm(OrganizationForm::objects()->one(), 1, $data);
+        // FIXME: For some reason, the second save here is required or the
+        //        custom data is not properly saved
+        $entry->save();
 
-        $of = OrganizationForm::getInstance($this->id, true);
-        foreach ($of->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $of->setAnswer($f->get('name'), $data[$f->get('name')]);
-
-        $of->save();
-
-        return $of;
+        return $entry;
     }
 
     function getDynamicData($create=true) {
@@ -180,18 +178,18 @@ class Organization extends OrganizationModel {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
-            foreach ($this->getDynamicData() as $cd) {
-                $cd->addMissingFields();
+            foreach ($this->getDynamicData() as $entry) {
+                $entry->addMissingFields();
                 if(!$data
-                        && ($form = $cd->getForm())
+                        && ($form = $entry->getDynamicForm())
                         && $form->get('type') == 'O' ) {
-                    foreach ($cd->getFields() as $f) {
+                    foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
                             $f->value = $this->getName();
                     }
                 }
 
-                $this->_forms[] = $cd->getForm();
+                $this->_forms[] = $entry;
             }
         }
 
@@ -240,22 +238,22 @@ class Organization extends OrganizationModel {
         }
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'O');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function addForm($form, $sort=1, $data) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'O');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getForm()->get('type') != 'O')
+            if ($entry->getDynamicForm()->get('type') != 'O')
                 continue;
             $vars += $entry->getFilterData();
             // Add special `name` field
-            $f = $entry->getForm()->getField('name');
+            $f = $entry->getField('name');
             $vars['field.'.$f->get('id')] = $this->getName();
         }
         return $vars;
@@ -302,18 +300,39 @@ class Organization extends OrganizationModel {
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->users);
+        case 'manager':
+            return $this->getAccountManager();
+        case 'contacts':
+            return new UserList($this->users->filter(array(
+                'flags__hasbit' => User::PRIMARY_ORG_CONTACT
+            )));
+        }
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'contacts' => array('class' => 'UserList', 'desc' => __('Primary Contacts')),
+            'manager' => __('Account Manager'),
+            'members' => array('class' => 'UserList', 'desc' => __('Organization Members')),
+            'name' => __('Name'),
+        );
+        $extra = VariableReplacer::compileFormScope(OrganizationForm::getInstance());
+        return $base + $extra;
     }
 
     function update($vars, &$errors) {
 
         $valid = true;
         $forms = $this->getForms($vars);
-        foreach ($forms as $cd) {
-            if (!$cd->isValid())
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
                 $valid = false;
-            if ($cd->get('type') == 'O'
-                        && ($form= $cd->getForm($vars))
-                        && ($f=$form->getField('name'))
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
                         && $f->getClean()
                         && ($o=Organization::lookup(array('name'=>$f->getClean())))
                         && $o->id != $this->getId()) {
@@ -347,14 +366,16 @@ class Organization extends OrganizationModel {
         if (!$valid || $errors)
             return false;
 
-        foreach ($this->getDynamicData() as $cd) {
-            if (($f=$cd->getForm())
-                    && ($f->get('type') == 'O')
-                    && ($name = $f->getField('name'))) {
-                    $this->name = $name->getClean();
-                    $this->save();
-                }
-            $cd->save();
+        foreach ($this->getDynamicData() as $entry) {
+            if ($entry->getDynamicForm()->get('type') == 'O'
+               && ($name = $entry->getField('name'))
+            ) {
+                $this->name = $name->getClean();
+                $this->save();
+            }
+            $entry->setSource($vars);
+            if ($entry->save())
+                $this->updated = SqlFunction::NOW();
         }
 
         // Set flags
@@ -379,12 +400,23 @@ class Organization extends OrganizationModel {
             }
         }
 
-        // Send signal for search engine updating if not modifying the
-        // fields specific to the organization
-        if (count($this->dirty) === 0)
-            Signal::send('model.updated', $this);
-
         return $this->save();
+    }
+
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        // Remove users from this organization
+        User::objects()
+            ->filter(array('org' => $this))
+            ->update(array('org_id' => 0));
+
+        foreach ($this->getDynamicData(false) as $entry) {
+            if (!$entry->delete())
+                return false;
+        }
+        return true;
     }
 
     static function fromVars($vars) {
@@ -405,14 +437,15 @@ class Organization extends OrganizationModel {
 
     static function fromForm($form) {
 
-        if(!$form) return null;
+        if (!$form)
+            return null;
 
         //Validate the form
         $valid = true;
         if (!$form->isValid())
             $valid  = false;
 
-        //Make sure the email is not in-use
+        // Make sure the name is not in-use
         if (($field=$form->getField('name'))
                 && $field->getClean()
                 && Organization::lookup(array('name' => $field->getClean()))) {
@@ -458,9 +491,9 @@ class OrganizationForm extends DynamicForm {
         return static::$form;
     }
 
-    static function getInstance($object_id=0, $new=false) {
+    static function getInstance($object_id=0, $new=false, $data=null) {
         if ($new || !isset(static::$instance))
-            static::$instance = static::getDefaultForm()->instanciate();
+            static::$instance = static::getDefaultForm()->instanciate(1, $data);
 
         static::$instance->object_type = 'O';
 

@@ -32,7 +32,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <br/>
 
-<ul class="tabs" id="topic-tabs">
+<ul class="clean tabs" id="topic-tabs">
     <li class="active"><a href="#info"><i class="icon-info-sign"></i> Help Topic Information</a></li>
     <li><a href="#routing"><i class="icon-ticket"></i> New ticket options</a></li>
     <li><a href="#forms"><i class="icon-paste"></i> Forms</a></li>
@@ -54,7 +54,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="30" name="topic" value="<?php echo $info['topic']; ?>"
-                data-translate-tag="<?php echo $trans['name']; ?>"/>
+                autofocus data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['topic']; ?></span> <i class="help-tip icon-question-sign" href="#topic"></i>
             </td>
         </tr>
@@ -370,7 +370,7 @@ foreach ($forms as $F) {
             <th><?php echo __('Variable'); ?></th>
         </tr>
     <?php
-        foreach ($F->getFields() as $f) { ?>
+        foreach ($F->getDynamicFields() as $f) { ?>
         <tr>
             <td><input type="checkbox" name="fields[]" value="<?php
                 echo $f->get('id'); ?>" <?php
@@ -440,21 +440,20 @@ $(function() {
             }
         });
     });
-
+    $('table#topic-forms').sortable({
+      items: 'tbody',
+      handle: 'td.handle',
+      tolerance: 'pointer',
+      forcePlaceholderSize: true,
+      helper: function(e, ui) {
+        ui.children().each(function() {
+          $(this).children().each(function() {
+            $(this).width($(this).width());
+          });
+        });
+        ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
+        return ui;
+      }
+    }).disableSelection();
 });
-$('table#topic-forms').sortable({
-  items: 'tbody',
-  handle: 'td.handle',
-  tolerance: 'pointer',
-  forcePlaceholderSize: true,
-  helper: function(e, ui) {
-    ui.children().each(function() {
-      $(this).children().each(function() {
-        $(this).width($(this).width());
-      });
-    });
-    ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
-    return ui;
-  }
-}).disableSelection();
 </script>

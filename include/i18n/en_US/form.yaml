@@ -7,7 +7,8 @@
 # title:    Bold section title of the form
 # instructions: Title deck, detailed instructions on entering form data
 # notes:    Notes for the form, shown under the fields
-# deletable: True if the form can be removed from the system
+# flags:
+#   0x0001  If the form can be removed from the system
 # fields:   List of fields for the form
 #   type:       Field type (short name) (eg. 'text', 'memo', 'phone', ...)
 #   label:      Field label shown to the user
@@ -35,7 +36,7 @@
 - id: 1
   type: U # notrans
   title: Contact Information
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: email # notrans
@@ -75,7 +76,7 @@
       This form will be attached to every ticket, regardless of its source.
       You can add any fields to this form and they will be available to all
       tickets, and will be searchable with advanced search and filterable.
-  deletable: false
+  flags: 0
   fields:
     - id: 20
       type: text # notrans
@@ -102,7 +103,7 @@
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: name # notrans
@@ -140,7 +141,7 @@
 - type: O # notrans
   title: Organization Information
   instructions: Details on user organization
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: name # notrans
@@ -186,7 +187,7 @@
   instructions: Please Describe The Issue
   notes: |
       This form is used to create a task.
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: title # notrans

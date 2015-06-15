@@ -18,7 +18,36 @@ define('THIS_DIR', str_replace('\\', '/', Misc::realpath(dirname(__FILE__))) . '
 
 require_once(INCLUDE_DIR.'mpdf/mpdf.php');
 
-class Ticket2PDF extends mPDF
+class mPDFWithLocalImages extends mPDF {
+    function WriteHtml($html) {
+        static $filenumber = 1;
+        $args = func_get_args();
+        $self = $this;
+        $images = $cids = array();
+        // Try and get information for all the files in one query
+        if (preg_match_all('/"cid:([\w._-]{32})"/', $html, $cids)) {
+            foreach (AttachmentFile::objects()
+                ->filter(array('key__in' => $cids[1]))
+                as $file
+            ) {
+                $images[strtolower($file->getKey())] = $file;
+            }
+        }
+        $args[0] = preg_replace_callback('/"cid:([\w.-]{32})"/',
+            function($match) use ($self, $images, &$filenumber) {
+                if (!($file = @$images[strtolower($match[1])]))
+                    return $match[0];
+                $key = "__attached_file_".$filenumber++;
+                $self->{$key} = $file->getData();
+                return 'var:'.$key;
+            },
+            $html
+        );
+        return call_user_func_array(array('parent', 'WriteHtml'), $args);
+    }
+}
+
+class Ticket2PDF extends mPDFWithLocalImages
 {
 
 	var $includenotes = false;
@@ -42,24 +71,6 @@ class Ticket2PDF extends mPDF
         return $this->ticket;
     }
 
-    function WriteHtml() {
-        static $filenumber = 1;
-        $args = func_get_args();
-        $text = &$args[0];
-        $self = $this;
-        $text = preg_replace_callback('/cid:([\w.-]{32})/',
-            function($match) use ($self, &$filenumber) {
-                if (!($file = AttachmentFile::lookup($match[1])))
-                    return $match[0];
-                $key = "__attached_file_".$filenumber++;
-                $self->{$key} = $file->getData();
-                return 'var:'.$key;
-            },
-            $text
-        );
-        call_user_func_array(array('parent', 'WriteHtml'), $args);
-    }
-
     function _print() {
         global $thisstaff, $thisclient, $cfg;
 
@@ -78,4 +89,35 @@ class Ticket2PDF extends mPDF
         $this->WriteHtml($html, 0, true, true);
     }
 }
+
+
+// Task print
+class Task2PDF extends mPDFWithLocalImages {
+
+    var $options = array();
+    var $task = null;
+
+    function __construct($task, $options=array()) {
+
+        $this->task = $task;
+        $this->options = $options;
+
+        parent::__construct('', $this->options['psize']);
+        $this->_print();
+    }
+
+    function _print() {
+        global $thisstaff, $cfg;
+
+        if (!($task=$this->task) || !$thisstaff)
+            return;
+
+        ob_start();
+        include STAFFINC_DIR.'templates/task-print.tmpl.php';
+        $html = ob_get_clean();
+        $this->WriteHtml($html, 0, true, true);
+
+    }
+}
+
 ?>

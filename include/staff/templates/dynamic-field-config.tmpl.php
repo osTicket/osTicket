@@ -1,4 +1,4 @@
-    <h3><?php echo __('Field Configuration'); ?> &mdash; <?php echo $field->get('label') ?></h3>
+    <h3 class="drag-handle"><?php echo __('Field Configuration'); ?> &mdash; <?php echo $field->get('label') ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form method="post" action="#form/field-config/<?php

@@ -17,6 +17,7 @@
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
 require_once INCLUDE_DIR . 'class.organization.php';
+require_once INCLUDE_DIR . 'class.variable.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -38,7 +39,7 @@ class UserModel extends VerySimpleModel {
     static $meta = array(
         'table' => USER_TABLE,
         'pk' => array('id'),
-        'select_related' => array('default_email'),
+        'select_related' => array('default_email', 'org', 'account'),
         'joins' => array(
             'emails' => array(
                 'reverse' => 'UserEmailModel.user',
@@ -50,7 +51,7 @@ class UserModel extends VerySimpleModel {
             'account' => array(
                 'list' => false,
                 'null' => true,
-                'reverse' => 'UserAccount.user',
+                'reverse' => 'ClientAccount.user',
             ),
             'org' => array(
                 'null' => true,
@@ -122,6 +123,9 @@ class UserModel extends VerySimpleModel {
         return $this->default_email;
     }
 
+    function hasAccount() {
+        return !is_null($this->account);
+    }
     function getAccount() {
         return $this->account;
     }
@@ -188,12 +192,13 @@ class UserCdata extends VerySimpleModel {
     }
 }
 
-class User extends UserModel {
+class User extends UserModel
+implements TemplateVariable {
 
     var $_entries;
     var $_forms;
 
-    static function fromVars($vars, $create=true) {
+    static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
         if (!$user && $create) {
@@ -227,6 +232,10 @@ class User extends UserModel {
             }
             Signal::send('user.created', $user);
         }
+        elseif ($update) {
+            $errors = array();
+            $user->updateInfo($vars, $errors, true);
+        }
 
         return $user;
     }
@@ -256,7 +265,31 @@ class User extends UserModel {
     }
 
     function getEmail() {
-        return $this->default_email->address;
+        return new EmailAddress($this->default_email->address);
+    }
+    /**
+     * Get either a Gravatar URL or complete image tag for a specified email address.
+     *
+     * @param string $email The email address
+     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+     * @param boole $img True to return a complete IMG tag False for just the URL
+     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
+     * @return String containing either just a URL or a complete image tag
+     * @source http://gravatar.com/site/implement/images/php/
+     */
+    function get_gravatar($s = 80, $img = false, $atts = array(), $d = 'retro', $r = 'g' ) {
+        $url = '//www.gravatar.com/avatar/';
+        $url .= md5( strtolower( $this->default_email->address ) );
+        $url .= "?s=$s&d=$d&r=$r";
+        if ( $img ) {
+            $url = '<img src="' . $url . '"';
+            foreach ( $atts as $key => $val )
+                $url .= ' ' . $key . '="' . $val . '"';
+            $url .= ' />';
+        }
+        return $url;
     }
 
     function getFullName() {
@@ -274,7 +307,7 @@ class User extends UserModel {
             list($name) = explode('@', $this->getDefaultEmailAddress(), 2);
         else
             $name = $this->name;
-        return new PersonsName($name);
+        return new UsersName($name);
     }
 
     function getUpdateDate() {
@@ -285,12 +318,21 @@ class User extends UserModel {
         return $this->created;
     }
 
-    function addForm($form, $sort=1) {
-        $form = $form->instanciate();
-        $form->set('sort', $sort);
-        $form->set('object_type', 'U');
-        $form->set('object_id', $this->getId());
-        $form->save();
+    function getTimezone() {
+        global $cfg;
+
+        if (($acct = $this->getAccount()) && ($tz = $acct->getTimezone())) {
+            return $tz;
+        }
+        return $cfg->getDefaultTimezone();
+    }
+
+    function addForm($form, $sort=1, $data=null) {
+        $entry = $form->instanciate($sort, $data);
+        $entry->set('object_type', 'U');
+        $entry->set('object_id', $this->getId());
+        $entry->save();
+        return $entry;
     }
 
     function getLanguage($flags=false) {
@@ -327,15 +369,22 @@ class User extends UserModel {
                 return $a;
     }
 
-    function addDynamicData($data) {
-        $uf = UserForm::getNewInstance();
-        $uf->setClientId($this->id);
-        foreach ($uf->getFields() as $f)
-            if (isset($data[$f->get('name')]))
-                $uf->setAnswer($f->get('name'), $data[$f->get('name')]);
-        $uf->save();
+    static function getVarScope() {
+        $base = array(
+            'email' => array(
+                'class' => 'EmailAddress', 'desc' => __('Default email address')
+            ),
+            'name' => array(
+                'class' => 'PersonsName', 'desc' => 'User name, default format'
+            ),
+            'organization' => array('class' => 'Organization', 'desc' => __('Organization')),
+        );
+        $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
+        return $base + $extra;
+    }
 
-        return $uf;
+    function addDynamicData($data) {
+        return $this->addForm(UserForm::objects()->one(), 1, $data);
     }
 
     function getDynamicData($create=true) {
@@ -355,12 +404,12 @@ class User extends UserModel {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getForm()->get('type') != 'U')
+            if ($entry->getDynamicForm()->get('type') != 'U')
                 continue;
             $vars += $entry->getFilterData();
             // Add in special `name` and `email` fields
             foreach (array('name', 'email') as $name) {
-                if ($f = $entry->getForm()->getField($name))
+                if ($f = $entry->getField($name))
                     $vars['field.'.$f->get('id')] =
                         $name == 'name' ? $this->getName() : $this->getEmail();
             }
@@ -372,12 +421,12 @@ class User extends UserModel {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
-            foreach ($this->getDynamicData() as $cd) {
-                $cd->addMissingFields();
+            foreach ($this->getDynamicData() as $entry) {
+                $entry->addMissingFields();
                 if(!$data
-                        && ($form = $cd->getForm())
+                        && ($form = $entry->getDynamicForm())
                         && $form->get('type') == 'U' ) {
-                    foreach ($cd->getFields() as $f) {
+                    foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
                             $f->value = $this->getFullName();
                         elseif ($f->get('name') == 'email')
@@ -385,7 +434,7 @@ class User extends UserModel {
                     }
                 }
 
-                $this->_forms[] = $cd;
+                $this->_forms[] = $entry;
             }
         }
 
@@ -513,7 +562,7 @@ class User extends UserModel {
         $error = false;
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars)) {
+            if (!static::fromVars($vars, true, true)) {
                 $error = sprintf(__('Unable to import user: %s'),
                     print_r($vars, true));
                 break;
@@ -549,13 +598,13 @@ class User extends UserModel {
 
         $valid = true;
         $forms = $this->getForms($vars);
-        foreach ($forms as $cd) {
-            $cd->setSource($vars);
-            if ($staff && !$cd->isValidForStaff())
+        foreach ($forms as $entry) {
+            $entry->setSource($vars);
+            if ($staff && !$entry->isValidForStaff())
                 $valid = false;
-            elseif (!$staff && !$cd->isValidForClient())
+            elseif (!$staff && !$entry->isValidForClient())
                 $valid = false;
-            elseif (($form= $cd->getForm())
+            elseif (($form= $entry->getDynamicForm())
                         && $form->get('type') == 'U'
                         && ($f=$form->getField('email'))
                         && $f->getClean()
@@ -569,11 +618,10 @@ class User extends UserModel {
         if (!$valid)
             return false;
 
-        foreach ($forms as $cd) {
-            if (($f=$cd->getForm()) && $f->get('type') == 'U') {
+        foreach ($forms as $entry) {
+            if (($f=$entry->getDynamicForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
                     $this->name = $name->getClean();
-                    $this->save();
                 }
 
                 if (($email = $f->getField('email'))) {
@@ -581,10 +629,12 @@ class User extends UserModel {
                     $this->default_email->save();
                 }
             }
-            $cd->save();
+            // DynamicFormEntry::save returns the number of answers updated
+            if ($entry->save()) {
+                $this->updated = SqlFunction::NOW();
+            }
         }
-
-        return true;
+        return $this->save();
     }
 
     function save($refetch=false) {
@@ -631,12 +681,24 @@ class User extends UserModel {
         $this->emails->expunge();
 
         // Drop dynamic data
-        foreach ($this->getDynamicData() as $cd) {
-            $cd->delete();
+        foreach ($this->getDynamicData() as $entry) {
+            $entry->delete();
         }
 
         // Delete user
         return parent::delete();
+    }
+
+    function deleteAllTickets() {
+        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        foreach($this->tickets as $ticket) {
+            if (!$T = Ticket::lookup($ticket->getId()))
+                continue;
+            if (!$T->setStatus($deleted))
+                return false;
+        }
+        $this->tickets->reset();
+        return true;
     }
 
     static function lookupByEmail($email) {
@@ -644,7 +706,49 @@ class User extends UserModel {
     }
 }
 
-class PersonsName {
+class EmailAddress
+implements TemplateVariable {
+    var $address;
+
+    function __construct($address) {
+        $this->address = $address;
+    }
+
+    function __toString() {
+        return $this->address;
+    }
+
+    function getVar($what) {
+        require_once PEAR_DIR . 'Mail/RFC822.php';
+        require_once PEAR_DIR . 'PEAR.php';
+        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
+            return '';
+
+        if (count($mails) > 1)
+            return '';
+
+        $info = $mails[0];
+        switch ($what) {
+        case 'domain':
+            return $info->host;
+        case 'personal':
+            return trim($info->personal, '"');
+        case 'mailbox':
+            return $info->mailbox;
+        }
+    }
+
+    static function getVarScope() {
+        return array(
+            'domain' => __('Domain'),
+            'mailbox' => __('Mailbox'),
+            'personal' => __('Personal name'),
+        );
+    }
+}
+
+class PersonsName
+implements TemplateVariable {
     var $format;
     var $parts;
     var $name;
@@ -665,10 +769,10 @@ class PersonsName {
     function __construct($name, $format=null) {
         global $cfg;
 
-        if ($format && !isset(static::$formats[$format]))
+        if ($format && isset(static::$formats[$format]))
             $this->format = $format;
-        elseif($cfg)
-            $this->format = $cfg->getDefaultNameFormat();
+        else
+            $this->format = 'original';
 
         if (!is_array($name)) {
             $this->parts = static::splitName($name);
@@ -763,6 +867,16 @@ class PersonsName {
         return $this->__toString();
     }
 
+    static function getVarScope() {
+        $formats = array();
+        foreach (static::$formats as $name=>$info) {
+            if (in_array($name, array('original', 'complete')))
+                continue;
+            $formats[$name] = $info[0];
+        }
+        return $formats;
+    }
+
     function __toString() {
 
         @list(, $func) = static::$formats[$this->format];
@@ -835,6 +949,28 @@ class PersonsName {
     }
 
 }
+
+class AgentsName extends PersonsName {
+    function __construct($name, $format=null) {
+        global $cfg;
+
+        if (!$format && $cfg)
+            $format = $cfg->getAgentNameFormat();
+
+        parent::__construct($name, $format);
+    }
+}
+
+class UsersName extends PersonsName {
+    function __construct($name, $format=null) {
+        global $cfg;
+        if (!$format && $cfg)
+            $format = $cfg->getClientNameFormat();
+
+        parent::__construct($name, $format);
+    }
+}
+
 
 class UserEmail extends UserEmailModel {
     static function ensure($address) {
@@ -933,7 +1069,13 @@ class UserAccountModel extends VerySimpleModel {
     }
 
     function getUser() {
-        $this->user->set('account', $this);
+        // FIXME: The ORM will expect a ClientAccount instance as the
+        // User.account relationship is defined thusly; however, $this is an
+        // instance of UserAccount. Therefore we will (cast) to a
+        // ClientAccount instance first. This could be better rectified by
+        // collapsing UserAccount into ClientAccount.
+        $acct = new ClientAccount($this->ht);
+        $this->user->set('account', $acct);
         return $this->user;
     }
 
@@ -976,6 +1118,10 @@ class UserAccountModel extends VerySimpleModel {
             $lang = $this->getExtraAttr('browser_lang', false);
 
         return $lang;
+    }
+
+    function getTimezone() {
+        return $this->timezone;
     }
 
     function save($refetch=false) {
@@ -1222,17 +1368,47 @@ class UserAccountStatus {
 /*
  *  Generic user list.
  */
-class UserList extends ListObject {
+class UserList extends ListObject
+implements TemplateVariable {
 
     function __toString() {
+        return $this->getNames();
+    }
 
+    function getNames() {
         $list = array();
         foreach($this->storage as $user) {
             if (is_object($user))
                 $list [] = $user->getName();
         }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    function getFull() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
+        }
 
         return $list ? implode(', ', $list) : '';
+    }
+
+    function getEmails() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = $user->getEmail();
+        }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    static function getVarScope() {
+        return array(
+            'names' => __('List of names'),
+            'emails' => __('List of email addresses'),
+            'full' => __('List of names and email addresses'),
+        );
     }
 }
 ?>

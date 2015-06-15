@@ -66,7 +66,7 @@ class Internationalization {
             'role.yaml' =>          'Role::__create',
             // Note that group requires department
             'group.yaml' =>         'Group::__create',
-            'file.yaml' =>          'AttachmentFile::create',
+            'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
         );
 
@@ -129,7 +129,6 @@ class Internationalization {
             $sql = 'INSERT INTO '.PAGE_TABLE.' SET type='.db_input($type)
                 .', name='.db_input($page['name'])
                 .', body='.db_input($page['body'])
-                .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
             if (db_query($sql) && ($id = db_insert_id())
@@ -139,19 +138,14 @@ class Internationalization {
         // Default Language
         $_config->set('system_language', $this->langs[0]);
 
-        // content_id defaults to the `id` field value
-        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
-
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
-                if (($id = Canned::create($c, $errors))
-                        && isset($c['attachments'])) {
-                    $premade = Canned::lookup($id);
-                    foreach ($c['attachments'] as $a) {
-                        $premade->attachments->save($a, false);
-                    }
+                if (!($premade = Canned::create($c)) || !$premade->save())
+                    continue;
+                if (isset($c['attachments'])) {
+                    $premade->attachments->upload($c['attachments']);
                 }
             }
         }
@@ -255,18 +249,28 @@ class Internationalization {
         return isset($langs[strtolower($code)]);
     }
 
+    static function isLanguageEnabled($code) {
+        $langs = self::getConfiguredSystemLanguages();
+        return isset($langs[$code]);
+    }
+
     static function getConfiguredSystemLanguages() {
         global $cfg;
+        static $langs;
 
         if (!$cfg)
             return self::availableLanguages();
 
-        $pri = $cfg->getPrimaryLanguage();
-        $langs = array($pri => self::getLanguageInfo($pri));
+        if (!isset($langs)) {
+            $pri = $cfg->getPrimaryLanguage();
+            if ($info = self::getLanguageInfo($pri))
+                $langs = array($pri => $info);
 
-        // Honor sorting preference of ::availableLanguages()
-        foreach ($cfg->getSecondaryLanguages() as $l) {
-            $langs[$l] = self::getLanguageInfo($l);
+            // Honor sorting preference of ::availableLanguages()
+            foreach ($cfg->getSecondaryLanguages() as $l) {
+                if ($info = self::getLanguageInfo($l))
+                    $langs[$l] = $info;
+            }
         }
         return $langs;
     }
@@ -276,6 +280,10 @@ class Internationalization {
     // Algorithm borrowed from Drupal 7 (locale.inc)
     static function getDefaultLanguage() {
         global $cfg;
+        static $lang;
+
+        if (isset($lang))
+            return $lang;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
             return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
@@ -354,39 +362,37 @@ class Internationalization {
           }
         }
 
-        if (self::isLanguageInstalled($best_match_langcode))
-            return $best_match_langcode;
-        else
-            return $cfg->getPrimaryLanguage();
+        return $lang = self::isLanguageInstalled($best_match_langcode)
+            ? $best_match_langcode
+            : $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {
         global $thisstaff, $thisclient;
-        static $session = null;
-
-        if (!isset($session))
-            $session = &$_SESSION['::lang'];
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
-            if ($lang = $user->getLanguage())
+            if (($lang = $user->getLanguage()) && self::isLanguageEnabled($lang))
                 return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && $session)
-            return $session;
+        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+            return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
     }
 
-    static function getCurrentLocale() {
+    static function getCurrentLocale($user=false) {
         global $thisstaff, $cfg;
 
+        if ($user) {
+            return self::getCurrentLanguage($user);
+        }
         // FIXME: Move this majic elsewhere - see upgrade bug note in
         // class.staff.php
         if ($thisstaff) {
             return $thisstaff->getLocale()
-                ?: self::getCurrentLanguage();
+                ?: self::getCurrentLanguage($thisstaff);
         }
 
         if (!($locale = $cfg->getDefaultLocale()))
@@ -395,6 +401,15 @@ class Internationalization {
         return $locale;
     }
 
+    static function rfc1766($what) {
+        if (is_array($what))
+            return array_map(array(get_called_class(), 'rfc1766'), $what);
+
+        $lr = explode('_', $what);
+        if (isset($lr[1]))
+            $lr[1] = strtoupper($lr[1]);
+        return implode('-', $lr);
+    }
 
     static function getTtfFonts() {
         if (!class_exists('Phar'))

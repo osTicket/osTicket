@@ -1,0 +1,31 @@
+#
+# Email template: task.transfer.alert.yaml
+#
+# Sent to agents when a task is transfered to their department.
+#
+---
+notes: |
+    Sent to agents when a task is transfered to a department to which
+    they are a member.
+subject: |
+    Task #%{task.number} transfer - %{task.dept.name}
+body: |
+    <h3>Hi %{recipient.name},</h3>
+    Task <a href="%{task.staff_link}">#%{task.number}</a> has been
+    transferred to the %{task.dept.name} department by
+    <strong>%{staff.name.short}</strong>
+    <br>
+    <br>
+    <blockquote>
+        %{comments}
+    </blockquote>
+    <hr>
+    <div>To view or respond to the task, please <a
+    href="%{task.staff_link}">login</a> to the support system.
+    </div>
+    <em style="font-size: small; ">Your friendly Customer Support
+    System</em>
+    <br>
+    <a href="http://osticket.com/"><img width="126" height="19"
+        alt="Powered By osTicket" style="width: 126px;"
+        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>

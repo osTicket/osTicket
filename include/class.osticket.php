@@ -145,6 +145,13 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
+    static function getVarScope() {
+        return array(
+            'url' => __("osTicket's base url (FQDN)"),
+            'company' => array('class' => 'Company', 'desc' => __('Company Information')),
+        );
+    }
+
     function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
         $this->pjax_extra[md5($header)] = $pjax_script;
@@ -263,6 +270,10 @@ class osTicket {
             $e->getTraceAsString());
         $error .= nl2br("\n\n---- "._S('Backtrace')." ----\n".$bt);
 
+        // Prevent recursive loops through this code path
+        if (substr_count($bt, __FUNCTION__) > 1)
+            return;
+
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
 
@@ -302,7 +313,8 @@ class osTicket {
             return false;
 
         //Alert admin if enabled...
-        if($alert && $this->getConfig()->getLogLevel() >= $level)
+        $alert = $alert && !$this->isUpgradePending();
+        if ($alert && $this->getConfig()->getLogLevel() >= $level)
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.

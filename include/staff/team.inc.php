@@ -31,7 +31,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <i class="help-tip icon-question-sign" href="#teams"></i>
     </h2>
 <br>
-<ul class="tabs">
+<ul class="clean tabs">
     <li class="active"><a href="#team">
         <i class="icon-file"></i> <?php echo __('Team'); ?></a></li>
     <?php
@@ -58,7 +58,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
             <td>
                 <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
-                data-translate-tag="<?php echo $trans['name']; ?>"/>
+                    autofocus data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
             </td>
         </tr>

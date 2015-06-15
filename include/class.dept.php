@@ -14,7 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Dept extends VerySimpleModel {
+class Dept extends VerySimpleModel
+implements TemplateVariable {
 
     static $meta = array(
         'table' => DEPT_TABLE,
@@ -25,7 +26,7 @@ class Dept extends VerySimpleModel {
                 'null' => true,
             ),
             'email' => array(
-                'constraint' => array('email_id' => 'EmailModel.email_id'),
+                'constraint' => array('email_id' => 'Email.email_id'),
                 'null' => true,
              ),
             'sla' => array(
@@ -54,21 +55,36 @@ class Dept extends VerySimpleModel {
     var $config;
 
     var $template;
-    var $email;
     var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
     const ALERTS_DEPT_AND_GROUPS = 1;
     const ALERTS_DEPT_ONLY = 0;
 
-    function getConfig() {
-        if (!isset($this->config))
-            $this->config = new Config('dept.'. $this->getId());
-        return $this->config;
-    }
+    const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
 
     function asVar() {
         return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'name' => 'Department name',
+            'manager' => array(
+                'class' => 'Staff', 'desc' => 'Department manager',
+                'exclude' => 'dept',
+            ),
+            'members' => array(
+                'class' => 'UserList', 'desc' => 'Department members',
+            ),
+            'parent' => array(
+                'class' => 'Dept', 'desc' => 'Parent department',
+            ),
+            'sla' => array(
+                'class' => 'SLA', 'desc' => 'Service Level Agreement',
+            ),
+            'signature' => 'Department signature',
+        );
     }
 
     function getId() {
@@ -111,13 +127,10 @@ class Dept extends VerySimpleModel {
     function getAlertEmail() {
         global $cfg;
 
-        if (!$this->email && ($id = $this->getEmailId())) {
-            $this->email = Email::lookup($id);
-        }
-        if (!$this->email && $cfg) {
-            $this->email = $cfg->getAlertEmail();
-        }
-        return $this->email;
+        if ($this->email)
+            return $this->email;
+
+        return $cfg ? $cfg->getDefaultEmail() : null;
     }
 
     function getEmail() {
@@ -134,8 +147,11 @@ class Dept extends VerySimpleModel {
     }
 
     function getMembers($criteria=null) {
+        global $cfg;
+
         if (!$this->_members || $criteria) {
             $members = Staff::objects()
+                ->distinct('staff_id')
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
@@ -152,14 +168,24 @@ class Dept extends VerySimpleModel {
                     'onvacation' => 0,
                 ));
 
-            $members->order_by('lastname', 'firstname');
+            $members->distinct('staff_id');
+            switch ($cfg->getAgentNameFormat()) {
+            case 'last':
+            case 'lastfirst':
+            case 'legal':
+                $members->order_by('lastname', 'firstname');
+                break;
+
+            default:
+                $members->order_by('firstname', 'lastname');
+            }
 
             if ($criteria)
                 return $members->all();
 
             $this->_members = $members->all();
         }
-        return $this->_members;
+        return new UserList($this->_members);
     }
 
     function getAvailableMembers() {
@@ -267,7 +293,7 @@ class Dept extends VerySimpleModel {
     }
 
     function assignMembersOnly() {
-        return $this->getConfig()->get('assign_members_only', 0);
+        return $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
     }
 
     function isGroupMembershipEnabled() {
@@ -280,11 +306,12 @@ class Dept extends VerySimpleModel {
             foreach (static::$meta['joins'] as $k => $v)
                 unset($ht[$k]);
 
+        $ht['assign_members_only'] = $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
         return $ht;
     }
 
     function getInfo() {
-        return $this->getConfig()->getInfo() + $this->getHashtable();
+        return $this->getHashtable();
     }
 
     function getAllowedGroups() {
@@ -334,7 +361,6 @@ class Dept extends VerySimpleModel {
 
     function updateSettings($vars) {
         $this->updateGroups($vars['groups'] ?: array(), $vars);
-        $this->getConfig()->set('assign_members_only', $vars['assign_members_only']);
         $this->path = $this->getFullPath();
         $this->save();
         return true;
@@ -352,10 +378,8 @@ class Dept extends VerySimpleModel {
             return 0;
         }
 
-        parent::delete();
         $id = $this->getId();
-        $sql='DELETE FROM '.DEPT_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())) {
+        if (parent::delete()) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
             db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
@@ -369,12 +393,9 @@ class Dept extends VerySimpleModel {
 
             //Delete group access
             db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
-
-            // Destrory config settings
-            $this->getConfig()->destroy();
         }
 
-        return $num;
+        return true;
     }
 
     function __toString() {
@@ -568,6 +589,7 @@ class Dept extends VerySimpleModel {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
+        $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
 
         if ($this->save())
             return $this->updateSettings($vars);

@@ -10,7 +10,7 @@ $action = $info['action'] ?: ('#tasks/'.$task->getId().'/edit');
 
 ?>
 <div id="task-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php

@@ -82,7 +82,7 @@ class Mailer {
     function addAttachment(Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$attachment->file_id] = $attachment->file;
+        $this->attachments[$attachment->file_id] = $attachment;
     }
 
     function addFile(AttachmentFile $file) {
@@ -209,6 +209,7 @@ class Mailer {
         if (count($parts) < 2)
             return $rv;
 
+        $self = get_called_class();
         $decoders = array(
         'A' => function($id, $tag) use ($sig) {
             // Old format was VA-B-C-D@sig, where C was the packed tag and D
@@ -221,11 +222,11 @@ class Mailer {
             }
             return false;
         },
-        'B' => function($id, $tag) {
+        'B' => function($id, $tag) use ($self) {
             $format = 'Vuid/VentryId/VthreadId/auserClass/a*sig';
             if ($tag && ($tag = base64_decode($tag))) {
                 $info = unpack($format, $tag);
-                $sysid = static::getSystemMessageIdCode();
+                $sysid = $self::getSystemMessageIdCode();
                 $shorttag = substr($tag, 0, 13);
                 $chksig = substr(hash_hmac('sha1', $shorttag.$id.$sysid,
                     SECRET_SALT, true), -5);
@@ -353,19 +354,20 @@ class Mailer {
         if (isset($options['thread'])
             && $options['thread'] instanceof ThreadEntry
         ) {
-            if ($references = $options['thread']->getEmailReferences())
-                $headers += array('References' => $references);
             if ($irt = $options['thread']->getEmailMessageId()) {
                 // This is an response from an email, like and autoresponse.
                 // Web posts will not have a email message-id
-                $headers += array('In-Reply-To' => $irt);
+                $headers += array(
+                    'In-Reply-To' => $irt,
+                    'References' => $options['thread']->getEmailReferences()
+                );
             }
-            elseif ($parent = $options['thread']->getParent()) {
+            elseif ($original = $options['thread']->findOriginalEmailMessage()) {
                 // Use the parent item as the email information source. This
                 // will apply for staff replies
                 $headers += array(
-                    'In-Reply-To' => $parent->getEmailMessageId(),
-                    'References' => $parent->getEmailReferences(),
+                    'In-Reply-To' => $original->getEmailMessageId(),
+                    'References' => $original->getEmailReferences(),
                 );
             }
 
@@ -385,6 +387,17 @@ class Mailer {
         }
         $mime = new Mail_mime($eol);
 
+        // Add in extra attachments, if any from template variables
+        if ($message instanceof TextWithExtras
+            && ($files = $message->getFiles())
+        ) {
+            foreach ($files as $F) {
+                $file = $F->getFile();
+                $mime->addAttachment($file->getData(),
+                    $file->getType(), $file->getName(), false);
+            }
+        }
+
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text
         // body
@@ -394,7 +407,7 @@ class Mailer {
             // in a response
             if ($reply_tag || $mid_token) {
                 $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$reply_tag</div>$message";
+                    class=\"mid-$mid_token\">$reply_tag</div>$message";
             }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($messageId ? "\nRef-Mid: $messageId\n" : '');
@@ -405,7 +418,7 @@ class Mailer {
             $isHtml = false;
         }
 
-        if ($isHtml && $cfg && $cfg->isHtmlThreadEnabled()) {
+        if ($isHtml && $cfg && $cfg->isRichTextEnabled()) {
             // Pick a domain compatible with pear Mail_Mime
             $matches = array();
             if (preg_match('#(@[0-9a-zA-Z\-\.]+)#', $this->getFromAddress(), $matches)) {
@@ -420,6 +433,8 @@ class Mailer {
                 function($match) use ($domain, $mime, $self) {
                     $file = false;
                     foreach ($self->attachments as $id=>$F) {
+                        if ($F instanceof Attachment)
+                            $F = $F->getFile();
                         if (strcasecmp($F->getKey(), $match[1]) === 0) {
                             $file = $F;
                             break;
@@ -440,8 +455,16 @@ class Mailer {
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
             foreach($attachments as $id=>$file) {
+                // Read the filename from the Attachment if possible
+                if ($file instanceof Attachment) {
+                    $filename = $file->getFilename();
+                    $file = $file->getFile();
+                }
+                else {
+                    $filename = $file->getName();
+                }
                 $mime->addAttachment($file->getData(),
-                    $file->getType(), $file->getName(),false);
+                    $file->getType(), $filename, false);
             }
         }
 
@@ -497,6 +520,8 @@ class Mailer {
 
         //No SMTP or it failed....use php's native mail function.
         $mail = mail::factory('mail');
+        // Ensure the To: header is properly encoded.
+        $to = $headers['To'];
         return PEAR::isError($mail->send($to, $headers, $body))?false:$messageId;
 
     }

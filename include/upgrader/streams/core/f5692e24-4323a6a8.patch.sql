@@ -69,11 +69,7 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
 -- Add `content_id` to the content table to allow for translations
 RENAME TABLE `%TABLE_PREFIX%page` TO `%TABLE_PREFIX%content`;
 ALTER TABLE `%TABLE_PREFIX%content`
-  CHANGE `type` `type` varchar(32) NOT NULL default 'other',
-  ADD `content_id` int(10) unsigned NOT NULL default 0 AFTER `id`;
-
-UPDATE `%TABLE_PREFIX%content`
-  SET `content_id` = `id`;
+  CHANGE `type` `type` varchar(32) NOT NULL default 'other';
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user_account`;
 CREATE TABLE `%TABLE_PREFIX%user_account` (

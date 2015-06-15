@@ -2,40 +2,41 @@
   <div class="col-xs-12 col-sm-8">
     <?php
     $categories = Category::objects()
-      ->exclude(Q::any(array('ispublic'=>false, 'faqs__ispublished'=>false)))
-      ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
-      ->filter(array('faq_count__gt'=>0));
-      if ($categories->all()) { ?>
+        ->exclude(Q::any(array(
+            'ispublic'=>Category::VISIBILITY_PRIVATE,
+            'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+        )))
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
+        ->filter(array('faq_count__gt'=>0));
+    if ($categories->exists(true)) { ?>
         <h2><?php echo __('Click on the category to browse FAQs.'); ?></h2>
         <div class="row">
-          <div class="col-xs-12">
-            <?php
-            foreach ($categories as $C) { ?>
-              <h3>
-                <?php echo sprintf('<a href="faq.php?cid=%d">%s</a>',
-                $C->getId(), Format::htmlchars($C->getLocalName())); ?>
-              </h3>
-              <div class="list-group">
-                <div class="list-group-item text-muted">
-                  <?php echo Format::safe_html($C->getLocalDescriptionWithImages()); ?>
-                  <span class="badge"><?php echo $C->faq_count; ?></span>
+            <div class="col-xs-12">
+<?php
+        foreach ($categories as $C) { ?>
+            <h3><?php echo sprintf('<a href="faq.php?cid=%d">%s (%d)</a>',
+                $C->getId(), Format::htmlchars($C->getLocalName()); ?> </h3>
+            <div class="list-group">
+                <div class="listg-group-item text-muted">
+                    <?php echo Format::safe_html($C->getLocalDescriptionWithImages()); ?>
+                    <span class="badge"><?php echo $C->faq_count; ?></span>
                 </div>
-                <?php
-                foreach ($C->faqs
-                  ->exclude(array('ispublished'=>false))
-                  ->order_by('-views')->limit(5) as $F) { ?>
+<?php           foreach ($C->faqs
+                        ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
+                        ->order_by('-views')->limit(5) as $F) { ?>
                     <div class="list-group-item">
-                      <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                      <a href="faq.php?id=<?php echo $F->getId(); ?>">
-                        <?php echo $F->getLocalQuestion() ?: $F->getQuestion(); ?>
-                      </a>
+                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                        <a href="faq.php?id=<?php echo $F->getId(); ?>">
+                            <?php echo $F->getLocalQuestion() ?: $F->getQuestion(); ?>
+                        </a>
                     </div>
-                <?php } ?>
-              </div>
-            <?php } ?>
-          </div>
+<?php           } ?>
+            </div>
+<?php   } ?>
+            </div>
         </div>
-      <?php } else {
+<?php
+    } else {
         echo __('NO FAQs found');
       } ?>
   </div>

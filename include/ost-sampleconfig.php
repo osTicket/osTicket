@@ -106,4 +106,24 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 # ROOT_PATH *must* end with a forward-slash!
 
 # define('ROOT_PATH', '/support/');
+
+#
+# Session Storage Options
+# ---------------------------------------------------
+# Option: SESSION_BACKEND (default: db)
+#
+# osTicket supports Memcache as a session storage backend if the `memcache`
+# pecl extesion is installed. This also requires MEMCACHE_SERVERS to be
+# configured as well.
+#
+# MEMCACHE_SERVERS can be defined as a comma-separated list of host:port
+# specifications. If more than one server is listed, the session is written
+# to all of the servers for redundancy.
+#
+# Values: 'db' (default)
+#         'memcache' (Use Memcache servers)
+#         'system' (use PHP settings as configured (not recommended!))
+#
+# define('SESSION_BACKEND', 'memcache');
+# define('MEMCACHE_SERVERS', 'server1:11211,server2:11211');
 ?>

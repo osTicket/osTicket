@@ -39,14 +39,14 @@ class ConfigAjaxAPI extends AjaxController {
 
         $config=array(
               'lock_time'       => ($cfg->getLockTime()*3600),
-              'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+              'html_thread'     => (bool) $cfg->isRichTextEnabled(),
               'date_format'     => $cfg->getDateFormat(true),
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
               'lang_flag'       => strtolower($info['flag'] ?: $locale ?: $sl),
               'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
-              'primary_language' => $primary,
+              'primary_language' => Internationalization::rfc1766($primary),
               'secondary_languages' => $cfg->getSecondaryLanguages(),
               'page_size'       => $thisstaff->getPageLimit(),
         );
@@ -66,11 +66,11 @@ class ConfigAjaxAPI extends AjaxController {
         }
 
         $config=array(
-            'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+            'html_thread'     => (bool) $cfg->isRichTextEnabled(),
             'lang'            => $lang,
             'short_lang'      => $sl,
             'has_rtl'         => $rtl,
-            'primary_language' => $cfg->getPrimaryLanguage(),
+            'primary_language' => Internationalization::rfc1766($cfg->getPrimaryLanguage()),
             'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
 
@@ -96,6 +96,36 @@ class ConfigAjaxAPI extends AjaxController {
         header('Content-Type: application/json; charset=UTF-8');
 
         return $links;
+    }
+
+    /**
+     * Ajax: GET /config/date-format?format=<format>
+     *
+     * Formats the user's current date and time according to the given
+     * format in INTL codes.
+     *
+     * Get-Arguments:
+     * format - (string) format string used to format the current date and
+     *      time (from the user's perspective)
+     *
+     * Returns:
+     * (string) Current sequence number, optionally formatted
+     *
+     * Throws:
+     * 403 - Not logged in
+     * 400 - ?format missing
+     */
+    function dateFormat() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!isset($_GET['format']))
+            Http::response(400, '?format is required');
+
+        return Format::htmlchars(Format::__formatDate(
+            Misc::gmtime(), $_GET['format'], false, null, null, '', 'UTC'
+        ));
     }
 }
 ?>

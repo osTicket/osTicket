@@ -24,7 +24,7 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser, EmailContact {
+implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     static $meta = array(
         'table' => STAFF_TABLE,
@@ -40,8 +40,6 @@ implements AuthenticatedUser, EmailContact {
                 'constraint' => array('group_id' => 'Group.id'),
             ),
             'teams' => array(
-                'null' => true,
-                'list' => true,
                 'reverse' => 'TeamMember.staff',
             ),
         ),
@@ -49,7 +47,6 @@ implements AuthenticatedUser, EmailContact {
 
     var $authkey;
     var $departments;
-    var $timezone;
     var $stats = array();
     var $_extra;
     var $passwd_change;
@@ -78,6 +75,30 @@ implements AuthenticatedUser, EmailContact {
         return $this->__toString();
     }
 
+    static function getVarScope() {
+      return array(
+        'dept' => array('class' => 'Dept', 'desc' => __('Department')),
+        'email' => __('Email Address'),
+        'name' => array(
+          'class' => 'PersonsName', 'desc' => __('Agent name'),
+        ),
+        'mobile' => __('Mobile Number'),
+        'phone' => __('Phone Number'),
+        'signature' => __('Signature'),
+        'timezone' => "Agent's configured timezone",
+        'username' => 'Access username',
+      );
+    }
+
+    function getVar($tag) {
+        switch ($tag) {
+        case 'mobile':
+            return Format::phone($this->ht['mobile']);
+        case 'phone':
+            return Format::phone($this->ht['phone']);
+        }
+    }
+
     function getHashtable() {
         $base = $this->ht;
         $base['group'] = $base['group_id'];
@@ -96,8 +117,14 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getAuthBackend() {
-        list($authkey, ) = explode(':', $this->getAuthKey());
-        return StaffAuthenticationBackend::getBackend($authkey);
+        list($bk, ) = explode(':', $this->getAuthKey());
+
+        // If administering a user other than yourself, fallback to the
+        // agent's declared backend, if any
+        if (!$bk && $this->backend)
+            $bk = $this->backend;
+
+        return StaffAuthenticationBackend::getBackend($bk);
     }
 
     function setAuthKey($key) {
@@ -157,6 +184,34 @@ implements AuthenticatedUser, EmailContact {
                     && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
     }
 
+    function setPassword($new, $current=false) {
+        // Allow the backend to update the password. This is the preferred
+        // method as it allows for integration with password policies and
+        // also allows for remotely updating the password where possible and
+        // supported.
+        if (!($bk = $this->getAuthBackend())
+            || !$bk instanceof AuthBackend
+        ) {
+            // Fallback to osTicket authentication token udpates
+            $bk = new osTicketAuthentication();
+        }
+
+        // And now for the magic
+        if (!$bk->supportsPasswordChange()) {
+            throw new PasswordUpdateFailed(
+                __('Authentication backend does not support password updates'));
+        }
+        // Backend should throw PasswordUpdateFailed directly
+        $rv = $bk->setPassword($this, $new, $current);
+
+        // Successfully updated authentication tokens
+        $this->change_passwd = 0;
+        $this->cancelResetTokens();
+        $this->passwdreset = SqlFunction::NOW();
+
+        return $rv;
+    }
+
     function canAccess($something) {
         if ($something instanceof RestrictedAccess)
             return $something->checkStaffPerm($this);
@@ -186,6 +241,30 @@ implements AuthenticatedUser, EmailContact {
     function getEmail() {
         return $this->email;
     }
+    /**
+     * Get either a Gravatar URL or complete image tag for a specified email address.
+     *
+     * @param string $email The email address
+     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+     * @param boole $img True to return a complete IMG tag False for just the URL
+     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
+     * @return String containing either just a URL or a complete image tag
+     * @source http://gravatar.com/site/implement/images/php/
+     */
+    function get_gravatar($s = 80, $img = false, $atts = array(), $d = 'retro', $r = 'g' ) {
+        $url = '//www.gravatar.com/avatar/';
+        $url .= md5( strtolower( $this->getEmail() ) );
+        $url .= "?s=$s&d=$d&r=$r";
+        if ( $img ) {
+            $url = '<img src="' . $url . '"';
+            foreach ( $atts as $key => $val )
+                $url .= ' ' . $key . '="' . $val . '"';
+            $url .= ' />';
+        }
+        return $url;
+    }
 
     function getUserName() {
         return $this->username;
@@ -196,7 +275,7 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getName() {
-        return new PersonsName($this->firstname.' '.$this->lastname);
+        return new AgentsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
     }
 
     function getFirstName() {
@@ -305,7 +384,8 @@ implements AuthenticatedUser, EmailContact {
     }
 
     function getTimezone() {
-        return $this->timezone;
+        if (isset($this->timezone))
+            return $this->timezone;
     }
 
     function getLocale() {
@@ -432,6 +512,22 @@ implements AuthenticatedUser, EmailContact {
         return ($stats=$this->getTicketsStats())?$stats['closed']:0;
     }
 
+    function getTasksStats() {
+
+        if (!$this->stats['tasks'])
+            $this->stats['tasks'] = Task::getStaffStats($this);
+
+        return  $this->stats['tasks'];
+    }
+
+    function getNumAssignedTasks() {
+        return ($stats=$this->getTasksStats()) ? $stats['assigned'] : 0;
+    }
+
+    function getNumClosedTasks() {
+        return ($stats=$this->getTasksStats()) ? $stats['closed'] : 0;
+    }
+
     function getExtraAttr($attr=false, $default=null) {
         if (!isset($this->_extra) && isset($this->extra))
             $this->_extra = JsonDataParser::decode($this->extra);
@@ -475,7 +571,7 @@ implements AuthenticatedUser, EmailContact {
         if(!$vars['lastname'])
             $errors['lastname']=__('Last name is required');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
@@ -493,8 +589,6 @@ implements AuthenticatedUser, EmailContact {
 
             if(!$vars['passwd1'])
                 $errors['passwd1']=__('New password is required');
-            elseif($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']=__('Passwords do not match');
 
@@ -512,17 +606,25 @@ implements AuthenticatedUser, EmailContact {
                 $errors['cpasswd']=__('Current password is required');
             elseif(!$this->cmp_passwd($vars['cpasswd']))
                 $errors['cpasswd']=__('Invalid current password!');
-            elseif(!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                $errors['passwd1']=__('New password MUST be different from the current password!');
         }
 
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
 
-        if($errors) return false;
+        // Update the user's password if requested
+        if ($vars['passwd1']) {
+            try {
+                $this->setPassword($vars['passwd1'], $vars['cpasswd']);
+            }
+            catch (BadPassword $ex) {
+                $errors['passwd1'] = $ex->getMessage();
+            }
+            catch (PasswordUpdateFailed $ex) {
+                // TODO: Add a warning banner or crash the update
+            }
+        }
 
-        $_SESSION['staff:lang'] = null;
-        TextDomain::configureForUser($this);
+        if($errors) return false;
 
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
@@ -540,14 +642,8 @@ implements AuthenticatedUser, EmailContact {
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
 
-        if ($vars['passwd1']) {
-            $this->change_passwd = 0;
-            $this->passwdreset = SqlFunction::NOW();
-            $this->passwd = Passwd::hash($vars['passwd1']);
-            $info = array('password' => $vars['passwd1']);
-            Signal::send('auth.pwchange', $this, $info);
-            $this->cancelResetTokens();
-        }
+        $_SESSION['::lang'] = null;
+        TextDomain::configureForUser($this);
 
         return $this->save();
     }
@@ -623,16 +719,28 @@ implements AuthenticatedUser, EmailContact {
             return null;
     }
 
-    static function getStaffMembers($availableonly=false) {
+    static function getStaffMembers($criteria=array()) {
+        global $cfg;
 
-        $members = static::objects()->order_by('lastname', 'firstname');
+        $members = static::objects();
 
-        if ($availableonly) {
+        if (isset($criteria['available'])) {
             $members = $members->filter(array(
                 'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
+        }
+
+        switch ($cfg->getAgentNameFormat()) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $members->order_by('lastname', 'firstname');
+            break;
+
+        default:
+            $members->order_by('firstname', 'lastname');
         }
 
         $users=array();
@@ -644,7 +752,7 @@ implements AuthenticatedUser, EmailContact {
     }
 
     static function getAvailableStaffMembers() {
-        return self::getStaffMembers(true);
+        return self::getStaffMembers(array('available'=>true));
     }
 
     static function getIdByUsername($username) {
@@ -675,7 +783,7 @@ implements AuthenticatedUser, EmailContact {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail($template='pwreset-staff') {
+    function sendResetEmail($template='pwreset-staff', $log=true) {
         global $ost, $cfg;
 
         $content = Page::lookupByType($template);
@@ -699,7 +807,7 @@ implements AuthenticatedUser, EmailContact {
         if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>$log);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
@@ -756,7 +864,7 @@ implements AuthenticatedUser, EmailContact {
                 && (!isset($this->staff_id) || $uid!=$this->getId()))
             $errors['username']=__('Username already in use');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in use system email');
@@ -780,8 +888,6 @@ implements AuthenticatedUser, EmailContact {
             elseif(!$vars['passwd1'] && !$vars['id']) {
                 $errors['passwd1']=__('Temporary password is required');
                 $errors['temppasswd']=__('Required');
-            } elseif($vars['passwd1'] && strlen($vars['passwd1'])<6) {
-                $errors['passwd1']=__('Password must be at least 6 characters');
             }
         }
 
@@ -830,8 +936,17 @@ implements AuthenticatedUser, EmailContact {
         $this->signature = Format::sanitize($vars['signature']);
         $this->notes = Format::sanitize($vars['notes']);
 
+        // Update the user's password if requested
         if ($vars['passwd1']) {
-            $this->passwd = Passwd::hash($vars['passwd1']);
+            try {
+                $this->setPassword($vars['passwd1'], null);
+            }
+            catch (BadPassword $ex) {
+                $errors['passwd1'] = $ex->getMessage();
+            }
+            catch (PasswordUpdateFailed $ex) {
+                // TODO: Add a warning banner or crash the update
+            }
             if (isset($vars['change_passwd']))
                 $this->change_passwd = 1;
         }
@@ -841,7 +956,7 @@ implements AuthenticatedUser, EmailContact {
 
         if ($this->save() && $this->updateTeams($vars['teams'])) {
             if ($vars['welcome_email'])
-                $this->sendResetEmail('registration-staff');
+                $this->sendResetEmail('registration-staff', false);
             return true;
         }
 

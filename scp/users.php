@@ -93,9 +93,15 @@ if ($_POST) {
                     break;
 
                 case 'delete':
-                    foreach ($users as $U)
+                    foreach ($users as $U) {
+                        if (@$_POST['deletetickets']) {
+                            if (!$U->deleteAllTickets())
+                                // XXX: This message is very unclear
+                                $errors['err'] = __('You do not have permission to delete a user with tickets!');
+                        }
                         if ($U->delete())
                             $count++;
+                    }
                     break;
 
                 case 'reset':

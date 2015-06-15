@@ -3,7 +3,7 @@ if (!isset($info['title']))
     $info['title'] = Format::htmlchars($user->getName());
 
 if ($info['title']) { ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr>
 <?php
@@ -62,7 +62,7 @@ if ($info['error']) {
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr><td style="width:30%;"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>
@@ -86,7 +86,7 @@ if ($info['error']) {
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr><td style="width:30%"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

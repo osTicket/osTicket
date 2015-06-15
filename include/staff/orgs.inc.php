@@ -78,8 +78,9 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
         <input type="hidden" name="a" value="search">
         <table>
             <tr>
-                <td><input type="text" id="basic-org-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off"></td>
+                <td><input type="search" id="basic-org-search" name="query"
+                    autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                    autocomplete="off" autocorrect="off" autocapitalize="off"></td>
                 <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </tr>
@@ -209,7 +210,8 @@ $(function() {
     $(document).on('click', 'a.add-org', function(e) {
         e.preventDefault();
         $.orgLookup('ajax.php/orgs/add', function (org) {
-            window.location.href = 'orgs.php?id='+org.id;
+            var url = 'orgs.php?id=' + org.id;
+            $.pjax({url: url, container: '#pjax-container'})
          });
 
         return false;

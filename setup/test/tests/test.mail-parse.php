@@ -1,13 +1,13 @@
 <?php
 
+require_once 'mockdb.php';
+
 require_once INCLUDE_DIR.'class.validator.php';
 require_once INCLUDE_DIR.'class.auth.php';
 require_once INCLUDE_DIR.'class.staff.php';
 require_once INCLUDE_DIR.'class.email.php';
 require_once INCLUDE_DIR.'class.format.php';
 require_once INCLUDE_DIR.'class.thread.php';
-
-require_once 'mockdb.php';
 
 class TestMailParsing extends Test {
     var $name = "Mail parsing library tests";

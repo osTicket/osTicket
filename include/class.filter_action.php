@@ -138,7 +138,7 @@ abstract class TriggerAction {
             foreach ($options as $f) {
                 $f->set('id', $uid++);
             }
-            $this->_cform = new Form($options, $source);
+            $this->_cform = new SimpleForm($options, $source);
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))
@@ -453,20 +453,47 @@ class FA_SendEmail extends TriggerAction {
         if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
             $mailer = new Mailer();
 
-        // Honor %{user} variable
-        $to = $config['recipients'];
+        // Allow %{user} in the To: line
         $replacer = new VariableReplacer();
         $replacer->assign(array(
-            'user' => sprintf('%s <%s>', $ticket['name'], $ticket['email'])
+            'user' => sprintf('"%s" <%s>', $ticket['name'], $ticket['email'])
         ));
-        $to = $replacer->replaceVars($to);
+        $to = $replacer->replaceVars($config['recipients']);
 
-        $mailer->send($to, $info['subject'], $info['message']);
+        require_once PEAR_DIR . 'Mail/RFC822.php';
+        require_once PEAR_DIR . 'PEAR.php';
+
+        if (!($mails = Mail_RFC822::parseAddressList($to)) || PEAR::isError($mails))
+            return false;
+
+        // Allow %{recipient} in the body
+        foreach ($mails as $R) {
+            $recipient = sprintf('%s <%s@%s>', $R->personal, $R->mailbox, $R->host);
+            $replacer->assign(array(
+                'recipient' => new EmailAddress($recipient),
+            ));
+            $I = $replacer->replaceVars($info);
+            $mailer->send($recipient, $I['subject'], $I['message']);
+        }
+
+    }
+
+    static function getVarScope() {
+        $context = array(
+            'ticket' => array(
+                'class' => 'FA_SendEmail_TicketInfo', 'desc' => __('Ticket'),
+            ),
+            'user' => __('Ticket Submitter'),
+            'recipient' => array(
+                'class' => 'EmailAddress', 'desc' => __('Recipient'),
+            ),
+        ) + osTicket::getVarScope();
+        return VariableReplacer::compileScope($context);
     }
 
     function getConfigurationOptions() {
         $choices = array('' => __('Default System Email'));
-        $choices += EmailModel::getAddresses();
+        $choices += Email::getAddresses();
 
         return array(
             'recipients' => new TextboxField(array(
@@ -504,6 +531,7 @@ class FA_SendEmail extends TriggerAction {
                 'configuration' => array(
                     'placeholder' => __('Message'),
                     'html' => true,
+                    'context' => 'fa:send_email',
                 ),
             )),
             'from' => new ChoiceField(array(
@@ -515,3 +543,12 @@ class FA_SendEmail extends TriggerAction {
     }
 }
 FilterAction::register('FA_SendEmail', /* @trans */ 'Communication');
+
+class FA_SendEmail_TicketInfo {
+    static function getVarScope() {
+        return array(
+            'message' => __('Message from the EndUser'),
+            'source' => __('Source'),
+        );
+    }
+}

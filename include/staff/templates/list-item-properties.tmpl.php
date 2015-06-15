@@ -1,4 +1,4 @@
-<h3><?php echo $list->getName(); ?> &mdash; <?php
+<h3 class="drag-handle"><?php echo $list->getName(); ?> &mdash; <?php
     echo $item ? $item->getValue() : __('Add New List Item'); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>

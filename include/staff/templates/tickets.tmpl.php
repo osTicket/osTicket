@@ -26,12 +26,22 @@ if (!$thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING)) {
 }
 
 $tickets->annotate(array(
-    'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
-    'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
-    'thread_count' => SqlAggregate::COUNT('thread__entries'),
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
+    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
+       ->when(new SqlField('thread__entries__attachments__inline'), null)
+       ->otherwise(new SqlField('thread__entries__attachments')),
+        true
+    ),
+    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(
+            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
+            null)
+        ->otherwise(new SqlField('thread__entries__id')),
+       true
+    ),
 ));
 
-$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name');
+$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
 
 TicketForm::ensureDynamicDataView();
 
@@ -73,7 +83,7 @@ if ($results) { ?>
             <?php
             } ?>
             <th width="70"><?php echo __('Ticket'); ?></th>
-            <th width="120"><?php echo __('Date'); ?></th>
+            <th width="120"><?php echo __('Last Updated'); ?></th>
             <th width="70"><?php echo __('Status'); ?></th>
             <th width="380"><?php echo __('Subject'); ?></th>
             <?php
@@ -99,7 +109,7 @@ if ($results) { ?>
 
         $assigned='';
         if ($T['staff_id'])
-            $assigned = new PersonsName(array(
+            $assigned = new AgentsName(array(
                 'first' => $T['staff__firstname'],
                 'last' => $T['staff__lastname']
             ));
@@ -128,20 +138,24 @@ if ($results) { ?>
                 title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                 data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
-            <td align="center" nowrap><?php echo Format::datetime($T['effective_date']); ?></td>
+            <td align="center" nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
             <td><?php echo $status; ?></td>
             <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
                 style="max-width: 230px;"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
+                    if ($T['attachment_count'])
+                        echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
+                            .$T['attachment_count'].'"></i>';
                     if ($threadcount > 1) { ?>
                             <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
                             <small><?php echo $threadcount; ?></small></span>
 <?php               }
                     if ($T['attachments'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
-                    if ($T['collaborators'])
-                        echo '<i class="icon-group faded-more"></i>';
+                    if ($T['collab_count'])
+                        echo '<span class="faded-more" data-toggle="tooltip" title="'
+                            .$T['collab_count'].'"><i class="icon-group"></i></span>';
                 ?>
             </span></td>
             <?php

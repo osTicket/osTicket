@@ -6,7 +6,8 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
     <div>
-        <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+        <input id="query" type="search" size="20" name="q" autofocus
+            value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
         <select name="cid" id="cid">
             <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
             <?php
@@ -14,7 +15,6 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
                 ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
                 ->filter(array('faq_count__gt'=>0))
                 ->order_by('name');
-print $categories;
             foreach ($categories as $C) {
                 echo sprintf('<option value="%d" %s>%s (%d)</option>',
                     $C->getId(),
@@ -62,7 +62,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         $faqs->filter(array('category_id'=>$_REQUEST['cid']));
 
     if ($_REQUEST['topicId'])
-        $faqs->filter(array('topic_id'=>$_REQUEST['topicId']));
+        $faqs->filter(array('topics__topic_id'=>$_REQUEST['topicId']));
 
     if ($_REQUEST['q'])
         $faqs->filter(Q::ANY(array(

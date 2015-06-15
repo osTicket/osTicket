@@ -62,16 +62,24 @@ class Misc {
 
     /* misc date helpers...this will go away once we move to php 5 */
     function db2gmtime($var){
+        static $dbtz;
         global $cfg;
-        if(!$var) return;
 
-        $dbtime=is_int($var)?$var:strtotime($var);
-        return $dbtime-($cfg->getDBTZoffset()*3600);
+        if (!$var || !$cfg)
+            return;
+
+        if (!isset($dbtz))
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+
+        $dbtime = is_int($var) ? $var : strtotime($var);
+        $D = DateTime::createFromFormat('U', $dbtime);
+        return $dbtime - $dbtz->getOffset($D);
     }
 
     //Take user time or gmtime and return db (mysql) time.
     function dbtime($var=null){
-         global $cfg;
+        static $dbtz;
+        global $cfg;
 
         if (is_null($var) || !$var) {
             // Default timezone is set to UTC
@@ -83,8 +91,11 @@ class Misc {
             $D = DateTime::createFromFormat('U', $time);
             $time -= $tz->getOffset($D);
         }
+        if (!isset($dbtz)) {
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+        }
         // UTC to db time
-        return $time + ($cfg->getDBTZoffset()*3600);
+        return $time + $dbtz->getOffset($time);
     }
 
     /*Helper get GM time based on timezone offset*/

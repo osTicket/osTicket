@@ -40,16 +40,10 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <?php echo __('Time Zone');?>:
         </td>
         <td>
-            <select name="timezone" class="chosen-select" id="timezone-dropdown"
-                data-placeholder="<?php echo __('System Default'); ?>">
-                <option value=""></option>
-<?php foreach (DateTimeZone::listIdentifiers() as $zone) { ?>
-                <option value="<?php echo $zone; ?>" <?php
-                if ($info['timezone'] == $zone)
-                    echo 'selected="selected"';
-                ?>><?php echo str_replace('/',' / ',$zone); ?></option>
-<?php } ?>
-            </select>
+            <?php
+            $TZ_NAME = 'timezone';
+            $TZ_TIMEZONE = $info['timezone'];
+            include INCLUDE_DIR.'staff/templates/timezone.tmpl.php'; ?>
             <div class="error"><?php echo $errors['timezone']; ?></div>
         </td>
     </tr>
@@ -103,19 +97,13 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         window.location.href='index.php';"/>
 </p>
 </form>
-<script type="text/javascript">
-$('#timezone-dropdown').chosen({
-    allow_single_deselect: true,
-    width: '350px'
-});
-</script>
 <?php if (!isset($info['timezone'])) { ?>
 <!-- Auto detect client's timezone where possible -->
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js"></script>
 <script type="text/javascript">
 $(function() {
     var zone = jstz.determine();
-    $('#timezone-dropdown').val(zone.name()).trigger('chosen:updated');
+    $('#timezone-dropdown').val(zone.name()).trigger('change');
 });
 </script>
 <?php }

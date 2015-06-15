@@ -1,5 +1,5 @@
 /**
- * @version v1.9.6
+ * @version v1.10.0
  * @signature 5cd0a25a54fd27ed95f00d62edda4c6d
  * @title Add support for ticket tasks
  *
@@ -72,9 +72,11 @@ INSERT INTO `%TABLE_PREFIX%attachment`
 
 -- convert ticket_email_info to thread_entry_email
 ALTER TABLE  `%TABLE_PREFIX%ticket_email_info`
+    ADD INDEX (  `thread_id` );
+
+ALTER TABLE  `%TABLE_PREFIX%ticket_email_info`
     CHANGE  `thread_id`  `thread_entry_id` INT( 11 ) UNSIGNED NOT NULL,
-    CHANGE  `email_mid`  `mid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    ADD INDEX (  `thread_entry_id` );
+    CHANGE  `email_mid`  `mid` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 
 RENAME TABLE `%TABLE_PREFIX%ticket_email_info` TO  `%TABLE_PREFIX%thread_entry_email`;
 

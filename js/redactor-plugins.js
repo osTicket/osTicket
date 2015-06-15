@@ -93,7 +93,7 @@ RedactorPlugins.fontcolor = function()
 			{
 				var color = colors[z];
 
-				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px;"></a>');
+				var $swatch = $('<a rel="' + color + '" data-rule="' + rule +'" href="#" style="float: left; font-size: 0; border: 2px solid #fff; padding: 0; margin: 0; width: 22px; height: 22px; box-sizing: border-box;"></a>');
 				$swatch.css('background-color', color);
 				$swatch.on('click', func);
 
@@ -790,21 +790,40 @@ RedactorPlugins.imagepaste = function() {
           return true;
 
       this.$editor.on('paste.imagepaste', $.proxy(this.imagepaste.buildEventPaste, this));
+
+      // Capture the selection position every so often as Redactor seems to
+      // drop it when attempting an image paste before `paste` browser event
+      // fires
+      var that = this,
+          plugin = this.imagepaste;
+      setInterval(function() {
+        if (plugin.inpaste)
+          return;
+        plugin.offset = that.caret.getOffset() || plugin.offset;
+      }, 300);
     },
+    offset: 0,
+    inpaste: false,
     buildEventPaste: function(e)
     {
       var event = e.originalEvent || e,
           fileUpload = false,
           files = [],
           i, file,
-          cd = event.clipboardData;
+          plugin = this.imagepaste,
+          cd = event.clipboardData,
+          self = this, node,
+          bail = function() {
+            plugin.inpaste = false;
+          };
+      plugin.inpaste = true;
 
-      if (typeof(cd) === 'undefined') return;
+      if (typeof(cd) === 'undefined') return bail();
 
       if (cd.items && cd.items.length)
       {
         for (i = 0, k = cd.items.length; i < k; i++) {
-          if (cd.kind == 'file' && cd.type.indexOf('image/') !== -1) {
+          if (cd.items[i].kind == 'file' && cd.items[i].type.indexOf('image/') !== -1) {
             file = cd.items[i].getAsFile();
             if (file !== null)
               files.push(file);
@@ -813,7 +832,7 @@ RedactorPlugins.imagepaste = function() {
       }
       else if (cd.files && cd.files.length)
       {
-        files = cd.files
+        files = cd.files;
       }
       else if (cd.types.length) {
         for (i = 0, k = cd.types.length; i < k; i++) {
@@ -824,15 +843,41 @@ RedactorPlugins.imagepaste = function() {
           }
         }
       }
-      if (files.length) {
-        // clipboard upload
-        this.selection.save();
-        this.buffer.set();
-        this.clean.singleLine = false;
+
+      if (!files.length)
+        return bail();
+
+      // Clipboard upload
+
+      setTimeout(function() {
+        // We need to allow the paste operation to settle, so we can set
+        // self.clean.singleLine and not have to cleared by some other running
+        // code
+
+        var oldIUC = self.opts.imageUploadCallback;
+        self.opts.imageUploadCallback = function(image, json) {
+          self.$editor.find('.-image-upload-placeholder').remove();
+          self.opts.imageUploadCallback = oldIUC;
+          // Add a zero-width space so that the caret:getOffset will find
+          // locations after pictures if only <br> tags exist otherwise. In
+          // other words, ensure there is at least one character after the
+          // image for text character counting. Additionally, Redactor will
+          // strip the zero-width space when saving
+          $(document.createTextNode("\u200b")).insertAfter($(image));
+          bail();
+        };
+
+        // Place the cursor back in the box!
+        self.caret.setOffset(plugin.offset);
+
+        // Add cool wait cursor
+        self.insert.htmlWithoutClean('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+
+        // Upload clipboard files
+        self.clean.singleLine = false;
         for (i = 0, k = files.length; i < k; i++)
-          this.upload.directUpload(files[i], event);
-        return false;
-      }
+          self.upload.directUpload(files[i], e);
+      }, 1);
     }
   };
 };
@@ -1569,7 +1614,6 @@ RedactorPlugins.imageannotate = function() {
       scale = Math.max(0.7, $img.width() / I.width);
       var scaleWidth = $img.width() / scale,
           scaleHeight = $img.height() / scale;
-      console.log(I.width, scaleWidth, $img.width(), scale);
       fcanvas
         .setDimensions({width: $img.width(), height: $img.height()})
         .setZoom(scale)
@@ -1596,6 +1640,203 @@ RedactorPlugins.imageannotate = function() {
       }
       $img.data('canvas', fcanvas).addClass('hidden');
       return fcanvas;
+    }
+  };
+};
+
+RedactorPlugins.contexttypeahead = function() {
+  return {
+    typeahead: false,
+    context: false,
+    variables: false,
+
+    init: function() {
+      if (!this.$element.data('rootContext'))
+        return;
+
+      this.opts.keyupCallback = this.contexttypeahead.watch.bind(this);
+      this.opts.keydownCallback = this.contexttypeahead.watch.bind(this);
+      this.$editor.on('click', this.contexttypeahead.watch.bind(this));
+    },
+
+    watch: function(e) {
+      var current = this.selection.getCurrent(),
+          allText = this.$editor.text(),
+          offset = this.caret.getOffset(),
+          lhs = allText.substring(0, offset),
+          search = new RegExp(/%\{([^}]*)$/),
+          match;
+
+      if (!lhs) {
+        return !e.isDefaultPrevented();
+      }
+
+      if (e.which == 27 || !(match = search.exec(lhs)))
+        // No longer in a element — close typeahead
+        return this.contexttypeahead.destroy();
+
+      if (e.type == 'click')
+        return;
+
+      // Locate the position of the cursor and the number of characters back
+      // to the `%{` symbols
+      var sel         = this.selection.get(),
+          range       = this.sel.getRangeAt(0),
+          content     = current.textContent,
+          clientRects = range.getClientRects(),
+          position    = clientRects[0],
+          backText    = match[1],
+          parent      = this.selection.getParent() || this.$editor,
+          plugin      = this.contexttypeahead;
+
+      // Insert a hidden text input to receive the typed text and add a
+      // typeahead widget
+      if (!this.contexttypeahead.typeahead) {
+        this.contexttypeahead.typeahead = $('<input type="text">')
+          .css({position: 'absolute', visibility: 'hidden'})
+          .width(0).height(position.height - 4)
+          .appendTo(document.body)
+          .typeahead({
+            property: 'variable',
+            minLength: 0,
+            arrow: $('<span class="pull-right"><i class="icon-muted icon-chevron-right"></i></span>')
+                .css('padding', '0 0 0 6px'),
+            highlighter: function(variable, item) {
+              var base = $.fn.typeahead.Constructor.prototype.highlighter
+                    .call(this, variable),
+                  further = new RegExp(variable + '\\.'),
+                  extendable = Object.keys(plugin.variables).some(function(v) {
+                    return v.match(further);
+                  }),
+                  arrow = extendable ? this.options.arrow.clone() : '';
+
+              return $('<div/>').html(base).prepend(arrow).html()
+                + $('<span class="faded">')
+                  .text(' — ' + item.desc)
+                  .wrap('<div>').parent().html();
+            },
+            item: '<li><a href="#" style="display:block"></a></li>',
+            source: this.contexttypeahead.getContext.bind(this),
+            sorter: function(items) {
+              items.sort(
+                function(a,b) {return a.variable > b.variable ? 1 : -1;}
+              );
+              return items;
+            },
+            matcher: function(item) {
+              if (item.toLowerCase().indexOf(this.query.toLowerCase()) !== 0)
+                return false;
+
+              return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
+            },
+            onselect: this.contexttypeahead.select.bind(this),
+            scroll: true,
+            items: 100
+          });
+      }
+
+      if (position) {
+        var width = plugin.textWidth(
+              backText,
+              this.selection.getParent() || $('<div class="redactor-editor">')
+            ),
+            pleft = $(parent).offset().left,
+            left = position.left - width;
+
+        if (left < pleft)
+            // This is a bug in chrome, but I'm not sure how to adjust it
+            left += pleft;
+
+        plugin.typeahead
+          .css({top: position.top + $(window).scrollTop(), left: left});
+      }
+
+      plugin.typeahead
+        .val(match[1])
+        .trigger(e);
+
+      return !e.isDefaultPrevented();
+    },
+
+    getContext: function(typeahead, query) {
+      var dfd, that=this.contexttypeahead,
+          root = this.$element.data('rootContext');
+      if (!this.contexttypeahead.context) {
+        dfd = $.Deferred();
+        $.ajax('ajax.php/content/context', {
+          data: {root: root},
+          success: function(json) {
+            var items = $.map(json, function(v,k) {
+              return {variable: k, desc: v};
+            });
+            that.variables = json;
+            dfd.resolve(items);
+          }
+        });
+        this.contexttypeahead.context = dfd;
+      }
+      // Only fetch the context once for this redactor box
+      this.contexttypeahead.context.then(function(items) {
+        typeahead.process(items);
+      });
+    },
+
+    textWidth: function(text, clone) {
+      var c = $(clone),
+          o = c.clone().text(text)
+            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden'})
+            .css({'font-family': c.css('font-family'), 'font-weight': c.css('font-weight'),
+              'font-size': c.css('font-size')})
+            .appendTo($('body')),
+          w = o.width();
+
+      o.remove();
+
+      return w;
+    },
+
+    destroy: function() {
+      if (this.contexttypeahead.typeahead) {
+        this.contexttypeahead.typeahead.typeahead('hide');
+        this.contexttypeahead.typeahead.remove();
+        this.contexttypeahead.typeahead = false;
+      }
+    },
+
+    select: function(item, event) {
+      var current = this.selection.getCurrent(),
+          sel     = this.selection.get(),
+          range   = this.sel.getRangeAt(0),
+          cursorAt = range.endOffset,
+          // TODO: Consume immediately following `}` symbols
+          plugin  = this.contexttypeahead,
+          search  = new RegExp(/%\{([^}]*)(\}?)$/);
+
+      // FIXME: ENTER will end up here, but current will be empty
+
+      if (!current)
+        return;
+
+      // Set cursor at the end of the expanded text
+      var left = current.textContent.substring(0, cursorAt),
+          right = current.textContent.substring(cursorAt),
+          autoExpand = event.target.nodeName == 'I',
+          selected = item.variable + (autoExpand ? '.' : '')
+          newLeft = left.replace(search, '%{' + selected + '}');
+
+      current.textContent = newLeft
+        // Drop the remaining part of a variable block, if any
+        + right.replace(/[^%}]*?[%}]/, '');
+
+      this.range.setStart(current, newLeft.length - 1);
+      this.range.setEnd(current, newLeft.length - 1);
+      this.selection.addRange();
+      if (!autoExpand)
+          return plugin.destroy();
+
+      plugin.typeahead.val(selected);
+      plugin.typeahead.typeahead('lookup');
+      return false;
     }
   };
 };

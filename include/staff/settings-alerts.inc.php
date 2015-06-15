@@ -1,8 +1,3 @@
-<h2><?php echo __('Alerts and Notices'); ?>
-    <i class="help-tip icon-question-sign" href="#page_title"></i></h2>
-<form action="settings.php?t=alerts" method="post" id="save">
-<?php csrf_token(); ?>
-<input type="hidden" name="t" value="alerts" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -233,8 +228,3 @@
         </tr>
     </tbody>
 </table>
-<p style="text-align:center;">
-    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
-    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
-</p>
-</form>

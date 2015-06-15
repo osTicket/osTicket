@@ -3,9 +3,13 @@
 if (!$info['title'])
     $info['title'] = __('New Task');
 
+$namespace = 'task.add';
+if ($ticket)
+    $namespace = sprintf('ticket.%d.task', $ticket->getId());
+
 ?>
 <div id="task-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -24,9 +28,7 @@ if ($info['error']) {
         $form = $form ?: TaskForm::getInstance();
         $form->render(true,
                 __('Create New Task'),
-                array(
-                    'draft-namespace' => sprintf('ticket.%d.task',
-                        $ticket->getId()))
+                array('draft-namespace' => $namespace)
                 );
     ?>
         <tr><th colspan=2><em><?php

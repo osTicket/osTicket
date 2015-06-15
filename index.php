@@ -42,15 +42,18 @@ require(CLIENTINC_DIR.'header.inc.php');
                 <div class="welcome col-xs-12">
                     <?php if($cfg && ($page = $cfg->getLandingPage()))
                         echo $page->getBodyWithImages();
-                        else
-                            echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
+                    else
+                        echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
                     ?>
                 </div>
             </div>
         </div>
+        <?php
+            $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
+        ?>
         <div class="sidebar col-xs-12 col-sm-4">
             <?php
-            $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
+            $faqs = FAQ::getFeatured()->select_related('category')->limit(5); 
             if ($faqs->all()) { ?>
                 <div class="panel panel-primary">
                     <div class="panel-heading">
@@ -85,10 +88,17 @@ require(CLIENTINC_DIR.'header.inc.php');
                         <?php } ?>
                     </ul>
                 </div>
-            <?php } ?>
-            <a href="open.php" style="display:block" class="btn btn-success btn-lg btn-block">
-                <?php echo __('Open a New Ticket');?>
-            </a>
+            <?php } 
+            if ($BUTTONS) { ?>
+                <a href="open.php" style="display:block" class="btn btn-success btn-lg btn-block">
+                    <?php echo __('Open a New Ticket');?>
+                </a>
+                <?php if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
+                    <a href="view.php" style="display:block" class="btn btn-success btn-lg btn-block">
+                        <?php echo __('Check Ticket Status');?>
+                    </a>
+                <?php } 
+            } ?>
         </div>
     </div>
 </div>
@@ -97,6 +107,7 @@ require(CLIENTINC_DIR.'header.inc.php');
     <?php if($cfg && $cfg->isKnowledgebaseEnabled()){
         //FIXME: provide ability to feature or select random FAQs ??
     ?>
+    </div>
 </div>
 </div>
 <div class="row">

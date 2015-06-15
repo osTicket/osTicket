@@ -192,190 +192,6 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
     }
 
-    function addRemoteCollaborator($tid, $bk, $id) {
-        global $thisstaff;
-
-        if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
-        elseif (!$bk || !$id)
-            Http::response(422, 'Backend and user id required');
-        elseif (!($backend = StaffAuthenticationBackend::getBackend($bk)))
-            Http::response(404, 'User not found');
-
-        $user_info = $backend->lookup($id);
-        $form = UserForm::getUserForm()->getForm($user_info);
-        $info = array();
-        if (!$user_info)
-            $info['error'] = __('Unable to find user in directory');
-
-        return self::_addcollaborator($ticket, null, $form, $info);
-    }
-
-    //Collaborators utils
-    function addCollaborator($tid, $uid=0) {
-        global $thisstaff;
-
-        if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, __('No such ticket'));
-
-
-        $user = $uid? User::lookup($uid) : null;
-
-        //If not a post then assume new collaborator form
-        if(!$_POST)
-            return self::_addcollaborator($ticket, $user);
-
-        $user = $form = null;
-        if (isset($_POST['id']) && $_POST['id']) { //Existing user/
-            $user =  User::lookup($_POST['id']);
-        } else { //We're creating a new user!
-            $form = UserForm::getUserForm()->getForm($_POST);
-            $user = User::fromForm($form);
-        }
-
-        $errors = $info = array();
-        if ($user) {
-            if ($user->getId() == $ticket->getOwnerId())
-                $errors['err'] = sprintf(__('Ticket owner, %s, is a collaborator by default!'),
-                        Format::htmlchars($user->getName()));
-            elseif (($c=$ticket->addCollaborator($user,
-                            array('isactive'=>1), $errors))) {
-                $note = Format::htmlchars(sprintf(__('%s <%s> added as a collaborator'),
-                            Format::htmlchars($c->getName()), $c->getEmail()));
-                $ticket->logNote(__('New Collaborator Added'), $note,
-                    $thisstaff, false);
-                $info = array('msg' => sprintf(__('%s added as a collaborator'),
-                            Format::htmlchars($c->getName())));
-                return self::_collaborators($ticket, $info);
-            }
-        }
-
-        if($errors && $errors['err']) {
-            $info +=array('error' => $errors['err']);
-        } else {
-            $info +=array('error' =>__('Unable to add collaborator. Internal error'));
-        }
-
-        return self::_addcollaborator($ticket, $user, $form, $info);
-    }
-
-    function updateCollaborator($cid) {
-        global $thisstaff;
-
-        if(!($c=Collaborator::lookup($cid))
-                || !($user=$c->getUser())
-                || !($ticket=$c->getTicket())
-                || !$ticket->checkStaffPerm($thisstaff)
-                )
-            Http::response(404, 'Unknown collaborator');
-
-        $errors = array();
-        if(!$user->updateInfo($_POST, $errors))
-            return self::_collaborator($c ,$user->getForms($_POST), $errors);
-
-        $info = array('msg' => sprintf('%s updated successfully',
-                    Format::htmlchars($c->getName())));
-
-        return self::_collaborators($ticket, $info);
-    }
-
-    function viewCollaborator($cid) {
-        global $thisstaff;
-
-        if(!($collaborator=Collaborator::lookup($cid))
-                || !($ticket=$collaborator->getTicket())
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown collaborator');
-
-        return self::_collaborator($collaborator);
-    }
-
-    function showCollaborators($tid) {
-        global $thisstaff;
-
-        if(!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
-
-        if($ticket->getCollaborators())
-            return self::_collaborators($ticket);
-
-        return self::_addcollaborator($ticket);
-    }
-
-    function previewCollaborators($tid) {
-        global $thisstaff;
-
-        if (!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
-
-        ob_start();
-        include STAFFINC_DIR . 'templates/collaborators-preview.tmpl.php';
-        $resp = ob_get_contents();
-        ob_end_clean();
-
-        return $resp;
-    }
-
-    function _addcollaborator($ticket, $user=null, $form=null, $info=array()) {
-
-        $info += array(
-                    'title' => sprintf(__('Ticket #%s: Add a collaborator'), $ticket->getNumber()),
-                    'action' => sprintf('#tickets/%d/add-collaborator', $ticket->getId()),
-                    'onselect' => sprintf('ajax.php/tickets/%d/add-collaborator/', $ticket->getId()),
-                    );
-        return self::_userlookup($user, $form, $info);
-    }
-
-
-    function updateCollaborators($tid) {
-        global $thisstaff;
-
-        if(!($ticket=Ticket::lookup($tid))
-                || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
-
-        $errors = $info = array();
-        if ($ticket->updateCollaborators($_POST, $errors))
-            Http::response(201, sprintf('Recipients (%d of %d)',
-                        $ticket->getNumActiveCollaborators(),
-                        $ticket->getNumCollaborators()));
-
-        if($errors && $errors['err'])
-            $info +=array('error' => $errors['err']);
-
-        return self::_collaborators($ticket, $info);
-    }
-
-
-
-    function _collaborator($collaborator, $form=null, $info=array()) {
-
-        $info += array('action' => '#collaborators/'.$collaborator->getId());
-
-        $user = $collaborator->getUser();
-
-        ob_start();
-        include(STAFFINC_DIR . 'templates/user.tmpl.php');
-        $resp = ob_get_contents();
-        ob_end_clean();
-
-        return $resp;
-    }
-
-    function _collaborators($ticket, $info=array()) {
-
-        ob_start();
-        include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');
-        $resp = ob_get_contents();
-        ob_end_clean();
-
-        return $resp;
-    }
-
     function viewUser($tid) {
         global $thisstaff;
 
@@ -523,7 +339,7 @@ class TicketsAjaxAPI extends AjaxController {
             $response = "<br/><blockquote>{$response->asVar()}</blockquote><br/>";
 
             //  Return text if html thread is not enabled
-            if (!$cfg->isHtmlThreadEnabled())
+            if (!$cfg->isRichTextEnabled())
                 $response = Format::html2text($response, 90);
             else
                 $response = Format::viewableImages($response);
@@ -532,7 +348,7 @@ class TicketsAjaxAPI extends AjaxController {
             return Format::json_encode(array('response' => $response));
         }
 
-        if (!$cfg->isHtmlThreadEnabled())
+        if (!$cfg->isRichTextEnabled())
             $format.='.plain';
 
         $varReplacer = function (&$var) use($ticket) {
@@ -924,7 +740,8 @@ class TicketsAjaxAPI extends AjaxController {
                     sprintf('ticket.%d.task', $ticket->getId()),
                     $thisstaff->getId());
             // Default form
-            $form = TaskForm::getDefaultForm()->getForm($_POST);
+            $form = TaskForm::getInstance();
+            $form->setSource($_POST);
             // Internal form
             $iform = TaskForm::getInternalForm($_POST);
             $isvalid = true;
@@ -962,6 +779,52 @@ class TicketsAjaxAPI extends AjaxController {
                 );
 
          include STAFFINC_DIR . 'templates/task.tmpl.php';
+    }
+
+    function task($tid, $id) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+        // Lookup task and check access
+        if (!($task=Task::lookup($id))
+                || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown task');
+
+        $info=$errors=array();
+        $note_form = new SimpleForm(array(
+            'attachments' => new FileUploadField(array('id'=>'attach',
+            'name'=>'attach:note',
+            'configuration' => array('extensions'=>'')))
+            ));
+
+        if ($_POST) {
+            switch ($_POST['a']) {
+            case 'postnote':
+                $vars = $_POST;
+                $attachments = $note_form->getField('attachments')->getClean();
+                $vars['cannedattachments'] = array_merge(
+                    $vars['cannedattachments'] ?: array(), $attachments);
+                if(($note=$task->postNote($vars, $errors, $thisstaff))) {
+                    $msg=__('Note posted successfully');
+                    // Clear attachment list
+                    $note_form->setSource(array());
+                    $note_form->getField('attachments')->reset();
+                    Draft::deleteForNamespace('task.note.'.$task->getId(),
+                            $thisstaff->getId());
+                } else {
+                    if(!$errors['err'])
+                        $errors['err'] = __('Unable to post the note - missing or invalid data.');
+                }
+                break;
+            default:
+                $errors['err'] = __('Unknown action');
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/task-view.tmpl.php';
     }
 }
 ?>

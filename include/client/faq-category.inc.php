@@ -13,9 +13,11 @@ if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access
 <?php
 $faqs = FAQ::objects()
     ->filter(array('category'=>$category))
-    ->exclude(array('ispublished'=>false))
-    ->annotate(array('has_attachments'=>SqlAggregate::COUNT('attachments', false,
-        array('attachments__inline'=>0))))
+    ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
+    ->annotate(array('has_attachments' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(array('attachments__inline'=>0), 1)
+        ->otherwise(null)
+    )))
     ->order_by('-ispublished', 'question');
 
 if ($faqs->exists(true)) {
@@ -37,10 +39,14 @@ foreach ($faqs as $F) {
     <div class="sidebar">
     <div class="searchbar">
         <form method="get" action="faq.php">
-        <input type="hidden" name="a" value="search"/>
-        <input type="text" class="form-control" name="q" class="search" placeholder="<?php
-            echo __('Search our knowledge base'); ?>"/>
-        <input type="submit" style="display:none" value="search"/>
+            <div class="input-group">
+                <input type="hidden" name="a" value="search"/>
+                <input type="text" class="form-control" name="q" class="search" placeholder="<?php
+                    echo __('Search our knowledge base'); ?>"/>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-success">Search</button>
+                </span>
+            </div>
         </form>
     </div>
     <div class="clearfix">&nbsp;</div>

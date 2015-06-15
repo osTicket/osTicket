@@ -45,7 +45,6 @@ $extensions = array(
 
 ?>
 <h2><?php echo __('About this osTicket Installation'); ?></h2>
-<br/>
 <table class="list" width="100%";>
 <thead>
     <tr><th colspan="2"><?php echo __('Server Information'); ?></th></tr>
