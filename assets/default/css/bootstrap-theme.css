@@ -10,12 +10,11 @@ h3 {
 body {
   background-color: #c8c8c8;
 }
-a.navbar-brand {
+a.navbar-left {
   padding: 5px;
 }
-a.navbar-brand img {
-  max-height: 45px;
-  max-width: 220px;
+a.navbar-left img {
+  width: 100%;
 }
 .navbar-toggle {
   border: solid #222222 1px;
