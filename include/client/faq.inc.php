@@ -41,7 +41,7 @@ $category=$faq->getCategory();
     <div class="clearfix">&nbsp;</div>
     <div class="content">
         <div class="panel panel-primary">
-            <div class="panel-heading"><?php echo __('Attachmments'); ?></div>
+            <div class="panel-heading"><?php echo __('Attachments'); ?></div>
             <div class="panel-body">
                 <?php if ($attachments = $faq->getLocalAttachments()->all()) {
                     foreach ($attachments as $att) { ?>
