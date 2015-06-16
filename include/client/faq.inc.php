@@ -21,7 +21,7 @@ $category=$faq->getCategory();
     <?php echo $faq->getLocalAnswerWithImages(); ?>
   </div>
   <div class="panel-footer text-muted">
-    <?php Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?>
+    <?php echo __('Last updated').' '. Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?>
   </div>
 </div>
 </div>
