@@ -27,7 +27,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <?php } ?>
 
-<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
+<table cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
             <h1>
@@ -48,47 +48,51 @@ if ($thisclient && $thisclient->isGuest()
         </td>
     </tr>
     <tr>
-        <td width="50%">
-            <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+        <td colspan="2">
+          <div class="row">
+            <div class="col-sm-6">
+              <table class="infoTable table table-condensed">
                 <thead>
                     <tr><td class="headline" colspan="2">
                         <?php echo __('Basic Ticket Information'); ?>
                     </td></tr>
                 </thead>
                 <tr>
-                    <th width="100"><?php echo __('Ticket Status');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Ticket Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
-                    <th><?php echo __('Department');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Department');?>:</th>
                     <td><?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?></td>
                 </tr>
                 <tr>
-                    <th><?php echo __('Create Date');?>:</th>
+                    <th class="text-nowrap"><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
-           </table>
-       </td>
-       <td width="50%">
-           <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
+             </table>
+           </div>
+           <div class="col-sm-6">
+             <table class="infoTable table table-condensed">
                 <thead>
                     <tr><td class="headline" colspan="2">
                         <?php echo __('User Information'); ?>
                     </td></tr>
                 </thead>
                <tr>
-                   <th width="100"><?php echo __('Name');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Name');?>:</th>
                    <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
                </tr>
                <tr>
-                   <th width="100"><?php echo __('Email');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Email');?>:</th>
                    <td><?php echo Format::htmlchars($ticket->getEmail()); ?></td>
                </tr>
                <tr>
-                   <th><?php echo __('Phone');?>:</th>
+                   <th class="text-nowrap"><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
-            </table>
+              </table>
+            </div>
+          </div>
        </td>
     </tr>
     <tr>
@@ -126,20 +130,21 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 </tr>
 </table>
 <br>
-
+<div class="subject"><?php echo __('Subject'); ?>: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
+<div class="clearfix">&nbsp;</div>
 <div id="ticketThread">
 <?php
     $ticket->getThread()->render(array('M', 'R'), Thread::MODE_CLIENT);
 ?>
 </div>
-
-<div class="clear" style="padding-bottom:10px;"></div>
+<div class="clearfix"></div>
 <?php if($errors['err']) { ?>
-    <div id="msg_error"><?php echo $errors['err']; ?></div>
+    <div id="msg_error" class="alert alert-danger" role="alert"><?php echo $errors['err']; ?></div>
 <?php }elseif($msg) { ?>
-    <div id="msg_notice"><?php echo $msg; ?></div>
+    <div id="msg_notice" class="alert alert-info" role="alert"><?php echo $msg; ?></div>
 <?php }elseif($warn) { ?>
-    <div id="msg_warning"><?php echo $warn; ?></div>
+    <div id="msg_warning" class="alert alert-warning" role="alert"><?php echo $warn; ?></div>
+
 <?php }
 
 if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>

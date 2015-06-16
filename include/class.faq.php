@@ -81,7 +81,7 @@ class FAQ extends VerySimpleModel {
         return Format::viewableImages($this->answer);
     }
     function getTeaser() {
-        return Format::truncate(Format::striptags($this->answer), 150);
+        return wordwrap(strip_tags($this->answer,'<a>'), 150);
     }
     function getSearchableAnswer() {
         return ThreadEntryBody::fromFormattedText($this->answer, 'html')
