@@ -24,6 +24,10 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Remove files from the destination that are no longer
                 included in this repository');
+        $this->options['git'] = array('-g','--git',
+            'action'=>'store_true',
+            'help'=>'Use `git ls-files -s` as files source. Eliminates
+                possibility of deploying untracked files');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -87,12 +91,26 @@ class Deployment extends Unpacker {
         }
     }
 
-    function copyFile($src, $dest) {
+    function writeManifest($root) {
+        $lines = array();
+        foreach ($this->manifest as $F=>$H)
+            $lines[] = "$H $F";
+
+        return file_put_contents($this->include_path.'/.MANIFEST', implode("\n", $lines));
+    }
+
+    function hashContents($file) {
+        $md5 = md5($file);
+        $sha1 = sha1($file);
+        return substr($md5, -20) . substr($sha1, -20);
+    }
+
+    function getEditedContents($src) {
         static $short = false;
         static $version = false;
 
         if (substr($src, -4) != '.php')
-            return parent::copyFile($src, $dest);
+            return false;
 
         if (!$short) {
             $hash = exec('git rev-parse HEAD');
@@ -103,7 +121,7 @@ class Deployment extends Unpacker {
             $version = exec('git describe');
 
         if (!$short || !$version)
-            return parent::copyFile($src, $dest);
+            return false;
 
         $source = file_get_contents($src);
         $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
@@ -125,10 +143,68 @@ class Deployment extends Unpacker {
             "$1ini_set('$2', '0'); // Set by installer",
             $source);
 
-        if (!file_put_contents($dest, $source))
-            die("Unable to apply rewrite rules to ".$dest);
+        return $source;
+    }
 
-        return true;
+    function copyFile($source, $dest, $hash=false, $mode=0644) {
+        $contents = $this->getEditedContents($source);
+        if ($contents === false)
+            // Regular file
+            return parent::copyFile($source, $dest, $hash, $mode);
+
+        if (!file_put_contents($dest, $contents))
+            $this->fail($dest.": Unable to apply rewrite rules");
+
+        $this->updateManifest($source, $hash);
+        return chmod($dest, $mode);
+    }
+
+    function unpackage($folder, $destination, $recurse=0, $exclude=false) {
+        $use_git = $this->getOption('git', false);
+        if (!$use_git)
+            return parent::unpackage($folder, $destination, $recurse, $exclude);
+
+        // Attempt to read from git using `git ls-files` for deployment
+        if (substr($destination, -1) !== '/')
+            $destination .= '/';
+        $source = $this->source;
+        if (substr($source, -1) != '/')
+            $source .= '/';
+        $local = str_replace(array($source, '{,.}*'), array('',''), $folder);
+
+        $pipes = array();
+        $patterns = array();
+        foreach ((array) $exclude as $x) {
+            $patterns[] = str_replace($source, '', $x);
+        }
+        $X = implode(' --exclude-per-directory=', $patterns);
+        chdir($source.$local);
+        if (!($files = proc_open(
+            "git ls-files -zs --exclude-standard --exclude-per-directory=$X -- .",
+            array(1 => array('pipe', 'w')),
+            $pipes
+        ))) {
+            return parent::unpackage($folder, $destination, $recurse, $exclude);
+        }
+
+        $dryrun = $this->getOption('dry-run', false);
+        $verbose = $this->getOption('verbose') || $dryrun;
+        while ($line = stream_get_line($pipes[1], 255, "\x00")) {
+            list($mode, $hash, , $path) = preg_split('/\s+/', $line);
+            $src = $source.$local.$path;
+            if ($this->exclude($exclude, $src))
+                continue;
+            if (!$this->isChanged($src, $hash))
+                continue;
+            $dst = $destination.$path;
+            if ($verbose)
+                $this->stdout->write($dst."\n");
+            if ($dryrun)
+                continue;
+            if (!is_dir(dirname($dst)))
+                mkdir(dirname($dst), 0751, true);
+            $this->copyFile($src, $dst, $hash, octdec($mode));
+        }
     }
 
     function run($args, $options) {
@@ -147,16 +223,19 @@ class Deployment extends Unpacker {
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
                 : rtrim($this->destination, '/')."/include");
-        $include = rtrim($include, '/').'/';
+        $this->include_path = $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
-        $root = $this->find_root_folder();
+        $root = $this->source = $this->find_root_folder();
         $rootPattern = str_replace("\\","\\\\", $root); //need for windows case
 
-        $exclusions = array("$rootPattern/include", "$rootPattern/.git*",
+        # Prime the manifest system
+        $this->readManifest($this->destination.'/.MANIFEST');
+
+        $exclusions = array("$rootPattern/include/*", "$rootPattern/.git*",
             "*.sw[a-z]","*.md", "*.txt");
         if (!$options['setup'])
-            $exclusions[] = "$rootPattern/setup";
+            $exclusions[] = "$rootPattern/setup/*";
 
         # Unpack everything but the include/ folder
         $this->unpackage("$root/{,.}*", $this->destination, -1,
@@ -177,6 +256,8 @@ class Deployment extends Unpacker {
                 array("ost-config.php","settings.php","plugins/",
                 "*/.htaccess"));
         }
+
+        $this->writeManifest($this->destination);
     }
 }
 
