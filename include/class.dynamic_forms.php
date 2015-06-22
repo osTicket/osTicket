@@ -681,15 +681,19 @@ class DynamicFormField extends VerySimpleModel {
     function setConfiguration($vars, &$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm($vars)->getFields() as $name=>$field) {
-            $config[$name] = $field->to_php($field->getClean());
+            $config[$name] = $field->to_config($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('configuration', JsonDataEncoder::encode($config));
 
+        if (count($errors))
+            return false;
+
+        // See if field impl. need to save or override anything
+        $config = $this->getImpl()->to_config($config);
+        $this->set('configuration', JsonDataEncoder::encode($config));
         $this->set('hint', Format::sanitize($vars['hint']));
 
-        return count($errors) === 0;
+        return true;
     }
 
     function isDeletable() {
@@ -902,14 +906,26 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function delete() {
-        // Don't really delete form fields as that will screw up the data
+        // Don't really delete form fields with data as that will screw up the data
         // model. Instead, just drop the association with the form which
         // will give the appearance of deletion. Not deleting means that
         // the field will continue to exist on form entries it may already
         // have answers on, but since it isn't associated with the form, it
         // won't be available for new form submittals.
         $this->set('form_id', 0);
-        $this->save();
+
+        $impl = $this->getImpl();
+
+        // Trigger db_clean so the field can do house cleaning
+        $impl->db_cleanup(true);
+
+        // Short-circuit deletion if the field has data.
+        if ($impl->hasData())
+            return $this->save();
+
+        // Delete the field for realz
+        parent::delete();
+
     }
 
     function save($refetch=false) {
