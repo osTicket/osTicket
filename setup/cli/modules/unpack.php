@@ -97,7 +97,7 @@ class Unpacker extends Module {
             return @$this->manifest[$file] ?: null;
 
         $this->manifest = $lines = array();
-        $path = $this->destination . '/.MANIFEST';
+        $path = $this->get_include_dir() . '/.MANIFEST';
         if (!is_file($path))
             return null;
 
@@ -194,7 +194,15 @@ class Unpacker extends Module {
     }
 
     function get_include_dir() {
+        static $location;
+
+        if (isset($location))
+            return $location;
+
         $bootstrap_php = $this->destination . '/bootstrap.php';
+        if (!is_file($bootstrap_php))
+            return @$this->include_path ?: '';
+
         $lines = preg_grep("/define\s*\(\s*'INCLUDE_DIR'/",
             explode("\n", file_get_contents($bootstrap_php)));
 
@@ -203,9 +211,9 @@ class Unpacker extends Module {
         if (!defined('ROOT_DIR'))
             define('ROOT_DIR', rtrim($this->destination, '/').'/');
         foreach ($lines as $line)
-            eval($line);
+            @eval($line);
 
-        return rtrim(INCLUDE_DIR, '/').'/';
+        return $location = rtrim(INCLUDE_DIR, '/').'/';
     }
 
     function run($args, $options) {
