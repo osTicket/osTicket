@@ -109,6 +109,7 @@ class ZipArchive {
     function addFromString() {}
     function getFromIndex() {}
     function setCommentName() {}
+    function setExternalAttributesName() {}
 }
 
 class finfo {

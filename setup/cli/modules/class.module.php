@@ -4,10 +4,6 @@ class Option {
 
     var $default = false;
 
-    function Option() {
-        call_user_func_array(array($this, "__construct"), func_get_args());
-    }
-
     function __construct($options=false) {
         list($this->short, $this->long) = array_slice($options, 0, 2);
         $this->help = (isset($options['help'])) ? $options['help'] : "";
@@ -124,10 +120,6 @@ class Module {
 
     var $_options;
     var $_args;
-
-    function Module() {
-        call_user_func_array(array($this, '__construct'), func_get_args());
-    }
 
     function __construct() {
         $this->options['help'] = array("-h","--help",
@@ -269,21 +261,36 @@ class Module {
     function parseArgs($argv) {
         $options = $args = array();
         $argv = array_slice($argv, 0);
+        $more_opts = true;
         while ($arg = array_shift($argv)) {
             if (strpos($arg, '=') !== false) {
                 list($arg, $value) = explode('=', $arg, 2);
                 array_unshift($argv, $value);
             }
+            if ($arg == '--') {
+                $more_opts = false;
+                continue;
+            }
+            // Allow multiple simple args like -Dvt
+            if ($arg[0] == '-' && strlen($arg) > 2) {
+                foreach (str_split(substr($arg, 2)) as $O)
+                    array_unshift($argv, "-{$O}");
+                $arg = substr($arg, 0, 2);
+            }
             $found = false;
-            foreach ($this->options as $opt) {
-                if ($opt->short == $arg || $opt->long == $arg) {
-                    if ($opt->handleValue($options, $argv))
-                        array_shift($argv);
-                    $found = true;
+            if ($more_opts && $arg[0] == '-') {
+                foreach ($this->options as $opt) {
+                    if ($opt->short == $arg || $opt->long == $arg) {
+                        if ($nargs = $opt->handleValue($options, $argv))
+                            while ($nargs--)
+                                array_shift($argv);
+                        $found = true;
+                    }
                 }
             }
-            if (!$found && $arg[0] != '-')
+            if (!$found && (!$more_opts || $arg[0] != '-'))
                 $args[] = $arg;
+            // XXX else show help if $strict?
         }
         return array($options, $args);
     }

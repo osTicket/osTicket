@@ -1284,6 +1284,7 @@ class DynamicFormEntry extends VerySimpleModel {
             $a->entry = $this;
 
             try {
+                $field->setForm($this);
                 $val = $field->to_database($field->getClean());
             }
             catch (FieldUnchanged $e) {
