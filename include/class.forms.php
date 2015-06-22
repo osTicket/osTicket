@@ -3193,6 +3193,7 @@ class FreeTextField extends FormField {
             )),
             'attachments' => new FileUploadField(array(
                 'id'=>'attach',
+                'label' => __('Attachments'),
                 'name'=>'files',
                 'configuration' => array('extensions'=>'')
             )),
@@ -3248,7 +3249,7 @@ class FreeTextField extends FormField {
 class FreeTextWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        ?><div class=""><?php
+        ?><div class="thread-body" style="padding:0"><?php
         if ($label = $this->field->getLocal('label')) { ?>
             <h3><?php
             echo Format::htmlchars($label);
@@ -3264,12 +3265,13 @@ class FreeTextWidget extends Widget {
         </div>
         <?php
         if (($attachments=$this->field->getFiles())) { ?>
-            <br/>
-            <section>
+            <section class="freetext-files">
+            <div class="title"><?php echo __('Related Resources'); ?></div>
             <?php foreach ($attachments as $attach) { ?>
-                <div>
+                <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
-                    target="_blank" class="no-pjax">
+                    target="_blank" download="<?php echo $attach->file->getDownloadUrl();
+                    ?>" class="truncate no-pjax">
                     <i class="icon-file"></i>
                     <?php echo Format::htmlchars($attach->getFilename()); ?>
                 </a>
