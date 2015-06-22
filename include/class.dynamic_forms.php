@@ -681,15 +681,19 @@ class DynamicFormField extends VerySimpleModel {
     function setConfiguration($vars, &$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm($vars)->getFields() as $name=>$field) {
-            $config[$name] = $field->to_php($field->getClean());
+            $config[$name] = $field->to_config($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('configuration', JsonDataEncoder::encode($config));
 
+        if (count($errors))
+            return false;
+
+        // See if field impl. need to save or override anything
+        $config = $this->getImpl()->to_config($config);
+        $this->set('configuration', JsonDataEncoder::encode($config));
         $this->set('hint', Format::sanitize($vars['hint']));
 
-        return count($errors) === 0;
+        return true;
     }
 
     function isDeletable() {

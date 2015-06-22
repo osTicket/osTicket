@@ -551,6 +551,18 @@ class FormField {
     }
 
     /**
+     *
+     * to_config
+     *
+     * Transform the data from the value to config form (as determined by
+     * field).  By default to_php is used at the base level
+     *
+     */
+    function to_config($value) {
+        return $this->to_php($value);
+    }
+
+    /**
      * to_database
      *
      * Determines the value to be stored in the database. The database
@@ -2368,6 +2380,14 @@ class FileUploadField extends FormField {
         return JsonDataParser::decode($value);
     }
 
+    function to_config($value) {
+
+        if ($value && is_array($value))
+            $value = array_values($value);
+
+        return $value;
+    }
+
     function display($value) {
         $links = array();
         foreach ($this->getFiles() as $f) {
@@ -3074,6 +3094,7 @@ class FileUploadWidget extends Widget {
         $mimetypes = array_filter($config['__mimetypes'],
             function($t) { return strpos($t, '/') !== false; }
         );
+        $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = $F = array();
         $new = array_fill_keys($this->field->getClean(), 1);
         foreach ($attachments as $f) {
@@ -3116,7 +3137,7 @@ class FileUploadWidget extends Widget {
           allowedfiletypes: <?php echo JsonDataEncoder::encode(
             $mimetypes); ?>,
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
-          maxfilesize: <?php echo ($config['size'] ?: 1048576) / 1048576; ?>,
+          maxfilesize: <?php echo $maxfilesize; ?>,
           name: '<?php echo $name; ?>[]',
           files: <?php echo JsonDataEncoder::encode($files); ?>
         });});
@@ -3161,6 +3182,7 @@ class FileUploadError extends Exception {}
 
 class FreeTextField extends FormField {
     static $widget = 'FreeTextWidget';
+    protected $attachments;
 
     function getConfigurationOptions() {
         return array(
@@ -3168,6 +3190,11 @@ class FreeTextField extends FormField {
                 'configuration' => array('html' => true, 'size'=>'large'),
                 'label'=>__('Content'), 'required'=>true, 'default'=>'',
                 'hint'=>__('Free text shown in the form, such as a disclaimer'),
+            )),
+            'attachments' => new FileUploadField(array(
+                'id'=>'attach',
+                'name'=>'files',
+                'configuration' => array('extensions'=>'')
             )),
         );
     }
@@ -3179,6 +3206,43 @@ class FreeTextField extends FormField {
     function isBlockLevel() {
         return true;
     }
+
+    /* utils */
+
+    function to_config($config) {
+
+        $keepers = array();
+        if ($config && isset($config['attachments']))
+            foreach ($config['attachments'] as $fid)
+                $keepers[] = $fid;
+
+        $this->getAttachments()->keepOnlyFileIds($keepers);
+
+        return $config;
+    }
+
+    function db_cleanup() {
+
+        if ($this->getFiles())
+            $this->getAttachments()->deleteAll();
+    }
+
+    function getAttachments() {
+
+        if (!isset($this->attachments))
+            $this->attachments = GenericAttachments::forIdAndType($this->get('id'), 'I');
+
+        return $this->attachments;
+    }
+
+    function getFiles() {
+
+        if (!($attachments = $this->getAttachments()))
+            return array();
+
+        return $attachments->all();
+    }
+
 }
 
 class FreeTextWidget extends Widget {
@@ -3199,6 +3263,20 @@ class FreeTextWidget extends Widget {
             echo Format::viewableImages($config['content']); ?></div>
         </div>
         <?php
+        if (($attachments=$this->field->getFiles())) { ?>
+            <br/>
+            <section>
+            <?php foreach ($attachments as $attach) { ?>
+                <div>
+                <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
+                    target="_blank" class="no-pjax">
+                    <i class="icon-file"></i>
+                    <?php echo Format::htmlchars($attach->getFileName()); ?>
+                </a>
+                </div>
+            <?php } ?>
+        </section>
+        <?php }
     }
 }
 
