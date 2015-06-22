@@ -180,7 +180,7 @@ class Deployment extends Unpacker {
         $X = implode(' --exclude-per-directory=', $patterns);
         chdir($source.$local);
         if (!($files = proc_open(
-            "git ls-files -s --full-name --exclude-standard --exclude-per-directory=$X -- .",
+            "git ls-files -zs --exclude-standard --exclude-per-directory=$X -- .",
             array(1 => array('pipe', 'w')),
             $pipes
         ))) {
@@ -189,9 +189,9 @@ class Deployment extends Unpacker {
 
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
-        while ($line = stream_get_line($pipes[1], 255, PHP_EOL)) {
+        while ($line = stream_get_line($pipes[1], 255, "\x00")) {
             list($mode, $hash, , $path) = preg_split('/\s+/', $line);
-            $src = $source.$path;
+            $src = $source.$local.$path;
             if ($this->exclude($exclude, $src))
                 continue;
             if (!$this->isChanged($src, $hash))
