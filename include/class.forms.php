@@ -604,7 +604,7 @@ class FormField {
      * cleaned as well. This hook allows fields to participate when the data
      * for a field is cleaned up.
      */
-    function db_cleanup() {
+    function db_cleanup($field=false) {
     }
 
     /**
@@ -2406,7 +2406,7 @@ class FileUploadField extends FormField {
         return implode(', ', $files);
     }
 
-    function db_cleanup() {
+    function db_cleanup($field=false) {
         // Delete associated attachments from the database, if any
         $this->getFiles();
         if (isset($this->attachments)) {
@@ -3221,9 +3221,9 @@ class FreeTextField extends FormField {
         return $config;
     }
 
-    function db_cleanup() {
+    function db_cleanup($field=false) {
 
-        if ($this->getFiles())
+        if ($field && $this->getFiles())
             $this->getAttachments()->deleteAll();
     }
 
@@ -3271,7 +3271,7 @@ class FreeTextWidget extends Widget {
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
                     target="_blank" class="no-pjax">
                     <i class="icon-file"></i>
-                    <?php echo Format::htmlchars($attach->getFileName()); ?>
+                    <?php echo Format::htmlchars($attach->getFilename()); ?>
                 </a>
                 </div>
             <?php } ?>
