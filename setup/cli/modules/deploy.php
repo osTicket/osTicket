@@ -96,7 +96,7 @@ class Deployment extends Unpacker {
         foreach ($this->manifest as $F=>$H)
             $lines[] = "$H $F";
 
-        return file_put_contents($root.'/.MANIFEST', implode("\n", $lines));
+        return file_put_contents($this->include_path.'/.MANIFEST', implode("\n", $lines));
     }
 
     function hashContents($file) {
@@ -223,7 +223,7 @@ class Deployment extends Unpacker {
         $include = ($upgrade) ? $this->get_include_dir()
             : ($options['include'] ? $options['include']
                 : rtrim($this->destination, '/')."/include");
-        $include = rtrim($include, '/').'/';
+        $this->include_path = $include = rtrim($include, '/').'/';
 
         # Locate the upload folder
         $root = $this->source = $this->find_root_folder();
