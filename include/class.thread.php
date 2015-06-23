@@ -1386,9 +1386,6 @@ implements TemplateVariable {
             $entry->body = $body;
             if (!$entry->save())
                 return false;
-
-            // Set the $entry here for search indexing
-            $entry->ht['body'] = $body;
         }
 
         // Save mail message id, if available
