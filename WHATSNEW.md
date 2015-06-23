@@ -1,3 +1,13 @@
+osTicket v1.8.11
+================
+### Improvements
+  * Add support for invalid `multipart/relative` content type (aaf1b74)
+  * Force line breaks for very long HTML lines (56cc709)
+
+### Performance and Security
+  * Fix slow query for ticket counts for large datasets (c4ace2d)
+  * Fix slow thread load query (thanks @torohill) (7b7e855)
+
 osTicket v1.8.10
 ================
 ### Improvements
