@@ -37,22 +37,25 @@ class Thread {
         if(!$this->getTicketId())
             return null;
 
-        $sql='SELECT ticket.ticket_id as id '
-            .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' ,count(DISTINCT message.id) as messages '
-            .' ,count(DISTINCT response.id) as responses '
-            .' ,count(DISTINCT note.id) as notes '
+        $sql = 'SELECT ticket.ticket_id as id '
+            .' ,(SELECT COUNT(DISTINCT attach.attach_id) '
+                .' FROM '.TICKET_ATTACHMENT_TABLE.' attach '
+                .' WHERE ticket.ticket_id=attach.ticket_id '
+                .') AS attachments '
+            .' ,(SELECT COUNT(DISTINCT message.id) '
+                .' FROM '.TICKET_THREAD_TABLE.' message '
+                .' WHERE ticket.ticket_id=message.ticket_id AND message.thread_type = "M" '
+                .') AS messages '
+            .' ,(SELECT COUNT(DISTINCT response.id) '
+                .' FROM '.TICKET_THREAD_TABLE.' response '
+                .' WHERE ticket.ticket_id=response.ticket_id AND response.thread_type = "R" '
+                .') AS responses '
+            .' ,(SELECT COUNT(DISTINCT note.id) '
+                .' FROM '.TICKET_THREAD_TABLE.' note '
+                .' WHERE ticket.ticket_id=note.ticket_id AND note.thread_type = "N" '
+                .' ) AS notes '
             .' FROM '.TICKET_TABLE.' ticket '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
-                .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
-                ."ticket.ticket_id=message.ticket_id AND message.thread_type = 'M') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
-                ."ticket.ticket_id=response.ticket_id AND response.thread_type = 'R') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ( '
-                ."ticket.ticket_id=note.ticket_id AND note.thread_type = 'N') "
-            .' WHERE ticket.ticket_id='.db_input($this->getTicketId())
-            .' GROUP BY ticket.ticket_id';
+            .' WHERE ticket.ticket_id='.db_input($this->getTicketId());
 
         if(!($res=db_query($sql)) || !db_num_rows($res))
             return false;
