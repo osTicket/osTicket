@@ -278,8 +278,8 @@ class Deployment extends Unpacker {
         function ($m) use ($self, &$compressed_css) {
             $attrs = array();
             $link = str_replace(
-                array('<?php echo ', '; ?>', 'ROOT_PATH'),
-                array('', '' , $self->root.'/'),
+                array('<?php echo ', '; ?>', 'ROOT_PATH', 'ASSETS_PATH'),
+                array('', '' , $self->root.'/', $self->root.'/assets/default/'),
                 $m[0]);
             preg_match_all('/[^= ]+="[^"]+"/', $link, $attrs);
             foreach ($attrs[0] as $A) {
@@ -325,6 +325,18 @@ class Deployment extends Unpacker {
                     }
                     else {
                         $contents = file_get_contents($file);
+                        // Copy out referenced files to compressed stage
+                        preg_replace_callback(':url\([\'"]?((?!data)[^)"\']+)[\'"]?\):',
+                        function ($m) use ($self, $file) {
+                            $base = dirname($file);
+                            @list($include, $query) = explode('?', rtrim($m[1],'/'));
+                            @list($include, $hash) = explode('#', $include, 2);
+                            $url = $base . '/' . $include;
+                            if (is_file($url))
+                                $self->copyFile($url, $self->destination.'css/'.$include);
+                            return $m[0];
+                        },
+                        $contents);
                     }
                     if (strpos($file, '.min.') === false)
                         $contents = $this->minify_css($contents);
@@ -413,7 +425,8 @@ class Deployment extends Unpacker {
                     else {
                         $contents = file_get_contents($file);
                     }
-                    // TODO: Minify contents
+                    if (strpos($file, '.min.') === false)
+                        $contents = $this->minify_js($contents);
                     $compacted .= $contents."\n";
                 }
                 $basename = 'js/'.md5('javascript::'.$group).'.js';
@@ -571,6 +584,24 @@ class Deployment extends Unpacker {
 
         if (!$options['dry-run'])
             $this->writeManifest($this->destination);
+    }
+
+    function minify_js($source) {
+        // Minify contents using `uglifyjs` (if available)
+        // (`npm install -g uglifyjs`)
+        $pipes = array();
+        if ($files = proc_open(
+            "uglifyjs", array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')),
+            $pipes
+        )) {
+            fwrite($pipes[0], $source);
+            fclose($pipes[0]);
+            $source = '';
+            while ($block = fread($pipes[1], 8192))
+                $source .= $block;
+            proc_close($files);
+        }
+        return $source;
     }
 
     // Thanks, http://stackoverflow.com/a/15195752
