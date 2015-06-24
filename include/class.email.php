@@ -117,7 +117,9 @@ class Email extends VerySimpleModel {
     }
 
     function getInfo() {
-        return $this->getHashtable();
+        $base = $this->getHashtable();
+        $base['mail_proto'] = $this->mail_proto;
+        return $base;
     }
 
     function getMailAccountInfo() {
@@ -313,7 +315,7 @@ class Email extends VerySimpleModel {
                 ));
 
             if ($id)
-                $existing->filter(array('email_id' => $id));
+                $existing->exclude(array('email_id' => $id));
 
             if ($existing->exists())
                 $errors['userid']=$errors['host']=__('Host/userid combination already in use.');

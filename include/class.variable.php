@@ -70,7 +70,7 @@ class VariableReplacer {
 
         list($v, $part) = explode('.', $var, 2);
         if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
-            $rv = call_user_func(array($obj, 'get'.ucfirst($v)), $this);
+            $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
             if(!$rv || !is_object($rv))
                 return $rv;
 
@@ -374,7 +374,7 @@ class TextWithExtras {
 
 interface TemplateVariable {
     // function asVar(); — not absolutely required
-    // function getVar($name); — not absolutely required
+    // function getVar($name, $parser); — not absolutely required
     static function getVarScope();
 }
 ?>

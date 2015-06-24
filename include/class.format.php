@@ -931,13 +931,20 @@ extends FormattedLocalDate {
         return (string) new FormattedLocalDate($this->date, $cfg->getTimezone(), false, $this->fromdb);
     }
 
-    function getVar($what) {
+    function getVar($what, $context) {
         global $cfg;
 
         if ($rv = parent::getVar($what))
             return $rv;
 
         switch ($what) {
+        case 'user':
+            // Fetch $recipient from the context and find that user's time zone
+            if ($recipient = $context->getObj('recipient')) {
+                $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
+                return new FormattedLocalDate($this->date, $tz, $recipient);
+            }
+            break;
         case 'system':
             return new FormattedLocalDate($this->date, $cfg->getDefaultTimezone());
         }
@@ -945,16 +952,6 @@ extends FormattedLocalDate {
 
     function getHumanize() {
         return Format::relativeTime(Misc::db2gmtime($this->date));
-    }
-
-    function getUser($context) {
-        global $cfg;
-
-        // Fetch $recipient from the context and find that user's time zone
-        if ($recipient = $context->getObj('recipient')) {
-            $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
-            return new FormattedLocalDate($this->date, $tz, $recipient);
-        }
     }
 
     static function getVarScope() {

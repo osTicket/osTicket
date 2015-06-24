@@ -73,6 +73,10 @@ class Misc {
 
         $dbtime = is_int($var) ? $var : strtotime($var);
         $D = DateTime::createFromFormat('U', $dbtime);
+        if (!$D)
+            // This happens e.g. from negative timestamps
+            return $var;
+
         return $dbtime - $dbtz->getOffset($D);
     }
 
