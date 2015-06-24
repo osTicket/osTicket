@@ -44,6 +44,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             "dept" => array(
                 "table" => DEPT_TABLE,
                 "pk" => "id",
+                "fpk" => "dept_id",
                 "sort" => 'T1.name',
                 "fields" => 'T1.name',
                 "headers" => array(__('Department')),
@@ -81,7 +82,7 @@ class OverviewReportAjaxAPI extends AjaxController {
         $info = isset($groups[$group])?$groups[$group]:$groups['dept'];
 
         # XXX: Die if $group not in $groups
-
+        $info['fpk'] = $info['fpk'] ?: $info['pk'];
         $queries=array(
             array(5, 'SELECT '.$info['fields'].',
                 COUNT(*)-COUNT(NULLIF(A1.state, "created")) AS Opened,
@@ -91,7 +92,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 COUNT(*)-COUNT(NULLIF(A1.state, "reopened")) AS Reopened
             FROM '.$info['table'].' T1
                 LEFT JOIN '.THREAD_EVENT_TABLE.' A1
-                    ON (A1.'.$info['pk'].'=T1.'.$info['pk'].'
+                    ON (A1.'.$info['fpk'].'=T1.'.$info['pk'].'
                          AND NOT annulled
                          AND (A1.timestamp BETWEEN '.$start.' AND '.$stop.'))
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=A1.staff_id)
@@ -102,7 +103,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(T2.closed, T2.created)),1) AS ServiceTime
             FROM '.$info['table'].' T1
-                LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['pk'].'=T1.'.$info['pk'].')
+                LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['fpk'].'=T1.'.$info['pk'].')
                 LEFT JOIN '.STAFF_TABLE.' S1 ON (S1.staff_id=T2.staff_id)
             WHERE '.$info['filter'].' AND T2.closed BETWEEN '.$start.' AND '.$stop.'
             GROUP BY T1.'.$info['pk'].'
@@ -111,7 +112,7 @@ class OverviewReportAjaxAPI extends AjaxController {
             array(1, 'SELECT '.$info['fields'].',
                 FORMAT(AVG(DATEDIFF(B2.created, B1.created)),1) AS ResponseTime
             FROM '.$info['table'].' T1
-                LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['pk'].'=T1.'.$info['pk'].')
+                LEFT JOIN '.TICKET_TABLE.' T2 ON (T2.'.$info['fpk'].'=T1.'.$info['pk'].')
                 LEFT JOIN '.THREAD_TABLE.' B0 ON (B0.object_id=T2.ticket_id
                     AND B0.object_type="T")
                 LEFT JOIN '.THREAD_ENTRY_TABLE.' B2 ON (B2.thread_id = B0.id
@@ -192,18 +193,22 @@ class OverviewReportAjaxAPI extends AjaxController {
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.THREAD_EVENT_TABLE
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-                .' ORDER BY 1');
+            .' AND state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
+            .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
         $res = db_query('SELECT state, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
-                .'COUNT(ticket_id)'
-            .' FROM '.THREAD_EVENT_TABLE
-            .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
+                .'COUNT(DISTINCT T.id)'
+            .' FROM '.THREAD_EVENT_TABLE. ' E '
+            .' JOIN '.THREAD_TABLE. ' T
+                ON (T.id = E.thread_id AND T.object_type = "T") '
+            .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
-            .' GROUP BY state, DATE_FORMAT(timestamp, \'%Y-%m-%d\')'
+            .' AND E.state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
+            .' GROUP BY E.state, DATE_FORMAT(E.timestamp, \'%Y-%m-%d\')'
             .' ORDER BY 2, 1');
         # Initialize array of plot values
         $plots = array();
