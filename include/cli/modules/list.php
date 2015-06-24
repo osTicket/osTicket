@@ -1,6 +1,4 @@
 <?php
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "/../cli.inc.php";
 include_once INCLUDE_DIR .'class.translation.php';
 
 

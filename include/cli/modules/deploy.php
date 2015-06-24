@@ -1,5 +1,4 @@
 <?php
-require_once dirname(__file__) . "/class.module.php";
 require_once dirname(__file__) . "/unpack.php";
 
 class Deployment extends Unpacker {

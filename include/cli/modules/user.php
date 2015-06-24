@@ -1,6 +1,4 @@
 <?php
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "/../cli.inc.php";
 
 class UserManager extends Module {
     var $prologue = 'CLI user manager';

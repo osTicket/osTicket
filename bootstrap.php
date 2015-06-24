@@ -309,6 +309,7 @@ define('SETUP_DIR',ROOT_DIR.'setup/');
 
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
+define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
