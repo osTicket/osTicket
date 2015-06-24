@@ -1,6 +1,23 @@
 #!/usr/bin/env php
 <?php
+/*********************************************************************
+    manage.php
 
+    CLI (command line interface) for osTicket management. Use
+
+    php manage.php --help
+
+    for detailed and updated getting started information.
+
+    Jared Hancock <jared@osticket.com>
+    Copyright (c)  2006-2015 osTicket
+    http://www.osticket.com
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+
+    vim: expandtab sw=4 ts=4 sts=4:
+**********************************************************************/
 if (PHP_SAPI != "cli")
     die("Management only supported from command-line\n");
 
@@ -34,8 +51,10 @@ class Manager extends Module {
         parent::showHelp();
 
         echo "\n";
+        ksort($registered_modules);
+        $width = max(array_map('strlen', array_keys($registered_modules)));
         foreach ($registered_modules as $name=>$mod)
-            echo str_pad($name, 20) . $mod->prologue . "\n";
+            echo str_pad($name, $width + 2) . $mod->prologue . "\n";
     }
 
     function run($args, $options) {
