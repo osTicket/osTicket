@@ -164,7 +164,7 @@ class Format {
             $html = $doc->saveHTML();
             $html = preg_replace('`^<!DOCTYPE.+?>|<\?xml .+?>|</?html>|</?body>|</?head>|<meta .+?/?>`', '', $html); # <?php
         }
-        return preg_replace('`^<div>|</div>$`', '', $html);
+        return preg_replace('`^<div>|</div>$`', '', trim($html));
     }
 
     function html($html, $config=array()) {
