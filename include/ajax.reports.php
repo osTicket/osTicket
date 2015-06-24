@@ -193,7 +193,8 @@ class OverviewReportAjaxAPI extends AjaxController {
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.THREAD_EVENT_TABLE
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-                .' ORDER BY 1');
+            .' AND state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
+            .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
@@ -206,6 +207,7 @@ class OverviewReportAjaxAPI extends AjaxController {
                 ON (T.id = E.thread_id AND T.object_type = "T") '
             .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
+            .' AND E.state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
             .' GROUP BY E.state, DATE_FORMAT(E.timestamp, \'%Y-%m-%d\')'
             .' ORDER BY 2, 1');
         # Initialize array of plot values
