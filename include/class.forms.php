@@ -2323,7 +2323,7 @@ class FileUploadField extends FormField {
                 sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
                 'E');
         }
-        return $this->attachments ? $this->attachments->getAll() : array();
+        return $this->attachments ?: array();
     }
 
     function setAttachments(GenericAttachments $att) {

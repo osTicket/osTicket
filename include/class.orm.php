@@ -304,6 +304,10 @@ class VerySimpleModel {
         if ($this->__new__)
             return null;
 
+        // Check to see if the column referenced is actually valid
+        if (in_array($field, static::getMeta('fields')))
+            return null;
+
         // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));

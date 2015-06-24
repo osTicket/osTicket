@@ -312,12 +312,8 @@ class FAQ extends VerySimpleModel {
         return true;
     }
 
-    function getAttachments($lang=false) {
-        $att = $this->attachments;
-        if ($lang)
-            $att = $att->window(array('lang'=>$lang));
-
-        return $att;
+    function getAttachments($lang=null) {
+        return $this->attachments->window(array('lang'=>$lang));
     }
 
     function getAttachmentsLinks($separator=' ',$target='') {
