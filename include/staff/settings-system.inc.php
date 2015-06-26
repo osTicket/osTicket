@@ -47,16 +47,17 @@ $gmtime = Misc::gmtime();
         <tr>
             <td width="220" class="required"><?php echo __('Default Department');?>:</td>
             <td>
-                <select name="default_dept_id">
+                <select name="default_dept_id" data-quick-add="department">
                     <option value="">&mdash; <?php echo __('Select Default Department');?> &mdash;</option>
                     <?php
                     if (($depts=Dept::getPublicDepartments())) {
                         foreach ($depts as $id => $name) {
                             $selected = ($config['default_dept_id']==$id)?'selected="selected"':''; ?>
-                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?> <?php echo __('Dept');?></option>
+                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
                         }
                     } ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
                 <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>

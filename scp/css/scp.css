@@ -1620,11 +1620,10 @@ time.faq {
 }
 
 .custom-field .field-label {
-    margin-left: 3px;
-    margin-right: 3px;
+    margin: 0 3px 4px;
 }
 .custom-field + .custom-field {
-    margin-top: 5px;
+    margin-top: 8px;
 }
 .dialog label.fixed-size {
     width:100px;
@@ -2445,4 +2444,26 @@ td.indented {
     font-weight: bold;
     margin-bottom: 0.3em;
     font-size: 1.1em;
+}
+
+/* Form simple grid sizing */
+.iblock {
+    display: inline-block;
+}
+form.inset {
+    padding: 10px;
+}
+.span12 {
+    width: 100%;
+}
+.span6 {
+    width: 48%;
+    width: calc(50% - 10px);
+}
+.span6 + .span6 {
+    margin-left: 1%;
+    margin-left: calc(0 + 10px);
+}
+.form.footer {
+    margin-top: 50px;
 }

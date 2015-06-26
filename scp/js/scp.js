@@ -956,6 +956,25 @@ if ($.support.pjax) {
   })
 }
 
+// Quick-Add dialogs
+$(document).on('change', 'select[data-quick-add]', function() {
+    var $select = $(this),
+        selected = $select.find('option:selected');
+    if (selected.data('quick-add') === undefined)
+        return;
+    $.dialog('ajax.php/admin/quick-add/' + $select.data('quick-add'), 201,
+    function(xhr, data) {
+        data = JSON.parse(data);
+        if (data && data.id && data.name) {
+          $('<option>')
+            .attr('value', data.id)
+            .text(data.name)
+            .insertBefore($select.find('option[data-quick-add]'));
+          $select.val(data.id);
+        }
+    });
+});
+
 // Quick note interface
 $(document).on('click.note', '.quicknote .action.edit-note', function() {
     var note = $(this).closest('.quicknote'),

@@ -122,14 +122,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Department'); ?>:
             </td>
             <td>
-                <select name="dept_id">
+                <select name="dept_id" data-quick-add="department">
                     <option value="0">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
                     foreach (Dept::getDepartments() as $id=>$name) {
                         $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
                         echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                    }
-                    ?>
+                    } ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['dept_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#department"></i>
