@@ -623,4 +623,61 @@ class GroupDeptAccess extends VerySimpleModel {
         ),
     );
 }
-?>
+
+class DepartmentQuickAddForm
+extends Form {
+    function getFields() {
+        if ($this->fields)
+            return $this->fields;
+
+        return $this->fields = array(
+            'pid' => new ChoiceField(array(
+                'label' => '',
+                'default' => 0,
+                'choices' => array_merge(
+                    array(0 => __('Top-Level Department')),
+                    Dept::getDepartments()
+                )
+            )),
+            'name' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __('Name'),
+                    'classes' => 'span12',
+                    'autofocus' => true,
+                    'length' => 128,
+                ),
+            )),
+            'email_id' => new ChoiceField(array(
+                'label' => __('Email Mailbox'),
+                'default' => 0,
+                'choices' => array_merge(
+                    array(0 => '— '.__('System Default').' —'),
+                    Email::getAddresses()
+                ),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'private' => new BooleanField(array(
+                'configuration' => array(
+                    'classes' => 'form footer',
+                    'desc' => __('This department is for internal use'),
+                ),
+            )),
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+
+        $clean['ispublic'] = !$clean['private'];
+        unset($clean['private']);
+
+        return $clean;
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}

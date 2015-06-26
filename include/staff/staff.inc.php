@@ -230,7 +230,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Primary Department');?>:
             </td>
             <td>
-                <select name="dept_id" id="dept_id">
+                <select name="dept_id" id="dept_id" data-quick-add="department">
                     <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
                     <?php
                     foreach (Dept::getDepartments() as $id=>$name) {
@@ -238,6 +238,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
                     }
                     ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>
                 &nbsp;<span class="error">*</span>
                 &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>

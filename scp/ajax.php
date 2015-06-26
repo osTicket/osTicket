@@ -224,6 +224,11 @@ $dispatcher = patterns('',
         url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
         url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
         url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
+    )),
+    url('^/admin', patterns('',
+        url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
+            url('^/department$', 'addDepartment')
+        ))
     ))
 );
 

@@ -163,10 +163,11 @@ class Form {
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
         $form = $this;
+        $template = $options['template'] ?: 'dynamic-form.tmpl.php';
         if ($staff)
-            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+            include(STAFFINC_DIR . 'templates/' . $template);
         else
-            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+            include(CLIENTINC_DIR . 'templates/' . $template);
         echo $this->getMedia();
     }
 
@@ -2834,8 +2835,11 @@ class ChoicesWidget extends Widget {
         if (!is_array($values))
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
+        if (isset($config['classes']))
+            $classes = 'class="'.$config['classes'].'"';
         ?>
         <select name="<?php echo $this->name; ?>[]"
+            <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
@@ -2938,7 +2942,10 @@ class CheckboxWidget extends Widget {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
+        if (isset($config['classes']))
+            $classes = 'class="'.$config['classes'].'"';
         ?>
+        <div <?php echo implode(' ', array_filter(array($classes))); ?>>
         <input id="<?php echo $this->id; ?>" style="vertical-align:top;"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
@@ -2947,7 +2954,9 @@ class CheckboxWidget extends Widget {
         if ($config['desc']) { ?>
             <em style="display:inline-block"><?php
             echo Format::viewableImages($config['desc']); ?></em>
-        <?php }
+        <?php } ?>
+        </div>
+<?php
     }
 
     function getValue() {
