@@ -160,7 +160,7 @@ if($_POST && !$errors):
                      $errors['assignId']= sprintf('%s - %s',
                              __('Invalid assignee'),
                              __('get technical support'));
-                 elseif ($_POST['assignId'][0]!='s'
+                 elseif ($_POST['assignId'][0]=='s'
                          && $dept->assignMembersOnly()
                          && !$dept->isMember($id)) {
                      $errors['assignId'] = sprintf('%s. %s',
