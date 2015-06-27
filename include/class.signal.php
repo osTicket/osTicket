@@ -95,7 +95,7 @@ class Signal {
                 continue;
             elseif ($check && !call_user_func_array($check, array($object, $data)))
                 continue;
-            call_user_func_array($callable, array($object, $data));
+            call_user_func_array($callable, array($object, &$data));
         }
     }
 }
