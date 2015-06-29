@@ -173,7 +173,7 @@ class Unpacker extends Module {
                 if ($dryrun)
                     continue;
                 if (!is_dir($destination))
-                    mkdir($destination, 0751, true);
+                    mkdir($destination, 0755, true);
                 $this->copyFile($file, $target, $hash);
             }
         }
