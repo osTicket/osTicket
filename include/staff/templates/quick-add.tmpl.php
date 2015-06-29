@@ -3,7 +3,7 @@
 <div class="clear"></div>
 <hr/>
 <form method="post" action="#<?php echo $path; ?>">
-  <div class="inset">
+  <div class="inset quick-add">
     <?php $form->render(); ?>
   </div>
   <hr>

@@ -301,12 +301,22 @@ class Form {
  *
  */
 class SimpleForm extends Form {
-
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
         $this->setFields($fields);
     }
+}
 
+abstract class AbstractForm extends Form {
+    function __construct($source=null, $options=array()) {
+        parent::__construct($source, $options);
+        $this->setFields($this->buildFields());
+    }
+    /**
+     * Fetch the fields defined for this form. This method is only called
+     * once.
+     */
+    abstract function buildFields();
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -2920,6 +2930,9 @@ class ChoicesWidget extends Widget {
         <select name="<?php echo $this->name; ?>[]"
             <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
+            <?php foreach ($config['data'] as $D=>$V) {
+              echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
+            } ?>
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>

@@ -2450,8 +2450,11 @@ td.indented {
 .iblock {
     display: inline-block;
 }
-form.inset {
+form .inset {
     padding: 10px;
+}
+.dialog form .inset {
+  min-height: 150px;
 }
 .span12 {
     width: 100%;

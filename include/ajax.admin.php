@@ -1,6 +1,7 @@
 <?php
 
 require_once(INCLUDE_DIR . 'class.dept.php');
+require_once(INCLUDE_DIR . 'class.team.php');
 
 class AdminAjaxAPI extends AjaxController {
 
@@ -31,12 +32,12 @@ class AdminAjaxAPI extends AjaxController {
             $vars += array(
                 'group_membership' => Dept::ALERTS_DEPT_AND_GROUPS,
             );
-            if ($dept->update($vars, $errors))
+            if ($dept->update($vars, $errors)) {
                 Http::response(201, $this->encode(array(
                     'id' => $dept->id,
                     'name' => $dept->name,
                 ), 'application/json'));
-
+            }
             foreach ($errors as $name=>$desc)
                 if ($F = $form->getField($name))
                     $F->addError($desc);
@@ -45,6 +46,50 @@ class AdminAjaxAPI extends AjaxController {
         $title = __("Add New Department");
         $path = $ost->get_path_info();
 
-        include STAFFINC_DIR . 'templates/quick-add-department.tmpl.php';
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
+    }
+
+    /**
+     * Ajax: GET /admin/add/team
+     *
+     * Uses a dialog to add a new team
+     *
+     * Returns:
+     * 200 - HTML form for addition
+     * 201 - {id: <id>, name: <name>}
+     *
+     * Throws:
+     * 403 - Not logged in
+     */
+    function addTeam() {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+
+        $form = new TeamQuickAddForm($_POST);
+
+        if ($_POST && $form->isValid()) {
+            $team = Team::create();
+            $errors = array();
+            $vars = $form->getClean();
+            $vars += array(
+                'isenabled' => true,
+            );
+            if ($team->update($vars, $errors)) {
+                Http::response(201, $this->encode(array(
+                    'id' => $team->getId(),
+                    'name' => $team->name,
+                ), 'application/json'));
+            }
+            foreach ($errors as $name=>$desc)
+                if ($F = $form->getField($name))
+                    $F->addError($desc);
+        }
+
+        $title = __("Add New Team");
+        $path = $ost->get_path_info();
+
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
 }
