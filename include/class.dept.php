@@ -557,13 +557,14 @@ implements TemplateVariable {
     function update($vars, &$errors) {
         global $cfg;
 
-        if (isset($this->id) && $this->getId() != $vars['id'])
+        $id = $this->id;
+        if ($id != $vars['id'])
             $errors['err']=__('Missing or invalid Dept ID (internal error).');
 
         if (!$vars['name']) {
             $errors['name']=__('Name required');
-        } elseif (($did=static::getIdByName($vars['name'], $vars['pid']))
-                && (!isset($this->id) || $did!=$this->getId())) {
+        } elseif (($did = static::getIdByName($vars['name'], $vars['pid']))
+                && $did != $this->id) {
             $errors['name']=__('Department already exists');
         }
 

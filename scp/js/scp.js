@@ -959,18 +959,22 @@ if ($.support.pjax) {
 // Quick-Add dialogs
 $(document).on('change', 'select[data-quick-add]', function() {
     var $select = $(this),
-        selected = $select.find('option:selected');
-    if (selected.data('quick-add') === undefined)
+        selected = $select.find('option:selected'),
+        type = selected.parent().closest('[data-quick-add]').data('quickAdd');
+    if (!type || (selected.data('quickAdd') === undefined && selected.val() !== ':new:'))
         return;
-    $.dialog('ajax.php/admin/quick-add/' + $select.data('quick-add'), 201,
+    $.dialog('ajax.php/admin/quick-add/' + type, 201,
     function(xhr, data) {
         data = JSON.parse(data);
         if (data && data.id && data.name) {
+          var id = data.id;
+          if (selected.data('idPrefix'))
+            id = selected.data('idPrefix') + id;
           $('<option>')
-            .attr('value', data.id)
+            .attr('value', id)
             .text(data.name)
-            .insertBefore($select.find('option[data-quick-add]'));
-          $select.val(data.id);
+            .insertBefore(selected);
+          $select.val(id);
         }
     });
 });

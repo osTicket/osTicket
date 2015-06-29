@@ -227,7 +227,8 @@ $dispatcher = patterns('',
     )),
     url('^/admin', patterns('',
         url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
-            url('^/department$', 'addDepartment')
+            url('^/department$', 'addDepartment'),
+            url('^/team', 'addTeam')
         ))
     ))
 );

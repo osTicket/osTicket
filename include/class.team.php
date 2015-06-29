@@ -162,18 +162,16 @@ implements TemplateVariable {
               ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
             | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
         $this->lead_id = $vars['lead_id'] ?: 0;
-        $this->name = $vars['name'];
+        $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);
 
         if ($this->save()) {
             // Remove checked members
             if ($vars['remove'] && is_array($vars['remove'])) {
                 TeamMember::objects()
-                    ->filter(array(
-                        'staff_id__in' => $vars['remove']))
+                    ->filter(array('staff_id__in' => $vars['remove']))
                     ->delete();
             }
-
             return true;
         }
 
@@ -301,4 +299,34 @@ class TeamMember extends VerySimpleModel {
         ),
     );
 }
-?>
+
+class TeamQuickAddForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __('Name'),
+                    'classes' => 'span12',
+                    'autofocus' => true,
+                    'length' => 128,
+                ),
+            )),
+            'lead_id' => new ChoiceField(array(
+                'default' => 0,
+                'choices' => array_merge(
+                    array(0 => '— '.__('No Leader').' —'),
+                    Staff::getStaffMembers()
+                ),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+        );
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
