@@ -238,7 +238,6 @@ implements TemplateVariable {
                     'flags__hasbit'=>self::FLAG_ENABLED,
                     'members__staff__isactive'=>1,
                     'members__staff__onvacation'=>0,
-                    'members__staff__group__flags__hasbit'=>Group::FLAG_ENABLED,
                 ))
                 ->filter(array('members_count__gt'=>0));
             }
@@ -298,6 +297,23 @@ class TeamMember extends VerySimpleModel {
             ),
         ),
     );
+
+    const FLAG_ALERTS = 0x0001;
+
+    function isAlertsEnabled() {
+        return $this->flags & self::FLAG_ALERTS != 0;
+    }
+
+    function setFlag($flag, $value) {
+        if ($value)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    function setAlerts($value) {
+        $this->setFlag(self::FLAG_ALERTS, $value);
+    }
 }
 
 class TeamQuickAddForm
@@ -314,9 +330,10 @@ extends AbstractForm {
                 ),
             )),
             'lead_id' => new ChoiceField(array(
+                'label' => __('Optionally select a leader for the team'),
                 'default' => 0,
                 'choices' => array_merge(
-                    array(0 => '— '.__('No Leader').' —'),
+                    array(0 => '— '.__('None').' —'),
                     Staff::getStaffMembers()
                 ),
                 'configuration' => array(

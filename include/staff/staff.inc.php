@@ -2,360 +2,476 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $info = $qs = array();
-if($staff && $_REQUEST['a']!='add'){
+if ($staff && $_REQUEST['a']!='add'){
     //Editing Department.
-    $title=__('Update Agent');
+    $title=__('Manage Agent');
     $action='update';
     $submit_text=__('Save Changes');
-    $passwd_text=__('To reset the password enter a new one below');
-    $info=$staff->getInfo();
-    $info['id']=$staff->getId();
+    $info = $staff->getInfo();
+    $info['id'] = $staff->getId();
     $info['teams'] = $staff->getTeams();
     $info['signature'] = Format::viewableImages($info['signature']);
     $qs += array('id' => $staff->getId());
-}else {
-    $title=__('Add New Agent');
-    $action='create';
-    $submit_text=__('Add Agent');
-    $passwd_text=__('Temporary password required only for "Local" authentication');
-    //Some defaults for new staff.
-    $info['change_passwd']=1;
-    $info['welcome_email']=1;
-    $info['isactive']=1;
-    $info['isvisible']=1;
-    $info['isadmin']=0;
-    $qs += array('a' => 'add');
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info = Format::htmlchars($info);
 ?>
-<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
- <?php csrf_token(); ?>
- <input type="hidden" name="do" value="<?php echo $action; ?>">
- <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
- <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Agent Account');?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th colspan="2">
-                <h4><?php echo $title; ?></h4>
-                <em><strong><?php echo __('User Information');?></strong></em>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Username');?>:
-            </td>
-            <td>
-                <input type="text" size="30" class="staff-username typeahead"
-                     autofocus name="username" value="<?php echo $info['username']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['username']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#username"></i>
-            </td>
-        </tr>
 
+<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
+  <?php csrf_token(); ?>
+  <input type="hidden" name="do" value="<?php echo $action; ?>">
+  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
+  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
+
+  <h2><?php echo $title; ?>
+    <div>
+      <small><?php echo $info['firstname'].' '.$info['lastname'];?></small>
+    </div>
+  </h2>
+
+  <ul class="clean tabs">
+    <li class="active"><a href="#account"><?php echo __('Account'); ?></a></li>
+    <li><a href="#access"><?php echo __('Access'); ?></a></li>
+    <li><a href="#permissions"><?php echo __('Permisions'); ?></a></li>
+    <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
+  </ul>
+
+  <div class="tab_content" id="account">
+    <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
+      <tbody>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('First Name');?>:
-            </td>
-            <td>
-                <input type="text" size="30" name="firstname" class="auto first"
-                     value="<?php echo $info['firstname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['firstname']; ?></span>&nbsp;
-            </td>
+          <td class="required"><?php echo __('Name'); ?>:</td>
+          <td>
+            <input type="text" size="20" maxlength="64" style="width: 145px" name="firstname"
+              autofocus value="<?php echo $info['firstname']; ?>"
+              placeholder="<?php echo __("First Name"); ?>" />
+            <input type="text" size="20" maxlength="64" style="width: 145px" name="lastname"
+              value="<?php echo $info['lastname']; ?>"
+              placeholder="<?php echo __("Last Name"); ?>" />
+            <div class="error"><?php echo $errors['firstname']; ?></div>
+            <div class="error"><?php echo $errors['lastname']; ?></div>
+          </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('Last Name');?>:
-            </td>
-            <td>
-                <input type="text" size="30" name="lastname" class="auto last"
-                    value="<?php echo $info['lastname']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['lastname']; ?></span>&nbsp;
-            </td>
+          <td class="required"><?php echo __('Email Address'); ?>:</td>
+          <td>
+            <input type="email" size="40" maxlength="64" style="width: 300px" name="email"
+              value="<?php echo $info['email']; ?>"
+              placeholder="<?php echo __('e.g. me@mycompany.com'); ?>" />
+            <div class="error"><?php echo $errors['email']; ?></div>
+          </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('Email Address');?>:
-            </td>
-            <td>
-                <input type="text" size="30" name="email" class="auto email"
-                    value="<?php echo $info['email']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#email_address"></i>
-            </td>
+          <td><?php echo __('Phone Number');?>:</td>
+          <td>
+            <input type="tel" size="18" name="phone" class="auto phone"
+              value="<?php echo $info['phone']; ?>" />
+            <?php echo __('Ext');?>
+            <input type="text" size="5" name="phone_ext"
+              value="<?php echo $info['phone_ext']; ?>">
+            <div class="error"><?php echo $errors['phone']; ?></div>
+            <div class="error"><?php echo $errors['phone_ext']; ?></div>
+          </td>
         </tr>
         <tr>
-            <td width="180">
-                <?php echo __('Phone Number');?>:
-            </td>
-            <td>
-                <input type="text" size="18" name="phone" class="auto phone"
-                    value="<?php echo $info['phone']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['phone']; ?></span>
-                <?php echo __('Ext');?> <input type="text" size="5" name="phone_ext" value="<?php echo $info['phone_ext']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['phone_ext']; ?></span>
-            </td>
+          <td><?php echo __('Mobile Number');?>:</td>
+          <td>
+            <input type="tel" size="18" name="mobile" class="auto phone"
+              value="<?php echo $info['mobile']; ?>" />
+            <div class="error"><?php echo $errors['mobile']; ?></div>
+          </td>
+        </tr>
+      </tbody>
+      <!-- ================================================ -->
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Authentication'); ?>
+          </th>
         </tr>
         <tr>
-            <td width="180">
-                <?php echo __('Mobile Number');?>:
-            </td>
-            <td>
-                <input type="text" size="18" name="mobile" class="auto mobile"
-                    value="<?php echo $info['mobile']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['mobile']; ?></span>
-            </td>
+          <td class="required"><?php echo __('Username'); ?>:
+            <span class="error">*</span></td>
+          <td>
+            <input type="text" size="40" style="width:300px"
+              class="staff-username typeahead"
+              name="username" value="<?php echo $info['username']; ?>" />
+            <button type="button" class="action-button">
+              <i class="icon-refresh"></i> <?php echo __('Set Password'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#username"></i>
+            <div class="error"><?php echo $errors['username']; ?></div>
+          </td>
         </tr>
-<?php if (!$staff) { ?>
+<?php
+$bks = array();
+foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
+  if (!$ab->supportsInteractiveAuthentication()) continue;
+  $bks[] = $ab;
+}
+if (count($bks) > 1) {
+?>
         <tr>
-            <td width="180"><?php echo __('Welcome Email'); ?></td>
-            <td><input type="checkbox" name="welcome_email" id="welcome-email" <?php
-                if ($info['welcome_email']) echo 'checked="checked"';
-                ?> onchange="javascript:
-                var sbk = $('#backend-selection');
-                if ($(this).is(':checked'))
-                    $('#password-fields').hide();
-                else if (sbk.val() == '' || sbk.val() == 'local')
-                    $('#password-fields').show();
-                " />
-                <?php echo __('Send sign in information'); ?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#welcome_email"></i>
-            </td>
-        </tr>
-<?php } ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Authentication'); ?></strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
-            </th>
-        </tr>
-        <tr>
-            <td><?php echo __('Authentication Backend'); ?></td>
-            <td>
-            <select name="backend" id="backend-selection" onchange="javascript:
+          <td><?php echo __('Authentication Backend'); ?>:</td>
+          <td>
+            <select name="backend" id="backend-selection"
+              style="width:300px" onchange="javascript:
                 if (this.value != '' && this.value != 'local')
                     $('#password-fields').hide();
                 else if (!$('#welcome-email').is(':checked'))
                     $('#password-fields').show();
                 ">
-                <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
-            <?php foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
-                if (!$ab->supportsInteractiveAuthentication()) continue; ?>
-                <option value="<?php echo $ab::$id; ?>" <?php
-                    if ($info['backend'] == $ab::$id)
-                        echo 'selected="selected"'; ?>><?php
-                    echo $ab->getName(); ?></option>
-            <?php } ?>
+              <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
+<?php foreach ($bks as $ab) { ?>
+              <option value="<?php echo $ab::$id; ?>" <?php
+                if ($info['backend'] == $ab::$id)
+                  echo 'selected="selected"'; ?>><?php
+                echo $ab->getName(); ?></option>
+<?php } ?>
             </select>
-            </td>
+          </td>
         </tr>
-    </tbody>
-    <tbody id="password-fields" style="<?php
-        if ($info['welcome_email'] || ($info['backend'] && $info['backend'] != 'local'))
-            echo 'display:none;'; ?>">
-        <tr>
-            <td width="180">
-                <?php echo __('Password');?>:
-            </td>
-            <td>
-                <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd1']; ?></span>
-            </td>
+<?php
+} ?>
+      </tbody>
+      <!-- ================================================ -->
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Status and Settings'); ?>
+          </th>
         </tr>
         <tr>
-            <td width="180">
-                <?php echo __('Confirm Password');?>:
-            </td>
-            <td>
-                <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
-            </td>
+          <td colspan="2">
+            <div class="error"><?php echo $errors['isadmin']; ?></div>
+            <div class="error"><?php echo $errors['isactive']; ?></div>
+            <label>
+            <input type="checkbox" name="islocked" value="1"
+              <?php echo (!$staff->isactive) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Locked'); ?>
+            </label>
+            <br/>
+            <label>
+            <input type="checkbox" name="isadmin" value="1"
+              <?php echo ($info['isadmin']) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Administrator'); ?>
+            </label>
+            <br/>
+            <label>
+            <input type="checkbox" name="assigned_only"
+              <?php echo ($info['assigned_only']) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Limit ticket access to ONLY assigned tickets'); ?>
+            </label>
+            <br/>
+            <label>
+            <input type="checkbox" name="onvacation"
+              <?php echo ($info['onvacation']) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Vacation Mode'); ?>
+            </label>
+            <br/>
         </tr>
+      </tbody>
+    </table>
 
-        <tr>
-            <td width="180">
-                <?php echo __('Forced Password Change');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="change_passwd" value="0" <?php echo $info['change_passwd']?'checked="checked"':''; ?>>
-                <?php echo __('<strong>Force</strong> password change on next login.');?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#forced_password_change"></i>
-            </td>
-        </tr>
-    </tbody>
-    <tbody>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __("Agent's Signature");?></strong>:
-                <?php echo __('Optional signature used on outgoing emails.');?>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
-                &nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
-                <br><em><?php echo __('Signature is made available as a choice, on ticket reply.');?></em>
-            </td>
+    <div style="padding:8px 3px; margin-top: 1.6em">
+        <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+        <?php echo __("be liberal, they're internal.");?>
+    </div>
+
+    <textarea name="notes" class="richtext">
+      <?php echo $info['notes']; ?>
+    </textarea>
+  </div>
+
+  <!-- ============== DEPARTMENT ACCESS =================== -->
+
+  <div class="hidden tab_content" id="access">
+    <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Primary Department and Role'); ?>
+            <span class="error">*</span>
+            <div><small><?php echo __(
+            "Select the departments the agent is allowed to access and optionally select an effective role."
+          ); ?>
+            </small></div>
+          </th>
         </tr>
         <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Account Status & Settings');?></strong>: <?php echo __('Department and group assigned control access permissions.');?></em>
-            </th>
+          <td>
+            <select name="dept_id" id="dept_id" data-quick-add="department">
+              <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
+              <?php
+              foreach (Dept::getDepartments() as $id=>$name) {
+                $sel=($info['dept_id']==$id)?'selected="selected"':'';
+                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              }
+              ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+            </select>
+            <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
+            <div class="error"><?php echo $errors['dept_id']; ?></div>
+            <div class="error"><?php echo $errors['role_id']; ?></div>
+          </td>
+          <td>
+            <select name="role_id">
+              <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+              <?php
+              foreach (Role::getRoles() as $id=>$name) {
+                $sel=($info['role_id']==$id)?'selected="selected"':'';
+                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              }
+              ?>
+            </select>
+            <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
+          </td>
         </tr>
+      </tbody>
+      <tbody>
+        <tr id="extended_access_template" class="hidden">
+          <td>
+            <input type="hidden" data-name="dept_access[]" value="" />
+          </td>
+          <td>
+            <select data-name="dept_access_role">
+              <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+              <?php
+              foreach (Role::getRoles() as $id=>$name) {
+                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              }
+              ?>
+            </select>
+            <span style="display:inline-block;width:20px"> </span>
+            <input type="checkbox" data-name="dept_access_alerts" value="1" />
+            <?php echo __('Alerts'); ?>
+            <a href="#" class="pull-right drop-access" title="<?php echo __('Delete');
+              ?>"><i class="icon-trash"></i></a>
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Extended Access'); ?>
+          </th>
+        </tr>
+<?php
+$depts = Dept::getDepartments();
+foreach ($staff->dept_access as $dept_access) {
+  unset($depts[$dept_access->dept_id]);
+}
+?>
+        <tr id="add_extended_access">
+          <td colspan="2">
+            <i class="icon-plus-sign"></i>
+            <select id="add_access" data-quick-add="department">
+              <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
+              <?php
+              foreach ($depts as $id=>$name) {
+                echo sprintf('<option value="%d">%s</option>',$id,$name);
+              }
+              ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+            </select>
+            <button type="button" class="action-button">
+              <?php echo __('Add'); ?>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= PERMISSIONS ====================== -->
+
+  <div id="permissions" class="hidden">
+<?php
+    $permissions = array();
+    foreach (RolePermission::allPermissions() as $g => $perms) {
+        foreach ($perms as $k=>$P) {
+            if (!$P['primary'])
+                continue;
+            if (!isset($permissions[$g]))
+                $permissions[$g] = array();
+            $permissions[$g][$k] = $P;
+        }
+    }
+?>
+    <ul class="alt tabs">
+<?php
+    $first = true;
+    foreach ($permissions as $g => $perms) { ?>
+      <li <?php if ($first) { echo 'class="active"'; $first=false; } ?>>
+        <a href="#<?php echo Format::slugify($g); ?>"><?php echo Format::htmlchars(__($g));?></a>
+      </li>
+<?php } ?>
+    </ul>
+<?php
+    $first = true;
+    foreach ($permissions as $g => $perms) { ?>
+    <div class="tab_content <?php if (!$first) { echo 'hidden'; } else { $first = false; }
+      ?>" id="<?php echo Format::slugify($g); ?>">
+      <table class="table">
+<?php foreach ($perms as $k => $v) { ?>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('Account Type');?>:
-            </td>
-            <td>
-                <input type="radio" name="isadmin" value="1" <?php echo $info['isadmin']?'checked="checked"':''; ?>>
-                    <font color="red"><strong><?php echo __('Admin');?></strong></font>
-                <input type="radio" name="isadmin" value="0" <?php echo !$info['isadmin']?'checked="checked"':''; ?>><strong><?php echo __('Agent');?></strong>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['isadmin']; ?></span>
-            </td>
+          <td>
+            <label>
+            <?php
+            echo sprintf('<input type="checkbox" name="perms[]" value="%s" %s />',
+              $k, ($staff->hasPerm($k)) ? 'checked="checked"' : '');
+            ?>
+            &nbsp;
+            <?php echo Format::htmlchars(__($v['title'])); ?>
+            —
+            <em><?php echo Format::htmlchars(__($v['desc'])); ?></em>
+           </label>
+          </td>
         </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Account Status');?>:
-            </td>
-            <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Locked');?></strong>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['isactive']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_status"></i>
-            </td>
+<?php   } ?>
+      </table>
+    </div>
+<?php } ?>
+  </div>
+
+  <!-- ============== TEAM MEMBERSHIP =================== -->
+
+  <div class="hidden tab_content" id="teams">
+    <table class="table two-column" width="100%">
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Assigned Teams'); ?>
+            <div><small><?php echo __(
+            "Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department. Alerts can be enabled for each associated team."
+            ); ?>
+            </small></div>
+          </th>
         </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Primary Department');?>:
-            </td>
-            <td>
-                <select name="dept_id" id="dept_id" data-quick-add="department">
-                    <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
-                    <?php
-                    foreach (Dept::getDepartments() as $id=>$name) {
-                        $sel=($info['dept_id']==$id)?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                    }
-                    ?>
-                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
-                </select>
-                &nbsp;<span class="error">*</span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
-                <div class="error"><?php echo $errors['dept_id']; ?></div>
-            </td>
+<?php
+$teams = Team::getTeams();
+foreach ($staff->teams as $TM) {
+  unset($teams[$TM->team_id]);
+}
+?>
+        <tr id="join_team">
+          <td colspan="2">
+            <i class="icon-plus-sign"></i>
+            <select id="add_team" data-quick-add="team">
+              <option value="0">&mdash; <?php echo __('Select Team');?> &mdash;</option>
+              <?php
+              foreach ($teams as $id=>$name) {
+                echo sprintf('<option value="%d">%s</option>', $id, $name);
+              }
+              ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+            </select>
+            <button type="button" class="action-button">
+              <?php echo __('Add'); ?>
+            </button>
+          </td>
         </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Primary Role');?>:
-            </td>
-            <td>
-                <select name="role_id">
-                    <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
-                    <?php
-                    foreach (Role::getRoles() as $id=>$name) {
-                        $sel=($info['role_id']==$id)?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*</span>
-                &nbsp;<i class="help-tip icon-question-sign" href="#primary_role"></i>
-                <div class="error"><?php echo $errors['role_id']; ?></div>
-            </td>
+      </tbody>
+      <tbody>
+        <tr id="team_member_template" class="hidden">
+          <td>
+            <input type="hidden" data-name="teams[]" value="" />
+          </td>
+          <td>
+            <input type="checkbox" data-name="team_alerts" value="1" />
+            <?php echo __('Alerts'); ?>
+            <a href="#" class="pull-right drop-membership" title="<?php echo __('Delete');
+              ?>"><i class="icon-trash"></i></a>
+          </td>
         </tr>
-        <tr>
-            <td width="180" class="required">
-                <?php echo __('Assigned Group');?>:
-            </td>
-            <td>
-                <select name="group_id" id="group_id">
-                    <option value="0">&mdash; <?php echo __('Select Group');?> &mdash;</option>
-                    <?php
-                    foreach (Group::getGroups() as $id=>$name) {
-                        $sel=($info['group_id']==$id)?'selected="selected"':'';
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                            $id, $sel, $name);
-                    }
-                    ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['group_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#assigned_group"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Time Zone');?>:
-            </td>
-            <td>
-                <?php
-                $TZ_NAME = 'timezone';
-                $TZ_TIMEZONE = $info['timezone'];
-                include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
-                <div class="error"><?php echo $errors['timezone']; ?></div>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Limited Access');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="assigned_only" value="1" <?php echo $info['assigned_only']?'checked="checked"':''; ?>><?php echo __('Limit ticket access to ONLY assigned tickets.');?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#limited_access"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Directory Listing');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="isvisible" value="1" <?php echo $info['isvisible']?'checked="checked"':''; ?>>&nbsp;<?php
-                echo __('Make visible in the Agent Directory'); ?>
-                &nbsp;<i class="help-tip icon-question-sign" href="#directory_listing"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Vacation Mode');?>:
-            </td>
-            <td>
-                <input type="checkbox" name="onvacation" value="1" <?php echo $info['onvacation']?'checked="checked"':''; ?>>
-                    <?php echo __('Change Status to Vacation Mode'); ?>
-                    &nbsp;<i class="help-tip icon-question-sign" href="#vacation_mode"></i>
-            </td>
-        </tr>
-        <?php
-        // List team assignments.
-        $teams = Team::getTeams();
-        if (count($teams)) { ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Assigned Teams');?></strong>: <?php echo __("Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department.");?> </em>
-            </th>
-        </tr>
-        <?php
-            foreach ($teams as $id=>$name) {
-                $checked=($info['teams'] && in_array($id,$info['teams']))
-                    ? 'checked="checked"' : '';
-                echo sprintf('<tr><td colspan=2><input type="checkbox" name="teams[]" value="%d" %s> %s</td></tr>',
-                     $id,$checked,$name);
-            }
-        } ?>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Internal Notes'); ?></strong></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan=2>
-                <textarea class="richtext no-bar" name="notes" cols="28"
-                    rows="7" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<p style="padding-left:250px;">
-    <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="staff.php"'>
-</p>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="text-align:center;">
+      <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
+      <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+      <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="helptopics.php"'>
+  </p>
 </form>
+
+<script type="text/javascript">
+var addAccess = function(daid, name, role, alerts, error) {
+  var copy = $('#extended_access_template').clone();
+
+  copy.find('[data-name=dept_access\\[\\]]')
+    .attr('name', 'dept_access[]')
+    .val(daid);
+  copy.find('[data-name^=dept_access_role]')
+    .attr('name', 'dept_access_role['+daid+']')
+    .val(role || 0);
+  copy.find('[data-name^=dept_access_alerts]')
+    .attr('name', 'dept_access_alerts['+daid+']')
+    .prop('checked', alerts);
+  copy.find('td:first').append(document.createTextNode(name));
+  copy.attr('id', '').show().insertBefore($('#add_extended_access'));
+  copy.removeClass('hidden')
+  if (error)
+      $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+};
+
+$('#add_extended_access').find('button').on('click', function() {
+  var selected = $('#add_access').find(':selected');
+  addAccess(selected.val(), selected.text(), 0, true);
+  selected.remove();
+  return false;
+});
+
+$(document).on('click', 'a.drop-access', function() {
+  var tr = $(this).closest('tr');
+  $('#add_access').append(
+    $('<option>')
+    .attr('value', tr.find('input[name^=dept_access][type=hidden]').val())
+    .text(tr.find('td:first').text())
+  );
+  tr.fadeOut(function() { $(this).remove(); });
+  return false;
+});
+
+var joinTeam = function(teamid, name, alerts, error) {
+  var copy = $('#team_member_template').clone();
+
+  copy.find('[data-name=teams\\[\\]]')
+    .attr('name', 'teams[]')
+    .val(teamid);
+  copy.find('[data-name^=team_alerts]')
+    .attr('name', 'team_alerts['+teamid+']')
+    .prop('checked', alerts);
+  copy.find('td:first').append(document.createTextNode(name));
+  copy.attr('id', '').show().insertBefore($('#join_team'));
+  copy.removeClass('hidden');
+  if (error)
+      $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+};
+
+$('#join_team').find('button').on('click', function() {
+  var selected = $('#add_team').find(':selected');
+  joinTeam(selected.val(), selected.text(), true);
+  selected.remove();
+  return false;
+});
+
+<?php
+foreach ($staff->dept_access as $dept_access) {
+  echo sprintf('addAccess(%d, %s, %d, %d, %s);', $dept_access->dept_id,
+    JsonDataEncoder::encode($dept_access->dept->getName()),
+    $dept_access->role_id,
+    $dept_access->isAlertsEnabled(),
+    JsonDataEncoder::encode(@$errors['dept_access'][$dept_access->dept_id])
+  );
+}
+
+foreach ($staff->teams as $member) {
+  echo sprintf('joinTeam(%d, %s, %d, %s);', $member->team_id,
+    JsonDataEncoder::encode($member->team->getName()),
+    $member->isAlertsEnabled(),
+    JsonDataEncoder::encode(@$errors['teams'][$member->team_id])
+  );
+}
+
+?>
+</script>

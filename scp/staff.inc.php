@@ -35,7 +35,6 @@ define('KB_PREMADE_TABLE',TABLE_PREFIX.'kb_premade');
 /* include what is needed on staff control panel */
 
 require_once(INCLUDE_DIR.'class.staff.php');
-require_once(INCLUDE_DIR.'class.group.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.

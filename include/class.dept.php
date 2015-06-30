@@ -42,10 +42,10 @@ implements TemplateVariable {
                 'list' => true,
                 'reverse' => 'Staff.dept',
             ),
-            'groups' => array(
+            'extended' => array(
                 'null' => true,
                 'list' => true,
-                'reverse' => 'GroupDeptAccess.dept'
+                'reverse' => 'StaffDeptAccess.dept'
             ),
         ),
     );
@@ -155,15 +155,14 @@ implements TemplateVariable {
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
                     new Q(array(
-                        'group__depts__dept_id' => $this->getId(),
-                        'group__depts__dept__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
+                        'dept_access__dept_id' => $this->getId(),
+                        'dept_access__dept__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
                     )),
                     'staff_id' => $this->manager_id
                 )));
 
             if ($criteria && $criteria['available'])
                 $members->filter(array(
-                    'group__flags__hasbit' => Group::FLAG_ENABLED,
                     'isactive' => 1,
                     'onvacation' => 0,
                 ));
@@ -314,53 +313,7 @@ implements TemplateVariable {
         return $this->getHashtable();
     }
 
-    function getAllowedGroups() {
-
-        if (!isset($this->_groupids)) {
-            $this->_groupids = array();
-            $groups = GroupDeptAccess::objects()
-                ->filter(array('dept_id' => $this->getId()))
-                ->values_flat('group_id');
-
-            foreach ($groups as $row)
-                $this->_groupids[] = $row[0];
-        }
-
-        return $this->_groupids;
-    }
-
-    function updateGroups($groups_ids, $vars) {
-
-        // Groups allowed to access department
-        if (is_array($groups_ids)) {
-            $groups = GroupDeptAccess::objects()
-                ->filter(array('dept_id' => $this->getId()));
-            foreach ($groups as $group) {
-                if ($idx = array_search($group->group_id, $groups_ids)) {
-                    unset($groups_ids[$idx]);
-                    $roleId = $vars['group'.$group->group_id.'_role_id'];
-                    if ($roleId != $group->role_id) {
-                        $group->set('role_id', $roleId ?: 0);
-                        $group->save();
-                    }
-                } else {
-                    $group->delete();
-                }
-            }
-            foreach ($groups_ids as $id) {
-                $roleId = $vars['group'.$id.'_role_id'];
-                GroupDeptAccess::create(array(
-                    'dept_id' => $this->getId(),
-                    'group_id' => $id,
-                    'role_id' => $roleId ?: 0,
-                ))->save();
-            }
-        }
-
-    }
-
     function updateSettings($vars) {
-        $this->updateGroups($vars['groups'] ?: array(), $vars);
         $this->path = $this->getFullPath();
         $this->save();
         return true;
@@ -391,10 +344,11 @@ implements TemplateVariable {
             db_query('UPDATE '.EMAIL_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
             db_query('UPDATE '.FILTER_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
 
-            //Delete group access
-            db_query('DELETE FROM '.GROUP_DEPT_TABLE.' WHERE dept_id='.db_input($id));
+            // Delete extended access
+            StaffDeptAccess::objects()
+                ->filter(array('dept_id' => $id))
+                ->delete();
         }
-
         return true;
     }
 
@@ -605,24 +559,6 @@ implements TemplateVariable {
         return false;
     }
 
-}
-
-class GroupDeptAccess extends VerySimpleModel {
-    static $meta = array(
-        'table' => GROUP_DEPT_TABLE,
-        'pk' => array('dept_id', 'group_id'),
-        'joins' => array(
-            'dept' => array(
-                'constraint' => array('dept_id' => 'Dept.id'),
-            ),
-            'group' => array(
-                'constraint' => array('group_id' => 'Group.id'),
-            ),
-            'role' => array(
-                'constraint' => array('role_id' => 'Role.id'),
-            ),
-        ),
-    );
 }
 
 class DepartmentQuickAddForm

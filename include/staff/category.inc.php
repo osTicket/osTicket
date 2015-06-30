@@ -1,6 +1,6 @@
 <?php
 if (!defined('OSTSCPINC') || !$thisstaff
-        || !$thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE))
+        || !$thisstaff->hasPerm(FAQ::PERM_MANAGE))
     die('Access Denied');
 
 $info=array();

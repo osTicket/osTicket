@@ -74,7 +74,7 @@ $users->order_by($order . $order_column);
  </div>
 
 <div class="pull-right">
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_CREATE)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
     <a class="action-button popup-dialog"
         href="#users/add">
         <i class="icon-plus-sign"></i>
@@ -93,12 +93,12 @@ $users->order_by($order . $order_column);
     </span>
     <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul>
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_DELETE)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
             <li><a class="users-action" href="#delete">
                 <i class="icon-trash icon-fixed-width"></i>
                 <?php echo __('Delete'); ?></a></li>
 <?php }
-if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
             <li><a href="#orgs/lookup/form" onclick="javascript:
 $.dialog('ajax.php/orgs/lookup/form', 201);
 return false;">
@@ -110,7 +110,7 @@ if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
             <li><a class="users-action" href="#reset">
                 <i class="icon-envelope icon-fixed-width"></i>
                 <?php echo __('Send Password Reset Email'); ?></a></li>
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_MANAGE)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
             <li><a class="users-action" href="#register">
                 <i class="icon-smile icon-fixed-width"></i>
                 <?php echo __('Register'); ?></a></li>

@@ -418,16 +418,6 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   UNIQUE KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
-CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
-  `group_id` int(10) unsigned NOT NULL default '0',
-  `dept_id` int(10) unsigned NOT NULL default '0',
-  `role_id` int(10) unsigned NOT NULL default '0',
-  UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
-  KEY `dept_id`  (`dept_id`),
-  KEY `role_id`  (`role_id`)
-) DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
@@ -533,7 +523,6 @@ CREATE TABLE `%TABLE_PREFIX%session` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff`;
 CREATE TABLE `%TABLE_PREFIX%staff` (
   `staff_id` int(11) unsigned NOT NULL auto_increment,
-  `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `role_id` int(10) unsigned NOT NULL default '0',
   `username` varchar(32) NOT NULL default '',
@@ -562,6 +551,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `default_signature_type` ENUM( 'none', 'mine', 'dept' ) NOT NULL DEFAULT 'none',
   `default_paper_size` ENUM( 'Letter', 'Legal', 'Ledger', 'A4', 'A3' ) NOT NULL DEFAULT 'Letter',
   `extra` text,
+  `permissions` text,
   `created` datetime NOT NULL,
   `lastlogin` datetime default NULL,
   `passwdreset` datetime default NULL,
@@ -571,6 +561,16 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   KEY `dept_id` (`dept_id`),
   KEY `issuperuser` (`isadmin`),
   KEY `group_id` (`group_id`,`staff_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%staff_dept_access`;
+CREATE TABLE `%TABLE_PREFIX%staff_dept_access` (
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `role_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY `staff_dept` (`staff_id`,`dept_id`),
+  KEY `dept_id` (`dept_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
@@ -605,7 +605,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%team_member`;
 CREATE TABLE `%TABLE_PREFIX%team_member` (
   `team_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL,
-  `updated` datetime NOT NULL,
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY  (`team_id`,`staff_id`)
 ) DEFAULT CHARSET=utf8;
 

@@ -516,6 +516,11 @@ var scp_prep = function() {
     });
   });
 
+  $('div.tab_content[id] div.error:not(:empty)').each(function() {
+    var div = $(this).closest('.tab_content');
+    $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+  });
+
   $('[data-toggle="tooltip"]').tooltip()
 };
 
@@ -827,7 +832,9 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
     }
     else {
         $tab.addClass('tab_content');
-        $.changeHash($(this).attr('href'), true);
+        // Don't change the URL hash for nested tabs or in dialogs
+        if ($(this).closest('.tab_content, .dialog').length == 0)
+            $.changeHash($(this).attr('href'), true);
     }
 
     if ($tab.length) {
