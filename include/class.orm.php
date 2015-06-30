@@ -308,12 +308,20 @@ class VerySimpleModel {
         if (in_array($field, static::getMeta('fields')))
             return null;
 
-        // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
     }
     function __get($field) {
         return $this->get($field, null);
+    }
+
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P)
+            $root = $root->get($P);
+        return $root;
     }
 
     function __isset($field) {
@@ -1556,6 +1564,34 @@ class InstrumentedList extends ModelInstanceManager {
         return new static(array($this->model, $key), $this->filter($constraint));
     }
 
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst(array $criteria) {
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field=>$check) {
+                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                return $record;
+        }
+    }
+
     // QuerySet delegates
     function count() {
         return $this->objects()->count();
@@ -1612,6 +1648,56 @@ class SqlCompiler {
 
     function getParent() {
         return $this->options['parent'];
+    }
+
+    /**
+     * Split a criteria item into the identifying pieces: path, field, and
+     * operator.
+     */
+    static function splitCriteria($criteria) {
+        static $operators = array(
+            'exact' => 1, 'isnull' => 1,
+            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
+            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1,
+            'in' => 1, 'intersect' => 1,
+            'hasbit' => 1,
+        );
+        $path = explode('__', $criteria);
+        if (!isset($options['table'])) {
+            $field = array_pop($path);
+            if (isset($operators[$field])) {
+                $operator = $field;
+                $field = array_pop($path);
+            }
+        }
+        return array($field, $path, $operator ?: 'exact');
+    }
+
+    /**
+     * Check if the values match given the operator.
+     *
+     * Throws:
+     * OrmException - if $operator is not supported
+     */
+    static function evaluate($record, $field, $check) {
+        static $ops; if (!isset($ops)) { $ops = array(
+            'exact' => function($a, $b) { return is_string($a) ? strcasecmp($a, $b) == 0 : $a == $b; },
+            'isnull' => function($a, $b) { return is_null($a) == $b; },
+            'gt' => function($a, $b) { return $a > $b; },
+            'gte' => function($a, $b) { return $a >= $b; },
+            'lt' => function($a, $b) { return $a < $b; },
+            'lte' => function($a, $b) { return $a <= $b; },
+            'contains' => function($a, $b) { return stripos($a, $b) !== false; },
+            'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
+            'hasbit' => function($a, $b) { return $a & $b == $b; },
+        ); }
+        list($field, $path, $operator) = self::splitCriteria($field);
+        if (!isset($ops[$operator]))
+            throw new OrmException($operator.': Unsupported operator');
+
+        if ($path)
+            $record = $record->getByPath($path);
+        return $ops[$operator]($record->get($field), $check);
     }
 
     /**
@@ -1680,16 +1766,8 @@ class SqlCompiler {
         // The parts after each of the __ pieces are links to other tables.
         // The last item (after the last __) is allowed to be an operator
         // specifiction.
-        $parts = explode('__', $field);
-        $operator = static::$operators['exact'];
-        if (!isset($options['table'])) {
-            $field = array_pop($parts);
-            if (isset(static::$operators[$field])) {
-                $operator = static::$operators[$field];
-                $field = array_pop($parts);
-            }
-        }
-
+        list($field, $parts, $op) = static::splitCriteria($field);
+        $operator = static::$operators[$op];
         $path = '';
         $rootModel = $model;
 

@@ -8,7 +8,6 @@ $sortOptions = array(
         'name' => array('firstname', 'lastname'),
         'username' => 'username',
         'status' => 'isactive',
-        'group' => 'group__name',
         'dept' => 'dept__name',
         'created' => 'created',
         'login' => 'lastlogin'
@@ -46,11 +45,6 @@ $filters = array();
 if ($_REQUEST['did'] && is_numeric($_REQUEST['did'])) {
     $filters += array('dept_id' => $_REQUEST['did']);
     $qs += array('did' => $_REQUEST['did']);
-}
-
-if ($_REQUEST['gid'] && is_numeric($_REQUEST['gid'])) {
-    $filters += array('group_id' => $_REQUEST['gid']);
-    $qs += array('gid' => $_REQUEST['gid']);
 }
 
 if ($_REQUEST['tid'] && is_numeric($_REQUEST['tid'])) {
@@ -102,17 +96,6 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
              }
              ?>
         </select>
-        <select name="gid" id="gid">
-            <option value="0">&mdash; <?php echo __('All Groups');?> &mdash;</option>
-             <?php
-             if (($groups=Group::getGroups())) {
-                 foreach ($groups as $id => $name) {
-                     $sel=($_REQUEST['gid'] && $_REQUEST['gid']==$id)?'selected="selected"':'';
-                     echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                 }
-             }
-             ?>
-        </select>
         <select name="tid" id="tid">
             <option value="0">&mdash; <?php echo __('All Teams');?> &mdash;</option>
              <?php
@@ -142,7 +125,6 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
             <th width="200"><a <?php echo $name_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
             <th width="100"><a <?php echo $username_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=username"><?php echo __('Username');?></a></th>
             <th width="100"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="120"><a  <?php echo $group_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=group"><?php echo __('Group');?></a></th>
             <th width="150"><a  <?php echo $dept_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
             <th width="100"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
             <th width="145"><a <?php echo $login_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=login"><?php echo __('Last Login');?></a></th>
@@ -167,8 +149,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                 <td><?php echo $agent->getUserName(); ?></td>
                 <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php
                     echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
-                <td><a href="groups.php?id=<?php echo $agent->group_id; ?>"><?php
-                    echo Format::htmlchars($agent->group->getName()); ?></a></td>
+
                 <td><a href="departments.php?id=<?php echo
                     $agent->getDeptId(); ?>"><?php
                     echo Format::htmlchars((string) $agent->dept); ?></a></td>
@@ -239,4 +220,3 @@ endif;
      </p>
     <div class="clear"></div>
 </div>
-

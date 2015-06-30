@@ -107,7 +107,7 @@ case 'search':
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');
         $tickets = $search->mangleQuerySet($tickets, $form);
-        $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
+        $view_all_tickets = $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
         $has_relevance = false;
@@ -174,7 +174,7 @@ if (!$view_all_tickets) {
     if ($teams = array_filter($thisstaff->getTeams()))
         $assigned->add(array('team_id__in' => $teams));
 
-    $visibility = Q::any(array('status__state'=>'open', $assigned));
+    $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
     // -- Routed to a department of mine
     if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))

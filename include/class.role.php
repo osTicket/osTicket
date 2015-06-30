@@ -19,10 +19,10 @@ class RoleModel extends VerySimpleModel {
         'table' => ROLE_TABLE,
         'pk' => array('id'),
         'joins' => array(
-            'groups' => array(
+            'extensions' => array(
                 'null' => true,
                 'list' => true,
-                'reverse' => 'Group.role',
+                'reverse' => 'StaffDeptAccess.role',
             ),
             'agents' => array(
                 'reverse' => 'Staff.role',
@@ -70,7 +70,7 @@ class RoleModel extends VerySimpleModel {
     }
 
     function isDeleteable() {
-        return $this->groups->count() + $this->agents->count() == 0;
+        return $this->extensions->count() + $this->agents->count() == 0;
     }
 
 }

@@ -44,7 +44,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Department");
-        $path = $ost->get_path_info();
+        $path = ltrim($ost->get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
@@ -88,7 +88,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Team");
-        $path = $ost->get_path_info();
+        $path = ltrim($ost->get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }

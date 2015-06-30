@@ -231,7 +231,7 @@ if($ticket->isOverdue())
                                                 $user->getId(), sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed));
                                     ?>
                                     <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
-<?php   if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+<?php   if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="users.php?id=<?php echo
                                     $user->getId(); ?>"><i class="icon-user
                                     icon-fixed-width"></i> <?php echo __('Manage User'); ?></a></li>
@@ -268,7 +268,7 @@ if($ticket->isOverdue())
                                         'a' => 'search', 'orgid' => $user->getOrgId()
                                     )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
 <?php   }
-        if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+        if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i
                                         class="icon-building icon-fixed-width"></i> <?php
                                         echo __('Manage Organization'); ?></a></li>
@@ -770,7 +770,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         echo sprintf('<span class="faded">'.__('Ticket is currently in <b>%s</b> department.').'</span>', $ticket->getDeptName());
                     ?>
                     <br>
-                    <select id="deptId" name="deptId">
+                    <select id="deptId" name="deptId" data-quick-add="department">
                         <option value="0" selected="selected">&mdash; <?php echo __('Select Target Department');?> &mdash;</option>
                         <?php
                         if($depts=Dept::getDepartments()) {
@@ -781,6 +781,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                             }
                         }
                         ?>
+                        <option value="0" data-quick-add>— <?php echo __('Add New'); ?> —</option>
                     </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['deptId']; ?></span>
                 </td>
             </tr>
