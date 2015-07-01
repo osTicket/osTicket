@@ -95,9 +95,12 @@ $info = Format::htmlchars($info);
             <input type="text" size="40" style="width:300px"
               class="staff-username typeahead"
               name="username" value="<?php echo $info['username']; ?>" />
-            <button type="button" class="action-button">
+<?php if (!($bk = $staff->getAuthBackend()) || $bk->supportsPasswordChange()) { ?>
+            <button type="button" class="action-button" onclick="javascript:
+            $.dialog('ajax.php/staff/'+<?php echo $info['id']; ?>+'/set-password', 201);">
               <i class="icon-refresh"></i> <?php echo __('Set Password'); ?>
             </button>
+<?php } ?>
             <i class="offset help-tip icon-question-sign" href="#username"></i>
             <div class="error"><?php echo $errors['username']; ?></div>
           </td>

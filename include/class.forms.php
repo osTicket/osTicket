@@ -99,17 +99,20 @@ class Form {
     function isValid($include=false) {
         if (!isset($this->_errors)) {
             $this->_errors = array();
-            $this->getClean();
-            // Validate the whole form so that errors can be added to the
-            // individual fields and collected below.
-            foreach ($this->validators as $V) {
-                $V($this);
-            }
+            $this->validate($this->getClean());
             foreach ($this->getFields() as $field)
                 if ($field->errors() && (!$include || $include($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
         }
         return !$this->_errors;
+    }
+
+    function validate($clean_data) {
+        // Validate the whole form so that errors can be added to the
+        // individual fields and collected below.
+        foreach ($this->validators as $V) {
+            $V($this);
+        }
     }
 
     function getClean() {
@@ -428,11 +431,11 @@ class FormField {
                             $vs, array($this, $this->_clean));
             }
 
-            if ($this->isVisible())
-                $this->validateEntry($this->_clean);
-
             if (!isset($this->_clean) && ($d = $this->get('default')))
                 $this->_clean = $d;
+
+            if ($this->isVisible())
+                $this->validateEntry($this->_clean);
         }
         return $this->_clean;
     }
@@ -503,7 +506,6 @@ class FormField {
      * field is visible and should be considered for validation
      */
     function isVisible() {
-        $config = $this->getConfiguration();
         if ($this->get('visibility') instanceof VisibilityConstraint) {
             return $this->get('visibility')->isVisible($this);
         }
@@ -2965,7 +2967,7 @@ class CheckboxWidget extends Widget {
             echo $this->field->get('id'); ?>"/>
         <?php
         if ($config['desc']) { ?>
-            <em style="display:inline-block"><?php
+            <em style="display:inline-block;vertical-align:middle;width:90%;width:calc(100% - 25px);"><?php
             echo Format::viewableImages($config['desc']); ?></em>
         <?php } ?>
         </div>
@@ -2976,9 +2978,7 @@ class CheckboxWidget extends Widget {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                // Indeterminite. Likely false, but consider current field
-                // value
-                return null;
+                return false;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();
@@ -3535,10 +3535,6 @@ class AssignmentForm extends Form {
         return !$this->errors();
     }
 
-    function getClean() {
-        return parent::getClean();
-    }
-
     function render($options) {
 
         switch(strtolower($options['template'])) {
@@ -3628,10 +3624,6 @@ class TransferForm extends Form {
                     __('Unknown department'));
 
         return !$this->errors();
-    }
-
-    function getClean() {
-        return parent::getClean();
     }
 
     function render($options) {

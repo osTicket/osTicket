@@ -16,12 +16,15 @@ class AdminAjaxAPI extends AjaxController {
      *
      * Throws:
      * 403 - Not logged in
+     * 403 - Not an administrator
      */
     function addDepartment() {
         global $ost, $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
 
         $form = new DepartmentQuickAddForm($_POST);
 
@@ -60,12 +63,15 @@ class AdminAjaxAPI extends AjaxController {
      *
      * Throws:
      * 403 - Not logged in
+     * 403 - Not an adminitrator
      */
     function addTeam() {
         global $ost, $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
 
         $form = new TeamQuickAddForm($_POST);
 
