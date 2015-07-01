@@ -2501,3 +2501,7 @@ form .inset {
 .form.footer {
     margin-top: 50px;
 }
+
+.vertical-pad {
+  margin-top: 3px;
+}

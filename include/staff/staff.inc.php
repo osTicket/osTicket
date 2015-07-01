@@ -217,7 +217,7 @@ if (count($bks) > 1) {
             <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
           <td>
-            <select name="role_id">
+            <select name="role_id" data-quick-add="role">
               <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
               <?php
               foreach (Role::getRoles() as $id=>$name) {
@@ -225,6 +225,7 @@ if (count($bks) > 1) {
                 echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
               }
               ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
           </td>
@@ -236,13 +237,14 @@ if (count($bks) > 1) {
             <input type="hidden" data-name="dept_access[]" value="" />
           </td>
           <td>
-            <select data-name="dept_access_role">
+            <select data-name="dept_access_role" data-quick-add="role">
               <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
               <?php
               foreach (Role::getRoles() as $id=>$name) {
                 echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
               }
               ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <span style="display:inline-block;width:20px"> </span>
             <input type="checkbox" data-name="dept_access_alerts" value="1" />

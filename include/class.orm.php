@@ -2156,14 +2156,14 @@ class MySqlCompiler extends SqlCompiler {
      * (string) token to be placed into the compiled SQL statement. For
      * MySQL, this is always the string '?'.
      */
-    function input($what, $slot=false) {
+    function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($this->params, $q->params);
             return '('.$q->sql.')';
         }
         elseif ($what instanceof SqlFunction) {
-            return $what->toSql($this);
+            return $what->toSql($this, $model);
         }
         elseif (!isset($what)) {
             return 'NULL';
@@ -2451,7 +2451,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
-            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, false, $model));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);

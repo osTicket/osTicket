@@ -2,6 +2,9 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>
+<?php if (isset($errors['err'])) { ?>
+    <div id="msg_error" class="error-banner"><?php echo Format::htmlchars($errors['err']); ?></div>
+<?php } ?>
 <form method="post" action="#<?php echo $path; ?>">
   <div class="inset quick-add">
     <?php $form->render(); ?>
@@ -15,7 +18,7 @@
     </span>
     <span class="buttons pull-right">
       <input type="submit" value="<?php
-        echo $verb ?: __('Submit'); ?>" />
+        echo $verb ?: __('Create'); ?>" />
     </span>
   </p>
   <div class="clear"></div>
