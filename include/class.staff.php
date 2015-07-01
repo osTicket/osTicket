@@ -655,6 +655,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             $member = $this->teams
                 ->filter(array('team_id__in' => array_keys($dropped)))
                 ->delete();
+            $this->teams->reset();
         }
         return true;
     }
@@ -1009,17 +1010,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if (!$errors)
                 $da->save();
         }
-        if (!$errors && $dropped)
+        if (!$errors && $dropped) {
             $this->dept_access
                 ->filter(array('dept_id__in' => array_keys($dropped)))
                 ->delete();
+            $this->dept_access->reset();
+        }
         return !$errors;
     }
 
     private function updatePerms($vars, &$errors) {
-        $permissions = $this->getPermission();
+        if (!$vars) {
+            $this->permissions = '';
+            return;
+        }
         foreach (RolePermission::allPermissions() as $g => $perms) {
-            foreach($perms as $k => $v) {
+            foreach ($perms as $k => $v) {
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
         }

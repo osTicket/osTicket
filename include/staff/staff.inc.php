@@ -2,18 +2,24 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $info = $qs = array();
-if ($staff && $_REQUEST['a']!='add'){
+
+if ($_REQUEST['a']=='add'){
+    if (!$staff)
+        $staff = Staff::create(array(
+            'isactive' => true,
+        ));
+    $title=__('Add New Agent');
+    $action='create';
+    $submit_text=__('Create');
+}
+else {
     //Editing Department.
     $title=__('Manage Agent');
     $action='update';
     $submit_text=__('Save Changes');
-    $info = $staff->getInfo();
     $info['id'] = $staff->getId();
-    $info['teams'] = $staff->getTeams();
-    $info['signature'] = Format::viewableImages($info['signature']);
     $qs += array('id' => $staff->getId());
 }
-$info = Format::htmlchars($info);
 ?>
 
 <form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
@@ -24,7 +30,7 @@ $info = Format::htmlchars($info);
 
   <h2><?php echo $title; ?>
     <div>
-      <small><?php echo $info['firstname'].' '.$info['lastname'];?></small>
+      <small><?php echo $staff->getName(); ?></small>
     </div>
   </h2>
 
@@ -42,10 +48,10 @@ $info = Format::htmlchars($info);
           <td class="required"><?php echo __('Name'); ?>:</td>
           <td>
             <input type="text" size="20" maxlength="64" style="width: 145px" name="firstname"
-              autofocus value="<?php echo $info['firstname']; ?>"
+              autofocus value="<?php echo Format::htmlchars($staff->firstname); ?>"
               placeholder="<?php echo __("First Name"); ?>" />
             <input type="text" size="20" maxlength="64" style="width: 145px" name="lastname"
-              value="<?php echo $info['lastname']; ?>"
+              value="<?php echo Format::htmlchars($staff->lastname); ?>"
               placeholder="<?php echo __("Last Name"); ?>" />
             <div class="error"><?php echo $errors['firstname']; ?></div>
             <div class="error"><?php echo $errors['lastname']; ?></div>
@@ -55,7 +61,7 @@ $info = Format::htmlchars($info);
           <td class="required"><?php echo __('Email Address'); ?>:</td>
           <td>
             <input type="email" size="40" maxlength="64" style="width: 300px" name="email"
-              value="<?php echo $info['email']; ?>"
+              value="<?php echo Format::htmlchars($staff->email); ?>"
               placeholder="<?php echo __('e.g. me@mycompany.com'); ?>" />
             <div class="error"><?php echo $errors['email']; ?></div>
           </td>
@@ -64,10 +70,10 @@ $info = Format::htmlchars($info);
           <td><?php echo __('Phone Number');?>:</td>
           <td>
             <input type="tel" size="18" name="phone" class="auto phone"
-              value="<?php echo $info['phone']; ?>" />
+              value="<?php echo Format::htmlchars($staff->phone); ?>" />
             <?php echo __('Ext');?>
             <input type="text" size="5" name="phone_ext"
-              value="<?php echo $info['phone_ext']; ?>">
+              value="<?php echo Format::htmlchars($staff->phone_ext); ?>">
             <div class="error"><?php echo $errors['phone']; ?></div>
             <div class="error"><?php echo $errors['phone_ext']; ?></div>
           </td>
@@ -76,7 +82,7 @@ $info = Format::htmlchars($info);
           <td><?php echo __('Mobile Number');?>:</td>
           <td>
             <input type="tel" size="18" name="mobile" class="auto phone"
-              value="<?php echo $info['mobile']; ?>" />
+              value="<?php echo Format::htmlchars($staff->mobile); ?>" />
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>
         </tr>
@@ -94,7 +100,7 @@ $info = Format::htmlchars($info);
           <td>
             <input type="text" size="40" style="width:300px"
               class="staff-username typeahead"
-              name="username" value="<?php echo $info['username']; ?>" />
+              name="username" value="<?php echo Format::htmlchars($staff->username); ?>" />
 <?php if (!($bk = $staff->getAuthBackend()) || $bk->supportsPasswordChange()) { ?>
             <button type="button" class="action-button" onclick="javascript:
             $.dialog('ajax.php/staff/'+<?php echo $info['id']; ?>+'/set-password', 201);">
@@ -126,7 +132,7 @@ if (count($bks) > 1) {
               <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
 <?php foreach ($bks as $ab) { ?>
               <option value="<?php echo $ab::$id; ?>" <?php
-                if ($info['backend'] == $ab::$id)
+                if ($staff->backend == $ab::$id)
                   echo 'selected="selected"'; ?>><?php
                 echo $ab->getName(); ?></option>
 <?php } ?>
@@ -155,19 +161,19 @@ if (count($bks) > 1) {
             <br/>
             <label>
             <input type="checkbox" name="isadmin" value="1"
-              <?php echo ($info['isadmin']) ? 'checked="checked"' : ''; ?> />
+              <?php echo ($staff->isadmin) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Administrator'); ?>
             </label>
             <br/>
             <label>
             <input type="checkbox" name="assigned_only"
-              <?php echo ($info['assigned_only']) ? 'checked="checked"' : ''; ?> />
+              <?php echo ($staff->assigned_only) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Limit ticket access to ONLY assigned tickets'); ?>
             </label>
             <br/>
             <label>
             <input type="checkbox" name="onvacation"
-              <?php echo ($info['onvacation']) ? 'checked="checked"' : ''; ?> />
+              <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Vacation Mode'); ?>
             </label>
             <br/>
@@ -181,7 +187,7 @@ if (count($bks) > 1) {
     </div>
 
     <textarea name="notes" class="richtext">
-      <?php echo $info['notes']; ?>
+      <?php echo Format::viewableImages($staff->notes); ?>
     </textarea>
   </div>
 
@@ -206,7 +212,7 @@ if (count($bks) > 1) {
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
               foreach (Dept::getDepartments() as $id=>$name) {
-                $sel=($info['dept_id']==$id)?'selected="selected"':'';
+                $sel=($staff->dept_id==$id)?'selected="selected"':'';
                 echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
               }
               ?>
@@ -221,7 +227,7 @@ if (count($bks) > 1) {
               <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
               <?php
               foreach (Role::getRoles() as $id=>$name) {
-                $sel=($info['role_id']==$id)?'selected="selected"':'';
+                $sel=($staff->role_id==$id)?'selected="selected"':'';
                 echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
               }
               ?>

@@ -152,22 +152,25 @@ implements TemplateVariable {
         if (!$this->_members || $criteria) {
             $members = Staff::objects()
                 ->distinct('staff_id')
+                ->constrain(array(
+                    // Ensure that joining through dept_access is only relevant
+                    // for this department, so that the `alerts` annotation
+                    // can work properly
+                    'dept_access' => new Q(array('dept_access__dept_id' => $this->getId()))
+                ))
                 ->filter(Q::any(array(
                     'dept_id' => $this->getId(),
-                    new Q(array(
-                        'dept_access__dept_id' => $this->getId(),
-                        'dept_access__dept__group_membership' => self::ALERTS_DEPT_AND_GROUPS,
-                    )),
-                    'staff_id' => $this->manager_id
+                    'staff_id' => $this->manager_id,
+                    'dept_access__dept_id' => $this->getId(),
                 )));
 
-            if ($criteria && $criteria['available'])
+            // TODO: Consider moving this into ::getAvailableMembers
+            if ($criteria && $criteria['available']) {
                 $members->filter(array(
                     'isactive' => 1,
                     'onvacation' => 0,
                 ));
-
-            $members->distinct('staff_id');
+            }
             switch ($cfg->getAgentNameFormat()) {
             case 'last':
             case 'lastfirst':
@@ -180,11 +183,11 @@ implements TemplateVariable {
             }
 
             if ($criteria)
-                return $members->all();
+                return $members;
 
-            $this->_members = $members->all();
+            $this->_members = $members;
         }
-        return new UserList($this->_members);
+        return new UserList($this->_members->all());
     }
 
     function getAvailableMembers() {
@@ -197,7 +200,13 @@ implements TemplateVariable {
             $rv = array();
         }
         else {
-            $rv = $this->getAvailableMembers();
+            $rv = clone $this->getAvailableMembers();
+            $rv->filter(Q::any(array(
+                // Ensure "Alerts" is enabled — must be a primary member or
+                // have alerts enabled on your membership.
+                'dept_id' => $this->getId(),
+                'dept_access__flags__hasbit' => StaffDeptAccess::FLAG_ALERTS,
+            )));
         }
         return $rv;
     }
@@ -313,12 +322,6 @@ implements TemplateVariable {
         return $this->getHashtable();
     }
 
-    function updateSettings($vars) {
-        $this->path = $this->getFullPath();
-        $this->save();
-        return true;
-    }
-
     function delete() {
         global $cfg;
 
@@ -335,16 +338,26 @@ implements TemplateVariable {
         if (parent::delete()) {
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
-            db_query('UPDATE '.TICKET_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
+            Ticket::objects()
+                ->filter(array('dept_id' => $id))
+                ->update(array('dept_id' => $cfg->getDefaultDeptId()));
+
             //Move Dept members: This should never happen..since delete should be issued only to empty Depts...but check it anyways
-            db_query('UPDATE '.STAFF_TABLE.' SET dept_id='.db_input($cfg->getDefaultDeptId()).' WHERE dept_id='.db_input($id));
+            Staff::objects()
+                ->filter(array('dept_id' => $id))
+                ->update(array('dept_id' => $cfg->getDefaultDeptId()));
 
             // Clear any settings using dept to default back to system default
-            db_query('UPDATE '.TOPIC_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
-            db_query('UPDATE '.EMAIL_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            Topic::objects()
+                ->filter(array('dept_id' => $id))
+                ->delete();
+            Email::objects()
+                ->filter(array('dept_id' => $id))
+                ->delete();
+
             db_query('UPDATE '.FILTER_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
 
-            // Delete extended access
+            // Delete extended access entries
             StaffDeptAccess::objects()
                 ->filter(array('dept_id' => $id))
                 ->delete();
@@ -528,11 +541,20 @@ implements TemplateVariable {
         if ($vars['pid'] && !($p = static::lookup($vars['pid'])))
             $errors['pid'] = __('Department selection is required');
 
+        // Format access update as [array(dept_id, alerts?)]
+        $access = array();
+        if (isset($vars['members'])) {
+            foreach (@$vars['members'] as $staff_id) {
+                $access[] = array($staff_id, $vars['member_role'][$staff_id],
+                    @$vars['member_alerts'][$staff_id]);
+            }
+        }
+        $this->updateAccess($access, $errors);
+
         if ($errors)
             return false;
 
         $this->pid = $vars['pid'] ?: 0;
-        $this->updated = SqlFunction::NOW();
         $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
         $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
         $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
@@ -545,9 +567,10 @@ implements TemplateVariable {
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
         $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
+        $this->path = $this->getFullPath();
 
-        if ($this->save())
-            return $this->updateSettings($vars);
+        if ($rv = $this->save())
+            return $rv;
 
         if (isset($this->id))
             $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
@@ -559,6 +582,39 @@ implements TemplateVariable {
         return false;
     }
 
+    function updateAccess($access, &$errors) {
+      reset($access);
+      $dropped = array();
+      foreach ($this->extended as $DA)
+          $dropped[$DA->staff_id] = 1;
+      while (list(, list($staff_id, $role_id, $alerts)) = each($access)) {
+          unset($dropped[$staff_id]);
+          if (!$role_id || !Role::lookup($role_id))
+              $errors['members'][$staff_id] = __('Select a valid role');
+          if (!$staff_id || !Staff::lookup($staff_id))
+              $errors['members'][$staff_id] = __('No such agent');
+          $da = $this->extended->findFirst(array('staff_id' => $staff_id));
+          if (!isset($da)) {
+              $da = StaffDeptAccess::create(array(
+                  'staff_id' => $staff_id, 'role_id' => $role_id
+              ));
+              $this->extended->add($da);
+          }
+          else {
+              $da->role_id = $role_id;
+          }
+          $da->setAlerts($alerts);
+          if (!$errors)
+              $da->save();
+      }
+      if (!$errors && $dropped) {
+          $this->extended
+              ->filter(array('staff_id__in' => array_keys($dropped)))
+              ->delete();
+          $this->extended->reset();
+      }
+      return !$errors;
+    }
 }
 
 class DepartmentQuickAddForm
