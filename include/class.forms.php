@@ -2932,9 +2932,10 @@ class ChoicesWidget extends Widget {
         <select name="<?php echo $this->name; ?>[]"
             <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
-            <?php foreach ($config['data'] as $D=>$V) {
-              echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
-            } ?>
+            <?php if (isset($config['data']))
+              foreach ($config['data'] as $D=>$V)
+                echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
+            ?>
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
@@ -3023,6 +3024,115 @@ class ChoicesWidget extends Widget {
 
     function getJsValueGetter() {
         return '%s.find(":selected").val()';
+    }
+}
+
+/**
+ * A widget for the ChoiceField which will render a list of radio boxes or
+ * checkboxes depending on the value of $config['multiple']. Complex choices
+ * are also supported and will be rendered as divs.
+ */
+class BoxChoicesWidget extends Widget {
+    function render($options=array()) {
+        $this->emitChoices($this->field->getChoices());
+    }
+
+    function emitChoices($choices) {
+      if (!isset($this->value))
+          $this->value = $this->field->get('default');
+      $config = $this->field->getConfiguration();
+      $type = $config['multiple'] ? 'checkbox' : 'radio';
+      if (isset($config['classes']))
+          $classes = 'class="'.$config['classes'].'"';
+
+      $i=0;
+      foreach ($choices as $k => $v) {
+          if (is_array($v)) {
+              $this->renderSectionBreak($k);
+              $this->emitChoices($v);
+              continue;
+          }
+          $id = sprintf("%s-%s", $this->id, $i++);
+?>
+        <label <?php echo $classes; ?>
+          for="<?php echo $id; ?>" style="display:block;">
+        <input id="<?php echo $id; ?>" style="vertical-align:top;"
+            type="<?php echo $type; ?>" name="<?php echo $this->name; ?>[]" <?php
+            if ($this->value[$k]) echo 'checked="checked"'; ?> value="<?php
+            echo Format::htmlchars($k); ?>"/>
+        <?php
+        if ($v) { ?>
+            <em style="display:inline-block;vertical-align:middle;width:90%;width:calc(100% - 25px);"><?php
+            echo Format::viewableImages($v); ?></em>
+<?php     } ?>
+        </label>
+<?php   }
+    }
+
+    function renderSectionBreak($label) { ?>
+        <div><?php echo Format::htmlchars($label); ?></div>
+<?php
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        if (count($data)) {
+            if (!isset($data[$this->name]))
+                return array();
+            return $this->collectValues($data[$this->name], $this->field->getChoices());
+        }
+        return parent::getValue();
+    }
+
+    function collectValues($data, $choices) {
+        $value = array();
+        foreach ($choices as $k => $v) {
+            if (is_array($v))
+                $value = array_merge($value, $this->collectValues($data, $v));
+            elseif (@in_array($k, $data))
+                $value[$k] = $v;
+        }
+        return $value;
+    }
+}
+
+/**
+ * An extension to the BoxChoicesWidget which will render complex choices in
+ * tabs.
+ */
+class TabbedBoxChoicesWidget extends BoxChoicesWidget {
+    function render($options=array()) {
+        $tabs = array();
+        foreach ($this->field->getChoices() as $label=>$group) {
+            if (is_array($group)) {
+                $tabs[$label] = $group;
+            }
+            else {
+                $this->emitChoices(array($label=>$group));
+            }
+        }
+        if ($tabs) {
+            ?>
+            <div>
+            <ul class="alt tabs">
+<?php       $i = 0;
+            foreach ($tabs as $label => $group) {
+                $active = $i++ == 0; ?>
+                <li <?php if ($active) echo 'class="active"';
+                  ?>><a href="#<?php echo sprintf('%s-%s', $this->name, Format::slugify($label));
+                  ?>"><?php echo Format::htmlchars($label); ?></a></li>
+<?php       } ?>
+            </ul>
+<?php       $i = 0;
+            foreach ($tabs as $label => $group) {
+                $first = $i++ == 0; ?>
+                <div class="tab_content <?php if (!$first) echo 'hidden'; ?>" id="<?php
+                  echo sprintf('%s-%s', $this->name, Format::slugify($label));?>">
+<?php           $this->emitChoices($group); ?>
+                </div>
+<?php       } ?>
+            </div>
+<?php   }
     }
 }
 

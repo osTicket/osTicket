@@ -2524,6 +2524,7 @@ form .inset {
 .form.footer {
     margin-top: 50px;
 }
+<<<<<<< HEAD
 .clearfix:after {
   visibility: hidden;
   display: block;
@@ -2531,4 +2532,7 @@ form .inset {
   content: " ";
   clear: both;
   height: 0;
+}
+.vertical-pad {
+  margin-top: 3px;
 }

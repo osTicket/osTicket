@@ -1,6 +1,7 @@
 <?php
 
 require_once(INCLUDE_DIR . 'class.dept.php');
+require_once(INCLUDE_DIR . 'class.role.php');
 require_once(INCLUDE_DIR . 'class.team.php');
 
 class AdminAjaxAPI extends AjaxController {
@@ -97,5 +98,62 @@ class AdminAjaxAPI extends AjaxController {
         $path = ltrim($ost->get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
+    }
+
+    /**
+     * Ajax: GET /admin/add/role
+     *
+     * Uses a dialog to add a new role
+     *
+     * Returns:
+     * 200 - HTML form for addition
+     * 201 - {id: <id>, name: <name>}
+     *
+     * Throws:
+     * 403 - Not logged in
+     * 403 - Not an adminitrator
+     */
+    function addRole() {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+
+        $form = new RoleQuickAddForm($_POST);
+
+        if ($_POST && $form->isValid()) {
+            $role = Role::create();
+            $errors = array();
+            $vars = $form->getClean();
+            if ($role->update($vars, $errors)) {
+                Http::response(201, $this->encode(array(
+                    'id' => $role->getId(),
+                    'name' => $role->name,
+                ), 'application/json'));
+            }
+            foreach ($errors as $name=>$desc)
+                if ($F = $form->getField($name))
+                    $F->addError($desc);
+        }
+
+        $title = __("Add New Role");
+        $path = ltrim($ost->get_path_info(), '/');
+
+        include STAFFINC_DIR . 'templates/quick-add-role.tmpl.php';
+    }
+
+    function getRolePerms($id) {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+        if (!($role = Role::lookup($id)))
+            Http::response(404, 'No such role');
+
+        return $this->encode($role->getPermissionInfo());
     }
 }

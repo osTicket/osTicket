@@ -185,7 +185,7 @@ class Role extends RoleModel {
             return false;
 
         // Remove dept access entries
-        GroupDeptAccess::objects()
+        StaffDeptAccess::objects()
             ->filter(array('role_id'=>$this->getId()))
             ->update(array('role_id' => 0));
 
@@ -321,4 +321,57 @@ class RolePermission {
         }
     }
 }
-?>
+
+class RoleQuickAddForm
+extends AbstractForm {
+    function buildFields() {
+        $permissions = array();
+        foreach (RolePermission::allPermissions() as $g => $perms) {
+            foreach ($perms as $k => $v) {
+                if ($v['primary'])
+                    continue;
+                $permissions[$g][$k] = "{$v['title']} — {$v['desc']}";
+            }
+        }
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __('Name'),
+                    'classes' => 'span12',
+                    'autofocus' => true,
+                    'length' => 128,
+                ),
+            )),
+            'clone' => new ChoiceField(array(
+                'default' => 0,
+                'choices' => array_merge(
+                    array(0 => '— '.__('Clone an existing role').' —'),
+                    Role::getRoles()
+                ),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'perms' => new ChoiceField(array(
+                'choices' => $permissions,
+                'widget' => 'TabbedBoxChoicesWidget',
+                'configuration' => array(
+                    'multiple' => true,
+                    'classes' => 'vertical-pad',
+                ),
+            )),
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        // Index permissions as ['ticket.edit' => 1]
+        $clean['perms'] = array_keys($clean['perms']);
+        return $clean;
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
