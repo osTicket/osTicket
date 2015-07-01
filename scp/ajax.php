@@ -230,6 +230,9 @@ $dispatcher = patterns('',
             url('^/department$', 'addDepartment'),
             url('^/team', 'addTeam')
         ))
+    )),
+    url('^/staff/(?P<id>\d+)', patterns('ajax.staff.php:StaffAjaxAPI',
+        url('^/set-password$', 'setPassword')
     ))
 );
 

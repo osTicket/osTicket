@@ -2524,3 +2524,11 @@ form .inset {
 .form.footer {
     margin-top: 50px;
 }
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}

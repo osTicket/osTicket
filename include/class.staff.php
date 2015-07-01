@@ -1067,4 +1067,62 @@ class StaffDeptAccess extends VerySimpleModel {
         $this->setFlag(self::FLAG_ALERTS, $value);
     }
 }
-?>
+
+/**
+ * This form is used to administratively change the password. The
+ * ChangePasswordForm is used for an agent to change their own password.
+ */
+class PasswordResetForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'email' => new BooleanField(array(
+                'default' => true,
+                'configuration' => array(
+                    'desc' => __('Send the agent a password reset email'),
+                ),
+            )),
+            'passwd1' => new PasswordField(array(
+                'placeholder' => __('New Password'),
+                'required' => true,
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'passwd2' => new PasswordField(array(
+                'placeholder' => __('Confirm Password'),
+                'required' => true,
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'temporary' => new BooleanField(array(
+                'configuration' => array(
+                    'desc' => __('Require password change at next login'),
+                    'classes' => 'form footer',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+        );
+    }
+
+    function validate($clean) {
+        if ($clean['passwd1'] != $clean['passwd2'])
+            $this->getField('passwd1')->addError(__('Passwords do not match'));
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
