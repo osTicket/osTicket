@@ -895,6 +895,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $model;
 
     var $constraints = array();
+    var $path_constraints = array();
     var $ordering = array();
     var $limit = false;
     var $offset = 0;
@@ -932,6 +933,15 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function exclude() {
         foreach (func_get_args() as $Q) {
             $this->constraints[] = $Q instanceof Q ? $Q->negate() : Q::not($Q);
+        }
+        return $this;
+    }
+
+    function constrain() {
+        foreach (func_get_args() as $I) {
+            foreach ($I as $path => $Q) {
+                $this->path_constraints[$path][] = $Q;
+            }
         }
         return $this;
     }
@@ -1361,7 +1371,7 @@ class ModelInstanceManager extends ResultSet {
         // using an AnnotatedModel instance.
         if ($annotations && $modelClass == $this->model) {
             foreach ($annotations as $name=>$A) {
-                if (isset($fields[$name])) {
+                if (array_key_exists($name, $fields)) {
                     $extras[$name] = $fields[$name];
                     unset($fields[$name]);
                 }
@@ -1942,8 +1952,20 @@ class SqlCompiler {
 
     function getJoins($queryset) {
         $sql = '';
-        foreach ($this->joins as $j)
-            $sql .= $j['sql'];
+        foreach ($this->joins as $path => $j) {
+            if (!$j['sql'])
+                continue;
+            list($base, $constraints) = $j['sql'];
+            // Add in path-specific constraints, if any
+            if (isset($queryset->path_constraints[$path])) {
+                foreach ($queryset->path_constraints[$path] as $Q) {
+                    $constraints[] = $this->compileQ($Q, $queryset->model);
+                }
+            }
+            $sql .= $base;
+            if ($constraints)
+                $sql .= ' ON ('.implode(' AND ', $constraints).')';
+        }
         // Add extra items from QuerySet
         if (isset($queryset->extra['tables'])) {
             foreach ($queryset->extra['tables'] as $S) {
@@ -2137,9 +2159,7 @@ class MySqlCompiler extends SqlCompiler {
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::getMeta('table'));
         $base = "{$join}{$table} {$alias}";
-        if ($constraints)
-           $base .= ' ON ('.implode(' AND ', $constraints).')';
-        return $base;
+        return array($base, $constraints);
     }
 
     /**

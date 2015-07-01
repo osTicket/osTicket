@@ -667,6 +667,9 @@ input[type=search] {
 .table > tbody > tr.header + tr td {
   padding-top: 10px;
 }
+.table td .pull-right {
+  margin-right: 15px;
+}
 
 .form_table {
     margin-top:3px;
