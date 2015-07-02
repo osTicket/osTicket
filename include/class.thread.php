@@ -1049,9 +1049,6 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         switch(strtolower($tag)) {
             case 'create_date':
                 return new FormattedDate($this->getCreateDate());
@@ -1060,8 +1057,6 @@ implements TemplateVariable {
             case 'files':
                 throw new OOBContent(OOBContent::FILES, $this->attachments->all());
         }
-
-        return false;
     }
 
     static function getVarScope() {

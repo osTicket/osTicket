@@ -87,6 +87,13 @@ implements TemplateVariable {
         );
     }
 
+    function getVar($tag) {
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->getMembers()->all());
+        }
+    }
+
     function getId() {
         return $this->id;
     }
@@ -187,7 +194,7 @@ implements TemplateVariable {
 
             $this->_members = $members;
         }
-        return new UserList($this->_members->all());
+        return $this->_members;
     }
 
     function getAvailableMembers() {

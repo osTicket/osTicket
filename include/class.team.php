@@ -26,7 +26,6 @@ implements TemplateVariable {
                 'constraint' => array('lead_id' => 'Staff.staff_id'),
             ),
             'members' => array(
-                'null' => true,
                 'list' => true,
                 'reverse' => 'TeamMember.team',
             ),
@@ -58,6 +57,13 @@ implements TemplateVariable {
         );
     }
 
+    function getVar($tag) {
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->getMembers()->all());
+        }
+    }
+
     function getId() {
         return $this->team_id;
     }
@@ -74,14 +80,12 @@ implements TemplateVariable {
     }
 
     function getMembers() {
-
         if (!isset($this->_members)) {
             $this->_members = array();
             foreach ($this->members as $m)
                 $this->_members[] = $m->staff;
         }
-
-        return new UserList($this->_members);
+        return $this->_members;
     }
 
     function hasMember($staff) {
@@ -147,9 +151,6 @@ implements TemplateVariable {
         } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
             $errors['name']=__('Team name already exists');
         }
-
-        if ($errors)
-            return false;
 
         // Reset team lead if they're getting removed
         if (isset($this->lead_id)
