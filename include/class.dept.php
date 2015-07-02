@@ -548,7 +548,7 @@ implements TemplateVariable {
         if ($vars['pid'] && !($p = static::lookup($vars['pid'])))
             $errors['pid'] = __('Department selection is required');
 
-        // Format access update as [array(dept_id, alerts?)]
+        // Format access update as [array(dept_id, role_id, alerts?)]
         $access = array();
         if (isset($vars['members'])) {
             foreach (@$vars['members'] as $staff_id) {
@@ -576,8 +576,8 @@ implements TemplateVariable {
         $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
         $this->path = $this->getFullPath();
 
-        if ($rv = $this->save())
-            return $rv;
+        if ($this->save())
+            return $this->extended->saveAll();
 
         if (isset($this->id))
             $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
@@ -611,8 +611,6 @@ implements TemplateVariable {
               $da->role_id = $role_id;
           }
           $da->setAlerts($alerts);
-          if (!$errors)
-              $da->save();
       }
       if (!$errors && $dropped) {
           $this->extended

@@ -609,7 +609,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
 
-        if($errors) return false;
+        if ($errors)
+            return false;
 
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];

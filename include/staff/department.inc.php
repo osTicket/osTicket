@@ -305,7 +305,7 @@ foreach ($dept->getMembers() as $member) {
             <option value="0">&mdash; <?php echo __('Select Agent');?> &mdash;</option>
             <?php
             foreach ($agents as $id=>$name) {
-              echo sprintf('<option value="%d">%s</option>',$id,$name);
+              echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
             }
             ?>
             <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
@@ -332,8 +332,10 @@ foreach ($dept->getMembers() as $member) {
             <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
           </select>
           <span style="display:inline-block;width:60px"> </span>
-          <input type="checkbox" data-name="member_alerts" value="1" />
-          <?php echo __('Alerts'); ?>
+          <label>
+            <input type="checkbox" data-name="member_alerts" value="1" />
+            <?php echo __('Alerts'); ?>
+          </label>
           <a href="#" class="pull-right drop-membership" title="<?php echo __('Delete');
             ?>"><i class="icon-trash"></i></a>
         </td>
