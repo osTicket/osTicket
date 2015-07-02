@@ -110,7 +110,7 @@ implements TemplateVariable {
         $base = $this->ht;
         $base['isenabled'] = $this->isEnabled();
         $base['noalerts'] = !$this->alertsEnabled();
-        unset($base['staffmembers']);
+        unset($base['members']);
         return $base;
     }
 
@@ -166,15 +166,20 @@ implements TemplateVariable {
         $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);
 
-        if ($this->save()) {
-            // Remove checked members
-            if ($vars['remove'] && is_array($vars['remove'])) {
-                TeamMember::objects()
-                    ->filter(array('staff_id__in' => $vars['remove']))
-                    ->delete();
+        // Format access update as [array(staff_id, alerts?)]
+        $access = array();
+        if (isset($vars['members'])) {
+            foreach (@$vars['members'] as $staff_id) {
+                $access[] = array($staff_id, @$vars['member_alerts'][$staff_id]);
             }
-            return true;
         }
+        $this->updateMembers($access, $errors);
+
+        if ($errors)
+            return false;
+
+        if ($this->save())
+            return $this->members->saveAll();
 
         if (isset($this->team_id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
@@ -185,6 +190,31 @@ implements TemplateVariable {
         }
 
         return false;
+    }
+
+    function updateMembers($access, &$errors) {
+      reset($access);
+      $dropped = array();
+      foreach ($this->members as $member)
+          $dropped[$member->staff_id] = 1;
+      while (list(, list($staff_id, $alerts)) = each($access)) {
+          unset($dropped[$staff_id]);
+          if (!$staff_id || !Staff::lookup($staff_id))
+              $errors['members'][$staff_id] = __('No such agent');
+          $member = $this->members->findFirst(array('staff_id' => $staff_id));
+          if (!isset($member)) {
+              $member = TeamMember::create(array('staff_id' => $staff_id));
+              $this->members->add($member);
+          }
+          $member->setAlerts($alerts);
+      }
+      if (!$errors && $dropped) {
+          $this->members
+              ->filter(array('staff_id__in' => array_keys($dropped)))
+              ->delete();
+          $this->members->reset();
+      }
+      return !$errors;
     }
 
     function save($refetch=false) {
@@ -205,11 +235,12 @@ implements TemplateVariable {
             return false;
 
         # Remove members of this team
-        $this->staffmembers->delete();
+        $this->members->delete();
 
         # Reset ticket ownership for tickets owned by this team
-        db_query('UPDATE '.TICKET_TABLE.' SET team_id=0 WHERE team_id='
-            .db_input($id));
+        Ticket::objects()
+            ->filter(array('team_id' => $id))
+            ->update(array('team_id' => 0));
 
         return true;
     }
@@ -289,6 +320,7 @@ class TeamMember extends VerySimpleModel {
     static $meta = array(
         'table' => TEAM_MEMBER_TABLE,
         'pk' => array('team_id', 'staff_id'),
+        'select_related' => array('staff'),
         'joins' => array(
             'team' => array(
                 'constraint' => array('team_id' => 'Team.team_id'),

@@ -253,8 +253,10 @@ if (count($bks) > 1) {
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <span style="display:inline-block;width:20px"> </span>
-            <input type="checkbox" data-name="dept_access_alerts" value="1" />
-            <?php echo __('Alerts'); ?>
+            <label>
+              <input type="checkbox" data-name="dept_access_alerts" value="1" />
+              <?php echo __('Alerts'); ?>
+            </label>
             <a href="#" class="pull-right drop-access" title="<?php echo __('Delete');
               ?>"><i class="icon-trash"></i></a>
           </td>
@@ -279,7 +281,7 @@ foreach ($staff->dept_access as $dept_access) {
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
               foreach ($depts as $id=>$name) {
-                echo sprintf('<option value="%d">%s</option>',$id,$name);
+                echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
               }
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
@@ -371,7 +373,7 @@ foreach ($staff->teams as $TM) {
               <option value="0">&mdash; <?php echo __('Select Team');?> &mdash;</option>
               <?php
               foreach ($teams as $id=>$name) {
-                echo sprintf('<option value="%d">%s</option>', $id, $name);
+                echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
               }
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
@@ -388,8 +390,10 @@ foreach ($staff->teams as $TM) {
             <input type="hidden" data-name="teams[]" value="" />
           </td>
           <td>
-            <input type="checkbox" data-name="team_alerts" value="1" />
-            <?php echo __('Alerts'); ?>
+            <label>
+              <input type="checkbox" data-name="team_alerts" value="1" />
+              <?php echo __('Alerts'); ?>
+            </label>
             <a href="#" class="pull-right drop-membership" title="<?php echo __('Delete');
               ?>"><i class="icon-trash"></i></a>
           </td>
