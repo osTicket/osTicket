@@ -309,6 +309,21 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
+  <div class="pull-right" style="height:25px">
+    <span class="valign-helper"></span>
+    <?php echo __('Sort'); ?>:
+    <select name="sort" onchange="javascript: $.pjax({
+        url:'?' + addSearchParam('sort', $(this).val()),
+        timeout: 2000,
+        container: '#pjax-container'});">
+<?php foreach ($queue_sort_options as $mode) {
+$desc = $sort_options[$mode]; ?>
+    <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
+<?php } ?>
+    </select>
+    </span>
+  </div>
+
     <form action="tickets.php" method="get" onsubmit="javascript:
   $.pjax({
     url:$(this).attr('action') + '?' + $(this).serialize(),
@@ -317,19 +332,16 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
   });
 return false;">
     <input type="hidden" name="a" value="search">
-    <table>
-        <tr>
-            <td><input type="search" id="basic-ticket-search" name="query"
-                autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off">
-                <input type="hidden" name="search-type" value=""/>
-            </td>
-            <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
-            <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
-                $.dialog('ajax.php/tickets/search', 201);"
-                >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
-        </tr>
-    </table>
+    <input type="text" id="basic-ticket-search" name="query"
+        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+        autocomplete="off" autocorrect="off" autocapitalize="off">
+    <input type="hidden" name="search-type" value=""/>
+    <button type="submit" class="attached button"><i class="icon-search"></i>
+      </button>
+    <a href="#" onclick="javascript:
+        $.dialog('ajax.php/tickets/search', 201);"
+        >[<?php echo __('advanced'); ?>]</a>
+        <i class="help-tip icon-question-sign" href="#advanced"></i>
     </form>
 </div>
 <!-- SEARCH FORM END -->
@@ -343,24 +355,12 @@ return false;">
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
-            <span class="notsticky" style="display:inline-block">
-                <span style="vertical-align: baseline">Sort:</span>
-            <select name="sort" onchange="javascript: $.pjax({
-                url:'?' + addSearchParam('sort', $(this).val()),
-                timeout: 2000,
-                container: '#pjax-container'});">
-<?php foreach ($queue_sort_options as $mode) {
-    $desc = $sort_options[$mode]; ?>
-            <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
-<?php } ?>
-            </select>
-            </span>
             <?php
             if ($thisstaff->canManageTickets()) {
                 echo TicketStatus::status_options();
             }
-            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE)) { ?>
-            <a id="tickets-delete" class="action-button tickets-action"
+            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
+            <a id="tickets-delete" class="red button action-button tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php

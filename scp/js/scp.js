@@ -84,14 +84,14 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
-        var formObj = $(this).closest('form');
-        e.preventDefault();
-        if($('.dialog#confirm-action p#'+this.name+'-confirm').length == 0) {
-            alert('Unknown action '+this.name+' - get technical help.');
+        var formObj = $(this).closest('form'),
+            name = this.name || $(this).data('name');
+        if($('.dialog#confirm-action p#'+name+'-confirm').length == 0) {
+            alert('Unknown action '+name+' - get technical help.');
         } else if(checkbox_checker(formObj, 1)) {
-            var action = this.name;
+            var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
@@ -132,7 +132,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).css('color', 'red');
+            $('input[type=submit]', fObj).addClass('save pending');
             $(window).bind('beforeunload', function(e) {
                 return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
@@ -149,7 +149,7 @@ var scp_prep = function() {
     $("form#save :input[type=reset]").click(function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
-            $('input[type=submit]', fObj).removeAttr('style');
+            $('input[type=submit]', fObj).removeClass('save pending');
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
@@ -345,72 +345,6 @@ var scp_prep = function() {
     $("#loading").css({
         top  : ($(window).height() / 3),
         left : ($(window).width() - $("#loading").outerWidth()) / 2
-    });
-
-    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
-        switch($(this).children('option:selected').data('state')) {
-            case 'closed':
-                $('select#assignee')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#flag')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#staffId').removeAttr('disabled');
-                break;
-            case 'open':
-                $('select#staffId')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-                break;
-            default:
-                $('select#staffId').removeAttr('disabled');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-        }
-    });
-
-    $('#advanced-search form#search').submit(function(e) {
-        e.preventDefault();
-        var fObj = $(this);
-        var elem = $('#advanced-search');
-        $('#result-count').html('');
-        fixupDatePickers.call(this);
-        $.ajax({
-                url: "ajax.php/tickets/search",
-                data: fObj.serialize(),
-                dataType: 'json',
-                beforeSend: function ( xhr ) {
-                   $('.buttons', elem).hide();
-                   $('.spinner', elem).show();
-                   return true;
-                },
-                success: function (resp) {
-
-                    if(resp.success) {
-                        $('#result-count').html('<div class="success">' + resp.success +'</div>');
-                    } else if (resp.fail) {
-                        $('#result-count').html('<div class="fail">' + resp.fail +'</div>');
-                    } else {
-                        $('#result-count').html('<div class="fail">Unknown error</div>');
-                    }
-                }
-            })
-            .done( function () {
-             })
-            .fail( function () {
-                $('#result-count').html('<div class="fail">'
-                    + __('Advanced search failed - try again!') + '</div>');
-            })
-            .always( function () {
-                $('.spinner', elem).hide();
-                $('.buttons', elem).show();
-             });
     });
 
    // Return a helper with preserved width of cells
