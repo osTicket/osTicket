@@ -46,18 +46,18 @@ if($_POST){
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
                 $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one agent'));
-            } elseif(in_array($thisstaff->getId(),$_POST['ids'])) {
+            } elseif(in_array($_POST['a'], array('disable', 'delete'))
+                && in_array($thisstaff->getId(),$_POST['ids'])
+            ) {
                 $errors['err'] = __('You can not disable/delete yourself - you could be the only admin!');
             } else {
-                $count=count($_POST['ids']);
+                $count = count($_POST['ids']);
+                $members = Staff::objects()->filter(array(
+                    'staff_id__in' => $_POST['ids']
+                ));
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $num = Staff::objects()->filter(array(
-                            'staff_id__in' => $_POST['ids']
-                        ))->update(array(
-                            'isactive' => 1
-                        ));
-
+                        $num = $members->update(array('isactive' => 1));
                         if ($num) {
                             if($num==$count)
                                 $msg = sprintf('Successfully activated %s',
@@ -70,13 +70,9 @@ if($_POST){
                                 _N('selected agent', 'selected agents', $count));
                         }
                         break;
-                    case 'disable':
-                        $num = Staff::objects()->filter(array(
-                            'staff_id__in' => $_POST['ids']
-                        ))->update(array(
-                            'isactive' => 0
-                        ));
 
+                    case 'disable':
+                        $num = $members->update(array('isactive' => 0));
                         if ($num) {
                             if($num==$count)
                                 $msg = sprintf('Successfully disabled %s',
@@ -89,10 +85,11 @@ if($_POST){
                                 _N('selected agent', 'selected agents', $count));
                         }
                         break;
+
                     case 'delete':
                         $i = 0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if($v!=$thisstaff->getId() && ($s=Staff::lookup($v)) && $s->delete())
+                        foreach($members as $s) {
+                            if ($s->staff_id != $thisstaff->getId() && $s->delete())
                                 $i++;
                         }
 
@@ -106,6 +103,48 @@ if($_POST){
                             $errors['err'] = sprintf(__('Unable to delete %s'),
                                 _N('selected agent', 'selected agents', $count));
                         break;
+
+                    case 'permissions':
+                        foreach ($members as $s)
+                            if ($s->updatePerms($_POST['perms'], $errors) && $s->save())
+                                $i++;
+
+                        if($i && $i==$count)
+                            $msg = sprintf(__('Successfully updated %s'),
+                                _N('selected agent', 'selected agents', $count));
+                        elseif($i>0)
+                            $warn = sprintf(__('%1$d of %2$d %3$s updated'), $i, $count,
+                                _N('selected agent', 'selected agents', $count));
+                        elseif(!$errors['err'])
+                            $errors['err'] = sprintf(__('Unable to update %s'),
+                                _N('selected agent', 'selected agents', $count));
+                        break;
+
+                    case 'department':
+                        if (!$_POST['dept_id'] || !$_POST['role_id']
+                            || !Dept::lookup($_POST['dept_id'])
+                            || !Role::lookup($_POST['role_id'])
+                        ) {
+                            $errors['err'] = 'Internal error.';
+                            break;
+                        }
+                        foreach ($members as $s) {
+                            $s->setDepartmentId((int) $_POST['dept_id'], $_POST['eavesdrop']);
+                            $s->role_id = (int) $_POST['role_id'];
+                            if ($s->save() && $s->dept_access->saveAll())
+                                $i++;
+                        }
+                        if($i && $i==$count)
+                            $msg = sprintf(__('Successfully updated %s'),
+                                _N('selected agent', 'selected agents', $count));
+                        elseif($i>0)
+                            $warn = sprintf(__('%1$d of %2$d %3$s updated'), $i, $count,
+                                _N('selected agent', 'selected agents', $count));
+                        elseif(!$errors['err'])
+                            $errors['err'] = sprintf(__('Unable to update %s'),
+                                _N('selected agent', 'selected agents', $count));
+                        break;
+
                     default:
                         $errors['err'] = __('Unknown action - get technical help.');
                 }

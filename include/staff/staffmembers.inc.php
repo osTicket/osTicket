@@ -107,13 +107,47 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
              }
              ?>
         </select>
-        &nbsp;&nbsp;
-        <input type="submit" name="submit" value="<?php echo __('Apply');?>"/>
+        <input type="submit" name="submit" class="small" value="<?php echo __('Apply');?>"/>
     </form>
  </div>
-<div class="pull-right flush-right" style="padding-right:5px;"><b><a href="staff.php?a=add" class="Icon newstaff"><?php echo __('Add New Agent');?></a></b></div>
-<div class="clear"></div>
-<form action="staff.php" method="POST" name="staff" >
+
+ <form id="mass-actions" action="staff.php" method="POST" name="staff" >
+
+ <div class="pull-right">
+     <a class="action-button" href="staff.php?a=add">
+       <i class="icon-plus-sign"></i>
+        <?php echo __('Add New Agent'); ?>
+     </a>
+     <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+     </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li><a class="confirm" data-name="enable" href="staff.php?a=enable">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Enable'); ?></a></li>
+          <li><a class="confirm" data-name="disable" href="staff.php?a=disable">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Disable'); ?></a></li>
+          <li><a class="confirm" data-name="delete" href="staff.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
+          <li><a class="dialog-first" data-action="permissions" href="#staff/reset-permissions">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Reset Permissions'); ?></a></li>
+          <li><a class="dialog-first" data-action="department" href="#staff/change-department">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Change Department'); ?></a></li>
+          <li><a class="dialog-first" href="#staff/reset-access">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Reset Access'); ?></a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="clear" style="padding: 3px 0"></div>
+
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
@@ -145,16 +179,16 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                   <input type="checkbox" class="ckb" name="ids[]"
                   value="<?php echo $id; ?>" <?php echo $sel ? 'checked="checked"' : ''; ?> >
                 <td><a href="staff.php?id=<?php echo $id; ?>"><?php echo
-                Format::htmlchars((string) $agent->getName()); ?></a>&nbsp;</td>
+                Format::htmlchars((string) $agent->getName()); ?></a></td>
                 <td><?php echo $agent->getUserName(); ?></td>
-                <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?>&nbsp;<?php
+                <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?><?php
                     echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
 
                 <td><a href="departments.php?id=<?php echo
                     $agent->getDeptId(); ?>"><?php
                     echo Format::htmlchars((string) $agent->dept); ?></a></td>
                 <td><?php echo Format::date($agent->created); ?></td>
-                <td><?php echo Format::datetime($agent->lastlogin); ?>&nbsp;</td>
+                <td><?php echo Format::relativeTime(Misc::db2gmtime($agent->lastlogin)) ?: '<em class="faded">'.__('never').'</em>'; ?></td>
                </tr>
             <?php
             } //end of foreach
@@ -175,18 +209,9 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
     </tfoot>
 </table>
 <?php
-if ($count): //Show options..
+if ($count) { //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
-    &nbsp;&nbsp;
-    <input class="button" type="submit" name="disable" value="<?php echo __('Lock');?>" >
-    &nbsp;&nbsp;
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>">
-</p>
-<?php
-endif;
+}
 ?>
 </form>
 
@@ -220,3 +245,34 @@ endif;
      </p>
     <div class="clear"></div>
 </div>
+
+<script type="text/javascript">
+$(document).on('click', 'a.dialog-first', function(e) {
+    e.preventDefault();
+    var action = $(this).data('action'),
+        $form = $('form#mass-actions');
+    if ($(':checkbox.ckb:checked', $form).length == 0) {
+        $.sysAlert(__('Oops'),
+            __('You need to select at least one item'));
+        return false;
+    }
+    ids = $form.find('.ckb');
+    $.dialog('ajax.php/' + $(this).attr('href').substr(1), 201, function (xhr, data) {
+        $form.find('#action').val(action);
+        data = JSON.parse(data);
+        if (data)
+            $.each(data, function(k, v) {
+              if (v.length) {
+                  $.each(v, function() {
+                      $form.append($('<input type="hidden">').attr('name', k+'[]').val(this));
+                  })
+              }
+              else {
+                  $form.append($('<input type="hidden">').attr('name', k).val(v));
+              }
+          });
+          $form.submit();
+    }, { data: ids.serialize()});
+    return false;
+});
+</script>

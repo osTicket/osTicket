@@ -367,6 +367,27 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->dept;
     }
 
+    function setDepartmentId($dept_id, $eavesdrop=false) {
+        // Grant access to the current department
+        $old = $this->dept_id;
+        if ($eavesdrop) {
+            $da = StaffDeptAccess::create(array(
+                'dept_id' => $old,
+                'role_id' => $this->role_id,
+            ));
+            $da->setAlerts(true);
+            $this->dept_access->add($da);
+        }
+
+        // Drop extended access to new department
+        $this->dept_id = $dept_id;
+        if ($da = $this->dept_access->findFirst(array(
+            'dept_id' => $dept_id))
+        ) {
+            $this->dept_access->remove($da);
+        }
+    }
+
     function getLanguage() {
         return (isset($this->lang)) ? $this->lang : false;
     }
@@ -395,8 +416,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->role;
     }
 
-    function hasPerm($perm) {
-        return $this->getPermission()->has($perm);
+    function hasPerm($perm, $global=true) {
+        if ($global)
+            return $this->getPermission()->has($perm);
+        if ($this->getRole()->hasPerm($perm))
+            return true;
+        foreach ($this->dept_access as $da)
+            if ($da->role->hasPerm($perm))
+                return true;
+        return false;
     }
 
     function canManageTickets() {
@@ -915,7 +943,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
 
         // Update some things for ::updateAccess to inspect
-        $this->dept_id = $vars['dept_id'];
+        $this->setDepartmentId($vars['dept_id']);
 
         // Format access update as [array(dept_id, role_id, alerts?)]
         $access = array();
@@ -1020,17 +1048,19 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return !$errors;
     }
 
-    private function updatePerms($vars, &$errors) {
+    function updatePerms($vars, &$errors) {
         if (!$vars) {
             $this->permissions = '';
             return;
         }
+        $permissions = $this->getPermission();
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
         }
         $this->permissions = $permissions->toJson();
+        return true;
     }
 
 }
@@ -1127,6 +1157,103 @@ extends AbstractForm {
     function validate($clean) {
         if ($clean['passwd1'] != $clean['passwd2'])
             $this->getField('passwd1')->addError(__('Passwords do not match'));
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
+
+class ResetAgentPermissionsForm
+extends AbstractForm {
+    function buildFields() {
+        $permissions = array();
+        foreach (RolePermission::allPermissions() as $g => $perms) {
+            foreach ($perms as $k => $v) {
+                if (!$v['primary'])
+                    continue;
+                $permissions[$g][$k] = "{$v['title']} — {$v['desc']}";
+            }
+        }
+        return array(
+            'clone' => new ChoiceField(array(
+                'default' => 0,
+                'choices' =>
+                    array(0 => '— '.__('Clone an existing agent').' —'),
+                    + Staff::getStaffMembers(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'perms' => new ChoiceField(array(
+                'choices' => $permissions,
+                'widget' => 'TabbedBoxChoicesWidget',
+                'configuration' => array(
+                    'multiple' => true,
+                    'classes' => 'vertical-pad',
+                ),
+            )),
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        // Index permissions as ['ticket.edit' => 1]
+        $clean['perms'] = array_keys($clean['perms']);
+        return $clean;
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
+
+class ChangeDepartmentForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'header' => new FreeTextField(array(
+                'configuration' => array(
+                    'content' => __('Change the primary department and primary role of the selected agents'),
+                    'classes' => ' ',
+                )
+            )),
+            'dept_id' => new ChoiceField(array(
+                'default' => 0,
+                'required' => true,
+                'label' => __('Primary Department'),
+                'choices' =>
+                    array(0 => '— '.__('Primary Department').' —')
+                    + Dept::getDepartments(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'role_id' => new ChoiceField(array(
+                'default' => 0,
+                'required' => true,
+                'label' => __('Primary Role'),
+                'choices' =>
+                    array(0 => '— '.__('Corresponding Role').' —')
+                    + Role::getRoles(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'eavesdrop' => new BooleanField(array(
+                'configuration' => array(
+                    'desc' => __('Maintain access to current primary department'),
+                    'classes' => 'form footer',
+                ),
+            )),
+            // alerts?
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        $clean['eavesdrop'] = $clean['eavesdrop'] ? 1 : 0;
+        return $clean;
     }
 
     function render($staff=true) {

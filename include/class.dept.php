@@ -632,10 +632,9 @@ extends Form {
             'pid' => new ChoiceField(array(
                 'label' => '',
                 'default' => 0,
-                'choices' => array_merge(
-                    array(0 => __('Top-Level Department')),
-                    Dept::getDepartments()
-                )
+                'choices' =>
+                    array(0 => '— '.__('Top-Level Department').' —')
+                    + Dept::getDepartments()
             )),
             'name' => new TextboxField(array(
                 'required' => true,
@@ -649,10 +648,9 @@ extends Form {
             'email_id' => new ChoiceField(array(
                 'label' => __('Email Mailbox'),
                 'default' => 0,
-                'choices' => array_merge(
-                    array(0 => '— '.__('System Default').' —'),
-                    Email::getAddresses()
-                ),
+                'choices' =>
+                    array(0 => '— '.__('System Default').' —')
+                    + Email::getAddresses(),
                 'configuration' => array(
                     'classes' => 'span12',
                 ),

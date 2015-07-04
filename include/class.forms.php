@@ -828,6 +828,11 @@ class FormField {
     function getAnswer() { return $this->answer; }
     function setAnswer($ans) { $this->answer = $ans; }
 
+    function setValue($value) {
+        $this->reset();
+        $this->getWidget()->value = $value;
+    }
+
     function getFormName() {
         if (is_numeric($this->get('id')))
             return substr(md5(
@@ -3038,6 +3043,8 @@ class BoxChoicesWidget extends Widget {
     }
 
     function emitChoices($choices) {
+      static $uid = 1;
+
       if (!isset($this->value))
           $this->value = $this->field->get('default');
       $config = $this->field->getConfiguration();
@@ -3045,14 +3052,13 @@ class BoxChoicesWidget extends Widget {
       if (isset($config['classes']))
           $classes = 'class="'.$config['classes'].'"';
 
-      $i=0;
       foreach ($choices as $k => $v) {
           if (is_array($v)) {
               $this->renderSectionBreak($k);
               $this->emitChoices($v);
               continue;
           }
-          $id = sprintf("%s-%s", $this->id, $i++);
+          $id = sprintf("%s-%s", $this->id, $uid++);
 ?>
         <label <?php echo $classes; ?>
           for="<?php echo $id; ?>" style="display:block;">
@@ -3487,7 +3493,8 @@ class FreeTextField extends FormField {
 class FreeTextWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        ?><div class="thread-body" style="padding:0"><?php
+        $class = $config['classes'] ?: 'thread-body'
+        ?><div class="<?php echo $class; ?>" style="padding:0"><?php
         if ($label = $this->field->getLocal('label')) { ?>
             <h3><?php
             echo Format::htmlchars($label);
