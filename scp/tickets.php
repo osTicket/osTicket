@@ -364,7 +364,7 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if (!$thisstaff ||
-                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
+                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s.'),
                                  __('to create tickets')),
@@ -483,7 +483,7 @@ if (isset($_SESSION['advsearch'])) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
-if ($thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
+if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
@@ -513,7 +513,7 @@ if($ticket) {
 } else {
 	$inc = 'tickets.inc.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(TicketModel::PERM_CREATE))
+            $thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');

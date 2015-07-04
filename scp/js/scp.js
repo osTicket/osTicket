@@ -103,11 +103,11 @@ var scp_prep = function() {
              });
             $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p#'+this.name+'-confirm')
+            $('.dialog#confirm-action p#'+name+'-confirm')
             .show()
             .parent('div').show().trigger('click');
         }
-
+        e.preventDefault();
         return false;
      });
 
@@ -596,7 +596,7 @@ $.dialog = function (url, codes, cb, options) {
     $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
     $popup.resize().show();
-    $('div.body', $popup).load(url, function () {
+    $('div.body', $popup).load(url, options.data, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({
             duration: 300,

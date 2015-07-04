@@ -1,6 +1,6 @@
 <?php
 if (!defined('OSTSCPINC') || !$thisstaff
-        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
         die('Access Denied');
 
 $info=array();

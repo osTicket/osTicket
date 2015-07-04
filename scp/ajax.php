@@ -233,8 +233,11 @@ $dispatcher = patterns('',
         )),
         url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
     )),
-    url('^/staff/(?P<id>\d+)', patterns('ajax.staff.php:StaffAjaxAPI',
-        url('^/set-password$', 'setPassword')
+    url('^/staff', patterns('ajax.staff.php:StaffAjaxAPI',
+        url('^/(?P<id>\d+)/set-password$', 'setPassword'),
+        url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
+        url('^/reset-permissions', 'resetPermissions'),
+        url('^/change-department', 'changeDepartment')
     ))
 );
 

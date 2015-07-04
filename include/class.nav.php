@@ -154,7 +154,7 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
-                        if ($staff->hasPerm(TicketModel::PERM_CREATE))
+                        if ($staff->hasPerm(TicketModel::PERM_CREATE, false))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',

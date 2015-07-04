@@ -306,6 +306,19 @@ class RolePermission {
         return $this->perms;
     }
 
+    function merge($perms) {
+        if ($perms instanceof self)
+            $perms = $perms->getInfo();
+        foreach ($perms as $perm=>$value) {
+            if (is_numeric($perm)) {
+                // Array of perm names
+                $perm = $value;
+                $value = true;
+            }
+            $this->set($perm, $value);
+        }
+    }
+
     static function allPermissions() {
         return static::$_permissions;
     }
@@ -345,10 +358,9 @@ extends AbstractForm {
             )),
             'clone' => new ChoiceField(array(
                 'default' => 0,
-                'choices' => array_merge(
-                    array(0 => '— '.__('Clone an existing role').' —'),
-                    Role::getRoles()
-                ),
+                'choices' =>
+                    array(0 => '— '.__('Clone an existing role').' —')
+                    + Role::getRoles(),
                 'configuration' => array(
                     'classes' => 'span12',
                 ),

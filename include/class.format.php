@@ -777,7 +777,9 @@ class Format {
     }
 
     function relativeTime($to, $from=false, $granularity=1) {
-        $timestamp = $to ?: Misc::gmtime();
+        if (!$to)
+            return false;
+        $timestamp = $to;
         if (gettype($timestamp) === 'string')
             $timestamp = strtotime($timestamp);
         $from = $from ?: Misc::gmtime();

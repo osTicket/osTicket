@@ -365,10 +365,9 @@ extends AbstractForm {
             'lead_id' => new ChoiceField(array(
                 'label' => __('Optionally select a leader for the team'),
                 'default' => 0,
-                'choices' => array_merge(
+                'choices' =>
                     array(0 => '— '.__('None').' —'),
-                    Staff::getStaffMembers()
-                ),
+                    + Staff::getStaffMembers(),
                 'configuration' => array(
                     'classes' => 'span12',
                 ),
