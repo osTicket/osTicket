@@ -36,7 +36,7 @@
 
     decorate: function() {
       this.$translations = $('<ul class="translations"></ul>');
-      this.$status = $('<li class="status"><i class="icon-spinner icon-spin"></i> Loading ...</li>')
+      this.$status = $('<li class="status"><i class="icon-spinner icon-spin"></i> '+__('Loading')+' ...</li>')
         .appendTo(this.$translations);
       this.$footer = $('<div class="add-translation"></div>');
       this.$select = $('<select name="locale"></select>');
@@ -44,8 +44,10 @@
       this.$container = $('<div class="translatable"></div>')
           .prependTo(this.$element.parent())
           .append(this.$element);
-      this.$container.wrap('<div style="display:inline-block;position:relative;width:auto"></div>');
-      this.$button = $(this.options.button).insertAfter(this.$container);
+      if (this.$element.width() > 100)
+          this.$element.width(this.$element.width()-35);
+      this.$container.wrap('<div style="display:inline-block;position:relative;width:auto;white-space:nowrap;"></div>');
+      this.$button = $(this.options.button).appendTo(this.$container);
       this.$menu.append($('<span class="close"><i class="icon-remove"></i></span>')
           .on('click', $.proxy(this.hide, this)));
       if (this.$element.is('textarea')) {
@@ -72,7 +74,7 @@
       this.$footer
         .append($('<form method="post"></form>')
           .append(this.$select)
-          .append($('<button type="button"><i class="icon-plus-sign"></i> Add</button>')
+          .append($('<button type="button"><i class="icon-plus-sign"></i> '+__('Add')+'</button>')
             .on('click', $.proxy(this.define, this))
           )
         );
@@ -94,7 +96,7 @@
           self.add(k, v);
         });
         if (!Object.keys(json).length) {
-          self.$status.text('Not currently translated');
+          self.$status.text(__('Not currently translated'));
         }
         else
           self.$status.remove();
@@ -131,7 +133,7 @@
 
     showCommit: function(e) {
       if (this.$commit) {
-          this.$commit.find('button').empty().text(' Save')
+          this.$commit.find('button').empty().text(' '+__('Save'))
               .prepend($('<i>').addClass('fa icon-save'));
           return !this.$commit.is(':visible')
               ? this.$commit.slideDown() : true;
@@ -139,7 +141,7 @@
       return this.$commit = $('<div class="language-commit"></div>')
         .hide()
         .insertAfter(this.$translations)
-        .append($('<button type="button" class="commit"><i class="fa fa-save icon-save"></i> Save</button>')
+        .append($('<button type="button" class="white button commit"><i class="fa fa-save icon-save"></i> '+__('Save')+'</button>')
           .on('click', $.proxy(this.commit, this))
         )
         .slideDown();
@@ -154,7 +156,7 @@
         changes[$(this).data('lang')] = trans;
       });
       this.$commit.prop('disabled', true);
-      this.$commit.find('button').empty().text(' Saving')
+      this.$commit.find('button').empty().text(' '+__('Saving'))
           .prepend($('<i>').addClass('fa icon-spin icon-spinner'));
       $.ajax('ajax.php/i18n/translate/' + this.$element.data('translateTag'), {
         type: 'post',

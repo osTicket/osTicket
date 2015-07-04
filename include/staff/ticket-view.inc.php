@@ -657,8 +657,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
          </tbody>
         </table>
         <p  style="padding:0 165px;">
-            <input class="btn_sm" type="submit" value="<?php echo __('Post Reply');?>">
-            <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+            <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
+            <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php
@@ -740,8 +740,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
         </table>
 
        <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Note');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+           <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
+           <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
     <?php
@@ -800,8 +800,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
         <p style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Transfer');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+           <input class="save pending" type="submit" value="<?php echo __('Transfer');?>">
+           <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php
@@ -900,8 +900,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
         <p  style="padding-left:165px;">
-            <input class="btn_sm" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
-            <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+            <input class="save pending" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
+            <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php

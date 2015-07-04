@@ -3062,7 +3062,7 @@ class BoxChoicesWidget extends Widget {
             echo Format::htmlchars($k); ?>"/>
         <?php
         if ($v) { ?>
-            <em style="display:inline-block;vertical-align:middle;width:90%;width:calc(100% - 25px);"><?php
+            <em style="display:inline-block;vertical-align:baseline;width:90%;width:calc(100% - 25px);"><?php
             echo Format::viewableImages($v); ?></em>
 <?php     } ?>
         </label>
@@ -3150,8 +3150,8 @@ class CheckboxWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         ?>
         <div <?php echo implode(' ', array_filter(array($classes))); ?>>
-        <input id="<?php echo $this->id; ?>" style="vertical-align:top; height:100%"
-            class="pull-left clearfix"
+        <label class="checkbox">
+        <input id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
@@ -3159,6 +3159,7 @@ class CheckboxWidget extends Widget {
         if ($config['desc']) {
             echo Format::viewableImages($config['desc']);
         } ?>
+        </label>
         </div>
 <?php
     }

@@ -107,7 +107,7 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="manage-faq">
     <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
-    <button name="a" value="delete"><?php echo __('Delete FAQ'); ?></button>
+    <button name="a" class="button" value="delete"><?php echo __('Delete FAQ'); ?></button>
 </form>
 <?php }
 ?>
