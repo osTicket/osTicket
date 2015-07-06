@@ -6,8 +6,8 @@
     <div id="msg_error" class="error-banner"><?php echo Format::htmlchars($errors['err']); ?></div>
 <?php } ?>
 <form method="post" action="#<?php echo $path; ?>">
-  <div class="inset quick-add">
-    <?php $form->render(); ?>
+  <div class="quick-add">
+    <?php echo $form->asTable(); ?>
   </div>
   <hr>
   <p class="full-width">

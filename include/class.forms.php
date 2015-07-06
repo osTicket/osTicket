@@ -19,7 +19,7 @@
  * data for a ticket
  */
 class Form {
-
+    static $renderer = 'GridFluidLayout';
     static $id = 0;
 
     var $fields = array();
@@ -174,6 +174,17 @@ class Form {
         echo $this->getMedia();
     }
 
+    function getLayout() {
+        $rc = @$options['renderer'] ?: static::$renderer;
+        return new $rc($title, $options);
+    }
+
+    function asTable($options=array()) {
+        return $this->getLayout()->asTable($this);
+        // XXX: Media can't go in a table
+        echo $this->getMedia();
+    }
+
     function getMedia() {
         static $dedup = array();
 
@@ -320,6 +331,137 @@ abstract class AbstractForm extends Form {
      * once.
      */
     abstract function buildFields();
+}
+
+/**
+ * Container class to represent the connection between the form fields and the
+ * rendered state of the form.
+ */
+interface FormRenderer {
+    // Render the form fields into a table
+    function asTable($form);
+    // Render the form fields into divs
+    function asBlock($form);
+}
+
+abstract class FormLayout {
+    static $default_cell_layout = 'Cell';
+
+    function getLayout($field) {
+        $layout = $field->get('layout') ?: static::$default_cell_layout;
+        if (is_string($layout))
+            $layout = new $layout();
+        return $layout;
+    }
+}
+
+class GridFluidLayout
+extends FormLayout
+implements FormRenderer {
+    function asTable($form) {
+      ob_start();
+?>
+      <table class="<?php echo 'grid form' ?>">
+          <colgroup width="8.333333%"><col span="12"/></colgroup>
+          <caption><?php echo Format::htmlchars($form->getTitle()); ?>
+                  <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
+          </caption>
+<?php
+      $row_size = 12;
+      $cols = $row = 0;
+      foreach ($form->getFields() as $f) {
+          $layout = $this->getLayout($f);
+          $size = $layout->getWidth() ?: 12;
+          if ($offs = $layout->getOffset()) {
+              $size += $offs;
+          }
+          if ($cols < $size || $layout->isBreakForced()) {
+              if ($row) echo '</tr>';
+              echo '<tr>';
+              $cols = $row_size;
+              $row++;
+          }
+          // Render the cell
+          $cols -= $size;
+          $attrs = array('colspan' => $size, 'rowspan' => $layout->getHeight(),
+              'style' => '"'.$layout->getOption('style').'"');
+          if ($offs) { ?>
+              <td colspan="<?php echo $offset; ?>"></td> <?php
+          }
+          ?>
+          <td class="cell" <?php echo Format::array_implode('=', ' ', array_filter($attrs)); ?>
+              data-field-id="<?php echo $f->get('id'); ?>">
+              <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
+                id="field<?php echo $f->getWidget()->id; ?>"
+                data-field-id="<?php echo $f->get('id'); ?>">
+<?php         if ($label = $f->get('label')) { ?>
+              <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
+                  for="<?php echo $f->getWidget()->id; ?>">
+                  <?php echo Format::htmlchars($label); ?>:
+              </label>
+<?php         }
+              if ($f->get('hint')) { ?>
+                  <div class="field-hint-text">
+                      <?php echo Format::htmlchars($f->get('hint')); ?>
+                  </div>
+<?php         }
+              $f->render();
+              if ($f->errors())
+                  foreach ($f->errors() as $e)
+                      echo sprintf('<div class="error">%s</div>', Format::htmlchars($e));
+?>
+              </fieldset>
+          </td>
+      <?php
+      }
+      if ($row)
+        echo  '</tr>';
+
+      echo '</tbody></table>';
+
+      return ob_get_clean();
+    }
+
+    function asBlock($form) {}
+}
+
+/**
+ * Basic container for field and form layouts. By default every cell takes
+ * a whole output row and does not imply any sort of width.
+ */
+class Cell {
+    function isBreakForced()  { return true; }
+    function getWidth()       { return false; }
+    function getHeight()      { return 1; }
+    function getOffset()      { return 0; }
+    function getOption($prop) { return false; }
+}
+
+/**
+ * Fluid grid layout, meaning each cell renders to the right of the previous
+ * cell (for left-to-right layouts). A width in columns can be specified for
+ * each cell along with an offset from the previous cell. A height of columns
+ * along with an optional break is supported.
+ */
+class GridFluidCell
+extends Cell {
+    var $span;
+    var $options;
+
+    function __construct($span, $options=array()) {
+        $this->span = $span;
+        $this->options = $options + array(
+            'rows' => 1,        # rowspan
+            'offset' => 0,      # skip some columns
+            'break' => false,   # start on a new row
+        );
+    }
+
+    function isBreakForced()  { return $this->options['break']; }
+    function getWidth()       { return $this->span; }
+    function getHeight()      { return $this->options['rows']; }
+    function getOffset()      { return $this->options['offset']; }
+    function getOption($prop) { return $this->options[$prop]; }
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
