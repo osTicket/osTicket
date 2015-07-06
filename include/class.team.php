@@ -366,7 +366,7 @@ extends AbstractForm {
                 'label' => __('Optionally select a leader for the team'),
                 'default' => 0,
                 'choices' =>
-                    array(0 => '— '.__('None').' —'),
+                    array(0 => '— '.__('None').' —')
                     + Staff::getStaffMembers(),
                 'configuration' => array(
                     'classes' => 'span12',

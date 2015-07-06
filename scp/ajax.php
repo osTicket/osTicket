@@ -229,12 +229,14 @@ $dispatcher = patterns('',
         url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
             url('^/department$', 'addDepartment'),
             url('^/team$', 'addTeam'),
-            url('^/role$', 'addRole')
+            url('^/role$', 'addRole'),
+            url('^/staff$', 'addStaff')
         )),
         url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
     )),
     url('^/staff', patterns('ajax.staff.php:StaffAjaxAPI',
         url('^/(?P<id>\d+)/set-password$', 'setPassword'),
+        url('^/(?P<id>\d+)/change-password$', 'changePassword'),
         url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
         url('^/reset-permissions', 'resetPermissions'),
         url('^/change-department', 'changeDepartment')

@@ -35,7 +35,7 @@ else {
   </h2>
 
   <ul class="clean tabs">
-    <li class="active"><a href="#account"><?php echo __('Account'); ?></a></li>
+    <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permisions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
@@ -286,7 +286,7 @@ foreach ($staff->dept_access as $dept_access) {
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
-            <button type="button" class="action-button">
+            <button type="button" class="green button">
               <?php echo __('Add'); ?>
             </button>
           </td>
@@ -378,7 +378,7 @@ foreach ($staff->teams as $TM) {
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
-            <button type="button" class="action-button">
+            <button type="button" class="green button">
               <?php echo __('Add'); ?>
             </button>
           </td>
@@ -405,7 +405,7 @@ foreach ($staff->teams as $TM) {
   <p style="text-align:center;">
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
       <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-      <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="helptopics.php"'>
+      <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);">
   </p>
 </form>
 

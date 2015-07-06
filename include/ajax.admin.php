@@ -156,4 +156,34 @@ class AdminAjaxAPI extends AjaxController {
 
         return $this->encode($role->getPermissionInfo());
     }
+
+    function addStaff() {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+
+        $form = new StaffQuickAddForm($_POST);
+
+        if ($_POST && $form->isValid()) {
+            $staff = Staff::create();
+            $errors = array();
+            if ($staff->update($form->getClean(), $errors)) {
+                Http::response(201, $this->encode(array(
+                    'id' => $staff->getId(),
+                    'name' => (string) $staff->getName(),
+                ), 'application/json'));
+            }
+            foreach ($errors as $name=>$desc)
+                if ($F = $form->getField($name))
+                    $F->addError($desc);
+        }
+
+        $title = __("Add New Agent");
+        $path = ltrim($ost->get_path_info(), '/');
+
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
+    }
 }
