@@ -311,17 +311,26 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
-    <?php echo __('Sort'); ?>:
-    <select name="sort" onchange="javascript: $.pjax({
-        url:'?' + addSearchParam('sort', $(this).val()),
+    <span class="action-button muted" data-dropdown="#sort-dropdown">
+      <i class="icon-caret-down pull-right"></i>
+      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
+    </span>
+    <div id="sort-dropdown" class="action-dropdown anchor-right"
+    onclick="javascript: console.log(event); $.pjax({
+        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
         timeout: 2000,
         container: '#pjax-container'});">
+      <ul class="bleed-left">
 <?php foreach ($queue_sort_options as $mode) {
-$desc = $sort_options[$mode]; ?>
-    <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
+$desc = $sort_options[$mode];
+$selected = $mode == $_SESSION[$queue_sort_key]; ?>
+      <li <?php if ($selected) echo 'class="active"'; ?>>
+        <a data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
+          if ($selected) echo 'icon-hand-right';
+          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
+      </li>
 <?php } ?>
-    </select>
-    </span>
+    </div>
   </div>
 
     <form action="tickets.php" method="get" onsubmit="javascript:

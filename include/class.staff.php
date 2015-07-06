@@ -1142,6 +1142,7 @@ extends AbstractForm {
                 ),
             )),
             'temporary' => new BooleanField(array(
+                'default' => true,
                 'configuration' => array(
                     'desc' => __('Require password change at next login'),
                     'classes' => 'form footer',
