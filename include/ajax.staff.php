@@ -54,10 +54,44 @@ class StaffAjaxAPI extends AjaxController {
       }
 
       $title = __("Set Agent Password");
+      $verb = __('Update');
       $path = ltrim($ost->get_path_info(), '/');
 
-      include STAFFINC_DIR . 'templates/set-password.tmpl.php';
+      include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
   }
+
+    function changePassword($id) {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$id || $thisstaff->getId() != $id)
+            Http::response(404, 'No such agent');
+
+        $form = new PasswordChangeForm($_POST);
+
+        if ($_POST && $form->isValid()) {
+            $clean = $form->getClean();
+            try {
+                $thisstaff->setPassword($clean['passwd1'], $clean['current']);
+                if ($thisstaff->save())
+                    Http::response(201, 'Successfully updated');
+            }
+            catch (BadPassword $ex) {
+                $passwd1 = $form->getField('passwd1');
+                $passwd1->addError($ex->getMessage());
+            }
+            catch (PasswordUpdateFailed $ex) {
+                // TODO: Add a warning banner or crash the update
+            }
+        }
+
+        $title = __("Change Password");
+        $verb = __('Update');
+        $path = ltrim($ost->get_path_info(), '/');
+
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
+    }
 
     function getAgentPerms($id) {
         global $thisstaff;

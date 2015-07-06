@@ -637,9 +637,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
 
-        if ($errors)
-            return false;
-
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
         $this->email = $vars['email'];
@@ -655,6 +652,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
+
+        if ($errors)
+            return false;
 
         $_SESSION['::lang'] = null;
         TextDomain::configureForUser($this);
@@ -1158,9 +1158,36 @@ extends AbstractForm {
         if ($clean['passwd1'] != $clean['passwd2'])
             $this->getField('passwd1')->addError(__('Passwords do not match'));
     }
+}
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+class PasswordChangeForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'current' => new PasswordField(array(
+                'placeholder' => __('Current Password'),
+                'required' => true,
+                'autofocus' => true,
+            )),
+            'passwd1' => new PasswordField(array(
+                'placeholder' => __('New Password'),
+                'required' => true,
+                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 30px')),
+            )),
+            'passwd2' => new PasswordField(array(
+                'placeholder' => __('Confirm Password'),
+                'required' => true,
+            )),
+        );
+    }
+
+    function getInstructions() {
+        return __('Confirm your current password and enter a new password to continue');
+    }
+
+    function validate($clean) {
+        if ($clean['passwd1'] != $clean['passwd2'])
+            $this->getField('passwd1')->addError(__('Passwords do not match'));
     }
 }
 
@@ -1179,7 +1206,7 @@ extends AbstractForm {
             'clone' => new ChoiceField(array(
                 'default' => 0,
                 'choices' =>
-                    array(0 => '— '.__('Clone an existing agent').' —'),
+                    array(0 => '— '.__('Clone an existing agent').' —')
                     + Staff::getStaffMembers(),
                 'configuration' => array(
                     'classes' => 'span12',
@@ -1258,5 +1285,96 @@ extends AbstractForm {
 
     function render($staff=true) {
         return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
+
+class StaffQuickAddForm
+extends AbstractForm {
+    static $layout = 'GridFormLayout';
+
+    function buildFields() {
+        global $cfg;
+
+        return array(
+            'firstname' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("First Name"),
+                    'autofocus' => true,
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'lastname' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Last Name"),
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'email' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'validator' => 'email',
+                    'placeholder' => __('Email Address — e.g. me@mycompany.com'),
+                  ),
+            )),
+            'dept_id' => new ChoiceField(array(
+                'label' => __('Department'),
+                'required' => true,
+                'choices' => Dept::getDepartments(),
+                'default' => $cfg->getDefaultDeptId(),
+                'layout' => new GridFluidCell(6),
+            )),
+            'role_id' => new ChoiceField(array(
+                'label' => __('Primary Role'),
+                'required' => true,
+                'choices' =>
+                    array(0 => __('Select Role'))
+                    + Role::getRoles(),
+                'layout' => new GridFluidCell(6),
+            )),
+            'isadmin' => new BooleanField(array(
+                'label' => __('Account Type'),
+                'configuration' => array(
+                    'desc' => __('Agent has access to the admin panel'),
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'welcome_email' => new BooleanField(array(
+                'configuration' => array(
+                    'desc' => __('Send a welcome email with login information'),
+                ),
+                'default' => true,
+                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 50px')),
+            )),
+            'passwd1' => new PasswordField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Temporary Password"),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false))
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'passwd2' => new PasswordField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Confirm Password"),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false))
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            // TODO: Add role_id drop-down
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        list($clean['username'],) = preg_split('/[^\w-]/', $clean['email'], 2);
+        $clean['role_id'] = 1;
+        return $clean;
     }
 }

@@ -107,14 +107,14 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
              }
              ?>
         </select>
-        <input type="submit" name="submit" class="small" value="<?php echo __('Apply');?>"/>
+        <input type="submit" name="submit" class="small button" value="<?php echo __('Apply');?>"/>
     </form>
  </div>
 
  <form id="mass-actions" action="staff.php" method="POST" name="staff" >
 
  <div class="pull-right">
-     <a class="action-button" href="staff.php?a=add">
+     <a class="green button action-button" href="staff.php?a=add">
        <i class="icon-plus-sign"></i>
         <?php echo __('Add New Agent'); ?>
      </a>
@@ -125,23 +125,25 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
      <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul id="actions">
           <li><a class="confirm" data-name="enable" href="staff.php?a=enable">
-            <i class="icon-trash icon-fixed-width"></i>
+            <i class="icon-ok-sign icon-fixed-width"></i>
             <?php echo __('Enable'); ?></a></li>
           <li><a class="confirm" data-name="disable" href="staff.php?a=disable">
-            <i class="icon-trash icon-fixed-width"></i>
+            <i class="icon-ban-circle icon-fixed-width"></i>
             <?php echo __('Disable'); ?></a></li>
-          <li><a class="confirm" data-name="delete" href="staff.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
           <li><a class="dialog-first" data-action="permissions" href="#staff/reset-permissions">
-            <i class="icon-trash icon-fixed-width"></i>
+            <i class="icon-sitemap icon-fixed-width"></i>
             <?php echo __('Reset Permissions'); ?></a></li>
           <li><a class="dialog-first" data-action="department" href="#staff/change-department">
-            <i class="icon-trash icon-fixed-width"></i>
+            <i class="icon-truck icon-fixed-width"></i>
             <?php echo __('Change Department'); ?></a></li>
+          <!-- TODO: Implement "Reset Access" mass action
           <li><a class="dialog-first" href="#staff/reset-access">
-            <i class="icon-trash icon-fixed-width"></i>
+            <i class="icon-puzzle-piece icon-fixed-width"></i>
             <?php echo __('Reset Access'); ?></a></li>
+          -->
+          <li class="danger"><a class="confirm" data-name="delete" href="staff.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
         </ul>
     </div>
 </div>

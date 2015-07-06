@@ -659,6 +659,16 @@ $.dialog = function (url, codes, cb, options) {
      });
     if (options.onload) { options.onload(); }
  };
+$(document).on('click', 'a[data-dialog]', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var link = $(this);
+    $.dialog($(this).data('dialog'), 201, function() {
+      if (link.attr('href').length > 1) $.pjax.click(event, '#pjax-container');
+      else $.pjax.reload('#pjax-container');
+    });
+    return false;
+});
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
