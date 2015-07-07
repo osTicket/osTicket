@@ -138,7 +138,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
                 <select name="max_page_size">
                     <option value="0">&mdash; <?php echo __('system default');?> &mdash;</option>
                     <?php
-                    $pagelimit=$info['max_page_size']?$info['max_page_size']:$cfg->getPageSize();
+                    $pagelimit = $staff->max_page_size ?: $cfg->getPageSize();
                     for ($i = 5; $i <= 50; $i += 5) {
                         $sel=($pagelimit==$i)?'selected="selected"':'';
                          echo sprintf('<option value="%d" %s>'.__('show %s records').'</option>',$i,$sel,$i);
@@ -156,7 +156,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
                   <?php
                   $y=1;
                    for($i=1; $i <=30; $i+=$y) {
-                     $sel=($info['auto_refresh_rate']==$i)?'selected="selected"':'';
+                     $sel=($staff->auto_refresh_rate==$i)?'selected="selected"':'';
                      echo sprintf('<option value="%1$d" %2$s>'
                         .sprintf(
                             _N('Every minute', 'Every %d minutes', $i), $i)
@@ -179,7 +179,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
                        __('if set' /* This is used in 'Department Signature (>if set<)' */)));
                   foreach($options as $k=>$v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
-                                $k,($info['default_signature_type']==$k)?'selected="selected"':'',$v);
+                                $k,($staff->default_signature_type==$k)?'selected="selected"':'',$v);
                   }
                   ?>
                 </select>
@@ -197,7 +197,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
 
                   foreach(Export::$paper_sizes as $v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
-                                $v,($info['default_paper_size']==$v)?'selected="selected"':'',__($v));
+                                $v,($staff->default_paper_size==$v)?'selected="selected"':'',__($v));
                   }
                   ?>
                 </select>
@@ -216,7 +216,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
             <td>
                 <?php
                 $TZ_NAME = 'timezone';
-                $TZ_TIMEZONE = $info['timezone'];
+                $TZ_TIMEZONE = $staff->timezone;
                 include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
                 <div class="error"><?php echo $errors['timezone']; ?></div>
             </td>
@@ -230,7 +230,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
                 <select name="lang">
                     <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
 <?php foreach($langs as $l) {
-    $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
+    $selected = ($staff->lang == $l['code']) ? 'selected="selected"' : ''; ?>
                     <option value="<?php echo $l['code']; ?>" <?php echo $selected;
                         ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
 <?php } ?>
@@ -247,7 +247,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
                     <option value=""><?php echo __('Use Language Preference'); ?></option>
 <?php foreach (Internationalization::allLocales() as $code=>$name) { ?>
                     <option value="<?php echo $code; ?>" <?php
-                        if ($code == $info['locale'])
+                        if ($code == $staff->locale)
                             echo 'selected="selected"';
                     ?>><?php echo $name; ?></option>
 <?php } ?>
@@ -276,7 +276,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
         <tr>
             <td colspan="2">
                 <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
+                    rows="5" style="width: 60%;"><?php echo $staff->signature; ?></textarea>
             </td>
         </tr>
       </tbody>
