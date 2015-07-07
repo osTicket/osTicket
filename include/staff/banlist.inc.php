@@ -51,7 +51,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
 <h2><?php echo __('Banned Email Addresses');?>
     <i class="help-tip icon-question-sign" href="#ban_list"></i>
     </h2>
-<div class="pull-left" style="width:600;padding-top:5px;">
+<div class="pull-left" style="margin-bottom:5px;">
     <form action="banlist.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
      <div>
@@ -62,7 +62,28 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
      </div>
     </form>
  </div>
-<div class="pull-right flush-right" style="padding-right:5px;"><b><a href="banlist.php?a=add" class="Icon newstaff"><?php echo __('Ban New Email');?></a></b></div>
+<form action="banlist.php" method="POST" name="banlist">
+<div class="pull-right flush-right" style="margin-bottom:5px;">
+    <a href="banlist.php?a=add" class="red button action-button"><i class="icon-ban-circle"></i> <?php echo __('Ban New Email');?></a>
+
+     <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+     </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li><a class="confirm" data-name="enable" href="banlist.php?a=enable">
+            <i class="icon-ok-sign icon-fixed-width"></i>
+            <?php echo __('Enable'); ?></a></li>
+          <li><a class="confirm" data-name="disable" href="banlist.php?a=disable">
+            <i class="icon-ban-circle icon-fixed-width"></i>
+            <?php echo __('Disable'); ?></a></li>
+          <li><a class="confirm" data-name="delete" href="banlist.php?a=delete">
+            <i class="icon-undo icon-fixed-width"></i>
+            <?php echo __('Remove'); ?></a></li>
+        </ul>
+    </div>
+</div>
 <div class="clear"></div>
 <?php
 if(($res=db_query($query)) && ($num=db_num_rows($res)))
@@ -74,7 +95,6 @@ if($search)
     $showing=__('Search Results').': '.$showing;
 
 ?>
-<form action="banlist.php" method="POST" name="banlist">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
@@ -129,13 +149,7 @@ if($search)
 if($res && $num): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
-    &nbsp;&nbsp;
-    <input class="button" type="submit" name="disable" value="<?php echo __('Disable');?>" >
-    &nbsp;&nbsp;
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>">
-</p>
+
 <?php
 endif;
 ?>

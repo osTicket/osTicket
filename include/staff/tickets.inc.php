@@ -341,12 +341,14 @@ $selected = $mode == $_SESSION[$queue_sort_key]; ?>
   });
 return false;">
     <input type="hidden" name="a" value="search">
-    <input type="text" id="basic-ticket-search" name="query"
+    <input type="hidden" name="search-type" value=""/>
+    <div class="attached input">
+      <input type="text" id="basic-ticket-search" name="query"
         autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
         autocomplete="off" autocorrect="off" autocapitalize="off">
-    <input type="hidden" name="search-type" value=""/>
-    <button type="submit" class="attached button"><i class="icon-search"></i>
+      <button type="submit" class="attached button"><i class="icon-search"></i>
       </button>
+    </div>
     <a href="#" onclick="javascript:
         $.dialog('ajax.php/tickets/search', 201);"
         >[<?php echo __('advanced'); ?>]</a>
