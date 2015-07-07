@@ -34,7 +34,14 @@ if($_POST){
             break;
         case 'create':
             $staff = Staff::create();
+            // Unpack the data from the set-password dialog (if used)
+            if (isset($_SESSION['new-agent-passwd'])) {
+                foreach ($_SESSION['new-agent-passwd'] as $k=>$v)
+                    if (!isset($_POST[$k]))
+                        $_POST[$k] = $v;
+            }
             if ($staff->update($_POST,$errors)) {
+                unset($_SESSION['new-agent-passwd']);
                 $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['firstname']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){

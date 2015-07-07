@@ -1112,7 +1112,7 @@ class PasswordResetForm
 extends AbstractForm {
     function buildFields() {
         return array(
-            'email' => new BooleanField(array(
+            'welcome_email' => new BooleanField(array(
                 'default' => true,
                 'configuration' => array(
                     'desc' => __('Send the agent a password reset email'),
@@ -1125,7 +1125,7 @@ extends AbstractForm {
                     'classes' => 'span12',
                 ),
                 'visibility' => new VisibilityConstraint(
-                    new Q(array('email' => false)),
+                    new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
             )),
@@ -1136,18 +1136,18 @@ extends AbstractForm {
                     'classes' => 'span12',
                 ),
                 'visibility' => new VisibilityConstraint(
-                    new Q(array('email' => false)),
+                    new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
             )),
-            'temporary' => new BooleanField(array(
+            'change_passwd' => new BooleanField(array(
                 'default' => true,
                 'configuration' => array(
                     'desc' => __('Require password change at next login'),
                     'classes' => 'form footer',
                 ),
                 'visibility' => new VisibilityConstraint(
-                    new Q(array('email' => false)),
+                    new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
             )),
@@ -1170,9 +1170,10 @@ extends AbstractForm {
                 'autofocus' => true,
             )),
             'passwd1' => new PasswordField(array(
+                'label' => __('Enter a new password'),
                 'placeholder' => __('New Password'),
                 'required' => true,
-                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 30px')),
+                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 20px')),
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
