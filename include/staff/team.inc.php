@@ -80,16 +80,9 @@ $info = $team->getInfo();
             </td>
             <td>
                 <span>
-                <select name="lead_id">
+                <select id="team-lead-select" name="lead_id" data-quick-add="staff">
                     <option value="0">&mdash; <?php echo __('None');?> &mdash;</option>
-                    <?php
-                    if ($members) {
-                        foreach($members as $k=>$staff){
-                            $selected=($team->lead_id && $staff->getId()==$team->lead_id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$staff->getId(),$selected,$staff->getName());
-                        }
-                    }
-                    ?>
+                  <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>
                 &nbsp;<span class="error"><?php echo $errors['lead_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#lead"></i>
@@ -184,6 +177,7 @@ foreach ($members as $m)
 
 <script type="text/javascript">
 var addMember = function(staffid, name, alerts, error) {
+  if (!staffid) return;
   var copy = $('#member_template').clone();
 
   copy.find('[data-name=members\\[\\]]')
@@ -200,19 +194,28 @@ var addMember = function(staffid, name, alerts, error) {
 };
 
 $('#add_member').find('button').on('click', function() {
-  var selected = $('#add_access').find(':selected');
+  var selected = $('#add_access').find(':selected'),
+      id = selected.val();
   addMember(selected.val(), selected.text(), true);
+  if ($('#team-lead-select option[value='+id+']').length === 0) {
+    $('#team-lead-select').find('option[data-quick-add]')
+    .before(
+      $('<option>').val(selected.val()).text(selected.text())
+    );
+  }
   selected.remove();
   return false;
 });
 
 $(document).on('click', 'a.drop-membership', function() {
-  var tr = $(this).closest('tr');
+  var tr = $(this).closest('tr'),
+      id = tr.find('input[name^=members][type=hidden]').val();
   $('#add_access').append(
     $('<option>')
-    .attr('value', tr.find('input[name^=members][type=hidden]').val())
+    .attr('value', id)
     .text(tr.find('td:first').text())
   );
+  $('#team-lead-select option[value='+id+']').remove();
   tr.fadeOut(function() { $(this).remove(); });
   return false;
 });

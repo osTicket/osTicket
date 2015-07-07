@@ -82,7 +82,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
 ?>
 <h2><?php echo __('Agents');?></h2>
 
-<div class="pull-left" style="width:700px;">
+<div class="pull-left">
     <form action="staff.php" method="GET" name="filter">
      <input type="hidden" name="a" value="filter" >
         <select name="did" id="did">

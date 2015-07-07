@@ -43,8 +43,9 @@
 .action-dropdown ul li > a i {
   margin-right: 0.1em;
 }
-.action-dropdown ul li > a:hover {
-  background-color: #08C !important;
+.action-dropdown ul li > a:hover,
+.action-dropdown ul li.active > a:hover {
+  background-color: #08C;
   color: #FFF !important;
   cursor: pointer;
 }
@@ -97,10 +98,6 @@
 .action-dropdown.anchor-right:after {
   left: auto;
   right: 10px;
-}
-.action-button {
-  line-height: 22px;
-  height: 22px;
 }
 .action-button span,
 .action-button a {

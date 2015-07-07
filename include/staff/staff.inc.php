@@ -411,6 +411,7 @@ foreach ($staff->teams as $TM) {
 
 <script type="text/javascript">
 var addAccess = function(daid, name, role, alerts, error) {
+  if (!daid) return;
   var copy = $('#extended_access_template').clone();
 
   copy.find('[data-name=dept_access\\[\\]]')
@@ -448,6 +449,7 @@ $(document).on('click', 'a.drop-access', function() {
 });
 
 var joinTeam = function(teamid, name, alerts, error) {
+  if (!teamid) return;
   var copy = $('#team_member_template').clone();
 
   copy.find('[data-name=teams\\[\\]]')

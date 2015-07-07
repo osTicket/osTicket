@@ -80,7 +80,6 @@ class Bootstrap {
         define('TEAM_TABLE',$prefix.'team');
         define('TEAM_MEMBER_TABLE',$prefix.'team_member');
         define('DEPT_TABLE',$prefix.'department');
-        define('GROUP_TABLE', $prefix.'group');
         define('STAFF_DEPT_TABLE', $prefix.'staff_dept_access');
         define('ROLE_TABLE', $prefix.'role');
 

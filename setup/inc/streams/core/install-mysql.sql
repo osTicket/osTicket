@@ -559,8 +559,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   PRIMARY KEY  (`staff_id`),
   UNIQUE KEY `username` (`username`),
   KEY `dept_id` (`dept_id`),
-  KEY `issuperuser` (`isadmin`),
-  KEY `group_id` (`group_id`,`staff_id`)
+  KEY `issuperuser` (`isadmin`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff_dept_access`;
@@ -615,6 +614,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%thread` (
   `object_id` int(11) unsigned NOT NULL,
   `object_type` char(1) NOT NULL,
   `extra` text,
+  `lastresponse` datetime DEFAULT NULL,
+  `lastmessage` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `object_id` (`object_id`),
@@ -772,7 +773,8 @@ CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `collab` (`thread_id`,`user_id`)
+  UNIQUE KEY `collab` (`thread_id`,`user_id`),
+  KEY `user_id` (`user_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task`;

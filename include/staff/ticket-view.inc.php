@@ -59,7 +59,7 @@ if($ticket->isOverdue())
        <div class="content">
         <div class="pull-right flush-right">
             <?php
-            if ($role->hasPerm(Email::PERM_BANLIST)
+            if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
@@ -145,7 +145,7 @@ if($ticket->isOverdue())
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
 
-<?php           if ($role->hasPerm(Email::PERM_BANLIST)) {
+<?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
@@ -238,9 +238,19 @@ if($ticket->isOverdue())
 <?php   } ?>
                                 </ul>
                             </div>
+<?php                   } # end if ($user) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php echo __('Email'); ?>:</th>
+                    <td>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
+                    </td>
+                </tr>
 <?php   if ($user->getOrgId()) { ?>
-                &nbsp; <span style="display:inline-block">
-                    <i class="icon-building"></i>
+                <tr>
+                    <th><?php echo __('Organization'); ?>:</th>
+                    <td><i class="icon-building"></i>
                     <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
                         <a href="tickets.php?<?php echo Http::build_query(array(
                             'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
@@ -248,7 +258,6 @@ if($ticket->isOverdue())
                         data-dropdown="#action-dropdown-org-stats">
                         (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
                         </a>
-                    </span>
                             <div id="action-dropdown-org-stats" class="action-dropdown anchor-right">
                                 <ul>
 <?php   if ($open = $user->getNumOpenOrganizationTickets()) { ?>
@@ -275,23 +284,9 @@ if($ticket->isOverdue())
 <?php   } ?>
                                 </ul>
                             </div>
-<?php   } # end if (user->org)
-                        } # end if ($user)
-                    ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Email'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Phone'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+<?php   } # end if (user->org) ?>
                 <tr>
                     <th><?php echo __('Source'); ?>:</th>
                     <td><?php

@@ -396,7 +396,7 @@
 .thread-body blockquote,
 .thread-body pre {
 	font-size: 14px;
-	line-height: 1.4rem;
+	line-height: 1.5rem;
 }
 
 /* Adjust plain/text messages posted as <pre> in the thread body to show in

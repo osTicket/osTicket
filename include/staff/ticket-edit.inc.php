@@ -40,7 +40,7 @@ if ($_POST)
             <span id="client-name"><?php echo Format::htmlchars($user->getName()); ?></span>
             &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
             </a>
-            <a class="action-button" style="overflow:inherit" href="#"
+            <a class="inline action-button" style="overflow:inherit" href="#"
                 onclick="javascript:
                     $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
                             function(user) {

@@ -532,7 +532,7 @@ implements TemplateVariable {
         global $cfg;
 
         $id = $this->id;
-        if ($id != $vars['id'])
+        if ($id && $id != $vars['id'])
             $errors['err']=__('Missing or invalid Dept ID (internal error).');
 
         if (!$vars['name']) {
@@ -576,8 +576,15 @@ implements TemplateVariable {
         $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
         $this->path = $this->getFullPath();
 
-        if ($this->save())
-            return $this->extended->saveAll();
+        $wasnew = $this->__new__;
+        if ($this->save() && $this->extended->saveAll()) {
+            if ($wasnew) {
+                // The ID wasn't available until after the commit
+                $this->path = $this->getFullPath();
+                $this->save();
+            }
+            return true;
+        }
 
         if (isset($this->id))
             $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
