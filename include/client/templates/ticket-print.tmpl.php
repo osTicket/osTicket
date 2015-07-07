@@ -161,7 +161,8 @@ div.hr {
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     // Skip core fields shown earlier in the ticket view
     $answers = $form->getAnswers()->exclude(Q::any(array(
-        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED | DynamicFormField::FLAG_CLIENT_VIEW,
+        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
+        Q::not(array('field__flags__hasbit' => DynamicFormField::FLAG_CLIENT_VIEW)),
         'field__name__in' => array('subject', 'priority'),
     )));
     if (count($answers) == 0)
