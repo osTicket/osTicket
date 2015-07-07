@@ -177,7 +177,7 @@ class StaffNav {
                     if($staff) {
                         if ($staff->hasPerm(FAQ::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(CannedModel::PERM_MANAGE))
+                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(Canned::PERM_MANAGE, false))
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;

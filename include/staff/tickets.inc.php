@@ -237,10 +237,10 @@ case 'closed':
 
 case 'answered':
     $date_header = __('Last Response');
-    $date_col = 'lastresponse';
+    $date_col = 'thread__lastresponse';
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-    $tickets->order_by('-lastresponse');
-    $tickets->values('lastresponse');
+    $tickets->order_by('-thread__lastresponse');
+    $tickets->values('thread__lastresponse');
     break;
 
 case 'hot':

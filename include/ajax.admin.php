@@ -176,9 +176,13 @@ class AdminAjaxAPI extends AjaxController {
                     'name' => (string) $staff->getName(),
                 ), 'application/json'));
             }
-            foreach ($errors as $name=>$desc)
-                if ($F = $form->getField($name))
+            foreach ($errors as $name=>$desc) {
+                if ($F = $form->getField($name)) {
                     $F->addError($desc);
+                    unset($errors[$name]);
+                }
+            }
+            $errors['err'] = implode(", ", $errors);
         }
 
         $title = __("Add New Agent");

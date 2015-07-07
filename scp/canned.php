@@ -18,7 +18,7 @@ include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
 if(!$thisstaff
-        || !$thisstaff->getRole()->hasPerm(CannedModel::PERM_MANAGE)
+        || !$thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;

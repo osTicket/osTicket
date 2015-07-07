@@ -97,7 +97,10 @@ class VariableReplacer {
         }
 
         // Recurse with $rv
-        return $this->getVar($rv, $remainder);
+        if (is_object($rv) || $remainder)
+            return $this->getVar($rv, $remainder);
+
+        return $rv;
     }
 
     function replaceVars($input) {

@@ -28,7 +28,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     static $meta = array(
         'table' => STAFF_TABLE,
         'pk' => array('staff_id'),
-        'select_related' => array('dept'),
         'joins' => array(
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
@@ -1240,12 +1239,6 @@ class ChangeDepartmentForm
 extends AbstractForm {
     function buildFields() {
         return array(
-            'header' => new FreeTextField(array(
-                'configuration' => array(
-                    'content' => __('Change the primary department and primary role of the selected agents'),
-                    'classes' => ' ',
-                )
-            )),
             'dept_id' => new ChoiceField(array(
                 'default' => 0,
                 'required' => true,
@@ -1276,6 +1269,10 @@ extends AbstractForm {
             )),
             // alerts?
         );
+    }
+
+    function getInstructions() {
+        return __('Change the primary department and primary role of the selected agents');
     }
 
     function getClean() {
@@ -1374,7 +1371,9 @@ extends AbstractForm {
 
     function getClean() {
         $clean = parent::getClean();
-        list($clean['username'],) = preg_split('/[^\w-]/', $clean['email'], 2);
+        list($clean['username'],) = preg_split('/[^\w.-]/', $clean['email'], 2);
+        if (Staff::lookup($clean['username']))
+            $clean['username'] = mb_strtolower($clean['firstname']);
         $clean['role_id'] = 1;
         return $clean;
     }

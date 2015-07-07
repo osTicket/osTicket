@@ -247,9 +247,7 @@ a time.relative {
     border-left:1px solid #ccc;
     border-right:1px solid #ccc;
     border-radius: 0 0 5px 5px;
-
     display:block;
-    padding-left: 5px;
     -moz-box-shadow: 3px 3px 3px #ccc;
     -webkit-box-shadow: 3px 3px 3px #ccc;
     box-shadow: 3px 3px 3px #ccc;
@@ -601,13 +599,6 @@ a.print {
     background-image:url(../images/icons/printer.gif);
 }
 
-.btn {
-    padding:3px 10px;
-    background:url(../images/btn_bg.png) top left repeat-x #ccc;
-    border:1px solid #777;
-    color:#000;
-}
-
 .btn_sm {
     padding:2px 5px;
     font-size:0.9em;
@@ -615,10 +606,6 @@ a.print {
     border:1px solid #777;
     color:#fff;
     font-weight:bold;
-}
-
-.btn:hover, .btn_sm:hover {
-    background-position: bottom left;
 }
 
 .search label {
@@ -1884,6 +1871,10 @@ input[type=button].small, .small.button, input[type=submit].small {
   border: none;
 }
 
+.action-button.inline, .button.inline {
+    vertical-align: middle;
+}
+
 /* Dynamic forms in dialogs */
 .dialog th, .tip_box th {
     text-align: left;
@@ -1948,8 +1939,6 @@ ul.progress li.yes small {color:green; }
 ul.progress li.no small {color:red;}
 
 #bar { clear: both; padding-top: 10px; height: 24px; line-height: 24px; text-align: center; border-top: 1px solid #aaaaaa; }
-#bar a, #bar .btn { display: inline-block; margin: 0; height: 24px; line-height: 24px; font-weight: bold; border: 1px solid #666666; text-decoration: none; padding: 0 10px; background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x; color: #333; }
-#bar a:hover, #bar .btn:hover, #bar .btnover { background-position: bottom left; }
 #bar a.unstyled, #bar a.unstyled:hover { font-weight: normal; background: none; border: none; text-decoration: underline; color: #2a67ac; }
 
 #bar.error { background: #ffd; text-align: center; color: #a00; font-weight: bold; }
@@ -2649,7 +2638,7 @@ input[type=checkbox] {
   margin-top: 3px;
 }
 
-input, select, textarea {
+input, textarea {
     padding: 3px 5px;
     font-size: 0.95em;
     font-family: inherit;

@@ -10,6 +10,8 @@ if($dept && $_REQUEST['a']!='add') {
     $info['id'] = $dept->getId();
     $qs += array('id' => $dept->getId());
 } else {
+    if (!$dept)
+        $dept = Dept::create();
     $title=__('Add New Department');
     $action='create';
     $submit_text=__('Create Dept');
@@ -293,6 +295,14 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 <div id="access" class="hidden tab_content">
   <table class="two-column table" width="100%">
     <tbody>
+        <tr class="header">
+            <td colspan="2">
+                <?php echo __('Department Members'); ?>
+                <div><small>
+                <?php echo __('Agents who are primary members of this department'); ?>
+                </small></div>
+            </td>
+        </tr>
 <?php
 $agents = Staff::getStaffMembers();
 foreach ($dept->getMembers() as $member) {
@@ -354,6 +364,7 @@ foreach ($dept->getMembers() as $member) {
 
 <script type="text/javascript">
 var addAccess = function(staffid, name, role, alerts, primary, error) {
+  if (!staffid) return;
   var copy = $('#member_template').clone();
 
   copy.find('td:first').append(document.createTextNode(name));
