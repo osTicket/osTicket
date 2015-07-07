@@ -57,7 +57,8 @@ if($_POST){
                         $num = SLA::objects()->filter(array(
                             'id__in' => $_POST['ids']
                         ))->update(array(
-                            'isactive' => 1
+                            'flags' => SqlExpression::bitor(
+                                new SqlField('flags'), SLA::FLAG_ACTIVE)
                         ));
                         if ($num) {
                             if($num==$count)
@@ -75,7 +76,8 @@ if($_POST){
                         $num = SLA::objects()->filter(array(
                             'id__in' => $_POST['ids']
                         ))->update(array(
-                            'isactive' => 0
+                            'flags' => SqlExpression::bitand(
+                                new SqlField('flags'), ~SLA::FLAG_ACTIVE)
                         ));
 
                         if ($num) {

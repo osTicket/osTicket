@@ -15,25 +15,6 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.file.php');
 
-class CannedModel {
-
-    const PERM_MANAGE = 'canned.manage';
-
-    static protected $perms = array(
-            self::PERM_MANAGE => array(
-                'title' =>
-                /* @trans */ 'Premade',
-                'desc'  =>
-                /* @trans */ 'Ability to add/update/disable/delete canned responses')
-    );
-
-    static function getPermissions() {
-        return self::$perms;
-    }
-}
-
-RolePermission::register( /* @trans */ 'Knowledgebase', CannedModel::getPermissions());
-
 class Canned
 extends VerySimpleModel {
     static $meta = array(
@@ -51,6 +32,20 @@ extends VerySimpleModel {
             ),
         ),
     );
+
+    const PERM_MANAGE = 'canned.manage';
+
+    static protected $perms = array(
+            self::PERM_MANAGE => array(
+                'title' =>
+                /* @trans */ 'Premade',
+                'desc'  =>
+                /* @trans */ 'Ability to add/update/disable/delete canned responses')
+    );
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 
     function getId(){
         return $this->canned_id;
@@ -297,4 +292,6 @@ extends VerySimpleModel {
         return true;
     }
 }
+RolePermission::register( /* @trans */ 'Knowledgebase', Canned::getPermissions());
+
 ?>

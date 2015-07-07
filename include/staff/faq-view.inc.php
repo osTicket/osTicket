@@ -78,7 +78,7 @@ $query = http_build_query($query); ?>
         <?php echo __('Print'); ?>
     </a>
 <?php
-if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
+if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
     <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="action-button">
     <i class="icon-edit"></i>
         <?php echo __('Edit FAQ'); ?>
@@ -102,12 +102,12 @@ if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
 <hr>
 
 <?php
-if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) { ?>
+if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
 <form action="faq.php?id=<?php echo  $faq->getId(); ?>" method="post">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="manage-faq">
     <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
-    <button name="a" value="delete"><?php echo __('Delete FAQ'); ?></button>
+    <button name="a" class="button" value="delete"><?php echo __('Delete FAQ'); ?></button>
 </form>
 <?php }
 ?>

@@ -777,7 +777,9 @@ class Format {
     }
 
     function relativeTime($to, $from=false, $granularity=1) {
-        $timestamp = $to ?: Misc::gmtime();
+        if (!$to)
+            return false;
+        $timestamp = $to;
         if (gettype($timestamp) === 'string')
             $timestamp = strtotime($timestamp);
         $from = $from ?: Misc::gmtime();
@@ -892,9 +894,6 @@ implements TemplateVariable {
 
     function getVar($what) {
         global $cfg;
-
-        if (method_exists($this, 'get' . ucfirst($what)))
-            return call_user_func(array($this, 'get'.ucfirst($what)));
 
         // TODO: Rebase date format so that locale is discovered HERE.
 

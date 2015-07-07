@@ -224,6 +224,22 @@ $dispatcher = patterns('',
         url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
         url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
         url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
+    )),
+    url('^/admin', patterns('ajax.admin.php:AdminAjaxAPI',
+        url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
+            url('^/department$', 'addDepartment'),
+            url('^/team$', 'addTeam'),
+            url('^/role$', 'addRole'),
+            url('^/staff$', 'addStaff')
+        )),
+        url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
+    )),
+    url('^/staff', patterns('ajax.staff.php:StaffAjaxAPI',
+        url('^/(?P<id>\d+)/set-password$', 'setPassword'),
+        url('^/(?P<id>\d+)/change-password$', 'changePassword'),
+        url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
+        url('^/reset-permissions', 'resetPermissions'),
+        url('^/change-department', 'changeDepartment')
     ))
 );
 

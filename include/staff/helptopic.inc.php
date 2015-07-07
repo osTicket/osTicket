@@ -122,14 +122,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Department'); ?>:
             </td>
             <td>
-                <select name="dept_id">
+                <select name="dept_id" data-quick-add="department">
                     <option value="0">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
                     <?php
                     foreach (Dept::getDepartments() as $id=>$name) {
                         $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
                         echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                    }
-                    ?>
+                    } ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['dept_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#department"></i>
@@ -286,7 +286,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Auto-assign To');?>:
             </td>
             <td>
-                <select name="assign">
+                <select name="assign" data-quick-add>
                     <option value="0">&mdash; <?php echo __('Unassigned'); ?> &mdash;</option>
                     <?php
                     if (($users=Staff::getStaffMembers())) {
@@ -302,19 +302,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         }
                         echo '</OPTGROUP>';
                     }
-                    if (($teams=Team::getTeams())) {
-                        echo sprintf('<OPTGROUP label="%s">',
-                                sprintf(__('Teams (%d)'), count($teams)));
+                    if ($teams = Team::getTeams()) { ?>
+                      <optgroup data-quick-add="team" label="<?php
+                        echo sprintf(__('Teams (%d)'), count($teams)); ?>"><?php
                         foreach ($teams as $id => $name) {
                             $k="t$id";
                             $selected = ($info['assign']==$k || $info['team_id']==$id) ? 'selected="selected"' : '';
                             ?>
                             <option value="<?php echo $k; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
-                        }
-                        echo '</OPTGROUP>';
-                    }
-                    ?>
+                        } ?>
+                        <option value="0" data-quick-add data-id-prefix="t">— <?php echo __('Add New Team'); ?> —</option>
+                      </optgroup>
+                    <?php
+                    } ?>
                 </select>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['assign']; ?></span>
                 <i class="help-tip icon-question-sign" href="#auto_assign_to"></i>

@@ -26,7 +26,6 @@ implements TemplateVariable {
                 'constraint' => array('lead_id' => 'Staff.staff_id'),
             ),
             'members' => array(
-                'null' => true,
                 'list' => true,
                 'reverse' => 'TeamMember.team',
             ),
@@ -58,6 +57,13 @@ implements TemplateVariable {
         );
     }
 
+    function getVar($tag) {
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->getMembers()->all());
+        }
+    }
+
     function getId() {
         return $this->team_id;
     }
@@ -74,14 +80,12 @@ implements TemplateVariable {
     }
 
     function getMembers() {
-
         if (!isset($this->_members)) {
             $this->_members = array();
             foreach ($this->members as $m)
                 $this->_members[] = $m->staff;
         }
-
-        return new UserList($this->_members);
+        return $this->_members;
     }
 
     function hasMember($staff) {
@@ -106,7 +110,7 @@ implements TemplateVariable {
         $base = $this->ht;
         $base['isenabled'] = $this->isEnabled();
         $base['noalerts'] = !$this->alertsEnabled();
-        unset($base['staffmembers']);
+        unset($base['members']);
         return $base;
     }
 
@@ -148,9 +152,6 @@ implements TemplateVariable {
             $errors['name']=__('Team name already exists');
         }
 
-        if ($errors)
-            return false;
-
         // Reset team lead if they're getting removed
         if (isset($this->lead_id)
                 && $this->lead_id == $vars['lead_id']
@@ -162,20 +163,23 @@ implements TemplateVariable {
               ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
             | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
         $this->lead_id = $vars['lead_id'] ?: 0;
-        $this->name = $vars['name'];
+        $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);
 
-        if ($this->save()) {
-            // Remove checked members
-            if ($vars['remove'] && is_array($vars['remove'])) {
-                TeamMember::objects()
-                    ->filter(array(
-                        'staff_id__in' => $vars['remove']))
-                    ->delete();
+        // Format access update as [array(staff_id, alerts?)]
+        $access = array();
+        if (isset($vars['members'])) {
+            foreach (@$vars['members'] as $staff_id) {
+                $access[] = array($staff_id, @$vars['member_alerts'][$staff_id]);
             }
-
-            return true;
         }
+        $this->updateMembers($access, $errors);
+
+        if ($errors)
+            return false;
+
+        if ($this->save())
+            return $this->members->saveAll();
 
         if (isset($this->team_id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
@@ -186,6 +190,31 @@ implements TemplateVariable {
         }
 
         return false;
+    }
+
+    function updateMembers($access, &$errors) {
+      reset($access);
+      $dropped = array();
+      foreach ($this->members as $member)
+          $dropped[$member->staff_id] = 1;
+      while (list(, list($staff_id, $alerts)) = each($access)) {
+          unset($dropped[$staff_id]);
+          if (!$staff_id || !Staff::lookup($staff_id))
+              $errors['members'][$staff_id] = __('No such agent');
+          $member = $this->members->findFirst(array('staff_id' => $staff_id));
+          if (!isset($member)) {
+              $member = TeamMember::create(array('staff_id' => $staff_id));
+              $this->members->add($member);
+          }
+          $member->setAlerts($alerts);
+      }
+      if (!$errors && $dropped) {
+          $this->members
+              ->filter(array('staff_id__in' => array_keys($dropped)))
+              ->delete();
+          $this->members->reset();
+      }
+      return !$errors;
     }
 
     function save($refetch=false) {
@@ -206,11 +235,12 @@ implements TemplateVariable {
             return false;
 
         # Remove members of this team
-        $this->staffmembers->delete();
+        $this->members->delete();
 
         # Reset ticket ownership for tickets owned by this team
-        db_query('UPDATE '.TICKET_TABLE.' SET team_id=0 WHERE team_id='
-            .db_input($id));
+        Ticket::objects()
+            ->filter(array('team_id' => $id))
+            ->update(array('team_id' => 0));
 
         return true;
     }
@@ -240,7 +270,6 @@ implements TemplateVariable {
                     'flags__hasbit'=>self::FLAG_ENABLED,
                     'members__staff__isactive'=>1,
                     'members__staff__onvacation'=>0,
-                    'members__staff__group__flags__hasbit'=>Group::FLAG_ENABLED,
                 ))
                 ->filter(array('members_count__gt'=>0));
             }
@@ -291,6 +320,7 @@ class TeamMember extends VerySimpleModel {
     static $meta = array(
         'table' => TEAM_MEMBER_TABLE,
         'pk' => array('team_id', 'staff_id'),
+        'select_related' => array('staff'),
         'joins' => array(
             'team' => array(
                 'constraint' => array('team_id' => 'Team.team_id'),
@@ -300,5 +330,52 @@ class TeamMember extends VerySimpleModel {
             ),
         ),
     );
+
+    const FLAG_ALERTS = 0x0001;
+
+    function isAlertsEnabled() {
+        return $this->flags & self::FLAG_ALERTS != 0;
+    }
+
+    function setFlag($flag, $value) {
+        if ($value)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    function setAlerts($value) {
+        $this->setFlag(self::FLAG_ALERTS, $value);
+    }
 }
-?>
+
+class TeamQuickAddForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __('Name'),
+                    'classes' => 'span12',
+                    'autofocus' => true,
+                    'length' => 128,
+                ),
+            )),
+            'lead_id' => new ChoiceField(array(
+                'label' => __('Optionally select a leader for the team'),
+                'default' => 0,
+                'choices' =>
+                    array(0 => '— '.__('None').' —')
+                    + Staff::getStaffMembers(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+        );
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
