@@ -103,7 +103,7 @@ else {
               name="username" value="<?php echo Format::htmlchars($staff->username); ?>" />
 <?php if (!($bk = $staff->getAuthBackend()) || $bk->supportsPasswordChange()) { ?>
             <button type="button" class="action-button" onclick="javascript:
-            $.dialog('ajax.php/staff/'+<?php echo $info['id']; ?>+'/set-password', 201);">
+            $.dialog('ajax.php/staff/'+<?php echo $info['id'] ?: '0'; ?>+'/set-password', 201);">
               <i class="icon-refresh"></i> <?php echo __('Set Password'); ?>
             </button>
 <?php } ?>

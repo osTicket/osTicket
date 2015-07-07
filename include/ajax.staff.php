@@ -25,20 +25,27 @@ class StaffAjaxAPI extends AjaxController {
           Http::response(403, 'Agent login required');
       if (!$thisstaff->isAdmin())
           Http::response(403, 'Access denied');
-      if (!$id || !($staff = Staff::lookup($id)))
+      if ($id && !($staff = Staff::lookup($id)))
           Http::response(404, 'No such agent');
 
       $form = new PasswordResetForm($_POST);
+      if (!$_POST && isset($_SESSION['new-agent-passwd']))
+          $form->data($_SESSION['new-agent-passwd']);
 
       if ($_POST && $form->isValid()) {
           $clean = $form->getClean();
+          if ($id == 0) {
+              // Stash in the session later when creating the user
+              $_SESSION['new-agent-passwd'] = $clean;
+              Http::response(201, 'Carry on');
+          }
           try {
-              if ($clean['email']) {
+              if ($clean['welcome_email']) {
                   $staff->sendResetEmail();
               }
               else {
                   $staff->setPassword($clean['passwd1'], null);
-                  if ($clean['temporary'])
+                  if ($clean['change_passwd'])
                       $staff->change_passwd = 1;
               }
               if ($staff->save())
@@ -54,7 +61,7 @@ class StaffAjaxAPI extends AjaxController {
       }
 
       $title = __("Set Agent Password");
-      $verb = __('Update');
+      $verb = $id == 0 ? __('Set') : __('Update');
       $path = ltrim($ost->get_path_info(), '/');
 
       include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
