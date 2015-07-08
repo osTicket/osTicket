@@ -32,18 +32,6 @@
     task.close,
     task.delete,
     canned.manage,
-    faq.manage,
-    stats.agents,
-    emails.banlist,
-    user.create,
-    user.edit,
-    user.delete,
-    user.manage,
-    user.dir,
-    org.create,
-    org.edit,
-    org.delete,
-    search.all,
     thread.edit]
 
 - id: 2
@@ -65,18 +53,7 @@
     task.transfer,
     task.reply,
     task.close,
-    canned.manage,
-    faq.manage,
-    stats.agents,
-    emails.banlist,
-    user.create,
-    user.edit,
-    user.delete,
-    user.manage,
-    user.dir,
-    org.create,
-    org.edit,
-    org.delete]
+    canned.manage]
 
 - id: 3
   flags: 1
@@ -92,9 +69,10 @@
     task.create,
     task.assign,
     task.transfer,
-    task.reply,
-    user.edit,
-    user.manage,
-    user.dir,
-    org.create,
-    org.edit]
+    task.reply]
+
+- id: 4
+  flags: 1
+  name: View only
+  notes: Simple role with no permissions
+  permissions: []

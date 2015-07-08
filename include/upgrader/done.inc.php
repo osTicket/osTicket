@@ -21,7 +21,7 @@ $_SESSION['ost_upgrader']=null;
         <br>
         <p><b><?php echo __('PS');?></b>: <?php echo __("Don't just make customers happy, make happy customers!");?></p>
     </div>
-    <div id="sidebar">
+    <div class="sidebar">
             <h3><?php echo __("What's Next?");?></h3>
             <p><b><?php echo __('Post-upgrade');?></b>: <?php
             echo sprintf(__('You can now go to %s to enable the system and explore the new features. For complete and up-to-date release notes see the %s'),

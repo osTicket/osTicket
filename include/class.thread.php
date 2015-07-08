@@ -1049,9 +1049,6 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         switch(strtolower($tag)) {
             case 'create_date':
                 return new FormattedDate($this->getCreateDate());
@@ -1060,8 +1057,6 @@ implements TemplateVariable {
             case 'files':
                 throw new OOBContent(OOBContent::FILES, $this->attachments->all());
         }
-
-        return false;
     }
 
     static function getVarScope() {
@@ -2366,7 +2361,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['staffId'] = 0;
 
-        return MessageThreadEntry::create($vars, $errors);
+        if (!($message = MessageThreadEntry::create($vars, $errors)))
+            return $message;
+
+        $this->lastmessage = SqlFunction::NOW();
+        $this->save();
+        return $message;
     }
 
     function addResponse($vars, &$errors) {
@@ -2374,7 +2374,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
 
-        return ResponseThreadEntry::create($vars, $errors);
+        if (!($resp = ResponseThreadEntry::create($vars, $errors)))
+            return $resp;
+
+        $this->lastresponse = SqlFunction::NOW();
+        $this->save();
+        return $resp;
     }
 
     function getVar($name) {

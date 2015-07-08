@@ -1804,6 +1804,8 @@ RedactorPlugins.contexttypeahead = function() {
     },
 
     select: function(item, event) {
+      // Collapse multiple textNodes together
+      (this.selection.getBlock() || this.$editor.get(0)).normalize();
       var current = this.selection.getCurrent(),
           sel     = this.selection.get(),
           range   = this.sel.getRangeAt(0),

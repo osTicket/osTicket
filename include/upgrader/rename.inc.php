@@ -24,7 +24,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 </form>
             </div>
     </div>
-    <div id="sidebar">
+    <div class="sidebar">
             <h3><?php echo __('Need Help?');?></h3>
             <p>
             <?php echo __('If you are looking for a greater level of support, we provide <u>professional upgrade</u> and commercial support with guaranteed response times and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs. <a target="_blank" href="http://osticket.com/support">Learn More!</a>'); ?>

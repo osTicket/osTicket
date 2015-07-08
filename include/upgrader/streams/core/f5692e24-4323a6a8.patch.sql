@@ -66,7 +66,6 @@ ALTER TABLE `%TABLE_PREFIX%email`
 ALTER TABLE `%TABLE_PREFIX%help_topic`
   ADD `sort` int(10) unsigned NOT NULL default '0' AFTER `form_id`;
 
--- Add `content_id` to the content table to allow for translations
 RENAME TABLE `%TABLE_PREFIX%page` TO `%TABLE_PREFIX%content`;
 ALTER TABLE `%TABLE_PREFIX%content`
   CHANGE `type` `type` varchar(32) NOT NULL default 'other';
@@ -110,9 +109,6 @@ INSERT INTO `%TABLE_PREFIX%content`
         WHERE A3.`key` = 'default_template_id' and `namespace` = 'core')
     AND A1.`code_name` = 'user.accesslink';
 
-UPDATE `%TABLE_PREFIX%content` SET `content_id` = LAST_INSERT_ID()
-    WHERE `id` = LAST_INSERT_ID();
-
 -- Transfer staff password reset link
 INSERT INTO `%TABLE_PREFIX%content`
     (`name`, `body`, `type`, `isactive`, `created`, `updated`)
@@ -121,9 +117,6 @@ INSERT INTO `%TABLE_PREFIX%content`
     WHERE A1.`tpl_id` = (SELECT `value` FROM `%TABLE_PREFIX%config` A3
         WHERE A3.`key` = 'default_template_id' and `namespace` = 'core')
     AND A1.`code_name` = 'staff.pwreset';
-
-UPDATE `%TABLE_PREFIX%content` SET `content_id` = LAST_INSERT_ID()
-    WHERE `id` = LAST_INSERT_ID();
 
 -- No longer saved in the email_template table
 DELETE FROM `%TABLE_PREFIX%email_template`

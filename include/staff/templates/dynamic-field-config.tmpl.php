@@ -209,7 +209,7 @@
     display: inline-block;
     vertical-align: top;
 }
-.dialog input, .dialog select {
+.dialog input[type=text], .dialog select {
     margin: 2px;
 }
 hr.faded {

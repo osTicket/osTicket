@@ -724,36 +724,6 @@ class Format {
             // Normalize text input :: remove diacritics and such
             $text = normalizer_normalize($text, Normalizer::FORM_C);
         }
-        else {
-            // As a lightweight compatiblity, use a lightweight C
-            // normalizer with diacritic removal, thanks
-            // http://ahinea.com/en/tech/accented-translate.html
-            $tr = array(
-                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
-            );
-            $text = strtr($text, $tr);
-        }
-        // Decompose compatible versions of characters (ä => ae)
-        $tr = array(
-            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
-            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
-            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
-            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
-            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
-            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
-            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
-            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
-        );
-        $text = strtr($text, $tr);
-
-        // Drop separated diacritics
-        $text = preg_replace('/\p{M}/u', '', $text);
-
-        // Drop extraneous whitespace
-        $text = preg_replace('/(\s)\s+/u', '$1', $text);
-
-        // Drop leading and trailing whitespace
-        $text = trim($text);
 
         if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
@@ -772,12 +742,20 @@ class Format {
             // http://www.unicode.org/reports/tr29/#Word_Boundaries
 
             // Punt for now
+
+            // Drop extraneous whitespace
+            $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+            // Drop leading and trailing whitespace
+            $text = trim($text);
         }
         return $text;
     }
 
     function relativeTime($to, $from=false, $granularity=1) {
-        $timestamp = $to ?: Misc::gmtime();
+        if (!$to)
+            return false;
+        $timestamp = $to;
         if (gettype($timestamp) === 'string')
             $timestamp = strtotime($timestamp);
         $from = $from ?: Misc::gmtime();
@@ -892,9 +870,6 @@ implements TemplateVariable {
 
     function getVar($what) {
         global $cfg;
-
-        if (method_exists($this, 'get' . ucfirst($what)))
-            return call_user_func(array($this, 'get'.ucfirst($what)));
 
         // TODO: Rebase date format so that locale is discovered HERE.
 

@@ -107,7 +107,7 @@ case 'search':
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');
         $tickets = $search->mangleQuerySet($tickets, $form);
-        $view_all_tickets = $thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING);
+        $view_all_tickets = $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
             . '<a class="action-button" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
         $has_relevance = false;
@@ -174,7 +174,7 @@ if (!$view_all_tickets) {
     if ($teams = array_filter($thisstaff->getTeams()))
         $assigned->add(array('team_id__in' => $teams));
 
-    $visibility = Q::any(array('status__state'=>'open', $assigned));
+    $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
     // -- Routed to a department of mine
     if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
@@ -237,10 +237,10 @@ case 'closed':
 
 case 'answered':
     $date_header = __('Last Response');
-    $date_col = 'lastresponse';
+    $date_col = 'thread__lastresponse';
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-    $tickets->order_by('-lastresponse');
-    $tickets->values('lastresponse');
+    $tickets->order_by('-thread__lastresponse');
+    $tickets->values('thread__lastresponse');
     break;
 
 case 'hot':
@@ -309,6 +309,30 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
+  <div class="pull-right" style="height:25px">
+    <span class="valign-helper"></span>
+    <span class="action-button muted" data-dropdown="#sort-dropdown">
+      <i class="icon-caret-down pull-right"></i>
+      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
+    </span>
+    <div id="sort-dropdown" class="action-dropdown anchor-right"
+    onclick="javascript: console.log(event); $.pjax({
+        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
+        timeout: 2000,
+        container: '#pjax-container'});">
+      <ul class="bleed-left">
+<?php foreach ($queue_sort_options as $mode) {
+$desc = $sort_options[$mode];
+$selected = $mode == $_SESSION[$queue_sort_key]; ?>
+      <li <?php if ($selected) echo 'class="active"'; ?>>
+        <a data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
+          if ($selected) echo 'icon-hand-right';
+          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
+      </li>
+<?php } ?>
+    </div>
+  </div>
+
     <form action="tickets.php" method="get" onsubmit="javascript:
   $.pjax({
     url:$(this).attr('action') + '?' + $(this).serialize(),
@@ -317,19 +341,18 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
   });
 return false;">
     <input type="hidden" name="a" value="search">
-    <table>
-        <tr>
-            <td><input type="search" id="basic-ticket-search" name="query"
-                autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off">
-                <input type="hidden" name="search-type" value=""/>
-            </td>
-            <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
-            <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
-                $.dialog('ajax.php/tickets/search', 201);"
-                >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
-        </tr>
-    </table>
+    <input type="hidden" name="search-type" value=""/>
+    <div class="attached input">
+      <input type="text" id="basic-ticket-search" name="query"
+        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+        autocomplete="off" autocorrect="off" autocapitalize="off">
+      <button type="submit" class="attached button"><i class="icon-search"></i>
+      </button>
+    </div>
+    <a href="#" onclick="javascript:
+        $.dialog('ajax.php/tickets/search', 201);"
+        >[<?php echo __('advanced'); ?>]</a>
+        <i class="help-tip icon-question-sign" href="#advanced"></i>
     </form>
 </div>
 <!-- SEARCH FORM END -->
@@ -343,24 +366,12 @@ return false;">
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
-            <span class="notsticky" style="display:inline-block">
-                <span style="vertical-align: baseline">Sort:</span>
-            <select name="sort" onchange="javascript: $.pjax({
-                url:'?' + addSearchParam('sort', $(this).val()),
-                timeout: 2000,
-                container: '#pjax-container'});">
-<?php foreach ($queue_sort_options as $mode) {
-    $desc = $sort_options[$mode]; ?>
-            <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
-<?php } ?>
-            </select>
-            </span>
             <?php
             if ($thisstaff->canManageTickets()) {
                 echo TicketStatus::status_options();
             }
-            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE)) { ?>
-            <a id="tickets-delete" class="action-button tickets-action"
+            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
+            <a id="tickets-delete" class="red button action-button tickets-action"
                 href="#tickets/status/delete"><i
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php

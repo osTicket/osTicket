@@ -19,11 +19,11 @@
         </td>
     </tr>
     <tr class="header">
-        <th><?php echo __('Enable'); ?></th>
-        <th><?php echo __('Label'); ?></th>
-        <th><?php echo __('Type'); ?></th>
-        <th><?php echo __('Visibility'); ?></th>
-        <th><?php echo __('Variable'); ?></th>
+        <td><?php echo __('Enable'); ?></td>
+        <td><?php echo __('Label'); ?></td>
+        <td><?php echo __('Type'); ?></td>
+        <td><?php echo __('Visibility'); ?></td>
+        <td><?php echo __('Variable'); ?></td>
     </tr>
 <?php
     foreach ($form->getFields() as $f) { ?>

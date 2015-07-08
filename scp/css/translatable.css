@@ -100,12 +100,7 @@ div.translatable {
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
   display: inline-block;
   white-space: nowrap;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
   border-right: none;
-  padding: 1px 5px 1px;
-  margin-left: 2px;
-  width: auto;
   background-color: white;
   line-height: 16px;
 }
@@ -121,9 +116,7 @@ div.translatable.focus {
   outline-color: -webkit-focus-ring-color;
 }
 div.translatable .flag {
-  position: relative;
-  top: 1px;
-  margin-left: 2px;
+  margin-right: 4px;
 }
 div.translatable.textarea .flag {
   vertical-align: top;
@@ -132,10 +125,9 @@ div.translatable.textarea .flag {
 textarea.translatable,
 input.translatable {
   border: none !important;
-  padding: 0 !important;
+  padding: 2px 5px !important;
   margin: 0 !important;
   background: none;
-  font-family: sans-serif;
 }
 textarea.translatable,
 input.translatable:focus {
@@ -143,14 +135,15 @@ input.translatable:focus {
 }
 
 button.translatable {
-  margin: 0;
-  padding: 3px 5px 4px;
+  margin: -1px 0;
+  padding: 4px 5px 5px;
   background-color: #444;
   background:linear-gradient(0deg, #444 0, #888 100%);
   color: white;
   border: none;
   border-radius: 0 2px 2px 0;
   cursor: pointer;
+  vertical-align: top;
 }
 
 div.translatable.textarea + button.translatable {

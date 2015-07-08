@@ -80,13 +80,22 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
     </thead>
     <tbody>
         <?php
-
         $setting = $role ? $role->getPermissionInfo() : array();
-        foreach (RolePermission::allPermissions() as $g => $perms) { ?>
-         <tr><th><?php
+
+        // Eliminate groups without any department-specific permissions
+        $buckets = array();
+        foreach (RolePermission::allPermissions() as $g => $perms) {
+            foreach ($perms as $k => $v) {
+                if ($v['primary'])
+                    continue;
+                $buckets[$g][$k] = $v;
+            }
+        }
+        foreach ($buckets as $g => $perms) { ?>
+        <tr><th><?php
              echo Format::htmlchars(__($g)); ?></th></tr>
-         <?php
-         foreach($perms as $k => $v)  { ?>
+<?php
+          foreach ($perms as $k => $v) { ?>
           <tr>
             <td>
               <label>
@@ -98,11 +107,6 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
               &nbsp;&nbsp;
               <?php echo Format::htmlchars(__($v['title'])); ?>
               —
-              <?php
-              if ($v['primary']) { ?>
-              <i class="icon-globe faded" title="<?php echo
-                  __('This permission only applies to the staff primary role'); ?>"></i>
-<?php         } ?>
               <em><?php echo Format::htmlchars(__($v['desc']));
               ?></em>
              </label>

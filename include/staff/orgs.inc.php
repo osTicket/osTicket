@@ -89,14 +89,14 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
  </div>
 
 <div class="pull-right">
-<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_CREATE)) { ?>
+<?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
     <a class="action-button add-org"
         href="#">
         <i class="icon-plus-sign"></i>
         <?php echo __('Add Organization'); ?>
     </a>
 <?php }
-if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
+if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
     <span class="action-button" data-dropdown="#action-dropdown-more"
         style="/*DELME*/ vertical-align:top; margin-bottom:0">
         <i class="icon-caret-down pull-right"></i>

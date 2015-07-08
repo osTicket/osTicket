@@ -182,7 +182,7 @@ $pages = Page::getPages();
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input class="button" type="submit" name="submit-button" value="<?php
     echo __('Save Changes'); ?>">
     <input class="button" type="reset" name="reset" value="<?php

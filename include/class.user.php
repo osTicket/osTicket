@@ -360,9 +360,6 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         $tag = mb_strtolower($tag);
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))

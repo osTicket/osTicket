@@ -207,7 +207,7 @@ class AttachmentMigrater extends MigrationTask {
             $this->enqueue($info);
         }
 
-        return $this->queueAttachments($limit);
+        return $this->getQueueLength();
     }
 
     function skip($attachId, $error) {

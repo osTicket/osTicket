@@ -104,7 +104,7 @@ $extensions = array(
 </thead>
 <tbody>
     <tr><td><?php echo __('Schema'); ?></td>
-        <td><?php echo sprintf('<span class="ltr">%s (%s)</span>', DBNAME, DBHOST); ?> </td>
+        <td><?php echo sprintf('<span class="ltr">%s (%s)</span>', DBNAME, DBHOST); ?> </td></tr>
     </tr>
     <tr><td><?php echo __('Schema Signature'); ?></td>
         <td><?php echo $cfg->getSchemaSignature(); ?> </td>
@@ -120,7 +120,13 @@ $extensions = array(
         <td><?php
         $sql = 'SELECT SUM(LENGTH(filedata)) / 1048576 FROM '.FILE_CHUNK_TABLE;
         $space = db_result(db_query($sql));
-        echo sprintf('%.2f MiB', $space); ?></td>
+        echo sprintf('%.2f MiB', $space); ?></td></tr>
+    <tr><td><?php echo __('Timezone'); ?></td>
+        <td><?php echo $dbtz = db_timezone(); ?>
+          <?php if ($cfg->getDbTimezone() != $dbtz) { ?>
+            (<?php echo sprintf(__('Interpreted as %s'), $cfg->getDbTimezone()); ?>)
+          <?php } ?>
+        </td></tr>
 </tbody>
 </table>
 <br/>

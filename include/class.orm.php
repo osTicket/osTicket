@@ -308,12 +308,20 @@ class VerySimpleModel {
         if (in_array($field, static::getMeta('fields')))
             return null;
 
-        // TODO: Inspect fields from database before throwing this error
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
     }
     function __get($field) {
         return $this->get($field, null);
+    }
+
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P)
+            $root = $root->get($P);
+        return $root;
     }
 
     function __isset($field) {
@@ -893,6 +901,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $model;
 
     var $constraints = array();
+    var $path_constraints = array();
     var $ordering = array();
     var $limit = false;
     var $offset = 0;
@@ -930,6 +939,15 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function exclude() {
         foreach (func_get_args() as $Q) {
             $this->constraints[] = $Q instanceof Q ? $Q->negate() : Q::not($Q);
+        }
+        return $this;
+    }
+
+    function constrain() {
+        foreach (func_get_args() as $I) {
+            foreach ($I as $path => $Q) {
+                $this->path_constraints[$path][] = $Q;
+            }
         }
         return $this;
     }
@@ -1359,7 +1377,7 @@ class ModelInstanceManager extends ResultSet {
         // using an AnnotatedModel instance.
         if ($annotations && $modelClass == $this->model) {
             foreach ($annotations as $name=>$A) {
-                if (isset($fields[$name])) {
+                if (array_key_exists($name, $fields)) {
                     $extras[$name] = $fields[$name];
                     unset($fields[$name]);
                 }
@@ -1556,6 +1574,86 @@ class InstrumentedList extends ModelInstanceManager {
         return new static(array($this->model, $key), $this->filter($constraint));
     }
 
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst(array $criteria) {
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field=>$check) {
+                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                return $record;
+        }
+    }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
+
+    /**
+     * Reverse the list item in place. Returns this object for chaining
+     */
+    function reverse() {
+        $this->asArray();
+        array_reverse($this->cache);
+        return $this;
+    }
+
+    // Save all changes made to any list items
+    function saveAll() {
+        foreach ($this as $I)
+            if (!$I->save())
+                return false;
+        return true;
+    }
+
     // QuerySet delegates
     function count() {
         return $this->objects()->count();
@@ -1612,6 +1710,56 @@ class SqlCompiler {
 
     function getParent() {
         return $this->options['parent'];
+    }
+
+    /**
+     * Split a criteria item into the identifying pieces: path, field, and
+     * operator.
+     */
+    static function splitCriteria($criteria) {
+        static $operators = array(
+            'exact' => 1, 'isnull' => 1,
+            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
+            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1,
+            'in' => 1, 'intersect' => 1,
+            'hasbit' => 1,
+        );
+        $path = explode('__', $criteria);
+        if (!isset($options['table'])) {
+            $field = array_pop($path);
+            if (isset($operators[$field])) {
+                $operator = $field;
+                $field = array_pop($path);
+            }
+        }
+        return array($field, $path, $operator ?: 'exact');
+    }
+
+    /**
+     * Check if the values match given the operator.
+     *
+     * Throws:
+     * OrmException - if $operator is not supported
+     */
+    static function evaluate($record, $field, $check) {
+        static $ops; if (!isset($ops)) { $ops = array(
+            'exact' => function($a, $b) { return is_string($a) ? strcasecmp($a, $b) == 0 : $a == $b; },
+            'isnull' => function($a, $b) { return is_null($a) == $b; },
+            'gt' => function($a, $b) { return $a > $b; },
+            'gte' => function($a, $b) { return $a >= $b; },
+            'lt' => function($a, $b) { return $a < $b; },
+            'lte' => function($a, $b) { return $a <= $b; },
+            'contains' => function($a, $b) { return stripos($a, $b) !== false; },
+            'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
+            'hasbit' => function($a, $b) { return $a & $b == $b; },
+        ); }
+        list($field, $path, $operator) = self::splitCriteria($field);
+        if (!isset($ops[$operator]))
+            throw new OrmException($operator.': Unsupported operator');
+
+        if ($path)
+            $record = $record->getByPath($path);
+        return $ops[$operator]($record->get($field), $check);
     }
 
     /**
@@ -1680,16 +1828,8 @@ class SqlCompiler {
         // The parts after each of the __ pieces are links to other tables.
         // The last item (after the last __) is allowed to be an operator
         // specifiction.
-        $parts = explode('__', $field);
-        $operator = static::$operators['exact'];
-        if (!isset($options['table'])) {
-            $field = array_pop($parts);
-            if (isset(static::$operators[$field])) {
-                $operator = static::$operators[$field];
-                $field = array_pop($parts);
-            }
-        }
-
+        list($field, $parts, $op) = static::splitCriteria($field);
+        $operator = static::$operators[$op];
         $path = '';
         $rootModel = $model;
 
@@ -1876,8 +2016,20 @@ class SqlCompiler {
 
     function getJoins($queryset) {
         $sql = '';
-        foreach ($this->joins as $j)
-            $sql .= $j['sql'];
+        foreach ($this->joins as $path => $j) {
+            if (!$j['sql'])
+                continue;
+            list($base, $constraints) = $j['sql'];
+            // Add in path-specific constraints, if any
+            if (isset($queryset->path_constraints[$path])) {
+                foreach ($queryset->path_constraints[$path] as $Q) {
+                    $constraints[] = $this->compileQ($Q, $queryset->model);
+                }
+            }
+            $sql .= $base;
+            if ($constraints)
+                $sql .= ' ON ('.implode(' AND ', $constraints).')';
+        }
         // Add extra items from QuerySet
         if (isset($queryset->extra['tables'])) {
             foreach ($queryset->extra['tables'] as $S) {
@@ -2071,9 +2223,7 @@ class MySqlCompiler extends SqlCompiler {
             ? $rmodel::getQuery($this)
             : $this->quote($rmodel::getMeta('table'));
         $base = "{$join}{$table} {$alias}";
-        if ($constraints)
-           $base .= ' ON ('.implode(' AND ', $constraints).')';
-        return $base;
+        return array($base, $constraints);
     }
 
     /**
@@ -2089,14 +2239,14 @@ class MySqlCompiler extends SqlCompiler {
      * (string) token to be placed into the compiled SQL statement. This
      * is a colon followed by a number
      */
-    function input($what, $slot=false) {
+    function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
             $this->params = array_merge($this->params, $q->params);
             return '('.$q->sql.')';
         }
         elseif ($what instanceof SqlFunction) {
-            return $what->toSql($this);
+            return $what->toSql($this, $model);
         }
         elseif (!isset($what)) {
             return 'NULL';
@@ -2384,7 +2534,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
-            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, false, $model));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);

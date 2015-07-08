@@ -19,7 +19,7 @@
  * data for a ticket
  */
 class Form {
-
+    static $renderer = 'GridFluidLayout';
     static $id = 0;
 
     var $fields = array();
@@ -99,17 +99,20 @@ class Form {
     function isValid($include=false) {
         if (!isset($this->_errors)) {
             $this->_errors = array();
-            $this->getClean();
-            // Validate the whole form so that errors can be added to the
-            // individual fields and collected below.
-            foreach ($this->validators as $V) {
-                $V($this);
-            }
+            $this->validate($this->getClean());
             foreach ($this->getFields() as $field)
                 if ($field->errors() && (!$include || $include($field)))
                     $this->_errors[$field->get('id')] = $field->errors();
         }
         return !$this->_errors;
+    }
+
+    function validate($clean_data) {
+        // Validate the whole form so that errors can be added to the
+        // individual fields and collected below.
+        foreach ($this->validators as $V) {
+            $V($this);
+        }
     }
 
     function getClean() {
@@ -163,10 +166,22 @@ class Form {
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
         $form = $this;
+        $template = $options['template'] ?: 'dynamic-form.tmpl.php';
         if ($staff)
-            include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
+            include(STAFFINC_DIR . 'templates/' . $template);
         else
-            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+            include(CLIENTINC_DIR . 'templates/' . $template);
+        echo $this->getMedia();
+    }
+
+    function getLayout() {
+        $rc = @$options['renderer'] ?: static::$renderer;
+        return new $rc($title, $options);
+    }
+
+    function asTable($options=array()) {
+        return $this->getLayout()->asTable($this);
+        // XXX: Media can't go in a table
         echo $this->getMedia();
     }
 
@@ -300,12 +315,153 @@ class Form {
  *
  */
 class SimpleForm extends Form {
-
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
         $this->setFields($fields);
     }
+}
 
+abstract class AbstractForm extends Form {
+    function __construct($source=null, $options=array()) {
+        parent::__construct($source, $options);
+        $this->setFields($this->buildFields());
+    }
+    /**
+     * Fetch the fields defined for this form. This method is only called
+     * once.
+     */
+    abstract function buildFields();
+}
+
+/**
+ * Container class to represent the connection between the form fields and the
+ * rendered state of the form.
+ */
+interface FormRenderer {
+    // Render the form fields into a table
+    function asTable($form);
+    // Render the form fields into divs
+    function asBlock($form);
+}
+
+abstract class FormLayout {
+    static $default_cell_layout = 'Cell';
+
+    function getLayout($field) {
+        $layout = $field->get('layout') ?: static::$default_cell_layout;
+        if (is_string($layout))
+            $layout = new $layout();
+        return $layout;
+    }
+}
+
+class GridFluidLayout
+extends FormLayout
+implements FormRenderer {
+    function asTable($form) {
+      ob_start();
+?>
+      <table class="<?php echo 'grid form' ?>">
+          <colgroup width="8.333333%"><col span="12"/></colgroup>
+          <caption><?php echo Format::htmlchars($form->getTitle()); ?>
+                  <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
+          </caption>
+<?php
+      $row_size = 12;
+      $cols = $row = 0;
+      foreach ($form->getFields() as $f) {
+          $layout = $this->getLayout($f);
+          $size = $layout->getWidth() ?: 12;
+          if ($offs = $layout->getOffset()) {
+              $size += $offs;
+          }
+          if ($cols < $size || $layout->isBreakForced()) {
+              if ($row) echo '</tr>';
+              echo '<tr>';
+              $cols = $row_size;
+              $row++;
+          }
+          // Render the cell
+          $cols -= $size;
+          $attrs = array('colspan' => $size, 'rowspan' => $layout->getHeight(),
+              'style' => '"'.$layout->getOption('style').'"');
+          if ($offs) { ?>
+              <td colspan="<?php echo $offset; ?>"></td> <?php
+          }
+          ?>
+          <td class="cell" <?php echo Format::array_implode('=', ' ', array_filter($attrs)); ?>
+              data-field-id="<?php echo $f->get('id'); ?>">
+              <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
+                id="field<?php echo $f->getWidget()->id; ?>"
+                data-field-id="<?php echo $f->get('id'); ?>">
+<?php         if ($label = $f->get('label')) { ?>
+              <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
+                  for="<?php echo $f->getWidget()->id; ?>">
+                  <?php echo Format::htmlchars($label); ?>:
+              </label>
+<?php         }
+              if ($f->get('hint')) { ?>
+                  <div class="field-hint-text">
+                      <?php echo Format::htmlchars($f->get('hint')); ?>
+                  </div>
+<?php         }
+              $f->render();
+              if ($f->errors())
+                  foreach ($f->errors() as $e)
+                      echo sprintf('<div class="error">%s</div>', Format::htmlchars($e));
+?>
+              </fieldset>
+          </td>
+      <?php
+      }
+      if ($row)
+        echo  '</tr>';
+
+      echo '</tbody></table>';
+
+      return ob_get_clean();
+    }
+
+    function asBlock($form) {}
+}
+
+/**
+ * Basic container for field and form layouts. By default every cell takes
+ * a whole output row and does not imply any sort of width.
+ */
+class Cell {
+    function isBreakForced()  { return true; }
+    function getWidth()       { return false; }
+    function getHeight()      { return 1; }
+    function getOffset()      { return 0; }
+    function getOption($prop) { return false; }
+}
+
+/**
+ * Fluid grid layout, meaning each cell renders to the right of the previous
+ * cell (for left-to-right layouts). A width in columns can be specified for
+ * each cell along with an offset from the previous cell. A height of columns
+ * along with an optional break is supported.
+ */
+class GridFluidCell
+extends Cell {
+    var $span;
+    var $options;
+
+    function __construct($span, $options=array()) {
+        $this->span = $span;
+        $this->options = $options + array(
+            'rows' => 1,        # rowspan
+            'offset' => 0,      # skip some columns
+            'break' => false,   # start on a new row
+        );
+    }
+
+    function isBreakForced()  { return $this->options['break']; }
+    function getWidth()       { return $this->span; }
+    function getHeight()      { return $this->options['rows']; }
+    function getOffset()      { return $this->options['offset']; }
+    function getOption($prop) { return $this->options[$prop]; }
 }
 
 require_once(INCLUDE_DIR . "class.json.php");
@@ -417,11 +573,11 @@ class FormField {
                             $vs, array($this, $this->_clean));
             }
 
-            if ($this->isVisible())
-                $this->validateEntry($this->_clean);
-
             if (!isset($this->_clean) && ($d = $this->get('default')))
                 $this->_clean = $d;
+
+            if ($this->isVisible())
+                $this->validateEntry($this->_clean);
         }
         return $this->_clean;
     }
@@ -493,7 +649,6 @@ class FormField {
      * field is visible and should be considered for validation
      */
     function isVisible() {
-        $config = $this->getConfiguration();
         if ($this->get('visibility') instanceof VisibilityConstraint) {
             return $this->get('visibility')->isVisible($this);
         }
@@ -814,6 +969,11 @@ class FormField {
 
     function getAnswer() { return $this->answer; }
     function setAnswer($ans) { $this->answer = $ans; }
+
+    function setValue($value) {
+        $this->reset();
+        $this->getWidget()->value = $value;
+    }
 
     function getFormName() {
         if (is_numeric($this->get('id')))
@@ -2913,9 +3073,16 @@ class ChoicesWidget extends Widget {
         if (!is_array($values))
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
+        if (isset($config['classes']))
+            $classes = 'class="'.$config['classes'].'"';
         ?>
         <select name="<?php echo $this->name; ?>[]"
+            <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
+            <?php if (isset($config['data']))
+              foreach ($config['data'] as $D=>$V)
+                echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
+            ?>
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
@@ -3007,6 +3174,116 @@ class ChoicesWidget extends Widget {
     }
 }
 
+/**
+ * A widget for the ChoiceField which will render a list of radio boxes or
+ * checkboxes depending on the value of $config['multiple']. Complex choices
+ * are also supported and will be rendered as divs.
+ */
+class BoxChoicesWidget extends Widget {
+    function render($options=array()) {
+        $this->emitChoices($this->field->getChoices());
+    }
+
+    function emitChoices($choices) {
+      static $uid = 1;
+
+      if (!isset($this->value))
+          $this->value = $this->field->get('default');
+      $config = $this->field->getConfiguration();
+      $type = $config['multiple'] ? 'checkbox' : 'radio';
+      if (isset($config['classes']))
+          $classes = 'class="'.$config['classes'].'"';
+
+      foreach ($choices as $k => $v) {
+          if (is_array($v)) {
+              $this->renderSectionBreak($k);
+              $this->emitChoices($v);
+              continue;
+          }
+          $id = sprintf("%s-%s", $this->id, $uid++);
+?>
+        <label <?php echo $classes; ?>
+          for="<?php echo $id; ?>" style="display:block;">
+        <input id="<?php echo $id; ?>" style="vertical-align:top;"
+            type="<?php echo $type; ?>" name="<?php echo $this->name; ?>[]" <?php
+            if ($this->value[$k]) echo 'checked="checked"'; ?> value="<?php
+            echo Format::htmlchars($k); ?>"/>
+        <?php
+        if ($v) { ?>
+            <em style="display:inline-block;vertical-align:baseline;width:90%;width:calc(100% - 25px);"><?php
+            echo Format::viewableImages($v); ?></em>
+<?php     } ?>
+        </label>
+<?php   }
+    }
+
+    function renderSectionBreak($label) { ?>
+        <div><?php echo Format::htmlchars($label); ?></div>
+<?php
+    }
+
+    function getValue() {
+        $data = $this->field->getSource();
+        if (count($data)) {
+            if (!isset($data[$this->name]))
+                return array();
+            return $this->collectValues($data[$this->name], $this->field->getChoices());
+        }
+        return parent::getValue();
+    }
+
+    function collectValues($data, $choices) {
+        $value = array();
+        foreach ($choices as $k => $v) {
+            if (is_array($v))
+                $value = array_merge($value, $this->collectValues($data, $v));
+            elseif (@in_array($k, $data))
+                $value[$k] = $v;
+        }
+        return $value;
+    }
+}
+
+/**
+ * An extension to the BoxChoicesWidget which will render complex choices in
+ * tabs.
+ */
+class TabbedBoxChoicesWidget extends BoxChoicesWidget {
+    function render($options=array()) {
+        $tabs = array();
+        foreach ($this->field->getChoices() as $label=>$group) {
+            if (is_array($group)) {
+                $tabs[$label] = $group;
+            }
+            else {
+                $this->emitChoices(array($label=>$group));
+            }
+        }
+        if ($tabs) {
+            ?>
+            <div>
+            <ul class="alt tabs">
+<?php       $i = 0;
+            foreach ($tabs as $label => $group) {
+                $active = $i++ == 0; ?>
+                <li <?php if ($active) echo 'class="active"';
+                  ?>><a href="#<?php echo sprintf('%s-%s', $this->name, Format::slugify($label));
+                  ?>"><?php echo Format::htmlchars($label); ?></a></li>
+<?php       } ?>
+            </ul>
+<?php       $i = 0;
+            foreach ($tabs as $label => $group) {
+                $first = $i++ == 0; ?>
+                <div class="tab_content <?php if (!$first) echo 'hidden'; ?>" id="<?php
+                  echo sprintf('%s-%s', $this->name, Format::slugify($label));?>">
+<?php           $this->emitChoices($group); ?>
+                </div>
+<?php       } ?>
+            </div>
+<?php   }
+    }
+}
+
 class CheckboxWidget extends Widget {
     function __construct($field) {
         parent::__construct($field);
@@ -3017,24 +3294,29 @@ class CheckboxWidget extends Widget {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
+        if (isset($config['classes']))
+            $classes = 'class="'.$config['classes'].'"';
         ?>
-        <input id="<?php echo $this->id; ?>" style="vertical-align:top;"
+        <div <?php echo implode(' ', array_filter(array($classes))); ?>>
+        <label class="checkbox">
+        <input id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
         <?php
         if ($config['desc']) {
             echo Format::viewableImages($config['desc']);
-        }
+        } ?>
+        </label>
+        </div>
+<?php
     }
 
     function getValue() {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                // Indeterminite. Likely false, but consider current field
-                // value
-                return null;
+                return false;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();
@@ -3353,7 +3635,8 @@ class FreeTextField extends FormField {
 class FreeTextWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        ?><div class="thread-body" style="padding:0"><?php
+        $class = $config['classes'] ?: 'thread-body'
+        ?><div class="<?php echo $class; ?>" style="padding:0"><?php
         if ($label = $this->field->getLocal('label')) { ?>
             <h3><?php
             echo Format::htmlchars($label);
@@ -3591,10 +3874,6 @@ class AssignmentForm extends Form {
         return !$this->errors();
     }
 
-    function getClean() {
-        return parent::getClean();
-    }
-
     function render($options) {
 
         switch(strtolower($options['template'])) {
@@ -3684,10 +3963,6 @@ class TransferForm extends Form {
                     __('Unknown department'));
 
         return !$this->errors();
-    }
-
-    function getClean() {
-        return parent::getClean();
     }
 
     function render($options) {

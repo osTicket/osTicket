@@ -253,13 +253,13 @@ class  EndUser extends BaseAuthenticatedUser {
         if (!($stats=$this->getTicketStats()))
             return 0;
 
-        return $stats['org-open']+$stats['org-closed'];
+        return $stats['org']['open']+$stats['org']['closed'];
     }
     function getNumOpenOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org-open']:0;
+        return ($stats=$this->getTicketStats())?$stats['org']['open']:0;
     }
     function getNumClosedOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org-closed']:0;
+        return ($stats=$this->getTicketStats())?$stats['org']['closed']:0;
     }
 
     function getAccount() {
@@ -278,17 +278,31 @@ class  EndUser extends BaseAuthenticatedUser {
     private function getStats() {
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'topic_id')
-            ->filter(Q::any(array(
-                'user_id' => $this->getId(),
-                'thread__collaborators__user_id' => $this->getId(),
-            )));
+            ->values('status__state', 'topic_id', 'user__org_id');
+
+        $q = new Q(); $q->union();
+        if ($this->getOrgId())
+            $q->add(array('user__org_id' => $this->getOrgId()));
+
+        // Share tickets among the organization for owners only
+        $owners = clone $basic;
+        $q->add(array('user_id' => $this->getId()));
+        $owners->filter($q);
+
+        $collabs = clone $basic;
+        $collabs->filter(array('thread__collaborators__user_id' => $this->getId()));
+
+        // TODO: Implement UNION ALL support in the ORM
 
         $stats = array('open' => 0, 'closed' => 0, 'topics' => array());
-        foreach ($basic as $row) {
-            $stats[$row['status__state']] += $row['count'];
-            if ($row['topic_id'])
-                $stats['topics'][$row['topic_id']] += $row['count'];
+        foreach (array($owners, $collabs) as $rs) {
+            foreach ($rs as $row) {
+                $stats[$row['status__state']] += $row['count'];
+                if ($row['topic_id'])
+                    $stats['topics'][$row['topic_id']] += $row['count'];
+                if ($row['user__org_id'])
+                    $stats['org'][$row['status__state']] += $row['count'];
+            }
         }
         return $stats;
     }

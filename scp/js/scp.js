@@ -84,14 +84,18 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
-        var formObj = $(this).closest('form');
-        e.preventDefault();
-        if($('.dialog#confirm-action p#'+this.name+'-confirm').length == 0) {
-            alert('Unknown action '+this.name+' - get technical help.');
+        var formObj,
+            name = this.name || $(this).data('name');
+        if ($(this).data('formId'))
+            formObj = $('#' + $(this).data('formId'));
+        else
+            formObj = $(this).closest('form');
+        if($('.dialog#confirm-action p#'+name+'-confirm').length === 0) {
+            alert('Unknown action '+name+' - get technical help.');
         } else if(checkbox_checker(formObj, 1)) {
-            var action = this.name;
+            var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
@@ -103,11 +107,11 @@ var scp_prep = function() {
              });
             $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p#'+this.name+'-confirm')
+            $('.dialog#confirm-action p#'+name+'-confirm')
             .show()
             .parent('div').show().trigger('click');
         }
-
+        e.preventDefault();
         return false;
      });
 
@@ -132,7 +136,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).css('color', 'red');
+            $('input[type=submit]', fObj).addClass('save pending');
             $(window).bind('beforeunload', function(e) {
                 return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
@@ -149,7 +153,7 @@ var scp_prep = function() {
     $("form#save :input[type=reset]").click(function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
-            $('input[type=submit]', fObj).removeAttr('style');
+            $('input[type=submit]', fObj).removeClass('save pending');
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
@@ -347,72 +351,6 @@ var scp_prep = function() {
         left : ($(window).width() - $("#loading").outerWidth()) / 2
     });
 
-    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
-        switch($(this).children('option:selected').data('state')) {
-            case 'closed':
-                $('select#assignee')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#flag')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#staffId').removeAttr('disabled');
-                break;
-            case 'open':
-                $('select#staffId')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-                break;
-            default:
-                $('select#staffId').removeAttr('disabled');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-        }
-    });
-
-    $('#advanced-search form#search').submit(function(e) {
-        e.preventDefault();
-        var fObj = $(this);
-        var elem = $('#advanced-search');
-        $('#result-count').html('');
-        fixupDatePickers.call(this);
-        $.ajax({
-                url: "ajax.php/tickets/search",
-                data: fObj.serialize(),
-                dataType: 'json',
-                beforeSend: function ( xhr ) {
-                   $('.buttons', elem).hide();
-                   $('.spinner', elem).show();
-                   return true;
-                },
-                success: function (resp) {
-
-                    if(resp.success) {
-                        $('#result-count').html('<div class="success">' + resp.success +'</div>');
-                    } else if (resp.fail) {
-                        $('#result-count').html('<div class="fail">' + resp.fail +'</div>');
-                    } else {
-                        $('#result-count').html('<div class="fail">Unknown error</div>');
-                    }
-                }
-            })
-            .done( function () {
-             })
-            .fail( function () {
-                $('#result-count').html('<div class="fail">'
-                    + __('Advanced search failed - try again!') + '</div>');
-            })
-            .always( function () {
-                $('.spinner', elem).hide();
-                $('.buttons', elem).show();
-             });
-    });
-
    // Return a helper with preserved width of cells
    var fixHelper = function(e, ui) {
       ui.children().each(function() {
@@ -514,6 +452,11 @@ var scp_prep = function() {
          }
        }
     });
+  });
+
+  $('div.tab_content[id] div.error:not(:empty)').each(function() {
+    var div = $(this).closest('.tab_content');
+    $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
   });
 
   $('[data-toggle="tooltip"]').tooltip()
@@ -657,7 +600,7 @@ $.dialog = function (url, codes, cb, options) {
     $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
     $popup.resize().show();
-    $('div.body', $popup).load(url, function () {
+    $('div.body', $popup).load(url, options.data, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({
             duration: 300,
@@ -720,6 +663,16 @@ $.dialog = function (url, codes, cb, options) {
      });
     if (options.onload) { options.onload(); }
  };
+$(document).on('click', 'a[data-dialog]', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var link = $(this);
+    $.dialog($(this).data('dialog'), 201, function() {
+      if (link.attr('href').length > 1) $.pjax.click(event, '#pjax-container');
+      else $.pjax.reload('#pjax-container');
+    });
+    return false;
+});
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
@@ -827,7 +780,9 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
     }
     else {
         $tab.addClass('tab_content');
-        $.changeHash($(this).attr('href'), true);
+        // Don't change the URL hash for nested tabs or in dialogs
+        if ($(this).closest('.tab_content, .dialog').length == 0)
+            $.changeHash($(this).attr('href'), true);
     }
 
     if ($tab.length) {
@@ -955,6 +910,29 @@ if ($.support.pjax) {
       $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
   })
 }
+
+// Quick-Add dialogs
+$(document).on('change', 'select[data-quick-add]', function() {
+    var $select = $(this),
+        selected = $select.find('option:selected'),
+        type = selected.parent().closest('[data-quick-add]').data('quickAdd');
+    if (!type || (selected.data('quickAdd') === undefined && selected.val() !== ':new:'))
+        return;
+    $.dialog('ajax.php/admin/quick-add/' + type, 201,
+    function(xhr, data) {
+        data = JSON.parse(data);
+        if (data && data.id && data.name) {
+          var id = data.id;
+          if (selected.data('idPrefix'))
+            id = selected.data('idPrefix') + id;
+          $('<option>')
+            .attr('value', id)
+            .text(data.name)
+            .insertBefore($('select[data-quick-add="'+type+'"] option[data-quick-add]'));
+          $select.val(id);
+        }
+    });
+});
 
 // Quick note interface
 $(document).on('click.note', '.quicknote .action.edit-note', function() {

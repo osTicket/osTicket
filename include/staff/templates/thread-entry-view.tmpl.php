@@ -7,7 +7,7 @@
 <?php
 $E = $entry;
 $i = 0;
-$omniscient = $thisstaff->getRole()->hasPerm(ThreadEntry::PERM_EDIT);
+$omniscient = $thisstaff->hasPerm(ThreadEntry::PERM_EDIT);
 do {
     $i++;
     if (!$omniscient

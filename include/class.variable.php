@@ -59,38 +59,48 @@ class VariableReplacer {
 
     function getVar($obj, $var) {
 
-        if(!$obj) return "";
-
-        if (!$var) {
-            if (method_exists($obj, 'asVar'))
-                return call_user_func(array($obj, 'asVar'), $this);
-            elseif (method_exists($obj, '__toString'))
-                return (string) $obj;
-        }
-
-        list($v, $part) = explode('.', $var, 2);
-        if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
-            $rv = call_user_func(array($obj, 'get'.ucfirst($v)));
-            if(!$rv || !is_object($rv))
-                return $rv;
-
-            return $this->getVar($rv, $part);
-        }
-
-        if (is_array($obj) && isset($obj[$v]))
-            return $obj[$v];
-
-        if (!$var || !method_exists($obj, 'getVar'))
+        if (!$obj)
             return "";
 
-        list($tag, $remainder) = explode('.', $var, 2);
-        if(($rv = call_user_func(array($obj, 'getVar'), $tag, $this))===false)
-            return "";
+        // Order or resolving %{... .tag.remainder}
+        // 1. $obj[$tag]
+        // 2. $obj->tag
+        // 3. $obj->getVar(tag)
+        // 4. $obj->getTag()
+        @list($tag, $remainder) = explode('.', $var ?: '', 2);
+        $tag = mb_strtolower($tag);
+        $rv = null;
 
-        if(!is_object($rv))
-            return $rv;
+        if (!is_object($obj)) {
+            if ($tag && is_array($obj) && array_key_exists($tag, $obj))
+                $rv = $obj[$tag];
+            else
+                // Not able to continue the lookup
+                return '';
+        }
+        else {
+            if (!$var) {
+                if (method_exists($obj, 'asVar'))
+                    return call_user_func(array($obj, 'asVar'), $this);
+                elseif (method_exists($obj, '__toString'))
+                    return (string) $obj;
+            }
+            if (method_exists($obj, 'getVar')) {
+                $rv = $obj->getVar($tag, $this);
+            }
+            if (!isset($rv) && property_exists($obj, $tag)) {
+                $rv = $obj->{$tag};
+            }
+            if (!isset($rv) && is_callable(array($obj, 'get'.ucfirst($tag)))) {
+                $rv = call_user_func(array($obj, 'get'.ucfirst($tag)));
+            }
+        }
 
-        return $this->getVar($rv, $remainder);
+        // Recurse with $rv
+        if (is_object($rv) || $remainder)
+            return $this->getVar($rv, $remainder);
+
+        return $rv;
     }
 
     function replaceVars($input) {

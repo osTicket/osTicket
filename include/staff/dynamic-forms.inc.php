@@ -1,9 +1,25 @@
-<div class="pull-left" style="width:700;padding-top:5px;">
+<form action="forms.php" method="POST" name="forms">
+
+<div class="pull-left" style="padding-top:5px;">
  <h2><?php echo __('Custom Forms'); ?></h2>
 </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-<b><a href="forms.php?a=add" class="Icon form-add"><?php
-    echo __('Add New Custom Form'); ?></a></b></div>
+<a href="forms.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
+    echo __('Add New Custom Form'); ?></a>
+
+    <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li class="danger"><a class="confirm" data-name="delete" href="forms.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
+
+</div>
 <div class="clear"></div>
 
 <?php
@@ -18,7 +34,6 @@ $pageNav->setURL('forms.php');
 $showing=$pageNav->showing().' '._N('form','forms',$count);
 ?>
 
-<form action="forms.php" method="POST" name="forms">
 <?php csrf_token(); ?>
 <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
@@ -98,9 +113,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
 if ($count) //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>">
-</p>
+
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">

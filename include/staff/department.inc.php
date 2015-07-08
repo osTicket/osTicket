@@ -8,9 +8,10 @@ if($dept && $_REQUEST['a']!='add') {
     $submit_text=__('Save Changes');
     $info = $dept->getInfo();
     $info['id'] = $dept->getId();
-    $info['groups'] = $dept->getAllowedGroups();
     $qs += array('id' => $dept->getId());
 } else {
+    if (!$dept)
+        $dept = Dept::create();
     $title=__('Add New Department');
     $action='create';
     $submit_text=__('Create Dept');
@@ -35,7 +36,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <li class="active"><a href="#settings">
         <i class="icon-file"></i> <?php echo __('Settings'); ?></a></li>
     <li><a href="#access">
-        <i class="icon-lock"></i> <?php echo __('Access'); ?></a></li>
+      <i class="icon-user"></i> <?php echo __('Access'); ?></a></li>
 </ul>
 <div id="settings" class="tab_content">
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -290,87 +291,69 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     </tbody>
 </table>
 </div>
-<div id="access" class="tab_content" style="display:none">
-   <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th colspan=2>
-                <em><?php echo __('Primary department members have access to this department by default'); ?></em>
-            </th>
-        </tr>
-        <tr>
-            <th width="40%"><?php echo __('Group'); ?></th>
-            <th><?php echo __('Role'); ?></th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        $deptId = $dept ? $dept->getId() : 0;
-        $roles = Role::getRoles();
-        $groups = Group::objects()
-            ->annotate(array(
-                'isenabled'=>new SqlExpr(array(
-                        'flags__hasbit' => Group::FLAG_ENABLED))
-                ))
-            ->order_by('name');
-        foreach ($groups as $group) {
-            $DeptAccess = $group->getDepartmentsAccess();
-            ?>
-         <tr>
-            <td>
-             &nbsp;
-             <label>
-              <?php
-              $ck = ($info['groups'] && in_array($group->getId(), $info['groups'])) ? 'checked="checked"' : '';
-              echo sprintf('%s&nbsp;&nbsp;%s',
-                        sprintf('<input type="checkbox" class="grp-ckb"
-                            name="groups[]" value="%s" %s />',
-                            $group->getId(), $ck),
-                        Format::htmlchars($group->getName()));
-              ?>
-             </label>
-            </td>
-            <td>
-                <?php
-                $_name = 'group'.$group->getId().'_role_id';
-                ?>
-                <select name="<?php echo $_name; ?>">
-                    <option value="0">&mdash; <?php
-                        echo sprintf('%s (%s)',
-                                __('Group Default'),
-                                $group->getRole());
-                        ?>
-                        &mdash;</option>
-                    <?php
-                    foreach ($roles as $rid => $role) {
-                        $sel = '';
-                        if (isset($info[$_name]))
-                            $sel = ($info[$_name] == $rid) ? 'selected="selected"' : '';
-                        elseif ($deptId && isset($DeptAccess[$deptId]))
-                            $sel = ($DeptAccess[$deptId] == $rid) ?  'selected="selected"' : '';
 
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $rid, $sel, $role);
-                    } ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#dept-role"></i>
+<div id="access" class="hidden tab_content">
+  <table class="two-column table" width="100%">
+    <tbody>
+        <tr class="header">
+            <td colspan="2">
+                <?php echo __('Department Members'); ?>
+                <div><small>
+                <?php echo __('Agents who are primary members of this department'); ?>
+                </small></div>
             </td>
-         </tr>
-         <?php
-        } ?>
-    </tbody>
-    <tfoot>
-     <tr>
+        </tr>
+<?php
+$agents = Staff::getStaffMembers();
+foreach ($dept->getMembers() as $member) {
+    unset($agents[$member->getId()]);
+} ?>
+      <tr id="add_extended_access">
         <td colspan="2">
-            <?php echo __('Select');?>:&nbsp;
-            <a id="selectAll" href="#grp-ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
-            <a id="selectNone" href="#grp-ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
-            <a id="selectToggle" href="#grp-ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
+          <i class="icon-plus-sign"></i>
+          <select id="add_access" data-quick-add="staff">
+            <option value="0">&mdash; <?php echo __('Select Agent');?> &mdash;</option>
+            <?php
+            foreach ($agents as $id=>$name) {
+              echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
+            }
+            ?>
+            <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+          </select>
+          <button type="button" class="action-button">
+            <?php echo __('Add'); ?>
+          </button>
         </td>
-     </tr>
-    </tfoot>
-   </table>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr id="member_template" class="hidden">
+        <td>
+          <input type="hidden" data-name="members[]" value="" />
+        </td>
+        <td>
+          <select data-name="member_role" data-quick-add="role">
+            <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
+            <?php
+            foreach (Role::getRoles() as $id=>$name) {
+              echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+            }
+            ?>
+            <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+          </select>
+          <span style="display:inline-block;width:60px"> </span>
+          <label>
+            <input type="checkbox" data-name="member_alerts" value="1" />
+            <?php echo __('Alerts'); ?>
+          </label>
+          <a href="#" class="pull-right drop-membership" title="<?php echo __('Delete');
+            ?>"><i class="icon-trash"></i></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+
 <p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
@@ -378,3 +361,74 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         onclick='window.location.href="?"'>
 </p>
 </form>
+
+<script type="text/javascript">
+var addAccess = function(staffid, name, role, alerts, primary, error) {
+  if (!staffid) return;
+  var copy = $('#member_template').clone();
+
+  copy.find('td:first').append(document.createTextNode(name));
+  if (primary) {
+    copy.find('td:first').append($('<span class="faded">').text(primary));
+    copy.find('td:last').empty();
+  }
+  else {
+    copy.find('[data-name^=member_alerts]')
+      .attr('name', 'member_alerts['+staffid+']')
+      .prop('checked', alerts);
+    copy.find('[data-name^=member_role]')
+      .attr('name', 'member_role['+staffid+']')
+      .val(role || 0);
+    copy.find('[data-name=members\\[\\]]')
+      .attr('name', 'members[]')
+      .val(staffid);
+  }
+  copy.attr('id', '').show().insertBefore($('#add_extended_access'));
+  copy.removeClass('hidden')
+  if (error)
+      $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+};
+
+$('#add_extended_access').find('button').on('click', function() {
+  var selected = $('#add_access').find(':selected');
+  addAccess(selected.val(), selected.text(), 0, true);
+  selected.remove();
+  return false;
+});
+
+$(document).on('click', 'a.drop-membership', function() {
+  var tr = $(this).closest('tr');
+  $('#add_access').append(
+    $('<option>')
+    .attr('value', tr.find('input[name^=members][type=hidden]').val())
+    .text(tr.find('td:first').text())
+  );
+  tr.fadeOut(function() { $(this).remove(); });
+  return false;
+});
+
+<?php
+if ($dept) {
+    $members = $dept->members->all();
+    foreach ($dept->extended as $x) {
+        $members[] = new AnnotatedModel($x->staff, array(
+            'alerts' => $x->isAlertsEnabled(),
+            'role_id' => $x->role_id,
+        ));
+    }
+    usort($members, function($a, $b) { return strcmp($a->getName(), $b->getName()); });
+
+    foreach ($members as $member) {
+        $primary = $member->dept_id == $info['id'];
+        echo sprintf('addAccess(%d, %s, %d, %d, %s, %s);',
+            $member->getId(),
+            JsonDataEncoder::encode((string) $member->getName()),
+            $member->role_id,
+            $member->get('alerts', 0),
+            JsonDataEncoder::encode($primary ? ' — '.__('Primary') : ''),
+            JsonDataEncoder::encode($errors['members'][$member->staff_id])
+        );
+    }
+}
+?>
+</script>

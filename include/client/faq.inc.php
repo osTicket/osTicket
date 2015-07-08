@@ -63,5 +63,3 @@ if ($faq->getHelpTopics()->count()) { ?>
 </div>
 
 </div>
-
-<?php $faq->logView(); ?>

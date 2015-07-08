@@ -1,6 +1,9 @@
 <?php
 require_once INCLUDE_DIR.'class.migrater.php';
 
+// Replaced in v1.10 for STAFF_DEPT_TABLE
+define('GROUP_DEPT_TABLE', TABLE_PREFIX.'group_dept_access');
+
 class MigrateGroupDeptAccess extends MigrationTask {
     var $description = "Migrate department access for groups from v1.6";
 
