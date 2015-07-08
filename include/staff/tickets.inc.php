@@ -290,15 +290,15 @@ $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_i
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
     'attachment_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->filter(array('entries__attachments__inline' => 0))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
     'thread_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
-        ->filter(Q::not(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN)))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+        ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 

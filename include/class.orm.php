@@ -796,11 +796,17 @@ class SqlInterval extends SqlFunction {
 }
 
 class SqlField extends SqlFunction {
-    function __construct($field) {
+    var $level;
+
+    function __construct($field, $level=0) {
         $this->field = $field;
+        $this->level = $level;
     }
 
     function toSql($compiler, $model=false, $alias=false) {
+        $L = $this->level;
+        while ($L--)
+            $compiler = $compiler->getParent();
         list($field) = $compiler->getField($this->field, $model);
         return $field;
     }
@@ -1038,7 +1044,6 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
                 .'multiple objects in the database matched the query. '
                 .sprintf('In fact, there are %d matching objects.', count($list))
             );
-        // TODO: Throw error if more than one result from database
         return $list[0];
     }
 
@@ -1057,10 +1062,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
     function toSql($compiler, $model, $alias) {
         // FIXME: Force root model of the compiler to $model
-        $exec = $this->getQuery(array('compiler' => get_class($compiler)));
+        $exec = $this->getQuery(array('compiler' => get_class($compiler),
+             'parent' => $compiler, 'subquery' => true));
         foreach ($exec->params as $P)
             $compiler->params[] = $P;
-        return "({$exec})".($alias ? " AS {$alias}" : '');
+        return "({$exec->sql})".($alias ? " AS {$alias}" : '');
     }
 
     /**
@@ -1600,6 +1606,12 @@ class SqlCompiler {
     function __construct($options=false) {
         if ($options)
             $this->options = array_merge($this->options, $options);
+        if ($options['subquery'])
+            $this->alias_num += 150;
+    }
+
+    function getParent() {
+        return $this->options['parent'];
     }
 
     /**
@@ -2067,16 +2079,15 @@ class MySqlCompiler extends SqlCompiler {
     /**
      * input
      *
-     * Generate a parameterized input for a database query. Input value is
-     * received by reference to avoid copying.
+     * Generate a parameterized input for a database query.
      *
      * Parameters:
      * $what - (mixed) value to be sent to the database. No escaping is
      *      necessary. Pass a raw value here.
      *
      * Returns:
-     * (string) token to be placed into the compiled SQL statement. For
-     * MySQL, this is always the string '?'.
+     * (string) token to be placed into the compiled SQL statement. This
+     * is a colon followed by a number
      */
     function input($what, $slot=false) {
         if ($what instanceof QuerySet) {
@@ -2426,7 +2437,8 @@ class MySqlExecutor {
     function fixupParams() {
         $self = $this;
         $params = array();
-        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+        $sql = preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
+        function($m) use ($self, &$params) {
             $params[] = $self->params[$m[1]-1];
             return '?';
         }, $this->sql);
@@ -2466,7 +2478,7 @@ class MySqlExecutor {
                 $types .= 's';
             elseif ($p instanceof DateTime) {
                 $types .= 's';
-                $p = $p->format('Y-m-d h:i:s');
+                $p = $p->format('Y-m-d H:i:s');
             }
             elseif (is_object($p)) {
                 $types .= 's';
@@ -2559,8 +2571,12 @@ class MySqlExecutor {
 
     function __toString() {
         $self = $this;
-        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+        return preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
+        function($m) use ($self) {
             $p = $self->params[$m[1]-1];
+            if ($p instanceof DateTime) {
+                $p = $p->format('Y-m-d H:i:s');
+            }
             return db_real_escape($p, is_string($p));
         }, $this->sql);
     }

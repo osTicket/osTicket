@@ -1672,8 +1672,31 @@ time.faq {
     padding-left: 19px;
 }
 
-.advanced-search-field {
+.adv-search-field {
     margin-top: 5px !important;
+}
+
+#advanced-search fieldset {
+  margin-top: 3px;
+  position: relative;
+}
+#advanced-search .adv-search-method:before,
+#advanced-search .adv-search-val:before {
+  content: "";
+  border-left: 2px dotted #ccc;
+  border-bottom: 2px dotted #ccc;
+  border-color: rgba(0,0,0,0.15);
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  position: absolute;
+  left: -16px;
+}
+#advanced-search .adv-search-method {
+  margin-left: 24px;
+}
+#advanced-search .adv-search-val {
+  margin-left: 45px;
 }
 
 .dialog input[type="submit"],
