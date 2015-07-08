@@ -1,0 +1,288 @@
+h1 {
+  color: #ff9016;
+}
+h2 {
+  color: #ff9016;
+}
+h3 {
+  color: #ff9016;
+}
+body {
+  background-color: #c8c8c8;
+}
+a.navbar-left {
+  padding: 5px;
+}
+a.navbar-left img {
+  width: 100%;
+}
+.navbar-toggle {
+  border: solid #222222 1px;
+}
+.navbar-toggle span {
+  border: solid #222222 1px;
+}
+.nav li {
+  white-space: nowrap;
+}
+.nav li a.home:before,
+.nav li a.kb:before,
+.nav li a.new:before,
+.nav li a.status:before,
+.nav li a.tickets:before,
+.nav li a.lock:before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  float: left;
+}
+.nav li a.home:before {
+  background: url('../images/icons/home.png') no-repeat;
+}
+.nav li a.lock:before {
+  background: url('../images/icons/lock.png') no-repeat;
+}
+.nav li a.kb:before {
+  background: url('../images/icons/kb.png') no-repeat;
+}
+.nav li a.new:before {
+  background: url('../images/icons/new.png') no-repeat;
+}
+.nav li a.status:before {
+  background: url('../images/icons/status.png') no-repeat;
+}
+.nav li a.tickets:before {
+  background: url('../images/icons/tix.png') no-repeat;
+}
+.nav .dropdown-menu > li a.home,
+.nav .dropdown-menu > li a.kb,
+.nav .dropdown-menu > li a.new,
+.nav .dropdown-menu > li a.status,
+.nav .dropdown-menu > li a.tickets {
+  padding-right: 40px;
+}
+.nav .flag {
+  display: inline-block;
+  padding: 0;
+  margin-left: 1em;
+}
+.nav .flag p {
+  margin: -4px 0 0 0;
+  padding-left: 2em;
+}
+#footer {
+  text-align: center;
+}
+#footer p {
+  margin: 10px 0 0 0;
+}
+#footer #poweredBy {
+  display: block;
+  width: 126px;
+  height: 23px;
+  outline: none;
+  text-indent: -9999px;
+  margin: 0 auto;
+  background: url('../images/poweredby.png') top left no-repeat;
+  background-size: contain;
+}
+#kb {
+  margin: 2px 0;
+  padding: 5px;
+  overflow: hidden;
+}
+#kb > li {
+  padding: 10px;
+  height: auto !important;
+  overflow: hidden;
+  margin: 0;
+  background: url(../images/kb_category_bg.png) bottom left repeat-x;
+  border-bottom: 1px solid #ddd;
+}
+#kb > li h4 {
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+}
+#kb > li h4 span {
+  color: #666;
+}
+#kb > li h4 a {
+  font-size: 14px;
+}
+#kb li i {
+  display: block;
+  width: 32px;
+  height: 32px;
+  float: left;
+  margin-right: 6px;
+  background: url(../images/kb_large_folder.png) top left no-repeat;
+}
+#kb-search {
+  padding: 10px 0;
+  overflow: hidden;
+}
+#kb-search div {
+  clear: both;
+  overflow: hidden;
+  padding-top: 5px;
+}
+#kb-search #query {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 200px;
+  margin-right: 5px;
+}
+#kb-search #cid {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 200px;
+  margin-right: 5px;
+  position: relative;
+  top: 2px;
+}
+#kb-search #topic-id {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 410px;
+}
+#kb-search #searchSubmit {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  position: relative;
+  top: 2px;
+}
+#kb-search #breadcrumbs {
+  color: #333;
+  margin-bottom: 15px;
+}
+#kb-search #breadcrumbs #breadcrumbs a {
+  color: #555;
+}
+#ticketForm table,
+#clientLogin table {
+  width: 100%;
+}
+#ticketForm input[type=file],
+#clientLogin input[type=file] {
+  border: 0;
+}
+#ticketForm div.captchaRow,
+#clientLogin div.captchaRow {
+  line-height: 31px;
+}
+#ticketForm div.captchaRow input,
+#clientLogin div.captchaRow input {
+  position: relative;
+  top: 6px;
+}
+#ticketForm div textarea,
+#clientLogin div textarea {
+  width: 600px;
+}
+#ticketForm div .captcha,
+#clientLogin div .captcha {
+  width: 88px;
+  height: 31px;
+  background: #000;
+  display: block;
+  float: left;
+  margin-right: 20px;
+}
+#ticketForm div label.inline,
+#clientLogin div label.inline {
+  width: auto;
+  padding: 0 10px;
+}
+#clientLogin {
+  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
+}
+#reply {
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+}
+#reply h2 {
+  margin-bottom: 10px;
+}
+#reply textarea {
+  width: 628px !important;
+}
+#reply input[type=text],
+#reply #response_options textarea {
+  border: 1px solid #aaa;
+  background: #fff;
+}
+#reply .attachments .uploads div {
+  display: inline-block;
+  padding-right: 20px;
+}
+#reply .file {
+  display: inline-block;
+  padding-left: 20px;
+  margin-right: 20px;
+  background: url('../images/icons/file.gif') 0 50% no-repeat;
+}
+.uploads {
+  display: inline-block;
+  padding-right: 20px;
+}
+.uploads label {
+  padding: 3px;
+  padding-right: 10px;
+  width: auto !important;
+}
+/* Ticket icons */
+.Icon {
+  width: auto;
+  padding-left: 20px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  color: #006699;
+  text-decoration: none;
+}
+.Icon.Ticket {
+  background-image: url('../images/icons/ticket.gif');
+}
+.Icon.webTicket {
+  background-image: url('../images/icons/ticket_source_web.gif');
+}
+.Icon.emailTicket {
+  background-image: url('../images/icons/ticket_source_email.gif');
+}
+.Icon.phoneTicket {
+  background-image: url('../images/icons/ticket_source_phone.gif');
+}
+.Icon.otherTicket {
+  background-image: url('../images/icons/ticket_source_other.gif');
+}
+.Icon.attachment {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.file {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.refresh {
+  background-image: url('../images/icons/refresh.gif');
+}
+.Icon.thread {
+  font-weight: bold;
+  font-size: 1em;
+  background-image: url('../images/icons/thread.gif?1319556657');
+}
+.Icon:hover {
+  text-decoration: underline;
+}
+#ticketThread img {
+  max-width: 100%;
+  height: auto;
+}
+#ticketInfo {
+  width: 100%;
+}
+#ticketInfo th {
+  width: 125px;
+}

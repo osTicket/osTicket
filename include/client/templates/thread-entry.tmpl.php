@@ -7,7 +7,8 @@ if ($user && ($url = $user->get_gravatar(48)))
     $avatar = "<img class=\"avatar\" src=\"{$url}\"> ";
 ?>
 
-<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<div class="panel panel-<?php echo ($entry->type == 'M') ? 'info' : 'warning'; ?>">
+    <div class="panel-heading">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M') ? 'pull-left' : 'pull-right'; ?> avatar">
 <?php echo $avatar; ?>
@@ -44,7 +45,7 @@ if ($user && ($url = $user->get_gravatar(48)))
                 </span>
         </div>
 <?php
-            echo sprintf(__('<b>%s</b> posted %s'), $name,
+            echo sprintf(__('&nbsp;<strong>%s</strong> posted %s'), $name,
                 sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
                     date(DateTime::W3C, Misc::db2gmtime($entry->created)),
                     Format::daydatetime($entry->created),
@@ -55,6 +56,8 @@ if ($user && ($url = $user->get_gravatar(48)))
                 echo $entry->title; ?></span>
             </span>
     </div>
+    </div>
+    <div class="panel-body">
     <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
         <div class="clear"></div>
@@ -89,4 +92,5 @@ if ($user && ($url = $user->get_gravatar(48)))
         </script>
 <?php
     } ?>
+</div>
 </div>

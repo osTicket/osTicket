@@ -331,30 +331,9 @@ class UserNav {
 
             $navs = array();
             $user = $this->user;
-            $navs['home']=array('desc'=>__('Support Center Home'),'href'=>'index.php','title'=>'');
             if($cfg && $cfg->isKnowledgebaseEnabled())
                 $navs['kb']=array('desc'=>__('Knowledgebase'),'href'=>'kb/index.php','title'=>'');
 
-            // Show the "Open New Ticket" link unless BOTH client
-            // registration is disabled and client login is required for new
-            // tickets. In such a case, creating a ticket would not be
-            // possible for web clients.
-            if ($cfg->getClientRegistrationMode() != 'disabled'
-                    || !$cfg->isClientLoginRequired())
-                $navs['new']=array('desc'=>__('Open a New Ticket'),'href'=>'open.php','title'=>'');
-            if($user && $user->isValid()) {
-                if(!$user->isGuest()) {
-                    $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets()),
-                                           'href'=>'tickets.php',
-                                            'title'=>__('Show all tickets'));
-                } else {
-                    $navs['tickets']=array('desc'=>__('View Ticket Thread'),
-                                           'href'=>sprintf('tickets.php?id=%d',$user->getTicketId()),
-                                           'title'=>__('View ticket status'));
-                }
-            } else {
-                $navs['status']=array('desc'=>__('Check Ticket Status'),'href'=>'view.php','title'=>'');
-            }
             $this->navs=$navs;
         }
 
