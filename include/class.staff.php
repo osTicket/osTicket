@@ -262,7 +262,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 $url .= ' ' . $key . '="' . $val . '"';
             $url .= ' />';
         }
-        return $url;
+        return ;
     }
 
     function getUserName() {

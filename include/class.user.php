@@ -289,7 +289,7 @@ implements TemplateVariable {
                 $url .= ' ' . $key . '="' . $val . '"';
             $url .= ' />';
         }
-        return $url;
+        return ;
     }
 
     function getFullName() {
