@@ -805,6 +805,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     ));
         // Send alert to collaborators
         if ($alert && $vars['emailcollab']) {
+            $signature = '';
             $this->notifyCollaborators($response,
                 array('signature' => $signature)
             );

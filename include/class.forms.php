@@ -174,13 +174,13 @@ class Form {
         echo $this->getMedia();
     }
 
-    function getLayout() {
+    function getLayout($title=false, $options=array()) {
         $rc = @$options['renderer'] ?: static::$renderer;
         return new $rc($title, $options);
     }
 
     function asTable($options=array()) {
-        return $this->getLayout()->asTable($this);
+        return $this->getLayout(false, $options)->asTable($this);
         // XXX: Media can't go in a table
         echo $this->getMedia();
     }
@@ -386,7 +386,7 @@ implements FormRenderer {
           $attrs = array('colspan' => $size, 'rowspan' => $layout->getHeight(),
               'style' => '"'.$layout->getOption('style').'"');
           if ($offs) { ?>
-              <td colspan="<?php echo $offset; ?>"></td> <?php
+              <td colspan="<?php echo $offs; ?>"></td> <?php
           }
           ?>
           <td class="cell" <?php echo Format::array_implode('=', ' ', array_filter($attrs)); ?>

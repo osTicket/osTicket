@@ -199,7 +199,7 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
-        ), $errors);
+        ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {
             $this->errors['err'] = __('Unable to create admin user (#6)');
