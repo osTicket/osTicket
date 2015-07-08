@@ -4,15 +4,17 @@
     foreach ($form->getFields() as $name=>$f) { ?>
         <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
             ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
+        <div>
+  <?php if ($f->get('label')) { ?>
         <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
         <label for="<?php echo $f->getWidget()->name; ?>">
-  <?php if ($f->get('label')) { ?>
             <?php echo Format::htmlchars($f->get('label')); ?>:
-  <?php } ?>
   <?php if ($f->get('required')) { ?>
             <span class="error">*</span>
   <?php } ?>
         </label>
+        </div>
+  <?php } ?>
         <?php
         if ($f->get('hint')) { ?>
             <em style="color:gray;display:block"><?php

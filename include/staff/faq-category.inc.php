@@ -17,7 +17,7 @@ if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 <?php echo Format::display($category->getDescription()); ?>
 </div>
 <?php
-if ($thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) {
+if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
     echo sprintf('<div class="cat-manage-bar"><a href="categories.php?id=%d" class="Icon editCategory">'.__('Edit Category').'</a>
              <a href="categories.php" class="Icon deleteCategory">'.__('Delete Category').'</a>
              <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">'.__('Add New FAQ').'</a></div>',

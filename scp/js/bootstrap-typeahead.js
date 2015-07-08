@@ -34,6 +34,7 @@
     this.onselect = this.options.onselect
     this.strings = true
     this.shown = false
+    this.deferred = null
     this.listen()
   }
 
@@ -78,6 +79,11 @@
       return this
     }
 
+  , fetch: function() {
+      var value = this.source(this, this.query)
+      if (value) this.process(value)
+    }
+
   , lookup: function (event) {
       var that = this
         , items
@@ -87,8 +93,9 @@
       this.query = this.$element.val();
       /*Check if we have a match on the current source?? */
       if (typeof this.source == "function") {
-        value = this.source(this, this.query)
-        if (value) this.process(value)
+        if (!this.options.delay) return this.fetch()
+        if (this.deferred) clearTimeout(this.deferred)
+        this.deferred = setTimeout(this.fetch.bind(this), this.options.delay)
       } else {
         this.process(this.source)
       }
@@ -337,6 +344,7 @@
   , render: 'info'
   , minLength: 1
   , scroll: false
+  , delay: 200
   }
 
   $.fn.typeahead.Constructor = Typeahead

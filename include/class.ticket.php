@@ -1663,9 +1663,6 @@ implements RestrictedAccess, Threadable {
     function getVar($tag) {
         global $cfg;
 
-        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         switch(mb_strtolower($tag)) {
         case 'phone':
         case 'phone_number':
@@ -1703,7 +1700,6 @@ implements RestrictedAccess, Threadable {
                 // answer is coerced into text
                 return $this->_answers[$tag];
         }
-        return false;
     }
 
     static function getVarScope() {
@@ -2951,7 +2947,7 @@ implements RestrictedAccess, Threadable {
                 }
 
                 $user_form = UserForm::getUserForm()->getForm($vars);
-                $can_create = !$thisstaff || $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
+                $can_create = !$thisstaff || $thisstaff->hasPerm(User::PERM_CREATE);
                 if (!$user_form->isValid($field_filter('user'))
                     || !($user=User::fromVars($user_form->getClean(), $can_create))
                 ) {

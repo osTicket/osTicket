@@ -59,7 +59,7 @@ if($ticket->isOverdue())
        <div class="content">
         <div class="pull-right flush-right">
             <?php
-            if ($role->hasPerm(Email::PERM_BANLIST)
+            if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
@@ -145,7 +145,7 @@ if($ticket->isOverdue())
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
 
-<?php           if ($role->hasPerm(Email::PERM_BANLIST)) {
+<?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
@@ -231,16 +231,26 @@ if($ticket->isOverdue())
                                                 $user->getId(), sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed));
                                     ?>
                                     <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
-<?php   if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+<?php   if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="users.php?id=<?php echo
                                     $user->getId(); ?>"><i class="icon-user
                                     icon-fixed-width"></i> <?php echo __('Manage User'); ?></a></li>
 <?php   } ?>
                                 </ul>
                             </div>
+<?php                   } # end if ($user) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php echo __('Email'); ?>:</th>
+                    <td>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
+                    </td>
+                </tr>
 <?php   if ($user->getOrgId()) { ?>
-                &nbsp; <span style="display:inline-block">
-                    <i class="icon-building"></i>
+                <tr>
+                    <th><?php echo __('Organization'); ?>:</th>
+                    <td><i class="icon-building"></i>
                     <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
                         <a href="tickets.php?<?php echo Http::build_query(array(
                             'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
@@ -248,7 +258,6 @@ if($ticket->isOverdue())
                         data-dropdown="#action-dropdown-org-stats">
                         (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
                         </a>
-                    </span>
                             <div id="action-dropdown-org-stats" class="action-dropdown anchor-right">
                                 <ul>
 <?php   if ($open = $user->getNumOpenOrganizationTickets()) { ?>
@@ -268,30 +277,16 @@ if($ticket->isOverdue())
                                         'a' => 'search', 'orgid' => $user->getOrgId()
                                     )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
 <?php   }
-        if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+        if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i
                                         class="icon-building icon-fixed-width"></i> <?php
                                         echo __('Manage Organization'); ?></a></li>
 <?php   } ?>
                                 </ul>
                             </div>
-<?php   } # end if (user->org)
-                        } # end if ($user)
-                    ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Email'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Phone'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+<?php   } # end if (user->org) ?>
                 <tr>
                     <th><?php echo __('Source'); ?>:</th>
                     <td><?php
@@ -657,8 +652,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
          </tbody>
         </table>
         <p  style="padding:0 165px;">
-            <input class="btn_sm" type="submit" value="<?php echo __('Post Reply');?>">
-            <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+            <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
+            <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php
@@ -740,8 +735,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
         </table>
 
        <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Note');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+           <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
+           <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
     <?php
@@ -770,7 +765,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         echo sprintf('<span class="faded">'.__('Ticket is currently in <b>%s</b> department.').'</span>', $ticket->getDeptName());
                     ?>
                     <br>
-                    <select id="deptId" name="deptId">
+                    <select id="deptId" name="deptId" data-quick-add="department">
                         <option value="0" selected="selected">&mdash; <?php echo __('Select Target Department');?> &mdash;</option>
                         <?php
                         if($depts=Dept::getDepartments()) {
@@ -781,6 +776,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                             }
                         }
                         ?>
+                        <option value="0" data-quick-add>— <?php echo __('Add New'); ?> —</option>
                     </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['deptId']; ?></span>
                 </td>
             </tr>
@@ -799,8 +795,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
         <p style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Transfer');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+           <input class="save pending" type="submit" value="<?php echo __('Transfer');?>">
+           <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php
@@ -899,8 +895,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
         <p  style="padding-left:165px;">
-            <input class="btn_sm" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
-            <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+            <input class="save pending" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
+            <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
     <?php

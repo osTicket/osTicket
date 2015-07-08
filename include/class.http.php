@@ -61,18 +61,20 @@ class Http {
         exit;
     }
 
-    function cacheable($etag, $modified, $ttl=3600) {
+    function cacheable($etag, $modified=false, $ttl=3600) {
         // Thanks, http://stackoverflow.com/a/1583753/1025836
         // Timezone doesn't matter here — but the time needs to be
         // consistent round trip to the browser and back.
-        $last_modified = strtotime($modified." GMT");
-        header("Last-Modified: ".date('D, d M Y H:i:s', $last_modified)." GMT", false);
+        if ($modified) {
+            $last_modified = strtotime($modified." GMT");
+            header("Last-Modified: ".date('D, d M Y H:i:s', $last_modified)." GMT", false);
+        }
         header('ETag: "'.$etag.'"');
         header("Cache-Control: private, max-age=$ttl");
         header('Expires: ' . gmdate('D, d M Y H:i:s', Misc::gmtime() + $ttl)." GMT");
         header('Pragma: private');
-        if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
-            @trim($_SERVER['HTTP_IF_NONE_MATCH'], '" ') == $etag) {
+        if (($modified && @strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified)
+            || @trim($_SERVER['HTTP_IF_NONE_MATCH'], '" ') == $etag) {
                 header("HTTP/1.1 304 Not Modified");
                 exit();
         }

@@ -118,7 +118,7 @@ class StaffNav {
             $this->tabs['dashboard'] = array(
                 'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax"
             );
-            if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) {
+            if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) {
                 $this->tabs['users'] = array(
                     'desc' => __('Users'), 'href' => 'users.php', 'title' => __('User Directory')
                 );
@@ -154,7 +154,7 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
-                        if ($staff->hasPerm(TicketModel::PERM_CREATE))
+                        if ($staff->hasPerm(TicketModel::PERM_CREATE, false))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',
@@ -175,9 +175,9 @@ class StaffNav {
                 case 'kbase':
                     $subnav[]=array('desc'=>__('FAQs'),'href'=>'kb.php', 'urls'=>array('faq.php'), 'iconclass'=>'kb');
                     if($staff) {
-                        if ($staff->getRole()->hasPerm(FAQ::PERM_MANAGE))
+                        if ($staff->hasPerm(FAQ::PERM_MANAGE))
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(CannedModel::PERM_MANAGE))
+                        if ($cfg->isCannedResponseEnabled() && $staff->getRole()->hasPerm(Canned::PERM_MANAGE, false))
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
@@ -273,7 +273,6 @@ class AdminNav extends StaffNav{
                 case 'staff':
                     $subnav[]=array('desc'=>__('Agents'),'href'=>'staff.php','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Teams'),'href'=>'teams.php','iconclass'=>'teams');
-                    $subnav[]=array('desc'=>__('Groups'),'href'=>'groups.php','iconclass'=>'groups');
                     $subnav[]=array('desc'=>__('Roles'),'href'=>'roles.php','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Departments'),'href'=>'departments.php','iconclass'=>'departments');
                     break;

@@ -9,7 +9,7 @@ elseif ($org) {
     $tickets->filter(array('user__org' => $org));
 }
 
-if (!$thisstaff->getRole()->hasPerm(SearchBackend::PERM_EVERYTHING)) {
+if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
     // -- Open and assigned to me
     $visibility = array(
         new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
