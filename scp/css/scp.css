@@ -1681,7 +1681,7 @@ time.faq {
     padding:10px;
 }
 
-.dialog fieldset input {
+.dialog fieldset input:not([type=checkbox]) {
     border:1px solid #ccc;
     background:#fff;
     padding: 3px;
@@ -2640,17 +2640,18 @@ form .inset {
 }
 label.checkbox {
     display: block;
-    padding-left: 1.2rem;
-    text-indent: -1.2rem;
+    padding-left: 1.3em;
+    text-indent: -1.3em;
 }
 input[type=checkbox] {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 1em;
+  height: 1em;
+  box-sizing: content-box;
   padding: 0;
   margin:0;
   vertical-align: bottom;
   position: relative;
-  top: -1px;
+  top: -0.05em;
   *overflow: hidden;
 }
 .vertical-pad {

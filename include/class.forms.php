@@ -362,10 +362,10 @@ implements FormRenderer {
       ob_start();
 ?>
       <table class="<?php echo 'grid form' ?>">
-          <colgroup width="8.333333%"><col span="12"/></colgroup>
           <caption><?php echo Format::htmlchars($form->getTitle()); ?>
                   <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
           </caption>
+          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
