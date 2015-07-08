@@ -756,7 +756,7 @@ $.orgLookup = function (url, cb) {
 $.uid = 1;
 
 // Tabs
-$(document).on('click.tab', 'ul.tabs li a', function(e) {
+$(document).on('click.tab', 'ul.tabs > li > a', function(e) {
     e.preventDefault();
     var $this = $(this),
         $ul = $(this).closest('ul'),
@@ -777,6 +777,7 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
                 // TODO: Add / hide loading spinner
             })
          );
+        $this.removeData('url');
     }
     else {
         $tab.addClass('tab_content');

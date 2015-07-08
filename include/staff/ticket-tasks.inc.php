@@ -133,9 +133,10 @@ if ($count) { ?>
 <script type="text/javascript">
 $(function() {
 
-    $(document).off('click.tasks');
-    $(document).on('click.tasks', 'tbody.tasks a, a#reload-task', function(e) {
+    $(document).off('click.taskv');
+    $(document).on('click.taskv', 'tbody.tasks a, a#reload-task', function(e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
         var $container = $('div#task_content');
         var $stop = $('ul#ticket_tabs').offset().top;
@@ -146,6 +147,7 @@ $(function() {
             $('.tip_box').remove();
             $('div#tasks_content').hide();
             });
+
         return false;
      });
     // Ticket Tasks
@@ -172,7 +174,5 @@ $(function() {
         }, $options);
         return false;
     });
-
-
 });
 </script>
