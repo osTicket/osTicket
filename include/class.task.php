@@ -174,11 +174,11 @@ class TaskModel extends VerySimpleModel {
         return !$this->isOpen();
     }
 
-    function close() {
+    protected function close() {
         return $this->clearFlag(self::ISOPEN);
     }
 
-    function reopen() {
+    protected function reopen() {
         return $this->setFlag(self::ISOPEN);
     }
 
@@ -443,11 +443,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 return false;
 
             $this->reopen();
+            $this->closed = null;
             break;
         case 'closed':
             if ($this->isClosed())
                 return false;
+
             $this->close();
+            $this->closed = SqlFunction::NOW();
             break;
         default:
             return false;
