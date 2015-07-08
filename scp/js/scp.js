@@ -86,9 +86,13 @@ var scp_prep = function() {
 
     $('#actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
-        var formObj = $(this).closest('form'),
+        var formObj,
             name = this.name || $(this).data('name');
-        if($('.dialog#confirm-action p#'+name+'-confirm').length == 0) {
+        if ($(this).data('formId'))
+            formObj = $('#' + $(this).data('formId'));
+        else
+            formObj = $(this).closest('form');
+        if($('.dialog#confirm-action p#'+name+'-confirm').length === 0) {
             alert('Unknown action '+name+' - get technical help.');
         } else if(checkbox_checker(formObj, 1)) {
             var action = name;
