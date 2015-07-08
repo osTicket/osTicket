@@ -5,7 +5,7 @@
 #
 ---
 notes: |
-    Notice sent to collaborators on task activity e.g note or message.
+    Notice sent to collaborators on task activity e.g reply or message.
 
 subject: |
     Re: %{task.title} [#%{task.number}]
@@ -20,9 +20,6 @@ body: |
     <br>
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
-    <em>You're getting this email because you are a collaborator
-    on task <a href="%{recipient.task_link}" style="color: rgb(84, 141, 212);"
-    >#%{task.number}</a>.  To participate, simply reply to this email
-    or <a href="%{recipient.task_link}" style="color: rgb(84, 141, 212);"
-    >click here</a> for a complete archive of the task thread.</em>
+    <em>You're getting this email because you are a collaborator on task
+    #%{task.number}. To participate, simply reply to this email.</em>
     </div>

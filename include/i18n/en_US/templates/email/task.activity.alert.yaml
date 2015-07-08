@@ -13,33 +13,11 @@ notes: |
     or visits the web portal and posts a new message there.
 
 subject: |
-    New Activity Alert
+    Task Activity [#%{task.number}] - %{activity.title}
 body: |
     <h3><strong>Hi %{recipient.name},</strong></h3>
-    New message appended to task <a
-    href="%{ticket.staff_link}">#%{task.number}</a>
+    Task <a href="%{task.staff_link}">#%{task.number}</a> updated: %{activity.description}
     <br>
-    <br>
-    <table>
-    <tbody>
-    <tr>
-        <td>
-             <strong>Title</strong>:
-        </td>
-        <td>
-             %{task.title}
-        </td>
-    </tr>
-    <tr>
-        <td>
-             <strong>Department</strong>:
-        </td>
-        <td>
-             %{task.dept.name}
-        </td>
-    </tr>
-    </tbody>
-    </table>
     <br>
     %{message}
     <br>
