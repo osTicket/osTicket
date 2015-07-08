@@ -25,7 +25,7 @@ if ($settings['status'])
         $status = 'open';
     case 'open':
     case 'closed':
-		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
+		$results_type = ($status == 'closed') ? __('Closed Suggestions') : __('Open Suggestions');
         $tickets->filter(array('status__state' => $status));
         break;
 }
@@ -80,9 +80,9 @@ $pageNav->paginate($tickets);
 $showing =$total ? $pageNav->showing() : "";
 if(!$results_type)
 {
-	$results_type=ucfirst($status).' '.__('Tickets');
+	$results_type=ucfirst($status).' '.__('Suggestions');
 }
-$showing.=($status)?(' '.$results_type):' '.__('All Tickets');
+$showing.=($status)?(' '.$results_type):' '.__('All Suggestions');
 if($search)
     $showing=__('Search Results').": $showing";
 
@@ -104,7 +104,7 @@ $tickets->values(
         <input type="search" class="form-control" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
         <span class="input-group-btn">
         <select name="topic_id" class="nowarn btn" onchange="javascript: this.form.submit(); ">
-            <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+            <option value="">&mdash; <?php echo __('All AI Teams');?> &mdash;</option>
 <?php       foreach (Topic::getHelpTopics(true) as $id=>$name) {
                 $count = $thisclient->getNumTopicTickets($id);
                 if ($count == 0)
@@ -133,7 +133,7 @@ $tickets->values(
         <h2>
             <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
                 ><i class="refresh icon-refresh"></i>
-            <?php echo __('Tickets'); ?>
+            <?php echo __('Suggestions'); ?>
             </a>
         </h2>
     </div>
@@ -144,7 +144,7 @@ $tickets->values(
                     <i class="icon-file-alt"></i>
                     <a class="state <?php if ($status == 'open') echo 'active'; ?>"
                         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-                        <?php echo sprintf('%s (%d)', _P('ticket-status', 'Open'), $thisclient->getNumOpenTickets()); ?>
+                        <?php echo sprintf('%s (%d)', _P('suggestion-status', 'Open'), $thisclient->getNumOpenTickets()); ?>
                     </a>
                     &nbsp;
                     <span style="color:lightgray">|</span>
@@ -164,7 +164,7 @@ $tickets->values(
     <thead>
         <tr>
             <th class="text-nowrap">
-                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
+                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Suggestion ID"><?php echo __('Suggestion #');?></a>
             </th>
             <th class="text-nowrap">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
@@ -173,10 +173,10 @@ $tickets->values(
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
             </th>
             <th>
-                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
+                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Title"><?php echo __('Title');?></a>
             </th>
             <th class="hidden-xs">
-                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
+                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By AI Team"><?php echo __('AI Team');?></a>
             </th>
         </tr>
     </thead>

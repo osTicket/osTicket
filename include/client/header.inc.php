@@ -75,7 +75,7 @@ if ($lang) {
         <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
             hreflang="x-default";
 <?php
-    }
+    } 
     ?>
 </head>
 <body>
@@ -103,8 +103,11 @@ if ($lang) {
                             <li><a href="<?php echo ROOT_PATH; ?>profile.php">
                                 <?php echo __('Profile'); ?>
                             </a></li>
+							<li><a href="<?php echo ROOT_PATH; ?>open.php">
+							<?php echo __('New Suggestion'); ?>
+							</a></li>
                             <li><a href="<?php echo ROOT_PATH; ?>tickets.php">
-                                <?php echo sprintf(__('Tickets <span class="badge">%d</span>'), $thisclient->getNumTickets()); ?>
+                                <?php echo sprintf(__('Suggestions <span class="badge">%d</span>'), $thisclient->getNumTickets()); ?>
                             </a></li>
                             <li><a href="<?php echo $signout_url; ?>">
                                 <?php echo __('Sign Out'); ?>
