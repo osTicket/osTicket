@@ -13,8 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "../../cli.inc.php";
 
 class Exporter extends Module {
     var $prologue =

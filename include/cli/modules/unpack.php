@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__file__) . "/class.module.php";
-
 class Unpacker extends Module {
 
     var $prologue = "Unpacks osTicket into target install path";

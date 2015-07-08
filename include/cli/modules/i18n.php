@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "/../cli.inc.php";
 require_once INCLUDE_DIR . 'class.format.php';
 
 class i18n_Compiler extends Module {
