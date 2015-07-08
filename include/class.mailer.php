@@ -239,7 +239,7 @@ class Mailer {
             // Add personal name if available
             if (is_callable(array($to, 'getName'))) {
                 $to = sprintf('"%s" <%s>',
-                    $to->getName()->getOriginal(), $to->getEmail()
+                    "=?UTF-8?B?".base64_encode($to->getName()->getOriginal())."?=", $to->getEmail()
                 );
             }
             else {
