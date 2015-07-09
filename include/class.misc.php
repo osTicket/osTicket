@@ -99,7 +99,8 @@ class Misc {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
         }
         // UTC to db time
-        return $time + $dbtz->getOffset($time);
+        $D = DateTime::createFromFormat('U', $time);
+        return $time + $dbtz->getOffset($D);
     }
 
     /*Helper get GM time based on timezone offset*/

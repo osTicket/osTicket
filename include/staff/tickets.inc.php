@@ -38,7 +38,7 @@ $_SESSION['::Q'] = $queue_name;
 switch ($queue_name) {
 case 'closed':
     $status='closed';
-    $results_type=__('Closed Suggestions');
+    $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
     $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
     $queue_sort_options = array('closed', 'priority,due', 'due',
@@ -46,7 +46,7 @@ case 'closed':
     break;
 case 'overdue':
     $status='open';
-    $results_type=__('Overdue Suggestions');
+    $results_type=__('Overdue Tickets');
     $tickets->filter(array('isoverdue'=>1));
     $queue_sort_options = array('priority,due', 'due', 'priority,updated',
         'updated', 'answered', 'priority,created', 'number', 'hot');
@@ -54,7 +54,7 @@ case 'overdue':
 case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
-    $results_type=__('My Suggestions');
+    $results_type=__('My Tickets');
     $tickets->filter(array('staff_id'=>$thisstaff->getId()));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
@@ -63,7 +63,7 @@ case 'assigned':
 case 'answered':
     $status='open';
     $showanswered=true;
-    $results_type=__('Answered Suggestions');
+    $results_type=__('Answered Tickets');
     $tickets->filter(array('isanswered'=>1));
     $queue_sort_options = array('answered', 'priority,updated', 'updated',
         'priority,created', 'priority,due', 'due', 'number', 'hot');
@@ -145,7 +145,7 @@ case 'search':
     // Fall-through and show open tickets
 case 'open':
     $status='open';
-    $results_type=__('Open Suggestions');
+    $results_type=__('Open Tickets');
     $showassigned = ($cfg && $cfg->showAssignedTickets()) || $thisstaff->showAssignedTickets();
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
@@ -290,15 +290,15 @@ $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_i
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
     'attachment_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->filter(array('entries__attachments__inline' => 0))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
     'thread_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
-        ->filter(Q::not(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN)))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+        ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
@@ -397,7 +397,7 @@ return false;">
                 <?php echo __('Ticket'); ?></th>
 	        <th width="100">
                 <?php echo $date_header ?: __('Date Created'); ?></th>
-	        <th width="340">
+	        <th width="280">
                 <?php echo __('Subject'); ?></th>
             <th width="170">
                 <?php echo __('From');?></th>
@@ -483,9 +483,9 @@ return false;">
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    style="max-width: 340px;"
+                    style="max-width: 210px;"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span
-                    ><!--class="truncate"--><?php echo $subject; ?></span></a>
+                    class="truncate"><?php echo $subject; ?></span></a>
 <?php               if ($T['attachment_count'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
                             .$T['attachment_count'].'"></i>';
