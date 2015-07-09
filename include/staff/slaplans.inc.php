@@ -39,13 +39,33 @@ $pageNav->setURL('slas.php', $qs);
 $showing = $pageNav->showing().' '._N('SLA plan', 'SLA plans', $count);
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 ?>
-<div class="pull-left" style="width:700px;padding-top:5px;">
+<form action="slas.php" method="POST" name="slas">
+
+<div class="pull-left" style="padding-top:5px;">
  <h2><?php echo __('Service Level Agreements');?></h2>
 </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
- <b><a href="slas.php?a=add" class="Icon newsla"><?php echo __('Add New SLA Plan');?></a></b></div>
+    <a href="slas.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New SLA Plan');?></a>
+
+    <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li><a class="confirm" data-name="enable" href="slas.php?a=enable">
+            <i class="icon-ok-sign icon-fixed-width"></i>
+            <?php echo __('Enable'); ?></a></li>
+          <li><a class="confirm" data-name="disable" href="slas.php?a=disable">
+            <i class="icon-ban-circle icon-fixed-width"></i>
+            <?php echo __('Disable'); ?></a></li>
+          <li class="danger"><a class="confirm" data-name="delete" href="slas.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
+</div>
 <div class="clear"></div>
-<form action="slas.php" method="POST" name="slas">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
@@ -119,11 +139,7 @@ $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 if ($count): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
-    <input class="button" type="submit" name="disable" value="<?php echo __('Disable');?>" >
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>" >
-</p>
+
 <?php
 endif;
 ?>

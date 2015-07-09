@@ -14,10 +14,6 @@
 ALTER TABLE `%TABLE_PREFIX%attachment`
     ADD `lang` varchar(16) AFTER `inline`;
 
-ALTER TABLE `%TABLE_PREFIX%faq`
-    ADD `views` int(10) unsigned NOT NULL default '0' AFTER `notes`,
-    ADD `score` int(10) NOT NULL default '0' AFTER `views`;
-
 ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `lang` varchar(16) DEFAULT NULL AFTER `signature`,
     ADD `timezone` varchar(64) default NULL AFTER `lang`,

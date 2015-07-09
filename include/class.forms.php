@@ -362,10 +362,10 @@ implements FormRenderer {
       ob_start();
 ?>
       <table class="<?php echo 'grid form' ?>">
-          <colgroup width="8.333333%"><col span="12"/></colgroup>
           <caption><?php echo Format::htmlchars($form->getTitle()); ?>
                   <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
           </caption>
+          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
@@ -625,8 +625,9 @@ class FormField {
         # Validates a user-input into an instance of this field on a dynamic
         # form
         if ($this->get('required') && !$value && $this->hasData())
-            $this->_errors[] = sprintf(__('%s is a required field'),
-                $this->getLabel());
+            $this->_errors[] = $this->getLabel()
+                ? sprintf(__('%s is a required field'), $this->getLabel())
+                : __('This is a required field');
 
         # Perform declared validators for the field
         if ($vs = $this->get('validators')) {
@@ -840,9 +841,9 @@ class FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>     __('does not have a value'),
+            'nset' =>       __('does not have a value'),
             'equal' =>      __('is'),
-            'equal.not' =>  __('is not'),
+            'nequal' =>     __('is not'),
             'contains' =>   __('contains'),
             'match' =>      __('matches'),
         );
@@ -851,9 +852,9 @@ class FormField {
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'notset' => null,
+            'nset' => null,
             'equal' => array('TextboxField', array()),
-            'equal.not' => array('TextboxField', array()),
+            'nequal' => array('TextboxField', array()),
             'contains' => array('TextboxField', array()),
             'match' => array('TextboxField', array(
                 'placeholder' => __('Valid regular expression'),
@@ -875,13 +876,13 @@ class FormField {
         $Q = new Q();
         $name = $name ?: $this->get('name');
         switch ($method) {
-            case 'notset':
+            case 'nset':
                 $Q->negate();
             case 'set':
                 $criteria[$name . '__isnull'] = false;
                 break;
 
-            case 'equal.not':
+            case 'nequal':
                 $Q->negate();
             case 'equal':
                 $criteria[$name . '__eq'] = $value;
@@ -906,6 +907,28 @@ class FormField {
             return new $class($info[1]);
         }
         return $info;
+    }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'set':
+            return __('%s has a value');
+        case 'nset':
+            return __('%s does not have a value');
+        case 'equal':
+            return __('%s is %s' /* describes an equality */);
+        case 'nequal':
+            return __('%s is not %s' /* describes an inequality */);
+        case 'contains':
+            return __('%s contains "%s"');
+        case 'match':
+            return __('%s matches pattern %s');
+        }
+    }
+    function describeSearch($method, $value, $name=false) {
+        $desc = $this->describeSearchMethod($method);
+        $value = $this->toString($value);
+        return sprintf($desc, $name, $value);
     }
 
     function getLabel() { return $this->get('label'); }
@@ -1414,14 +1437,14 @@ class BooleanField extends FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('checked'),
-            'set.not' =>    __('unchecked'),
+            'nset' =>    __('unchecked'),
         );
     }
 
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'set.not' => null,
+            'nset' => null,
         );
     }
 
@@ -1430,7 +1453,7 @@ class BooleanField extends FormField {
         switch ($method) {
         case 'set':
             return new Q(array($name => '1'));
-        case 'set.not':
+        case 'nset':
             return new Q(array($name => '0'));
         default:
             return parent::getSearchQ($method, $value, $name);
@@ -1612,7 +1635,7 @@ class ChoiceField extends FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>     __('does not have a value'),
+            'nset' =>     __('does not have a value'),
             'includes' =>   __('includes'),
             '!includes' =>  __('does not include'),
         );
@@ -1621,7 +1644,7 @@ class ChoiceField extends FormField {
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'notset' => null,
+            'nset' => null,
             'includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
@@ -1642,6 +1665,17 @@ class ChoiceField extends FormField {
             return new Q(array("{$name}__in" => array_keys($value)));
         default:
             return parent::getSearchQ($method, $value, $name);
+        }
+    }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'includes':
+            return __('%s includes %s' /* includes -> if a list includes a selection */);
+        case 'includes':
+            return __('%s does not include %s' /* includes -> if a list includes a selection */);
+        default:
+            return parent::describeSearchMethod($method);
         }
     }
 }
@@ -1725,12 +1759,13 @@ class DatetimeField extends FormField {
             $this->_errors[] = __('Enter a valid date');
     }
 
+    // SearchableField interface ------------------------------
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>     __('does not have a value'),
+            'nset' =>       __('does not have a value'),
             'equal' =>      __('on'),
-            'notequal' =>   __('not on'),
+            'nequal' =>     __('not on'),
             'before' =>     __('before'),
             'after' =>      __('after'),
             'between' =>    __('between'),
@@ -1744,11 +1779,11 @@ class DatetimeField extends FormField {
         $config_notime['time'] = false;
         return array(
             'set' => null,
-            'notset' => null,
+            'nset' => null,
             'equal' => array('DatetimeField', array(
                 'configuration' => $config_notime,
             )),
-            'notequal' => array('DatetimeField', array(
+            'nequal' => array('DatetimeField', array(
                 'configuration' => $config_notime,
             )),
             'before' => array('DatetimeField', array(
@@ -1791,7 +1826,24 @@ class DatetimeField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        $value = is_int($value)
+            ? DateTime::createFromFormat('U', Misc::dbtime($value)) ?: $value
+            : $value;
         switch ($method) {
+        case 'equal':
+            $l = clone $value;
+            $r = $value->add(new DateInterval('P1D'));
+            return new Q(array(
+                "{$name}__gte" => $l,
+                "{$name}__lt" => $r
+            ));
+        case 'nequal':
+            $l = clone $value;
+            $r = $value->add(new DateInterval('P1D'));
+            return Q::any(array(
+                "{$name}__lt" => $l,
+                "{$name}__gte" => $r,
+            ));
         case 'after':
             return new Q(array("{$name}__gte" => $value));
         case 'before':
@@ -1814,6 +1866,33 @@ class DatetimeField extends FormField {
         default:
             return parent::getSearchQ($method, $value, $name);
         }
+    }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'before':
+            return __('%1$s before %2$s' /* occurs before a date and time */);
+        case 'after':
+            return __('%1$s after %2$s' /* occurs after a date and time */);
+        case 'ndays':
+            return __('%1$s in the next %2$s' /* occurs within a window (like 3 days) */);
+        case 'ndaysago':
+            return __('%1$s in the last %2$s' /* occurs within a recent window (like 3 days) */);
+        case 'between':
+            return __('%1$s between %2$s and %3$s');
+        default:
+            return parent::describeSearchMethod($method);
+        }
+    }
+
+    function describeSearch($method, $value, $name=false) {
+        if ($method === 'between') {
+            $l = $this->toString($value['left']);
+            $r = $this->toString($value['right']);
+            $desc = $this->describeSearchMethod($method);
+            return sprintf($desc, $name, $l, $r);
+        }
+        return parent::describeSearch($method, $value, $name);
     }
 }
 
@@ -3219,16 +3298,15 @@ class CheckboxWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         ?>
         <div <?php echo implode(' ', array_filter(array($classes))); ?>>
-        <label>
+        <label class="checkbox">
         <input id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
         <?php
-        if ($config['desc']) { ?>
-            <em style="display:inline-block;vertical-align:baseline;width:90%;width:calc(100% - 25px);"><?php
-            echo Format::viewableImages($config['desc']); ?></em>
-        <?php } ?>
+        if ($config['desc']) {
+            echo Format::viewableImages($config['desc']);
+        } ?>
         </label>
         </div>
 <?php

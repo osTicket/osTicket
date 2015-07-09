@@ -43,7 +43,7 @@ And deploy the code into somewhere in your server's www root folder, for
 instance
 
     cd osTicket-1.8
-    php setup/cli/manage.php deploy --setup /var/www/htdocs/osticket/
+    php manage.php deploy --setup /var/www/htdocs/osticket/
 
 Then you can configure your server if necessary to serve that folder, and
 visit the page and install osTicket as usual. Go ahead and even delete
@@ -52,7 +52,7 @@ later, you can fetch updates and deploy them (from the folder where you
 cloned the git repo into)
 
     git pull
-    php setup/cli/manage.php deploy -v /var/www/htdocs/osticket/
+    php manage.php deploy -v /var/www/htdocs/osticket/
 
 Upgrading
 ---------

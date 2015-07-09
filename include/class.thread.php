@@ -2361,7 +2361,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['staffId'] = 0;
 
-        return MessageThreadEntry::create($vars, $errors);
+        if (!($message = MessageThreadEntry::create($vars, $errors)))
+            return $message;
+
+        $this->lastmessage = SqlFunction::NOW();
+        $this->save();
+        return $message;
     }
 
     function addResponse($vars, &$errors) {
@@ -2369,7 +2374,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
 
-        return ResponseThreadEntry::create($vars, $errors);
+        if (!($resp = ResponseThreadEntry::create($vars, $errors)))
+            return $resp;
+
+        $this->lastresponse = SqlFunction::NOW();
+        $this->save();
+        return $resp;
     }
 
     function getVar($name) {

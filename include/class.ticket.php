@@ -143,7 +143,7 @@ class TicketModel extends VerySimpleModel {
 
     function getEffectiveDate() {
          return Format::datetime(max(
-             strtotime($this->lastmessage),
+             strtotime($this->thread->lastmessage),
              strtotime($this->closed),
              strtotime($this->reopened),
              strtotime($this->created)
@@ -683,7 +683,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastMessageDate() {
-        return $this->lastmessage;
+        return $this->thread->lastmessage;
     }
 
     function getLastMsgDate() {
@@ -691,7 +691,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastResponseDate() {
-        return $this->lastresponse;
+        return $this->thread->lastresponse;
     }
 
     function getLastRespDate() {
@@ -1283,7 +1283,6 @@ implements RestrictedAccess, Threadable {
 
     function onResponse($response, $options=array()) {
         $this->isanswered = 1;
-        $this->lastresponse = SqlFunction::NOW();
         $this->save();
 
         $vars = array_merge($options,
@@ -2089,9 +2088,6 @@ implements RestrictedAccess, Threadable {
                 $this->logEvent('collab', array('add' => $collabs), $message->user);
             }
         }
-
-        // Set the last message time here
-        $this->lastmessage = SqlFunction::NOW();
 
         if (!$alerts)
             return $message; //Our work is done...

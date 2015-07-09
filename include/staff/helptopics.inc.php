@@ -11,13 +11,39 @@ $showing = $pageNav->showing().' '._N('help topic', 'help topics', $count);
 $order_by = ($cfg->getTopicSortMode() == 'm') ? 'sort' : 'topic';
 
 ?>
-<div class="pull-left" style="width:700px;padding-top:5px;">
+<form action="helptopics.php" method="POST" name="topics">
+
+<div class="pull-left" style="padding-top:5px;">
  <h2><?php echo __('Help Topics');?></h2>
  </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <b><a href="helptopics.php?a=add" class="Icon newHelpTopic"><?php echo __('Add New Help Topic');?></a></b></div>
+    <?php if ($cfg->getTopicSortMode() != 'a') { ?>
+        <input class="button no-confirm" type="submit" name="sort" value="Save"/>
+    <?php } ?>
+    <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
+
+    <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li><a class="confirm" data-name="enable" href="helptopics.php?a=enable">
+            <i class="icon-ok-sign icon-fixed-width"></i>
+            <?php echo __('Enable'); ?></a></li>
+          <li><a class="confirm" data-name="disable" href="helptopics.php?a=disable">
+            <i class="icon-ban-circle icon-fixed-width"></i>
+            <?php echo __('Disable'); ?></a></li>
+          <li class="danger"><a class="confirm" data-name="delete" href="helptopics.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
+
+
+
+</div>
 <div class="clear"></div>
-<form action="helptopics.php" method="POST" name="topics">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
@@ -126,14 +152,7 @@ $order_by = ($cfg->getTopicSortMode() == 'm') ? 'sort' : 'topic';
 if ($count): //Show options..
      echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-<?php if ($cfg->getTopicSortMode() != 'a') { ?>
-    <input class="button no-confirm" type="submit" name="sort" value="Save"/>
-<?php } ?>
-    <button class="button" type="submit" name="enable" value="Enable" ><?php echo __('Enable'); ?></button>
-    <button class="button" type="submit" name="disable" value="Disable"><?php echo __('Disable'); ?></button>
-    <button class="button" type="submit" name="delete" value="Delete"><?php echo __('Delete'); ?></button>
-</p>
+
 <?php
 endif;
 ?>

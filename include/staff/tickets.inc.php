@@ -237,10 +237,10 @@ case 'closed':
 
 case 'answered':
     $date_header = __('Last Response');
-    $date_col = 'lastresponse';
+    $date_col = 'thread__lastresponse';
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-    $tickets->order_by('-lastresponse');
-    $tickets->values('lastresponse');
+    $tickets->order_by('-thread__lastresponse');
+    $tickets->values('thread__lastresponse');
     break;
 
 case 'hot':
@@ -290,15 +290,15 @@ $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_i
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
     'attachment_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
         ->filter(array('entries__attachments__inline' => 0))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
     'thread_count' => TicketThread::objects()
-        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id')))
-        ->filter(Q::not(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN)))
+        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+        ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
@@ -341,12 +341,14 @@ $selected = $mode == $_SESSION[$queue_sort_key]; ?>
   });
 return false;">
     <input type="hidden" name="a" value="search">
-    <input type="text" id="basic-ticket-search" name="query"
+    <input type="hidden" name="search-type" value=""/>
+    <div class="attached input">
+      <input type="text" id="basic-ticket-search" name="query"
         autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
         autocomplete="off" autocorrect="off" autocapitalize="off">
-    <input type="hidden" name="search-type" value=""/>
-    <button type="submit" class="attached button"><i class="icon-search"></i>
+      <button type="submit" class="attached button"><i class="icon-search"></i>
       </button>
+    </div>
     <a href="#" onclick="javascript:
         $.dialog('ajax.php/tickets/search', 201);"
         >[<?php echo __('advanced'); ?>]</a>
