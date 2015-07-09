@@ -150,7 +150,7 @@ $_SESSION[':Q:tasks'] = $tasks;
 // Mass actions
 $actions = array();
 
-if ($thisstaff->hasPerm(Task::PERM_ASSIGN)) {
+if ($thisstaff->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
@@ -158,7 +158,7 @@ if ($thisstaff->hasPerm(Task::PERM_ASSIGN)) {
             ));
 }
 
-if ($thisstaff->hasPerm(Task::PERM_TRANSFER)) {
+if ($thisstaff->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
@@ -166,7 +166,7 @@ if ($thisstaff->hasPerm(Task::PERM_TRANSFER)) {
             ));
 }
 
-if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
+if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
                 'icon' => 'icon-trash',
@@ -396,7 +396,7 @@ $(function() {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $options = $(this).data('dialog');
+        var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
             if ($redirect)

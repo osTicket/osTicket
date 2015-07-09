@@ -129,7 +129,7 @@ if ($task->isOverdue())
                             echo $action['class'] ?: 'task-action'; ?>"
                             <?php
                             if ($action['dialog'])
-                                echo sprintf("data-dialog='%s'", $action['dialog']);
+                                echo sprintf("data-dialog-config='%s'", $action['dialog']);
                             if ($action['redirect'])
                                 echo sprintf("data-redirect='%s'", $action['redirect']);
                             ?>
@@ -149,7 +149,7 @@ if ($task->isOverdue())
                     echo $action['class'] ?: 'task-action'; ?>"
                     <?php
                     if ($action['dialog'])
-                        echo sprintf("data-dialog='%s'", $action['dialog']);
+                        echo sprintf("data-dialog-config='%s'", $action['dialog']);
                     ?>
                     href="<?php echo $action['href']; ?>"><i
                     class="<?php
@@ -486,7 +486,7 @@ $(function() {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $options = $(this).data('dialog');
+        var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
             if ($redirect)

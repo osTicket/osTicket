@@ -179,8 +179,8 @@ class Form {
         return new $rc($title, $options);
     }
 
-    function asTable($options=array()) {
-        return $this->getLayout(false, $options)->asTable($this);
+    function asTable($title=false, $options=array()) {
+        return $this->getLayout($title, $options)->asTable($this);
         // XXX: Media can't go in a table
         echo $this->getMedia();
     }
@@ -347,6 +347,14 @@ interface FormRenderer {
 abstract class FormLayout {
     static $default_cell_layout = 'Cell';
 
+    var $title;
+    var $options;
+
+    function __construct($title=false, $options=array()) {
+        $this->title = $title;
+        $this->options = $options;
+    }
+
     function getLayout($field) {
         $layout = $field->get('layout') ?: static::$default_cell_layout;
         if (is_string($layout))
@@ -362,7 +370,8 @@ implements FormRenderer {
       ob_start();
 ?>
       <table class="<?php echo 'grid form' ?>">
-          <caption><?php echo Format::htmlchars($form->getTitle()); ?>
+          <colgroup width="8.333333%"><col span="12"/></colgroup>
+          <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
                   <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
           </caption>
           <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
@@ -1969,6 +1978,14 @@ class ThreadEntryField extends FormField {
         $config = $this->getConfiguration();
         return $config['attachments'];
     }
+
+    function getWidget($widgetClass=false) {
+        if ($hint = $this->get('hint'))
+            $this->set('placeholder', $hint);
+        $this->set('hint', null);
+        $widget = parent::getWidget($widgetClass);
+        return $widget;
+    }
 }
 
 class PriorityField extends ChoiceField {
@@ -3347,7 +3364,7 @@ class DatetimePickerWidget extends Widget {
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
-            id="<?php echo $this->id; ?>"
+            id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
             value="<?php echo Format::htmlchars($this->value); ?>" size="12"
             autocomplete="off" class="dp" />
         <script type="text/javascript">
@@ -3374,6 +3391,8 @@ class DatetimePickerWidget extends Widget {
             // TODO: Add time picker -- requires time picker or selection with
             //       Misc::timeDropdown
             echo '&nbsp;' . Misc::timeDropdown($hr, $min, $this->name . ':time');
+
+        echo '</div>';
     }
 
     /**
@@ -3429,11 +3448,8 @@ class ThreadEntryWidget extends Widget {
 
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
-        <span class="required"><?php
-            echo Format::htmlchars($this->field->getLocal('label'));
-        ?>: <span class="error">*</span></span><br/>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
-            placeholder="<?php echo Format::htmlchars($this->field->get('hint')); ?>"
+            placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo

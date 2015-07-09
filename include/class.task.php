@@ -1287,12 +1287,14 @@ class TaskForm extends DynamicForm {
                     'label' => __('Department'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
+                    'layout' => new GridFluidCell(6),
                     )),
                 'staff_id' => new AssigneeField(array(
                     'id'=>2,
                     'label' => __('Assignee'),
                     'flags' => hexdec(0X450F3),
                     'required' => false,
+                    'layout' => new GridFluidCell(6),
                     )),
                 'duedate'  =>  new DatetimeField(array(
                     'id' => 3,

@@ -23,41 +23,15 @@ if ($info['error']) {
 } ?>
 <div id="new-task-form" style="display:block;">
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#tasks/add'; ?>">
-    <table width="100%" class="fixed">
     <?php
         $form = $form ?: TaskForm::getInstance();
-        $form->render(true,
-                __('Create New Task'),
+        echo $form->getForm()->asTable(__('Create New Task'),
                 array('draft-namespace' => $namespace)
                 );
-    ?>
-        <tr><th colspan=2><em><?php
-             echo __('Task Visibility & Assignment'); ?></em></th></tr>
-    <?php
+
         $iform = $iform ?: TaskForm::getInternalForm();
-        foreach ($iform->getFields()  as $name=>$field) { ?>
-        <tr>
-            <td class="multi-line <?php if ($field->get('required')) echo 'required';
-            ?>" style="min-width:120px;" >
-            <?php echo Format::htmlchars($field->get('label')); ?>:</td>
-            <td>
-            <fieldset id="field<?php echo $field->getWidget()->id;
-                ?>" <?php if (!$field->isVisible()) echo 'style="display:none;"'; ?>>
-                <?php echo $field->render(); ?>
-                <?php if ($field->get('required')) { ?>
-                <span class="error">*</span>
-                <?php
-                }
-                foreach ($field->errors() as $E) {
-                    ?><div class="error"><?php echo $E; ?></div><?php
-                } ?>
-            </fieldset>
-          </td>
-        </tr>
-        <?php
-        }
-       ?>
-    </table>
+        echo $iform->asTable(__("Task Visibility & Assignment"));
+?>
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">

@@ -102,7 +102,7 @@ if ($actions) {
                 <a class="no-pjax tasks-action"
                     <?php
                     if ($action['dialog'])
-                        echo sprintf("data-dialog='%s'", $action['dialog']);
+                        echo sprintf("data-dialog-config='%s'", $action['dialog']);
                     if ($action['redirect'])
                         echo sprintf("data-redirect='%s'", $action['redirect']);
                     ?>

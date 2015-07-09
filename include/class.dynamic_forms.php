@@ -616,8 +616,8 @@ class DynamicFormField extends VerySimpleModel {
     const FLAG_MASK_VIEW        = 0x20000;
     const FLAG_MASK_NAME        = 0x40000;
 
-    const MASK_MASK_INTERNAL    = 0x400B0;  # !change, !delete, !disable, !edit-name
-    const MASK_MASK_ALL         = 0x700F0;
+    const MASK_MASK_INTERNAL    = 0x400B2;  # !change, !delete, !disable, !edit-name
+    const MASK_MASK_ALL         = 0x700F2;
 
     const FLAG_CLIENT_VIEW      = 0x00100;
     const FLAG_CLIENT_EDIT      = 0x00200;
@@ -1056,8 +1056,6 @@ class DynamicFormEntry extends VerySimpleModel {
             // even when stored elsewhere -- important during validation
             foreach ($this->getDynamicFields() as $f) {
                 $f = $f->getImpl($f);
-                if ($f instanceof ThreadEntryField)
-                    continue;
                 $this->_fields[$f->get('id')] = $f;
                 $f->isnew = true;
             }

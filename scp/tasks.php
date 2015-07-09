@@ -172,14 +172,14 @@ if (isset($_SESSION['advsearch:tasks'])) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
-if ($thisstaff->hasPerm(TaskModel::PERM_CREATE)) {
+if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
                            'href'=>'#tasks/add',
                            'iconclass'=>'newTicket task-action',
                            'id' => 'new-task',
                            'attr' => array(
-                               'data-dialog' => '{"size":"large"}'
+                               'data-dialog-config' => '{"size":"large"}'
                                )
                            ),
                         ($_REQUEST['a']=='open'));
@@ -206,7 +206,7 @@ if($task) {
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Task::PERM_CREATE))
+            $thisstaff->hasPerm(Task::PERM_CREATE, false))
         $inc = 'task-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
