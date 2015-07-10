@@ -86,9 +86,16 @@ class TasksAjaxAPI extends AjaxController {
         $forms = DynamicFormEntry::forObject($task->getId(),
                 ObjectModel::OBJECT_TYPE_TASK);
 
-        if ($_POST) {
+        if ($_POST && $forms) {
+            // TODO: Validate internal form
+
+            // Validate dynamic meta-data
+            if ($task->update($forms, $_POST, $errors)) {
+                Http::response(201, 'Task updated successfully');
+            } elseif(!$errors['err']) {
+                $errors['err']=__('Unable to update the task. Correct the errors below and try again!');
+            }
             $info = Format::htmlchars($_POST);
-            $info['error'] = $errors['err'] ?: __('Coming soon!');
         }
 
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';

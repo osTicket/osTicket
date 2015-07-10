@@ -1061,6 +1061,51 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         }
     }
 
+    function update($forms, $vars, &$errors) {
+        global $thisstaff;
+
+
+        if (!$forms || !$this->checkStaffPerm($thisstaff, Task::PERM_EDIT))
+            return false;
+
+
+        foreach ($forms as $form) {
+            $form->setSource($vars);
+            if (!$form->isValid(function($f) {
+                return $f->isVisibleToStaff() && $f->isEditableToStaff();
+            }, array('mode'=>'edit'))) {
+                $errors = array_merge($errors, $form->errors());
+            }
+        }
+
+        if ($errors)
+            return false;
+
+        // Update dynamic meta-data
+        $changes = array();
+        foreach ($forms as $f) {
+            $changes += $f->getChanges();
+            $f->save();
+        }
+
+
+        if ($vars['note']) {
+            $_errors = array();
+            $this->postNote(array(
+                        'note' => $vars['note'],
+                        'title' => __('Task Update'),
+                        ),
+                    $_errors,
+                    $thisstaff);
+        }
+
+        if ($changes)
+            $this->logEvent('edited', array('fields' => $changes));
+
+        Signal::send('model.updated', $this);
+        return $this->save();
+    }
+
     /* static routines */
     static function lookupIdByNumber($number) {
         $sql = 'SELECT id FROM '.TASK_TABLE

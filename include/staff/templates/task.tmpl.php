@@ -25,7 +25,7 @@ if ($info['error']) {
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#tasks/add'; ?>">
     <?php
         $form = $form ?: TaskForm::getInstance();
-        echo $form->getForm()->asTable(__('Create New Task'),
+        echo $form->getForm()->asTable(' ',
                 array('draft-namespace' => $namespace)
                 );
 

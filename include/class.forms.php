@@ -399,6 +399,10 @@ implements FormRenderer {
 <?php
       $row_size = 12;
       $cols = $row = 0;
+
+      //Layout and rendering options
+      $options = $this->options;
+
       foreach ($form->getFields() as $f) {
           $layout = $this->getLayout($f);
           $size = $layout->getWidth() ?: 12;
@@ -428,6 +432,10 @@ implements FormRenderer {
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
                   for="<?php echo $f->getWidget()->id; ?>">
                   <?php echo Format::htmlchars($label); ?>:
+                <?php if ($f->isRequired()) { ?>
+                <span class="error">*</span>
+                <?php
+                }?>
               </label>
 <?php         }
               if ($f->get('hint')) { ?>
@@ -435,7 +443,7 @@ implements FormRenderer {
                       <?php echo Format::htmlchars($f->get('hint')); ?>
                   </div>
 <?php         }
-              $f->render();
+              $f->render($options);
               if ($f->errors())
                   foreach ($f->errors() as $e)
                       echo sprintf('<div class="error">%s</div>', Format::htmlchars($e));
