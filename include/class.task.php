@@ -437,6 +437,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     function setStatus($status, $comments='') {
         global $thisstaff;
 
+         $ecb = null;
         switch($status) {
         case 'open':
             if ($this->isOpen())
@@ -444,6 +445,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $this->reopen();
             $this->closed = null;
+
+            $ecb = function ($t) {
+                $t->logEvent('reopened', false, null, 'closed');
+            };
             break;
         case 'closed':
             if ($this->isClosed())
@@ -451,6 +456,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $this->close();
             $this->closed = SqlFunction::NOW();
+            $ecb = function($t) {
+                $t->logEvent('closed');
+            };
             break;
         default:
             return false;
@@ -458,6 +466,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         if (!$this->save(true))
             return false;
+
+        // Log events via callback
+        if ($ecb) $ecb($this);
 
         if ($comments) {
             $errors = array();
@@ -528,8 +539,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId())
                     $evd['claim'] = true;
                 else
-                    $evd['staff'] = $assignee;
-
+                    $evd['staff'] = array($assignee->getId(), $assignee->getName());
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {

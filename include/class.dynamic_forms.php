@@ -1104,6 +1104,8 @@ class DynamicFormEntry extends VerySimpleModel {
      * Parameters:
      * $filter - (callback) function to receive each field and return
      *      boolean true if the field's errors are significant
+     * $options - options to pass to form and fields.
+     *
      */
     function isValid($filter=false, $options=array()) {
 
