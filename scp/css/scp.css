@@ -984,6 +984,7 @@ img.avatar {
 }
 .thread-body .attachments .filesize {
   margin-left: 0.5em;
+  line-height: 1em;
 }
 .thread-body .attachment-info {
     margin-right: 10px;

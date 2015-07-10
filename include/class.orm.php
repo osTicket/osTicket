@@ -1078,7 +1078,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->_count = $compiler->compileCount($this);
     }
 
-    function toSql($compiler, $model, $alias) {
+    function toSql($compiler, $model, $alias=false) {
         // FIXME: Force root model of the compiler to $model
         $exec = $this->getQuery(array('compiler' => get_class($compiler),
              'parent' => $compiler, 'subquery' => true));
@@ -1229,7 +1229,7 @@ class {$classname} extends VerySimpleModel {
     }
 
     static function getSqlAddParams(\$compiler) {
-        return static::\$queryset->toSql(\$compiler);
+        return static::\$queryset->toSql(\$compiler, self::\$queryset->model);
     }
 }
 EOF;
