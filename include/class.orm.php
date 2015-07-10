@@ -1082,9 +1082,14 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // FIXME: Force root model of the compiler to $model
         $exec = $this->getQuery(array('compiler' => get_class($compiler),
              'parent' => $compiler, 'subquery' => true));
-        foreach ($exec->params as $P)
-            $compiler->params[] = $P;
-        return "({$exec->sql})".($alias ? " AS {$alias}" : '');
+        // Rewrite the parameter numbers so they fit the parameter numbers
+        // of the current parameters of the $compiler
+        $sql = preg_replace_callback("/:(\d+)/",
+        function($m) use ($compiler, $exec) {
+            $compiler->params[] = $exec->params[$m[1]-1];
+            return ':'.count($compiler->params);
+        }, $exec->sql);
+        return "({$sql})".($alias ? " AS {$alias}" : '');
     }
 
     /**
@@ -1221,6 +1226,10 @@ class {$classname} extends VerySimpleModel {
 
     static function getQuery(\$compiler) {
         return ' ('.static::\$queryset->getQuery().') ';
+    }
+
+    static function getSqlAddParams(\$compiler) {
+        return static::\$queryset->toSql(\$compiler);
     }
 }
 EOF;
@@ -2220,7 +2229,7 @@ class MySqlCompiler extends SqlCompiler {
         // Support inline views
         $table = ($rmodel::getMeta('view'))
             // XXX: Support parameters from the nested query
-            ? $rmodel::getQuery($this)
+            ? $rmodel::getSqlAddParams($this)
             : $this->quote($rmodel::getMeta('table'));
         $base = "{$join}{$table} {$alias}";
         return array($base, $constraints);
@@ -2242,8 +2251,15 @@ class MySqlCompiler extends SqlCompiler {
     function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
-            $this->params = array_merge($this->params, $q->params);
-            return '('.$q->sql.')';
+            // Rewrite the parameter numbers so they fit the parameter numbers
+            // of the current parameters of the $compiler
+            $self = $this;
+            $sql = preg_replace_callback("/:(\d+)/",
+            function($m) use ($self, $q) {
+                $self->params[] = $q->params[$m[1]-1];
+                return ':'.count($self->params);
+            }, $q->sql);
+            return "({$sql})";
         }
         elseif ($what instanceof SqlFunction) {
             return $what->toSql($this, $model);
@@ -2587,7 +2603,7 @@ class MySqlExecutor {
     function fixupParams() {
         $self = $this;
         $params = array();
-        $sql = preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
+        $sql = preg_replace_callback("/:(\d+)/",
         function($m) use ($self, &$params) {
             $params[] = $self->params[$m[1]-1];
             return '?';
