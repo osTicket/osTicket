@@ -1273,33 +1273,36 @@ class TaskForm extends DynamicForm {
         return static::$instance;
     }
 
-    static function getInternalForm($source=null) {
+    static function getInternalForm($source=null, $options=array()) {
         if (!isset(static::$internalForm))
-            static::$internalForm = new SimpleForm(self::getInternalFields(), $source);
+            static::$internalForm = new TaskInternalForm($source, $options);
 
         return static::$internalForm;
     }
+}
 
-    static function getInternalFields() {
-        return array(
+class TaskInternalForm
+extends AbstractForm {
+    static $layout = 'GridFormLayout';
+
+    function buildFields() {
+
+        $fields = array(
                 'dept_id' => new DepartmentField(array(
                     'id'=>1,
                     'label' => __('Department'),
-                    'flags' => hexdec(0X450F3),
                     'required' => true,
                     'layout' => new GridFluidCell(6),
                     )),
                 'staff_id' => new AssigneeField(array(
                     'id'=>2,
                     'label' => __('Assignee'),
-                    'flags' => hexdec(0X450F3),
                     'required' => false,
                     'layout' => new GridFluidCell(6),
                     )),
                 'duedate'  =>  new DatetimeField(array(
                     'id' => 3,
                     'label' => __('Due Date'),
-                    'flags' => hexdec(0X450B3),
                     'required' => false,
                     'configuration' => array(
                         'min' => Misc::gmtime(),
@@ -1310,6 +1313,14 @@ class TaskForm extends DynamicForm {
                     )),
 
             );
+
+        $mode = @$this->options['mode'];
+        if ($mode && $mode == 'edit') {
+            unset($fields['dept_id']);
+            unset($fields['staff_id']);
+        }
+
+        return $fields;
     }
 }
 
