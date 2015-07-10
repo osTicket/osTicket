@@ -1047,8 +1047,8 @@ implements RestrictedAccess, Threadable {
                     $this->staff = $thisstaff;
                 $this->clearOverdue(false);
 
-                $ecb = function($t) {
-                    $t->logEvent('closed');
+                $ecb = function($t) use ($status) {
+                    $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())));
                     $t->deleteDrafts();
                 };
                 break;
@@ -2528,6 +2528,18 @@ implements RestrictedAccess, Threadable {
             // We are setting new duedate...
             $this->isoverdue = 0;
 
+        $changes = array();
+        foreach ($this->dirty as $F=>$old) {
+            switch ($F) {
+            case 'topic_id':
+            case 'user_id':
+            case 'source':
+            case 'duedate':
+            case 'sla_id':
+                $changes[$F] = array($old, $this->{$F});
+            }
+        }
+
         if (!$this->save())
             return false;
 
@@ -2538,9 +2550,9 @@ implements RestrictedAccess, Threadable {
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
-        $changes = array();
         foreach ($forms as $f) {
-            $changes += $f->getChanges();
+            if ($C = $f->getChanges())
+                $changes['fields'] = ($changes['fields'] ?: array()) + $C;
             // Drop deleted forms
             $idx = array_search($f->getId(), $vars['forms']);
             if ($idx === false) {
@@ -2553,7 +2565,7 @@ implements RestrictedAccess, Threadable {
         }
 
         if ($changes)
-            $this->logEvent('edited', array('fields' => $changes));
+            $this->logEvent('edited', $changes);
 
         // Reselect SLA if transient
         if (!$keepSLA

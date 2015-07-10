@@ -1606,9 +1606,13 @@ class ThreadEvent extends VerySimpleModel {
                     return __('None');
                 case 'data':
                     $val = $self->getData($m['data']);
+                    if (is_array($val))
+                        list($val, $fallback) = $val;
                     if ($m['type'] && class_exists($m['type']))
                         $val = $m['type']::lookup($val);
-                    return (string) $val;
+                    if (!$val && $fallback)
+                        $val = $fallback;
+                    return Format::htmlchars((string) $val);
                 }
                 return $m[0];
             },
@@ -1779,7 +1783,7 @@ class CloseEvent extends ThreadEvent {
     static $state = 'closed';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
     }
 }
 
@@ -1862,7 +1866,6 @@ class EditEvent extends ThreadEvent {
             $desc = __('<b>{somebody}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}');
             break;
         case isset($data['fields']):
-            $base = __('Updated by <b>{somebody}</b> {timestamp} — %s');
             $fields = $changes = array();
             foreach (DynamicFormField::objects()->filter(array(
                 'id__in' => array_keys($data['fields'])
@@ -1879,6 +1882,48 @@ class EditEvent extends ThreadEvent {
                 $after = $impl->to_php($new);
                 $changes[] = sprintf('<strong>%s</strong> %s',
                     $field->getLocal('label'), $impl->whatChanged($before, $after));
+            }
+            // Fallthrough to other editable fields
+        case isset($data['topic_id']):
+        case isset($data['sla_id']):
+        case isset($data['source']):
+        case isset($data['user_id']):
+        case isset($data['duedate']):
+            $base = __('Updated by <b>{somebody}</b> {timestamp} — %s');
+            foreach (array(
+                'topic_id' => array(__('Help Topic'), array('Topic', 'getTopicName')),
+                'sla_id' => array(__('SLA'), array('SLA', 'getSLAName')),
+                'duedate' => array(__('Duedate'), array('Format', 'date')),
+                'user_id' => array(__('Ticket Owner'), array('User', 'getNameById')),
+                'source' => array(__('Source'), null)
+            ) as $f => $info) {
+                if (isset($data[$f])) {
+                    list($name, $desc) = $info;
+                    list($old, $new) = $data[$f];
+                    if ($desc && is_callable($desc)) {
+                        $new = call_user_func($desc, $new);
+                        if ($old)
+                            $old = call_user_func($desc, $old);
+                    }
+                    if ($old and $new) {
+                        $changes[] = sprintf(
+                            __('<strong>%1$s</strong> changed from <strong>%2$s</strong> to <strong>%3$s</strong>'),
+                            Format::htmlchars($name), Format::htmlchars($old), Format::htmlchars($new)
+                        );
+                    }
+                    elseif ($new) {
+                        $changes[] = sprintf(
+                            __('<strong>%1$s</strong> set to <strong>%2$s</strong>'),
+                            Format::htmlchars($name), Format::htmlchars($new)
+                        );
+                    }
+                    else {
+                        $changes[] = sprintf(
+                            __('unset <strong>%1$s</strong>'),
+                            Format::htmlchars($name)
+                        );
+                    }
+                }
             }
             $desc = $changes
                 ? sprintf($base, implode(', ', $changes)) : '';

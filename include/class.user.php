@@ -701,6 +701,11 @@ implements TemplateVariable {
     static function lookupByEmail($email) {
         return static::lookup(array('emails__address'=>$email));
     }
+
+    static function getNameById($id) {
+        if ($user = static::lookup($id))
+            return $user->getName();
+    }
 }
 
 class EmailAddress

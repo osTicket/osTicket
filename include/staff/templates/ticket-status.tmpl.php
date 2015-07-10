@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = 'Change Tickets Status';
+    $info['title'] = __('Change Tickets Status');
 
 ?>
 <h3 class="drag-handle"><?php echo $info['title']; ?></h3>

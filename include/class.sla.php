@@ -188,6 +188,11 @@ implements TemplateVariable {
         return $entries;
     }
 
+    static function getSLAName($id) {
+        $slas = static::getSLAs();
+        return @$slas[$id];
+    }
+
     static function getIdByName($name) {
         $row = static::objects()
             ->filter(array('name'=>$name))
