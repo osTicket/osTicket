@@ -469,6 +469,9 @@ else
        </p>
     </form>
  </div>
+<?php
+echo $reply_attachments_form->getMedia();
+?>
 
 <script type="text/javascript">
 $(function() {
