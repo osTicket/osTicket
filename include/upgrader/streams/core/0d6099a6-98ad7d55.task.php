@@ -25,6 +25,15 @@ class StaffPermissions extends MigrationTask {
             $staff->updatePerms($perms, $errors);
             $staff->save();
         }
+
+        // Update user's with <div> in their name (regression from v1.9.9)
+        foreach (
+            User::objects()->filter(array('name__startswith' => ' <div>'))
+            as $user
+        ) {
+            $user->name = ltrim(str_replace(' <div>', '', $user->name));
+            $user->save();
+        }
     }
 }
 return 'StaffPermissions';
