@@ -59,7 +59,7 @@ class FileManager extends Module {
         switch ($args['action']) {
         case 'backends':
             // List configured backends
-            foreach (FileStorageBackend::allRegistered() as $char=>$bk) {
+            foreach (FileStorageBackend::allRegistered(true) as $char=>$bk) {
                 print "$char -- {$bk::$desc} ($bk)\n";
             }
             break;
