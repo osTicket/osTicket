@@ -1021,9 +1021,9 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form;
     }
 
-    function getForm() {
+    function getForm($source=false, $options=array()) {
         if (!isset($this->_form)) {
-            // XXX: Should source be $this?
+
             $fields = $this->getFields();
             if (isset($this->extra)) {
                 $x = JsonDataParser::decode($this->extra) ?: array();
@@ -1031,13 +1031,16 @@ class DynamicFormEntry extends VerySimpleModel {
                     unset($fields[$id]);
                 }
             }
-            $form = new SimpleForm($fields, $this->getSource(),
-            array(
+
+            $source = $source ?: $this->getSource();
+            $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions(),
-            ));
-            $this->_form = $form;
+                'instructions' => $this->getInstructions()
+                );
+            $this->_form = new CustomForm($fields, $source, $options);
         }
+
+
         return $this->_form;
     }
 
@@ -1102,15 +1105,14 @@ class DynamicFormEntry extends VerySimpleModel {
      * $filter - (callback) function to receive each field and return
      *      boolean true if the field's errors are significant
      */
-    function isValid($filter=false) {
+    function isValid($filter=false, $options=array()) {
+
         if (!is_array($this->_errors)) {
-            $this->_errors = array();
-            $this->getClean();
-            foreach ($this->getFields() as $field) {
-                if ($field->errors() && (!$filter || $filter($field)))
-                    $this->_errors[$field->get('id')] = $field->errors();
-            }
+            $form = $this->getForm(false, $options);
+            $form->isValid($filter);
+            $this->_errors = $form->errors();
         }
+
         return !$this->_errors;
     }
 

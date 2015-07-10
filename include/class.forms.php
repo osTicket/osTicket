@@ -22,6 +22,7 @@ class Form {
     static $renderer = 'GridFluidLayout';
     static $id = 0;
 
+    var $options = array();
     var $fields = array();
     var $title = '';
     var $instructions = '';
@@ -33,6 +34,7 @@ class Form {
 
     function __construct($source=null, $options=array()) {
 
+        $this->options = $options;
         if (isset($options['title']))
             $this->title = $options['title'];
         if (isset($options['instructions']))
@@ -318,6 +320,25 @@ class SimpleForm extends Form {
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
         $this->setFields($fields);
+    }
+}
+
+class CustomForm extends SimpleForm {
+
+    function getFields() {
+
+        $options = $this->options;
+        $user = @$options['user'];
+        $isedit = ($options['mode'] == 'edit');
+        $fields = array();
+        foreach (parent::getFields() as $field) {
+            if ($isedit && !$field->isEditable($user))
+                continue;
+
+            $fields[] = $field;
+        }
+
+        return $fields;
     }
 }
 
@@ -665,13 +686,20 @@ class FormField {
     }
 
     /**
-     * FIXME: Temp
+     * Check if the user has edit rights
      *
      */
 
-    function isEditable() {
-        return (($this->get('flags') & DynamicFormField::FLAG_MASK_EDIT) == 0);
+    function isEditable($user=null) {
+
+        if ($user instanceof EndUser)
+            $flag = DynamicFormField::FLAG_CLIENT_EDIT;
+        else
+            $flag = DynamicFormField::FLAG_AGENT_EDIT;
+
+        return (($this->get('flags') & $flag) != 0);
     }
+
 
     /**
      * isStorable
