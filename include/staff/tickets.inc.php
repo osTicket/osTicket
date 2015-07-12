@@ -316,7 +316,7 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
       <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
     </span>
     <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: console.log(event); $.pjax({
+    onclick="javascript: $.pjax({
         url:'?' + addSearchParam('sort', $(event.target).data('mode')),
         timeout: 2000,
         container: '#pjax-container'});">
@@ -325,7 +325,7 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 $desc = $sort_options[$mode];
 $selected = $mode == $_SESSION[$queue_sort_key]; ?>
       <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
+        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
           if ($selected) echo 'icon-hand-right';
           ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
       </li>
