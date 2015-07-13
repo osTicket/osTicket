@@ -276,7 +276,7 @@ var autoLock = {
     },
 
     resetTimer: function(time) {
-        clearTimeout(autoLock.timerId);
+        autoLock.clearTimer();
         autoLock.timerId = setTimeout(
           function () { autoLock.monitorEvents(); },
           time || 30000
@@ -284,7 +284,7 @@ var autoLock = {
     },
 
     destroy: function() {
-        autoLock.clearTimeout();
+        autoLock.clearTimer();
         autoLock.lockId = 0;
     }
 };

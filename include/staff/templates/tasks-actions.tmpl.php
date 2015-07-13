@@ -26,7 +26,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
                     <a class="no-pjax tasks-action"
                         href="#tasks/mass/reopen"><i
                         class="icon-fixed-width icon-undo"></i> <?php
-                        echo __('Reopen Tasks');?> </a>
+                        echo __('Reopen');?> </a>
                 </li>
                 <?php
                 }
@@ -36,7 +36,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
                     <a class="no-pjax tasks-action"
                         href="#tasks/mass/close"><i
                         class="icon-fixed-width icon-ok-circle"></i> <?php
-                        echo __('Close Tasks');?> </a>
+                        echo __('Close');?> </a>
                 </li>
                 <?php
                 } ?>
@@ -48,13 +48,13 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
         $actions += array(
                 'reopen' => array(
                     'icon' => 'icon-undo',
-                    'action' => __('Reopen Tasks')
+                    'action' => __('Reopen')
                 ));
 
         $actions += array(
                 'close' => array(
                     'icon' => 'icon-ok-circle',
-                    'action' => __('Close Tasks')
+                    'action' => __('Close')
                 ));
     }
 }
@@ -63,7 +63,7 @@ if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
-                'action' => __('Assign Tasks')
+                'action' => __('Assign')
             ));
 }
 
@@ -71,15 +71,16 @@ if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
-                'action' => __('Transfer Tasks')
+                'action' => __('Transfer')
             ));
 }
 
 if ($agent->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
+                'class' => 'danger',
                 'icon' => 'icon-trash',
-                'action' => __('Delete Tasks')
+                'action' => __('Delete')
             ));
 }
 if ($actions) {
@@ -98,7 +99,9 @@ if ($actions) {
         class="action-dropdown anchor-right">
         <ul>
     <?php foreach ($actions as $a => $action) { ?>
-            <li>
+            <li <?php
+                if ($action['class'])
+                    echo sprintf("class='%s'", $action['class']); ?> >
                 <a class="no-pjax tasks-action"
                     <?php
                     if ($action['dialog'])

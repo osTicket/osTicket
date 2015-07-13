@@ -253,7 +253,8 @@ return false;">
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
 <div style="margin-bottom:20px; padding-top:10px;">
-<div>
+<div class="sticky bar opaque">
+    <div class="content">
         <div class="pull-left flush-left">
             <h2><a href="<?php echo $refresh_url; ?>"
                 title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
@@ -264,6 +265,7 @@ return false;">
             Task::getAgentActions($thisstaff, array('status' => $status));
             ?>
         </div>
+    </div>
 </div>
 <div class="clear"></div>
 <form action="tasks.php" method="POST" name='tasks' id="tasks">
