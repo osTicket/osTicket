@@ -410,6 +410,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
             if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
                 return $this->_roles[$deptId] = $access->role;
+
+            // View only access
+            return new Role(array());
         }
         // For the primary department, use the primary role
         return $this->role;

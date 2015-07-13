@@ -181,8 +181,14 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=Dept::getDepartments()) {
+                    if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
                         foreach($depts as $id =>$name) {
+                            if (!($role = $thisstaff->getRole($id))
+                                || !$role->hasPerm(Ticket::PERM_CREATE)
+                            ) {
+                                // No access to create tickets in this dept
+                                continue;
+                            }
                             echo sprintf('<option value="%d" %s>%s</option>',
                                     $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
                         }

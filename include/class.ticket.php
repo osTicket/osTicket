@@ -3248,8 +3248,12 @@ implements RestrictedAccess, Threadable {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if (!$thisstaff || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+        if ($vars['deptId'] && $thisstaff && !$thisstaff->getRole($vars['deptId'])
+            ->hasPerm(TicketModel::PERM_CREATE)
+        ) {
+            $errors['err'] = __('You do not have permission to create a ticket in this department');
             return false;
+        }
 
         if ($vars['source'] && !in_array(
             strtolower($vars['source']), array('email','phone','other'))
