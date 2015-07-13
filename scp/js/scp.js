@@ -252,11 +252,13 @@ var scp_prep = function() {
 
     /* Typeahead tickets lookup */
     var last_req;
-    $('#basic-ticket-search').typeahead({
+    $('input.basic-search').typeahead({
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
+            var $el = this.$element;
+            var url = $el.data('url')+'?q='+query;
             last_req = $.ajax({
-                url: "ajax.php/tickets/lookup?q="+query,
+                url: url,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);
@@ -264,9 +266,10 @@ var scp_prep = function() {
             });
         },
         onselect: function (obj) {
-            var form = $('#basic-ticket-search').closest('form');
+            var $el = this.$element;
+            var form = $el.closest('form');
             form.find('input[name=search-type]').val('typeahead');
-            $('#basic-ticket-search').val(obj.value);
+            $el.val(obj.value);
             form.submit();
         },
         property: "matches"
@@ -756,7 +759,7 @@ $.orgLookup = function (url, cb) {
 $.uid = 1;
 
 // Tabs
-$(document).on('click.tab', 'ul.tabs li a', function(e) {
+$(document).on('click.tab', 'ul.tabs > li > a', function(e) {
     e.preventDefault();
     var $this = $(this),
         $ul = $(this).closest('ul'),
@@ -777,6 +780,7 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
                 // TODO: Add / hide loading spinner
             })
          );
+        $this.removeData('url');
     }
     else {
         $tab.addClass('tab_content');

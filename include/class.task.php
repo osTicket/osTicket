@@ -63,6 +63,7 @@ class TaskModel extends VerySimpleModel {
     const PERM_EDIT     = 'task.edit';
     const PERM_ASSIGN   = 'task.assign';
     const PERM_TRANSFER = 'task.transfer';
+    const PERM_REPLY    = 'task.reply';
     const PERM_CLOSE    = 'task.close';
     const PERM_DELETE   = 'task.delete';
 
@@ -87,6 +88,11 @@ class TaskModel extends VerySimpleModel {
                 /* @trans */ 'Transfer',
                 'desc'  =>
                 /* @trans */ 'Ability to transfer tasks between departments'),
+            self::PERM_REPLY => array(
+                'title' =>
+                /* @trans */ 'Post Reply',
+                'desc'  =>
+                /* @trans */ 'Ability to post task update'),
             self::PERM_CLOSE     => array(
                 'title' =>
                 /* @trans */ 'Close',
@@ -168,11 +174,11 @@ class TaskModel extends VerySimpleModel {
         return !$this->isOpen();
     }
 
-    function close() {
+    protected function close() {
         return $this->clearFlag(self::ISOPEN);
     }
 
-    function reopen() {
+    protected function reopen() {
         return $this->setFlag(self::ISOPEN);
     }
 
@@ -193,12 +199,36 @@ class TaskModel extends VerySimpleModel {
 RolePermission::register(/* @trans */ 'Tasks', TaskModel::getPermissions());
 
 
-class Task extends TaskModel implements Threadable {
+class Task extends TaskModel implements RestrictedAccess, Threadable {
     var $form;
     var $entry;
 
     var $_thread;
     var $_entries;
+    var $_answers;
+
+    var $lastrespondent;
+
+    function __onload() {
+        $this->loadDynamicData();
+    }
+
+    function loadDynamicData() {
+        if (!isset($this->_answers)) {
+            $this->_answers = array();
+            foreach (DynamicFormEntryAnswer::objects()
+                ->filter(array(
+                    'entry__object_id' => $this->getId(),
+                    'entry__object_type' => ObjectModel::OBJECT_TYPE_TASK
+                )) as $answer
+            ) {
+                $tag = mb_strtolower($answer->field->name)
+                    ?: 'field.' . $answer->field->id;
+                    $this->_answers[$tag] = $answer;
+            }
+        }
+        return $this->_answers;
+    }
 
     function getStatus() {
         return $this->isOpen() ? __('Open') : __('Completed');
@@ -279,6 +309,27 @@ class Task extends TaskModel implements Threadable {
         $assignees = $this->getAssignees();
 
         return $assignees ? implode($glue, $assignees):'';
+    }
+
+    function getLastRespondent() {
+
+        if (!isset($this->lastrespondent)) {
+            $this->lastrespondent = Staff::objects()
+                ->filter(array(
+                'staff_id' => static::objects()
+                    ->filter(array(
+                        'thread__entries__type' => 'R',
+                        'thread__entries__staff_id__gt' => 0
+                    ))
+                    ->values_flat('thread__entries__staff_id')
+                    ->order_by('-thread__entries__id')
+                    ->limit(1)
+                ))
+                ->first()
+                ?: false;
+        }
+
+        return $this->lastrespondent;
     }
 
     function getParticipants() {
@@ -386,23 +437,39 @@ class Task extends TaskModel implements Threadable {
     function setStatus($status, $comments='') {
         global $thisstaff;
 
+         $ecb = null;
         switch($status) {
         case 'open':
             if ($this->isOpen())
                 return false;
 
             $this->reopen();
+            $this->closed = null;
+
+            $ecb = function ($t) {
+                $t->logEvent('reopened', false, null, 'closed');
+            };
             break;
         case 'closed':
             if ($this->isClosed())
                 return false;
+
             $this->close();
+            $this->closed = SqlFunction::NOW();
+            $ecb = function($t) {
+                $t->logEvent('closed');
+            };
             break;
         default:
             return false;
         }
 
-        $this->save(true);
+        if (!$this->save(true))
+            return false;
+
+        // Log events via callback
+        if ($ecb) $ecb($this);
+
         if ($comments) {
             $errors = array();
             $this->postNote(array(
@@ -449,8 +516,15 @@ class Task extends TaskModel implements Threadable {
     }
 
     /* util routines */
-    function assign(AssignmentForm $form, &$errors, $alert=true) {
 
+    function logEvent($state, $data=null, $user=null, $annul=null) {
+        $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
+    }
+
+    function assign(AssignmentForm $form, &$errors, $alert=true) {
+        global $thisstaff;
+
+        $evd = array();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
             if ($this->getStaffId() == $assignee->getId()) {
@@ -462,6 +536,10 @@ class Task extends TaskModel implements Threadable {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
             } else {
                 $this->staff_id = $assignee->getId();
+                if ($thisstaff && $thisstaff->getId() == $assignee->getId())
+                    $evd['claim'] = true;
+                else
+                    $evd['staff'] = array($assignee->getId(), $assignee->getName());
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -471,7 +549,7 @@ class Task extends TaskModel implements Threadable {
                         );
             } else {
                 $this->team_id = $assignee->getId();
-
+                $evd = array('team' => $assignee->getId());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -480,6 +558,8 @@ class Task extends TaskModel implements Threadable {
         if ($errors || !$this->save(true))
             return false;
 
+        $this->logEvent('assigned', $evd);
+
         $this->onAssignment($assignee,
                 $form->getField('comments')->getClean(),
                 $alert);
@@ -487,39 +567,90 @@ class Task extends TaskModel implements Threadable {
         return true;
     }
 
-    function onAssignment($assignee, $note='', $alert=true) {
-        global $thisstaff;
+    function onAssignment($assignee, $comments='', $alert=true) {
+        global $thisstaff, $cfg;
 
         if (!is_object($assignee))
             return false;
 
         $assigner = $thisstaff ?: __('SYSTEM (Auto Assignment)');
-        //Assignment completed... post internal note.
-        $title = sprintf(__('Task assigned to %s'),
-                (string) $assignee);
 
-        if (!$note) {
-            $note = $title;
-            $title = '';
+        //Assignment completed... post internal note.
+        $note = null;
+        if ($comments) {
+
+            $title = sprintf(__('Task assigned to %s'),
+                    (string) $assignee);
+
+            $errors = array();
+            $note = $this->postNote(
+                    array('note' => $comments, 'title' => $title),
+                    $errors,
+                    $assigner,
+                    false);
         }
 
-        $errors = array();
-        $note = $this->postNote(
-                array('note' => $note, 'title' => $title),
-                $errors,
-                $assigner,
-                false);
-
-        // Send alerts out
-        if (!$alert)
+        // Send alerts out if enabled.
+        if (!$alert || !$cfg->alertONTaskAssignment())
             return false;
+
+        if (!($dept=$this->getDept())
+            || !($tpl = $dept->getTemplate())
+            || !($email = $dept->getAlertEmail())
+        ) {
+            return true;
+        }
+
+        // Recipients
+        $recipients = array();
+        if ($assignee instanceof Staff) {
+            if ($cfg->alertStaffONTaskAssignment())
+                $recipients[] = $assignee;
+        } elseif (($assignee instanceof Team) && $assignee->alertsEnabled()) {
+            if ($cfg->alertTeamMembersONTaskAssignment() && ($members=$assignee->getMembers()))
+                $recipients = array_merge($recipients, $members);
+            elseif ($cfg->alertTeamLeadONTaskAssignment() && ($lead=$assignee->getTeamLead()))
+                $recipients[] = $lead;
+        }
+
+        if ($recipients
+            && ($msg=$tpl->getTaskAssignmentAlertMsgTemplate())) {
+
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $comments,
+                      'assignee' => $assignee,
+                      'assigner' => $assigner
+                )
+            );
+            // Send the alerts.
+            $sentlist = array();
+            $options = $note instanceof ThreadEntry
+                ? array(
+                    'inreplyto' => $note->getEmailMessageId(),
+                    'references' => $note->getEmailReferences(),
+                    'thread' => $note)
+                : array();
+
+            foreach ($recipients as $k => $staff) {
+                if (!is_object($staff)
+                    || !$staff->isAvailable()
+                    || in_array($staff->getEmail(), $sentlist)) {
+                    continue;
+                }
+
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+                $sentlist[] = $staff->getEmail();
+            }
+        }
 
         return true;
     }
 
     function transfer(TransferForm $form, &$errors, $alert=true) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
+        $cdept = $this->getDept();
         $dept = $form->getDept();
         if (!$dept || !($dept instanceof Dept))
             $errors['dept'] = __('Department selection required');
@@ -531,25 +662,77 @@ class Task extends TaskModel implements Threadable {
         if ($errors || !$this->save())
             return false;
 
-        // Transfer completed... post internal note.
-        $title = sprintf(__('%s transferred to %s department'),
-                __('Task'),
-                $dept->getName());
+        // Log transfer event
+        $this->logEvent('transferred');
 
+        // Post internal note if any
         $note = $form->getField('comments')->getClean();
-        if (!$note) {
-            $note = $title;
-            $title = '';
+        if ($note) {
+            $title = sprintf(__('%1$s transferred from %2$s to %3$s'),
+                    __('Task'),
+                   $cdept->getName(),
+                    $dept->getName());
+
+            $_errors = array();
+            $note = $this->postNote(
+                    array('note' => $note, 'title' => $title),
+                    $_errors, $thisstaff, false);
         }
-        $_errors = array();
-        $note = $this->postNote(
-                array('note' => $note, 'title' => $title),
-                $_errors, $thisstaff, false);
 
         // Send alerts if requested && enabled.
-        if (!$alert)
+        if (!$alert || !$cfg->alertONTaskTransfer())
             return true;
 
+        if (($email = $dept->getAlertEmail())
+             && ($tpl = $dept->getTemplate())
+             && ($msg=$tpl->getTaskTransferAlertMsgTemplate())) {
+
+            $msg = $this->replaceVars($msg->asArray(),
+                array('comments' => $note, 'staff' => $thisstaff));
+            // Recipients
+            $recipients = array();
+            // Assigned staff or team... if any
+            if ($this->isAssigned() && $cfg->alertAssignedONTaskTransfer()) {
+                if($this->getStaffId())
+                    $recipients[] = $this->getStaff();
+                elseif ($this->getTeamId()
+                    && ($team=$this->getTeam())
+                    && ($members=$team->getMembers())
+                ) {
+                    $recipients = array_merge($recipients, $members);
+                }
+            } elseif ($cfg->alertDeptMembersONTaskTransfer() && !$this->isAssigned()) {
+                // Only alerts dept members if the task is NOT assigned.
+                if ($members = $dept->getMembersForAlerts())
+                    $recipients = array_merge($recipients, $members);
+            }
+
+            // Always alert dept manager??
+            if ($cfg->alertDeptManagerONTaskTransfer()
+                && ($manager=$dept->getManager())) {
+                $recipients[] = $manager;
+            }
+
+            $sentlist = $options = array();
+            if ($note instanceof ThreadEntry) {
+                $options += array(
+                    'inreplyto'=>$note->getEmailMessageId(),
+                    'references'=>$note->getEmailReferences(),
+                    'thread'=>$note);
+            }
+
+            foreach ($recipients as $k=>$staff) {
+                if (!is_object($staff)
+                    || !$staff->isAvailable()
+                    || in_array($staff->getEmail(), $sentlist)
+                ) {
+                    continue;
+                }
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+                $sentlist[] = $staff->getEmail();
+            }
+        }
 
         return true;
     }
@@ -569,10 +752,76 @@ class Task extends TaskModel implements Threadable {
         if (!($note=$this->getThread()->addNote($vars, $errors)))
             return null;
 
+        $assignee = $this->getStaff();
+
         if (isset($vars['task_status']))
             $this->setStatus($vars['task_status']);
 
+        $this->onActivity(array(
+            'activity' => $note->getActivity(),
+            'threadentry' => $note,
+            'assignee' => $assignee
+        ), $alert);
+
         return $note;
+    }
+
+    /* public */
+    function postReply($vars, &$errors, $alert = true) {
+        global $thisstaff, $cfg;
+
+
+        if (!$vars['poster'] && $thisstaff)
+            $vars['poster'] = $thisstaff;
+
+        if (!$vars['staffId'] && $thisstaff)
+            $vars['staffId'] = $thisstaff->getId();
+
+        if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
+            $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
+
+        if (!($response = $this->getThread()->addResponse($vars, $errors)))
+            return null;
+
+        $assignee = $this->getStaff();
+        // Set status - if checked.
+        if ($vars['reply_status_id']
+            && $vars['reply_status_id'] != $this->getStatusId()
+        ) {
+            $this->setStatus($vars['reply_status_id']);
+        }
+
+        /*
+        // TODO: add auto claim setting for tasks.
+        // Claim on response bypasses the department assignment restrictions
+        if ($thisstaff
+            && $this->isOpen()
+            && !$this->getStaffId()
+            && $cfg->autoClaimTasks)
+        ) {
+            $this->staff_id = $thisstaff->getId();
+        }
+        */
+
+        $this->lastrespondent = $response->staff;
+        $this->save();
+
+        // Send activity alert to agents
+        $activity = $vars['activity'] ?: $response->getActivity();
+        $this->onActivity( array(
+                    'activity' => $activity,
+                    'threadentry' => $response,
+                    'assignee' => $assignee,
+                    ));
+        // Send alert to collaborators
+        if ($alert && $vars['emailcollab']) {
+            $signature = '';
+            $this->notifyCollaborators($response,
+                array('signature' => $signature)
+            );
+        }
+
+        return $response;
     }
 
     function pdfExport($options=array()) {
@@ -596,12 +845,283 @@ class Task extends TaskModel implements Threadable {
         exit;
     }
 
-    static function lookupIdByNumber($number) {
-        $sql = 'SELECT id FROM '.TASK_TABLE
-              .' WHERE `number`='.db_input($number);
-        list($id) = db_fetch_row(db_query($sql));
+    /* util routines */
+    function replaceVars($input, $vars = array()) {
+        global $ost;
 
-        return $id;
+        return $ost->replaceTemplateVariables($input,
+                array_merge($vars, array('task' => $this)));
+    }
+
+    function asVar() {
+       return $this->getNumber();
+    }
+
+    function getVar($tag) {
+        global $cfg;
+
+        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
+
+        switch(mb_strtolower($tag)) {
+        case 'phone':
+        case 'phone_number':
+            return $this->getPhoneNumber();
+            break;
+        case 'staff_link':
+            return sprintf('%s/scp/tasks.php?id=%d', $cfg->getBaseUrl(), $this->getId());
+            break;
+        case 'create_date':
+            return new FormattedDate($this->getCreateDate());
+            break;
+         case 'due_date':
+            if ($due = $this->getEstDueDate())
+                return new FormattedDate($due);
+            break;
+        case 'close_date':
+            if ($this->isClosed())
+                return new FormattedDate($this->getCloseDate());
+            break;
+        case 'last_update':
+            return new FormattedDate($this->last_update);
+        default:
+            if (isset($this->_answers[$tag]))
+                // The answer object is retrieved here which will
+                // automatically invoke the toString() method when the
+                // answer is coerced into text
+                return $this->_answers[$tag];
+        }
+        return false;
+    }
+
+    static function getVarScope() {
+        $base = array(
+            'assigned' => __('Assigned agent and/or team'),
+            'close_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Date Closed'),
+            ),
+            'create_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Date created'),
+            ),
+            'dept' => array(
+                'class' => 'Dept', 'desc' => __('Department'),
+            ),
+            'due_date' => array(
+                'class' => 'FormattedDate', 'desc' => __('Due Date'),
+            ),
+            'number' => __('Task number'),
+            'recipients' => array(
+                'class' => 'UserList', 'desc' => __('List of all recipient names'),
+            ),
+            'status' => __('Status'),
+            'staff' => array(
+                'class' => 'Staff', 'desc' => __('Assigned/closing agent'),
+            ),
+            'subject' => 'Subject',
+            'team' => array(
+                'class' => 'Team', 'desc' => __('Assigned/closing team'),
+            ),
+            'thread' => array(
+                'class' => 'TaskThread', 'desc' => __('Task Thread'),
+            ),
+            'last_update' => array(
+                'class' => 'FormattedDate', 'desc' => __('Time of last update'),
+            ),
+        );
+
+        $extra = VariableReplacer::compileFormScope(TaskForm::getInstance());
+        return $base + $extra;
+    }
+
+    function onActivity($vars, $alert=true) {
+        global $cfg, $thisstaff;
+
+        if (!$alert // Check if alert is enabled
+            || !$cfg->alertONTaskActivity()
+            || !($dept=$this->getDept())
+            || !($email=$cfg->getAlertEmail())
+            || !($tpl = $dept->getTemplate())
+            || !($msg=$tpl->getTaskActivityAlertMsgTemplate())
+        ) {
+            return;
+        }
+
+        // Alert recipients
+        $recipients = array();
+        //Last respondent.
+        if ($cfg->alertLastRespondentONTaskActivity())
+            $recipients[] = $this->getLastRespondent();
+
+        // Assigned staff / team
+        if ($cfg->alertAssignedONTaskActivity()) {
+            if (isset($vars['assignee'])
+                    && $vars['assignee'] instanceof Staff)
+                 $recipients[] = $vars['assignee'];
+            elseif ($this->isOpen() && ($assignee = $this->getStaff()))
+                $recipients[] = $assignee;
+
+            if ($team = $this->getTeam())
+                $recipients = array_merge($recipients, $team->getMembers());
+        }
+
+        // Dept manager
+        if ($cfg->alertDeptManagerONTaskActivity() && $dept && $dept->getManagerId())
+            $recipients[] = $dept->getManager();
+
+        $options = array();
+        $staffId = $thisstaff ? $thisstaff->getId() : 0;
+        if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
+            $options = array(
+                'inreplyto' => $vars['threadentry']->getEmailMessageId(),
+                'references' => $vars['threadentry']->getEmailReferences(),
+                'thread' => $vars['threadentry']);
+
+            // Activity details
+            if (!$vars['message'])
+                $vars['message'] = $vars['threadentry'];
+
+            // Staff doing the activity
+            $staffId = $vars['threadentry']->getStaffId() ?: $staffId;
+        }
+
+        $msg = $this->replaceVars($msg->asArray(),
+                array(
+                    'note' => $vars['threadentry'], // For compatibility
+                    'activity' => $vars['activity'],
+                    'message' => $vars['message']));
+
+        $isClosed = $this->isClosed();
+        $sentlist=array();
+        foreach ($recipients as $k=>$staff) {
+            if (!is_object($staff)
+                // Don't bother vacationing staff.
+                || !$staff->isAvailable()
+                // No need to alert the poster!
+                || $staffId == $staff->getId()
+                // No duplicates.
+                || isset($sentlist[$staff->getEmail()])
+                // Make sure staff has access to task
+                || ($isClosed && !$this->checkStaffPerm($staff))
+            ) {
+                continue;
+            }
+            $alert = $this->replaceVars($msg, array('recipient' => $staff));
+            $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+            $sentlist[$staff->getEmail()] = 1;
+        }
+
+    }
+
+    /*
+     * Notify collaborators on response or new message
+     *
+     */
+    function  notifyCollaborators($entry, $vars = array()) {
+        global $cfg;
+
+        if (!$entry instanceof ThreadEntry
+            || !($recipients=$this->getThread()->getParticipants())
+            || !($dept=$this->getDept())
+            || !($tpl=$dept->getTemplate())
+            || !($msg=$tpl->getTaskActivityNoticeMsgTemplate())
+            || !($email=$dept->getEmail())
+        ) {
+            return;
+        }
+
+        // Who posted the entry?
+        $skip = array();
+        if ($entry instanceof Message) {
+            $poster = $entry->getUser();
+            // Skip the person who sent in the message
+            $skip[$entry->getUserId()] = 1;
+            // Skip all the other recipients of the message
+            foreach ($entry->getAllEmailRecipients() as $R) {
+                foreach ($recipients as $R2) {
+                    if (0 === strcasecmp($R2->getEmail(), $R->mailbox.'@'.$R->host)) {
+                        $skip[$R2->getUserId()] = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            $poster = $entry->getStaff();
+        }
+
+        $vars = array_merge($vars, array(
+            'message' => (string) $entry,
+            'poster' => $poster ?: _S('A collaborator'),
+            )
+        );
+
+        $msg = $this->replaceVars($msg->asArray(), $vars);
+
+        $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
+        $options = array('inreplyto' => $entry->getEmailMessageId(),
+                         'thread' => $entry);
+
+        foreach ($recipients as $recipient) {
+            // Skip folks who have already been included on this part of
+            // the conversation
+            if (isset($skip[$recipient->getUserId()]))
+                continue;
+            $notice = $this->replaceVars($msg, array('recipient' => $recipient));
+            $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
+                $options);
+        }
+    }
+
+    function update($forms, $vars, &$errors) {
+        global $thisstaff;
+
+
+        if (!$forms || !$this->checkStaffPerm($thisstaff, Task::PERM_EDIT))
+            return false;
+
+
+        foreach ($forms as $form) {
+            $form->setSource($vars);
+            if (!$form->isValid(function($f) {
+                return $f->isVisibleToStaff() && $f->isEditableToStaff();
+            }, array('mode'=>'edit'))) {
+                $errors = array_merge($errors, $form->errors());
+            }
+        }
+
+        if ($errors)
+            return false;
+
+        // Update dynamic meta-data
+        $changes = array();
+        foreach ($forms as $f) {
+            $changes += $f->getChanges();
+            $f->save();
+        }
+
+
+        if ($vars['note']) {
+            $_errors = array();
+            $this->postNote(array(
+                        'note' => $vars['note'],
+                        'title' => __('Task Update'),
+                        ),
+                    $_errors,
+                    $thisstaff);
+        }
+
+        if ($changes)
+            $this->logEvent('edited', array('fields' => $changes));
+
+        Signal::send('model.updated', $this);
+        return $this->save();
+    }
+
+    /* static routines */
+    static function lookupIdByNumber($number) {
+
+        if (($task = self::lookup(array('number' => $number))))
+            return $task->getId();
+
     }
 
     static function isNumberUnique($number) {
@@ -710,7 +1230,7 @@ class Task extends TaskModel implements Threadable {
                         .sprintf('task.flags & %d != 0 ', TaskModel::ISOPEN)
                         .')';
 
-        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
+        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tasks.
             $where[] = 'task.dept_id IN('.implode(',', db_input($depts)).') ';
 
         $where = implode(' OR ', $where);
@@ -807,31 +1327,36 @@ class TaskForm extends DynamicForm {
         return static::$instance;
     }
 
-    static function getInternalForm($source=null) {
+    static function getInternalForm($source=null, $options=array()) {
         if (!isset(static::$internalForm))
-            static::$internalForm = new SimpleForm(self::getInternalFields(), $source);
+            static::$internalForm = new TaskInternalForm($source, $options);
 
         return static::$internalForm;
     }
+}
 
-    static function getInternalFields() {
-        return array(
+class TaskInternalForm
+extends AbstractForm {
+    static $layout = 'GridFormLayout';
+
+    function buildFields() {
+
+        $fields = array(
                 'dept_id' => new DepartmentField(array(
                     'id'=>1,
                     'label' => __('Department'),
-                    'flags' => hexdec(0X450F3),
                     'required' => true,
+                    'layout' => new GridFluidCell(6),
                     )),
                 'staff_id' => new AssigneeField(array(
                     'id'=>2,
                     'label' => __('Assignee'),
-                    'flags' => hexdec(0X450F3),
                     'required' => false,
+                    'layout' => new GridFluidCell(6),
                     )),
                 'duedate'  =>  new DatetimeField(array(
                     'id' => 3,
                     'label' => __('Due Date'),
-                    'flags' => hexdec(0X450B3),
                     'required' => false,
                     'configuration' => array(
                         'min' => Misc::gmtime(),
@@ -842,6 +1367,14 @@ class TaskForm extends DynamicForm {
                     )),
 
             );
+
+        $mode = @$this->options['mode'];
+        if ($mode && $mode == 'edit') {
+            unset($fields['dept_id']);
+            unset($fields['staff_id']);
+        }
+
+        return $fields;
     }
 }
 

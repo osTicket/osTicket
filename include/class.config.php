@@ -1181,7 +1181,6 @@ class OsticketConfig extends Config {
 
     function updateTasksSettings($vars, &$errors) {
         $f=array();
-        $f['default_task_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['default_task_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
 
         if (!preg_match('`(?!<\\\)#`', $vars['task_number_format']))

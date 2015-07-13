@@ -793,30 +793,52 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$task->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown task');
 
-        $info=$errors=array();
-        $note_form = new SimpleForm(array(
+        $info = $errors = array();
+        $note_attachments_form = new SimpleForm(array(
             'attachments' => new FileUploadField(array('id'=>'attach',
-            'name'=>'attach:note',
-            'configuration' => array('extensions'=>'')))
-            ));
+                'name'=>'attach:note',
+                'configuration' => array('extensions'=>'')))
+        ));
+
+        $reply_attachments_form = new SimpleForm(array(
+            'attachments' => new FileUploadField(array('id'=>'attach',
+                'name'=>'attach:reply',
+                'configuration' => array('extensions'=>'')))
+        ));
 
         if ($_POST) {
+            $vars = $_POST;
             switch ($_POST['a']) {
             case 'postnote':
-                $vars = $_POST;
-                $attachments = $note_form->getField('attachments')->getClean();
+                $attachments = $note_attachments_form->getField('attachments')->getClean();
                 $vars['cannedattachments'] = array_merge(
                     $vars['cannedattachments'] ?: array(), $attachments);
-                if(($note=$task->postNote($vars, $errors, $thisstaff))) {
+                if (($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list
-                    $note_form->setSource(array());
-                    $note_form->getField('attachments')->reset();
+                    $note_attachments_form->setSource(array());
+                    $note_attachments_form->getField('attachments')->reset();
                     Draft::deleteForNamespace('task.note.'.$task->getId(),
                             $thisstaff->getId());
                 } else {
-                    if(!$errors['err'])
+                    if (!$errors['err'])
                         $errors['err'] = __('Unable to post the note - missing or invalid data.');
+                }
+                break;
+            case 'postreply':
+                $attachments = $reply_attachments_form->getField('attachments')->getClean();
+                $vars['cannedattachments'] = array_merge(
+                    $vars['cannedattachments'] ?: array(), $attachments);
+                if (($response=$task->postReply($vars, $errors))) {
+                    $msg=__('Update posted successfully');
+                    // Clear attachment list
+                    $reply_attachments_form->setSource(array());
+                    $reply_attachments_form->getField('attachments')->reset();
+                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                            $thisstaff->getId());
+                } else {
+                    if (!$errors['err'])
+                        $errors['err'] = __('Unable to post the reply - missing or invalid data.');
                 }
                 break;
             default:

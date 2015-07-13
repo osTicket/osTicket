@@ -12,8 +12,9 @@
 <?php if ($poster && $this->entry->type == 'R') {
     $signature_type = $poster->getDefaultSignatureType();
     $signature = '';
-    if (($T = $this->entry->getThread()->getObject()) instanceof Ticket)
+    if (($T = $this->entry->getThread()->getObject()))
         $dept = $T->getDept();
+
     switch ($poster->getDefaultSignatureType()) {
     case 'dept':
         if ($dept && $dept->canAppendSignature())
@@ -24,7 +25,7 @@
         $signature_type = 'theirs';
         break;
     } ?>
-    data-dept-id="<?php echo $dept->getId(); ?>"
+    data-dept-id="<?php echo $dept ? $dept->getId() : 0; ?>"
     data-poster-id="<?php echo $this->entry->staff_id; ?>"
     data-signature-field="signature"
     data-signature="<?php echo Format::htmlchars(Format::viewableImages($signature)); ?>"

@@ -1047,7 +1047,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return !$errors;
     }
 
-    function updatePerms($vars, &$errors) {
+    function updatePerms($vars, &$errors=array()) {
         if (!$vars) {
             $this->permissions = '';
             return;

@@ -192,7 +192,7 @@ $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
 // Apply requested sorting
-$queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
+$queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
 
 if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = $_GET['sort'];
@@ -316,7 +316,7 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
       <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
     </span>
     <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: console.log(event); $.pjax({
+    onclick="javascript: $.pjax({
         url:'?' + addSearchParam('sort', $(event.target).data('mode')),
         timeout: 2000,
         container: '#pjax-container'});">
@@ -325,7 +325,7 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 $desc = $sort_options[$mode];
 $selected = $mode == $_SESSION[$queue_sort_key]; ?>
       <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
+        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
           if ($selected) echo 'icon-hand-right';
           ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
       </li>
@@ -343,7 +343,7 @@ return false;">
     <input type="hidden" name="a" value="search">
     <input type="hidden" name="search-type" value=""/>
     <div class="attached input">
-      <input type="text" id="basic-ticket-search" name="query"
+      <input type="text" class="basic-search" data-url="ajax.php/tickets/lookup" name="query"
         autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
         autocomplete="off" autocorrect="off" autocapitalize="off">
       <button type="submit" class="attached button"><i class="icon-search"></i>

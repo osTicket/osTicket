@@ -13,6 +13,7 @@
 
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.task.php');
+require_once(INCLUDE_DIR.'class.export.php');
 
 $page = '';
 $task = null; //clean start.
@@ -26,9 +27,15 @@ if ($_REQUEST['id']) {
 }
 
 // Configure form for file uploads
-$note_form = new SimpleForm(array(
+$note_attachments_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'name'=>'attach:note',
+        'configuration' => array('extensions'=>'')))
+));
+
+$reply_attachments_form = new SimpleForm(array(
+    'attachments' => new FileUploadField(array('id'=>'attach',
+        'name'=>'attach:reply',
         'configuration' => array('extensions'=>'')))
 ));
 
@@ -42,7 +49,7 @@ if($_POST && !$errors):
         switch(strtolower($_POST['a'])):
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            $attachments = $note_form->getField('attachments')->getClean();
+            $attachments = $note_attachments_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
 
@@ -51,22 +58,49 @@ if($_POST && !$errors):
 
                 $msg=__('Internal note posted successfully');
                 // Clear attachment list
-                $note_form->setSource(array());
-                $note_form->getField('attachments')->reset();
+                $note_attachments_form->setSource(array());
+                $note_attachments_form->getField('attachments')->reset();
 
                 if($wasOpen && $task->isClosed())
                     $task = null; //Going back to main listing.
                 else
-                    // Ticket is still open -- clear draft for the note
+                    // Task is still open -- clear draft for the note
                     Draft::deleteForNamespace('task.note.'.$task->getId(),
                         $thisstaff->getId());
 
             } else {
-
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
 
                 $errors['postnote'] = __('Unable to post the note. Correct the error(s) below and try again!');
+            }
+            break;
+        case 'postreply': /* Post an update */
+            $vars = $_POST;
+            $attachments = $reply_attachments_form->getField('attachments')->getClean();
+            $vars['cannedattachments'] = array_merge(
+                $vars['cannedattachments'] ?: array(), $attachments);
+
+            $wasOpen = ($task->isOpen());
+            if (($response=$task->postReply($vars, $errors))) {
+
+                $msg=__('Reply posted successfully');
+                // Clear attachment list
+                $reply_attachments_form->setSource(array());
+                $reply_attachments_form->getField('attachments')->reset();
+
+                if ($wasOpen && $task->isClosed())
+                    $task = null; //Going back to main listing.
+                else
+                    // Task is still open -- clear draft for the note
+                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                        $thisstaff->getId());
+
+            } else {
+                if (!$errors['err'])
+                    $errors['err'] = __('Unable to post reply - missing or invalid data.');
+
+                $errors['postreply'] = __('Unable to post the reply. Correct the error(s) below and try again!');
             }
             break;
         default:
@@ -139,14 +173,14 @@ if (isset($_SESSION['advsearch:tasks'])) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
-if ($thisstaff->hasPerm(TaskModel::PERM_CREATE)) {
+if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
                            'href'=>'#tasks/add',
                            'iconclass'=>'newTicket task-action',
                            'id' => 'new-task',
                            'attr' => array(
-                               'data-dialog' => '{"size":"large"}'
+                               'data-dialog-config' => '{"size":"large"}'
                                )
                            ),
                         ($_REQUEST['a']=='open'));
@@ -173,7 +207,7 @@ if($task) {
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Task::PERM_CREATE))
+            $thisstaff->hasPerm(Task::PERM_CREATE, false))
         $inc = 'task-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');

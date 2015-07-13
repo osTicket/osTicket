@@ -616,8 +616,8 @@ class DynamicFormField extends VerySimpleModel {
     const FLAG_MASK_VIEW        = 0x20000;
     const FLAG_MASK_NAME        = 0x40000;
 
-    const MASK_MASK_INTERNAL    = 0x400B0;  # !change, !delete, !disable, !edit-name
-    const MASK_MASK_ALL         = 0x700F0;
+    const MASK_MASK_INTERNAL    = 0x400B2;  # !change, !delete, !disable, !edit-name
+    const MASK_MASK_ALL         = 0x700F2;
 
     const FLAG_CLIENT_VIEW      = 0x00100;
     const FLAG_CLIENT_EDIT      = 0x00200;
@@ -1021,9 +1021,9 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form;
     }
 
-    function getForm() {
+    function getForm($source=false, $options=array()) {
         if (!isset($this->_form)) {
-            // XXX: Should source be $this?
+
             $fields = $this->getFields();
             if (isset($this->extra)) {
                 $x = JsonDataParser::decode($this->extra) ?: array();
@@ -1031,13 +1031,16 @@ class DynamicFormEntry extends VerySimpleModel {
                     unset($fields[$id]);
                 }
             }
-            $form = new SimpleForm($fields, $this->getSource(),
-            array(
+
+            $source = $source ?: $this->getSource();
+            $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions(),
-            ));
-            $this->_form = $form;
+                'instructions' => $this->getInstructions()
+                );
+            $this->_form = new CustomForm($fields, $source, $options);
         }
+
+
         return $this->_form;
     }
 
@@ -1056,8 +1059,6 @@ class DynamicFormEntry extends VerySimpleModel {
             // even when stored elsewhere -- important during validation
             foreach ($this->getDynamicFields() as $f) {
                 $f = $f->getImpl($f);
-                if ($f instanceof ThreadEntryField)
-                    continue;
                 $this->_fields[$f->get('id')] = $f;
                 $f->isnew = true;
             }
@@ -1103,16 +1104,17 @@ class DynamicFormEntry extends VerySimpleModel {
      * Parameters:
      * $filter - (callback) function to receive each field and return
      *      boolean true if the field's errors are significant
+     * $options - options to pass to form and fields.
+     *
      */
-    function isValid($filter=false) {
+    function isValid($filter=false, $options=array()) {
+
         if (!is_array($this->_errors)) {
-            $this->_errors = array();
-            $this->getClean();
-            foreach ($this->getFields() as $field) {
-                if ($field->errors() && (!$filter || $filter($field)))
-                    $this->_errors[$field->get('id')] = $field->errors();
-            }
+            $form = $this->getForm(false, $options);
+            $form->isValid($filter);
+            $this->_errors = $form->errors();
         }
+
         return !$this->_errors;
     }
 

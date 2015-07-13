@@ -250,13 +250,6 @@ UPDATE `%TABLE_PREFIX%ticket_attachment` A1
 
 DROP TABLE `%TABLE_PREFIX%_unknown_inlines`;
 
--- Mark `message` field as externally stored
--- DynamicFormField::FLAG_EXT_STORED = 0x00002;
-UPDATE `%TABLE_PREFIX%form_field` A1
-  JOIN `%TABLE_PREFIX%form` A2 ON (A2.`id` = A1.`form_id`)
-  SET A1.`flags` = A1.`flags` | 0x00002
-  WHERE A2.`type` = 'T' AND A1.`name` = 'message';
-
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '1ee831c854fe9f35115a3e672916bb91'

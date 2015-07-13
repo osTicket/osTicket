@@ -54,6 +54,7 @@ class Thread extends VerySimpleModel {
 
     var $_object;
     var $_collaborators; // Cache for collabs
+    var $_participants;
 
     function getId() {
         return $this->id;
@@ -211,13 +212,33 @@ class Thread extends VerySimpleModel {
 
         return true;
     }
+
+
+    //UserList of participants (collaborators)
+    function getParticipants() {
+
+        if (!isset($this->_participants)) {
+            $list = new UserList();
+            if ($collabs = $this->getActiveCollaborators()) {
+                foreach ($collabs as $c)
+                    $list->add($c);
+            }
+
+            $this->_participants = $list;
+        }
+
+        return $this->_participants;
+    }
+
+
     // Render thread
     function render($type=false, $options=array()) {
 
         $mode = $options['mode'] ?: self::MODE_STAFF;
 
         // Register thread actions prior to rendering the thread.
-        include_once INCLUDE_DIR . 'class.thread_actions.php';
+        if (!class_exists('tea_showemailheaders'))
+            include_once INCLUDE_DIR . 'class.thread_actions.php';
 
         $entries = $this->getEntries();
         if ($type && is_array($type))
@@ -1035,6 +1056,10 @@ implements TemplateVariable {
             $this->email_info->headers = trim($header);
 
         return $this->email_info->save();
+    }
+
+    function getActivity() {
+        return new ThreadActivity('', '');
     }
 
     /* variables */
@@ -2234,6 +2259,12 @@ class ResponseThreadEntry extends ThreadEntry {
 
     const ENTRY_TYPE = 'R';
 
+    function getActivity() {
+        return new ThreadActivity(
+                _S('New Response'),
+                _S('New response posted'));
+    }
+
     function getSubject() {
         return $this->getTitle();
     }
@@ -2281,6 +2312,12 @@ class NoteThreadEntry extends ThreadEntry {
 
     function getMessage() {
         return $this->getBody();
+    }
+
+    function getActivity() {
+        return new ThreadActivity(
+                _S('New Internal Note'),
+                _S('New internal note posted'));
     }
 
     static function create($vars, &$errors) {
@@ -2566,4 +2603,46 @@ interface Threadable {
     function getThread();
     function postThreadEntry($type, $vars, $options=array());
 }
+
+/**
+ * ThreadActivity
+ *
+ * Object to thread activity
+ *
+ */
+class ThreadActivity implements TemplateVariable {
+    var $title;
+    var $desc;
+
+    function __construct($title, $desc) {
+        $this->title = $title;
+        $this->desc = $desc;
+    }
+
+    function getTitle() {
+        return $this->title;
+    }
+
+    function getDescription() {
+        return $this->desc;
+    }
+    function asVar() {
+        return (string) $this->getTitle();
+    }
+
+    function getVar($tag) {
+        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
+
+        return false;
+    }
+
+    static function getVarScope() {
+        return array(
+          'title' => __('Activity Title'),
+          'description' => __('Activity Description'),
+        );
+    }
+}
+
 ?>

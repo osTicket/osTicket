@@ -136,32 +136,49 @@ class EmailTemplateGroup {
             'group'=>'c.task',
             'name'=>/* @trans */ 'New Task Alert',
             'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new task.',
+            'context' => array(
+                'task', 'recipient', 'message',
+            ),
         ),
         'task.activity.notice' => array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'New Activity Notice',
-            'desc'=>/* @trans */ 'Template used to notify collaborators on task activity.'
+            'desc'=>/* @trans */ 'Template used to notify collaborators on task activity.',
+            'context' => array(
+                'task', 'signature', 'message', 'poster', 'recipient',
+            ),
         ),
         'task.activity.alert'=>array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'New Activity Alert',
             'desc'=>/* @trans */ 'Alert sent to selected agents, if enabled, on new activity.',
-
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
         ),
         'task.assignment.alert' => array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'Task Assignment Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on task assignment.',
+            'context' => array(
+                'task', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
         ),
         'task.transfer.alert'=>array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'Task Transfer Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on task transfer.',
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
         ),
         'task.overdue.alert'=>array(
             'group'=>'c.task',
             'name'=>/* @trans */ 'Overdue Task Alert',
             'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue task.',
+            'context' => array(
+                'task', 'recipient', 'comments',
+            ),
         ),
     );
 
@@ -335,6 +352,10 @@ class EmailTemplateGroup {
     /* Tasks templates */
     function getNewTaskAlertMsgTemplate() {
         return $this->getMsgTemplate('task.alert');
+    }
+
+    function  getTaskActivityAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.alert');
     }
 
     function  getTaskActivityNoticeMsgTemplate() {

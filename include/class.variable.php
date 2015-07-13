@@ -262,7 +262,7 @@ class VariableReplacer {
             return false;
 
         $contextTypes = array(
-            'activity' => __('Type of recent activity'),
+            'activity' => array('class' => 'ThreadActivity', 'desc' => __('Type of recent activity')),
             'assignee' => array('class' => 'Staff', 'desc' => __('Assigned agent/team')),
             'assigner' => array('class' => 'Staff', 'desc' => __('Agent performing the assignment')),
             'comments' => __('Assign/transfer comments'),
@@ -276,6 +276,7 @@ class VariableReplacer {
             'signature' => 'Selected staff or department signature',
             'staff' => array('class' => 'Staff', 'desc' => 'Agent originating the activity'),
             'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
+            'task' => array('class' => 'Task', 'desc' => 'The task'),
             'user' => array('class' => 'User', 'desc' => __('Message recipient')),
         );
         $context = array();

@@ -3,7 +3,7 @@
 
 $actions = array();
 
-if ($agent->hasPerm(Task::PERM_CLOSE)) {
+if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
 
     if (isset($options['status'])) {
         $status = $options['status'];
@@ -59,7 +59,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE)) {
     }
 }
 
-if ($agent->hasPerm(Task::PERM_ASSIGN)) {
+if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
@@ -67,7 +67,7 @@ if ($agent->hasPerm(Task::PERM_ASSIGN)) {
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_TRANSFER)) {
+if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
@@ -75,7 +75,7 @@ if ($agent->hasPerm(Task::PERM_TRANSFER)) {
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_DELETE)) {
+if ($agent->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
                 'icon' => 'icon-trash',
@@ -102,7 +102,7 @@ if ($actions) {
                 <a class="no-pjax tasks-action"
                     <?php
                     if ($action['dialog'])
-                        echo sprintf("data-dialog='%s'", $action['dialog']);
+                        echo sprintf("data-dialog-config='%s'", $action['dialog']);
                     if ($action['redirect'])
                         echo sprintf("data-redirect='%s'", $action['redirect']);
                     ?>
@@ -120,8 +120,8 @@ if ($actions) {
  } ?>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tasks');
-    $(document).on('click.tasks', 'a.tasks-action', function(e) {
+    $(document).off('.tasks-actions');
+    $(document).on('click.tasks-actions', 'a.tasks-action', function(e) {
         e.preventDefault();
         var count = checkbox_checker($('form#tasks'), 1);
         if (count) {

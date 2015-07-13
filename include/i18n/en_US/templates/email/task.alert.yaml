@@ -12,7 +12,7 @@ subject: |
     New Task Alert
 body: |
     <h2>Hi %{recipient.name},</h2>
-    New task #%{task.number} created
+    New task <a href="%{task.staff_link}">#%{task.number}</a> created
     <br>
     <br>
     <table>

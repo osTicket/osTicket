@@ -43,6 +43,13 @@ UPDATE `%TABLE_PREFIX%thread` A1
   SET A1.`lastresponse` = A2.`lastresponse`,
       A1.`lastmessage` = A2.`lastmessage`;
 
+-- Mark `message` field as externally stored
+-- DynamicFormField::FLAG_EXT_STORED = 0x00002;
+UPDATE `%TABLE_PREFIX%form_field` A1
+  JOIN `%TABLE_PREFIX%form` A2 ON (A2.`id` = A1.`form_id`)
+  SET A1.`flags` = A1.`flags` | 0x00002
+  WHERE A2.`type` = 'T' AND A1.`name` = 'message';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '98ad7d550c26ac44340350912296e673'

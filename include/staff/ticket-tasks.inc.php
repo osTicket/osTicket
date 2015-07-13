@@ -31,9 +31,9 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     <?php
     if ($role && $role->hasPerm(Task::PERM_CREATE)) { ?>
         <a
-        class="action-button ticket-task-action"
+        class="green button action-button ticket-task-action"
         data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
-        data-dialog='{"size":"large"}'
+        data-dialog-config='{"size":"large"}'
         href="#tickets/<?php
             echo $ticket->getId(); ?>/add-task">
             <i class="icon-plus-sign"></i> <?php
@@ -133,9 +133,10 @@ if ($count) { ?>
 <script type="text/javascript">
 $(function() {
 
-    $(document).off('click.tasks');
-    $(document).on('click.tasks', 'tbody.tasks a, a#reload-task', function(e) {
+    $(document).off('click.taskv');
+    $(document).on('click.taskv', 'tbody.tasks a, a#reload-task', function(e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
         var $container = $('div#task_content');
         var $stop = $('ul#ticket_tabs').offset().top;
@@ -146,6 +147,7 @@ $(function() {
             $('.tip_box').remove();
             $('div#tasks_content').hide();
             });
+
         return false;
      });
     // Ticket Tasks
@@ -156,7 +158,7 @@ $(function() {
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
         var $redirect = $(this).data('href');
-        var $options = $(this).data('dialog');
+        var $options = $(this).data('dialogConfig');
         $.dialog(url, [201], function (xhr) {
             var tid = parseInt(xhr.responseText);
             if (tid) {
@@ -172,7 +174,5 @@ $(function() {
         }, $options);
         return false;
     });
-
-
 });
 </script>

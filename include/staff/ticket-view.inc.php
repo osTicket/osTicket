@@ -417,7 +417,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
-    <li><a id="ticket_tasks" href="#tasks"
+    <li><a id="ticket-tasks-tab" href="#tasks"
             data-url="<?php
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
         echo __('Tasks');

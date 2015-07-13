@@ -277,10 +277,11 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
     function resend($response) {
         global $cfg, $thisstaff;
 
-        $vars = $_POST;
-        $ticket = $response->getThread()->getObject();
+        if (!($object = $response->getThread()->getObject()))
+            return false;
 
-        $dept = $ticket->getDept();
+        $vars = $_POST;
+        $dept = $object->getDept();
         $poster = $response->getStaff();
 
         if ($thisstaff && $vars['signature'] == 'mine')
@@ -299,23 +300,25 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
             'poster' => $response->getStaff());
         $options = array('thread' => $response);
 
-        if (($email=$dept->getEmail())
-            && ($tpl = $dept->getTemplate())
-            && ($msg=$tpl->getReplyMsgTemplate())
-        ) {
-            $msg = $ticket->replaceVars($msg->asArray(),
-                $variables + array('recipient' => $ticket->getOwner()));
+        // Resend response to collabs
+        if (($object instanceof Ticket)
+                && ($email=$dept->getEmail())
+                && ($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getReplyMsgTemplate())) {
+
+            $msg = $object->replaceVars($msg->asArray(),
+                $variables + array('recipient' => $object->getOwner()));
 
             $attachments = $cfg->emailAttachments()
                 ? $response->getAttachments() : array();
-            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'],
+            $email->send($object->getOwner(), $msg['subj'], $msg['body'],
                 $attachments, $options);
         }
         // TODO: Add an option to the dialog
-        $ticket->notifyCollaborators($response, array('signature' => $signature));
+        $object->notifyCollaborators($response, array('signature' => $signature));
 
         // Log an event that the item was resent
-        $ticket->logEvent('resent', array('entry' => $response->id));
+        $object->logEvent('resent', array('entry' => $response->id));
 
         // Flag the entry as resent
         $response->flags |= ThreadEntry::FLAG_RESENT;

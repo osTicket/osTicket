@@ -1,5 +1,5 @@
 <?php
-$tasks = TaskModel::objects();
+$tasks = Task::objects();
 $date_header = $date_col = false;
 
 // Figure out REFRESH url — which might not be accurate after posting a
@@ -14,26 +14,41 @@ unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
+$sort_options = array(
+    'updated' =>            __('Most Recently Updated'),
+    'created' =>            __('Most Recently Created'),
+    'due' =>                __('Due Soon'),
+    'number' =>             __('Task Number'),
+    'closed' =>             __('Most Recently Closed'),
+    'hot' =>                __('Longest Thread'),
+    'relevance' =>          __('Relevance'),
+);
+
 $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
 switch ($queue_name) {
 case 'closed':
     $status='closed';
     $results_type=__('Closed Tasks');
     $showassigned=true; //closed by.
+    $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
+
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tasks');
     $tasks->filter(array('isoverdue'=>1));
+    $queue_sort_options = array('updated', 'created', 'number', 'hot');
     break;
 case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tasks');
     $tasks->filter(array('staff_id'=>$thisstaff->getId()));
+    $queue_sort_options = array('updated', 'created', 'hot', 'number');
     break;
 default:
 case 'search':
+    $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
@@ -55,17 +70,22 @@ case 'search':
 case 'open':
     $status='open';
     $results_type=__('Open Tasks');
+    $queue_sort_options = array('created', 'updated', 'due', 'number', 'hot');
     break;
 }
 
 // Apply filters
 $filters = array();
-$SQ = new Q(array('flags__hasbit' => TaskModel::ISOPEN));
-if ($status && !strcasecmp($status, 'closed'))
-    $SQ->negate();
+if ($status) {
+    $SQ = new Q(array('flags__hasbit' => TaskModel::ISOPEN));
+    if (!strcasecmp($status, 'closed'))
+        $SQ->negate();
 
-$filters[] = $SQ;
-$tasks->filter($filters);
+    $filters[] = $SQ;
+}
+
+if ($filters)
+    $tasks->filter($filters);
 
 // Impose visibility constraints
 // ------------------------------------------------------------
@@ -106,29 +126,39 @@ $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
         'dept__name', 'cdata__title', 'flags');
 // Apply requested quick filter
 
-// Apply requested sorting
-$queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
+$queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
 
-if (isset($_GET['sort']))
-    $_SESSION[$queue_sort_key] = $_GET['sort'];
+if (isset($_GET['sort'])) {
+        $_SESSION[$queue_sort_key] = $_GET['sort'];
+}
+elseif (!isset($_SESSION[$queue_sort_key])) {
+        $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+}
+
 switch ($_SESSION[$queue_sort_key]) {
 case 'number':
     $tasks->extra(array(
         'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
     ));
     break;
-case 'priority,due':
-    $tasks->order_by('cdata__:priority__priority_urgency');
-    // Fall through to add in due date filter
 case 'due':
     $date_header = __('Due Date');
-    $date_col = 'est_duedate';
-    $tasks->values('est_duedate');
-    $tasks->filter(array('est_duedate__isnull'=>false));
-    $tasks->order_by('est_duedate');
+    $date_col = 'duedate';
+    $tasks->values('duedate');
+    $tasks->filter(array('duedate__isnull'=>false));
+    $tasks->order_by('duedate');
     break;
 case 'updated':
-    $tasks->order_by('cdata__:priority__priority_urgency', '-lastupdate');
+    $date_header = __('Last Updated');
+    $date_col = 'updated';
+    $tasks->values('updated');
+    $tasks->order_by('-updated');
+    break;
+case 'hot':
+    $tasks->order_by('-thread_count');
+    $tasks->annotate(array(
+        'thread_count' => SqlAggregate::COUNT('thread__entries'),
+    ));
     break;
 case 'created':
 default:
@@ -150,7 +180,7 @@ $_SESSION[':Q:tasks'] = $tasks;
 // Mass actions
 $actions = array();
 
-if ($thisstaff->hasPerm(Task::PERM_ASSIGN)) {
+if ($thisstaff->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
@@ -158,7 +188,7 @@ if ($thisstaff->hasPerm(Task::PERM_ASSIGN)) {
             ));
 }
 
-if ($thisstaff->hasPerm(Task::PERM_TRANSFER)) {
+if ($thisstaff->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
@@ -166,7 +196,7 @@ if ($thisstaff->hasPerm(Task::PERM_TRANSFER)) {
             ));
 }
 
-if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
+if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
                 'icon' => 'icon-trash',
@@ -178,20 +208,46 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
 ?>
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
-    <form action="tasks.php" method="get">
+  <div class="pull-right" style="height:25px">
+    <span class="valign-helper"></span>
+    <span class="action-button muted" data-dropdown="#sort-dropdown">
+      <i class="icon-caret-down pull-right"></i>
+      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
+    </span>
+    <div id="sort-dropdown" class="action-dropdown anchor-right"
+    onclick="javascript: $.pjax({
+        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
+        timeout: 2000,
+        container: '#pjax-container'});">
+      <ul class="bleed-left">
+        <?php foreach ($queue_sort_options as $mode) {
+        $desc = $sort_options[$mode];
+        $selected = $mode == $_SESSION[$queue_sort_key]; ?>
+      <li <?php if ($selected) echo 'class="active"'; ?>>
+        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
+          if ($selected) echo 'icon-hand-right';
+          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
+      </li>
+<?php } ?>
+      </ul>
+    </div>
+  </div>
+    <form action="tasks.php" method="get" onsubmit="javascript:
+  $.pjax({
+    url:$(this).attr('action') + '?' + $(this).serialize(),
+    container:'#pjax-container',
+    timeout: 2000
+  });
+return false;">
     <input type="hidden" name="a" value="search">
-    <table>
-        <tr>
-            <td><input type="text" id="basic-ticket-search" name="query"
-            size=30 value="<?php echo Format::htmlchars($_REQUEST['query'],
-            true); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-            <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
-            <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
-                $.dialog('ajax.php/tasks/search', 201);"
-                >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
-        </tr>
-    </table>
+    <input type="hidden" name="search-type" value=""/>
+    <div class="attached input">
+      <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
+        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+        autocomplete="off" autocorrect="off" autocapitalize="off">
+      <button type="submit" class="attached button"><i class="icon-search"></i>
+      </button>
+    </div>
     </form>
 </div>
 <!-- SEARCH FORM END -->
@@ -204,20 +260,6 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
                 $results_type.$showing; ?></a></h2>
         </div>
         <div class="pull-right flush-right">
-            <span style="display:inline-block">
-                <span style="vertical-align: baseline">Sort:</span>
-            <select name="sort" onchange="javascript:addSearchParam('sort', $(this).val());">
-<?php foreach (array(
-    'created' =>    __('Most Recently Created'),
-    'updated' =>    __('Most Recently Updated'),
-    'due' =>        __('Due Soon'),
-    'priority,due' => __('Priority + Due Soon'),
-    'number' =>     __('Task Number'),
-) as $mode => $desc) { ?>
-            <option value="<?php echo $mode; ?>" <?php if ($mode == $_SESSION[$queue_sort_key]) echo 'selected="selected"'; ?>><?php echo $desc; ?></option>
-<?php } ?>
-            </select>
-            </span>
            <?php
             Task::getAgentActions($thisstaff, array('status' => $status));
             ?>
@@ -321,7 +363,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE)) {
             <?php
             } //end of foreach
         if (!$total)
-            $ferror=__('There are no tickets matching your criteria.');
+            $ferror=__('There are no tasks matching your criteria.');
         ?>
     </tbody>
     <tfoot>
@@ -396,7 +438,7 @@ $(function() {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $options = $(this).data('dialog');
+        var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
             if ($redirect)

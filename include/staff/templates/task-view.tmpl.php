@@ -4,6 +4,8 @@ if (!defined('OSTSCPINC')
     || !($role = $thisstaff->getRole($task->getDeptId())))
     die('Invalid path');
 
+global $cfg;
+
 $actions = array();
 
 $actions += array(
@@ -54,7 +56,10 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
 
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-$id    = $task->getId();
+$id = $task->getId();
+$dept = $task->getDept();
+$thread = $task->getThread();
+
 if ($task->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
@@ -67,7 +72,7 @@ if ($task->isOverdue())
             <?php
             if ($ticket) { ?>
                 <strong>
-                <a id="ticket-tasks" href="#"> All Tasks (<?php echo $ticket->getNumTasks(); ?>)</a>
+                <a id="all-ticket-tasks" href="#"> All Tasks (<?php echo $ticket->getNumTasks(); ?>)</a>
                 &nbsp;/&nbsp;
                 <?php echo $task->getTitle(); ?>
                 &nbsp;&mdash;&nbsp;
@@ -76,7 +81,9 @@ if ($task->isOverdue())
                     <?php
                     echo ' class="preview" ';
                     echo sprintf('data-preview="#tasks/%d/preview" ', $task->getId());
-                    echo sprintf('href="#tasks/%d" ', $task->getId());
+                    echo sprintf('href="#tickets/%s/tasks/%d/view" ',
+                            $ticket->getId(), $task->getId()
+                            );
                     ?>
                 ><?php
                 echo sprintf('#%s', $task->getNumber()); ?></a>
@@ -98,6 +105,12 @@ if ($task->isOverdue())
         <div class="flush-right">
             <?php
             if ($ticket) { ?>
+            <a  id="task-view"
+                target="_blank"
+                class="action-button"
+                href="tasks.php?id=<?php
+                 echo $task->getId(); ?>"><i class="icon-share"></i> <?php
+                            echo __('View Task'); ?></a>
             <span
                 class="action-button"
                 data-dropdown="#action-dropdown-task-options">
@@ -116,7 +129,7 @@ if ($task->isOverdue())
                             echo $action['class'] ?: 'task-action'; ?>"
                             <?php
                             if ($action['dialog'])
-                                echo sprintf("data-dialog='%s'", $action['dialog']);
+                                echo sprintf("data-dialog-config='%s'", $action['dialog']);
                             if ($action['redirect'])
                                 echo sprintf("data-redirect='%s'", $action['redirect']);
                             ?>
@@ -136,7 +149,7 @@ if ($task->isOverdue())
                     echo $action['class'] ?: 'task-action'; ?>"
                     <?php
                     if ($action['dialog'])
-                        echo sprintf("data-dialog='%s'", $action['dialog']);
+                        echo sprintf("data-dialog-config='%s'", $action['dialog']);
                     ?>
                     href="<?php echo $action['href']; ?>"><i
                     class="<?php
@@ -308,10 +321,104 @@ if ($ticket)
 else
     $action = 'tasks.php?id='.$task->getId();
 ?>
-<div id="response_options" class="sticky bar stop">
-    <ul class="tabs"></ul>
-    <form id="<?php echo $ticket? 'ticket_task_note': 'task_note'; ?>"
+<div id="task_response_options" class="<?php echo $ticket ? 'ticket_task_actions' : ''; ?> sticky bar stop">
+    <ul class="tabs">
+        <?php
+        if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
+        <li class="active"><a href="#task_reply"><?php echo __('Post Update');?></a></li>
+        <li><a href="#task_note"><?php echo __('Post Internal Note');?></a></li>
+        <?php
+        }?>
+    </ul>
+    <?php
+    if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
+    <form id="task_reply" class="tab_content spellcheck"
         action="<?php echo $action; ?>"
+        name="task_reply" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
+        <input type="hidden" name="id" value="<?php echo $task->getId(); ?>">
+        <input type="hidden" name="a" value="postreply">
+        <input type="hidden" name="lockCode" value="<?php echo ($mylock) ? $mylock->getCode() : ''; ?>">
+        <span class="error"></span>
+        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+            <tbody id="collab_sec" style="display:table-row-group">
+             <tr>
+                <td>
+                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
+                        style="display:<?php echo $thread->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
+                        >
+                    <?php
+                    $recipients = __('Add Participants');
+                    if ($thread->getNumCollaborators())
+                        $recipients = sprintf(__('Recipients (%d of %d)'),
+                                $thread->getNumActiveCollaborators(),
+                                $thread->getNumCollaborators());
+
+                    echo sprintf('<span><a class="collaborators preview"
+                            href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
+                            $thread->getId(),
+                            $thread->getId(),
+                            $recipients);
+                   ?>
+                </td>
+             </tr>
+            </tbody>
+            <tbody id="update_sec">
+            <tr>
+                <td>
+                    <div class="error"><?php echo $errors['response']; ?></div>
+                    <input type="hidden" name="draft_id" value=""/>
+                    <textarea name="response" id="task-response" cols="50"
+                        data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
+                        data-signature="<?php
+                            echo Format::htmlchars(Format::viewableImages($signature)); ?>"
+                        placeholder="<?php echo __( 'Start writing your update here.'); ?>"
+                        rows="9" wrap="soft"
+                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
+                            ?> draft draft-delete" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('task.response', $task->getId(), $info['task.response']);
+    echo $attrs; ?>><?php echo $draft ?: $info['task.response'];
+                    ?></textarea>
+                <div id="task_response_form_attachments" class="attachments">
+                <?php
+                    if ($reply_attachments_form)
+                        print $reply_attachments_form->getField('attachments')->render();
+                ?>
+                </div>
+               </td>
+            </tr>
+            <tr>
+                <td>
+                    <div><?php echo __('Status');?>
+                        <span class="faded"> - </span>
+                        <select  name="task_status">
+                            <option value="1" <?php
+                                echo $task->isOpen() ?
+                                'selected="selected"': ''; ?>> <?php
+                                echo _('Open'); ?></option>
+                            <option value="0" <?php
+                                echo $task->isClosed() ?
+                                'selected="selected"': ''; ?>> <?php
+                                echo _('Closed'); ?></option>
+                        </select>
+                        &nbsp;<span class='error'><?php echo
+                        $errors['task_status']; ?></span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+       <p  style="padding-left:165px;">
+           <input class="btn_sm" type="submit" value="<?php echo __('Post Update');?>">
+           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+       </p>
+    </form>
+    <?php
+    } ?>
+    <form id="task_note"
+        action="<?php echo $action; ?>"
+        class="tab_content spellcheck <?php
+            echo $role->hasPerm(TaskModel::PERM_REPLY) ? 'hidden' : ''; ?>"
         name="task_note"
         method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -320,18 +427,9 @@ else
         <table width="100%" border="0" cellspacing="0" cellpadding="3">
             <tr>
                 <td>
-                    <div>
-                        <div class="faded" style="padding-left:0.15em"><?php
-                        echo __('Note title - summary of the note (optional)'); ?></div>
-                        <input type="text" name="title" id="title" size="60" value="<?php echo $info['title']; ?>" >
-                        <br/>
-                        <span class="error">&nbsp;<?php echo $errors['title']; ?></span>
-                    </div>
-                    <div>
-                        <label><strong><?php echo __('Internal Note'); ?></strong><span class='error'>&nbsp;* <?php echo $errors['note']; ?></span></label>
-                    </div>
-                    <textarea name="note" id="internal_note" cols="80"
-                        placeholder="<?php echo __('Note details'); ?>"
+                    <div><span class='error'><?php echo $errors['note']; ?></span></div>
+                    <textarea name="note" id="task-note" cols="80"
+                        placeholder="<?php echo __('Internal Note details'); ?>"
                         rows="9" wrap="soft" data-draft-namespace="task.note"
                         data-draft-object-id="<?php echo $task->getId(); ?>"
                         class="richtext ifhtml draft draft-delete"><?php
@@ -339,15 +437,15 @@ else
                         ?></textarea>
                     <div class="attachments">
                     <?php
-                        if ($note_form)
-                            print $note_form->getField('attachments')->render();
+                        if ($note_attachments_form)
+                            print $note_attachments_form->getField('attachments')->render();
                     ?>
                     </div>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <div><?php echo __('Task Status');?>
+                    <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task_status">
                             <option value="1" <?php
@@ -371,11 +469,14 @@ else
        </p>
     </form>
  </div>
+<?php
+echo $reply_attachments_form->getMedia();
+?>
 
 <script type="text/javascript">
 $(function() {
     $(document).off('.tasks-content');
-    $(document).on('click.tasks-content', 'a#ticket-tasks', function(e) {
+    $(document).on('click.tasks-content', '#all-ticket-tasks', function(e) {
         e.preventDefault();
         $('div#task_content').hide().empty();
         $('div#tasks_content').show();
@@ -388,7 +489,7 @@ $(function() {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $options = $(this).data('dialog');
+        var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
             if ($redirect)
@@ -401,7 +502,7 @@ $(function() {
     });
 
     $(document).off('.tf');
-    $(document).on('submit.tf', 'form#ticket_task_note', function(e) {
+    $(document).on('submit.tf', '.ticket_task_actions form', function(e) {
         e.preventDefault();
         var $form = $(this);
         var $container = $('div#task_content');
