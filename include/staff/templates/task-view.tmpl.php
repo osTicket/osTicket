@@ -476,7 +476,7 @@ echo $reply_attachments_form->getMedia();
 <script type="text/javascript">
 $(function() {
     $(document).off('.tasks-content');
-    $(document).on('click.tasks-content', '#all-ticket-tasks, #ticket-tasks-tab', function(e) {
+    $(document).on('click.tasks-content', '#all-ticket-tasks', function(e) {
         e.preventDefault();
         $('div#task_content').hide().empty();
         $('div#tasks_content').show();
