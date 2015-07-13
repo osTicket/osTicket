@@ -107,15 +107,8 @@ if($ticket->isOverdue())
                     echo __('Change Owner'); ?></a></li>
                 <?php
                  }
-                 if ($role->hasPerm(TicketModel::PERM_DELETE)) {
-                     ?>
-                    <li><a class="ticket-action" href="#tickets/<?php
-                    echo $ticket->getId(); ?>/status/delete"
-                    data-href="tickets.php"><i class="icon-trash"></i> <?php
-                    echo __('Delete Ticket'); ?></a></li>
-                <?php
-                 }
-                if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
+
+                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
                         <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> <?php
@@ -159,7 +152,16 @@ if($ticket->isOverdue())
                                 $ticket->getEmail()); ?></a></li>
                     <?php
                      }
-                }?>
+                  }
+                  if ($role->hasPerm(TicketModel::PERM_DELETE)) {
+                     ?>
+                    <li class="danger"><a class="ticket-action" href="#tickets/<?php
+                    echo $ticket->getId(); ?>/status/delete"
+                    data-href="tickets.php"><i class="icon-trash"></i> <?php
+                    echo __('Delete Ticket'); ?></a></li>
+                <?php
+                 }
+                ?>
               </ul>
             </div>
         </div>

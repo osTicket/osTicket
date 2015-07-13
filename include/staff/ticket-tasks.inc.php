@@ -43,7 +43,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
     ?>
 </div>
-<br/>
+<div class="clear"></div>
 <div>
 <?php
 if ($count) { ?>

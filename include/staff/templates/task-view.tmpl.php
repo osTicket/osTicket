@@ -50,6 +50,7 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
             'delete' => array(
                 'href' => sprintf('#tasks/%d/delete', $task->getId()),
                 'icon' => 'icon-trash',
+                'class' => 'red button task-action',
                 'label' => __('Delete')
             ));
 }
