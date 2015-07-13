@@ -272,7 +272,7 @@ class Module {
                 continue;
             }
             // Allow multiple simple args like -Dvt
-            if ($arg[0] == '-' && strlen($arg) > 2) {
+            if ($arg[0] == '-' && $arg[1] != '-' && strlen($arg) > 2) {
                 foreach (str_split(substr($arg, 2)) as $O)
                     array_unshift($argv, "-{$O}");
                 $arg = substr($arg, 0, 2);

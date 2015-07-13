@@ -414,7 +414,7 @@ class FA_AssignTopic extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $choices = HelpTopic::getAllHelpTopics();
+        $choices = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
         return array(
             'topic_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),

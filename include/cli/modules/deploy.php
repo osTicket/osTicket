@@ -201,7 +201,7 @@ class Deployment extends Unpacker {
             if ($dryrun)
                 continue;
             if (!is_dir(dirname($dst)))
-                mkdir(dirname($dst), 0751, true);
+                mkdir(dirname($dst), 0755, true);
             $this->copyFile($src, $dst, $hash, octdec($mode));
         }
     }

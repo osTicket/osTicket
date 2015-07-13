@@ -343,7 +343,7 @@ implements TemplateVariable {
             if (!$disabled && $info['disabled'])
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
-                $n .= " &mdash; ".__("(disabled)");
+                $n .= " - ".__("(disabled)");
             $requested_names[$id] = $n;
         }
 

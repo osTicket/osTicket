@@ -1320,6 +1320,8 @@ class DynamicFormEntry extends VerySimpleModel {
     static function create($ht=false, $data=null) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
+        if ($data)
+            $inst->setSource($data);
         foreach ($inst->getDynamicFields() as $field) {
             if (!($impl = $field->getImpl($field)))
                 continue;

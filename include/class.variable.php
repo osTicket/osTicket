@@ -27,7 +27,7 @@ class VariableReplacer {
 
     var $errors;
 
-    function VariableReplacer($start_delim='%{', $end_delim='}') {
+    function VariableReplacer($start_delim='(?:%{|%%7B)', $end_delim='(?:}|%7D)') {
 
         $this->start_delim = $start_delim;
         $this->end_delim = $end_delim;
@@ -164,7 +164,8 @@ class VariableReplacer {
         $vars = array();
         foreach($result[0] as $k => $v) {
             if(isset($vars[$v])) continue;
-            $val=$this->_resolveVar($result[1][$k]);
+            // Format::html_balance() may urlencode() the contents here
+            $val=$this->_resolveVar(rawurldecode($result[1][$k]));
             if($val!==false)
                 $vars[$v] = $val;
         }

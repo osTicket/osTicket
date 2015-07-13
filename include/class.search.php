@@ -389,7 +389,7 @@ class MysqlSearchBackend extends SearchBackend {
         $galera = db_result(db_query($sql));
 
         if ($galera && !$mysql56)
-            throw new Exception('Galera cannot be used with MyISAM tables');
+            throw new Exception('Galera cannot be used with MyISAM tables. Upgrade to MariaDB 10 / MySQL 5.6 is required');
         $engine = $galera ? 'InnodB' : ($mysql56 ? '' : 'MyISAM');
         if ($engine)
             $engine = 'ENGINE='.$engine;
@@ -402,12 +402,17 @@ class MysqlSearchBackend extends SearchBackend {
             primary key `object` (`object_type`, `object_id`),
             fulltext key `search` (`title`, `content`)
         ) $engine CHARSET=utf8";
-        return db_query($sql);
+        if (!db_query($sql))
+            return false;
+
+        // Start rebuilding the index
+        $this->getConfig()->set('reindex', 1);
+        return true;
     }
 
     /**
      * Cooperates with the cron system to automatically find content that is
-     * not index in the _search table and add it to the index.
+     * not indexed in the _search table and add it to the index.
      */
     function IndexOldStuff() {
         $class = get_class();

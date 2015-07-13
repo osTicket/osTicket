@@ -1361,30 +1361,35 @@ implements RestrictedAccess, Threadable {
         $this->lastupdate = SqlFunction::NOW();
         $this->save();
 
-        // Auto-assign to closing staff or last respondent
-        // If the ticket is closed and auto-claim is not enabled then put the
-        // ticket back to unassigned pool.
-        if ($this->isClosed() && !$cfg->autoClaimTickets()) {
-            $this->setStaffId(0);
-        } elseif(!($staff=$this->getStaff()) || !$staff->isAvailable()) {
-            // Ticket has no assigned staff -  if auto-claim is enabled then
-            // try assigning it to the last respondent (if available)
-            // otherwise leave the ticket unassigned.
-            if ($cfg->autoClaimTickets() //Auto claim is enabled.
-                    && ($lastrep=$this->getLastRespondent())
-                    && $lastrep->isAvailable()) {
-                $this->setStaffId($lastrep->getId()); //direct assignment;
-            } else {
-                $this->setStaffId(0); //unassign - last respondent is not available.
-            }
-        }
 
         // Reopen if closed AND reopenable
         // We're also checking autorespond flag because we don't want to
         // reopen closed tickets on auto-reply from end user. This is not to
         // confused with autorespond on new message setting
-        if ($autorespond && $this->isClosed() && $this->isReopenable())
+        if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
+
+            // Auto-assign to closing staff or last respondent
+            // If the ticket is closed and auto-claim is not enabled then put the
+            // ticket back to unassigned pool.
+            if (!$cfg->autoClaimTickets()) {
+                $this->setStaffId(0);
+            }
+            elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
+                // Ticket has no assigned staff -  if auto-claim is enabled then
+                // try assigning it to the last respondent (if available)
+                // otherwise leave the ticket unassigned.
+                if (($lastrep = $this->getLastRespondent())
+                    && $lastrep->isAvailable()
+                ) {
+                    $this->setStaffId($lastrep->getId()); //direct assignment;
+                }
+                else {
+                    // unassign - last respondent is not available.
+                    $this->setStaffId(0);
+                }
+            }
+        }
 
         // Figure out the user
         if ($this->getOwnerId() == $message->getUserId())
