@@ -1349,6 +1349,10 @@ class ModelInstanceManager extends ResultSet {
         unset(self::$objectCache[$key]);
     }
 
+    static function flushCache() {
+        self::$objectCache = array();
+    }
+
     static function checkCache($modelClass, $fields) {
         $key = $modelClass::$meta->model;
         foreach ($modelClass::getMeta('pk') as $f)

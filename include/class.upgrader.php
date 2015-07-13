@@ -73,8 +73,8 @@ class Upgrader {
     function setState($state) {
         $this->state = $state;
         if ($state == 'done') {
-            $this->createUpgradedTicket();
             ModelMeta::flushModelCache();
+            $this->createUpgradedTicket();
         }
     }
 
@@ -371,6 +371,10 @@ class StreamUpgrader extends SetupWizard {
                 );
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 30; //Default to 30 sec batches.
+
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
 
         $task->run($max_time);
         if (!$task->isFinished()) {
