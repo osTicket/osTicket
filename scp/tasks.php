@@ -13,6 +13,7 @@
 
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.task.php');
+require_once(INCLUDE_DIR.'class.export.php');
 
 $page = '';
 $task = null; //clean start.

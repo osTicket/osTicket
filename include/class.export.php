@@ -99,7 +99,7 @@ class Export {
             );
     }
 
-    /* static */ function saveTickets($sql, $filename, $how='csv') {
+    static  function saveTickets($sql, $filename, $how='csv') {
         ob_start();
         self::dumpTickets($sql, $how);
         $stuff = ob_get_contents();
@@ -110,7 +110,64 @@ class Export {
         return false;
     }
 
+
+    static function dumpTasks($sql, $how='csv') {
+        // Add custom fields to the $sql statement
+        $cdata = $fields = array();
+        foreach (TaskForm::getInstance()->getFields() as $f) {
+            // Ignore non-data fields
+            if (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
+            $fields[$key] = $f;
+            $cdata[$key] = $f->getLocal('label');
+        }
+        // Reset the $sql query
+        $tasks = $sql->models()
+            ->select_related('dept', 'staff', 'team', 'cdata')
+            ->annotate(array(
+            'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
+            'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+            'thread_count' => SqlAggregate::COUNT('thread__entries'),
+        ));
+
+        return self::dumpQuery($tasks,
+            array(
+                'number' =>         __('Task Number'),
+                'created' =>        __('Date Created'),
+                'cdata.title' =>    __('Title'),
+                'dept::getLocalName' => __('Department'),
+                'flags' =>          __('Current Status'), //FIXME: self:getStatus()?
+                'duedate' =>        __('Due Date'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
+                'thread_count' =>   __('Thread Count'),
+                'attachment_count' => __('Attachment Count'),
+            ) + $cdata,
+            $how,
+            array('modify' => function(&$record, $keys) use ($fields) {
+                foreach ($fields as $k=>$f) {
+                    if (($i = array_search($k, $keys)) !== false) {
+                        $record[$i] = $f->export($f->to_php($record[$i]));
+                    }
+                }
+                return $record;
+            })
+            );
+    }
+
+
     static function saveTasks($sql, $filename, $how='csv') {
+
+        ob_start();
+        self::dumpTasks($sql, $how);
+        $stuff = ob_get_contents();
+        ob_end_clean();
+        if ($stuff)
+            Http::download($filename, "text/$how", $stuff);
+
         return false;
     }
 
