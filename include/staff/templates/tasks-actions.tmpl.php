@@ -3,7 +3,7 @@
 
 $actions = array();
 
-if ($agent->hasPerm(Task::PERM_CLOSE)) {
+if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
 
     if (isset($options['status'])) {
         $status = $options['status'];
@@ -59,7 +59,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE)) {
     }
 }
 
-if ($agent->hasPerm(Task::PERM_ASSIGN)) {
+if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
@@ -67,7 +67,7 @@ if ($agent->hasPerm(Task::PERM_ASSIGN)) {
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_TRANSFER)) {
+if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
@@ -75,7 +75,7 @@ if ($agent->hasPerm(Task::PERM_TRANSFER)) {
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_DELETE)) {
+if ($agent->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
                 'icon' => 'icon-trash',

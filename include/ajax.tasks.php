@@ -240,7 +240,7 @@ class TasksAjaxAPI extends AjaxController {
             }
             // Check generic permissions --  department specific permissions
             // will be checked below.
-            if ($perm && !$thisstaff->hasPerm($perm))
+            if ($perm && !$thisstaff->hasPerm($perm, false))
                 $errors['err'] = sprintf(
                         __('You do not have permission to %s %s'),
                         __($action),
