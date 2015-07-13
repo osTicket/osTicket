@@ -376,9 +376,6 @@ return false;">
             class="icon-trash"></i> <?php echo __('Delete'); ?></a>
             <?php
             } ?>
-            <a class="only sticky scroll-up" href="#" onclick="javascript: $('html, body').animate({scrollTop: 0}, 'fast'); return false;"
-                ><i class="icon-chevron-up icon-large"></i>
-            </a>
         </div>
     </div>
 </div>
