@@ -22,6 +22,41 @@ require_once(INCLUDE_DIR.'class.task.php');
 
 class TasksAjaxAPI extends AjaxController {
 
+    function lookup() {
+        global $thisstaff;
+
+        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+        $tasks = array();
+
+        $visibility = Q::any(array(
+            'staff_id' => $thisstaff->getId(),
+            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
+        ));
+
+        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
+            $visibility->add(array('dept_id__in' => $depts));
+        }
+
+
+        $hits = TaskModel::objects()
+            ->filter(Q::any(array(
+                'number__startswith' => $_REQUEST['q'],
+            )))
+            ->filter($visibility)
+            ->values('number')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('id')))
+            ->order_by('-created')
+            ->limit($limit);
+
+        foreach ($hits as $T) {
+            $tasks[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                'info'=>"{$T['number']}",
+                'matches'=>$_REQUEST['q']);
+        }
+
+        return $this->json_encode($tasks);
+    }
+
     function add() {
         global $thisstaff;
 

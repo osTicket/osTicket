@@ -181,6 +181,7 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/view$', 'task'),
         url_post('^(?P<tid>\d+)$', 'task'),
         url('^add$', 'add'),
+        url('^lookup', 'lookup'),
         url_get('^mass/(?P<action>[\w.]+)', 'massProcess'),
         url_post('^mass/(?P<action>[\w.]+)', 'massProcess')
     )),

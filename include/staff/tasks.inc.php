@@ -76,12 +76,16 @@ case 'open':
 
 // Apply filters
 $filters = array();
-$SQ = new Q(array('flags__hasbit' => TaskModel::ISOPEN));
-if ($status && !strcasecmp($status, 'closed'))
-    $SQ->negate();
+if ($status) {
+    $SQ = new Q(array('flags__hasbit' => TaskModel::ISOPEN));
+    if (!strcasecmp($status, 'closed'))
+        $SQ->negate();
 
-$filters[] = $SQ;
-$tasks->filter($filters);
+    $filters[] = $SQ;
+}
+
+if ($filters)
+    $tasks->filter($filters);
 
 // Impose visibility constraints
 // ------------------------------------------------------------
@@ -228,21 +232,22 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
       </ul>
     </div>
   </div>
-
-    <form action="tasks.php" method="get">
+    <form action="tasks.php" method="get" onsubmit="javascript:
+  $.pjax({
+    url:$(this).attr('action') + '?' + $(this).serialize(),
+    container:'#pjax-container',
+    timeout: 2000
+  });
+return false;">
     <input type="hidden" name="a" value="search">
-    <table>
-        <tr>
-            <td><input type="text" id="basic-ticket-search" name="query"
-            size=30 value="<?php echo Format::htmlchars($_REQUEST['query'],
-            true); ?>"
-                autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-            <td><input type="submit" class="button" value="<?php echo __('Search'); ?>"></td>
-            <td>&nbsp;&nbsp;<a href="#" onclick="javascript:
-                $.dialog('ajax.php/tasks/search', 201);"
-                >[<?php echo __('advanced'); ?>]</a>&nbsp;<i class="help-tip icon-question-sign" href="#advanced"></i></td>
-        </tr>
-    </table>
+    <input type="hidden" name="search-type" value=""/>
+    <div class="attached input">
+      <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
+        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+        autocomplete="off" autocorrect="off" autocapitalize="off">
+      <button type="submit" class="attached button"><i class="icon-search"></i>
+      </button>
+    </div>
     </form>
 </div>
 <!-- SEARCH FORM END -->
@@ -358,7 +363,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             <?php
             } //end of foreach
         if (!$total)
-            $ferror=__('There are no tickets matching your criteria.');
+            $ferror=__('There are no tasks matching your criteria.');
         ?>
     </tbody>
     <tfoot>
