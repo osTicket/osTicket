@@ -326,9 +326,10 @@ class SimpleForm extends Form {
 class CustomForm extends SimpleForm {
 
     function getFields() {
+        global $thisstaff, $thisclient;
 
         $options = $this->options;
-        $user = @$options['user'];
+        $user = $options['user'] ?: $thisstaff ?: $thisclient;
         $isedit = ($options['mode'] == 'edit');
         $fields = array();
         foreach (parent::getFields() as $field) {
@@ -391,7 +392,6 @@ implements FormRenderer {
       ob_start();
 ?>
       <table class="<?php echo 'grid form' ?>">
-          <colgroup width="8.333333%"><col span="12"/></colgroup>
           <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
                   <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
           </caption>
@@ -700,10 +700,10 @@ class FormField {
 
     function isEditable($user=null) {
 
-        if ($user instanceof EndUser)
-            $flag = DynamicFormField::FLAG_CLIENT_EDIT;
-        else
+        if ($user instanceof Staff)
             $flag = DynamicFormField::FLAG_AGENT_EDIT;
+        else
+            $flag = DynamicFormField::FLAG_CLIENT_EDIT;
 
         return (($this->get('flags') & $flag) != 0);
     }

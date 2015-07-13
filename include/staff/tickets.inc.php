@@ -192,7 +192,7 @@ $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
 // Apply requested sorting
-$queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
+$queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
 
 if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = $_GET['sort'];

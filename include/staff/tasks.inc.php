@@ -1,5 +1,5 @@
 <?php
-$tasks = TaskModel::objects();
+$tasks = Task::objects();
 $date_header = $date_col = false;
 
 // Figure out REFRESH url — which might not be accurate after posting a
@@ -126,7 +126,7 @@ $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
         'dept__name', 'cdata__title', 'flags');
 // Apply requested quick filter
 
-$queue_sort_key = sprintf(':Q:%s:sort', $queue_name);
+$queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
 
 if (isset($_GET['sort'])) {
         $_SESSION[$queue_sort_key] = $_GET['sort'];

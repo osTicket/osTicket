@@ -1118,11 +1118,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
     /* static routines */
     static function lookupIdByNumber($number) {
-        $sql = 'SELECT id FROM '.TASK_TABLE
-              .' WHERE `number`='.db_input($number);
-        list($id) = db_fetch_row(db_query($sql));
 
-        return $id;
+        if (($task = self::lookup(array('number' => $number))))
+            return $task->getId();
+
     }
 
     static function isNumberUnique($number) {

@@ -139,7 +139,7 @@ class Export {
                 'created' =>        __('Date Created'),
                 'cdata.title' =>    __('Title'),
                 'dept::getLocalName' => __('Department'),
-                'flags' =>          __('Current Status'), //FIXME: self:getStatus()?
+                '::getStatus' =>    __('Current Status'),
                 'duedate' =>        __('Due Date'),
                 'staff::getName' => __('Agent Assigned'),
                 'team::getName' =>  __('Team Assigned'),
