@@ -3427,8 +3427,6 @@ class DatetimePickerWidget extends Widget {
             // TODO: Add time picker -- requires time picker or selection with
             //       Misc::timeDropdown
             echo '&nbsp;' . Misc::timeDropdown($hr, $min, $this->name . ':time');
-
-        echo '</div>';
     }
 
     /**

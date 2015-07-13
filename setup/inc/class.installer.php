@@ -73,13 +73,6 @@ class Installer extends SetupWizard {
         //Admin's pass confirmation.
         if(!$this->errors && strcasecmp($vars['passwd'],$vars['passwd2']))
             $this->errors['passwd2']=__('Password(s) do not match');
-        try {
-            require_once INCLUDE_DIR.'class.auth.php';
-            PasswordPolicy::checkPassword($vars['passwd'], null);
-        }
-        catch (BadPassword $e) {
-            $this->errors['passwd'] = $e->getMessage();
-        }
 
         //Check table prefix underscore required at the end!
         if($vars['prefix'] && substr($vars['prefix'], -1)!='_')
@@ -118,15 +111,24 @@ class Installer extends SetupWizard {
             }
         }
 
-        // bailout on errors.
-        if ($this->errors)
-            return false;
-
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('TABLE_PREFIX',$vars['prefix']); //Table prefix
         Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
+
+        // Check password against password policy (after loading code)
+        try {
+            PasswordPolicy::checkPassword($vars['passwd'], null);
+        }
+        catch (BadPassword $e) {
+            $this->errors['passwd'] = $e->getMessage();
+        }
+
+        // bailout on errors.
+        if ($this->errors)
+            return false;
+
 
         $debug = true; // Change it to false to squelch SQL errors.
 

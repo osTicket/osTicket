@@ -191,14 +191,13 @@ class Bootstrap {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
         require_once INCLUDE_DIR.'class.translation.php';
-        require(INCLUDE_DIR.'class.signal.php');
+        require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.model.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
-        require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
