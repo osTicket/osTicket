@@ -197,21 +197,22 @@ class Unpacker extends Module {
         if (isset($location))
             return $location;
 
-        $bootstrap_php = $this->destination . '/bootstrap.php';
-        if (!is_file($bootstrap_php))
-            return @$this->include_path ?: '';
+        $pipes = array();
+        $php = proc_open('php', array(
+            0 => array('pipe', 'r'),
+            1 => array('pipe', 'w'),
+        ), $pipes);
 
-        $lines = preg_grep("/define\s*\(\s*'INCLUDE_DIR'/",
-            explode("\n", file_get_contents($bootstrap_php)));
+        fwrite($pipes[0], "<?php
+        include '{$this->destination}/bootstrap.php';
+        print INCLUDE_DIR;
+        ");
+        fclose($pipes[0]);
 
-        // NOTE: that this won't work for crafty folks who have a define or some
-        //       variable in the value of their include path
-        if (!defined('ROOT_DIR'))
-            define('ROOT_DIR', rtrim($this->destination, '/').'/');
-        foreach ($lines as $line)
-            @eval($line);
+        $INCLUDE_DIR = fread($pipes[1], 8192);
+        proc_close($php);
 
-        return $location = rtrim(INCLUDE_DIR, '/').'/';
+        return $location = rtrim($INCLUDE_DIR, '/').'/';
     }
 
     function run($args, $options) {
