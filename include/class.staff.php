@@ -631,6 +631,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
+        $this->onvacation = isset($vars['onvacation'])?1:0;
 
         if ($errors)
             return false;
