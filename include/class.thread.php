@@ -2447,7 +2447,7 @@ implements TemplateVariable {
             return $message;
 
         $this->lastmessage = SqlFunction::NOW();
-        $this->save();
+        $this->save(true);
         return $message;
     }
 
@@ -2460,7 +2460,7 @@ implements TemplateVariable {
             return $resp;
 
         $this->lastresponse = SqlFunction::NOW();
-        $this->save();
+        $this->save(true);
         return $resp;
     }
 

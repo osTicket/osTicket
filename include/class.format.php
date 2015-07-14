@@ -869,8 +869,6 @@ implements TemplateVariable {
     }
 
     function getVar($what) {
-        global $cfg;
-
         // TODO: Rebase date format so that locale is discovered HERE.
 
         switch ($what) {
@@ -906,20 +904,21 @@ extends FormattedLocalDate {
         return (string) new FormattedLocalDate($this->date, $cfg->getTimezone(), false, $this->fromdb);
     }
 
-    function getVar($what, $context) {
+    function getVar($what, $context=null) {
         global $cfg;
 
-        if ($rv = parent::getVar($what))
+        if ($rv = parent::getVar($what, $context))
             return $rv;
 
         switch ($what) {
         case 'user':
             // Fetch $recipient from the context and find that user's time zone
-            if ($recipient = $context->getObj('recipient')) {
+            if ($context && ($recipient = $context->getObj('recipient'))) {
                 $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
                 return new FormattedLocalDate($this->date, $tz, $recipient);
             }
-            break;
+            // Don't resolve the variable until correspondance is sent out
+            return false;
         case 'system':
             return new FormattedLocalDate($this->date, $cfg->getDefaultTimezone());
         }

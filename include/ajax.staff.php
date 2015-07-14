@@ -29,6 +29,7 @@ class StaffAjaxAPI extends AjaxController {
           Http::response(404, 'No such agent');
 
       $form = new PasswordResetForm($_POST);
+      $errors = array();
       if (!$_POST && isset($_SESSION['new-agent-passwd']))
           $form->data($_SESSION['new-agent-passwd']);
 
@@ -76,6 +77,7 @@ class StaffAjaxAPI extends AjaxController {
             Http::response(404, 'No such agent');
 
         $form = new PasswordChangeForm($_POST);
+        $errors = array();
 
         if ($_POST && $form->isValid()) {
             $clean = $form->getClean();
