@@ -217,7 +217,7 @@ if (count($bks) > 1) {
           </th>
         </tr>
         <tr>
-          <td>
+          <td style="vertical-align:top">
             <select name="dept_id" id="dept_id" data-quick-add="department">
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
@@ -230,9 +230,8 @@ if (count($bks) > 1) {
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
             <div class="error"><?php echo $errors['dept_id']; ?></div>
-            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
-          <td>
+          <td style="vertical-align:top">
             <select name="role_id" data-quick-add="role">
               <option value="0">&mdash; <?php echo __('Select Role');?> &mdash;</option>
               <?php
@@ -244,6 +243,7 @@ if (count($bks) > 1) {
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
+            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
         </tr>
       </tbody>
