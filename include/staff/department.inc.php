@@ -82,9 +82,13 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo __('Type');?>:
             </td>
             <td>
+                <label>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Public');?></strong>
+                </label>
                 &nbsp;
+                <label>
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo mb_convert_case(__('(internal)'), MB_CASE_TITLE);?>
+                </label>
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
@@ -135,12 +139,12 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         <tr>
             <td><?php echo __('Ticket Assignment'); ?>:</td>
             <td>
-                <span>
+                <label>
                 <input type="checkbox" name="assign_members_only" <?php echo
                 $info['assign_members_only']?'checked="checked"':''; ?>>
                 <?php echo __('Restrict ticket assignment to department members'); ?>
+                </label>
                 <i class="help-tip icon-question-sign" href="#sandboxing"></i>
-                </span>
             </td>
         </tr>
         <tr>
@@ -201,12 +205,12 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo __('New Ticket');?>:
             </td>
             <td>
-                <span>
+                <label>
                 <input type="checkbox" name="ticket_auto_response" value="0" <?php echo !$info['ticket_auto_response']?'checked="checked"':''; ?> >
 
                 <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                </label>
                 <i class="help-tip icon-question-sign" href="#new_ticket"></i>
-                </span>
             </td>
         </tr>
         <tr>
@@ -214,11 +218,11 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo __('New Message');?>:
             </td>
             <td>
-                <span>
+                <label>
                 <input type="checkbox" name="message_auto_response" value="0" <?php echo !$info['message_auto_response']?'checked="checked"':''; ?> >
                 <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                </label>
                 <i class="help-tip icon-question-sign" href="#new_message"></i>
-                </span>
             </td>
         </tr>
         <tr>
@@ -342,7 +346,7 @@ foreach ($dept->getMembers() as $member) {
             <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
           </select>
           <span style="display:inline-block;width:60px"> </span>
-          <label>
+          <label class="inline checkbox">
             <input type="checkbox" data-name="member_alerts" value="1" />
             <?php echo __('Alerts'); ?>
           </label>

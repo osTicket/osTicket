@@ -153,25 +153,22 @@ if (count($bks) > 1) {
           <td colspan="2">
             <div class="error"><?php echo $errors['isadmin']; ?></div>
             <div class="error"><?php echo $errors['isactive']; ?></div>
-            <label>
+            <label class="checkbox">
             <input type="checkbox" name="islocked" value="1"
               <?php echo (!$staff->isactive) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Locked'); ?>
             </label>
-            <br/>
-            <label>
+            <label class="checkbox">
             <input type="checkbox" name="isadmin" value="1"
               <?php echo ($staff->isadmin) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Administrator'); ?>
             </label>
-            <br/>
-            <label>
+            <label class="checkbox">
             <input type="checkbox" name="assigned_only"
               <?php echo ($staff->assigned_only) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Limit ticket access to ONLY assigned tickets'); ?>
             </label>
-            <br/>
-            <label>
+            <label class="checkbox">
             <input type="checkbox" name="onvacation"
               <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Vacation Mode'); ?>
@@ -253,7 +250,7 @@ if (count($bks) > 1) {
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <span style="display:inline-block;width:20px"> </span>
-            <label>
+            <label class="inline checkbox">
               <input type="checkbox" data-name="dept_access_alerts" value="1" />
               <?php echo __('Alerts'); ?>
             </label>

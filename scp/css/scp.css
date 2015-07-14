@@ -2647,12 +2647,19 @@ label.checkbox {
     padding-left: 1.3em;
     text-indent: -1.3em;
 }
+label.inline.checkbox {
+    display: inline-block;
+}
+label.checkbox + label.checkbox {
+    margin-top: 0.3em;
+}
 input[type=checkbox] {
   width: 1em;
   height: 1em;
   box-sizing: content-box;
   padding: 0;
   margin:0;
+  margin-right: 0.1em;
   vertical-align: bottom;
   position: relative;
   top: -0.05em;
