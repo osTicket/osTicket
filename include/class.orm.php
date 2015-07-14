@@ -1568,6 +1568,7 @@ class InstrumentedList extends ModelInstanceManager {
 
     function reset() {
         $this->cache = array();
+        unset($this->resource);
     }
 
     /**
