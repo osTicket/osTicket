@@ -197,7 +197,7 @@ $this->packTableData = false; // Reduce memory usage processing tables (but with
 $this->cacheTables = false;
 
 $this->ignore_table_percents = false;
-$this->ignore_table_widths = false;
+$this->ignore_table_widths = true;
 $this->keep_table_proportions = false;	// If table width set > page width, force resizing but keep relative sizes
 							// Also forces respect of cell widths set by %
 $this->shrink_tables_to_fit = 1.4;	// automatically reduce fontsize in table if words would have to split ( not in CJK)
