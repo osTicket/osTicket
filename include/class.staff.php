@@ -600,29 +600,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
-
-            if(!$vars['passwd1'])
-                $errors['passwd1']=__('New password is required');
-            elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']=__('Passwords do not match');
-
-            if (($rtoken = $_SESSION['_staff']['reset-token'])) {
-                $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != $this->getId())
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-                elseif (!($ts = $_config->lastModified($rtoken))
-                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-            }
-            elseif(!$vars['cpasswd'])
-                $errors['cpasswd']=__('Current password is required');
-            elseif(!$this->cmp_passwd($vars['cpasswd']))
-                $errors['cpasswd']=__('Invalid current password!');
-        }
-
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
 
@@ -894,19 +871,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || !$vars['id']) {
-            if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
-                $errors['passwd2']=__('Passwords do not match');
-            }
-            elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
-                // Password can be omitted
-            }
-            elseif(!$vars['passwd1'] && !$vars['id']) {
-                $errors['passwd1']=__('Temporary password is required');
-                $errors['temppasswd']=__('Required');
-            }
-        }
-
         if(!$vars['dept_id'])
             $errors['dept_id']=__('Department is required');
         if(!$vars['role_id'])
@@ -924,24 +888,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                     );
                 }
             }
-        }
-
-        // Update the user's password if requested
-        if ($vars['passwd1']) {
-            try {
-                $this->setPassword($vars['passwd1'], null);
-            }
-            catch (BadPassword $ex) {
-                $errors['passwd1'] = $ex->getMessage();
-            }
-            catch (PasswordUpdateFailed $ex) {
-                // TODO: Add a warning banner or crash the update
-            }
-            if (isset($vars['change_passwd']))
-                $this->change_passwd = 1;
-        }
-        elseif (!isset($vars['change_passwd'])) {
-            $this->change_passwd = 0;
         }
 
         // Update some things for ::updateAccess to inspect
@@ -1166,23 +1112,37 @@ extends AbstractForm {
 class PasswordChangeForm
 extends AbstractForm {
     function buildFields() {
-        return array(
+        $fields = array(
             'current' => new PasswordField(array(
                 'placeholder' => __('Current Password'),
                 'required' => true,
-                'autofocus' => true,
+                'configuration' => array(
+                    'autofocus' => true,
+                ),
             )),
             'passwd1' => new PasswordField(array(
                 'label' => __('Enter a new password'),
                 'placeholder' => __('New Password'),
                 'required' => true,
-                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 20px')),
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
                 'required' => true,
             )),
         );
+
+        // When using the password reset system, the current password is not
+        // required for agents.
+        if (isset($_SESSION['_staff']['reset-token'])) {
+            unset($fields['current']);
+            $fields['passwd1']->set('configuration', array('autofocus' => true));
+        }
+        else {
+            $fields['passwd1']->set('layout',
+                new GridFluidCell(12, array('style' => 'padding-top: 20px'))
+            );
+        }
+        return $fields;
     }
 
     function getInstructions() {

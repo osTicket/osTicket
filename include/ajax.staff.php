@@ -56,7 +56,7 @@ class StaffAjaxAPI extends AjaxController {
               $passwd1->addError($ex->getMessage());
           }
           catch (PasswordUpdateFailed $ex) {
-              // TODO: Add a warning banner or crash the update
+              $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
           }
       }
 
@@ -68,7 +68,7 @@ class StaffAjaxAPI extends AjaxController {
   }
 
     function changePassword($id) {
-        global $ost, $thisstaff;
+        global $cfg, $ost, $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
@@ -79,17 +79,36 @@ class StaffAjaxAPI extends AjaxController {
 
         if ($_POST && $form->isValid()) {
             $clean = $form->getClean();
-            try {
-                $thisstaff->setPassword($clean['passwd1'], $clean['current']);
-                if ($thisstaff->save())
-                    Http::response(201, 'Successfully updated');
+            if (($rtoken = $_SESSION['_staff']['reset-token'])) {
+                $_config = new Config('pwreset');
+                if ($_config->get($rtoken) != $thisstaff->getId())
+                    $errors['err'] =
+                        __('Invalid reset token. Logout and try again');
+                elseif (!($ts = $_config->lastModified($rtoken))
+                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+                    $errors['err'] =
+                        __('Invalid reset token. Logout and try again');
             }
-            catch (BadPassword $ex) {
-                $passwd1 = $form->getField('passwd1');
-                $passwd1->addError($ex->getMessage());
-            }
-            catch (PasswordUpdateFailed $ex) {
-                // TODO: Add a warning banner or crash the update
+            if (!$errors) {
+                try {
+                    $thisstaff->setPassword($clean['passwd1'], @$clean['current']);
+                    if ($thisstaff->save()) {
+                        if ($rtoken) {
+                            $thisstaff->cancelResetTokens();
+                            Http::response(200, $this->encode(array(
+                                'redirect' => 'index.php'
+                            )));
+                        }
+                        Http::response(201, 'Successfully updated');
+                    }
+                }
+                catch (BadPassword $ex) {
+                    $passwd1 = $form->getField('passwd1');
+                    $passwd1->addError($ex->getMessage());
+                }
+                catch (PasswordUpdateFailed $ex) {
+                    $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
+                }
             }
         }
 

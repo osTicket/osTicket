@@ -81,7 +81,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
               class="staff-username typeahead"
               name="username" disabled value="<?php echo Format::htmlchars($staff->username); ?>" />
 <?php if (!$bk || $bk->supportsPasswordChange()) { ?>
-            <button type="button" class="action-button" onclick="javascript:
+            <button type="button" id="change-pw-button" class="action-button" onclick="javascript:
             $.dialog('ajax.php/staff/'+<?php echo $staff->getId(); ?>+'/change-password', 201);">
               <i class="icon-refresh"></i> <?php echo __('Change Password'); ?>
             </button>
@@ -289,3 +289,10 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
       <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);">
   </p>
 </form>
+<?php
+if ($staff->change_passwd) { ?>
+<script type="text/javascript">
+    $(function() { $('#change-pw-button').trigger('click'); });
+</script>
+<?php
+}
