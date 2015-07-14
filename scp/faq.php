@@ -130,13 +130,13 @@ else {
         // Multi-lingual system
         foreach ($langs as $lang) {
             $attachments = $faq_form->getField('attachments.'.$lang);
-            $attachments->setAttachments($faq->getAttachments($lang));
+            $attachments->setAttachments($faq->getAttachments($lang)->window(array('inline' => false)));
         }
     }
     if ($faq) {
         // Common attachments
         $attachments = $faq_form->getField('attachments');
-        $attachments->setAttachments($faq->getAttachments());
+        $attachments->setAttachments($faq->getAttachments()->window(array('inline' => false)));
     }
 }
 

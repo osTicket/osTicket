@@ -109,7 +109,7 @@ extends InstrumentedList {
     function keepOnlyFileIds($ids, $inline=false, $lang=false) {
         $new = array_fill_keys($ids, 1);
         foreach ($this as $A) {
-            if (!isset($new[$A->file_id]) && $A->lang == $lang)
+            if (!isset($new[$A->file_id]) && $A->lang == $lang && $A->inline == $inline)
                 // Not in the $ids list, delete
                 $this->remove($A);
             unset($new[$A->file_id]);

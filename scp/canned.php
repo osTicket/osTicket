@@ -45,20 +45,19 @@ if ($_POST) {
             } elseif($canned->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this canned response'));
+
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
+                // Upload NEW attachments IF ANY - TODO: validate attachment types??
                 $keepers = $canned_form->getField('attachments')->getClean();
+                $canned->attachments->keepOnlyFileIds($keepers, false);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
                     $images = $draft->getAttachmentIds($_POST['response']);
-                    $images = array_map(function($i) { return $i['id']; }, $images);
-                    $keepers = array_merge($keepers, $images);
+                    $canned->attachments->keepOnlyFileIds($images, true);
                 }
-
-                // Upload NEW attachments IF ANY - TODO: validate attachment types??
-                $canned->attachments->keepOnlyFileIds($keepers);
 
                 // XXX: Handle nicely notifying a user that the draft was
                 // deleted | OR | show the draft for the user on the name

@@ -291,7 +291,10 @@ class FAQ extends VerySimpleModel {
     }
 
     function getAttachments($lang=null) {
-        return $this->attachments->window(array('lang'=>$lang));
+        $att = $this->attachments;
+        if ($lang)
+            $att = $att->window(array('lang' => $lang));
+        return $att;
     }
 
     function getAttachmentsLinks($separator=' ',$target='') {
@@ -315,7 +318,7 @@ class FAQ extends VerySimpleModel {
         try {
             parent::delete();
             // Cleanup help topics.
-            db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->getId()));
+            $this->topics->delete();
             // Cleanup attachments.
             $this->attachments->deleteAll();
         }
@@ -414,16 +417,12 @@ class FAQ extends VerySimpleModel {
         // ---------------------
         // Delete removed attachments.
         if (isset($vars['files'])) {
-            $keepers = $vars['files'];
-        }
-        else {
-            $keepers = array();
+            $this->getAttachments()->keepOnlyFileIds($vars['files'], false);
         }
 
         $images = Draft::getAttachmentIds($vars['answer']);
         $images = array_map(function($i) { return $i['id']; }, $images);
-        $keepers = array_merge($keepers, $images);
-        $this->getAttachments()->keepOnlyFileIds($keepers);
+        $this->getAttachments()->keepOnlyFileIds($images, true);
 
         // Handle language-specific attachments
         // ----------------------
@@ -439,7 +438,7 @@ class FAQ extends VerySimpleModel {
 
                 // FIXME: Include inline images in translated content
 
-                $this->getAttachments()->keepOnlyFileIds($keepers, false, $lang);
+                $this->getAttachments($lang)->keepOnlyFileIds($keepers, false, $lang);
             }
         }
 

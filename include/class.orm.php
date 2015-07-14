@@ -946,7 +946,13 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function constrain() {
         foreach (func_get_args() as $I) {
             foreach ($I as $path => $Q) {
-                $this->path_constraints[$path][] = $Q;
+                if (!is_array($Q) && !$Q instanceof Q) {
+                    // ->constrain(array('field__path__op' => val));
+                    $Q = array($path => $Q);
+                    list(, $path) = SqlCompiler::splitCriteria($path);
+                    $path = implode('__', $path);
+                }
+                $this->path_constraints[$path][] = $Q instanceof Q ? $Q : Q::all($Q);
             }
         }
         return $this;
@@ -2803,6 +2809,10 @@ class Q implements Serializable {
 
     static function any($constraints) {
         return new static($constraints, self::ANY);
+    }
+
+    static function all($constraints) {
+        return new static($constraints);
     }
 
     function serialize() {

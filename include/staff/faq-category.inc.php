@@ -29,19 +29,18 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
 <?php
 }
 
-$sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments '
-    .' FROM '.FAQ_TABLE.' faq '
-    .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-         ON(attach.object_id=faq.faq_id AND attach.type=\'F\' AND attach.inline = 0) '
-    .' WHERE faq.category_id='.db_input($category->getId())
-    .' GROUP BY faq.faq_id ORDER BY question';
-if(($res=db_query($sql)) && db_num_rows($res)) {
+$faqs = $category->faqs
+    ->constrain(array('attachments__inline' => 0))
+    ->annotate(array('attachments' => SqlAggregate::COUNT('attachments')));
+if ($faqs->exists(true)) {
     echo '<div id="faq">
             <ol>';
-    while($row=db_fetch_array($res)) {
+    foreach ($faqs as $faq) {
         echo sprintf('
-            <li><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a></li>',
-            $row['faq_id'],$row['question'],$row['ispublished']?__('Published'):__('Internal'));
+            <li><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</li>',
+            $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
+            $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
+        );
     }
     echo '  </ol>
          </div>';
