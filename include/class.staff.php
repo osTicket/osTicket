@@ -1378,7 +1378,6 @@ extends AbstractForm {
         list($clean['username'],) = preg_split('/[^\w.-]/', $clean['email'], 2);
         if (Staff::lookup($clean['username']))
             $clean['username'] = mb_strtolower($clean['firstname']);
-        $clean['role_id'] = 1;
         return $clean;
     }
 }
