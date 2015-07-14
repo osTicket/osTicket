@@ -37,7 +37,8 @@ $dispatcher = patterns('',
     url('^/kb/', patterns('ajax.kbase.php:KbaseAjaxAPI',
         # Send ticket-id as a query arg => canned-response/33?ticket=83
         url_get('^canned-response/(?P<id>\d+).(?P<format>json|txt)', 'cannedResp'),
-        url_get('^faq/(?P<id>\d+)', 'faq')
+        url('^faq/(?P<id>\d+)/access', 'manageFaqAccess'),
+        url_get('^faq/(?P<id>\d+)$', 'faq')
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
         url_get('^log/(?P<id>\d+)', 'log'),

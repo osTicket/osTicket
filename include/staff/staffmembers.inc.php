@@ -185,7 +185,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                 Format::htmlchars((string) $agent->getName()); ?></a></td>
                 <td><?php echo $agent->getUserName(); ?></td>
                 <td><?php echo $agent->isActive() ? __('Active') :'<b>'.__('Locked').'</b>'; ?><?php
-                    echo $agent->onvacation ? '<small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
+                    echo $agent->onvacation ? ' <small>(<i>'.__('vacation').'</i>)</small>' : ''; ?></td>
 
                 <td><a href="departments.php?id=<?php echo
                     $agent->getDeptId(); ?>"><?php

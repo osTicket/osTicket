@@ -349,7 +349,6 @@ a.userPref { background:url(../images/icons/user_preferences.gif) }
 a.userPasswd { background:url(../images/icons/change_password.gif) }
 
 a.preferences { background:url(../images/icons/settings.gif) }
-a.attachment { background:url(../images/icons/attachment.gif ) }
 a.api { background:url(../images/icons/api.png) }
 a.newapi { background:url(../images/icons/new_api.png) }
 
@@ -2688,4 +2687,12 @@ table.grid.form caption {
   border-color: rgba(0,0,0,0.45);
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
+}
+a.attachment {
+    padding-left: 1.2em;
+    display: block;
+}
+.sidebar section header {
+    font-weight: bold;
+    margin-bottom: 0.3em;
 }

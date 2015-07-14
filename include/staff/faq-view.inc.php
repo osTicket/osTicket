@@ -14,12 +14,13 @@ $category=$faq->getCategory();
 <div class="pull-right sidebar faq-meta">
 <?php if ($attachments = $faq->getLocalAttachments()->all()) { ?>
 <section>
-    <strong><?php echo __('Attachments');?>:</strong>
+    <header><?php echo __('Attachments');?>:</header>
 <?php foreach ($attachments as $att) { ?>
     <div>
-    <a href="<?php echo $att->file->getDownloadUrl(); ?>" class="no-pjax">
-        <i class="icon-file"></i>
-        <?php echo Format::htmlchars($att->file->name); ?>
+    <i class="icon-paperclip pull-left"></i>
+    <a target="_blank" href="<?php echo $att->file->getDownloadUrl(); ?>"
+        class="attachment no-pjax">
+        <?php echo Format::htmlchars($att->getFilename()); ?>
     </a>
     </div>
 <?php } ?>
@@ -28,9 +29,9 @@ $category=$faq->getCategory();
 
 <?php if ($faq->getHelpTopics()->count()) { ?>
 <section>
-    <strong><?php echo __('Help Topics'); ?></strong>
-<?php foreach ($faq->getHelpTopics() as $topic) { ?>
-    <div><?php echo $topic->getFullName(); ?></div>
+    <header><?php echo __('Help Topics'); ?></header>
+<?php foreach ($faq->getHelpTopics() as $T) { ?>
+    <div><?php echo $T->topic->getFullName(); ?></div>
 <?php } ?>
 </section>
 <?php } ?>
@@ -60,7 +61,7 @@ if ($otherLangs) { ?>
 <div>
     <strong><?php echo $faq->isPublished()?__('Published'):__('Internal'); ?></strong>
 </div>
-<a href="#"><?php echo __('manage access'); ?></a>
+<a data-dialog="ajax.php/kb/faq/<?php echo $faq->getId(); ?>/access" href="#"><?php echo __('manage access'); ?></a>
 </section>
 
 </div>
@@ -90,7 +91,7 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
 </div>
 
 <div class="faded"><?php echo __('Last updated');?>
-    <?php echo Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?>
+    <?php echo Format::relativeTime(Misc::db2gmtime($faq->getUpdateDate())); ?>
 </div>
 <br/>
 <div class="thread-body bleed">
@@ -107,7 +108,7 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="manage-faq">
     <input type="hidden" name="id" value="<?php echo  $faq->getId(); ?>">
-    <button name="a" class="button" value="delete"><?php echo __('Delete FAQ'); ?></button>
+    <button name="a" class="red button" value="delete"><?php echo __('Delete FAQ'); ?></button>
 </form>
 <?php }
 ?>
