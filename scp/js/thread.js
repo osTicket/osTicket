@@ -172,6 +172,10 @@ var thread = {
         $('div.thread-body a', $container).each(function() {
             $(this).attr('target', '_blank');
         });
+
+        // Open first response option tab if not already active
+        if (!document.location.hash)
+            $('.actions .tabs li:visible:first:not(.active) a', $container).trigger('click');
     }
 };
 

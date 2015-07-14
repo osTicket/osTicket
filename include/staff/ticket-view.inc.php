@@ -448,7 +448,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
 
-<div class="sticky bar stop" id="response_options">
+<div class="sticky bar stop actions" id="response_options">
     <ul class="tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>

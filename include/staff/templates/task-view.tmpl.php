@@ -322,7 +322,7 @@ if ($ticket)
 else
     $action = 'tasks.php?id='.$task->getId();
 ?>
-<div id="task_response_options" class="<?php echo $ticket ? 'ticket_task_actions' : ''; ?> sticky bar stop">
+<div id="task_response_options" class="<?php echo $ticket ? 'ticket_task_actions' : ''; ?> sticky bar stop actions">
     <ul class="tabs">
         <?php
         if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
