@@ -2103,15 +2103,22 @@ div.selected-signature .inner {
 }
 
 .row-item .button-group div {
-    padding: 9px;
-    padding-left: 12px;
     display: inline-block;
+}
+.row-item .button-group div a {
+    padding: 9px 12px 8px;
 }
 .row-item .management {
     margin-top: 10px;
     border-top: 1px dashed black;
 }
 
+.row-item:first-child .delete {
+    border-top-right-radius: 5px;
+}
+.row-item:last-child .delete {
+    border-bottom-right-radius: 5px;
+}
 .row-item .delete:hover {
     background: #fc9f41; /* Old browsers */
     color: rgba(255,255,255,0.8) !important;

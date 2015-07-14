@@ -90,7 +90,7 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
 
 <div class="pull-right">
 <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
-    <a class="action-button add-org"
+    <a class="green button action-button add-org"
         href="#">
         <i class="icon-plus-sign"></i>
         <?php echo __('Add Organization'); ?>
@@ -104,7 +104,7 @@ if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
     </span>
     <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul>
-            <li><a class="orgs-action" href="#delete">
+            <li class="danger"><a class="orgs-action" href="#delete">
                 <i class="icon-trash icon-fixed-width"></i>
                 <?php echo __('Delete'); ?></a></li>
         </ul>

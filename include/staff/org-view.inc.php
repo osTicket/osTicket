@@ -16,7 +16,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
             </span>
 <?php } ?>
 <?php if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
-            <a id="org-delete" class="action-button pull-right org-action"
+            <a id="org-delete" class="red button action-button pull-right org-action"
             href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete Organization'); ?></a>
 <?php } ?>
