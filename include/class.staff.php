@@ -1378,6 +1378,17 @@ extends AbstractForm {
         list($clean['username'],) = preg_split('/[^\w.-]/', $clean['email'], 2);
         if (Staff::lookup($clean['username']))
             $clean['username'] = mb_strtolower($clean['firstname']);
+        $clean['perms'] = array(
+            User::PERM_CREATE,
+            User::PERM_EDIT,
+            User::PERM_DELETE,
+            User::PERM_MANAGE,
+            User::PERM_DIRECTORY,
+            Organization::PERM_CREATE,
+            Organization::PERM_EDIT,
+            Organization::PERM_DELETE,
+            FAQ::PERM_MANAGE,
+        );
         return $clean;
     }
 }

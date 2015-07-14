@@ -4,10 +4,23 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info = $qs = array();
 
 if ($_REQUEST['a']=='add'){
-    if (!$staff)
+    if (!$staff) {
         $staff = Staff::create(array(
             'isactive' => true,
         ));
+        // Set some default permissions
+        $staff->updatePerms(array(
+            User::PERM_CREATE,
+            User::PERM_EDIT,
+            User::PERM_DELETE,
+            User::PERM_MANAGE,
+            User::PERM_DIRECTORY,
+            Organization::PERM_CREATE,
+            Organization::PERM_EDIT,
+            Organization::PERM_DELETE,
+            FAQ::PERM_MANAGE,
+        ));
+    }
     $title=__('Add New Agent');
     $action='create';
     $submit_text=__('Create');
