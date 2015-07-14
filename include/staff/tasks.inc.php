@@ -168,7 +168,8 @@ default:
 
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($tasks->count(), $page, PAGE_LIMIT);
+$count = $tasks->count();
+$pageNav=new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tasks.php', $args);
 $tasks = $pageNav->paginate($tasks);
 
@@ -262,7 +263,8 @@ return false;">
         </div>
         <div class="pull-right flush-right">
            <?php
-            Task::getAgentActions($thisstaff, array('status' => $status));
+           if ($count)
+                echo Task::getAgentActions($thisstaff, array('status' => $status));
             ?>
         </div>
     </div>

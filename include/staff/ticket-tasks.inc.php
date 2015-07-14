@@ -40,7 +40,8 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
             print __('Add New Task'); ?></a>
     <?php
     }
-    Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
+    if ($count)
+        Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
     ?>
 </div>
 <div class="clear"></div>
