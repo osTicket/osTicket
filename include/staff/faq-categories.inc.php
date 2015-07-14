@@ -2,51 +2,98 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
-<h2><?php echo __('Frequently Asked Questions');?></h2>
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
-    <div>
-        <input id="query" type="search" size="20" name="q" autofocus
-            value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-        <select name="cid" id="cid">
-            <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
-            <?php
-            $categories = Category::objects()
-                ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
-                ->filter(array('faq_count__gt'=>0))
-                ->order_by('name');
-            foreach ($categories as $C) {
-                echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                    $C->getId(),
-                    ($_REQUEST['cid'] && $C->getId()==$_REQUEST['cid']?'selected="selected"':''),
-                    $C->getLocalName(),
-                    $C->faq_count
-                );
-            } ?>
-        </select>
-        <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
-    </div>
-    <div>
-        <select name="topicId" style="width:350px;" id="topic-id">
-            <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-            <?php
-            $topics = Topic::objects()
-                ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
-                ->filter(array('faq_count__gt'=>0))
-                ->all();
-            usort($topics, function($a, $b) {
-                return strcmp($a->getFullName(), $b->getFullName());
-            });
-            foreach ($topics as $T) {
-                echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                    $T->getId(),
-                    ($_REQUEST['topicId'] && $T->getId()==$_REQUEST['topicId']?'selected="selected"':''),
-                    $T->getFullName(), $T->faq_count);
-            }
-            ?>
-        </select>
+    <input type="hidden" name="cid" value="<?php echo Format::htmlchars($_REQUEST['cid']); ?>"/>
+    <input type="hidden" name="topicId" value="<?php echo Format::htmlchars($_REQUEST['topicId']); ?>"/>
+
+    <div id="basic_search">
+        <div class="attached input">
+            <input id="query" type="text" size="20" name="q" autofocus
+                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+            <button class="attached button" id="searchSubmit" type="submit">
+                <i class="icon icon-search"></i>
+            </button>
+        </div>
+
+        <div class="pull-right">
+            <span class="action-button muted" data-dropdown="#category-dropdown">
+                <i class="icon-caret-down pull-right"></i>
+                <span>
+                    <i class="icon icon-filter"></i>
+                    <?php echo __('Category'); ?>
+                </span>
+            </span>
+            <span class="action-button muted" data-dropdown="#topic-dropdown">
+                <i class="icon-caret-down pull-right"></i>
+                <span>
+                    <i class="icon icon-filter"></i>
+                    <?php echo __('Help Topic'); ?>
+                </span>
+            </span>
+        </div>
+
+        <div id="category-dropdown" class="action-dropdown anchor-right"
+            onclick="javascript:
+                var form = $(this).closest('form');
+                form.find('[name=cid]').val($(event.target).data('cid'));
+                form.submit();">
+            <ul class="bleed-left">
+<?php
+$total = FAQ::objects()->count();
+
+$categories = Category::objects()
+    ->annotate(array('faq_count' => SqlAggregate::COUNT('faqs')))
+    ->filter(array('faq_count__gt' => 0))
+    ->order_by('name')
+    ->all();
+array_unshift($categories, new Category(array('id' => 0, 'name' => __('All Categories'), 'faq_count' => $total)));
+foreach ($categories as $C) {
+        $active = $_REQUEST['cid'] == $C->getId(); ?>
+        <li <?php if ($active) echo 'class="active"'; ?>>
+            <a href="#" data-cid="<?php echo $C->getId(); ?>">
+                <i class="icon-fixed-width <?php
+                if ($active) echo 'icon-hand-right'; ?>"></i>
+                <?php echo sprintf('%s (%d)',
+                    Format::htmlchars($C->getLocalName()),
+                    $C->faq_count); ?></a>
+        </li> <?php
+} ?>
+            </ul>
+        </div>
+
+        <div id="topic-dropdown" class="action-dropdown anchor-right"
+            onclick="javascript:
+                var form = $(this).closest('form');
+                form.find('[name=topicId]').val($(event.target).data('topicId'));
+                form.submit();">
+            <ul class="bleed-left">
+<?php
+$topics = Topic::objects()
+    ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
+    ->filter(array('faq_count__gt'=>0))
+    ->all();
+usort($topics, function($a, $b) {
+    return strcmp($a->getFullName(), $b->getFullName());
+});
+array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), 'faq_count' => $total)));
+foreach ($topics as $T) {
+        $active = $_REQUEST['topicId'] == $T->getId(); ?>
+        <li <?php if ($active) echo 'class="active"'; ?>>
+            <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
+                <i class="icon-fixed-width <?php
+                if ($active) echo 'icon-hand-right'; ?>"></i>
+                <?php echo sprintf('%s (%d)',
+                    Format::htmlchars($T->getFullName()),
+                    $T->faq_count); ?></a>
+        </li> <?php
+} ?>
+            </ul>
+        </div>
+
     </div>
 </form>
+<h2><?php echo __('Frequently Asked Questions');?></h2>
 <hr>
 <div>
 <?php

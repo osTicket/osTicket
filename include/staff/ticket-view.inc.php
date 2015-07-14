@@ -917,7 +917,9 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
         <fieldset class="notes">
             <label class="fixed-size" for="notes"><?php echo __('Print Notes');?>:</label>
+            <label class="inline checkbox">
             <input type="checkbox" id="notes" name="notes" value="1"> <?php echo __('Print <b>Internal</b> Notes/Comments');?>
+            </label>
         </fieldset>
         <fieldset>
             <label class="fixed-size" for="psize"><?php echo __('Paper Size');?>:</label>

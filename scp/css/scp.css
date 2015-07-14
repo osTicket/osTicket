@@ -1467,46 +1467,11 @@ h2 > i.help-tip {
 }
 
 #kbSearch {
-    padding:10px 0;
-    overflow:hidden;
-}
-
-#kbSearch div {
-    clear:both;
-    overflow:hidden;
-    padding:5px 0 2px 3px;
+    margin-bottom: 1em;
 }
 
 #kbSearch #query {
-    margin:1px 5px 0 0;
-    display:inline-block;
-    float:left;
     width:200px;
-}
-
-#kbSearch #cid {
-    margin:0;
-    display:inline-block;
-    float:left;
-    width:200px;
-    margin-right:5px;
-    position:relative;
-    top:2px;
-}
-
-#kbSearch #topic-id {
-    margin:0;
-    display:inline-block;
-    float:left;
-    width:410px;
-}
-
-#kbSearch #searchSubmit {
-    margin:0;
-    display:inline-block;
-    float:left;
-    position:relative;
-    top:2px;
 }
 
 #faq {

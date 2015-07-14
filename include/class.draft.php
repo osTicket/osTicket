@@ -171,7 +171,7 @@ class Draft extends VerySimpleModel {
      */
     static function deleteForNamespace($namespace, $staff_id=false) {
         $attachments = Attachment::objects()
-            ->filter(array('draft__namespace__like' => $namespace));
+            ->filter(array('draft__namespace__startswith' => $namespace));
         if ($staff_id)
             $attachments->filter(array('draft__staff_id' => $staff_id));
 

@@ -110,7 +110,7 @@ implements TemplateVariable {
     }
 
     function getFullName() {
-        return self::getTopicName($this->getId());
+        return self::getTopicName($this->getId()) ?: $this->topic;
     }
 
     static function getTopicName($id) {
