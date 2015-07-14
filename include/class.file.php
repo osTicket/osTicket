@@ -546,9 +546,9 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function lookup($id) {
-        return is_numeric($id)
-            ? parent::lookup($id)
-            : static::lookupByHash($id);
+        return is_string($id)
+            ? static::lookupByHash($id)
+            : parent::lookup($id);
     }
 
     /*
