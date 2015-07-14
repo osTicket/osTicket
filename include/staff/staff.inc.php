@@ -425,23 +425,24 @@ var addAccess = function(daid, name, role, alerts, error) {
   copy.removeClass('hidden')
   if (error)
       $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+  copy.find('a.drop-access').click(function() {
+    $('#add_access').append(
+      $('<option>')
+        .attr('value', copy.find('input[name^=dept_access][type=hidden]').val())
+        .text(copy.find('td:first').text())
+    );
+    copy.fadeOut(function() { $(this).remove(); });
+    return false;
+  });
 };
 
 $('#add_extended_access').find('button').on('click', function() {
-  var selected = $('#add_access').find(':selected');
-  addAccess(selected.val(), selected.text(), 0, true);
+  var selected = $('#add_access').find(':selected'),
+      id = parseInt(selected.val());
+  if (!id)
+      return;
+  addAccess(id, selected.text(), 0, true);
   selected.remove();
-  return false;
-});
-
-$(document).on('click', 'a.drop-access', function() {
-  var tr = $(this).closest('tr');
-  $('#add_access').append(
-    $('<option>')
-    .attr('value', tr.find('input[name^=dept_access][type=hidden]').val())
-    .text(tr.find('td:first').text())
-  );
-  tr.fadeOut(function() { $(this).remove(); });
   return false;
 });
 
@@ -460,14 +461,27 @@ var joinTeam = function(teamid, name, alerts, error) {
   copy.removeClass('hidden');
   if (error)
       $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+  copy.find('a.drop-membership').click(function() {
+    $('#add_team').append(
+      $('<option>')
+        .attr('value', copy.find('input[name^=teams][type=hidden]').val())
+        .text(copy.find('td:first').text())
+    );
+    copy.fadeOut(function() { $(this).remove(); });
+    return false;
+  });
 };
 
 $('#join_team').find('button').on('click', function() {
-  var selected = $('#add_team').find(':selected');
-  joinTeam(selected.val(), selected.text(), true);
+  var selected = $('#add_team').find(':selected'),
+      id = parseInt(selected.val());
+  if (!id)
+      return;
+  joinTeam(id, selected.text(), true);
   selected.remove();
   return false;
 });
+
 
 <?php
 foreach ($staff->dept_access as $dept_access) {

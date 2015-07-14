@@ -391,23 +391,24 @@ var addAccess = function(staffid, name, role, alerts, primary, error) {
   copy.removeClass('hidden')
   if (error)
       $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+  copy.find('.drop-membership').click(function() {
+    $('#add_access').append(
+      $('<option>')
+      .attr('value', copy.find('input[name^=members][type=hidden]').val())
+      .text(copy.find('td:first').text())
+    );
+    copy.fadeOut(function() { $(this).remove(); });
+    return false;
+  });
 };
 
 $('#add_extended_access').find('button').on('click', function() {
-  var selected = $('#add_access').find(':selected');
-  addAccess(selected.val(), selected.text(), 0, true);
+  var selected = $('#add_access').find(':selected'),
+      id = parseInt(selected.val());
+  if (!id)
+    return;
+  addAccess(id, selected.text(), 0, true);
   selected.remove();
-  return false;
-});
-
-$(document).on('click', 'a.drop-membership', function() {
-  var tr = $(this).closest('tr');
-  $('#add_access').append(
-    $('<option>')
-    .attr('value', tr.find('input[name^=members][type=hidden]').val())
-    .text(tr.find('td:first').text())
-  );
-  tr.fadeOut(function() { $(this).remove(); });
   return false;
 });
 

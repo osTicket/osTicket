@@ -195,8 +195,10 @@ var addMember = function(staffid, name, alerts, error) {
 
 $('#add_member').find('button').on('click', function() {
   var selected = $('#add_access').find(':selected'),
-      id = selected.val();
-  addMember(selected.val(), selected.text(), true);
+      id = parseInt(selected.val());
+  if (!id)
+    return;
+  addMember(id, selected.text(), true);
   if ($('#team-lead-select option[value='+id+']').length === 0) {
     $('#team-lead-select').find('option[data-quick-add]')
     .before(
