@@ -495,12 +495,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
+                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
+                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
@@ -534,18 +534,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE)
-                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false)
+                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to archive/delete tickets'));
                     break;
