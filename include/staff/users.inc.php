@@ -75,7 +75,7 @@ $users->order_by($order . $order_column);
 
 <div class="pull-right">
 <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
-    <a class="action-button popup-dialog"
+    <a class="green button action-button popup-dialog"
         href="#users/add">
         <i class="icon-plus-sign"></i>
         <?php echo __('Add User'); ?>
@@ -93,15 +93,8 @@ $users->order_by($order . $order_column);
     </span>
     <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul>
-<?php if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-            <li><a class="users-action" href="#delete">
-                <i class="icon-trash icon-fixed-width"></i>
-                <?php echo __('Delete'); ?></a></li>
-<?php }
-if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-            <li><a href="#orgs/lookup/form" onclick="javascript:
-$.dialog('ajax.php/orgs/lookup/form', 201);
-return false;">
+<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+            <li><a href="#add-to-org" class="users-action">
                 <i class="icon-group icon-fixed-width"></i>
                 <?php echo __('Add to Organization'); ?></a></li>
 <?php
@@ -120,6 +113,11 @@ if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
             <li><a class="users-action" href="#unlock">
                 <i class="icon-unlock icon-fixed-width"></i>
                 <?php echo __('Unlock'); ?></a></li>
+<?php }
+if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
+            <li class="danger"><a class="users-action" href="#delete">
+                <i class="icon-trash icon-fixed-width"></i>
+                <?php echo __('Delete'); ?></a></li>
 <?php }
 } # end of registration-enabled? ?>
         </ul>
@@ -270,9 +268,25 @@ $(function() {
             $form.submit();
           };
           var options = {};
-          if (action === 'delete')
+          if (action === 'delete') {
               options['deletetickets']
                 =  __('Also delete all associated tickets and attachments');
+          }
+          else if (action === 'add-to-org') {
+            $.dialog('ajax.php/orgs/lookup/form', 201, function(xhr, json) {
+              var $form = $('form#users-list');
+              try {
+                  var json = $.parseJSON(json),
+                      org_id = $form.find('#org_id');
+                  if (json.id) {
+                      org_id.val(json.id);
+                      goBaby('setorg', true);
+                  }
+              }
+              catch (e) { }
+            });
+            return;
+          }
           if (!confirmed)
               $.confirm(__('You sure?'), undefined, options).then(submit);
           else
@@ -287,18 +301,6 @@ $(function() {
         e.preventDefault();
         goBaby($(this).attr('href').substr(1));
         return false;
-    });
-    $(document).on('dialog:close', function(e, json) {
-        $form = $('form#users-list');
-        try {
-            var json = $.parseJSON(json),
-                org_id = $form.find('#org_id');
-            if (json.id) {
-                org_id.val(json.id);
-                goBaby('setorg', true);
-            }
-        }
-        catch (e) { }
     });
 });
 </script>
