@@ -1212,10 +1212,6 @@ ul.tabs.alt li.active {
     vertical-align:top;
 }
 
-#response_options textarea {
-    width:760px !important;
-}
-
 #response_options input[type=text], #response_options textarea:not(.richtext) {
     border:1px solid #aaa;
     background:#fff;
