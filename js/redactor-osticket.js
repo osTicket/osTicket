@@ -311,6 +311,8 @@ $(function() {
         }
         if (el.hasClass('fullscreen'))
             options['plugins'].push('fullscreen');
+        if (el.data('translateTag'))
+            options['plugins'].push('translatable');
         if ($('#ticket_thread[data-thread-id]').length)
             options['imageManagerJson'] += '?threadId=' + $('#ticket_thread').data('threadId');
         getConfig().then(function(c) {

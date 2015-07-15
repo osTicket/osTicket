@@ -926,3 +926,8 @@ body .redactor-box-fullscreen {
   font-size: 12px;
   text-transform: uppercase;
 }
+.redactor-editor[dir=rtl] {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: embed;
+}

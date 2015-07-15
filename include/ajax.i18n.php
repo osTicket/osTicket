@@ -100,6 +100,33 @@ class i18nAjaxAPI extends AjaxController {
                 Http::response(500, sprintf("%s: Unable to commit language"));
     }
 
+    function getConfiguredLanguages() {
+        global $cfg;
+
+        $primary = $cfg->getPrimaryLanguage();
+        $info = Internationalization::getLanguageInfo($primary);
+        $langs = array(
+            $primary => array(
+                'name' => Internationalization::getLanguageDescription($primary),
+                'flag' => strtolower($info['flag']),
+                'direction' => $info['direction'] ?: 'ltr',
+            ),
+        );
+
+        foreach ($cfg->getSecondaryLanguages() as $l) {
+            $info = Internationalization::getLanguageInfo($l);
+            $langs[$l] = array(
+                'name' => Internationalization::getLanguageDescription($l),
+                'flag' => strtolower($info['flag']),
+                'direction' => $info['direction'] ?: 'ltr',
+            );
+        }
+        $json = JsonDataEncoder::encode($langs);
+        Http::cacheable(md5($json), $cfg->lastModified());
+
+        return $json;
+    }
+
     function getSecondaryLanguages() {
         global $cfg;
 

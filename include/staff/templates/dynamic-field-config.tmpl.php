@@ -181,7 +181,7 @@
 
 <script type="text/javascript">
    // Make translatable fields translatable
-   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
+   $('input[data-translate-tag]').translatable();
 </script>
 
 <style type="text/css">

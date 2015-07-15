@@ -2016,7 +2016,7 @@ class ThreadEntryField extends FormField {
     }
 
     function getWidget($widgetClass=false) {
-        if ($hint = $this->get('hint'))
+        if ($hint = $this->getLocal('hint'))
             $this->set('placeholder', $hint);
         $this->set('hint', null);
         $widget = parent::getWidget($widgetClass);

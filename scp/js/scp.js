@@ -386,7 +386,7 @@ var scp_prep = function() {
 
 
    // Make translatable fields translatable
-   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
+   $('input[data-translate-tag]').translatable();
 
    if (window.location.hash) {
      $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');

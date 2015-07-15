@@ -222,6 +222,7 @@ $dispatcher = patterns('',
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     )),
     url('^/i18n/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('^langs/all$', 'getConfiguredLanguages'),
         url_get('^langs$', 'getSecondaryLanguages'),
         url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
         url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
@@ -248,5 +249,11 @@ $dispatcher = patterns('',
 Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
-print $dispatcher->resolve($ost->get_path_info());
+$rv = $dispatcher->resolve($ost->get_path_info());
+
+// Indicate JSON response content-type
+if (is_string($rv) && $rv[0] == '{')
+    Http::response(200, $rv, 'application/json');
+
+print $rv;
 ?>
