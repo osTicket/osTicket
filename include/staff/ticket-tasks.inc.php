@@ -163,7 +163,8 @@ $(function() {
         $.dialog(url, [201], function (xhr) {
             var tid = parseInt(xhr.responseText);
             if (tid) {
-                var url = 'ajax.php/tasks/'+tid+'/view';
+                var url = 'ajax.php/tickets/'+<?php echo $ticket->getId();
+                ?>+'/tasks/'+tid+'/view';
                 var $container = $('div#task_content');
                 $container.load(url, function () {
                     $('.tip_box').remove();
