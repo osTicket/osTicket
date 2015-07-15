@@ -1,5 +1,6 @@
 <?php
-define('GROUP_TABLE', TABLE_PREFIX.'group');
+define('GROUP_TABLE', TABLE_PREFIX.'groups');
+define('GROUP_DEPT_TABLE', TABLE_PREFIX.'group_dept_access');
 class Group extends VerySimpleModel {
     static $meta = array(
         'table' => GROUP_TABLE,
@@ -8,7 +9,10 @@ class Group extends VerySimpleModel {
     const FLAG_ENABLED = 0x0001;
 
     function getName() {
-        return $this->name;
+        return $this->group_name;
+    }
+    function getId() {
+        return $this->id;
     }
 }
 

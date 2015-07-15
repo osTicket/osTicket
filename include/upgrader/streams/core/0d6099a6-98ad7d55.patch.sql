@@ -15,11 +15,16 @@ CREATE TABLE `%TABLE_PREFIX%staff_dept_access` (
   KEY `dept_id` (`dept_id`)
 ) DEFAULT CHARSET=utf8;
 
+-- Expand staff -> group -> dept_access to staff -> dept_access
+-- At the same time, drop primary department from staff_dept_access
 INSERT INTO `%TABLE_PREFIX%staff_dept_access`
   (`staff_id`, `dept_id`, `role_id`)
-  SELECT A1.`staff_id`, A2.`dept_id`, A2.`role_id`
+  SELECT A1.`staff_id`, A2.`dept_id`,
+    CASE WHEN A2.`role_id` = 0 THEN A3.`role_id` ELSE A2.`role_id` END
   FROM `%TABLE_PREFIX%staff` A1
-  JOIN `%TABLE_PREFIX%group_dept_access` A2 ON (A1.`group_id` = A2.`group_id`);
+  JOIN `%TABLE_PREFIX%group_dept_access` A2 ON (A1.`group_id` = A2.`group_id`)
+  JOIN `%TABLE_PREFIX%group` A3 ON (A3.`id` = A1.`group_id`)
+  WHERE A2.`dept_id` != A1.`dept_id`;
 
 ALTER TABLE `%TABLE_PREFIX%staff`
   DROP `group_id`,
