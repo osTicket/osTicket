@@ -373,6 +373,75 @@ class osTicket {
         return null;
     }
 
+    /**
+     * Fetch the current version(s) of osTicket softwares via DNS. The
+     * constants of MAJOR_VERSION, THIS_VERSION, and GIT_VERSION will be
+     * consulted to arrive at the most relevant version code for the latest
+     * release.
+     *
+     * Parameters:
+     * $product - (string|default:'core') the product to fetch versions for
+     * $major - (string|optional) optional major version to compare. This is
+     *      useful if more than one version is available. Only versions
+     *      specifying this major version ('m') are considered as version
+     *      candidates.
+     *
+     * Dns:
+     * The DNS zone will have TXT records for the product will be published
+     * in this format:
+     *
+     * "v=1; m=1.9; V=1.9.11; c=deadbeef"
+     *
+     * Where the string is a semicolon-separated string of key/value pairs
+     * with the following meanings:
+     *
+     * --+--------------------------
+     * v | DNS record format version
+     *
+     * For v=1, this is the meaning of the other keys
+     * --+-------------------------------------------
+     * m | (optional) major product version
+     * V | Full product version (usually a git tag)
+     * c | Git commit id of the release tag
+     * s | Schema signature of the version, which might help detect
+     *   | required migration
+     *
+     * Returns:
+     * (string|bool|null)
+     *  - 'v1.9.11' or 'deadbeef' if release tag or git commit id seems to
+     *      be most appropriate based on the value of GIT_VERSION
+     *  - null if the $major version is no longer supported
+     *  - false if no information is available in DNS
+     */
+     function getLatestVersion($product='core', $major=null) {
+        $records = dns_get_record($product.'.updates.osticket.com', DNS_TXT);
+        if (!$records)
+            return false;
+
+        $versions = array();
+        foreach ($records as $r) {
+            $txt = $r['txt'];
+            $info = array();
+            foreach (explode(';', $r['txt']) as $kv) {
+                list($k, $v) = explode('=', $kv);
+                if (!($k = trim($k)))
+                    continue;
+                $info[$k] = trim($v);
+            }
+            $versions[] = $info;
+        }
+        foreach ($versions as $info) {
+            switch ($info['v']) {
+            case '1':
+                if ($major && $info['m'] && $info['m'] != $major)
+                    continue;
+                if ($product == 'core' && GIT_VERSION == '$git')
+                    return $info['c'];
+                return $info['V'];
+            }
+        }
+    }
+
     static function get_root_path($dir) {
 
         /* If run from the commandline, DOCUMENT_ROOT will not be set. It is

@@ -20,6 +20,10 @@ class Packager extends Deployment {
             'action'=>'store_true', 'default'=>false,
             'help'=>'Skip regression testing (NOT RECOMMENDED)',
         ),
+        'version' => array('', '--dns',
+            'action'=>'store_true', 'default'=>false,
+            'help'=>'Print current version tag for DNS'
+        ),
     );
     var $arguments = array();
 
@@ -30,6 +34,9 @@ class Packager extends Deployment {
     }
 
     function run($args, $options) {
+        if ($options['dns'])
+            return $this->print_dns();
+
         // Set some forced args and options
         $temp = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $stage_path = $temp . 'osticket'
@@ -85,6 +92,15 @@ class Packager extends Deployment {
 
     function run_tests($root) {
         return (require "$root/setup/test/run-tests.php");
+    }
+
+    function print_dns() {
+        $streams = DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/');
+        $this->stdout->write(sprintf(
+            '"v=1; m=%s; V=%s; c=%s; s=%s"',
+            MAJOR_VERSION, trim(`git describe`), substr(`git rev-parse HEAD`, 0, 7),
+            substr($streams['core'], 0, 8)
+        ));
     }
 
     function packageZip($name, $path) {
