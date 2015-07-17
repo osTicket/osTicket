@@ -344,16 +344,16 @@ class DraftAjaxAPI extends AjaxController {
             && ($object = $thread->getObject())
             && ($thisstaff->canAccess($object))
         ) {
-            $union = ' UNION SELECT f.id, a.`type` FROM '.THREAD_TABLE.' t
+            $union = ' UNION SELECT f.id, a.`type`, a.`name` FROM '.THREAD_TABLE.' t
                 JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
                 JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
                 JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
-                WHERE t.id='.db_input($_GET['threadId']);
+                WHERE a.`inline` = 1 AND t.id='.db_input($_GET['threadId']);
         }
 
-        $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft) FROM '.FILE_TABLE
+        $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft), a.`name` FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')'
+            WHERE ((a.`type` IN (\'C\', \'F\', \'T\', \'P\') AND a.`inline` = 1) OR f.ft = \'L\')'
                 .' AND f.`type` LIKE \'image/%\'';
         if (!($res = db_query($sql.$union)))
             Http::response(500, 'Unable to lookup files');
@@ -367,15 +367,15 @@ class DraftAjaxAPI extends AjaxController {
             'P' => __('Pages'),
             'H' => __('This Thread'),
         );
-        while (list($id, $type) = db_fetch_row($res)) {
-            $f = AttachmentFile::lookup($id);
+        while (list($id, $type, $name) = db_fetch_row($res)) {
+            $f = AttachmentFile::lookup((int) $id);
             $url = $f->getDownloadUrl();
             $files[] = array(
                 // Don't send special sizing for thread items 'cause they
                 // should be cached already by the client
                 'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
                 'image'=>$url,
-                'title'=>$f->getName(),
+                'title'=>$name ?: $f->getName(),
                 'folder'=>$folders[$type]
             );
         }

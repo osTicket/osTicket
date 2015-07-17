@@ -33,7 +33,7 @@ RedactorPlugins.draft = function() {
             this.opts.imageUpload =
                 'ajax.php/draft/'+this.opts.draftId+'/attach';
         }
-        else {
+        else if (this.$textarea.hasClass('draft')) {
             // Just upload the file. A draft will be created automatically
             // and will be configured locally in the afterUpateDraft()
             this.opts.clipboardUploadUrl =
@@ -43,23 +43,26 @@ RedactorPlugins.draft = function() {
         if (autosave_url)
             this.autosave.enable();
 
-        this.$draft_saved = $('<span>')
-            .addClass("pull-right draft-saved")
-            .hide()
-            .append($('<span>')
-                .text(__('Draft Saved')));
-        // Float the [Draft Saved] box with the toolbar
-        this.$toolbar.append(this.$draft_saved);
-        // Add [Delete Draft] button to the toolbar
-        if (this.opts.draftDelete) {
-            var trash = this.draft.deleteButton =
-                this.button.add('deleteDraft', __('Delete Draft'))
-            this.button.addCallback(trash, this.draft.deleteDraft);
-            this.button.setAwesome('deleteDraft', 'icon-trash');
-            trash.parent().addClass('pull-right');
-            trash.addClass('delete-draft');
-            if (!this.opts.draftId)
-                trash.hide();
+        if (this.$textarea.hasClass('draft')) {
+            this.$draft_saved = $('<span>')
+                .addClass("pull-right draft-saved")
+                .hide()
+                .append($('<span>')
+                    .text(__('Draft Saved')));
+            // Float the [Draft Saved] box with the toolbar
+            this.$toolbar.append(this.$draft_saved);
+
+            // Add [Delete Draft] button to the toolbar
+            if (this.opts.draftDelete) {
+                var trash = this.draft.deleteButton =
+                    this.button.add('deleteDraft', __('Delete Draft'))
+                this.button.addCallback(trash, this.draft.deleteDraft);
+                this.button.setAwesome('deleteDraft', 'icon-trash');
+                trash.parent().addClass('pull-right');
+                trash.addClass('delete-draft');
+                if (!this.opts.draftId)
+                    trash.hide();
+            }
         }
         if (this.code.get())
             this.$box.trigger('draft:recovered');
@@ -247,7 +250,7 @@ $(function() {
         var options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'buttons': el.hasClass('no-bar')
-                  ? ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image']
+                  ? ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'link', 'image']
                   : ['html', '|', 'formatting', '|', 'bold',
                     'italic', 'underline', 'deleted', '|', 'unorderedlist',
                     'orderedlist', 'outdent', 'indent', '|', 'image', 'video',
@@ -261,7 +264,7 @@ $(function() {
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
                   : ['imagemanager','imageannotate','table','video','definedlinks','autolock'],
-                'imageUpload': 'tbd',
+                'imageUpload': el.hasClass('draft'),
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
