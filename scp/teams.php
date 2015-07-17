@@ -52,7 +52,10 @@ if($_POST){
                         $num = Team::objects()->filter(array(
                             'team_id__in' => $_POST['ids']
                         ))->update(array(
-                            'isenabled' => 1
+                            'flags' => SqlExpression::bitor(
+                                new SqlField('flags'),
+                                Team::FLAG_ENABLED
+                            )
                         ));
 
                         if ($num) {
@@ -71,7 +74,10 @@ if($_POST){
                         $num = Team::objects()->filter(array(
                             'team_id__in' => $_POST['ids']
                         ))->update(array(
-                            'isenabled' => 0
+                            'flags' => SqlExpression::bitand(
+                                new SqlField('flags'),
+                                ~Team::FLAG_ENABLED
+                            )
                         ));
 
                         if ($num) {
