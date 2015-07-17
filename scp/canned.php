@@ -72,7 +72,7 @@ if ($_POST) {
             }
             break;
         case 'create':
-            $premade = FAQ::create();
+            $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;
