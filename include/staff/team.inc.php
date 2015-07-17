@@ -82,7 +82,13 @@ $info = $team->getInfo();
                 <span>
                 <select id="team-lead-select" name="lead_id" data-quick-add="staff">
                     <option value="0">&mdash; <?php echo __('None');?> &mdash;</option>
-                  <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+<?php               if ($members) {
+                        foreach($members as $k=>$staff){
+                            $selected=($team->lead_id && $staff->getId()==$team->lead_id)?'selected="selected"':'';
+                            echo sprintf('<option value="%d" %s>%s</option>',$staff->getId(),$selected,$staff->getName());
+                        }
+                    } ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>
                 &nbsp;<span class="error"><?php echo $errors['lead_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#lead"></i>
