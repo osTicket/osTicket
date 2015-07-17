@@ -92,7 +92,7 @@ class ConfigAjaxAPI extends AjaxController {
             array('name'=>'End-User Login Page', 'url'=> '%{url}/login.php'),
         ));
 
-        Http::cacheable(md5($links), filemtime(__file__));
+        Http::cacheable(md5($links));
         header('Content-Type: application/json; charset=UTF-8');
 
         return $links;
