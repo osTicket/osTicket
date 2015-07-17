@@ -98,12 +98,7 @@ class DraftAjaxAPI extends AjaxController {
             if ($file[0]['name'] == 'blob')
                 $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
 
-            if (isset($file[0]['tmp_name'])) {
-              $ids = $draft->attachments->upload($file);
-            }
-            else {
-              $ids = $draft->attachments->save($file[0]);
-            }
+            $ids = $draft->attachments->upload($file);
 
             if (!$ids) {
                 if ($file[0]['error']) {
