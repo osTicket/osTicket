@@ -100,10 +100,10 @@ if ($topics = Topic::getAllHelpTopics()) {
         <i class="help-tip icon-question-sign" href="#listing_type"></i>
     </div>
     <select name="ispublished">
-        <option value="2" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
+        <option value="2" <?php echo $info['ispublished'] == 2 ? 'selected="selected"' : ''; ?>>
             <?php echo __('Featured (promote to front page)'); ?>
         </option>
-        <option value="1" <?php echo $info['ispublished'] ? 'selected="selected"' : ''; ?>>
+        <option value="1" <?php echo $info['ispublished'] == 1 ? 'selected="selected"' : ''; ?>>
             <?php echo __('Public').' '.__('(publish)'); ?>
         </option>
         <option value="0" <?php echo !$info['ispublished'] ? 'selected="selected"' : ''; ?>>
