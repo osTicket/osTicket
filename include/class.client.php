@@ -343,7 +343,7 @@ class ClientAccount extends UserAccount {
         // TODO: Drop password-reset tokens from the config table for
         //       this user id
         $sql = 'DELETE FROM '.CONFIG_TABLE.' WHERE `namespace`="pwreset"
-            AND `key`='.db_input($this->getUserId());
+            AND `value`='.db_input('c'.$this->getUserId());
         if (!db_query($sql, false))
             return false;
 
@@ -371,7 +371,7 @@ class ClientAccount extends UserAccount {
 
             if ($rtoken) {
                 $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != $this->getUserId())
+                if ($_config->get($rtoken) != 'c'.$this->getUserId())
                     $errors['err'] =
                         __('Invalid reset token. Logout and try again');
                 elseif (!($ts = $_config->lastModified($rtoken))

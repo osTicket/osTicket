@@ -986,7 +986,7 @@ class UserEmail extends UserEmailModel {
 }
 
 
-class UserAccountModel extends VerySimpleModel {
+class UserAccount extends VerySimpleModel {
     static $meta = array(
         'table' => USER_ACCOUNT_TABLE,
         'pk' => array('id'),
@@ -998,11 +998,12 @@ class UserAccountModel extends VerySimpleModel {
         ),
     );
 
+    const LANG_MAILOUTS = 1;            // Language preference for mailouts
+
     var $_status;
     var $_extra;
 
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
+    function __onload() {
         $this->_status = new UserAccountStatus($this->get('status'));
     }
 
@@ -1133,11 +1134,6 @@ class UserAccountModel extends VerySimpleModel {
         }
         return parent::save($refetch);
     }
-}
-
-class UserAccount extends UserAccountModel {
-
-    const LANG_MAILOUTS = 1;            // Language preference for mailouts
 
     function hasPassword() {
         return (bool) $this->get('passwd');
@@ -1189,7 +1185,7 @@ class UserAccount extends UserAccountModel {
         ), $vars);
 
         $_config = new Config('pwreset');
-        $_config->set($vars['token'], $this->getUser()->getId());
+        $_config->set($vars['token'], 'c'.$this->getUser()->getId());
 
         $email->send($this->getUser()->getEmail(),
             Format::striptags($msg['subj']), $msg['body']);

@@ -1223,7 +1223,7 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
-                || $id != $client->getId())
+                || $id != 'c'.$client->getId())
             $errors['msg'] = __('Invalid reset token');
         elseif (!($ts = $_config->lastModified($_POST['token']))
                 && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
@@ -1258,9 +1258,9 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
             return false;
         elseif (!($id = $_config->get($_GET['token'])))
             return false;
-        elseif (!($acct = ClientAccount::lookup(array('user_id'=>$id)))
+        elseif (!($acct = ClientAccount::lookup(array('user_id'=>substr($id,1))))
                 || !$acct->getId()
-                || $id != $acct->getUserId()
+                || $id != 'c'.$acct->getUserId()
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             return false;
         else
