@@ -6,6 +6,7 @@ osTicket v1.9.11
   * Log to syslog on php mail() error (#2128)
   * Full path of help topics shown in filter management (3d98dff)
   * Auto rebuild the search index if %_search table is dropped (#2250)
+  * New version available message in system information (0cca608)
 
 ### Improvements
   * Fix appearance of ` <div>` in user names (*regression in v1.9.9*) (be2f138)
