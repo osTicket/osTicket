@@ -802,8 +802,8 @@ implements RestrictedAccess, Threadable {
         foreach ($forms as $form) {
             foreach ($form->getFields() as $field) {
                 if ($field->isRequiredForClose()) {
-                    if (!($field->answer->get('value'))) {
-                        array_push($returnArray, $field->get('label'));
+                    if (!$field->answer || !$field->answer->get('value')) {
+                        array_push($returnArray, $field->getLocal('label'));
                     }
                 }
             }
