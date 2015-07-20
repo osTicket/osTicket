@@ -42,9 +42,9 @@ $category=$faq->getCategory();
     <strong><?php echo __('Attachments');?>:</strong>
 <?php foreach ($attachments as $att) { ?>
     <div>
-    <a href="file.php?h=<?php echo $att['download']; ?>" class="no-pjax">
+    <a href="file.php?h=<?php echo $att->file->getDownloadUrl(); ?>" class="no-pjax">
         <i class="icon-file"></i>
-        <?php echo Format::htmlchars($att['name']); ?>
+        <?php echo Format::htmlchars($att->getFilename()); ?>
     </a>
     </div>
 <?php } ?>
@@ -53,8 +53,8 @@ $category=$faq->getCategory();
 if ($faq->getHelpTopics()->count()) { ?>
 <section>
     <strong><?php echo __('Help Topics'); ?></strong>
-<?php foreach ($faq->getHelpTopics() as $topic) { ?>
-    <div><?php echo $topic->getFullName(); ?></div>
+<?php foreach ($faq->getHelpTopics() as $T) { ?>
+    <div><?php echo $T->topic->getFullName(); ?></div>
 <?php } ?>
 </section>
 <?php }
