@@ -942,6 +942,20 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    /**
+     * Add a path constraint for the query. This is different from ::filter
+     * in that the constraint is added to a join clause which is normally
+     * built from the model meta data. The ::filter() method on the other
+     * hand adds the constraint to the where clause. This is generally useful
+     * for aggregate queries and left join queries where multiple rows might
+     * match a filter in the where clause and would produce incorrect results.
+     *
+     * Example:
+     * Find users with personal email hosted with gmail.
+     * >>> $Q = User::objects();
+     * >>> $Q->constrain(['user__emails' => new Q(['type' => 'personal']))
+     * >>> $Q->filter(['user__emails__address__contains' => '@gmail.com'])
+     */
     function constrain() {
         foreach (func_get_args() as $I) {
             foreach ($I as $path => $Q) {
@@ -1579,6 +1593,17 @@ class InstrumentedList extends ModelInstanceManager {
     }
 
     /**
+     * Slight edit to the standard ::next() iteration method which will skip
+     * deleted items.
+     */
+    function next() {
+        do {
+            parent::next();
+        }
+        while ($this->valid() && $this->current()->__deleted__);
+    }
+
+    /**
      * Reduce the list to a subset using a simply key/value constraint. New
      * items added to the subset will have the constraint automatically
      * added to all new items.
@@ -1780,6 +1805,7 @@ class SqlCompiler {
 
         if ($path)
             $record = $record->getByPath($path);
+        // TODO: Support Q expressions
         return $ops[$operator]($record->get($field), $check);
     }
 
