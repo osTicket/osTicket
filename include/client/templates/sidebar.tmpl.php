@@ -5,15 +5,17 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
 <?php if ($BUTTONS) { ?>
         <div class="front-page-button flush-right">
 <p>
+<?php
+    if ($cfg->getClientRegistrationMode() != 'disabled'
+        || !$cfg->isClientLoginRequired()) { ?>
             <a href="open.php" style="display:block" class="blue button"><?php
                 echo __('Open a New Ticket');?></a>
 </p>
-<?php   if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
+<?php } ?>
 <p>
             <a href="view.php" style="display:block" class="green button"><?php
                 echo __('Check Ticket Status');?></a>
 </p>
-<?php   } ?>
         </div>
 <?php } ?>
         <div class="content"><?php

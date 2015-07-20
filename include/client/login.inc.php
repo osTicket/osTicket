@@ -63,7 +63,9 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
 </form>
 <br>
 <p>
-<?php if ($cfg && !$cfg->isClientLoginRequired()) {
+<?php
+if ($cfg->getClientRegistrationMode() != 'disabled'
+    || !$cfg->isClientLoginRequired()) {
     echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %s open a new ticket %s'),
         '<a href="open.php">', '</a>');
 } ?>
