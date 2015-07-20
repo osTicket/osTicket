@@ -135,6 +135,11 @@ class DynamicList extends VerySimpleModel implements CustomList {
         'table' => LIST_TABLE,
         'ordering' => array('name'),
         'pk' => array('id'),
+        'joins' => array(
+            'items' => array(
+                'reverse' => 'DynamicListItem.list',
+            ),
+        ),
     );
 
     // Required fields

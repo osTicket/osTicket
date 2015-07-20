@@ -206,6 +206,38 @@ class DynamicFormsAjaxAPI extends AjaxController {
         )));
     }
 
+    function searchListItems($list_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!($list = DynamicList::lookup($list_id)))
+            Http::response(404, 'No such list');
+        elseif (!($q = $_GET['q']))
+            Http::response(400, '"q" query arg is required');
+
+        $items = clone $list->getAllItems();
+        $items->filter(Q::any(array(
+            'value__startswith' => $q,
+            'extra__contains' => $q,
+            'properties__contains' => '"'.$q,
+        )));
+
+        $results = array();
+        foreach ($items as $I) {
+            $display = $I->value;
+            if ($I->extra)
+              $display .= " ({$I->extra})";
+            $results[] = array(
+                'value' => $I->value,
+                'display' => $display,
+                'id' => $I->id,
+                'list_id' => $I->list_id,
+            );
+        }
+        return $this->encode($results);
+    }
+
     function addListItem($list_id) {
         global $thisstaff;
 

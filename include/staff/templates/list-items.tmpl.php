@@ -13,19 +13,10 @@
     ?>
     <div style="margin: 5px 0">
     <div class="pull-left">
-        <input type="search" size="25" id="search" value="<?php
+        <input type="text" placeholder="<?php echo __('Search items'); ?>"
+            data-url="ajax.php/list/<?php echo $list->getId(); ?>/items/search"
+            size="25" id="items-search" value="<?php
             echo Format::htmlchars($_POST['search']); ?>"/>
-        <button type="submit" onclick="javascript:
-            event.preventDefault();
-            $.pjax({type: 'POST', data: { search: $('#search').val() }, container: '#pjax-container'});
-            return false;
-"><?php echo __('Search'); ?></button>
-        <?php if ($_POST['search']) { ?>
-        <a href="#" onclick="javascript:
-            $.pjax.reload('#pjax-container'); return false; "
-            ><i class="icon-remove-sign"></i> <?php
-                echo __('clear'); ?></a>
-        <?php } ?>
     </div>
     <?php if ($list) { ?>
     <div class="pull-right">
@@ -102,14 +93,6 @@ if ($list) {
             $icon = ($list->get('sort_mode') == 'SortCol')
                 ? '<i class="icon-sort"></i>&nbsp;' : '';
             $items = $list->getAllItems();
-            if ($_POST['search']) {
-                $items->filter(Q::any(array(
-                    'value__contains'=>$_POST['search'],
-                    'extra__contains'=>$_POST['search'],
-                    'properties__contains'=>$_POST['search'],
-                )));
-                $search = true;
-            }
             $items = $pageNav->paginate($items);
             // Emit a marker for the first sort offset ?>
             <input type="hidden" id="sort-offset" value="<?php echo
@@ -125,3 +108,39 @@ if ($list) {
     <div><?php echo __('Page').':'.$pageNav->getPageLinks('items', $pjax_container); ?></div>
 <?php } ?>
 </div>
+<script type="text/javascript">
+$(function() {
+  var last_req;
+  $('input#items-search').typeahead({
+    source: function (typeahead, query) {
+      if (last_req)
+        last_req.abort();
+      var $el = this.$element;
+      var url = $el.data('url')+'?q='+query;
+      last_req = $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function (data) {
+          typeahead.process(data);
+        }
+      });
+    },
+    onselect: function (obj) {
+      var $el = this.$element,
+          url = 'ajax.php/list/{0}/item/{1}/update'
+            .replace('{0}', obj.list_id)
+            .replace('{1}', obj.id);
+      $.dialog(url, [201], function (xhr, resp) {
+        var json = $.parseJSON(resp);
+        if (json && json.success) {
+          if (json.id && json.row) {
+            $('#list-item-' + json.id).replaceWith(json.row);
+          }
+        }
+      });
+      this.$element.val('');
+    },
+    property: "display"
+  });
+});
+</script>
