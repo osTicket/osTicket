@@ -604,6 +604,7 @@ class MailFetcher {
     function createTicket($mid) {
         global $ost;
 
+        unset($this->tnef);
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
