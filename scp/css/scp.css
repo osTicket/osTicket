@@ -2699,3 +2699,8 @@ a.attachment {
     font-weight: bold;
     margin-bottom: 0.3em;
 }
+
+/* FIXME: Drop this with select2 4.0.1
+ * Fixes a rendering issue on Safari
+ */
+.select2-search__field{-webkit-appearance: textfield;}
