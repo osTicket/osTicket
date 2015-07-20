@@ -105,7 +105,7 @@ class Category extends VerySimpleModel {
     function getTopArticles() {
         return $this->faqs
             ->filter(Q::not(array('ispublished'=>0)))
-            ->order_by('-ispublished', '-views')
+            ->order_by('-ispublished')
             ->limit(5);
     }
 
