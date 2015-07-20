@@ -335,6 +335,7 @@ body {
   box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 }
 #nav li {
   margin: 0;
