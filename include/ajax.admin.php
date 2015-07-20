@@ -34,7 +34,7 @@ class AdminAjaxAPI extends AjaxController {
             $errors = array();
             $vars = $form->getClean();
             $vars += array(
-                'group_membership' => Dept::ALERTS_DEPT_AND_GROUPS,
+                'group_membership' => Dept::ALERTS_DEPT_AND_EXTENDED,
             );
             if ($dept->update($vars, $errors)) {
                 Http::response(201, $this->encode(array(

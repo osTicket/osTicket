@@ -58,7 +58,7 @@ implements TemplateVariable {
     var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
-    const ALERTS_DEPT_AND_GROUPS = 1;
+    const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
 
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
@@ -210,9 +210,14 @@ implements TemplateVariable {
             $rv = clone $this->getAvailableMembers();
             $rv->filter(Q::any(array(
                 // Ensure "Alerts" is enabled — must be a primary member or
-                // have alerts enabled on your membership.
+                // have alerts enabled on your membership and have alerts
+                // configured to extended to extended access members
                 'dept_id' => $this->getId(),
-                'dept_access__flags__hasbit' => StaffDeptAccess::FLAG_ALERTS,
+                // NOTE: Manager is excluded here if not a member
+                Q::all(array(
+                    'group_membership' => self::ALERTS_DEPT_AND_EXTENDED,
+                    'dept_access__flags__hasbit' => StaffDeptAccess::FLAG_ALERTS,
+                )),
             )));
         }
         return $rv;

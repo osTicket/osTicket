@@ -268,7 +268,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 <?php foreach (array(
     Dept::ALERTS_DISABLED =>        __("No one (disable Alerts and Notices)"),
     Dept::ALERTS_DEPT_ONLY =>       __("Department members only"),
-    Dept::ALERTS_DEPT_AND_GROUPS => __("Department and Group members"),
+    Dept::ALERTS_DEPT_AND_EXTENDED => __("Department and extended access members"),
 ) as $mode=>$desc) { ?>
     <option value="<?php echo $mode; ?>" <?php
         if ($info['group_membership'] == $mode) echo 'selected="selected"';
