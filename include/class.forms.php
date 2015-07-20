@@ -2741,6 +2741,37 @@ class FileUploadField extends FormField {
     function asVarType() {
         return 'FileFieldAttachments';
     }
+
+    function whatChanged($before, $after) {
+        $B = (array) $before;
+        $A = (array) $after;
+        $added = array_diff($A, $B);
+        $deleted = array_diff($B, $A);
+        $added = Format::htmlchars(array_keys($added));
+        $deleted = Format::htmlchars(array_keys($deleted));
+
+        if ($added && $deleted) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong> and removed <strong>%2$s</strong>'),
+                implode(', ', $added), implode(', ', $deleted));
+        }
+        elseif ($added) {
+            $desc = sprintf(
+                __('added <strong>%1$s</strong>'),
+                implode(', ', $added));
+        }
+        elseif ($deleted) {
+            $desc = sprintf(
+                __('removed <strong>%1$s</strong>'),
+                implode(', ', $deleted));
+        }
+        else {
+            $desc = sprintf(
+                __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>'),
+                $this->display($before), $this->display($after));
+        }
+        return $desc;
+    }
 }
 
 class FileFieldAttachments {
