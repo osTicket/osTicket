@@ -183,6 +183,16 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $item->save();
         }
 
+        Http::response(201, $this->encode(array(
+            'id' => $item->getId(),
+            'row' => $this->_renderListItem($item, $list),
+            'success' => true,
+        )));
+    }
+
+    function _renderListItem($item, $list=false) {
+        $list = $list ?: $item->list;
+
         // Send the whole row back
         $prop_fields = array();
         foreach ($list->getConfigurationForm()->getFields() as $f) {
@@ -198,12 +208,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         ob_start();
         $item->_config = null;
         include STAFFINC_DIR . 'templates/list-item-row.tmpl.php';
-        $html = ob_get_clean();
-        Http::response(201, $this->encode(array(
-            'id' => $item->getId(),
-            'row' => $html,
-            'success' => true,
-        )));
+        return ob_get_clean();
     }
 
     function searchListItems($list_id) {
@@ -259,7 +264,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
             $data['list_id'] = $list->getId();
             $item = DynamicListItem::create($data);
             if ($item->save() && $item->setConfiguration())
-                Http::response(201, $this->encode(array('success' => true)));
+                Http::response(201, $this->encode(array(
+                    'success' => true,
+                    'row' => $this->_renderListItem($item, $list)
+                )));
         }
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');

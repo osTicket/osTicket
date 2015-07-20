@@ -5,6 +5,7 @@ require_once(INCLUDE_DIR.'class.list.php');
 
 $list=null;
 $criteria=array();
+$redirect = false;
 if ($_REQUEST['id'])
     $criteria['id'] = $_REQUEST['id'];
 elseif ($_REQUEST['type'])
@@ -98,6 +99,8 @@ if($_POST) {
                  $form = $list->getForm(true);
                  $msg = sprintf(__('Successfully added %s'),
                     __('this custom list'));
+                 // Redirect to list page
+                 $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {
                 $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
                     __('this custom list'));
@@ -172,6 +175,9 @@ if($_POST) {
         }
     }
 }
+
+if ($redirect)
+    Http::redirect($redirect);
 
 $page='dynamic-lists.inc.php';
 if($list && !strcasecmp(@$_REQUEST['a'],'items') && isset($_SERVER['HTTP_X_PJAX'])) {

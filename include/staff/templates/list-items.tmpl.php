@@ -6,23 +6,19 @@
         if ($list->getSortMode() == 'SortCol')
             $pageNav->setSlack(1);
         $pageNav->setURL('lists.php?id='.$list->getId().'&a=items');
-        $showing=$pageNav->showing().' '.__('list items');
-        ?>
-    <?php }
-        else $showing = __('Add a few initial items to the list');
+    }
     ?>
     <div style="margin: 5px 0">
+    <?php if ($list) { ?>
     <div class="pull-left">
         <input type="text" placeholder="<?php echo __('Search items'); ?>"
             data-url="ajax.php/list/<?php echo $list->getId(); ?>/items/search"
             size="25" id="items-search" value="<?php
             echo Format::htmlchars($_POST['search']); ?>"/>
     </div>
-    <?php if ($list) { ?>
     <div class="pull-right">
-        <em style="display:inline-block; padding-bottom: 3px;"><?php echo $showing; ?></em>
         <?php if ($list->allowAdd()) { ?>
-        <a class="action-button field-config"
+        <a class="green button action-button field-config"
             href="#list/<?php
             echo $list->getId(); ?>/item/add">
             <i class="icon-plus-sign"></i>
@@ -41,15 +37,15 @@
         </span>
         <div id="action-dropdown-more" class="action-dropdown anchor-right">
             <ul>
-                <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/delete">
-                    <i class="icon-trash icon-fixed-width"></i>
-                    <?php echo __('Delete'); ?></a></li>
                 <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/disable">
                     <i class="icon-ban-circle icon-fixed-width"></i>
                     <?php echo __('Disable'); ?></a></li>
                 <li><a class="items-action" href="#list/<?php echo $list->getId(); ?>/enable">
                     <i class="icon-ok-sign icon-fixed-width"></i>
                     <?php echo __('Enable'); ?></a></li>
+                <li class="danger"><a class="items-action" href="#list/<?php echo $list->getId(); ?>/delete">
+                    <i class="icon-trash icon-fixed-width"></i>
+                    <?php echo __('Delete'); ?></a></li>
             </ul>
         </div>
     </div>
@@ -78,7 +74,7 @@ if ($list) {
     <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
-            <th width="24" nowrap></th>
+            <th width="28" nowrap></th>
             <th><?php echo __('Value'); ?></th>
 <?php foreach ($prop_fields as $F) { ?>
             <th><?php echo $F->getLocal('label'); ?></th>
@@ -86,7 +82,7 @@ if ($list) {
         </tr>
     </thead>
 
-    <tbody <?php if (!isset($_POST['search']) && $list && $list->get('sort_mode') == 'SortCol') { ?>
+    <tbody id="list-items" <?php if (!isset($_POST['search']) && $list && $list->get('sort_mode') == 'SortCol') { ?>
             class="sortable-rows" data-sort="sort-"<?php } ?>>
         <?php
         if ($list) {
