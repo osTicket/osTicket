@@ -21,6 +21,7 @@
 require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
 require_once(INCLUDE_DIR.'class.plugin.php');
+require_once INCLUDE_DIR . 'class.message.php';
 
 define('LOG_WARN',LOG_WARNING);
 

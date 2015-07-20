@@ -151,8 +151,15 @@ abstract class SessionBackend {
         return $this->ttl;
     }
 
+    function write($id, $data) {
+        // Last chance session update
+        $i = new ArrayObject(array('touched' => false));
+        Signal::send('session.close', null, $i);
+        return $this->update($id, $i['touched'] ? session_encode() : $data);
+    }
+
     abstract function read($id);
-    abstract function write($id, $data);
+    abstract function update($id, $data);
     abstract function destroy($id);
     abstract function gc($maxlife);
 }
@@ -179,7 +186,7 @@ extends SessionBackend {
         return $this->data;
     }
 
-    function write($id, $data){
+    function update($id, $data){
         global $thisstaff;
 
         if (md5($id.$data) == $this->data_hash)
@@ -272,7 +279,7 @@ extends SessionBackend {
         return $data;
     }
 
-    function write($id, $data) {
+    function update($id, $data) {
         if (defined('DISABLE_SESSION') && $this->isnew)
             return;
 

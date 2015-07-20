@@ -36,9 +36,8 @@ class Config {
         if ($this->section === null)
             return false;
 
-        if (!isset($_SESSION['cfg:'.$this->section]))
-            $_SESSION['cfg:'.$this->section] = array();
-        $this->session = &$_SESSION['cfg:'.$this->section];
+        if (isset($_SESSION['cfg:'.$this->section]))
+            $this->session = &$_SESSION['cfg:'.$this->section];
         $this->load();
     }
 
@@ -64,7 +63,7 @@ class Config {
     }
 
     function get($key, $default=null) {
-        if (isset($this->session[$key]))
+        if (isset($this->session) && isset($this->session[$key]))
             return $this->session[$key];
         elseif (isset($this->config[$key]))
             return $this->config[$key]['value'];
@@ -83,6 +82,10 @@ class Config {
     }
 
     function persist($key, $value) {
+        if (!isset($this->session)) {
+            $this->session = &$_SESSION['cfg:'.$this->section];
+            $this->session = array();
+        }
         $this->session[$key] = $value;
         return true;
     }

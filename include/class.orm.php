@@ -920,7 +920,6 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $compiler = 'MySqlCompiler';
     var $iterator = 'ModelInstanceManager';
 
-    var $params;
     var $query;
     var $count;
 
@@ -1076,8 +1075,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         if (isset($this->_iterator)) {
             return $this->_iterator->count();
         }
-        elseif (isset($this->_count)) {
-            return $this->_count;
+        elseif (isset($this->count)) {
+            return $this->count;
         }
         $class = $this->compiler;
         $compiler = new $class();
@@ -1167,6 +1166,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function __clone() {
         unset($this->_iterator);
         unset($this->query);
+        unset($this->count);
     }
 
     // IteratorAggregate interface
@@ -1250,6 +1250,7 @@ EOF;
         unset($info['limit']);
         unset($info['offset']);
         unset($info['_iterator']);
+        unset($info['count']);
         return serialize($info);
     }
 
@@ -2764,7 +2765,6 @@ class Q implements Serializable {
     const ANY =     0x0002;
 
     var $constraints;
-    var $flags;
     var $negated = false;
     var $ored = false;
 
@@ -2816,19 +2816,11 @@ class Q implements Serializable {
     }
 
     function serialize() {
-        return serialize(array(
-            'f' =>
-                ($this->negated ? self::NEGATED : 0)
-              | ($this->ored ? self::ANY : 0),
-            'c' => $this->constraints
-        ));
+        return serialize(array($this->negated, $this->ored, $this->constraints));
     }
 
     function unserialize($data) {
-        $data = unserialize($data);
-        $this->constraints = $data['c'];
-        $this->ored = $data['f'] & self::ANY;
-        $this->negated = $data['f'] & self::NEGATED;
+        list($this->negated, $this->ored, $this->constraints) = unserialize($data);
     }
 }
 ?>

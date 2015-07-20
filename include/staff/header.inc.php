@@ -100,4 +100,8 @@ if ($lang) {
             <div id="msg_notice"><?php echo $msg; ?></div>
         <?php }elseif($warn) { ?>
             <div id="msg_warning"><?php echo $warn; ?></div>
-        <?php } ?>
+        <?php }
+        foreach (Messages::getMessages() as $M) { ?>
+            <div class="<?php echo strtolower($M->getLevel()); ?>-banner"><?php
+                echo (string) $M; ?></div>
+<?php   } ?>
