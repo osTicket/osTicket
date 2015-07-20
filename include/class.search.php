@@ -772,7 +772,8 @@ class SavedSearch extends VerySimpleModel {
         $pieces["{$name}+search"] = new BooleanField(array(
             'id' => $baseId + 50000,
             'configuration' => array(
-                'desc' => $field->get('label'),
+                'desc' => $field->getLocal('label'),
+                'classes' => 'inline',
             ),
         ));
         $methods = $field->getSearchMethods();

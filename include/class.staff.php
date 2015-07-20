@@ -1182,7 +1182,6 @@ extends AbstractForm {
                 'widget' => 'TabbedBoxChoicesWidget',
                 'configuration' => array(
                     'multiple' => true,
-                    'classes' => 'vertical-pad',
                 ),
             )),
         );

@@ -3249,8 +3249,10 @@ class BoxChoicesWidget extends Widget {
           $this->value = $this->field->get('default');
       $config = $this->field->getConfiguration();
       $type = $config['multiple'] ? 'checkbox' : 'radio';
+
+      $classes = array('checkbox');
       if (isset($config['classes']))
-          $classes = 'class="'.$config['classes'].'"';
+          $classes = array_merge($classes, (array) $config['classes']);
 
       foreach ($choices as $k => $v) {
           if (is_array($v)) {
@@ -3260,17 +3262,16 @@ class BoxChoicesWidget extends Widget {
           }
           $id = sprintf("%s-%s", $this->id, $uid++);
 ?>
-        <label <?php echo $classes; ?>
-          for="<?php echo $id; ?>" style="display:block;">
-        <input id="<?php echo $id; ?>" style="vertical-align:top;"
-            type="<?php echo $type; ?>" name="<?php echo $this->name; ?>[]" <?php
+        <label class="<?php echo implode(' ', $classes); ?>"
+            for="<?php echo $id; ?>">
+        <input id="<?php echo $id; ?>" type="<?php echo $type; ?>"
+            name="<?php echo $this->name; ?>[]" <?php
             if ($this->value[$k]) echo 'checked="checked"'; ?> value="<?php
             echo Format::htmlchars($k); ?>"/>
         <?php
-        if ($v) { ?>
-            <em style="display:inline-block;vertical-align:baseline;width:90%;width:calc(100% - 25px);"><?php
-            echo Format::viewableImages($v); ?></em>
-<?php     } ?>
+        if ($v) {
+            echo Format::viewableImages($v);
+        } ?>
         </label>
 <?php   }
     }
@@ -3352,11 +3353,11 @@ class CheckboxWidget extends Widget {
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
+        $classes = array('checkbox');
         if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
+            $classes = array_merge($classes, (array) $config['classes']);
         ?>
-        <div <?php echo implode(' ', array_filter(array($classes))); ?>>
-        <label class="checkbox">
+        <label class="<?php echo implode(' ', $classes); ?>">
         <input id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
@@ -3366,7 +3367,6 @@ class CheckboxWidget extends Widget {
             echo Format::viewableImages($config['desc']);
         } ?>
         </label>
-        </div>
 <?php
     }
 
