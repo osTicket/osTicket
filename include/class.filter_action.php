@@ -437,7 +437,10 @@ class FA_SetStatus extends TriggerAction {
 
     function getConfigurationOptions() {
         $choices = array();
-        foreach (TicketStatusList::getStatuses() as $S) {
+        foreach (TicketStatusList::getStatuses(array(
+            'states' => array('open', 'closed')
+        ))
+        as $S) {
             // TODO: Move this to TicketStatus::getName
             $name = $S->getName();
             if (!($isenabled = $S->isEnabled()))

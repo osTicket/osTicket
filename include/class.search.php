@@ -1129,11 +1129,22 @@ class TicketSourceChoiceField extends ChoiceField {
     }
 }
 
+class OpenClosedTicketStatusList extends TicketStatusList {
+    function getItems($criteria=array()) {
+        $rv = array();
+        $base = parent::getItems($criteria);
+        foreach ($base as $idx=>$S) {
+            if (in_array($S->state, array('open', 'closed')))
+                $rv[$idx] = $S;
+        }
+        return $rv;
+    }
+}
 class TicketStatusChoiceField extends SelectionField {
     static $widget = 'ChoicesWidget';
 
     function getList() {
-        return new TicketStatusList(
+        return new OpenClosedTicketStatusList(
             DynamicList::lookup(
                 array('type' => 'ticket-status'))
         );
