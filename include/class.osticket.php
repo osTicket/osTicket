@@ -111,8 +111,8 @@ class osTicket {
         return ($token && $this->getCSRF()->validateToken($token));
     }
 
-    function checkCSRFToken($name='') {
-        $name = $name?$name:$this->getCSRF()->getTokenName();
+    function checkCSRFToken($name=false) {
+        $name = $name ?: $this->getCSRF()->getTokenName();
         if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
             return true;
 

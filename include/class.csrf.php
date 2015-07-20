@@ -71,7 +71,11 @@ Class CSRF {
     }
 
     function validateToken($token) {
-        return ($token && trim($token)==$this->getToken() && !$this->isExpired());
+        $rv = $token && trim($token)==$this->getToken() && !$this->isExpired();
+        // Prevent the token from being reused
+        if ($rv && !defined('AJAX_REQUEST'))
+            $this->rotate();
+        return $rv;
     }
 
     function getFormInput($name='') {
