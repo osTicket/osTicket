@@ -1848,8 +1848,8 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
             placeholder="<?php echo $config['prompt'];
             ?>" autocomplete="off" />
         <input type="hidden" name="<?php echo $this->name;
-            ?>[<?php echo $value; ?>]" id="<?php echo $this->name;
-            ?>_id" value="<?php echo Format::htmlchars($name); ?>"/>
+            ?>_id" id="<?php echo $this->name;
+            ?>_id" value="<?php echo Format::htmlchars($value); ?>"/>
         <script type="text/javascript">
         $(function() {
             $('input#<?php echo $this->name; ?>').typeahead({
@@ -1875,12 +1875,17 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (isset($data[$this->name]))
-            return $data[$this->name];
-
         $name = $this->field->get('name');
-        if (isset($data[$name]))
-           return $data[$name];
+        if (isset($data["{$this->name}_id"]) && is_numeric($data["{$this->name}_id"])) {
+            return array($data["{$this->name}_id"] => $data["{$this->name}_name"]);
+        }
+        elseif (isset($data[$name])) {
+            return $data[$name];
+        }
+        // Attempt to lookup typed value (usually from a default)
+        elseif ($val = $this->getEnteredValue()) {
+            return $this->field->lookupChoice($val);
+        }
 
         return parent::getValue();
     }
