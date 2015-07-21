@@ -113,6 +113,8 @@ div#header a {
     height: auto;
     width: auto;
     vertical-align: middle;
+    outline: none;
+    border: none;
 }
 .valign-helper {
     height: 100%;
@@ -139,6 +141,7 @@ div#header a {
     line-height:26px;
     border-left:1px solid #aaa;
     border-right:1px solid #aaa;
+    white-space: nowrap;
 }
 
 #nav .active, #sub_nav li {
@@ -1012,7 +1015,7 @@ ul.tabs li a.active {
     display:block;
     height:30px;
     position:absolute;
-    z-index:101;
+    z-index:5;
 }
 
 .tip_arrow {

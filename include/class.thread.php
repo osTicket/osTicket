@@ -39,18 +39,14 @@ class Thread {
 
         $sql='SELECT ticket.ticket_id as id '
             .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' ,count(DISTINCT message.id) as messages '
-            .' ,count(DISTINCT response.id) as responses '
-            .' ,count(DISTINCT note.id) as notes '
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'M' THEN thread.id ELSE NULL END) as messages "
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'R' THEN thread.id ELSE NULL END) as responses "
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'N' THEN thread.id ELSE NULL END) as notes "
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
                 .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
-                ."ticket.ticket_id=message.ticket_id AND message.thread_type = 'M') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
-                ."ticket.ticket_id=response.ticket_id AND response.thread_type = 'R') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ( '
-                ."ticket.ticket_id=note.ticket_id AND note.thread_type = 'N') "
+            .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ('
+                .'ticket.ticket_id=thread.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($this->getTicketId())
             .' GROUP BY ticket.ticket_id';
 
@@ -237,7 +233,7 @@ class Thread {
 }
 
 
-Class ThreadEntry {
+class ThreadEntry {
 
     var $id;
     var $ht;
@@ -257,11 +253,9 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid, info.headers '
+        $sql='SELECT thread.*'
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
-            .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id) '
@@ -341,6 +335,10 @@ Class ThreadEntry {
         return db_query($sql) && db_affected_rows();
     }
 
+    function getMessage() {
+        return $this->getBody();
+    }
+
     function getCreateDate() {
         return $this->ht['created'];
     }
@@ -357,13 +355,30 @@ Class ThreadEntry {
         return $this->ht['ticket_id'];
     }
 
+    function _deferEmailInfo() {
+        if (isset($this->ht['email_mid']))
+            return;
+
+        // Don't do this more than once
+        $this->ht['email_mid'] = false;
+
+        $sql = 'SELECT email_mid, headers FROM '.TICKET_EMAIL_INFO_TABLE
+            .' WHERE thread_id='.db_input($this->getId());
+        if (!($res = db_query($sql)))
+            return;
+
+        list($this->ht['email_mid'], $this->ht['headers']) = db_fetch_row($res);
+    }
+
     function getEmailMessageId() {
+        $this->_deferEmailInfo();
         return $this->ht['email_mid'];
     }
 
     function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
+        $this->_deferEmailInfo();
         if (!isset($this->ht['@headers']))
             $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
 
@@ -378,6 +393,33 @@ Class ThreadEntry {
         if ($include_mid && ($mid = $this->getEmailMessageId()))
             $references .= $mid;
         return $references;
+    }
+
+    /**
+     * Retrieve a list of all the recients of this message if the message
+     * was received via email.
+     *
+     * Returns:
+     * (array<RFC_822>) list of recipients parsed with the Mail/RFC822
+     * address parsing utility. Returns an empty array if the message was
+     * not received via email.
+     */
+    function getAllEmailRecipients() {
+        $headers = self::getEmailHeaderArray();
+        $recipients = array();
+        if (!$headers)
+            return $recipients;
+
+        foreach (array('To', 'Cc') as $H) {
+            if (!isset($headers[$H]))
+                continue;
+
+            if (!($all = Mail_Parse::parseAddressList($headers[$H])))
+                continue;
+
+            $recipients = array_merge($recipients, $all);
+        }
+        return $recipients;
     }
 
     function getUIDFromEmailReference($ref) {
@@ -432,6 +474,7 @@ Class ThreadEntry {
     }
 
     function getEmailHeader() {
+        $this->_deferEmailInfo();
         return $this->ht['headers'];
     }
 
@@ -698,10 +741,20 @@ Class ThreadEntry {
         if ($mailinfo['userId']
                 || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
+            $vars['userId'] = $mailinfo['userId'] ?: $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
-        // XXX: Consider collaborator role
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators)
+        elseif (($E = UserEmail::lookup($mailinfo['email']))
+            && ($C = Collaborator::lookup(array(
+                'ticketId' => $ticket->getId(), 'userId' => $E->user_id
+            )))
+        ) {
+            $vars['userId'] = $C->getUserId();
+            $vars['message'] = $body;
+            return $ticket->postMessage($vars, 'Email');
+        }
         elseif ($mailinfo['staffId']
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
@@ -726,8 +779,15 @@ Class ThreadEntry {
         else {
             //XXX: Are we potentially leaking the email address to
             // collaborators?
-            $vars['message'] = sprintf("Received From: %s\n\n%s",
-                $mailinfo['email'], $body);
+            $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
+                $mailinfo['email']);
+            if ($body instanceof HtmlThreadBody)
+                $header = nl2br(Format::htmlchars($header));
+            // Add the banner to the top of the message
+            if ($body instanceof ThreadBody)
+                $body->prepend($header);
+
+            $vars['message'] = $body;
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             return $ticket->postMessage($vars, 'Email');
         }
@@ -753,7 +813,8 @@ Class ThreadEntry {
 
     function saveEmailInfo($vars) {
 
-        if(!$vars || !$vars['mid'])
+        // Don't save empty message ID
+        if (!$vars || !$vars['mid'])
             return 0;
 
         $this->ht['email_mid'] = $vars['mid'];
@@ -941,7 +1002,7 @@ Class ThreadEntry {
         }
 
         // Search for the message-id token in the body
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
                     $mailinfo['email']))
@@ -1113,6 +1174,9 @@ Class ThreadEntry {
                 .' WHERE `id`='.db_input($entry->getId());
             if (!db_query($sql) || !db_affected_rows())
                 return false;
+
+            // Set the $entry here for search indexing
+            $entry->ht['body'] = $body;
         }
 
         // Email message id
@@ -1255,10 +1319,6 @@ class Note extends ThreadEntry {
         parent::ThreadEntry($id, 'N', $ticketId);
     }
 
-    function getMessage() {
-        return $this->getBody();
-    }
-
     /* static */
     function create($vars, &$errors) {
         return self::lookup(self::add($vars, $errors));
@@ -1385,6 +1445,14 @@ class ThreadBody /* extends SplString */ {
         return $this->display('html');
     }
 
+    function prepend($what) {
+        $this->body = $what . $this->body;
+    }
+
+    function append($what) {
+        $this->body .= $what;
+    }
+
     function asVar() {
         // Email template, assume HTML
         return $this->display('email');
@@ -1463,9 +1531,14 @@ class HtmlThreadBody extends ThreadBody {
     }
 
     function getSearchable() {
-        // <br> -> \n
-        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body);
-        $body = Format::htmldecode(Format::striptags($body));
+        // Replace tag chars with spaces (to ensure words are separated)
+        $body = Format::html($this->body, array('hook_tag' => function($el, $attributes=0) {
+            static $non_ws = array('wbr' => 1);
+            return (isset($non_ws[$el])) ? '' : ' ';
+        }));
+        // Collapse multiple white-spaces
+        $body = html_entity_decode($body, ENT_QUOTES);
+        $body = preg_replace('`\s+`u', ' ', $body);
         return Format::searchable($body);
     }
 

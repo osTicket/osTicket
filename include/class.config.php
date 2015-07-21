@@ -165,6 +165,7 @@ class OsticketConfig extends Config {
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
+        'verify_email_addrs' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -210,6 +211,13 @@ class OsticketConfig extends Config {
     }
 
     function isKnowledgebaseEnabled() {
+        global $thisclient;
+
+        if ($this->get('restrict_kb', false)
+            && (!$thisclient || $thisclient->isGuest())
+        ) {
+            return false;
+        }
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
@@ -608,6 +616,10 @@ class OsticketConfig extends Config {
          return $this->get('admin_email');
     }
 
+    function verifyEmailAddrs() {
+        return (bool) $this->get('verify_email_addrs');
+    }
+
     function getReplySeparator() {
         return $this->get('reply_separator');
     }
@@ -673,19 +685,20 @@ class OsticketConfig extends Config {
         return ($this->get('message_alert_acct_manager'));
     }
 
-    function alertONNewNote() {
+    //TODO: change note_alert to activity_alert
+    function alertONNewActivity() {
         return ($this->get('note_alert_active'));
     }
 
-    function alertLastRespondentONNewNote() {
+    function alertLastRespondentONNewActivity() {
         return ($this->get('note_alert_laststaff'));
     }
 
-    function alertAssignedONNewNote() {
+    function alertAssignedONNewActivity() {
         return ($this->get('note_alert_assigned'));
     }
 
-    function alertDeptManagerONNewNote() {
+    function alertDeptManagerONNewActivity() {
         return ($this->get('note_alert_dept_manager'));
     }
 
@@ -992,6 +1005,7 @@ class OsticketConfig extends Config {
             'alert_email_id'=>$vars['alert_email_id'],
             'default_smtp_id'=>$vars['default_smtp_id'],
             'admin_email'=>$vars['admin_email'],
+            'verify_email_addrs'=>isset($vars['verify_email_addrs']) ? 1 : 0,
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
@@ -1089,11 +1103,16 @@ class OsticketConfig extends Config {
 
     function updateKBSettings($vars, &$errors) {
 
-        if($errors) return false;
+        if ($vars['restrict_kb'] && !$this->isClientRegistrationEnabled())
+            $errors['restrict_kb'] =
+                __('The knowledge base cannot be restricted unless client registration is enabled');
+
+        if ($errors) return false;
 
         return $this->updateAll(array(
             'enable_kb'=>isset($vars['enable_kb'])?1:0,
-               'enable_premade'=>isset($vars['enable_premade'])?1:0,
+            'restrict_kb'=>isset($vars['restrict_kb'])?1:0,
+            'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
 

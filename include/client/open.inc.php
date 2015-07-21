@@ -77,8 +77,10 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         } ?>
     </tbody>
     <tbody><?php
-        $tform = TicketForm::getInstance()->getForm($_POST);
-        if ($_POST) $tform->isValid();
+        $tform = TicketForm::getInstance();
+        if ($_POST) {
+            $tform->isValidForClient();
+        }
         $tform->render(false); ?>
     </tbody>
     <tbody>

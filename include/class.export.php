@@ -53,10 +53,6 @@ class Export {
 
             $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
             $key = '__field_'.$f->get('id');
-            // Fetch ID values for ID-based data
-            if ($f->hasIdValue()) {
-                $name .= '_id';
-            }
             $cdata[$key] = $f->get('label');
             $fields[$key] = $f;
             $select[] = "cdata.`$name` AS __field_".$f->get('id');
@@ -280,6 +276,7 @@ class CsvResultsExporter extends ResultSetExporter {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
+        fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($this->output, $this->getHeaders());
         while ($row=$this->next())
             fputcsv($this->output, $row);

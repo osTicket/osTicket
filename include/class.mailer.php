@@ -125,28 +125,24 @@ class Mailer {
      *   -or- Original From email address
      */
     function getMessageId($recipient, $options=array(), $version='A') {
-        $tag = '';
         $rand = Misc::randCode(9,
             // RFC822 specifies the LHS of the addr-spec can have any char
             // except the specials — ()<>@,;:\".[], dash is reserved as the
             // section separator, and + is reserved for historical reasons
             'abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_=');
-        $sig = $this->getEmail()?$this->getEmail()->getEmail():'@osTicketMailer';
-        if ($recipient instanceof EmailContact) {
-            // Create a tag for the outbound email
-            $tag = pack('VVa',
-                $recipient->getId(),
-                (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
-                    ? $options['thread']->getId() : 0,
-                ($recipient instanceof Staff ? 'S'
-                    : ($recipient instanceof TicketOwner ? 'U'
-                    : ($recipient instanceof Collaborator ? 'C'
-                    : '?')))
-            );
-            $tag = str_replace('=','',base64_encode($tag));
-            // Sign the tag with the system secret salt
-            $sig = '@' . substr(hash_hmac('sha1', $tag.$rand, SECRET_SALT), -10);
-        }
+        // Create a tag for the outbound email
+        $tag = pack('VVa',
+            ($recipient instanceof EmailContact) ? $recipient->getUserId() : 0,
+            (isset($options['thread']) && $options['thread'] instanceof ThreadEntry)
+                ? $options['thread']->getId() : 0,
+            ($recipient instanceof Staff ? 'S'
+                : ($recipient instanceof TicketOwner ? 'U'
+                : ($recipient instanceof Collaborator ? 'C'
+                : '?')))
+        );
+        $tag = str_replace('=','',base64_encode($tag));
+        // Sign the tag with the system secret salt
+        $sig = '@' . substr(hash_hmac('sha1', $tag.$rand, SECRET_SALT), -10);
         return sprintf('<A%s-%s-%s-%s>',
             static::getSystemMessageIdCode(),
             $rand, $tag, $sig);
@@ -210,7 +206,7 @@ class Mailer {
                     $rv += unpack('Vuid/VthreadId/auserClass', $tag);
                     // Attempt to make the user-id more specific
                     $classes = array(
-                        'S' => 'staffId', 'U' => 'userId'
+                        'S' => 'staffId', 'U' => 'userId', 'C' => 'userId',
                     );
                     if (isset($classes[$rv['userClass']]))
                         $rv[$classes[$rv['userClass']]] = $rv['uid'];
@@ -304,14 +300,17 @@ class Mailer {
         }
 
         // Make the best effort to add In-Reply-To and References headers
+        $reply_tag = $mid_token = '';
         if (isset($options['thread'])
             && $options['thread'] instanceof ThreadEntry
         ) {
-            $headers += array('References' => $options['thread']->getEmailReferences());
             if ($irt = $options['thread']->getEmailMessageId()) {
                 // This is an response from an email, like and autoresponse.
                 // Web posts will not have a email message-id
-                $headers += array('In-Reply-To' => $irt);
+                $headers += array(
+                    'In-Reply-To' => $irt,
+                    'References' => $options['thread']->getEmailReferences()
+                );
             }
             elseif ($parent = $options['thread']->getParent()) {
                 // Use the parent item as the email information source. This
@@ -321,26 +320,20 @@ class Mailer {
                     'References' => $parent->getEmailReferences(),
                 );
             }
+
+            // Configure the reply tag and embedded message id token
+            $mid_token = $options['thread']->asMessageId($to);
+            if ($cfg && $cfg->stripQuotedReply()
+                    && (!isset($options['reply-tag']) || $options['reply-tag']))
+                $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
         }
 
-        // Use Mail_mime default initially
-        $eol = null;
+        // Use general failsafe default initially
+        $eol = "\n";
 
         // MAIL_EOL setting can be defined in `ost-config.php`
         if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
             $eol = MAIL_EOL;
-        }
-        // The Suhosin patch will muck up the line endings in some
-        // cases
-        //
-        // References:
-        // https://github.com/osTicket/osTicket-1.8/issues/202
-        // http://pear.php.net/bugs/bug.php?id=12032
-        // http://us2.php.net/manual/en/function.mail.php#97680
-        elseif ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
-            && !$this->getSMTPInfo()
-        ) {
-            $eol = "\n";
         }
         $mime = new Mail_mime($eol);
 
@@ -348,15 +341,11 @@ class Mailer {
         // then assume that it needs html processing to create a valid text
         // body
         $isHtml = true;
-        $mid_token = (isset($options['thread']))
-            ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
-            $tag = '';
-            if ($cfg && $cfg->stripQuotedReply()
-                    && (!isset($options['reply-tag']) || $options['reply-tag']))
-                $tag = $cfg->getReplySeparator() . '<br/><br/>';
-            $message = "<div style=\"display:none\"
-                data-mid=\"$mid_token\">$tag</div>$message";
+            if ($reply_tag || $mid_token) {
+                $message = "<div style=\"display:none\"
+                    class=\"mid-$mid_token\">$reply_tag</div>$message";
+            }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
             $mime->setTXTBody($txtbody);

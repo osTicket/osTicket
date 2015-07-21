@@ -25,8 +25,8 @@ if($_POST){
     if(!$_POST['email_id'] || !($email=Email::lookup($_POST['email_id'])))
         $errors['email_id']=__('Select from email address');
 
-    if(!$_POST['email'] || !Validator::is_email($_POST['email']))
-        $errors['email']=__('To email address required');
+    if(!$_POST['email'] || !Validator::is_valid_email($_POST['email']))
+        $errors['email']=__('Valid recipient email address required');
 
     if(!$_POST['subj'])
         $errors['subj']=__('Subject required');
@@ -48,11 +48,12 @@ if($_POST){
         $errors['err']=__('Error sending email - try again.');
     }
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
 $ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />',
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
+
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <form action="emailtest.php" method="post" id="save">
  <?php csrf_token(); ?>

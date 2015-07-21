@@ -176,6 +176,9 @@ implements EmailContact {
     function getId() {
         return $this->id;
     }
+    function getUserId() {
+        return $this->getId();
+    }
 
     function getEmail() {
         return $this->ht['email'];
@@ -190,7 +193,7 @@ implements EmailContact {
     }
 
     function getName() {
-        return new PersonsName($this->ht['firstname'].' '.$this->ht['lastname']);
+        return new PersonsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
     }
 
     function getFirstName() {
@@ -451,7 +454,7 @@ implements EmailContact {
         if(!$vars['lastname'])
             $errors['lastname']=__('Last name is required');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in-use as system email');
@@ -599,20 +602,32 @@ implements EmailContact {
 
     /**** Static functions ********/
     function getStaffMembers($availableonly=false) {
+        global $cfg;
 
-        $sql='SELECT s.staff_id, CONCAT_WS(" ", s.firstname, s.lastname) as name '
-            .' FROM '.STAFF_TABLE.' s ';
+        $sql = 'SELECT s.staff_id, s.firstname, s.lastname FROM '
+            .STAFF_TABLE.' s ';
 
         if($availableonly) {
             $sql.=' INNER JOIN '.GROUP_TABLE.' g ON(g.group_id=s.group_id AND g.group_enabled=1) '
                  .' WHERE s.isactive=1 AND s.onvacation=0';
         }
 
-        $sql.='  ORDER BY s.lastname, s.firstname';
+        switch ($cfg->getDefaultNameFormat()) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $sql .= ' ORDER BY s.lastname, s.firstname';
+            break;
+
+        default:
+            $sql .= ' ORDER BY s.firstname, s.lastname';
+        }
+
         $users=array();
         if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $name) = db_fetch_row($res))
-                $users[$id] = $name;
+            while(list($id, $fname, $lname) = db_fetch_row($res))
+                $users[$id] = new PersonsName(
+                    array('first' => $fname, 'last' => $lname));
         }
 
         return $users;
@@ -649,7 +664,7 @@ implements EmailContact {
             if ($vars['teams'])
                 $staff->updateTeams($vars['teams']);
             if ($vars['welcome_email'])
-                $staff->sendResetEmail('registration-staff');
+                $staff->sendResetEmail('registration-staff', false);
             Signal::send('model.created', $staff);
         }
 
@@ -665,7 +680,7 @@ implements EmailContact {
         unset($_SESSION['_staff']['reset-token']);
     }
 
-    function sendResetEmail($template='pwreset-staff') {
+    function sendResetEmail($template='pwreset-staff', $log=true) {
         global $ost, $cfg;
 
         $content = Page::lookup(Page::getIdByType($template));
@@ -689,7 +704,7 @@ implements EmailContact {
         if (!($email = $cfg->getAlertEmail()))
             $email = $cfg->getDefaultEmail();
 
-        $info = array('email' => $email, 'vars' => &$vars, 'log'=>true);
+        $info = array('email' => $email, 'vars' => &$vars, 'log'=>$log);
         Signal::send('auth.pwreset.email', $this, $info);
 
         if ($info['log'])
@@ -738,7 +753,7 @@ implements EmailContact {
         elseif(($uid=Staff::getIdByUsername($vars['username'])) && $uid!=$id)
             $errors['username']=__('Username already in use');
 
-        if(!$vars['email'] || !Validator::is_email($vars['email']))
+        if(!$vars['email'] || !Validator::is_valid_email($vars['email']))
             $errors['email']=__('Valid email is required');
         elseif(Email::getIdByEmail($vars['email']))
             $errors['email']=__('Already in use system email');

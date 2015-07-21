@@ -1,3 +1,140 @@
+osTicket v1.9.9
+===============
+### Enhancements
+  * Properly balance stripped and invalid HTML (#2145)
+  * Add MANIFEST file to deployment process and retire duplicate code for packaging (#2052)
+
+### Improvements
+  * Fix inability to configure LDAP and S3 plugins (*regression*) (59337b3)
+  * Fix incorrect whitespace in search indexed HTML content (#2111)
+  * Add support for invalid `multipart/relative` content type (aaf1b74)
+  * Force line breaks for very long HTML lines (56cc709)
+
+### Performance and Security
+  * Fix slow query for ticket counts for large datasets (c4ace2d)
+  * Fix slow thread load query (thanks @torohill) (7b7e855)
+
+osTicket v1.9.8.1
+=================
+### Enhancements
+  * Add option to disable email address verification
+
+### Improvements
+  * Fix crash upgrading from osTicket v1.6
+
+osTicket v1.9.8
+===============
+### Enhancements
+  * Update user information for existing users when importing CSV (#1993)
+  * Agent names are consistently formatted and sorted throughout the system (#1972)
+  * Memcache session backend support. (See `include/ost-sampleconfig.php`) (#2031)
+  * Email domain validation includes DNS record verification (#2042)
+  * Make ticket queue selection sticky (aa2dc85)
+
+### Improvements
+  * Fix incorrect mapping of ISO charsets to ISO-8859-1, thanks @nerull7
+  * Fix unnecessary drop of ticket CDATA table because of update to deleted
+    field (#1932)
+  * Fix inability to create or update organization custom data (#1942)
+  * Fix inability to update some fields of user custom data (#1942)
+  * Fix filtering user custom data for email tickets (#1943)
+  * Fix missing email headers resulting in incorrectly threaded emails when
+    delivered (#1947)
+  * Cleanup file data when removing custom file uploads (#1942)
+  * Fix crash when exporting PDF and PHAR extension is not enabled
+  * Fix crash processing some TNEF documents (89f3ed7, #1956)
+  * Fix handling of GBK charset when gb2312 is advertised (#2000)
+  * Fix link to client ticket listing when logged in, thanks @neewy (#1952)
+  * Disambiguate staff and collaborators when processing a some emails (#1983)
+  * Fix several i18n phrase and layout issues (#1958, #1962, #2039)
+  * Improve detection of some bounce notices with alternative content (#1994)
+  * Fix image URL rewrite when pasting existing images, from a KB article for
+    instance (#1960)
+  * Preserve internal note formatting on new ticket by staff if HTML is
+    disabled (#2001)
+  * Touch organization `updated` timestamp on custom data update (#2007)
+  * Fix deployment on Windows® platforms, thanks @yadimon (#2033)
+  * Fix upgrade crash if retrying an old, failed upgrade from v1.6 (#1995)
+  * Fix corruption of some html content (9ae01bf)
+
+osTicket v1.9.7
+===============
+### Enhancements
+  * Remote IP is logged for staff replies (#1846)
+  * Add option to require client login to view knowledge base (#1851)
+  * Internal activity alert, replacing the internal note alert, includes alerts
+    of responses made by other agents (#1865)
+  * Email system now uses LF instead of CRLF as the default (#1909)
+  * Mass actions for user directory (#1924)
+  * Unassign tickets on transfer if current assignee is not a member of the new
+    department and the department has "Restrict assignment to members" enabled
+    (#1923)
+
+### Improvements
+  * Clear overdue flag when a ticket is closed, thanks @A-Lawrence (#1739)
+  * Clear attached file listing on client post (regression) (#1845)
+  * Delete ticket custom data on delete (#1840)
+  * Trim whitespace from filter match data on update (#1844)
+  * Fix dropping of custom data on API post (#1839)
+  * Fix advanced search on create date (#1848)
+  * Fix initial load and pagination of dashboard page (#1856)
+  * Fix incorrect internal/public category setting in drop down for new FAQ
+    (#1867)
+  * Add UTF-8 BOM to CSV export for correct Unicode detection (#1869)
+  * Fix not considering the setting for alert assigned on new message (#1850)
+  * Skip new activity notice if collaborator(s) included in email To or Cc
+    header (#1871)
+  * Fix inability to uncheck a custom data checkbox (#1866)
+  * Fix advanced search for unassigned tickets (#1857)
+  * Fix navigation warning if not using the lock feature (#1898)
+  * Fix detection of message of some bounce notices (#1914)
+  * Fix SQL alert with multiple Message-ID headers (#1920)
+  * Add a warning if attempting to configure archiving for POP accounts (#1921)
+  * Fix missing UTF-8 output encoding header for staff control panel (#1918)
+  * Fix z-index issue between popup previews and modal dialogs (#1919)
+  * Record imported file backend when importing files (f1e31ba)
+
+### Performance and Security
+  * Fix XSS vulnerability in sequence management (88bedbd)
+  * Defer loading of thread email header information when loading ticket thread
+    (#1900)
+
+osTicket v1.9.6
+===============
+### Enhancements
+  * New Message-Id system allowing for better threading in mail clients (#1549,
+    #1730)
+  * Fix forced session expiration after 24 hours (#1677)
+  * Staff panel logo is customizable (#1718)
+  * Priority fields have a selectable default (instead of system default) (#1732)
+  * Import/Export support for file contents via cli (#1661)
+
+### Improvements
+  * Fix broken links in documentation, thanks @Chefkeks (#1675)
+  * Fix handling of some Redmond-specific character set encoding names (#1698)
+  * Include the users name in the "To" field of outbound email (#1549)
+  * Delete collaborators when deleting tickets (#1709)
+  * Fix regression preventing auto-responses for staff new tickets (#1712)
+  * Fix empty export if ticket details form has multiple priority fields (#1732)
+  * Fix filtering by list item properties in ticket filters (#1741)
+  * Fix missing icon for "add new filter", thanks @Chefkeks (#1735)
+  * Support Firefox v6 - v12 on the file drop widget (#1776)
+  * Show update errors on access templates (#1778)
+  * Allow empty staff login banner on update (#1778)
+  * Fix corruption of text thread bodies for third-party collaborator email
+    posts (#1794)
+  * Add some hidden template variables to pop out content (#1781)
+  * Fix missing validation for user name and email address (#1816, eb8858e)
+  * Turn off search indexing when complete, disable incorrectly implemented
+    work breaking, squelch error 1062 email from search backend (afa9692)
+  * Fix possible out of memory crash in custom forms (#1707, 0440111)
+
+### Performance and Security
+  * Fix generation of random data on Windows® platforms (#1672)
+  * Fix possible DoS and brute force on login pages (#1727)
+  * Fix possible redirect away from HTTPS on client login page, thanks @ldrumm
+    (#1782)
+
 osTicket v1.9.5.1
 =================
 ### Improvements

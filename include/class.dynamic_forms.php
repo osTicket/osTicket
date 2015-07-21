@@ -47,18 +47,17 @@ class DynamicForm extends VerySimpleModel {
     var $_dfields;
 
     function getFields($cache=true) {
-        if (!$cache)
-            $fields = false;
-        else
-            $fields = &$this->_fields;
-
-        if (!$fields) {
-            $fields = new ListObject();
-            foreach ($this->getDynamicFields() as $f)
-                $fields->append($f->getImpl($f));
+        if (!$cache) {
+            $this->_fields = null;
         }
 
-        return $fields;
+        if (!$this->_fields) {
+            $this->_fields = new ListObject();
+            foreach ($this->getDynamicFields() as $f)
+                $this->_fields->append($f->getImpl($f));
+        }
+
+        return $this->_fields;
     }
 
     function getDynamicFields() {
@@ -99,22 +98,49 @@ class DynamicForm extends VerySimpleModel {
     function getTitle() { return $this->get('title'); }
     function getInstructions() { return $this->get('instructions'); }
 
+    /**
+     * Drop field errors clean info etc. Useful when replacing the source
+     * content of the form. This is necessary because the field listing is
+     * cached under some circumstances.
+     */
+    function reset() {
+        foreach ($this->getFields() as $f)
+            $f->reset();
+        return $this;
+    }
+
     function getForm($source=false) {
-        if (!$this->_form || $source) {
-            $fields = $this->getFields($this->_has_data);
-            $this->_form = new Form($fields, $source, array(
-                'title'=>$this->title, 'instructions'=>$this->instructions));
+        if ($source)
+            $this->reset();
+        $fields = $this->getFields();
+        $form = new Form($fields, $source, array(
+            'title'=>$this->title, 'instructions'=>$this->instructions));
+        return $form;
+    }
+
+    function addErrors(array $formErrors, $replace=false) {
+        $fields = array();
+        foreach ($this->getFields() as $f)
+            $fields[$f->get('id')] = $f;
+        foreach ($formErrors as $id => $fieldErrors) {
+            if (isset($fields[$id])) {
+                if ($replace)
+                    $fields[$id]->_errors = $fieldErrors;
+                else
+                    foreach ($fieldErrors as $E)
+                        $fields[$id]->addError($E);
+            }
         }
-        return $this->_form;
     }
 
     function isDeletable() {
         return $this->get('deletable');
     }
 
-    function instanciate($sort=1) {
-        return DynamicFormEntry::create(array(
-            'form_id'=>$this->get('id'), 'sort'=>$sort));
+    function instanciate($sort=1, $data=null) {
+        return DynamicFormEntry::create(
+            array('form_id'=>$this->get('id'), 'sort'=>$sort),
+            $data);
     }
 
     function data($data) {
@@ -165,8 +191,7 @@ class DynamicForm extends VerySimpleModel {
             $inst->save();
             foreach ($ht['fields'] as $f) {
                 $f = DynamicFormField::create($f);
-                $f->form_id = $inst->id;
-                $f->setForm($inst);
+                $f->form = $inst;
                 $f->save();
             }
         }
@@ -324,8 +349,10 @@ class TicketForm extends DynamicForm {
             return;
 
         $f = $answer->getField();
-        $name = $f->get('name') ? $f->get('name')
-            : 'field_'.$f->get('id');
+        if (!$f->getFormId())
+            return;
+
+        $name = $f->get('name') ?: ('field_'.$f->get('id'));
         $fields = sprintf('`%s`=', $name) . db_input(
             implode(',', $answer->getSearchKeys()));
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
@@ -363,11 +390,11 @@ Signal::connect('model.updated',
 Signal::connect('model.created',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
-    function($o) { return $o->getForm()->get('type') == 'T'; });
+    function($o) { return $o->form->get('type') == 'T'; });
 Signal::connect('model.deleted',
     array('TicketForm', 'dropDynamicDataView'),
     'DynamicFormField',
-    function($o) { return $o->getForm()->get('type') == 'T'; });
+    function($o) { return $o->form->get('type') == 'T'; });
 // If the `name` column is in the dirty list, we would be renaming a
 // column. Delete the view instead.
 Signal::connect('model.updated',
@@ -445,6 +472,9 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function getAnswer() { return $this->answer; }
+
+    function getForm() { return $this->form; }
+    function getFormId() { return $this->form_id; }
 
     /**
      * setConfiguration
@@ -644,6 +674,9 @@ class DynamicFormEntry extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
+            'answers' => array(
+                'reverse' => 'DynamicFormEntryAnswer.entry'
+            ),
         ),
     );
 
@@ -695,22 +728,39 @@ class DynamicFormEntry extends VerySimpleModel {
     function getInstructions() { return $this->getForm()->getInstructions(); }
 
     function getForm() {
-        if (!isset($this->_form)) {
-            $this->_form = DynamicForm::lookup($this->get('form_id'));
-            if ($this->_form && isset($this->id))
-                $this->_form->data($this);
+        $form = DynamicForm::lookup($this->get('form_id'));
+        if ($form) {
+            if (isset($this->id))
+                $form->data($this);
+            if ($this->errors())
+                $form->addErrors($this->errors(), true);
         }
-        return $this->_form;
+        return $form;
+    }
+    function getMedia() {
+        return $this->getForm()->getMedia();
     }
 
     function getFields() {
         if (!isset($this->_fields)) {
             $this->_fields = array();
+            // Get all dynamic fields associated with the form
+            //  even when stored elsewhere -- important during validation
+            foreach ($this->getForm()->getDynamicFields() as $field) {
+                $field = $field->getImpl($field);
+                if ($field instanceof ThreadEntryField)
+                    continue;
+                $this->_fields[$field->get('id')] = $field;
+            }
+            // Get answers to entries
             foreach ($this->getAnswers() as $a) {
-                $T = $this->_fields[] = $a->getField();
-                $T->setForm($this);
+                if (!($f = $a->getField())) continue;
+                $this->_fields[$f->get('id')] = $f;
             }
         }
+        foreach ($this->_fields as $F)
+            $F->setForm($this);
+
         return $this->_fields;
     }
 
@@ -890,7 +940,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 $a->deleted = false;
                 // Add to list of answers
                 $this->_values[] = $a;
-                $this->_fields[] = $field;
+                $this->_fields[$field->get('id')] = $field;
                 $this->_form = null;
 
                 // Omit fields without data
@@ -909,21 +959,34 @@ class DynamicFormEntry extends VerySimpleModel {
 
                 $a->save();
             }
-            // Sort the form the way it is declared to be sorted
-            if ($this->_fields)
-                usort($this->_fields,
-                    function($a, $b) {
-                        return $a->get('sort') - $b->get('sort');
-                });
+        }
+
+        // Sort the form the way it is declared to be sorted
+        if ($this->_fields) {
+            uasort($this->_fields,
+                function($a, $b) {
+                    return $a->get('sort') - $b->get('sort');
+            });
         }
     }
 
-    function save() {
+    /**
+     * Save the form entry and all associated answers.
+     *
+     * Returns:
+     * (mixed) FALSE if updated failed, otherwise the number of dirty answers
+     * which were save is returned (which may be ZERO).
+     */
+    function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        parent::save();
-        foreach ($this->getFields() as $field) {
-            $a = $field->getAnswer();
+        if (!parent::save($refetch || count($this->dirty)))
+            return false;
+
+        $dirty = 0;
+        foreach ($this->getAnswers() as $a) {
+            $field = $a->getField();
+
             if ($this->object_type == 'U'
                     && in_array($field->get('name'), array('name','email')))
                 continue;
@@ -935,7 +998,14 @@ class DynamicFormEntry extends VerySimpleModel {
             // Set the entry ID here so that $field->getClean() can use the
             // entry-id if necessary
             $a->set('entry_id', $this->get('id'));
-            $val = $field->to_database($field->getClean());
+            try {
+                $field->setForm($this);
+                $val = $field->to_database($field->getClean());
+            }
+            catch (FieldUnchanged $e) {
+                // Don't update the answer.
+                continue;
+            }
             if (is_array($val)) {
                 $a->set('value', $val[0]);
                 $a->set('value_id', $val[1]);
@@ -943,10 +1013,14 @@ class DynamicFormEntry extends VerySimpleModel {
             else
                 $a->set('value', $val);
             // Don't save answers for presentation-only fields
-            if ($field->hasData() && !$field->isPresentationOnly())
+            if ($field->hasData() && !$field->isPresentationOnly()) {
+                if ($a->dirty)
+                    $dirty++;
                 $a->save();
+            }
         }
         $this->_values = null;
+        return $dirty;
     }
 
     function delete() {
@@ -955,10 +1029,13 @@ class DynamicFormEntry extends VerySimpleModel {
         return parent::delete();
     }
 
-    static function create($ht=false) {
+    static function create($ht=false, $data=null) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        foreach ($inst->getForm()->getFields() as $f) {
+        $form = $inst->getForm();
+        if ($data)
+            $form->setSource($data);
+        foreach ($form->getFields() as $f) {
             if (!$f->hasData()) continue;
             $a = DynamicFormEntryAnswer::create(
                 array('field_id'=>$f->get('id')));
@@ -1018,9 +1095,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!$this->_value && isset($this->value))
+        if (!isset($this->_value) && isset($this->value)) {
+            //XXX: We're settting the value here to avoid infinite loop
+            $this->_value = false;
             $this->_value = $this->getField()->to_php(
                 $this->get('value'), $this->get('value_id'));
+        }
+
         return $this->_value;
     }
 
@@ -1072,6 +1153,15 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     function __toString() {
         $v = $this->toString();
         return is_string($v) ? $v : (string) $this->getValue();
+    }
+
+    function delete() {
+        if (!parent::delete())
+            return false;
+
+        // Allow the field to cleanup anything else in the database
+        $this->getField()->db_cleanup();
+        return true;
     }
 }
 
@@ -1169,7 +1259,7 @@ class SelectionField extends FormField {
     }
 
     function toString($items) {
-        return ($items && is_array($items))
+        return is_array($items)
             ? implode(', ', $items) : (string) $items;
     }
 

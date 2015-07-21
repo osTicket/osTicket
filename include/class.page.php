@@ -229,7 +229,7 @@ class Page {
             ? $p : null;
     }
 
-    function save($id, $vars, &$errors) {
+    function save($id, $vars, &$errors, $allowempty=false) {
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
@@ -246,7 +246,7 @@ class Page {
         elseif(($pid=self::getIdByName($vars['name'])) && $pid!=$id)
             $errors['name'] = __('Name already exists');
 
-        if(!$vars['body'])
+        if(!$vars['body'] && !$allowempty)
             $errors['body'] = __('Page body is required');
 
         if($errors) return false;

@@ -71,6 +71,8 @@ class VerySimpleModel {
     function set($field, $value) {
         // Update of foreign-key by assignment to model instance
         if (isset(static::$meta['joins'][$field])) {
+            if (!isset(static::$meta['joins'][$field]['fkey']))
+                static::_inspect();
             $j = static::$meta['joins'][$field];
             if ($j['list'] && ($value instanceof InstrumentedList)) {
                 // Magic list property
@@ -206,9 +208,9 @@ class VerySimpleModel {
         foreach ($this->dirty as $field=>$old) {
             if ($this->__new__ or !in_array($field, $pk)) {
                 if (@get_class($this->get($field)) == 'SqlFunction')
-                    $fields[] = $field.' = '.$this->get($field)->toSql();
+                    $fields[] = "`$field` = ".$this->get($field)->toSql();
                 else
-                    $fields[] = $field.' = '.db_input($this->get($field));
+                    $fields[] = "`$field` = ".db_input($this->get($field));
             }
         }
         $sql .= ' SET '.implode(', ', $fields);

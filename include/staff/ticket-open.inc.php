@@ -265,8 +265,9 @@ if ($_POST)
         ?>
         </tbody>
         <tbody> <?php
-        $tform = TicketForm::getInstance()->getForm($_POST);
-        if ($_POST) $tform->isValid();
+        $tform = TicketForm::getInstance();
+        if ($_POST && !$tform->errors())
+            $tform->isValidForStaff();
         $tform->render(true);
         ?>
         </tbody>

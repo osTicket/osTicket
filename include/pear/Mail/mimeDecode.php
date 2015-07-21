@@ -307,6 +307,7 @@ class Mail_mimeDecode extends PEAR
                 case 'multipart/digest':
                 case 'multipart/alternative':
                 case 'multipart/related':
+                case 'multipart/relative':
                 case 'multipart/mixed':
                     if(!isset($content_type['other']['boundary'])){
                         $this->_error = 'No boundary found for ' . $content_type['value'] . ' part';

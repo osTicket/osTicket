@@ -42,6 +42,8 @@ if (!$errors['err']) {
                 $lock->getStaffName());
     elseif (($emailBanned=TicketFilter::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
+    elseif (!Validator::is_valid_email($ticket->getEmail()))
+        $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
 }
 
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
@@ -76,7 +78,10 @@ if($ticket->isOverdue())
                     echo __('Edit'); ?></a>
             <?php
             }
-            if ($ticket->isOpen() && !$ticket->isAssigned() && $thisstaff->canAssignTickets()) {?>
+            if ($ticket->isOpen()
+                    && !$ticket->isAssigned()
+                    && $thisstaff->canAssignTickets()
+                    && $ticket->getDept()->isMember($thisstaff)) {?>
                 <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
                     echo __('Claim'); ?></a>
 
@@ -803,7 +808,9 @@ print $note_form->getField('attachments')->render();
                     <select id="assignId" name="assignId">
                         <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                         <?php
-                        if($ticket->isOpen() && !$ticket->isAssigned())
+                        if ($ticket->isOpen()
+                                && !$ticket->isAssigned()
+                                && $ticket->getDept()->isMember($thisstaff))
                             echo sprintf('<option value="%d">'.__('Claim Ticket (comments optional)').'</option>', $thisstaff->getId());
 
                         $sid=$tid=0;
@@ -944,7 +951,7 @@ print $note_form->getField('attachments')->render();
         <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
             '<b>'.Format::htmlchars($ticket->getName()).'</b>', Format::htmlchars($ticket->getEmail())); ?>
         </span>
-        <?php echo sprintf(__('Are you sure want to <b>change</b> ticket owner to %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>change</b> ticket owner to %s?'),
             '<b><span id="newuser">this guy</span></b>'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

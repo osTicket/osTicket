@@ -176,7 +176,7 @@ $info['id']=$staff->getId();
                   }
                   ?>
                 </select>
-                <em><?php echo __('(This can be selectected when replying to a ticket)');?></em>
+                <em><?php echo __('(This can be selected when replying to a ticket)');?></em>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['default_signature_type']; ?></span>
             </td>
         </tr>
@@ -249,7 +249,7 @@ $info['id']=$staff->getId();
             <td colspan=2>
                 <textarea class="richtext no-bar" name="signature" cols="21"
                     rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
-                <br><em><?php __('Signature is made available as a choice, on ticket reply.');?></em>
+                <br><em><?php echo __('Signature is made available as a choice, on ticket reply.');?></em>
             </td>
         </tr>
     </tbody>

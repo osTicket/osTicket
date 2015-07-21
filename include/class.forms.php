@@ -30,7 +30,7 @@ class Form {
         $this->fields = $fields;
         foreach ($fields as $k=>$f) {
             $f->setForm($this);
-            if (!$f->get('name') && $k)
+            if (!$f->get('name') && $k && !is_numeric($k))
                 $f->set('name', $k);
         }
         if (isset($options['title']))
@@ -110,6 +110,7 @@ class Form {
             include(STAFFINC_DIR . 'templates/dynamic-form.tmpl.php');
         else
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        echo $this->getMedia();
     }
 
     function getMedia() {
@@ -397,6 +398,15 @@ class FormField {
     }
 
     /**
+     * When data for this field is deleted permanently from some storage
+     * backend (like a database), other associated data may need to be
+     * cleaned as well. This hook allows fields to participate when the data
+     * for a field is cleaned up.
+     */
+    function db_cleanup() {
+    }
+
+    /**
      * Returns an HTML friendly value for the data in the field.
      */
     function display($value) {
@@ -594,6 +604,17 @@ class FormField {
         return null;
     }
 
+    /**
+     * Indicates if the field provides for searching for something other
+     * than keywords. For instance, textbox fields can have hits by keyword
+     * searches alone, but selection fields should provide the option to
+     * match a specific value or set of values and therefore need to
+     * participate on any search builder.
+     */
+    function hasSpecialSearch() {
+        return true;
+    }
+
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -688,12 +709,16 @@ class TextboxField extends FormField {
         );
     }
 
+    function hasSpecialSearch() {
+        return false;
+    }
+
     function validateEntry($value) {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
             '' =>       null,
-            'email' =>  array(array('Validator', 'is_email'),
+            'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
                 __('Enter a valid phone number')),
@@ -727,12 +752,20 @@ class TextboxField extends FormField {
 class PasswordField extends TextboxField {
     static $widget = 'PasswordWidget';
 
+    function parse($value) {
+        // Don't trim the value
+        return $value;
+    }
+
     function to_database($value) {
-        return Crypto::encrypt($value, SECRET_SALT, $this->getFormName());
+        // If not set in UI, don't save the empty value
+        if (!$value)
+            throw new FieldUnchanged();
+        return Crypto::encrypt($value, SECRET_SALT, 'pwfield');
     }
 
     function to_php($value) {
-        return Crypto::decrypt($value, SECRET_SALT, $this->getFormName());
+        return Crypto::decrypt($value, SECRET_SALT, 'pwfield');
     }
 }
 
@@ -756,6 +789,10 @@ class TextareaField extends FormField {
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     function display($value) {
@@ -808,6 +845,10 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     function validateEntry($value) {
@@ -939,7 +980,7 @@ class ChoiceField extends FormField {
         $config = $this->getConfiguration();
         if (!$config['multiselect'] && is_array($value) && count($value) < 2) {
             reset($value);
-            return key($value);
+            $value = key($value);
         }
         return $value;
     }
@@ -1108,6 +1149,9 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
+    function hasSpecialSearch() {
+        return false;
+    }
 
     function getConfigurationOptions() {
         global $cfg;
@@ -1140,8 +1184,8 @@ class ThreadEntryField extends FormField {
 }
 
 class PriorityField extends ChoiceField {
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Priority)
             $widget->value = $widget->value->getId();
         return $widget;
@@ -1155,13 +1199,10 @@ class PriorityField extends ChoiceField {
             $this->get('name') != 'priority';
     }
 
-    function getChoices() {
-        global $cfg;
-        $this->ht['default'] = $cfg->getDefaultPriorityId();
-
+    function getChoices($verbose=false) {
         $sql = 'SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE
               .' ORDER BY priority_urgency DESC';
-        $choices = array();
+        $choices = array('' => '— '.__('Default').' —');
         if (!($res = db_query($sql)))
             return $choices;
 
@@ -1179,7 +1220,10 @@ class PriorityField extends ChoiceField {
             reset($id);
             $id = key($id);
         }
-        return Priority::lookup($id);
+        elseif ($id === false)
+            $id = $value;
+        if ($id)
+            return Priority::lookup($id);
     }
 
     function to_database($prio) {
@@ -1198,13 +1242,30 @@ class PriorityField extends ChoiceField {
     }
 
     function getConfigurationOptions() {
+        $choices = $this->getChoices();
+        $choices[''] = __('System Default');
         return array(
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Leading text shown before a value is selected'),
                 'configuration'=>array('size'=>40, 'length'=>40),
             )),
+            'default' => new ChoiceField(array(
+                'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
+                'choices' => $choices,
+                'hint'=>__('Default selection for this field'),
+                'configuration'=>array('size'=>20, 'length'=>40),
+            )),
         );
+    }
+
+    function getConfiguration() {
+        global $cfg;
+
+        $config = parent::getConfiguration();
+        if (!isset($config['default']))
+            $config['default'] = $cfg->getDefaultPriorityId();
+        return $config;
     }
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
@@ -1246,7 +1307,7 @@ class TicketStateField extends ChoiceField {
         return false;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         static $_choices;
 
         if (!isset($_choices)) {
@@ -1330,7 +1391,7 @@ class TicketFlagField extends ChoiceField {
         return true;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         $this->ht['default'] =  '';
 
         if (!$this->_choices) {
@@ -1426,6 +1487,10 @@ class FileUploadField extends FormField {
                 'configuration'=>array('size'=>8, 'length'=>4, 'placeholder'=>__('No limit')),
             ))
         );
+    }
+
+    function hasSpecialSearch() {
+        return false;
     }
 
     /**
@@ -1630,6 +1695,14 @@ class FileUploadField extends FormField {
         }
         return implode(', ', $files);
     }
+
+    function db_cleanup() {
+        // Delete associated attachments from the database, if any
+        $this->getFiles();
+        if (isset($this->attachments)) {
+            $this->attachments->deleteAll();
+        }
+    }
 }
 
 class Widget {
@@ -1675,8 +1748,13 @@ class Widget {
 class TextboxWidget extends Widget {
     static $input_type = 'text';
 
-    function render($mode=false) {
+    function render($mode=false, $extraConfig=false) {
         $config = $this->field->getConfiguration();
+        if (is_array($extraConfig)) {
+            foreach ($extraConfig as $k=>$v)
+                if (!isset($config[$k]) || !$config[$k])
+                    $config[$k] = $v;
+        }
         if (isset($config['size']))
             $size = "size=\"{$config['size']}\"";
         if (isset($config['length']) && $config['length'])
@@ -1704,12 +1782,19 @@ class TextboxWidget extends Widget {
 class PasswordWidget extends TextboxWidget {
     static $input_type = 'password';
 
+    function render($mode=false, $extra=false) {
+        $extra = array();
+        if ($this->field->value) {
+            $extra['placeholder'] = '••••••••••••';
+        }
+        return parent::render($mode, $extra);
+    }
+
     function parseValue() {
+        parent::parseValue();
         // Show empty box unless failed POST
-        if ($_SERVER['REQUEST_METHOD'] == 'POST'
-                && $this->field->getForm()->isValid())
-            parent::parseValue();
-        else
+        if ($_SERVER['REQUEST_METHOD'] != 'POST'
+                || !$this->field->getForm()->isValid())
             $this->value = '';
     }
 }
@@ -1852,9 +1937,12 @@ class ChoicesWidget extends Widget {
     }
 
     function getValue() {
-        $value = parent::getValue();
 
-        if (!$value) return null;
+        if (!($value = parent::getValue()))
+            return null;
+
+        if ($value && !is_array($value))
+            $value = array($value);
 
         // Assume multiselect
         $values = array();
@@ -1865,6 +1953,7 @@ class ChoicesWidget extends Widget {
                     $values[$v] = $choices[$v];
             }
         }
+
         return $values;
     }
 
@@ -1897,8 +1986,11 @@ class CheckboxWidget extends Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (count($data))
+        if (count($data)) {
+            if (!isset($data[$this->name]))
+                return false;
             return @in_array($this->field->get('id'), $data[$this->name]);
+        }
         return parent::getValue();
     }
 
@@ -2324,4 +2416,11 @@ class Q {
     }
 }
 
+/**
+ * FieldUnchanged
+ *
+ * Thrown in the to_database() method to indicate the value should not be
+ * saved in the database (it wasn't changed in the request)
+ */
+class FieldUnchanged extends Exception {}
 ?>

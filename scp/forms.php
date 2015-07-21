@@ -129,7 +129,7 @@ if($_POST) {
             $form->_dfields = $form->_fields = null;
             $form->save(true);
             foreach ($form_fields as $field) {
-                $field->set('form_id', $form->get('id'));
+                $field->form = $form;
                 $field->save();
             }
             // No longer adding a new form
