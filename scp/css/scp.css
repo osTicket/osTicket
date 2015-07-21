@@ -1799,6 +1799,10 @@ select + .button {
   color: #d01919;
 }
 
+.button:hover {
+  text-decoration: none;
+}
+
 button[type=submit], input[type="submit"], .primary.button {
     font-weight: bold;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
