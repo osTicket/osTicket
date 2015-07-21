@@ -406,7 +406,8 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         // Start rebuilding the index
-        $this->getConfig()->set('reindex', 1);
+        $config = new MySqlSearchConfig();
+        $config->set('reindex', 1);
         return true;
     }
 
