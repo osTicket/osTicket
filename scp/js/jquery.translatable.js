@@ -223,7 +223,7 @@
 
   $.fn.translatable.defaults = {
     menu: '<div class="translations"></div>',
-    button: '<button class="translatable"><i class="fa fa-globe icon-globe"></i></button>'
+    button: '<button type="button" class="translatable"><i class="fa fa-globe icon-globe"></i></button>'
   };
 
   $.fn.translatable.Constructor = Translatable;

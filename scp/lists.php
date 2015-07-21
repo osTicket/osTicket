@@ -44,10 +44,11 @@ if($_POST) {
                 // Update properties
                 if (!$errors && ($form = $list->getForm())) {
                     $names = array();
-                    foreach ($form->getDynamicFields() as $field) {
+                    $fields = $form->getDynamicFields();
+                    foreach ($fields as $field) {
                         $id = $field->get('id');
                         if ($_POST["delete-prop-$id"] == 'on' && $field->isDeletable()) {
-                            $field->delete();
+                            $fields->remove($field);
                             // Don't bother updating the field
                             continue;
                         }
