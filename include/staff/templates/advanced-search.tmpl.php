@@ -143,11 +143,10 @@ return false;
 <div style="position:absolute;bottom:0">
 <hr>
     <form method="post">
-    <fieldset>
+    <div class="attached input">
     <input name="title" type="text" size="27" placeholder="<?php
         echo __('Enter a title for the search'); ?>"/>
-        <span class="action-button">
-            <a href="#tickets/search/create" onclick="javascript:
+        <a class="attached button" href="#tickets/search/create" onclick="javascript:
 $.ajax({
     url: 'ajax.php/' + $(this).attr('href').substr(1),
     type: 'POST',
@@ -165,8 +164,7 @@ $.ajax({
 });
 return false;
 "><i class="icon-save"></i> <?php echo __('Save'); ?></a>
-        </span>
-    </fieldset>
+    </div>
 </div>
 </div>
 </div>
