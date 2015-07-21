@@ -1091,7 +1091,7 @@ class ChoicesWidget extends Widget {
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
                     if ($value == $key) echo 'selected="selected"';
-                ?>><?php echo $name; ?></option>
+                ?>><?php echo Format::htmlchars($name); ?></option>
             <?php } ?>
         </select>
         </span>
