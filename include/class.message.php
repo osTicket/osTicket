@@ -132,7 +132,7 @@ class SimpleMessage implements Message {
 
     function getTags() {
         $tags = array_merge(
-            array(Messages::getLevelTag($this->level)),
+            array(strtolower(Messages::getLevelName($this->level))),
             $this->tags ?: array());
         return implode(' ', $tags);
     }
@@ -232,7 +232,7 @@ class SessionMessageStorage extends BaseMessageStorage {
         Signal::connect('session.close', function($null, $info) use ($self) {
             // Whether or not the session data should be re-encoded to
             // reflect changes made in this routine
-            $info['touched'] = $this->added_new || ($this->used && count($this->list));
+            $info['touched'] = $self->added_new || ($self->used && count($self->list));
             $self->update();
         });
     }

@@ -74,7 +74,7 @@ class KbaseAjaxAPI extends AjaxController {
         if (!($faq = FAQ::lookup($id)))
             Http::response(404, 'No such faq article');
 
-        $form = new FaqAccessMgmtForm($_POST ?: $faq->getHashTable());
+        $form = new FaqAccessMgmtForm($_POST ?: $faq->getHashtable());
 
         if ($_POST && $form->isValid()) {
             $clean = $form->getClean();
