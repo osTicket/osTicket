@@ -1129,9 +1129,11 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     static function create($vars=false) {
-        global $cfg;
+        global $thisstaff, $cfg;
 
-        if (!is_array($vars))
+        if (!is_array($vars)
+                || !$thisstaff
+                || !$thisstaff->hasPerm(Task::PERM_CREATE, false))
             return null;
 
         $task = parent::create(array(
@@ -1142,15 +1144,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'created' => new SqlFunction('NOW'),
             'updated' => new SqlFunction('NOW'),
         ));
-        // Save internal fields.
-        if ($vars['internal_formdata']['staff_id'])
-            $task->staff_id = $vars['internal_formdata']['staff_id'];
+
         if ($vars['internal_formdata']['dept_id'])
             $task->dept_id = $vars['internal_formdata']['dept_id'];
         if ($vars['internal_formdata']['duedate'])
             $task->duedate = $vars['internal_formdata']['duedate'];
 
-        $task->save(true);
+        if (!$task->save(true))
+            return false;
 
         // Add dynamic data
         $task->addDynamicData($vars['default_formdata']);
@@ -1158,6 +1159,23 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         // Create a thread + message.
         $thread = TaskThread::create($task);
         $thread->addDescription($vars);
+
+
+        $task->logEvent('created', null, $thisstaff);
+
+        // Get role for the dept
+        $role = $thisstaff->getRole($task->dept_id);
+
+        // Assignment
+        if ($vars['internal_formdata']['assignee']
+                // skip assignment if the user doesn't have perm.
+                && $role->hasPerm(Task::PERM_ASSIGN)) {
+            $_errors = array();
+            $form = AssignmentForm::instantiate(array(
+                        'assignee' => $vars['internal_formdata']['assignee']));
+            $task->assign($form, $_errors);
+        }
+
         Signal::send('task.created', $task);
 
         return $task;
@@ -1348,7 +1366,7 @@ extends AbstractForm {
                     'required' => true,
                     'layout' => new GridFluidCell(6),
                     )),
-                'staff_id' => new AssigneeField(array(
+                'assignee' => new AssigneeField(array(
                     'id'=>2,
                     'label' => __('Assignee'),
                     'required' => false,

@@ -187,7 +187,8 @@ if (!$view_all_tickets) {
 
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav = new Pagenate($tickets->count(), $page, PAGE_LIMIT);
+$count = $tickets->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
@@ -367,15 +368,17 @@ return false;">
         </div>
         <div class="pull-right flush-right">
             <?php
-            if ($thisstaff->canManageTickets()) {
-                echo TicketStatus::status_options();
-            }
-            if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
-            <a id="tickets-delete" class="red button action-button tickets-action"
-                href="#tickets/status/delete"><i
-            class="icon-trash"></i> <?php echo __('Delete'); ?></a>
-            <?php
-            } ?>
+            if ($count) {
+                if ($thisstaff->canManageTickets()) {
+                    echo TicketStatus::status_options();
+                }
+                if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
+                <a id="tickets-delete" class="red button action-button tickets-action"
+                    href="#tickets/status/delete"><i
+                class="icon-trash"></i> <?php echo __('Delete'); ?></a>
+                <?php
+                }
+            }?>
         </div>
     </div>
 </div>

@@ -2257,6 +2257,11 @@ class AssigneeField extends ChoiceField {
             $id = key($id);
         }
 
+        if ($id[0] == 's')
+            return Staff::lookup(substr($id, 1));
+        elseif ($id[0] == 't')
+            return Team::lookup(substr($id, 1));
+
         return $id;
     }
 
@@ -3941,13 +3946,8 @@ class AssignmentForm extends Form {
 
     function getAssignee() {
 
-        if (!isset($this->_assignee)) {
-            $value = $this->getField('assignee')->getClean();
-            if ($value[0] == 's')
-                $this->_assignee = Staff::lookup(substr($value, 1));
-            elseif ($value[0] == 't')
-                $this->_assignee = Team::lookup(substr($value, 1));
-        }
+        if (!isset($this->_assignee))
+            $this->_assignee = $this->getField('assignee')->getClean();
 
         return $this->_assignee;
     }
@@ -3958,6 +3958,7 @@ class AssignmentForm extends Form {
             return array('dept_id' =>$dept);
         };
     }
+
 }
 
 class TransferForm extends Form {

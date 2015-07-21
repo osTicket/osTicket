@@ -394,11 +394,11 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task_status">
-                            <option value="1" <?php
+                            <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Open'); ?></option>
-                            <option value="0" <?php
+                            <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Closed'); ?></option>
@@ -449,11 +449,11 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task_status">
-                            <option value="1" <?php
+                            <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Open'); ?></option>
-                            <option value="0" <?php
+                            <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Closed'); ?></option>

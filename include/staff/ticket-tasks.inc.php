@@ -40,7 +40,8 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
             print __('Add New Task'); ?></a>
     <?php
     }
-    Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
+    if ($count)
+        Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
     ?>
 </div>
 <div class="clear"></div>
@@ -162,7 +163,8 @@ $(function() {
         $.dialog(url, [201], function (xhr) {
             var tid = parseInt(xhr.responseText);
             if (tid) {
-                var url = 'ajax.php/tasks/'+tid+'/view';
+                var url = 'ajax.php/tickets/'+<?php echo $ticket->getId();
+                ?>+'/tasks/'+tid+'/view';
                 var $container = $('div#task_content');
                 $container.load(url, function () {
                     $('.tip_box').remove();
