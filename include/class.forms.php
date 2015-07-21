@@ -1920,7 +1920,7 @@ class ChoicesWidget extends Widget {
                     continue; ?>
                 <option value="<?php echo $key; ?>" <?php
                     if (isset($values[$key])) echo 'selected="selected"';
-                ?>><?php echo $name; ?></option>
+                ?>><?php echo Format::htmlchars($name); ?></option>
             <?php } ?>
         </select>
         <?php
