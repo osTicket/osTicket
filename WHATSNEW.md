@@ -1,3 +1,27 @@
+osTicket v1.9.11
+================
+*We skipped v1.9.10 to avoid confusion with v1.10 (the major release coming out at the same time)*
+
+### Enhancements
+  * Log to syslog on php mail() error (#2128)
+  * Full path of help topics shown in filter management (3d98dff)
+  * Auto rebuild the search index if %_search table is dropped (#2250)
+
+### Improvements
+  * Fix appearance of ` <div>` in user names (*regression in v1.9.9*) (be2f138)
+  * Out-of-office notification does not clear closing agent (#2181)
+  * Fix check for departments limiting assignees to members only (#2143)
+  * Fix signal data pass by reference (#2195)
+  * Fix template variables not rendering in href attributes (#2223)
+  * Fix missing custom data for new users (#2203)
+  * Fix incorrect cli option expansion (#2199)
+  * Properly encode `To` header for php mail() sends (857dd22)
+  * Fix incorrect message body when fetching TNEF emails (0ec7cf6)
+  * Fix layout of some tables in PDF export (cef3dd3)
+
+### Performance and Security
+  * Fix XSS issue on choices field type (#2271)
+
 osTicket v1.9.9
 ===============
 ### Enhancements
