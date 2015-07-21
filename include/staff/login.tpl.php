@@ -37,8 +37,16 @@ if (count($ext_bks)) { ?>
 <div class="external-auth"><?php $bk->renderExternalLink(); ?></div><?php
     }
 } ?>
+
+    <div id="company">
+        <div class="content">
+            <?php echo __('Copyright'); ?> &copy; <?php echo Format::htmlchars($ost->company); ?>
+        </div>
+    </div>
 </div>
-<div id="copyRights"><?php echo __('Copyright'); ?> &copy;
-<a href='http://www.osticket.com' target="_blank">osTicket.com</a></div>
+<div id="poweredBy"><?php echo __('Powered by'); ?>
+    <a href='http://www.osticket.com' target="_blank"><img alt="osTicket" src="images/osticket-grey.png"
+        class="osticket-logo"></a>
+</div>
 </body>
 </html>

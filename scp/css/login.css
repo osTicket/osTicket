@@ -1,6 +1,7 @@
 input:focus {
-    border: 1px solid rgb(207,16,118);
-    box-shadow: 0 0 4px rgb(207,16,118);
+    border: 1px solid orange;
+    box-shadow: 0 0 4px orange;
+    outline: none;
 }
 
 :-webkit-input-placeholder {
@@ -23,9 +24,15 @@ html {
 
 body {
     -webkit-font-smoothing:antialiased;
-    background:url(../images/login-background.jpg);
+    background:url(../images/oscar-wall.png);
     background-repeat: repeat-x;
     background-attachment: fixed;
+    background-color:orange;
+    background-blend-mode: multiply;
+    -webkit-background-size: cover;
+       -moz-background-size: cover;
+         -o-background-size: cover;
+            background-size: cover;
     font-size: 16px;
     font-smoothing:antialiased;
     height:100%;
@@ -48,11 +55,9 @@ input[type=reset], input[type=submit], input[type=button] {
 }
 
 #loginBox {
-    border:1px solid #2a67ac;
-    border-right:2px solid #2a67ac;
-    border-bottom:3px solid #2a67ac;
-    box-shadow: 2px 2px 8px rgba(42, 103, 172, 0.5);
-    background:#fff;
+    border:1px solid rgba(0,0,0,0.8);
+    box-shadow:0 0 30px -5px black;
+    background:transparent;
     width:400px;
     margin:10% auto 0 auto;
     padding:1em;
@@ -61,6 +66,23 @@ input[type=reset], input[type=submit], input[type=button] {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
+    position: fixed;
+    left: 50%;
+    margin-left: -200px;
+    z-index: 1;
+    border-radius: 5px;
+}
+
+#loginBox::after {
+    content: " ";
+    z-index: -1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 5px;
 }
 
 h1 {
@@ -150,15 +172,52 @@ input.submit:hover, input.submit:active {
     background-position:bottom left;
 }
 
-#copyRights {
-    font-size:0.7em;
-    color:#888;
-    padding:1em;
+#poweredBy {
+    font-size:0.8em;
+    color:#ccc;
+    padding:5px 15px;
     text-align:center;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    box-shadow: inset 0 0 3px white, 0 0 2px black, inset 0 0 4px black;
+    text-shadow: 0 0 2px black;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.3)
 }
 
-#copyRights a {
-    color:#888;
+#poweredBy a {
+    color:inherit;
+}
+
+#poweredBy .osticket-logo {
+    height: auto;
+    width: 55px;
+    vertical-align: baseline;
+    -webkit-filter: drop-shadow(0 0 4px black);
+    filter: drop-shadow(0 0 4px black);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444')";
+    filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444')";
+}
+
+#company {
+    position:absolute;
+    left: 50%;
+    width: 400px;
+    margin-left: -200px;
+    bottom: -40px;
+    font-size: 0.8em;
+    color: #ccc;
+    text-align: center;
+}
+
+#company .content {
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.4);
+    box-shadow: 0 0 6px black;
+    text-shadow: 0 0 2px black;
+    display: inline-block;
+    padding: 0 15px;
 }
 
 .external-auth {
