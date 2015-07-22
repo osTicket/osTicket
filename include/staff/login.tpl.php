@@ -2,7 +2,12 @@
 include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
+<div id="background-compat"></div>
 <div id="loginBox">
+    <div class="tape"></div>
+    <div id="blur">
+        <div id="background"></div>
+    </div>
     <h1 id="logo"><a href="index.php">
         <span class="valign-helper"></span>
         <img src="logo.php?login" alt="osTicket :: <?php echo __('Staff Control Panel');?>" />
@@ -20,7 +25,9 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
             <?php if ($show_reset && $cfg->allowPasswordReset()) { ?>
             <h3 style="display:inline"><a href="pwreset.php"><?php echo __('Forgot my password'); ?></a></h3>
             <?php } ?>
-            <input class="submit" type="submit" name="submit" value="<?php echo __('Log In'); ?>">
+            <button class="submit button pull-right" type="submit" name="submit"><i class="icon-signin"></i>
+                <?php echo __('Log In'); ?>
+            </button>
         </fieldset>
     </form>
 <?php
@@ -45,8 +52,22 @@ if (count($ext_bks)) { ?>
     </div>
 </div>
 <div id="poweredBy"><?php echo __('Powered by'); ?>
-    <a href='http://www.osticket.com' target="_blank"><img alt="osTicket" src="images/osticket-grey.png"
-        class="osticket-logo"></a>
+    <a href="http://www.osticket.com" target="_blank">
+        <img alt="osTicket" src="images/osticket-grey.png" class="osticket-logo">
+    </a>
 </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (undefined === window.getComputedStyle(document.documentElement).backgroundBlendMode) {
+            document.getElementById('background-compat').style.display = 'block';
+            document.getElementById('loginBox').style.backgroundColor = 'white';
+        }
+    });
+    </script>
+    <!--[if IE]>
+    <style>
+        #loginBox:after { background-color: white !important; }
+    </style>
+    <![endif]-->
 </body>
 </html>

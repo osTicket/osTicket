@@ -24,7 +24,13 @@ html {
 
 body {
     -webkit-font-smoothing:antialiased;
-    background:url(../images/oscar-wall.png);
+    font-size: 16px;
+    font-smoothing:antialiased;
+    height:100%;
+    line-height: 1.5em;
+    margin: 0;
+    text-align: center;
+    background-image: url(../images/oscar-wall.jpg);
     background-repeat: repeat-x;
     background-attachment: fixed;
     background-color:orange;
@@ -33,12 +39,47 @@ body {
        -moz-background-size: cover;
          -o-background-size: cover;
             background-size: cover;
-    font-size: 16px;
-    font-smoothing:antialiased;
-    height:100%;
-    line-height: 1.5em;
-    margin: 0;
-    text-align: center;
+}
+
+#background-compat {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 165, 0, 0.7);
+}
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-image: url(../images/oscar-wall.jpg);
+    -webkit-background-size: cover;
+       -moz-background-size: cover;
+         -o-background-size: cover;
+            background-size: cover;
+    background-blend-mode: multiply;
+    background-color: orange;
+    mix-blend-mode: normal;
+    filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
+    -ms-filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
+}
+
+#blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-filter: blur(2px);
+    filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='6'%20/></filter></svg>#blur");
+    filter: blur(2px);
+    overflow: hidden;
+    z-index: -1;
 }
 
 body, input {
@@ -46,20 +87,12 @@ body, input {
     color: #000;
 }
 
-input[type=reset], input[type=submit], input[type=button] {
-    display: inline-block;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    -moz-tap-highlight-color: rgba(0, 0, 0, 0);
-    -o-tap-highlight-color: rgba(0, 0, 0, 0);
-    tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
 #loginBox {
-    border:1px solid rgba(0,0,0,0.8);
-    box-shadow:0 0 30px -5px black;
-    background:transparent;
+    border:1px solid rgba(0,0,0,0.2);
+    box-shadow:0 0 30px 5px orange, 0 0 5px -1px black;
+    mix-blend-mode: normal;
+    isolation: isolate;
     width:400px;
-    margin:10% auto 0 auto;
     padding:1em;
     padding-bottom: 1em;
     text-align:center;
@@ -68,21 +101,44 @@ input[type=reset], input[type=submit], input[type=button] {
     box-sizing: border-box;
     position: fixed;
     left: 50%;
+    top: 15%;
     margin-left: -200px;
-    z-index: 1;
     border-radius: 5px;
 }
 
-#loginBox::after {
+#loginBox:after {
     content: " ";
-    z-index: -1;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: rgba(255,255,255,0.9);
+    background-color: rgba(255,255,255,0.8);
     border-radius: 5px;
+    z-index: -1;
+    mix-blend-mode: normal;
+}
+/* IE 9-10 */
+@media screen\0 {
+    #loginBox:after {
+        background-color: white;
+    }
+}
+
+.tape {
+    background-image: url(../images/tape.png);
+    -webkit-background-size: cover;
+       -moz-background-size: cover;
+         -o-background-size: cover;
+            background-size: cover;
+    position: absolute;
+    top: -22px;
+    left: 105px;
+    width: 180px;
+    height: 35px;
+    transform: rotate(-5deg);
+    -webkit-transform: rotate(-3deg);
+    -webkit-filter: drop-shadow(rgba(0,0,0,0.2) 0px -1px 1px);
 }
 
 h1 {
@@ -121,7 +177,6 @@ h3 {
 form {
     width:220px;
     margin:0 auto;
-    overflow:hidden;
 }
 
 fieldset {
@@ -135,9 +190,10 @@ fieldset input {
     margin-bottom:1em;
     border:1px solid #ccc;
     border:1px solid rgba(0,0,0,0.3);
-    background:#fff;
+    background: white;
+    background: rgba(255, 255, 255, 0.5);
     padding:2px 4px;
-    width: 96%;
+    width: 100%;
 }
 
 hr {
@@ -155,17 +211,62 @@ div.banner:not(:empty) {
     margin-bottom: 1em;
 }
 
-input.submit {
-    border-radius: 4px;
+* {
+    box-sizing: border-box;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+.action-button,
+.button {
+    cursor: pointer;
     display:inline-block;
-    margin:0.25em;
+    vertical-align:bottom;
     height:24px;
-    line-height:24px;
-    font-weight:bold;
-    border:1px solid #666666;
-    padding:0 30px;
-    background: url('../images/grey_btn_bg.png?1312910883') top left repeat-x;
-    color: #333;
+    line-height: 22px;
+    border: none;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
+    padding:2px 11px;
+    color: #555;
+    background-color: #f0f0f0;
+    background-color: rgba(0,0,0,0.02);
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.8em;
+    text-decoration: none;
+-webkit-user-select: none;
+   -moz-user-select: none;
+    -ms-user-select: none;
+        user-select: none;
+-webkit-transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+        transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+}
+input[type="submit"] i,
+input[type="reset"] i,
+input[type="button"] i,
+.action-button i,
+.button i {
+  margin-right: 0.1em;
+}
+
+.button:hover {
+  text-decoration: none;
+}
+
+button[type=submit], input[type="submit"], .primary.button {
+    font-weight: bold;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
+    background-color: rgba(0,0,0,0.07);
+}
+
+button[type=submit]:hover, input[type=submit]:hover, input[type=submit]:active {
+  color: white;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.7) inset;
+  background-color: #888;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 input.submit:hover, input.submit:active {
@@ -194,10 +295,11 @@ input.submit:hover, input.submit:active {
     height: auto;
     width: 55px;
     vertical-align: baseline;
+    border: none;
     -webkit-filter: drop-shadow(0 0 4px black);
     filter: drop-shadow(0 0 4px black);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444')";
-    filter: "progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444')";
+    ms-filter: progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444');
+    filter: progid:DXImageTransform.Microsoft.Dropshadow(OffX=0, OffY=0, Color='#444');
 }
 
 #company {
@@ -212,7 +314,7 @@ input.submit:hover, input.submit:active {
 }
 
 #company .content {
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: rgba(0,0,0,0.4);
     box-shadow: 0 0 6px black;
     text-shadow: 0 0 2px black;
@@ -261,4 +363,5 @@ input[type=text],
 input[type=password] {
     border-radius: 4px;
     padding: 5px;
+    font-size: 0.75em;
 }

@@ -5,6 +5,10 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 
 <div id="loginBox">
+    <div class="tape"></div>
+    <div id="blur">
+        <div id="background"></div>
+    </div>
     <h1 id="logo"><a href="index.php">
         <span class="valign-helper"></span>
         <img src="logo.php?login" alt="osTicket :: <?php echo __('Agent Password Reset');?>" />
@@ -18,8 +22,25 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
     <form action="index.php" method="get">
         <input class="submit" type="submit" name="submit" value="Login"/>
     </form>
-</div>
 
-<div id="copyRights">Copyright &copy; <a href='http://www.osticket.com' target="_blank">osTicket.com</a></div>
+    <div id="company">
+        <div class="content">
+            <?php echo __('Copyright'); ?> &copy; <?php echo Format::htmlchars($ost->company); ?>
+        </div>
+    </div>
+</div>
+<div id="poweredBy"><?php echo __('Powered by'); ?>
+    <a href="http://www.osticket.com" target="_blank">
+        <img alt="osTicket" src="images/osticket-grey.png" class="osticket-logo">
+    </a>
+</div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (undefined === window.getComputedStyle(document.documentElement).backgroundBlendMode) {
+            document.getElementById('background-compat').style.display = 'block';
+            document.getElementById('loginBox').style.backgroundColor = 'white';
+        }
+    });
+    </script>
 </body>
 </html>
