@@ -1,3 +1,14 @@
+osTicket v1.8.12
+================
+### Improvements
+  * Out-of-office notification does not clear closing agent (#2181)
+  * Fix signal data pass by reference (#2195)
+  * Fix incorrect message body when fetching TNEF emails (ef1d7df)
+  * Fix layout of some tables in PDF export (aabe4aa)
+
+### Performance and Security
+  * Fix XSS issue on choices field type (#2271)
+
 osTicket v1.8.11
 ================
 ### Improvements
