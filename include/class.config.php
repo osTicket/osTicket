@@ -1294,7 +1294,7 @@ class OsticketConfig extends Config {
 
     function getLogo($site) {
         $id = $this->get("{$site}_logo_id", false);
-        return ($id) ? AttachmentFile::lookup($id) : null;
+        return ($id) ? AttachmentFile::lookup((int) $id) : null;
     }
     function getClientLogo() {
         return $this->getLogo('client');
