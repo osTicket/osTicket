@@ -386,6 +386,7 @@ class AttachmentFile extends VerySimpleModel {
             'key' => $file['key'],
             'ft' => $ft ?: 'T',
             'signature' => $file['signature'],
+            'created' => SqlFunction::NOW(),
         ));
 
         if (isset($file['size']))

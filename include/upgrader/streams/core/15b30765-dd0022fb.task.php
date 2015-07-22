@@ -245,6 +245,7 @@ class AttachmentMigrater extends MigrationTask {
             'hash' => $file['hash'],
             'bk' => '6',
             'attrs' => $file['path'],
+            'created' => date('Y-m-d H:i:s', Misc::dbtime(filemtime($file['path']))),
         ));
     }
 }

@@ -1,5 +1,5 @@
 <?php
-define('GROUP_TABLE', TABLE_PREFIX.'groups');
+define('GROUP_TABLE', TABLE_PREFIX.'group');
 define('GROUP_DEPT_TABLE', TABLE_PREFIX.'group_dept_access');
 class Group extends VerySimpleModel {
     static $meta = array(

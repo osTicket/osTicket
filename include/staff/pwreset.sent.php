@@ -25,7 +25,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 
     <div id="company">
         <div class="content">
-            <?php echo __('Copyright'); ?> &copy; <?php echo Format::htmlchars($ost->company); ?>
+            <?php echo __('Copyright'); ?> &copy; <?php echo Format::htmlchars($ost->company) ?: date('Y'); ?>
         </div>
     </div>
 </div>

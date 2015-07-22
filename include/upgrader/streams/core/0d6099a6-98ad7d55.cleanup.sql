@@ -6,6 +6,7 @@
  */
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
+DROP TABLE IF EXISTS `%TABLE_PREFIX%group`;
 
 -- Drop `updated` if it exists (it stayed in the install script after it was
 -- removed from the update path
