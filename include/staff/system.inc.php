@@ -10,7 +10,14 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 </thead>
 <tbody>
     <tr><td>osTicket Version</td>
-        <td><?php echo THIS_VERSION; ?></td></tr>
+        <td><?php echo THIS_VERSION; ?>
+        &mdash;
+            <a class="action-button" href="http://osticket.com/download?cv=<?php echo THIS_VERSION; ?>&m=1.8">
+            <i class="icon-rocket"></i>
+            Upgrade
+        </a>
+        <em class="faded">Support for this version will end in May 2016.</em>
+    </td></tr>
     <tr><td>Server Software</td>
         <td><?php echo $_SERVER['SERVER_SOFTWARE']; ?></td></tr>
     <tr><td>PHP Version</td>
