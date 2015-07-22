@@ -95,6 +95,8 @@ class Packager extends Deployment {
     }
 
     function print_dns() {
+        include dirname(__file__).'/../cli.inc.php';
+
         $streams = DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/');
         $this->stdout->write(sprintf(
             '"v=1; m=%s; V=%s; c=%s; s=%s"',
