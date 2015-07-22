@@ -12,6 +12,7 @@ class i18n_Compiler extends Module {
             "options" => array(
                 'list' =>       'Show list of available translations',
                 'build' =>      'Compile a language pack',
+                'similar' =>    'Find very similar strings',
                 'make-pot' =>   'Build the PO file for gettext translations',
                 'sign' =>       'Sign a language pack',
             ),
@@ -100,6 +101,9 @@ class i18n_Compiler extends Module {
             if (!$options['lang'])
                 $this->fail('Language code is required. See `list`');
             $this->_build($options['lang']);
+            break;
+        case 'similar':
+            $this->find_similar($options);
             break;
         case 'make-pot':
             $this->_make_pot($options);
@@ -591,7 +595,7 @@ class i18n_Compiler extends Module {
         }
     }
 
-    function _make_pot($options) {
+    function find_strings($options) {
         error_reporting(E_ALL);
         $funcs = array(
             '__'    => array('forms'=>1),
@@ -617,8 +621,36 @@ class i18n_Compiler extends Module {
                 self::__addString($strings, $call, $F);
             }
         }
-        $strings = array_merge($strings, $this->__getAllJsPhrases($root));
+        return array_merge($strings, $this->__getAllJsPhrases($root));
+    }
+
+    function _make_pot($options) {
+        $strings = $this->find_strings($options);
         $this->__write_pot($strings);
+    }
+
+    function find_similar($options) {
+        $strings = $this->find_strings($options);
+        $roots = array();
+        foreach ($strings as $root=>$S) {
+            $roots[] = array(substr(mb_strtoupper($root), 0, 255), $S['usage'][0], $root);
+        }
+        sort($roots);
+        $length = count($roots);
+        foreach ($roots as $idx=>$root) {
+            list($phrase, $usage, $orig) = $root;
+            $i = $idx;
+            $similar = ((int) strlen($phrase) * 0.1) ?: 1;
+            while (++$i < $length) {
+                list($other, $other_usage, $other_orig) = $roots[$i];
+                if (levenshtein($phrase, $other) < $similar) {
+                    $this->stdout->write(sprintf(
+                        "'%s' (%s) and '%s' (%s)\n",
+                       $orig, $usage, $other_orig, $other_usage
+                    )); 
+                }
+            }
+        }
     }
 
     static function __addString(&$strings, $call, $file=false) {
