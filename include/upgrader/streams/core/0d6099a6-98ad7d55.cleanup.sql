@@ -32,7 +32,7 @@ SET @s = (SELECT IF(
         AND column_name = 'views'
     ) > 0,
     "SELECT 1",
-    "ALTER TABLE `%TABLE_PREFIX%faq` DROP `views`, DROP `score`;"
+    "ALTER TABLE `%TABLE_PREFIX%faq` DROP `views`, DROP `score`"
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;
