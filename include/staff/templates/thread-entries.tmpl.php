@@ -5,8 +5,8 @@ $events->rewind();
 $event = $events->current();
 $htmlId = $options['html-id'] ?: ('thread-'.$this->getId());
 ?>
-<div id="<?php echo $htmlId; ?>" data-thread-id="<?php echo $this->getId(); ?>">
-    <div id="thread-items">
+<div id="<?php echo $htmlId; ?>">
+    <div id="thread-items" data-thread-id="<?php echo $this->getId(); ?>">
     <?php
     if (count($entries)) {
         // Go through all the entries and bucket them by time frame

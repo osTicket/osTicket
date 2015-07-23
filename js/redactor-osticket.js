@@ -310,8 +310,8 @@ $(function() {
             options['plugins'].push('fullscreen');
         if (el.data('translateTag'))
             options['plugins'].push('translatable');
-        if ($('#ticket_thread[data-thread-id]').length)
-            options['imageManagerJson'] += '?threadId=' + $('#ticket_thread').data('threadId');
+        if ($('#thread-items[data-thread-id]').length)
+            options['imageManagerJson'] += '?threadId=' + $('#thread-items').data('threadId');
         getConfig().then(function(c) {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     $.Redactor.opts.langs[c.short_lang])
