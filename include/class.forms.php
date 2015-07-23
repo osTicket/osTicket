@@ -756,15 +756,17 @@ class FormField {
     }
 
     /**
-     *
      * to_config
      *
      * Transform the data from the value to config form (as determined by
-     * field).  By default to_php is used at the base level
-     *
+     * field). to_php is used for each field returned from
+     * ::getConfigurationOptions(), and when the whole configuration is
+     * built, to_config() is called and receives the config array. The array
+     * should be returned, perhaps with modifications, and will be JSON
+     * encoded and stashed in the database.
      */
     function to_config($value) {
-        return $this->to_php($value);
+        return $value;
     }
 
     /**
@@ -2702,15 +2704,7 @@ class FileUploadField extends FormField {
     }
 
     function to_php($value) {
-        return JsonDataParser::decode($value);
-    }
-
-    function to_config($value) {
-
-        if ($value && is_array($value))
-            $value = array_values($value);
-
-        return $value;
+        return is_array($value) ? $value : JsonDataParser::decode($value);
     }
 
     function display($value) {
@@ -3687,12 +3681,8 @@ class FreeTextField extends FormField {
     /* utils */
 
     function to_config($config) {
-
-        $keepers = array();
         if ($config && isset($config['attachments']))
-            foreach ($config['attachments'] as $fid)
-                $keepers[] = $fid;
-
+            $keepers = $config['attachments'] = array_values($config['attachments']);
         $this->getAttachments()->keepOnlyFileIds($keepers);
 
         return $config;
