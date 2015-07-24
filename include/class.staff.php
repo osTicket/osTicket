@@ -1387,8 +1387,8 @@ extends AbstractForm {
 
     function getClean() {
         $clean = parent::getClean();
-        list($clean['username'],) = preg_split('/[^\w.-]/', $clean['email'], 2);
-        if (Staff::lookup($clean['username']))
+        list($clean['username'],) = preg_split('/[^\w.-]/u', $clean['email'], 2);
+        if (mb_strlen($clean['username']) < 3 || Staff::lookup($clean['username']))
             $clean['username'] = mb_strtolower($clean['firstname']);
         $clean['perms'] = array(
             User::PERM_CREATE,

@@ -3715,8 +3715,8 @@ class FreeTextField extends FormField {
 class FreeTextWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        $class = $config['classes'] ?: 'thread-body'
-        ?><div class="<?php echo $class; ?>" style="padding:0"><?php
+        $class = $config['classes'] ?: 'thread-body bleed';
+        ?><div class="<?php echo $class; ?>"><?php
         if ($label = $this->field->getLocal('label')) { ?>
             <h3><?php
             echo Format::htmlchars($label);
