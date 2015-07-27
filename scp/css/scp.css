@@ -1249,7 +1249,7 @@ ul.tabs.alt li.active {
     display:block;
     height:30px;
     position:absolute;
-    z-index:5;
+    z-index:10;
 }
 
 .tip_arrow {
@@ -1258,7 +1258,7 @@ ul.tabs.alt li.active {
     top:5px;
     left:-12px;
     width:12px;
-    z-index:102;
+    z-index:1;
 }
 
 .tip_box.right .tip_arrow {

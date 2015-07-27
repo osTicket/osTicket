@@ -15,33 +15,13 @@ if ($user && ($url = $user->get_gravatar(48)))
 <?php } ?>
     <div class="header">
         <div class="pull-right">
-<?php           if ($entry->hasActions()) {
-            $actions = $entry->getActions(); ?>
-            <span class="muted-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry->getId(); ?>">
-                <i class="icon-caret-down"></i>
-            </span>
-            <div id="entry-action-more-<?php echo $entry->getId(); ?>" class="action-dropdown anchor-right">
-        <ul class="title">
-<?php               foreach ($actions as $group => $list) {
-                foreach ($list as $id => $action) { ?>
-            <li>
-            <a class="no-pjax" href="#" onclick="javascript:
-                    <?php echo str_replace('"', '\\"', $action->getJsStub()); ?>; return false;">
-                <i class="<?php echo $action->getIcon(); ?>"></i> <?php
-                    echo $action->getName();
-        ?></a></li>
-<?php                   }
-            } ?>
-        </ul>
-        </div>
-<?php           } ?>
-                <span style="vertical-align:middle;" class="textra">
+            <span style="vertical-align:middle;" class="textra">
         <?php if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
                 <span class="label label-bare" title="<?php
         echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated), 'You');
                 ?>"><?php echo __('Edited'); ?></span>
         <?php } ?>
-                </span>
+            </span>
         </div>
 <?php
             echo sprintf(__('<b>%s</b> posted %s'), $name,
