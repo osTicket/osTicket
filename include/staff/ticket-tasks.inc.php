@@ -73,6 +73,7 @@ if ($count) { ?>
     <?php
     foreach($tasks as $task) {
         $id = $task->getId();
+        $access = $task->checkStaffPerm($thisstaff);
         $assigned='';
         if ($task->staff)
             $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',
@@ -84,8 +85,10 @@ if ($count) { ?>
         $threadcount = $task->getThread() ?
             $task->getThread()->getNumEntries() : 0;
 
-        $viewhref = sprintf('#tickets/%d/tasks/%d/view',
-                $ticket->getId(), $id);
+        if ($access)
+            $viewhref = sprintf('#tickets/%d/tasks/%d/view', $ticket->getId(), $id);
+        else
+            $viewhref = '#';
 
         ?>
         <tr id="<?php echo $id; ?>">
@@ -102,11 +105,17 @@ if ($count) { ?>
             <td align="center" nowrap><?php echo
             Format::datetime($task->created); ?></td>
             <td><?php echo $status; ?></td>
-            <td><a <?php if ($flag) { ?> class="no-pjax"
-                    title="<?php echo ucfirst($flag); ?> Task" <?php } ?>
-                    href="<?php echo $viewhref; ?>"><?php
-                echo $title; ?></a>
+            <td>
+                <?php
+                if ($access) { ?>
+                    <a <?php if ($flag) { ?> class="no-pjax"
+                        title="<?php echo ucfirst($flag); ?> Task" <?php } ?>
+                        href="<?php echo $viewhref; ?>"><?php
+                    echo $title; ?></a>
                  <?php
+                } else {
+                     echo $title;
+                }
                     if ($threadcount>1)
                         echo "<small>($threadcount)</small>&nbsp;".'<i
                             class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
@@ -138,16 +147,20 @@ $(function() {
     $(document).on('click.taskv', 'tbody.tasks a, a#reload-task', function(e) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        var $container = $('div#task_content');
-        var $stop = $('ul#ticket_tabs').offset().top;
-        $.pjax({url: url, container: $container, push: false, scrollTo: $stop})
-        .done(
-            function() {
-            $container.show();
-            $('.tip_box').remove();
-            $('div#tasks_content').hide();
-            });
+        if ($(this).attr('href').length > 1) {
+            var url = 'ajax.php/'+$(this).attr('href').substr(1);
+            var $container = $('div#task_content');
+            var $stop = $('ul#ticket_tabs').offset().top;
+            $.pjax({url: url, container: $container, push: false, scrollTo: $stop})
+            .done(
+                function() {
+                $container.show();
+                $('.tip_box').remove();
+                $('div#tasks_content').hide();
+                });
+        } else {
+            $(this).trigger('mouseenter');
+        }
 
         return false;
      });
