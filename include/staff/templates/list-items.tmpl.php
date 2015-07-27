@@ -17,20 +17,25 @@
             echo Format::htmlchars($_POST['search']); ?>"/>
     </div>
     <div class="pull-right">
-        <?php if ($list->allowAdd()) { ?>
+<?php
+if ($list->allowAdd()) { ?>
         <a class="green button action-button field-config"
             href="#list/<?php
             echo $list->getId(); ?>/item/add">
             <i class="icon-plus-sign"></i>
             <?php echo __('Add New Item'); ?>
         </a>
+<?php
+    if (method_exists($list, 'importCsv')) { ?>
         <a class="action-button field-config"
             href="#list/<?php
             echo $list->getId(); ?>/import">
             <i class="icon-upload"></i>
             <?php echo __('Import Items'); ?>
         </a>
-        <?php } ?>
+<?php
+    }
+} ?>
         <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
             <i class="icon-caret-down pull-right"></i>
             <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
@@ -56,19 +61,7 @@
 
 
 <?php
-$prop_fields = array();
-if ($list) {
-    foreach ($list->getConfigurationForm()->getFields() as $f) {
-        if (in_array($f->get('type'), array('text', 'datetime', 'phone')))
-            $prop_fields[] = $f;
-        if (strpos($f->get('type'), 'list-') === 0)
-            $prop_fields[] = $f;
-
-        // 4 property columns max
-        if (count($prop_fields) == 4)
-            break;
-    }
-}
+$prop_fields = ($list) ? $list->getSummaryFields() : array();
 ?>
 
     <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -76,9 +69,13 @@ if ($list) {
         <tr>
             <th width="28" nowrap></th>
             <th><?php echo __('Value'); ?></th>
-<?php foreach ($prop_fields as $F) { ?>
+<?php
+if ($prop_fields) {
+    foreach ($prop_fields as $F) { ?>
             <th><?php echo $F->getLocal('label'); ?></th>
-<?php } ?>
+<?php
+    }
+} ?>
         </tr>
     </thead>
 

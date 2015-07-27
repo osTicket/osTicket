@@ -99,35 +99,18 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
 
-    function _getListItemEditForm($source=null, $item=false) {
-        return new SimpleForm(array(
-            'value' => new TextboxField(array(
-                'required' => true,
-                'label' => __('Value'),
-                'configuration' => array(
-                    'translatable' => $item ? $item->getTranslateTag('value') : false,
-                    'size' => 60,
-                    'length' => 0,
-                ),
-            )),
-            'extra' => new TextboxField(array(
-                'label' => __('Abbreviation'),
-                'configuration' => array(
-                    'size' => 60,
-                    'length' => 0,
-                ),
-            )),
-        ), $source);
-    }
-
     function getListItem($list_id, $item_id) {
 
         $list = DynamicList::lookup($list_id);
-        if (!$list || !($item = $list->getItem( (int) $item_id)))
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
+        if (!($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         $action = "#list/{$list->getId()}/item/{$item->getId()}/update";
-        $item_form = $this->_getListItemEditForm($item->ht, $item);
+        $item_form = $list->getListItemBasicForm($item->ht, $item);
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
     }
@@ -155,7 +138,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         if (!$list || !($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
-        $item_form = $this->_getListItemEditForm($_POST, $item);
+        $item_form = $list->getListItemBasicForm($_POST, $item);
 
         if ($valid = $item_form->isValid()) {
             // Update basic information
@@ -191,20 +174,12 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function _renderListItem($item, $list=false) {
-        $list = $list ?: $item->list;
+        $list = $list ?: $item->getList();
 
         // Send the whole row back
-        $prop_fields = array();
-        foreach ($list->getConfigurationForm()->getFields() as $f) {
-            if (in_array($f->get('type'), array('text', 'datetime', 'phone')))
-                $prop_fields[] = $f;
-            if (strpos($f->get('type'), 'list-') === 0)
-                $prop_fields[] = $f;
-
-            // 4 property columns max
-            if (count($prop_fields) == 4)
-                break;
-        }
+        $prop_fields = $list->getSummaryFields();
+        $icon = ($list->get('sort_mode') == 'SortCol')
+            ? '<i class="icon-sort"></i>&nbsp;' : '';
         ob_start();
         $item->_config = null;
         include STAFFINC_DIR . 'templates/list-item-row.tmpl.php';
@@ -221,23 +196,19 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!($q = $_GET['q']))
             Http::response(400, '"q" query arg is required');
 
-        $items = clone $list->getAllItems();
-        $items->filter(Q::any(array(
-            'value__startswith' => $q,
-            'extra__contains' => $q,
-            'properties__contains' => '"'.$q,
-        )));
+        $list = CustomListHandler::forList($list);
+        $items = $list->search($q);
 
         $results = array();
         foreach ($items as $I) {
-            $display = $I->value;
-            if ($I->extra)
+            $display = $I->getValue();
+            if (isset($I->extra))
               $display .= " ({$I->extra})";
             $results[] = array(
-                'value' => $I->value,
+                'value' => $I->getValue(),
                 'display' => $display,
                 'id' => $I->id,
-                'list_id' => $I->list_id,
+                'list_id' => $I->getList()->getId(),
             );
         }
         return $this->encode($results);
@@ -251,23 +222,26 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!($list = DynamicList::lookup($list_id)))
             Http::response(404, 'No such list');
 
+        $list = CustomListHandler::forList($list);
         $action = "#list/{$list->getId()}/item/add";
-        $item_form = $this->_getListItemEditForm($_POST ?: null);
+        $item_form = $list->getListItemBasicForm($_POST ?: null);
+        $errors = array();
 
         if ($_POST && ($valid = $item_form->isValid())) {
             $data = $item_form->getClean();
-            if ($_item = DynamicListItem::lookup(array(
-                            'list_id' => $list->getId(), 'value'=>$data['value'])))
-                if ($_item && $_item->id)
-                    $item_form->getField('value')->addError(
-                        __('Value already in use'));
-            $data['list_id'] = $list->getId();
-            $item = DynamicListItem::create($data);
-            if ($item->save() && $item->setConfiguration())
-                Http::response(201, $this->encode(array(
-                    'success' => true,
-                    'row' => $this->_renderListItem($item, $list)
-                )));
+            if ($list->isItemUnique($data)) {
+                $item = $list->addItem($data, $errors);
+                if ($item->setConfiguration($_POST, $errors)) {
+                    Http::response(201, $this->encode(array(
+                        'success' => true,
+                        'row' => $this->_renderListItem($item, $list)
+                    )));
+                }
+            }
+            else {
+                $item_form->getField('value')->addError(
+                    __('Value already in use'));
+            }
         }
 
         include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
@@ -281,6 +255,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!($list = DynamicList::lookup($list_id)))
             Http::response(404, 'No such list');
 
+        $list = CustomListHandler::forList($list);
         $info = array(
             'title' => sprintf('%s &mdash; %s',
                 $list->getName(), __('Import Items')),
@@ -309,6 +284,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!$_POST['ids'])
             Http::response(422, 'Send `ids` parameter');
 
+        $list = CustomListHandler::forList($list);
         foreach ($_POST['ids'] as $id) {
             if ($item = $list->getItem( (int) $id)) {
                 $item->disable();
@@ -331,6 +307,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!$_POST['ids'])
             Http::response(422, 'Send `ids` parameter');
 
+        $list = CustomListHandler::forList($list);
         foreach ($_POST['ids'] as $id) {
             if ($item = $list->getItem( (int) $id)) {
                 $item->enable();
@@ -361,7 +338,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
                 Http::response(404, 'No such list item');
             }
         }
-        #Http::response(200, $this->encode(array('success' => true)));
+        Http::response(200, $this->encode(array('success' => true)));
     }
 
     function upload($id) {
@@ -392,6 +369,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         elseif (!$form = DynamicForm::lookup($id))
             Http::response(400, 'No such form');
 
+        // XXX: Fetch the form via the list!
         ob_start();
         include STAFFINC_DIR . 'templates/dynamic-form-fields-view.tmpl.php';
         $html = ob_get_clean();

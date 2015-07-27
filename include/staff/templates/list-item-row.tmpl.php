@@ -15,8 +15,8 @@
                id="item-<?php echo $id; ?>"
             ><?php
                 echo sprintf('<i class="icon-edit" %s></i> ',
-                        $item->getConfiguration()
-                        ? '': 'style="color:red; font-weight:bold;"');
+                        ($prop_fields && !$item->getConfiguration())
+                        ? 'style="color:red; font-weight:bold;"' : '');
             ?>
             <?php echo Format::htmlchars($item->getValue()); ?>
             <?php
@@ -31,9 +31,11 @@
             </a>
         </td>
 <?php $props = $item->getConfiguration();
+if ($prop_fields) {
     foreach ($prop_fields as $F) { ?>
         <td style="max-width: 20%"><span class="truncate"><?php
         echo $F->display($props[$F->get('id')]);
         ?></span></td>
-<?php } ?>
+<?php }
+} ?>
     </tr>

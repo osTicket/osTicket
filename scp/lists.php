@@ -13,7 +13,8 @@ elseif ($_REQUEST['type'])
 
 if ($criteria) {
     $list = DynamicList::lookup($criteria);
-
+    if ($list)
+        $list = CustomListHandler::forList($list);
     if ($list)
          $form = $list->getForm();
     else
