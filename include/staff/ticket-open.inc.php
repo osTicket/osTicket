@@ -408,7 +408,7 @@ $(function() {
         },
         onselect: function (obj) {
             $('#uid').val(obj.id);
-            $('#user-name').val(obj.name);
+            $('#user-name').val(obj.name.name);
             $('#user-email').val(obj.email);
         },
         property: "/bin/true"
