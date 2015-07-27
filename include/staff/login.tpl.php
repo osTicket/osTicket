@@ -14,7 +14,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
     </a></h1>
     <h3><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
-    <form action="login.php" method="post">
+    <form action="login.php" method="post" id="login">
         <?php csrf_token(); ?>
         <input type="hidden" name="do" value="scplogin">
         <fieldset>

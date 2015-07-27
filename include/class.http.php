@@ -32,7 +32,7 @@ class Http {
         endswitch;
     }
 
-    function response($code,$content,$contentType='text/html',$charset='UTF-8') {
+    function response($code,$content=false,$contentType='text/html',$charset='UTF-8') {
 
         header('HTTP/1.1 '.Http::header_code_verbose($code));
 		header('Status: '.Http::header_code_verbose($code)."\r\n");

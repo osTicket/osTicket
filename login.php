@@ -122,6 +122,11 @@ if (!$nav) {
     $nav = new UserNav();
     $nav->setActiveNav('status');
 }
+
+// Browsers shouldn't suggest saving that username/password
+Http::response(401);
+header('WWW-Authenticate: html-form id=clientLogin');
+
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;
 require CLIENTINC_DIR.'footer.inc.php';
