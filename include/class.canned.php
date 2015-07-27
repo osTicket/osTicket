@@ -226,10 +226,10 @@ extends VerySimpleModel {
             ->values_flat('canned_id', 'title');
 
         if ($deptId) {
-            $depts = Q::any(array('dept_id' => $deptId));
+            $depts = array($deptId);
             if (!$explicit)
-                $depts->add(array('dept_id' => 0));
-            $canned->filter($depts);
+                $depts[] = 0;
+            $canned->filter(array('dept_id__in' => $depts));
         }
 
         $responses = array();
