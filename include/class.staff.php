@@ -831,6 +831,66 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             $msg['body']);
     }
 
+    static function importCsv($stream, $defaults=array(), $callback=false) {
+        require_once INCLUDE_DIR . 'class.import.php';
+
+        $importer = new CsvImporter($stream);
+        $imported = 0;
+        $fields = array(
+            'firstname' => new TextboxField(array(
+                'label' => __('First name'),
+            )),
+            'lastname' => new TextboxField(array(
+                'label' => __('Last name'),
+            )),
+            'email' => new TextboxField(array(
+                'label' => __('Email Address'),
+                'configuration' => array(
+                    'validator' => 'email',
+                ),
+            )),
+            'username' => new TextboxField(array(
+                'label' => __('Username'),
+                'validators' => function($self, $value) {
+                    if (!Validator::is_username($value))
+                        $self->addError('Not a valid username');
+                },
+            )),
+        );
+        $form = new SimpleForm($fields);
+
+        try {
+            db_autocommit(false);
+            $records = $importer->importCsv($form->getFields(), $defaults);
+            foreach ($records as $data) {
+                if (!isset($data['email']) || !isset($data['username']))
+                    throw new ImportError('Both `username` and `email` fields are required');
+
+                if ($agent = self::lookup(array('username' => $data['username']))) {
+                    // TODO: Update the user
+                }
+                elseif ($agent = self::create($data, $errors)) {
+                    if ($callback)
+                        $callback($agent, $data);
+                    $agent->save();
+                }
+                else {
+                    throw new ImportError(sprintf(__('Unable to import (%s): %s'),
+                        $data['username'],
+                        print_r($errors, true)
+                    ));
+                }
+                $imported++;
+            }
+            db_autocommit(true);
+        }
+        catch (Exception $ex) {
+            db_rollback();
+            return $ex->getMessage();
+        }
+        return $imported;
+    }
+
     function save($refetch=false) {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();

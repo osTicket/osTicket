@@ -462,13 +462,13 @@ implements TemplateVariable {
         $imported = 0;
         try {
             db_autocommit(false);
-            $records = $importer->importCsv(array(UserForm::getUserForm()), $defaults);
+            $records = $importer->importCsv(UserForm::getUserForm()->getFields(), $defaults);
             foreach ($records as $data) {
                 if (!isset($data['email']) || !isset($data['name']))
                     throw new ImportError('Both `name` and `email` fields are required');
                 if (!($user = static::fromVars($data, true, true)))
                     throw new ImportError(sprintf(__('Unable to import user: %s'),
-                        print_r($vars, true)));
+                        print_r($data, true)));
                 $imported++;
             }
             db_autocommit(true);

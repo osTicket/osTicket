@@ -16,6 +16,7 @@
 **********************************************************************/
 
 class ImportError extends Exception {}
+class ImportDataError extends ImportError {}
 
 class CsvImporter {
     var $stream;
@@ -42,16 +43,16 @@ class CsvImporter {
         }
     }
 
-    function importCsv($forms=array(), $defaults=array()) {
-        $named_fields = $all_fields = array();
-        foreach ($forms as $F)
-            foreach ($F->getFields() as $field)
-                $all_fields[] = $field;
+    function __destruct() {
+        fclose($this->stream);
+    }
 
+    function importCsv($all_fields=array(), $defaults=array()) {
+        $named_fields = array();
         $has_header = true;
         foreach ($all_fields as $f)
             if ($f->get('name'))
-                $named_fields[] = $f;
+                $named_fields[$f->get('name')] = $f;
 
         // Read the first row and see if it is a header or not
         if (!($data = fgetcsv($this->stream, 1000, ",")))
@@ -91,15 +92,14 @@ class CsvImporter {
         if (!$has_header)
             fseek($this->stream, 0);
 
-        $objects = $fields = $keys = array();
-        foreach ($forms as $F) {
-            foreach ($headers as $h => $label) {
-                if (!($f = $F->getField($h)))
-                    continue;
+        $objects = $fields = array();
+        foreach ($headers as $h => $label) {
+            if (!isset($named_fields[$h]))
+                continue;
 
-                $name = $keys[] = $f->get('name');
-                $fields[$name] = $f->getImpl();
-            }
+            $f = $named_fields[$h];
+            $name = $f->get('name');
+            $fields[$name] = $f;
         }
 
         // Add default fields (org_id, etc).
@@ -107,35 +107,87 @@ class CsvImporter {
             // Don't apply defaults which are also being imported
             if (isset($header[$key]))
                 unset($defaults[$key]);
-            $keys[] = $key;
         }
 
-        while (($data = fgetcsv($this->stream, 4096, ",")) !== false) {
-            if (count($data) == 1 && $data[0] == null)
+        // Avoid reading the entire CSV before yielding the first record.
+        // Use an iterator. This will also allow row-level errors to be
+        // continuable such that the rows with errors can be handled and the
+        // iterator can continue with the next row.
+        return new CsvImportIterator($this->stream, $headers, $fields, $defaults);
+    }
+}
+
+class CsvImportIterator
+implements Iterator {
+    var $stream;
+    var $start = 0;
+    var $headers;
+    var $fields;
+    var $defaults;
+
+    var $current = true;
+    var $row = 0;
+
+    function __construct($stream, $headers, $fields, $defaults) {
+        $this->stream = $stream;
+        $this->start = ftell($stream);
+        $this->headers = $headers;
+        $this->fields = $fields;
+        $this->defaults = $defaults;
+    }
+
+    // Iterator interface -------------------------------------
+    function rewind() {
+        @fseek($this->stream, $this->start);
+        if (ftell($this->stream) != $this->start)
+            throw new RuntimeException('Stream cannot be rewound');
+        $this->row = 0;
+        $this->next();
+    }
+    function valid() {
+        return $this->current;
+    }
+    function current() {
+        return $this->current;
+    }
+    function key() {
+        return $this->row;
+    }
+
+    function next() {
+        do {
+            if (($csv = fgetcsv($this->stream, 4096, ",")) === false) {
+                // Read error
+                $this->current = false;
+                break;
+            }
+
+            if (count($csv) == 1 && $csv[0] == null)
                 // Skip empty rows
                 continue;
-            elseif (count($data) != count($headers))
-                throw new ImportError(sprintf(__('Bad data. Expected: %s'), implode(', ', $headers)));
+            elseif (count($csv) != count($this->headers))
+                throw new ImportDataError(sprintf(__('Bad data. Expected: %s'),
+                    implode(', ', $this->headers)));
+
             // Validate according to field configuration
             $i = 0;
-            foreach ($headers as $h => $label) {
-                $f = $fields[$h];
-                $T = $f->parse($data[$i]);
+            $this->current = $this->defaults;
+            foreach ($this->headers as $h => $label) {
+                $f = $this->fields[$h];
+                $f->_errors = array();
+                $T = $f->parse($csv[$i]);
                 if ($f->validateEntry($T) && $f->errors())
-                    throw new ImportError(sprintf(__(
+                    throw new ImportDataError(sprintf(__(
                         /* 1 will be a field label, and 2 will be error messages */
                         '%1$s: Invalid data: %2$s'),
                         $label, implode(', ', $f->errors())));
                 // Convert to database format
-                $data[$h] = $data[$i++] = $f->to_database($T);
+                $this->current[$h] = $f->to_database($T);
+                $i++;
             }
-            // Add default fields
-            foreach ($defaults as $key => $val)
-                $data[$key] = $data[$i++] = $val;
-
-            $objects[] = $data;
         }
-
-        return $objects;
+        // Use the do-loop only for the empty line skipping
+        while (false);
+        $this->row++;
     }
 }
