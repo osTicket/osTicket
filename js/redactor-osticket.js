@@ -40,6 +40,14 @@ RedactorPlugins.draft = function() {
             this.opts.imageUpload = this.opts.autoCreateUrl + '/attach';
             this.opts.imageUploadCallback = this.afterUpdateDraft;
         }
+
+        // FIXME: Monkey patch Redactor's autosave enable method to disable first
+        var oldAse = this.autosave.enable;
+        this.autosave.enable = function() {
+            this.autosave.disable();
+            oldAse.call(this);
+        }.bind(this);
+
         if (autosave_url)
             this.autosave.enable();
 
@@ -99,15 +107,16 @@ RedactorPlugins.draft = function() {
             // Unprocessable request (Empty message)
             return;
 
-        this.displayError(error);
+        this.draft.displayError(error);
         // Cancel autosave
-        clearInterval(this.autosaveInterval);
+        this.autosave.disable();
         this.hideDraftSaved();
         this.$box.trigger('draft:failed');
     },
 
     displayError: function(json) {
-        alert(json.error);
+        $.sysAlert(json.error,
+            __('Unable to save draft. Refresh the current page to restore and continue your draft.'));
     },
 
     hideDraftSaved: function() {
@@ -360,11 +369,11 @@ $(document).ajaxError(function(event, request, settings) {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor) {
+                redactor.autosave.disable();
                 clearInterval(redactor.autosaveInterval);
             }
         });
-        $('#overlay').show();
-        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
-        $('#overlay').hide();
+        $.sysAlert(__('Unable to save draft.'),
+            __('Refresh the current page to restore and continue your draft.'));
     }
 });
