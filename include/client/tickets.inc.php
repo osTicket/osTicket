@@ -70,10 +70,10 @@ if($status && isset($states[$status])){
 $search=($_REQUEST['a']=='search' && $_REQUEST['q']);
 if($search) {
     $qs += array('a' => $_REQUEST['a'], 'q' => $_REQUEST['q']);
+    $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
     if(is_numeric($_REQUEST['q'])) {
         $qwhere.=" AND ticket.`number` LIKE '$queryterm%'";
     } else {//Deep search!
-        $queryterm=db_real_escape($_REQUEST['q'],false); //escape the term ONLY...no quotes.
         $qwhere.=' AND ( '
                 ." cdata.subject LIKE '%$queryterm%'"
                 ." OR thread.body LIKE '%$queryterm%'"
