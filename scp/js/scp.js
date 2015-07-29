@@ -654,6 +654,10 @@ $.dialog = function (url, codes, cb, options) {
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
+                        $('div.tab_content[id] div.error:not(:empty)', $popup).each(function() {
+                          var div = $(this).closest('.tab_content');
+                          $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+                        });
                     }
                 }
             })

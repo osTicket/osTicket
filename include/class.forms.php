@@ -2332,9 +2332,13 @@ class TicketStateField extends ChoiceField {
     function getChoices($verbose=false) {
         static $_choices;
 
+        $states = static::$_states;
+        if ($this->options['private_too'])
+            $states += static::$_privatestates;
+
         if (!isset($_choices)) {
             // Translate and cache the choices
-            foreach (static::$_states as $k => $v)
+            foreach ($states as $k => $v)
                 $_choices[$k] =  _P('ticket state name', $v['name']);
 
             $this->ht['default'] =  '';

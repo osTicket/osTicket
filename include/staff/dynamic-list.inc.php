@@ -32,7 +32,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
 <?php if ($list) { ?>
     <li class="active"><a href="#items">
-        <i class="icon-list"></i> <?php echo sprintf(__('Items (%d)'), $list->items->count()); ?></a></li>
+        <i class="icon-list"></i> <?php echo sprintf(__('Items (%d)'), $list->getItems()->count()); ?></a></li>
 <?php } ?>
     <li><a href="#properties">
         <i class="icon-asterisk"></i> <?php echo __('Properties'); ?></a></li>
@@ -236,7 +236,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 
 <script type="text/javascript">
 $(function() {
-    $(document).on('click', 'a.field-config', function(e) {
+    $('#properties, #items').on('click', 'a.field-config', function(e) {
         e.preventDefault();
         var $id = $(this).attr('id');
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
@@ -253,7 +253,7 @@ $(function() {
         });
         return false;
     });
-    $(document).on('click', 'a.items-action', function(e) {
+    $('#items').on('click', 'a.items-action', function(e) {
         e.preventDefault();
         var ids = [];
         $('form#save :checkbox.mass:checked').each(function() {

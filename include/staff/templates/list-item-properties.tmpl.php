@@ -1,6 +1,6 @@
 <?php
     $properties_form = $item ? $item->getConfigurationForm($_POST ?: null)
-        : $list->getConfigurationForm();
+        : $list->getConfigurationForm($_POST ?: null);
     $hasProperties = count($properties_form->getFields()) > 0;
 ?>
 <h3 class="drag-handle"><?php echo $list->getName(); ?> &mdash; <?php
@@ -14,7 +14,7 @@
         <a href="#value"><i class="icon-reorder"></i>
         <?php echo __('Value'); ?></a>
     </li>
-    <li><a href="#properties"><i class="icon-asterisk"></i>
+    <li><a href="#item-properties"><i class="icon-asterisk"></i>
         <?php echo __('Item Properties'); ?></a>
     </li>
 </ul>
@@ -33,7 +33,7 @@
 ?>
 </div>
 
-<div class="tab_content hidden" id="properties">
+<div class="tab_content hidden" id="item-properties">
 <?php
     if ($hasProperties) {
         $form = $properties_form;

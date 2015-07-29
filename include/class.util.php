@@ -39,6 +39,8 @@ class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Counta
     }
 
     function insert($i, $value) {
+        if ($i < 0)
+            $i += count($this->storage) + 1;
         array_splice($this->storage, $i, 0, array($value));
     }
 
