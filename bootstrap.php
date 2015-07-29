@@ -131,6 +131,7 @@ class Bootstrap {
 
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');
+        define('TRANSLATION_TABLE', $prefix.'translation');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');

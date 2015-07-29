@@ -858,7 +858,7 @@ require_once INCLUDE_DIR . 'class.orm.php';
 class CustomDataTranslation extends VerySimpleModel {
 
     static $meta = array(
-        'table' => 'ost_translation',
+        'table' => TRANSLATION_TABLE,
         'pk' => array('id')
     );
 
