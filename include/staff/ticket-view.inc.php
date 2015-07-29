@@ -168,7 +168,10 @@ if($ticket->isOverdue())
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
-             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
+             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
+                 <?php if ($ticket) { ?> – <span class="ltr"><?php echo $ticket->getSubject(); ?></span>
+                 <?php } ?>
+            </h2>
         </div>
     </div>
   </div>
@@ -413,7 +416,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     } ?>
 </table>
 <div class="clear"></div>
-<h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
+
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
@@ -653,7 +656,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
          </tbody>
         </table>
-        <p  style="padding:0 165px;">
+        <p  style="text-align:center;">
             <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
@@ -736,7 +739,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
 
-       <p  style="padding-left:165px;">
+       <p  style="text-align:center;">
            <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
@@ -796,7 +799,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 </td>
             </tr>
         </table>
-        <p style="padding-left:165px;">
+        <p style="text-align:center;">
            <input class="save pending" type="submit" value="<?php echo __('Transfer');?>">
            <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
@@ -896,7 +899,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 </td>
             </tr>
         </table>
-        <p  style="padding-left:165px;">
+        <p  style="text-align:center;">
             <input class="save pending" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
             <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>

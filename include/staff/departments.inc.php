@@ -66,7 +66,6 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>

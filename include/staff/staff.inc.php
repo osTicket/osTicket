@@ -27,7 +27,7 @@ if ($_REQUEST['a']=='add'){
 }
 else {
     //Editing Department.
-    $title=__('Manage Agent');
+    $title=__('Manage Agent –');
     $action='update';
     $submit_text=__('Save Changes');
     $info['id'] = $staff->getId();
@@ -42,10 +42,10 @@ else {
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 
   <h2><?php echo $title; ?>
-    <div>
-      <small><?php echo $staff->getName(); ?></small>
-    </div>
-  </h2>
+      <?php if ($staff) { ?> <span class="ltr">
+      <?php echo $staff->getName(); ?></span>
+      <?php } ?>
+</h2>
 
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>

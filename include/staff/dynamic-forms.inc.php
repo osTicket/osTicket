@@ -1,24 +1,29 @@
 <form action="forms.php" method="POST" name="forms">
 
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Custom Forms'); ?></h2>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-<a href="forms.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
-    echo __('Add New Custom Form'); ?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li class="danger"><a class="confirm" data-name="delete" href="forms.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+<div class="sticky bar opaque">
+    <div class="content">
+        <div class="pull-left flush-left">
+            <h2><?php echo __('Custom Forms'); ?></h2>
+        </div>
+        <div class="pull-right flush-right">
+            <a href="forms.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
+                    echo __('Add New Custom Form'); ?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="forms.php?a=delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-
 </div>
 <div class="clear"></div>
 
@@ -66,7 +71,6 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
     <?php } ?>
     </tbody>
     <tbody>
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>

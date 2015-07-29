@@ -48,7 +48,7 @@ TicketForm::ensureDynamicDataView();
 // Fetch the results
 $results = count($tickets);
 ?>
-<div style="width:700px;" class="pull-left">
+<div class="pull-left" style="margin-top:5px;">
    <?php
     if ($results) {
         echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
@@ -58,13 +58,15 @@ $results = count($tickets);
     }
    ?>
 </div>
-<div class="pull-right flush-right" style="padding-right:5px;">
-    <?php
-    if ($user) { ?>
-    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
-    <?php print __('Create New Ticket'); ?></a></b>
-    <?php
-    } ?>
+<div style="margin-bottom:10px;">
+    <div class="pull-right flush-right">
+        <?php
+        if ($user) { ?>
+            <a class="green button action-button" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
+                <i class="icon-plus"></i> <?php print __('Create New Ticket'); ?></a>
+        <?php
+        } ?>
+    </div>
 </div>
 <br/>
 <div>

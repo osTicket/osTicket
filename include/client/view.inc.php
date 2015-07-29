@@ -17,7 +17,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
+    <strong><?php echo __('Looking for your other tickets?'); ?></strong><br />
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
     ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a>
