@@ -173,6 +173,8 @@ class OsticketConfig extends Config {
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
         'verify_email_addrs' => 1,
+        'client_avatar' => 'gravatar.mm',
+        'agent_avatar' => 'gravatar.mm',
     );
 
     function OsticketConfig($section=null) {
@@ -403,6 +405,18 @@ class OsticketConfig extends Config {
 
     function getStaffMaxLogins() {
         return $this->get('staff_max_logins');
+    }
+
+    function getStaffAvatarSource() {
+        require_once INCLUDE_DIR . 'class.avatar.php';
+        list($source, $mode) = explode('.', $this->get('agent_avatar'), 2);
+        return AvatarSource::lookup($source, $mode);
+    }
+
+    function getClientAvatarSource() {
+        require_once INCLUDE_DIR . 'class.avatar.php';
+        list($source, $mode) = explode('.', $this->get('client_avatar'), 2);
+        return AvatarSource::lookup($source, $mode);
     }
 
     function getLockTime() {
@@ -1099,6 +1113,11 @@ class OsticketConfig extends Config {
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
             'error'=>__('Valid password reset window required'));
 
+        require_once INCLUDE_DIR.'class.avatar.php';
+        list($avatar_source) = explode('.', $vars['agent_avatar']);
+        if (!AvatarSource::lookup($avatar_source))
+            $errors['agent_avatar'] = __('Select a value from the list');
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
@@ -1111,13 +1130,18 @@ class OsticketConfig extends Config {
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
             'agent_name_format'=>$vars['agent_name_format'],
-
+            'agent_avatar'=>$vars['agent_avatar'],
         ));
     }
 
     function updateUsersSettings($vars, &$errors) {
         $f=array();
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+
+        require_once INCLUDE_DIR.'class.avatar.php';
+        list($avatar_source) = explode('.', $vars['client_avatar']);
+        if (!AvatarSource::lookup($avatar_source))
+            $errors['client_avatar'] = __('Select a value from the list');
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1130,7 +1154,7 @@ class OsticketConfig extends Config {
             'client_registration'=>$vars['client_registration'],
             'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
             'client_name_format'=>$vars['client_name_format'],
-
+            'client_avatar'=>$vars['client_avatar'],
         ));
     }
 

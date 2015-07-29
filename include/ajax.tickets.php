@@ -116,7 +116,7 @@ class TicketsAjaxAPI extends AjaxController {
             if ($lock->getStaffId() != $thisstaff->getId())
                 return $this->json_encode(array('id'=>0, 'retry'=>false,
                     'msg' => sprintf(__('Currently locked by %s'),
-                        $lock->getStaffName())
+                        $lock->getStaff()->getAvatarAndName())
                     ));
 
             //Ticket already locked by staff...try renewing it.
@@ -152,7 +152,7 @@ class TicketsAjaxAPI extends AjaxController {
             // user doesn't own the lock anymore??? sorry...try to next time.
             Http::response(403, $this->encode(array('id'=>0, 'retry'=>false,
                 'msg' => sprintf(__('Currently locked by %s'),
-                    $lock->getStaffName())
+                    $lock->getStaff->getAvatarAndName())
             ))); //Give up...
 
         // Ensure staff still has access

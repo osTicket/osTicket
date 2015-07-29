@@ -240,29 +240,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     function getEmail() {
         return $this->email;
     }
-    /**
-     * Get either a Gravatar URL or complete image tag for a specified email address.
-     *
-     * @param string $email The email address
-     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-     * @param boole $img True to return a complete IMG tag False for just the URL
-     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-     * @return String containing either just a URL or a complete image tag
-     * @source http://gravatar.com/site/implement/images/php/
-     */
-    function get_gravatar($s = 80, $img = false, $atts = array(), $d = 'retro', $r = 'g' ) {
-        $url = '//www.gravatar.com/avatar/';
-        $url .= md5( strtolower( $this->getEmail() ) );
-        $url .= "?s=$s&d=$d&r=$r";
-        if ( $img ) {
-            $url = '<img src="' . $url . '"';
-            foreach ( $atts as $key => $val )
-                $url .= ' ' . $key . '="' . $val . '"';
-            $url .= ' />';
-        }
-        return $url;
+
+    function getAvatar($size=null) {
+        global $cfg;
+        $source = $cfg->getStaffAvatarSource();
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getUserName() {
@@ -275,6 +260,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getName() {
         return new AgentsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
+    }
+
+    function getAvatarAndName() {
+        return $this->getAvatar().Format::htmlchars((string) $this->getName());
     }
 
     function getFirstName() {

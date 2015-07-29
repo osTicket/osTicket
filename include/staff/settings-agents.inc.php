@@ -36,6 +36,31 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
             </td>
         </tr>
         <tr>
+            <td width="180"><?php echo __('Avatar Source'); ?>:</td>
+            <td>
+                <select name="agent_avatar">
+<?php           require_once INCLUDE_DIR . 'class.avatar.php';
+                foreach (AvatarSource::allSources() as $id=>$class) {
+                    $modes = $class::getModes();
+                    if ($modes) {
+                        echo "<optgroup label=\"{$class::getName()}\">";
+                        foreach ($modes as $mid=>$mname) {
+                            $oid = "$id.$mid";
+                            $selected = ($config['agent_avatar'] == $oid) ? 'selected="selected"' : '';
+                            echo "<option {$selected} value=\"{$oid}\">{$mname}</option>";
+                        }
+                        echo "</optgroup>";
+                    }
+                    else {
+                        $selected = ($config['agent_avatar'] == $id) ? 'selected="selected"' : '';
+                        echo "<option {$selected} value=\"{$id}\">{$class::getName()}</option>";
+                    }
+                } ?>
+                </select>
+                <div class="error"><?php echo Format::htmlchars($errors['agent_avatar']); ?></div>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Authentication Settings'); ?></b></em>
             </th>
