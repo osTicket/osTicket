@@ -38,7 +38,7 @@ class ConfigAjaxAPI extends AjaxController {
         list($primary_sl, $primary_locale) = explode('_', $primary);
 
         $config=array(
-              'lock_time'       => ($cfg->getLockTime()*3600),
+              'lock_time'       => ($cfg->getLockTime()*60),
               'html_thread'     => (bool) $cfg->isRichTextEnabled(),
               'date_format'     => $cfg->getDateFormat(true),
               'lang'            => $lang,

@@ -1831,6 +1831,11 @@ button[type=submit]:hover, input[type=submit]:hover, input[type=submit]:active {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+.button:disabled, .action-button:disabled,
+button[type=submit]:disabled, input[type=submit]:disabled {
+  opacity: 0.6;
+}
+
 .save.pending:hover {
   box-shadow: 0 0 0 2px rgba(242, 165, 0, 1) inset;
   background-color: rgba(255, 174, 0, 0.79);
@@ -2500,6 +2505,59 @@ td.indented {
     color: rgba(255,255,255,0.8) !important;
     border-color:transparent;
   }
+}
+
+.message.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 9px 15px;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  opacity: 0.95;
+}
+.message.bar.bottom {
+  bottom: 0;
+  top: auto;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+}
+.message.bar .avatar {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  margin-right: 10px;
+  background-image: url(../images/oscar-avatars.png);
+  background-repeat: no-repeat;
+  background-size: 180px 72px;
+}
+.avatar.oscar-boy {
+  background-position: -72px 0;
+}
+.avatar.oscar-borg {
+  background-position: 0 -36px;
+}
+.message.bar .title {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.message.bar .body {
+  margin-left: 42px;
+}
+.message.bar.warning {
+  border-bottom: 3px solid orange;
+}
+.message.bar.bottom.warning {
+  border-bottom: none;
+  border-top: 3px solid orange;
+}
+.message.bar.danger {
+  border-bottom: 3px solid red;
+}
+.message.bar.bottom.danger {
+  border-bottom: none;
+  border-top: 3px solid red;
 }
 
 #thread-items::before {

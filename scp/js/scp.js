@@ -758,6 +758,131 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
++function($) {
+  var MessageBar = function() {
+    this.defaults = {
+      avatar: 'oscar-boy',
+      bar: '<div class="message bar"></div>',
+      button: '<button type="button" class="inline button"></button>',
+      buttonClass: '',
+      buttonText: __('OK'),
+      classes: '',
+      dismissible: true,
+      onok: null,
+      position: 'top'
+    };
+
+    this.show = function(title, message, options) {
+      this.hide();
+      options = $.extend({}, this.defaults, options);
+      var bar = this.bar = $(options.bar).addClass(options.classes)
+        .append($('<div class="title"></div>').text(title))
+        .append($('<div class="body"></div>').text(message))
+        .addClass(options.position);
+      if (options.avatar)
+        bar.prepend($('<div class="avatar pull-left" title="Oscar"></div>')
+            .addClass(options.avatar));
+
+      if (options.onok || options.dismissible) {
+        bar
+          .prepend($('<div><div class="valign-helper"></div></div>')
+            // FIXME: This is not compatible with .rtl
+            .css({position: 'absolute', top: 0, bottom: 0, right: 0, margin: '0 15px'})
+            .append($(options.button)
+              .text(options.buttonText)
+              .click(this.dismiss.bind(this))
+              .addClass(options.buttonClass)
+            )
+          );
+      }
+      this.visible = true;
+      this.options = options;
+
+      $('body').append(bar);
+      this.height = bar.height();
+
+      // Slight slide in
+      if (options.position == 'bottom') {
+        bar.css('bottom', -this.height/2).animate({'bottom': 0});
+      }
+      // Otherwise assume TOP positioning
+      else {
+        var hovering = false,
+            y = $(window).scrollTop(),
+            targetY = (y < this.height) ? -this.height - 10 + y : 0;
+        bar.css('top', -this.height/2).animate({'top': targetY});
+
+        // Plop out on mouse hover
+        bar.hover(function() {
+          if (!hovering && this.visible && bar.css('top') != '0') {
+            bar.stop().animate({'margin-top': -parseInt(bar.css('top'), 10)}, 400, 'easeOutBounce');
+            hovering = true;
+          }
+        }.bind(this), function() {
+          if (this.visible && hovering) {
+            bar.stop().animate({'margin-top': 0});
+            hovering = false;
+          }
+        }.bind(this));
+      }
+
+      return bar;
+    };
+
+    this.scroll = function(event) {
+      // Shade on scroll to top
+      if (!this.visible || this.options.position != 'top')
+        return;
+      var y = $(window).scrollTop();
+      if (y < this.height) {
+        this.bar.css({top: -this.height -10 + y});
+        this.shading = true;
+      }
+      else if (this.bar.css('top') != '0') {
+        if (this.shading) {
+          this.bar.stop().animate({top: 0});
+          this.shading = false;
+        }
+      }
+    };
+
+    this.dismiss = function(event) {
+      if (this.options.onok) {
+        this.bar.find('button').replaceWith(
+          $('<i class="icon-spinner icon-spin icon-large"></i>')
+        );
+        if (this.options.onok(event) === false)
+          return;
+      }
+      this.hide();
+    };
+
+    this.hide = function() {
+      if (!this.bar || !this.visible)
+        return;
+      var bar = this.bar.removeAttr('style');
+      var dir = this.options.position == 'bottom' ? 'down' : 'up';
+      // NOTE: destroy() is not called here because a new bar might be
+      //       created before the animation finishes
+      bar.hide("slide", { direction: dir }, 400, function() { bar.remove(); });
+      this.visible = false;
+    };
+
+    this.destroy = function() {
+      if (!this.bar || !this.visible)
+        return;
+      this.bar.remove();
+      this.visible = false;
+    };
+
+    // Destroy on away navigation
+    $(document).on('pjax:start.messageBar', this.destroy.bind(this));
+    $(window).on('scroll.messageBar', this.scroll.bind(this));
+  };
+
+  $.messageBar = new MessageBar();
+}(window.jQuery);
+
 // Tabs
 $(document).on('click.tab', 'ul.tabs > li > a', function(e) {
     e.preventDefault();
@@ -853,9 +978,6 @@ getConfig = (function() {
 })();
 
 $(document).on('pjax:click', function(options) {
-    // Release ticket lock (maybe)
-    if ($.autoLock !== undefined)
-        $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
 

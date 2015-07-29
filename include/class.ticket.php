@@ -542,10 +542,16 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLock() {
-        return $this->lock;
+        $lock = $this->lock;
+        if ($lock && !$lock->isExpired())
+            return $lock;
     }
 
-    function acquireLock($staffId, $lockTime) {
+    function acquireLock($staffId, $lockTime=null) {
+        global $cfg;
+
+        if (!isset($lockTime))
+            $lockTime = $cfg->getLockTime();
 
         if (!$staffId or !$lockTime) //Lockig disabled?
             return null;
