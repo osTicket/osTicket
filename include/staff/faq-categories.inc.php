@@ -93,7 +93,10 @@ foreach ($topics as $T) {
 
     </div>
 </form>
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="flush-left">
 <h2><?php echo __('Frequently Asked Questions');?></h2>
+    </div></div>
 <hr>
 <div>
 <?php

@@ -1,11 +1,4 @@
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th>
-                <h4><?php echo __('Alerts and Notices sent to agents on ticket "events"'); ?></h4>
-            </th>
-        </tr>
-    </thead>
     <tbody>
         <tr><th><em><b><?php echo __('New Ticket Alert'); ?></b>:
             <i class="help-tip icon-question-sign" href="#ticket_alert"></i>

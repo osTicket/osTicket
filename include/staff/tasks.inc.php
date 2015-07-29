@@ -228,27 +228,27 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
-  $.pjax({
-    url:$(this).attr('action') + '?' + $(this).serialize(),
-    container:'#pjax-container',
-    timeout: 2000
-  });
-return false;">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="search-type" value=""/>
-    <div class="attached input">
-      <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-        autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button type="submit" class="attached button"><i class="icon-search"></i>
-      </button>
-    </div>
+        $.pjax({
+        url:$(this).attr('action') + '?' + $(this).serialize(),
+        container:'#pjax-container',
+        timeout: 2000
+        });
+        return false;">
+        <input type="hidden" name="a" value="search">
+        <input type="hidden" name="search-type" value=""/>
+        <div class="attached input">
+            <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
+                   autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+                   autocomplete="off" autocorrect="off" autocapitalize="off">
+            <button type="submit" class="attached button"><i class="icon-search"></i>
+            </button>
+        </div>
     </form>
 
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:10px;">
+<div style="margin-bottom:20px; padding-top:5px;">
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">

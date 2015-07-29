@@ -2,7 +2,7 @@
 
 $info=array();
 if ($role) {
-    $title = __('Update Role');
+    $title = __('Update Role –');
     $action = 'update';
     $submit_text = __('Save Changes');
     $info = $role->getInfo();
@@ -23,7 +23,10 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-<h2> <?php echo $role ?: __('New Role'); ?></h2>
+<h2><?php echo $title; ?>
+    <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+    <?php } ?>
+</h2>
 <ul class="clean tabs">
     <li class="active"><a href="#definition">
         <i class="icon-file"></i> <?php echo __('Definition'); ?></a></li>
@@ -35,7 +38,6 @@ $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $in
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __(
                 'Roles are used to define agents\' permissions'
                 ); ?>&nbsp;<i class="help-tip icon-question-sign"

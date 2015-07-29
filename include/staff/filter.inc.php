@@ -6,7 +6,7 @@ $match_types=Filter::getSupportedMatchTypes();
 
 $info = $qs = array();
 if($filter && $_REQUEST['a']!='add'){
-    $title=__('Update Filter');
+    $title=__('Update Filter –');
     $action='update';
     $submit_text=__('Save Changes');
     $info=array_merge($filter->getInfo(),$filter->getFlatRules());
@@ -26,12 +26,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Ticket Filter');?></h2>
+ <h2><?php echo $title; ?>
+     <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+     <?php } ?>
+</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Filters are executed based on execution order. Filter can target specific ticket source.');?></em>
             </th>
         </tr>

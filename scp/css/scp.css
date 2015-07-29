@@ -100,20 +100,20 @@ a time.relative {
     color: #555;
 }
 
-.banner { margin: 0; padding: 5px 5px 11px; margin-bottom: 10px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
+.banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
 
 #msg_info,
-.info-banner { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
+.info-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 
 #msg_notice,
 .success-banner,
-.notice-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
+.notice-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px;  border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
 
 #msg_warning,
-.warning-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #f26522; background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
+.warning-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; border: 1px solid #f26522; background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
 
 #msg_error,
-.error-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
+.error-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
 
 #notice_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
 
@@ -1040,7 +1040,6 @@ ul.tabs {
 }
 
 #response_options ul.tabs {
-    padding-left:190px;
 }
 
 ul.tabs li {
@@ -1432,7 +1431,7 @@ caption:hover > i.help-tip {
 
 h2 > i.help-tip {
     vertical-align: middle;
-    font-size: 1.1em;
+    font-size: .85em;
 }
 .form_table th h4 i.help-tip {
     color: white;
@@ -1836,7 +1835,7 @@ select + .button {
 }
 
 button[type=submit], input[type="submit"], .primary.button {
-    font-weight: bold;
+    font-weight: normal;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
     background-color: rgba(0,0,0,0.07);
 }
@@ -2236,18 +2235,20 @@ tr.disabled th {
 }
 
 .label {
-  font-size: 11px;
-  padding: 1px 4px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  font-weight: bold;
-  line-height: 14px;
-  color: #ffffff;
-  vertical-align: baseline;
-  white-space: nowrap;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #999999;
+    float: right;
+    margin-bottom: 4px;
+    font-size: 11px;
+    padding: 0px 4px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-weight: bold;
+    line-height: 24px;
+    color: #ffffff;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #999999;
 }
 .label-bare {
   background-color: transparent;
@@ -2391,6 +2392,8 @@ tr i.help-tip.warning {
 .ltr {
     direction: ltr;
     unicode-bidi: embed;
+    font-weight:normal;
+    font-style:italic;
 }
 .required {
     font-weight: bold;

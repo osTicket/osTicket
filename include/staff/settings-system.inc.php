@@ -11,7 +11,6 @@ $gmtime = Misc::gmtime();
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('System Settings and Preferences'); ?></h4>
                 <em><b><?php echo __('General Settings'); ?></b></em>
             </th>
         </tr>

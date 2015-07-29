@@ -12,56 +12,62 @@ $order_by = 'sort';
 
 ?>
 <form action="helptopics.php" method="POST" name="topics">
-
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Help Topics');?></h2>
- </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <?php if ($cfg->getTopicSortMode() != 'a') { ?>
-        <input class="button no-confirm" type="submit" name="sort" value="Save"/>
-    <?php } ?>
-    <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="helptopics.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="helptopics.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="helptopics.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Help Topics');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <?php if ($cfg->getTopicSortMode() != 'a') { ?>
+                <input class="button no-confirm" type="submit" name="sort" value="Save" />
+                <?php } ?>
+                <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
+           <i class="icon-caret-down pull-right"></i>
+            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-name="enable" href="helptopics.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-name="disable" href="helptopics.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li class="danger">
+                            <a class="confirm" data-name="delete" href="helptopics.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-
-
-
-</div>
-<div class="clear"></div>
+    <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
-         echo $showing; ?></span>
-         <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
-        <select name="help_topic_sort_mode" onchange="javascript:
+
+    <!-- <div class="pull-right"><?php //echo __('Sorting Mode'); ?>:
+    <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
     $form.submit();
 ">
-<?php foreach (OsticketConfig::allTopicSortModes() as $i=>$m)
-    echo sprintf('<option value="%s"%s>%s</option>',
-        $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
+<?php// foreach (OsticketConfig::allTopicSortModes() as $i=>$m)
+    //echo sprintf('<option value="%s"%s>%s</option>',
+    //    $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
         </select>
-    </div>
-    </caption>
+    </div>-->
     <thead>
         <tr>
             <th width="7" style="height:20px;">&nbsp;</th>

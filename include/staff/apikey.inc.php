@@ -22,14 +22,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('API Key');?>
+ <h2><?php echo $title; ?>
     <i class="help-tip icon-question-sign" href="#api_key"></i>
     </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('API Key is auto-generated. Delete and re-add to change the key.');?></em>
             </th>
         </tr>

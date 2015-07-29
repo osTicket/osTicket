@@ -118,7 +118,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div id="msg_warning"><?php echo __('Canned response is in use by email filter(s)');?>: <?php
     echo implode(', ', $canned->getFilters()); ?></div>
  <?php } ?>
-<p style="padding-left:225px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>" onclick="javascript:
         $(this.form).find('textarea.richtext')

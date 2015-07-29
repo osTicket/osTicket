@@ -45,39 +45,47 @@ else
 
 ?>
 <form action="filters.php" method="POST" name="filters">
-
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Ticket Filters');?></h2>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
- <a href="filters.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Filter');?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="filters.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="filters.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="filters.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+<div class="sticky bar opaque">
+    <div class="content">
+        <div class="pull-left flush-left">
+            <h2><?php echo __('Ticket Filters');?></h2>
+        </div>
+        <div class="pull-right flush-right">
+            <a href="filters.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Filter');?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
+                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li>
+                        <a class="confirm" data-name="enable" href="filters.php?a=enable">
+                            <i class="icon-ok-sign icon-fixed-width"></i>
+                            <?php echo __( 'Enable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="disable" href="filters.php?a=disable">
+                            <i class="icon-ban-circle icon-fixed-width"></i>
+                            <?php echo __( 'Disable'); ?>
+                        </a>
+                    </li>
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="filters.php?a=delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-
-
 </div>
 <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>

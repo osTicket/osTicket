@@ -102,8 +102,9 @@ if ($task->isOverdue())
                 href="tasks.php?id=<?php echo $task->getId(); ?>"
                 ><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
-                <span class="faded notsticky">&nbsp;&mdash; &nbsp;<?php echo $task->getTitle(); ?></span>
-               </h2>
+                <?php if ($task) { ?> – <span class="ltr"><?php echo $task->getTitle(); ?></span>
+                <?php } ?>
+            </h2>
             <?php
             } ?>
         </div>
@@ -425,9 +426,9 @@ else
                 </td>
             </tr>
         </table>
-       <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Update');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+       <p  style="text-align:center;">
+           <input class="save pending" type="submit" value="<?php echo __('Post Update');?>">
+           <input type="reset" value="<?php echo __('Reset');?>">
        </p>
     </form>
     <?php
@@ -485,9 +486,9 @@ else
                 </td>
             </tr>
         </table>
-       <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Note');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+       <p  style="text-align:center;">
+           <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
+           <input type="reset" value="<?php echo __('Reset');?>">
        </p>
     </form>
  </div>

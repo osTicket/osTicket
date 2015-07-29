@@ -23,13 +23,11 @@ if($topic && $_REQUEST['a']!='add') {
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 
-<h2 style="font-weight: normal"><?php echo $title; ?>
-    &nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i>
-    </h2>
+<h2><?php echo $title; ?>
 <?php if ($topic) { ?>
-    <div class="big"><strong><?php echo $topic->getLocal('topic'); ?></strong></div>
+ - <span class="ltr"><?php echo $topic->getLocal('topic'); ?></span>
 <?php } ?>
-
+ <i class="help-tip icon-question-sign" href="#help_topic_information"></i></h2>
 <br/>
 
 <ul class="clean tabs" id="topic-tabs">

@@ -102,7 +102,7 @@
         if (this.start) build_table.apply(this);
         return false;
     }
-    $(function() { $('tabular-navigation').tab(); });
+    //$(function() { $('tabular-navigation').tab(); });
 
     // Add tabs for the tabular display
     $(function() {
@@ -128,7 +128,7 @@
     var start, stop;
     function build_table() {
         if (this.tagName == 'A') {
-            current_tab = $(this).tab('show');
+            //current_tab = $(this).tab('show');
         }
         else if (this.start) {
             start = this.start.value || 'last month';

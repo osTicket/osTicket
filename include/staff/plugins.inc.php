@@ -1,28 +1,40 @@
 <form action="plugins.php" method="POST" name="forms">
 
-    <div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Currently Installed Plugins'); ?></h2>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <a href="plugins.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
- echo __('Add New Plugin'); ?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="plugins.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="plugins.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="plugins.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+<div class="sticky bar opaque">
+    <div class="content">
+        <div class="pull-left flush-left">
+            <h2><?php echo __('Currently Installed Plugins'); ?></h2>
+        </div>
+        <div class="pull-right flush-right">
+            <a href="plugins.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
+                echo __('Add New Plugin'); ?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                <i class="icon-caret-down pull-right"></i>
+                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li>
+                        <a class="confirm" data-name="enable" href="plugins.php?a=enable">
+                            <i class="icon-ok-sign icon-fixed-width"></i>
+                            <?php echo __( 'Enable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="disable" href="plugins.php?a=disable">
+                            <i class="icon-ban-circle icon-fixed-width"></i>
+                            <?php echo __( 'Disable'); ?>
+                        </a>
+                    </li>
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="plugins.php?a=delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 <div class="clear"></div>
