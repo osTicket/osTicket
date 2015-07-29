@@ -56,9 +56,9 @@ class UserManager extends Module {
             // Properly detect Macintosh style line endings
             ini_set('auto_detect_line_endings', true);
 
-            if (!$options['file'])
-                $this->fail('CSV file to import users from is required!');
-            elseif (!($this->stream = fopen($options['file'], 'rb')))
+            if (!$options['file'] || $options['file'] == '-')
+                $options['file'] = 'php://stdin';
+            if (!($this->stream = fopen($options['file'], 'rb')))
                 $this->fail("Unable to open input file [{$options['file']}]");
 
             $extras = array();

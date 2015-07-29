@@ -212,7 +212,7 @@ abstract class AuthenticationBackend {
             $bk->audit($result, $credentials);
     }
 
-    static function process($username, $password=null, &$errors) {
+    static function process($username, $password=null, &$errors=array()) {
 
         if (!$username)
             return false;
