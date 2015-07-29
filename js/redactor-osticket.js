@@ -129,7 +129,7 @@ RedactorPlugins.draft = function() {
                 self.opts.autosave = self.opts.autoCreateUrl;
                 self.draft.deleteButton.hide();
                 self.draft.firstSave = false;
-                this.$box.trigger('draft:deleted');
+                self.$box.trigger('draft:deleted');
             }
         });
     }

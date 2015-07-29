@@ -671,7 +671,7 @@ RedactorPlugins.textdirection = function() {
     setRtl: function()
     {
         var c = this.getCurrent(), s = this.getSelection();
-        this.bufferSet();
+        this.buffer.set();
         if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
             this.linebreakHack(s);
         }
@@ -685,7 +685,7 @@ RedactorPlugins.textdirection = function() {
     setLtr: function()
     {
         var c = this.getCurrent(), s = this.getSelection();
-        this.bufferSet();
+        this.buffer.set();
         if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
             this.linebreakHack(s);
         }
@@ -799,7 +799,18 @@ RedactorPlugins.imagepaste = function() {
       setInterval(function() {
         if (plugin.inpaste)
           return;
-        plugin.offset = that.caret.getOffset() || plugin.offset;
+        that.selection.get();
+        var coords = that.range.getClientRects();
+        if (!coords.length)
+            return;
+        coords = coords[0];
+        var proxy = {
+          clientX: (Math.max(coords.left, 0) || 0) + 10,
+          clientY: (coords.top || 0) + 10,
+        };
+        if (coords.left < 0)
+            return;
+        plugin.offset = proxy; //that.caret.getOffset() || plugin.offset;
       }, 300);
     },
     offset: 0,
@@ -816,9 +827,10 @@ RedactorPlugins.imagepaste = function() {
           bail = function() {
             plugin.inpaste = false;
           };
-      plugin.inpaste = true;
 
-      if (typeof(cd) === 'undefined') return bail();
+      plugin.inpaste = true;
+      if (typeof(cd) === 'undefined')
+          return bail();
 
       if (cd.items && cd.items.length)
       {
@@ -838,8 +850,10 @@ RedactorPlugins.imagepaste = function() {
         for (i = 0, k = cd.types.length; i < k; i++) {
           if (cd.types[i].indexOf('image/') != -1) {
             var data = cd.getData(cd.types[i]);
-            if (data.length)
+            if (data.length) {
                 files.push(new Blob([data], {type: cd.types[i]}));
+                break;
+            }
           }
         }
       }
@@ -847,37 +861,42 @@ RedactorPlugins.imagepaste = function() {
       if (!files.length)
         return bail();
 
-      // Clipboard upload
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
-      setTimeout(function() {
-        // We need to allow the paste operation to settle, so we can set
-        // self.clean.singleLine and not have to cleared by some other running
-        // code
+      if (plugin.offset == 0) {
+        // Assume top left of editor window since no last position is known
+        var offset = self.$editor.offset();
+        plugin.offset = {
+          clientX: offset.left - $(document).scrollLeft() + 20,
+          clientY: offset.top - $(document).scrollTop() + self.$toolbar.height() + 20
+        }
+      }
 
-        var oldIUC = self.opts.imageUploadCallback;
-        self.opts.imageUploadCallback = function(image, json) {
-          self.$editor.find('.-image-upload-placeholder').remove();
-          self.opts.imageUploadCallback = oldIUC;
-          // Add a zero-width space so that the caret:getOffset will find
-          // locations after pictures if only <br> tags exist otherwise. In
-          // other words, ensure there is at least one character after the
-          // image for text character counting. Additionally, Redactor will
-          // strip the zero-width space when saving
-          $(document.createTextNode("\u200b")).insertAfter($(image));
-          bail();
-        };
+      // Add cool wait cursor
+      var waitCursor = $('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+      self.insert.nodeToCaretPositionFromPoint(plugin.offset, waitCursor);
 
-        // Place the cursor back in the box!
-        self.caret.setOffset(plugin.offset);
+      var oldIUC = self.opts.imageUploadCallback;
+      self.opts.imageUploadCallback = function(image, json) {
+        if ($.contains(waitCursor.get(0), image))
+          waitCursor.replaceWith(image);
+        else
+          waitCursor.remove();
 
-        // Add cool wait cursor
-        self.insert.htmlWithoutClean('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+        self.opts.imageUploadCallback = oldIUC;
+        // Add a zero-width space so that the caret:getOffset will find
+        // locations after pictures if only <br> tags exist otherwise. In
+        // other words, ensure there is at least one character after the
+        // image for text character counting. Additionally, Redactor will
+        // strip the zero-width space when saving
+        $(document.createTextNode("\u200b")).insertAfter($(image));
+        bail();
+      };
 
-        // Upload clipboard files
-        self.clean.singleLine = false;
-        for (i = 0, k = files.length; i < k; i++)
-          self.upload.directUpload(files[i], e);
-      }, 1);
+      // Upload clipboard files
+      for (i = 0, k = files.length; i < k; i++)
+        self.upload.directUpload(files[i], plugin.offset);
     }
   };
 };
