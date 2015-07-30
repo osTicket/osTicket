@@ -1458,7 +1458,7 @@ implements CustomListItem, TemplateVariable {
         return  parent::create($ht);
     }
 
-    static function lookup($var, $list= false) {
+    static function lookup($var, $list=null) {
 
         if (!($item = parent::lookup($var)))
             return null;
