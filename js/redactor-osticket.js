@@ -68,15 +68,6 @@ RedactorPlugins.draft = function() {
             this.$box.trigger('draft:recovered');
     },
     afterUpdateDraft: function(name, data) {
-        // Slight workaround. Signal the 'keyup' event normally signaled
-        // from typing in the <textarea>
-        if ($.autoLock
-            && this.$box.closest('form').find('input[name=lockCode]').val()
-            && this.code.get()
-        ) {
-            $.autoLock.handleEvent();
-        }
-
         // If the draft was created, a draft_id will be sent back — update
         // the URL to send updates in the future
         if (!this.opts.draftId && data.draft_id) {
@@ -144,6 +135,19 @@ RedactorPlugins.draft = function() {
     }
   };
 };
+
+RedactorPlugins.autolock = function() {
+  return {
+    init: function() {
+      var code = this.$box.closest('form').find('[name=lockCode]'),
+          self = this;
+      if (code.length)
+        this.opts.keydownCallback = function(e) {
+          self.$box.closest('[data-lock-object-id]').exclusive('acquire');
+        };
+    }
+  };
+}
 
 RedactorPlugins.signature = function() {
   return {
@@ -215,16 +219,6 @@ RedactorPlugins.signature = function() {
     }
   }
 };
-
-RedactorPlugins.autolock = function() {
-  return {
-    init: function() {
-      var code = this.$box.closest('form').find('[name=lockCode]');
-      if ($.autoLock && code.length)
-        this.opts.keydownCallback = $.autoLock.handleEvent;
-    }
-  };
-}
 
 /* Redactor richtext init */
 $(function() {

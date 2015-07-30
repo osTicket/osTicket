@@ -8,10 +8,6 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-//Auto-lock the ticket if locking is enabled.. If already locked by the user then it simply renews.
-if($cfg->getLockTime() && !$ticket->acquireLock($thisstaff->getId(),$cfg->getLockTime()))
-    $warn.=__('Unable to obtain a lock on the ticket');
-
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
 $role  = $thisstaff->getRole($dept);
@@ -448,7 +444,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
 
-<div class="sticky bar stop actions" id="response_options">
+<div class="sticky bar stop actions" id="response_options"
+>
     <ul class="tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
@@ -470,7 +467,10 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content spellcheck" action="tickets.php?id=<?php
+    <form id="reply" class="tab_content spellcheck exclusive"
+        data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
+        data-lock-id="<?php echo ($mylock) ? $mylock->getId() : ''; ?>"
+        action="tickets.php?id=<?php
         echo $ticket->getId(); ?>" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -1024,19 +1024,5 @@ $(function() {
             }
         });
     });
-<?php
-    // Set the lock if one exists
-    if ($mylock) { ?>
-!function() {
-  var setLock = setInterval(function() {
-    if (typeof(window.autoLock) === 'undefined')
-      return;
-    clearInterval(setLock);
-    autoLock.setLock({
-      id:<?php echo $mylock->getId(); ?>,
-      time: <?php echo $cfg->getLockTime() * 60; ?>}, 'acquire');
-  }, 50);
-}();
-<?php } ?>
 });
 </script>

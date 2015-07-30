@@ -101,20 +101,23 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function acquireLock($tid) {
-        global $cfg,$thisstaff;
+        global $cfg, $thisstaff;
 
         if(!$tid || !is_numeric($tid) || !$thisstaff || !$cfg || !$cfg->getLockTime())
             return 0;
 
-        if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))
-            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
+        if (!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))
+            return $this->encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
 
         //is the ticket already locked?
-        if($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
+        if ($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
             /*Note: Ticket->acquireLock does the same logic...but we need it here since we need to know who owns the lock up front*/
             //Ticket is locked by someone else.??
-            if($lock->getStaffId()!=$thisstaff->getId())
-                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Unable to acquire lock.')));
+            if ($lock->getStaffId() != $thisstaff->getId())
+                return $this->json_encode(array('id'=>0, 'retry'=>false,
+                    'msg' => sprintf(__('Currently locked by %s'),
+                        $lock->getStaffName())
+                    ));
 
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
@@ -130,54 +133,60 @@ class TicketsAjaxAPI extends AjaxController {
         ));
     }
 
-    function renewLock($tid, $id) {
+    function renewLock($id, $ticketId) {
         global $thisstaff;
 
-        if(!$tid || !is_numeric($tid) || !$id || !is_numeric($id) || !$thisstaff)
-            return $this->json_encode(array('id'=>0, 'retry'=>true));
+        if (!$id || !is_numeric($id) || !$thisstaff)
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false)));
+        if (!($lock = Lock::lookup($id)))
+            Http::response(404, $this->encode(array('id'=>0, 'retry'=>'acquire')));
+        if (!($ticket = Ticket::lookup($ticketId)) || $ticket->lock_id != $lock->lock_id)
+            // Ticket / Lock mismatch
+            Http::response(400, $this->encode(array('id'=>0, 'retry'=>false)));
 
-        if (!($ticket = Ticket::lookup($tid)))
-            return $this->json_encode(array('id'=>0, 'retry'=>true));
+        if (!$lock->getStaffId() || $lock->isExpired())
+            // Said lock doesn't exist or is is expired — fetch a new lock
+            return self::acquireLock($ticket->getId());
 
-        $lock = $ticket->getLock();
-        if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
-            return self::acquireLock($tid); //acquire the lock
+        if ($lock->getStaffId() != $thisstaff->getId())
+            // user doesn't own the lock anymore??? sorry...try to next time.
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false,
+                'msg' => sprintf(__('Currently locked by %s'),
+                    $lock->getStaffName())
+            ))); //Give up...
 
-        if($lock->getStaffId()!=$thisstaff->getId()) //user doesn't own the lock anymore??? sorry...try to next time.
-            return $this->json_encode(array('id'=>0, 'retry'=>false)); //Give up...
+        // Ensure staff still has access
+        if (!$ticket->checkStaffPerm($thisstaff))
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false,
+                'msg' => sprintf(__('You no longer have access to #%s.'),
+                $ticket->getNumber())
+            )));
 
-        //Renew the lock.
-        $lock->renew(); //Failure here is not an issue since the lock is not expired yet.. client need to check time!
+        // Renew the lock.
+        // Failure here is not an issue since the lock is not expired yet.. client need to check time!
+        $lock->renew();
 
-        return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
+        return $this->encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime(),
+            'code' => $lock->getCode()));
     }
 
-    function releaseLock($tid, $id=0) {
+    function releaseLock($id) {
         global $thisstaff;
 
-        if (!($ticket = Ticket::lookup($tid))) {
+        if (!$id || !is_numeric($id) || !$thisstaff)
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>true)));
+        if (!($lock = Lock::lookup($id)))
+            Http::response(404, $this->encode(array('id'=>0, 'retry'=>true)));
+
+        // You have to own the lock
+        if ($lock->getStaffId() != $thisstaff->getId()) {
             return 0;
         }
-
-        if ($id) {
-            // Fetch the lock from the ticket
-            if (!($lock = $ticket->getLock())) {
-                return 1;
-            }
-            // Identify the lock by the ID number
-            if ($lock->getId() != $id) {
-                return 0;
-            }
-            // You have to own the lock
-            if ($lock->getStaffId() != $thisstaff->getId()) {
-                return 0;
-            }
-            // Can't be expired
-            if ($lock->isExpired()) {
-                return 1;
-            }
-            return $lock->release() ? 1 : 0;
+        // Can't be expired
+        if ($lock->isExpired()) {
+            return 1;
         }
+        return $lock->release() ? 1 : 0;
 
         return Lock::removeStaffLocks($thisstaff->getId(), $ticket) ? 1 : 0;
     }
