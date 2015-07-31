@@ -620,13 +620,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 </td>
                 <td>
                     <?php
-                    if ($outstanding = $ticket->getMissingRequiredFields()) { ?>
-                    <div class="warning-banner"><?php echo sprintf(__(
-                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
-                        "<a href=\"tickets.php?id={$ticket->getId()}&a=edit\">",
-                        '</a>'
-                    ); ?></div>
-<?php               } ?>
+                    $outstanding = false;
+                    if ($role->hasPerm(TicketModel::PERM_CLOSE)
+                            && ($warning=$ticket->isCloseable())
+                            && $warning !==true) {
+                        $outstanding =  true;
+                        echo sprintf('<div class="warning-banner">%s</div>', $warning);
+                    } ?>
                     <select name="reply_status_id">
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
@@ -716,7 +716,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         <?php
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
-                        if ($role->hasPerm(TicketModel::PERM_CLOSE))
+                        if ($ticket->isCloseable() === true
+                                && $role->hasPerm(TicketModel::PERM_CLOSE))
                             $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {

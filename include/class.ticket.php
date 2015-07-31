@@ -277,6 +277,25 @@ implements RestrictedAccess, Threadable {
          return $this->hasState('closed');
     }
 
+    function isCloseable() {
+
+        if ($this->isClosed())
+            return true;
+
+        $warning = null;
+        if ($this->getMissingRequiredFields()) {
+            $warning = sprintf(
+                    __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
+                    __('This ticket'),
+                    '', '');
+        } elseif (($num=$this->getNumOpenTasks())) {
+            $warning = sprintf(__('%1$s has %2$d open tasks and cannot be closed'),
+                    __('This ticket'), $num);
+        }
+
+        return $warning ?: true;
+    }
+
     function isArchived() {
          return $this->hasState('archived');
     }
@@ -725,6 +744,12 @@ implements RestrictedAccess, Threadable {
         return count($this->tasks);
     }
 
+    function getNumOpenTasks() {
+        return count($this->tasks->filter(array(
+                        'flags__hasbit' => TaskModel::ISOPEN)));
+    }
+
+
     function getThreadId() {
         if ($this->thread)
             return $this->thread->id;
@@ -1041,12 +1066,14 @@ implements RestrictedAccess, Threadable {
         $ecb = null;
         switch ($status->getState()) {
             case 'closed':
-                if ($this->getMissingRequiredFields()) {
-                    $errors['err'] = sprintf(__(
-                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
-                    '', '');
+                // Check if ticket is closeable
+                $closeable = $this->isCloseable();
+                if ($closeable !== true)
+                    $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
+
+                if ($errors)
                     return false;
-                }
+
                 $this->closed = $this->lastupdate = SqlFunction::NOW();
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)

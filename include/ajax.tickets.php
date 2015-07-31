@@ -394,6 +394,11 @@ class TicketsAjaxAPI extends AjaxController {
                 if (!$role->hasPerm(TicketModel::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
+
+                // Check if ticket is closeable
+                if (is_string($closeable=$ticket->isCloseable()))
+                    $info['warn'] =  $closeable;
+
                 break;
             case 'delete':
                 if (!$role->hasPerm(TicketModel::PERM_DELETE))
