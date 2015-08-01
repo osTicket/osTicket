@@ -33,6 +33,7 @@
       // attempt to fetch one (lazily)
       $(':input', this.$element).on('keyup, change', this.acquire.bind(this));
       $(':submit', this.$element).click(this.ensureLocked.bind(this));
+      $(document).on('pjax:start', this.shutdown.bind(this));
 
       // If lock already held, assume full time of lock remains, but warn
       // user about pending expiration
@@ -118,14 +119,18 @@
         data: 'delete',
         async: false,
         cache: false,
-        always: $.proxy(this.destroy, this)
+        complete: this.destroy.bind(this)
       });
     },
 
-    destroy: function() {
+    shutdown: function() {
       clearTimeout(this.warning);
       clearTimeout(this.retryTimer);
-      $(window).off('.exclusive');
+      $(document).off('.exclusive');
+    },
+
+    destroy: function() {
+      this.shutdown();
       delete this.lockId;
       $(this.options.lockInput, this.$element).val('');
     },
@@ -141,8 +146,8 @@
       }
       if (!this.lockId) {
         // Set up release on away navigation
-        $(window).off('.exclusive');
-        $(window).on('pjax:click.exclusive', $.proxy(this.release, this));
+        $(document).off('.exclusive');
+        $(document).on('pjax:click.exclusive', $.proxy(this.release, this));
       }
 
       this.lockId = lock.id;
