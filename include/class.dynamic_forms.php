@@ -16,11 +16,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR . 'class.orm.php');
-require_once(INCLUDE_DIR . 'class.forms.php');
-require_once(INCLUDE_DIR . 'class.list.php');
-require_once(INCLUDE_DIR . 'class.filter.php');
-require_once(INCLUDE_DIR . 'class.signal.php');
 
 /**
  * Form template, used for designing the custom form and for entering custom

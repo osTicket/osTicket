@@ -27,10 +27,6 @@ define('CRYPT_PHPSECLIB', 3);
 define('CRYPT_IS_WINDOWS', !strncasecmp(PHP_OS, 'WIN', 3));
 
 
-require_once INCLUDE_DIR.'class.base32.php';
-require_once PEAR_DIR.'Crypt/Hash.php';
-require_once PEAR_DIR.'Crypt/AES.php';
-
 /**
  * Class: Crypto
  *

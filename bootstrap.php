@@ -190,23 +190,16 @@ class Bootstrap {
     }
 
     function loadCode() {
-        #include required files
-        require_once INCLUDE_DIR.'class.util.php';
-        require_once INCLUDE_DIR.'class.translation.php';
-        require_once(INCLUDE_DIR.'class.signal.php');
-        require(INCLUDE_DIR.'class.model.php');
-        require(INCLUDE_DIR.'class.user.php');
-        require(INCLUDE_DIR.'class.auth.php');
-        require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
-        require(INCLUDE_DIR.'class.log.php');
-        require(INCLUDE_DIR.'class.crypto.php');
-        require(INCLUDE_DIR.'class.page.php');
-        require_once(INCLUDE_DIR.'class.format.php'); //format helpers
-        require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
-        require(INCLUDE_DIR.'class.mailer.php');
-        require_once INCLUDE_DIR.'mysqli.php';
-        require_once INCLUDE_DIR.'class.i18n.php';
-        require_once INCLUDE_DIR.'class.search.php';
+        require INCLUDE_DIR . 'mysqli.php';
+        if (!($classes = (@include INCLUDE_DIR . '.autoload.php')))
+            return;
+
+        spl_autoload_register(function($class) use ($classes) {
+            $class = strtoupper($class);
+            if (!isset($classes[$class]))
+                return;
+            require ROOT_DIR . $classes[$class];
+        });
     }
 
     function i18n_prep() {
@@ -328,10 +321,10 @@ if(!defined('PATH_SEPARATOR')){
 //Set include paths. Overwrite the default paths.
 ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
 
-require(INCLUDE_DIR.'class.osticket.php');
-require(INCLUDE_DIR.'class.misc.php');
-require(INCLUDE_DIR.'class.http.php');
-require(INCLUDE_DIR.'class.validator.php');
+require_once INCLUDE_DIR . 'class.osticket.php';
+require_once INCLUDE_DIR . 'class.http.php';
+require_once INCLUDE_DIR . 'class.misc.php';
+require_once INCLUDE_DIR.'class.validator.php';
 
 // Determine the path in the URI used as the base of the osTicket
 // installation

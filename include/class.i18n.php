@@ -14,8 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INCLUDE_DIR.'class.error.php';
-require_once INCLUDE_DIR.'class.yaml.php';
 
 class Internationalization {
 
@@ -94,7 +92,6 @@ class Internationalization {
         }
 
         // Configuration
-        require_once INCLUDE_DIR.'class.config.php';
         if (($tpl = $this->getTemplate('config.yaml'))
                 && ($data = $tpl->getData())) {
             foreach ($data as $section=>$items) {
@@ -484,8 +481,6 @@ class Internationalization {
     }
 
     static function bootstrap() {
-
-        require_once INCLUDE_DIR . 'class.translation.php';
 
         $domain = 'messages';
         TextDomain::setDefaultDomain($domain);

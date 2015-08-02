@@ -14,10 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INCLUDE_DIR . 'class.orm.php';
-require_once INCLUDE_DIR . 'class.util.php';
-require_once INCLUDE_DIR . 'class.organization.php';
-require_once INCLUDE_DIR . 'class.variable.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -444,8 +440,6 @@ implements TemplateVariable {
     }
 
     static function importCsv($stream, $defaults=array()) {
-        require_once INCLUDE_DIR . 'class.import.php';
-
         $importer = new CsvImporter($stream);
         $imported = 0;
         try {
@@ -614,8 +608,6 @@ implements TemplateVariable {
     }
 
     function getVar($what) {
-        require_once PEAR_DIR . 'Mail/RFC822.php';
-        require_once PEAR_DIR . 'PEAR.php';
         if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
             return '';
 

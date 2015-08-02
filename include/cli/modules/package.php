@@ -24,6 +24,10 @@ class Packager extends Deployment {
             'action'=>'store_true', 'default'=>false,
             'help'=>'Print current version tag for DNS'
         ),
+        'autoloader' => array('', '--autoload',
+            'action'=>'store_true', 'default'=>false,
+            'help'=>'Generate autoload script and exit',
+        ),
     );
     var $arguments = array();
 
@@ -36,6 +40,8 @@ class Packager extends Deployment {
     function run($args, $options) {
         if ($options['dns'])
             return $this->print_dns();
+        if ($options['autoload'])
+            return $this->make_autoloader();
 
         // Set some forced args and options
         $temp = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -101,6 +107,42 @@ class Packager extends Deployment {
             MAJOR_VERSION, trim(`git describe`), substr(`git rev-parse HEAD`, 0, 7),
             substr($streams['core'], 0, 8)
         ));
+    }
+
+    function make_autoloader($path=false) {
+        ini_set('memory_limit', '256M');
+        $path = $path ?: ROOT_DIR;
+        $findClasses = function($dir, &$classes) use (&$findClasses, $path) {
+            $files = array_diff(scandir($dir), array('.','..'));
+            $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            foreach ($files as $file) {
+                $full = "$dir/$file";
+                $local = str_replace($path, '', $full);
+                if (is_dir($full)) {
+                    if (substr($local, -7) != DIRECTORY_SEPARATOR . 'setup')
+                        $findClasses($full, $classes);
+                }
+                elseif (substr($full, -4) == '.php') {
+                    $this->stderr->write("$local\n");
+                    $tokens = token_get_all(file_get_contents($full));
+                    while (list(, $T) = each($tokens)) {
+                        if ($T[0] == T_CLASS || $T[0] == T_INTERFACE) {
+                            // Read to the following string — 
+                            // skip the whitespace
+                            each($tokens);
+                            list(,$name) = each($tokens);
+                            $classes[strtoupper($name[1])] = ltrim($local, DIRECTORY_SEPARATOR);
+                        }
+                    }
+                }
+            }
+        };
+        $classes = array();
+        $findClasses($path, $classes);
+
+        $classes = var_export($classes, true);
+        file_put_contents(INCLUDE_DIR . '/.autoload.php',
+            '<?php return '.$classes.';');
     }
 
     function packageZip($name, $path) {

@@ -14,8 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once INCLUDE_DIR . 'class.filter_action.php';
-
 class Filter {
 
     var $id;

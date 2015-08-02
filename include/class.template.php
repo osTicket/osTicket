@@ -13,8 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INCLUDE_DIR.'class.i18n.php';
-require_once INCLUDE_DIR.'class.yaml.php';
 
 class EmailTemplateGroup {
 

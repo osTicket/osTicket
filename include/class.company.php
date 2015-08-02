@@ -14,8 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR.'class.forms.php');
-require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 class Company
 implements TemplateVariable {

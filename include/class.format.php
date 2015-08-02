@@ -14,11 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-include_once INCLUDE_DIR.'class.charset.php';
-require_once INCLUDE_DIR.'class.variable.php';
-
 class Format {
-
 
     function file_size($bytes) {
 
@@ -83,7 +79,6 @@ class Format {
      *
      */
     function json_encode($what) {
-        require_once (INCLUDE_DIR.'class.json.php');
         return JsonDataEncoder::encode($what);
     }
 

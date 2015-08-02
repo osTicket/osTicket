@@ -13,14 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-include_once(INCLUDE_DIR.'class.ticket.php');
-include_once(INCLUDE_DIR.'class.dept.php');
-include_once(INCLUDE_DIR.'class.error.php');
-include_once(INCLUDE_DIR.'class.team.php');
-include_once(INCLUDE_DIR.'class.role.php');
-include_once(INCLUDE_DIR.'class.passwd.php');
-include_once(INCLUDE_DIR.'class.user.php');
-include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
 implements AuthenticatedUser, EmailContact, TemplateVariable {
@@ -896,8 +888,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     static function importCsv($stream, $defaults=array(), $callback=false) {
-        require_once INCLUDE_DIR . 'class.import.php';
-
         $importer = new CsvImporter($stream);
         $imported = 0;
         $fields = array(

@@ -14,9 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-include_once(INCLUDE_DIR.'class.ticket.php');
-include_once(INCLUDE_DIR.'class.draft.php');
-include_once(INCLUDE_DIR.'class.role.php');
 
 //Ticket thread.
 class Thread extends VerySimpleModel {
@@ -718,8 +715,6 @@ implements TemplateVariable {
     }
 
     function getEmailHeaderArray() {
-        require_once(INCLUDE_DIR.'class.mailparse.php');
-
         if (!isset($this->_headers) && $this->email_info
             && isset($this->email_info->headers)
         ) {

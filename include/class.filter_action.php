@@ -1,7 +1,5 @@
 <?php
 
-require_once INCLUDE_DIR . 'class.orm.php';
-
 class FilterAction extends VerySimpleModel {
     static $meta = array(
         'table' => FILTER_ACTION_TABLE,

@@ -61,9 +61,6 @@ implements AuthenticatedUser {
     function onLogin($bk) {}
 }
 
-require_once(INCLUDE_DIR.'class.ostsession.php');
-require_once(INCLUDE_DIR.'class.usersession.php');
-
 interface AuthDirectorySearch {
     /**
      * Indicates if the backend can be used to search for user information.

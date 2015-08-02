@@ -14,7 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class PageNate {
+class Pagenate {
 
     var $start;
     var $limit;
