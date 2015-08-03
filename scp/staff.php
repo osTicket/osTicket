@@ -15,6 +15,9 @@
 **********************************************************************/
 require('admin.inc.php');
 
+// Included here for role permission registration
+require_once INCLUDE_DIR . 'class.report.php';
+
 $staff=null;
 if($_REQUEST['id'] && !($staff=Staff::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('agent'));
