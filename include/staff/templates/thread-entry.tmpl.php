@@ -35,7 +35,7 @@ if ($user)
             </ul>
         </div>
 <?php   } ?>
-        <span style="vertical-align:middle;" class="textra">
+        <span class="textra light">
 <?php   if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
             <span class="label label-bare" title="<?php
             echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated),

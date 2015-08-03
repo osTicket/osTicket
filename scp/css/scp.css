@@ -1738,7 +1738,6 @@ input[type="button"],
     border-radius: 3px;
     font-family: inherit;
     font-size: 0.95em;
-    text-decoration: none;
 -webkit-user-select: none;
    -moz-user-select: none;
     -ms-user-select: none;
@@ -1757,13 +1756,25 @@ select + .action-button,
 select + .button {
   vertical-align: middle;
 }
+.dark.button {
+    background-color: rgba(0,0,0,0.5);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.5) inset;
+    color: white;
+}
+.dark.button:hover {
+    background-color: rgba(0,0,0,0.8);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.7) inset;
+    color: white;
+}
 
+.light .button:hover,
 .white.button {
-  background-color: rgba(255,255,255,0.6);
+  background-color: rgba(255,255,255,0.7);
   border-color: #555;
 }
+.light .button:hover,
 .white.button:hover {
-  background-color: rgba(255,255,255,0.8);
+  background-color: rgba(255,255,255,0.9);
   border-color: black;
 }
 
