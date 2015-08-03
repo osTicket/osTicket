@@ -23,12 +23,25 @@ abstract class Avatar {
     }
 
     abstract function getUrl($size);
-    abstract function __toString();
+
+    function getImageTag($size=null) {
+        return '<img class="avatar" alt="'.__('Avatar').'" src="'.$this->getUrl($size).'" />';
+    }
+
+    function __toString() {
+        return $this->getImageTag();
+    }
 }
 
 abstract class AvatarSource {
     static $id;
     static $name;
+    var $mode;
+
+    function __construct($mode=null) {
+        if (isset($mode))
+            $this->mode = $mode;
+    }
 
     function getName() {
         return __(static::$name);
@@ -124,12 +137,80 @@ extends Avatar {
         $url .= "?s=$size&d={$this->d}";
         return $url;
     }
+}
 
-    function getImageTag($size=null) {
-        return '<img class="avatar" alt="'.__('Avatar').'" src="'.$this->getUrl($size).'" />';
+class LocalAvatarSource
+extends AvatarSource {
+    static $id = 'local';
+    static $name = /* @trans */ 'Built-In';
+    var $mode = 'ateam';
+
+    static function getModes() {
+        return array(
+            'ateam' => __("Oscar's A-Team"),
+        );
     }
 
-    function __toString() {
-        return $this->getImageTag();
+    function getAvatar($user) {
+        return new LocalAvatar($user, $this->mode);
+    }
+}
+AvatarSource::register('LocalAvatarSource');
+
+class LocalAvatar
+extends Avatar {
+    var $mode;
+
+    function __construct($user, $mode) {
+        parent::__construct($user);
+        $this->mode = $mode;
+    }
+
+    function getUrl($size) {
+        if (false && ($file = $this->user->getAvatarFile()))
+            return $file->getDownloadUrl();
+
+        // Generate a random string of 0-6 chars for the avatar signature
+        $uid = md5(strtolower($this->user->getEmail()));
+        return 'avatar.php?'.Http::build_query(array('uid'=>$uid,
+            'mode' => $this->mode));
+    }
+
+    static function serveRandomAvatar($uid, $mode) {
+    }
+}
+
+class RandomAvatar {
+    var $mode;
+
+    static $sprites = array(
+        'ateam' => array(
+            'file' => 'images/avatar-sprite-ateam.png',
+            'grid' => 96,
+        ),
+    );
+
+    function __construct($mode) {
+        $this->mode = $mode;
+    }
+
+    function makeAvatar($uid) {
+        $sprite = self::$sprites[$this->mode];
+        $source =  imagecreatefrompng(ROOT_DIR . $sprite['file']);
+        $grid = $sprite['grid'];
+        $avatar = imagecreatetruecolor($grid, $grid);
+        $width = imagesx($source) / $grid;
+        $height = imagesy($source) / $grid;
+
+        // Start with a white matte
+        $white = imagecolorallocate($avatar, 255, 255, 255);
+        imagefill($avatar, 0, 0, $white);
+
+        for ($i=0, $k=$height-1; $i<$k; $i++) {
+            $idx = hexdec($uid[$i]) % $width;
+            imagecopy($avatar, $source, 0, 0, $idx*$grid, $i*$grid, $grid, $grid);
+        }
+
+        return $avatar;
     }
 }

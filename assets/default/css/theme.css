@@ -1067,6 +1067,10 @@ table.custom-data .headline {
 img.avatar {
     border-radius: inherit;
 }
+.avatar > img.avatar {
+    width: 100%;
+    height: 100%;
+}
 .thread-entry .header {
     padding: 8px 0.9em;
     border: 1px solid #ccc;
