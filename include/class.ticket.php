@@ -2222,7 +2222,7 @@ implements RestrictedAccess, Threadable {
         }
         $files = array();
         foreach ($canned->attachments->getAll() as $file)
-            $files[] = $file['id'];
+            $files[] = $file->file_id;
 
         if ($cfg->isRichTextEnabled())
             $response = new HtmlThreadEntryBody(
