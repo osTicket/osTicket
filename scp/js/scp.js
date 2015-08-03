@@ -1058,7 +1058,7 @@ $(document).on('change', 'select[data-quick-add]', function() {
           $('<option>')
             .attr('value', id)
             .text(data.name)
-            .insertBefore($('select[data-quick-add="'+type+'"] option[data-quick-add]'));
+            .insertBefore(selected)
           $select.val(id);
         }
     });

@@ -367,7 +367,17 @@ implements TemplateVariable {
                 ->filter(array('dept_id' => $id))
                 ->delete();
 
-            db_query('UPDATE '.FILTER_TABLE.' SET dept_id=0 WHERE dept_id='.db_input($id));
+            foreach(FilterAction::objects()
+                ->filter(array('type' => FA_RouteDepartment::$type)) as $fa
+            ) {
+                $config = $fa->getConfiguration();
+                if ($config && $config['dept_id'] == $id) {
+                    $config['dept_id'] = 0;
+                    // FIXME: Move this code into FilterAction class
+                    $fa->set('configuration', JsonDataEncoder::encode($config));
+                    $fa->save();
+                }
+            }
 
             // Delete extended access entries
             StaffDeptAccess::objects()
