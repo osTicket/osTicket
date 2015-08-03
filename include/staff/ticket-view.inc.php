@@ -622,8 +622,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <?php
                     $outstanding = false;
                     if ($role->hasPerm(TicketModel::PERM_CLOSE)
-                            && ($warning=$ticket->isCloseable())
-                            && $warning !==true) {
+                            && is_string($warning=$ticket->isCloseable())) {
                         $outstanding =  true;
                         echo sprintf('<div class="warning-banner">%s</div>', $warning);
                     } ?>

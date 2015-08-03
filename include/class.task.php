@@ -356,18 +356,23 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->lastrespondent;
     }
 
-    function getMissingRequiredFields() {
+    function getDynamicFields($criteria=array()) {
+
         $fields = DynamicFormField::objects()->filter(array(
-                'id__in' => $this->entries
-                    ->filter(array(
-                        'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
-                        'answers__value__isnull' => true,
-                    ))
-                    ->values_flat('answers__field_id')
-                ));
+                    'id__in' => $this->entries
+                    ->filter($criteria)
+                ->values_flat('answers__field_id')));
 
         return ($fields && count($fields)) ? $fields : array();
+    }
 
+    function getMissingRequiredFields() {
+
+        return $this->getDynamicFields(array(
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
+                    'answers__value__isnull' => true,
+                    ));
     }
 
     function getParticipants() {
