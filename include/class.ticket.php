@@ -241,8 +241,8 @@ implements RestrictedAccess, Threadable {
         $this->loadDynamicData();
     }
 
-    function loadDynamicData() {
-        if (!isset($this->_answers)) {
+    function loadDynamicData($force=false) {
+        if (!isset($this->_answers) || $force) {
             $this->_answers = array();
             foreach (DynamicFormEntryAnswer::objects()
                 ->filter(array(
@@ -3165,7 +3165,7 @@ implements RestrictedAccess, Threadable {
             $topic_form->save();
         }
 
-        $ticket->loadDynamicData();
+        $ticket->loadDynamicData(true);
 
         $dept = $ticket->getDept();
 
