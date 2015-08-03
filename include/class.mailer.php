@@ -441,6 +441,9 @@ class Mailer {
                         }
                     }
                     if (!$file)
+                        // Not attached yet attempt to attach it inline
+                        $file = AttachmentFile::lookup($match[1]);
+                    if (!$file)
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
                         $file->getType(), $file->getName(), false,

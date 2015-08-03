@@ -616,7 +616,6 @@ implements TemplateVariable {
     var $_headers;
     var $_thread;
     var $_actions;
-    var $_attachments;
 
     static protected $perms = array(
         self::PERM_EDIT => array(
