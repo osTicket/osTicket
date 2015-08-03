@@ -31,7 +31,6 @@ body {
     margin: 0;
     text-align: center;
     background-image: url(../images/oscar-wall.jpg);
-    background-attachment: fixed;
     background-color:orange;
     background-blend-mode: multiply;
     -webkit-background-size: cover;
