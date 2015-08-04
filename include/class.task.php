@@ -703,7 +703,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 }
             } elseif ($cfg->alertDeptMembersONTaskTransfer() && !$this->isAssigned()) {
                 // Only alerts dept members if the task is NOT assigned.
-                if ($members = $dept->getMembersForAlerts())
+                if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
 
