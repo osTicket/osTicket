@@ -206,4 +206,23 @@ class StaffAjaxAPI extends AjaxController {
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
+
+    function setAvatar($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if ($id != $thisstaff->getId() && !$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+        if ($id == $thisstaff->getId())
+            $staff = $thisstaff;
+        else
+            $staff = Staff::lookup((int) $id);
+
+        if (!($avatar = $staff->getAvatar()))
+            Http::response(404, 'User does not have an avatar');
+
+        if ($avatar->toggle())
+            return $avatar;
+    }
 }

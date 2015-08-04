@@ -77,7 +77,10 @@ $org = $user->getOrganization();
         </td>
     </tr>
 </table>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<div class="avatar pull-left" style="margin: 10px; width: 80px;">
+    <?php echo $user->getAvatar(); ?>
+</div>
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="830" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">

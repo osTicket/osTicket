@@ -31,6 +31,11 @@ abstract class Avatar {
     function __toString() {
         return $this->getImageTag();
     }
+
+    function isChangeable() {
+        return false;
+    }
+    function toggle() {}
 }
 
 abstract class AvatarSource {
@@ -107,13 +112,28 @@ extends Avatar {
         if (false && ($file = $this->user->getAvatarFile()))
             return $file->getDownloadUrl();
 
-        // Generate a random string of 0-6 chars for the avatar signature
-        $uid = md5(strtolower($this->user->getEmail()));
+        $code = false;
+        if (method_exists($this->user, 'getExtraAttr'))
+            $code = $this->user->getExtraAttr('avatar');
+
+        if ($code)
+            $uid = md5($code);
+        else
+            // Generate a random string of 0-6 chars for the avatar signature
+            $uid = md5(strtolower($this->user->getEmail()));
+
         return ROOT_PATH . 'avatar.php?'.Http::build_query(array('uid'=>$uid,
             'mode' => $this->mode));
     }
 
-    static function serveRandomAvatar($uid, $mode) {
+    function toggle() {
+        $code = Misc::randCode(21);
+        $this->user->setExtraAttr('avatar', $code);
+        return $this->user->save();
+    }
+
+    function isChangeable() {
+        return true;
     }
 }
 

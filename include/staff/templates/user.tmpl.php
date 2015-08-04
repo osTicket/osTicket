@@ -16,7 +16,9 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <div id="user-profile" style="display:<?php echo $forms ? 'none' : 'block'; ?>;margin:5px;">
-    <i class="icon-user icon-4x pull-left icon-border"></i>
+    <div class="avatar pull-left" style="margin: 0 10px;">
+    <?php echo $user->getAvatar(); ?>
+    </div>
     <?php
     if ($ticket) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"

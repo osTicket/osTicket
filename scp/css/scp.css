@@ -875,7 +875,9 @@ h2 .reload {
     display:inline-block;
     width:48px;
     height:auto;
-    border-radius: 5px;
+}
+.avatar {
+    border-radius: 12%;
 }
 .thread-entry.message > .avatar {
     margin-left: initial;

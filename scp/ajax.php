@@ -245,7 +245,8 @@ $dispatcher = patterns('',
         url('^/(?P<id>\d+)/change-password$', 'changePassword'),
         url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
         url('^/reset-permissions', 'resetPermissions'),
-        url('^/change-department', 'changeDepartment')
+        url('^/change-department', 'changeDepartment'),
+        url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
     ))
 );
 

@@ -18,8 +18,26 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr><td colspan="2"><div>
-        <div class="avatar pull-left" style="margin: 10px 15px; border-radius: 5px; width: 100px;">
-          <?php echo $staff->getAvatar(); ?>
+        <div class="avatar pull-left" style="margin: 10px 15px; width: 100px;">
+<?php       $avatar = $staff->getAvatar();
+            echo $avatar;
+if ($avatar->isChangeable()) { ?>
+          <div style="text-align: center">
+            <a class="button no-pjax"
+                href="#ajax.php/staff/<?php echo $staff->getId(); ?>/avatar/change"
+                onclick="javascript:
+    event.preventDefault();
+    var a = this;
+    $.ajax({
+        url: $(this).attr('href').substr(1),
+        success: function(html) {
+          $(a).closest('.avatar').find('img').replaceWith($(html));
+        }
+    });
+    return false;"><i class="icon-retweet"></i></a>
+          </div>
+<?php
+} ?>
         </div>
         <table class="table two-column" border="0" cellspacing="2" cellpadding="2" style="width:760px">
         <tr>
