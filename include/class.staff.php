@@ -622,6 +622,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->lang = $vars['lang'];
         $this->onvacation = isset($vars['onvacation'])?1:0;
 
+        if (isset($vars['avatar_code']))
+          $this->setExtraAttr('avatar', $vars['avatar_code']);
+
         if ($errors)
             return false;
 

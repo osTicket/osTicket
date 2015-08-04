@@ -222,7 +222,11 @@ class StaffAjaxAPI extends AjaxController {
         if (!($avatar = $staff->getAvatar()))
             Http::response(404, 'User does not have an avatar');
 
-        if ($avatar->toggle())
-            return $avatar;
+        if ($code = $avatar->toggle())
+          return $this->encode(array(
+            'img' => (string) $avatar,
+            // XXX: This is very inflexible
+            'code' => $code,
+          ));
     }
 }

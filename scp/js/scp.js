@@ -146,11 +146,11 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save :input[name]").change(function() {
+    $("form#save").on('change', ':input[name]', function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save :input[type=reset]").click(function() {
+    $("form#save").on('change', ':input[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
             $('input[type=submit]', fObj).removeClass('save pending');

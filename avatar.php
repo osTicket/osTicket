@@ -1,8 +1,8 @@
 <?php
 /*********************************************************************
-    file.php
+    avatar.php
 
-    File download facilitator for clients
+    Simple download utility for internally-generated avatars
 
     Peter Rotich <peter@osticket.com>
     Jared Hancock <jared@osticket.com>

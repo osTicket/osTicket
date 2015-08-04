@@ -102,6 +102,7 @@ AvatarSource::register('LocalAvatarSource');
 class LocalAvatar
 extends Avatar {
     var $mode;
+    var $code;
 
     function __construct($user, $mode) {
         parent::__construct($user);
@@ -112,8 +113,8 @@ extends Avatar {
         if (false && ($file = $this->user->getAvatarFile()))
             return $file->getDownloadUrl();
 
-        $code = false;
-        if (method_exists($this->user, 'getExtraAttr'))
+        $code = $this->code;
+        if (!$code && method_exists($this->user, 'getExtraAttr'))
             $code = $this->user->getExtraAttr('avatar');
 
         if ($code)
@@ -127,9 +128,8 @@ extends Avatar {
     }
 
     function toggle() {
-        $code = Misc::randCode(21);
-        $this->user->setExtraAttr('avatar', $code);
-        return $this->user->save();
+        $this->code = Misc::randCode(21);
+        return $this->code;
     }
 
     function isChangeable() {
