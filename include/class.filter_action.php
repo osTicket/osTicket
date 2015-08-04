@@ -285,10 +285,10 @@ class FA_RouteDepartment extends TriggerAction {
                     'prompt' => __('Unchanged'),
                     'data' => array('quick-add' => 'department'),
                 ),
-                'choices' => array_merge(
-                    Dept::getDepartments(),
+                'choices' =>
+                    Dept::getDepartments() +
                     array(':new:' => '— '.__('Add New').' —')
-                ),
+                ,
                 'validators' => function($self) {
                     if ($self->getClean() === ':new:')
                         $self->addError(__('Select a department'));
