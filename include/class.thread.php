@@ -1555,11 +1555,11 @@ class ThreadEvent extends VerySimpleModel {
 
     var $_data;
 
-    function getAvatar($size=16) {
+    function getAvatar($size=null) {
         if ($this->uid && $this->uid_type == 'S')
-            return $this->agent->get_gravatar($size);
+            return $this->agent->getAvatar($size);
         if ($this->uid && $this->uid_type == 'U')
-            return $this->user->get_gravatar($size);
+            return $this->user->getAvatar($size);
     }
 
     function getUserName() {
@@ -1601,9 +1601,9 @@ class ThreadEvent extends VerySimpleModel {
                 case 'assignees':
                     $assignees = array();
                     if ($S = $self->staff) {
-                        $url = $S->get_gravatar(16);
+                        $avatar = $S->getAvatar();
                         $assignees[] =
-                            "<img class=\"avatar\" src=\"{$url}\"> ".$S->getName();
+                            $avatar.$S->getName();
                     }
                     if ($T = $self->team) {
                         $assignees[] = $T->getLocalName();
@@ -1611,8 +1611,8 @@ class ThreadEvent extends VerySimpleModel {
                     return implode('/', $assignees);
                 case 'somebody':
                     $name = $self->getUserName();
-                    if ($url = $self->getAvatar())
-                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    if ($avatar = $self->getAvatar())
+                        $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
                     return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
@@ -1622,8 +1622,8 @@ class ThreadEvent extends VerySimpleModel {
                     );
                 case 'agent':
                     $name = $self->agent->getName();
-                    if ($url = $self->getAvatar())
-                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    if ($avatar = $self->getAvatar())
+                        $name = $avatar.$name;
                     return $name;
                 case 'dept':
                     if ($dept = $self->getDept())

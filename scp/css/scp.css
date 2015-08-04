@@ -875,7 +875,9 @@ h2 .reload {
     display:inline-block;
     width:48px;
     height:auto;
-    border-radius: 5px;
+}
+.avatar {
+    border-radius: 12%;
 }
 .thread-entry.message > .avatar {
     margin-left: initial;
@@ -883,6 +885,10 @@ h2 .reload {
 }
 img.avatar {
     border-radius: inherit;
+}
+.avatar > img.avatar {
+    width: 100%;
+    height: 100%;
 }
 .thread-entry .header {
     padding: 8px 0.9em;
@@ -2523,7 +2529,7 @@ td.indented {
   top: auto;
   box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
 }
-.message.bar .avatar {
+.message.bar .avatar[class*=" oscar-"] {
   display: inline-block;
   width: 36px;
   height: 36px;
@@ -2558,6 +2564,13 @@ td.indented {
 .message.bar.bottom.danger {
   border-bottom: none;
   border-top: 3px solid red;
+}
+.message.bar .title .avatar {
+    width: auto;
+    max-height: 20px;
+    border-radius: 3px;
+    margin: -4px 0.3em 0;
+    vertical-align: middle;
 }
 
 #thread-items::before {
@@ -2616,7 +2629,7 @@ td.indented {
     vertical-align: middle;
     border-radius: 3px;
     width: auto;
-    max-height: 24px;
+    max-height: 20px;
     margin: -3px 3px 0;
 }
 .thread-event .description {

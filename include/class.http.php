@@ -37,10 +37,15 @@ class Http {
         header('HTTP/1.1 '.Http::header_code_verbose($code));
 		header('Status: '.Http::header_code_verbose($code)."\r\n");
 		header("Connection: Close\r\n");
-		header("Content-Type: $contentType; charset=$charset\r\n");
-        header('Content-Length: '.strlen($content)."\r\n\r\n");
-       	print $content;
-        exit;
+        $ct = "Content-Type: $contentType";
+        if ($charset)
+            $ct .= "; charset=$charset";
+        header($ct);
+        if ($content) {
+            header('Content-Length: '.strlen($content)."\r\n\r\n");
+            print $content;
+            exit;
+        }
     }
 
     function redirect($url,$delay=0,$msg='') {

@@ -3,8 +3,8 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
-if ($user && ($url = $user->get_gravatar(48)))
-    $avatar = "<img class=\"avatar\" src=\"{$url}\"> ";
+if ($user)
+    $avatar = $user->getAvatar();
 ?>
 
 <div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">

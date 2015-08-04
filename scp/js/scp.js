@@ -146,11 +146,11 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save :input[name]").change(function() {
+    $("form#save").on('change', ':input[name]', function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save :input[type=reset]").click(function() {
+    $("form#save").on('change', ':input[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
             $('input[type=submit]', fObj).removeClass('save pending');
@@ -772,16 +772,17 @@ $.uid = 1;
       buttonText: __('OK'),
       classes: '',
       dismissible: true,
+      html: false,
       onok: null,
-      position: 'top'
+      position: 'top',
     };
 
     this.show = function(title, message, options) {
       this.hide();
       options = $.extend({}, this.defaults, options);
       var bar = this.bar = $(options.bar).addClass(options.classes)
-        .append($('<div class="title"></div>').text(title))
-        .append($('<div class="body"></div>').text(message))
+        .append($('<div class="title"></div>').html(title))
+        .append($('<div class="body"></div>').html(message))
         .addClass(options.position);
       if (options.avatar)
         bar.prepend($('<div class="avatar pull-left" title="Oscar"></div>')

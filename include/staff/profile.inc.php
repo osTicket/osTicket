@@ -17,6 +17,37 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
   <div class="tab_content" id="account">
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
+        <tr><td colspan="2"><div>
+        <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
+<?php       $avatar = $staff->getAvatar();
+            echo $avatar;
+if ($avatar->isChangeable()) { ?>
+          <div style="text-align: center">
+            <a class="button no-pjax"
+                href="#ajax.php/staff/<?php echo $staff->getId(); ?>/avatar/change"
+                onclick="javascript:
+    event.preventDefault();
+    var $a = $(this),
+        form = $a.closest('form');
+    $.ajax({
+      url: $a.attr('href').substr(1),
+      dataType: 'json',
+      success: function(json) {
+        if (!json || !json.code)
+          return;
+        var code = form.find('[name=avatar_code]');
+        if (!code.length)
+          code = form.append($('<input>').attr({type: 'hidden', name: 'avatar_code'}));
+        code.val(json.code).trigger('change');
+        $a.closest('.avatar').find('img').replaceWith($(json.img));
+      }
+    });
+    return false;"><i class="icon-retweet"></i></a>
+          </div>
+<?php
+} ?>
+        </div>
+        <table class="table two-column" border="0" cellspacing="2" cellpadding="2" style="width:760px">
         <tr>
           <td class="required"><?php echo __('Name'); ?>:</td>
           <td>
@@ -59,6 +90,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>
         </tr>
+        </table></div></td></tr>
       </tbody>
       <!-- ================================================ -->
       <tbody>

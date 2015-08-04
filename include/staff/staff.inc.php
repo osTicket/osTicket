@@ -57,6 +57,11 @@ else {
   <div class="tab_content" id="account">
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
+        <tr><td colspan="2"><div>
+        <div class="avatar pull-left" style="width: 100px; margin: 10px;">
+            <?php echo $staff->getAvatar(); ?>
+        </div>
+        <table class="table two-column" border="0" cellspacing="2" cellpadding="2" style="width: 760px">
         <tr>
           <td class="required"><?php echo __('Name'); ?>:</td>
           <td>
@@ -99,6 +104,7 @@ else {
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>
         </tr>
+        </table></div></td></tr>
       </tbody>
       <!-- ================================================ -->
       <tbody>
