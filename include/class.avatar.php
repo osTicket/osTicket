@@ -152,10 +152,10 @@ class RandomAvatar {
     }
 
     function makeAvatar($uid) {
-        if (!extension_loaded('gd'))
+        $sprite = self::$sprites[$this->mode];
+        if (!$sprite || !is_readable(ROOT_DIR . $sprite['file']) || !extension_loaded('gd'))
             Http::redirect(ROOT_PATH.'images/mystery-oscar.png');
 
-        $sprite = self::$sprites[$this->mode];
         $source =  imagecreatefrompng(ROOT_DIR . $sprite['file']);
         $grid = $sprite['grid'];
         $avatar = imagecreatetruecolor($grid, $grid);
