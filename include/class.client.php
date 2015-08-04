@@ -427,11 +427,14 @@ interface EmailContact {
 }
 
 interface ITicketUser {
+/* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue
+ * ------------------------------------------------------------
     function isOwner();
     function flagGuest();
     function isGuest();
     function getUserId();
     function getTicketId();
     function getTicket();
+ */
 }
 ?>

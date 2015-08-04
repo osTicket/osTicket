@@ -1,6 +1,8 @@
 <?php
 
 interface AuthenticatedUser {
+/* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue
+ * ------------------------------------------------------------
     // Get basic information
     function getId();
     function getUsername();
@@ -20,6 +22,7 @@ interface AuthenticatedUser {
     // Signal method to allow performing extra things when a user is logged
     // into the sysem
     function onLogin($bk);
+ */
 }
 
 abstract class BaseAuthenticatedUser
