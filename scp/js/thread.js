@@ -22,10 +22,10 @@ var thread = {
        if (!entry) return;
 
        var frame = 0;
-       $('html, body').delay(500).animate({
+       $('html, body').animate({
             scrollTop: entry.offset().top - 50,
        }, {
-            duration: 750,
+            duration: 400,
             step: function(now, fx) {
                 // Recalc end target every few frames
                 if (++frame % 6 == 0)

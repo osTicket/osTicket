@@ -53,6 +53,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script type="text/javascript" src="./js/jquery.translatable.js"></script>
 <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
 <script type="text/javascript" src="./js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
 <link type="text/css" rel="stylesheet" href="./css/tooltip.css">
 <script type="text/javascript">
     getConfig().resolve(<?php
