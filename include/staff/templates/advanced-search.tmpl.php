@@ -104,8 +104,9 @@ foreach ($matches as $name => $fields) { ?>
     <dd>
         <span>
             <button type="button" onclick="javascript:$(this).closest('form').attr({
-'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> Load</button>
+'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> <?php echo __('Load'); ?></button>
             <button type="button" onclick="javascript:
+var that = this;
 $.ajax({
     url: 'ajax.php/tickets/search/<?php echo $S->id; ?>',
     type: 'POST',
@@ -114,7 +115,7 @@ $.ajax({
     success: function(json) {
       if (!json.id)
         return;
-      $('<dt>').effect('highlight');
+      $(that).closest('dd').effect('highlight');
     }
 });
 return false;
@@ -163,7 +164,7 @@ $.ajax({
     }
 });
 return false;
-"><i class="icon-save"></i> <?php echo __('Save'); ?></a>
+"><i class="icon-save"></i></a>
     </div>
 </div>
 </div>
