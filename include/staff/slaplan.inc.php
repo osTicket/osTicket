@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = array();
 if($sla && $_REQUEST['a']!='add'){
-    $title=__('Update SLA Plan –' /* SLA is abbreviation for Service Level Agreement */);
+    $title=__('Update SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='update';
     $submit_text=__('Save Changes');
     $info=$sla->getInfo();
@@ -26,7 +26,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo $title; ?>
-     <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
      <?php } ?>
 </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -90,8 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?>
-                &nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal");?>
                 </em>
             </th>
         </tr>

@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info = $members = $qs = array();
 if ($team && $_REQUEST['a']!='add') {
     //Editing Team
-    $title=__('Update Team –');
+    $title=__('Update Team');
     $action='update';
     $submit_text=__('Save Changes');
     $trans['name'] = $team->getTranslateTag('name');
@@ -29,8 +29,9 @@ $info = $team->getInfo();
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $team->getId(); ?>">
  <h2><?php echo $title; ?>
-     <?php if ($team) { ?> <span class="ltr"><?php echo $team->name; ?></span>
-     <?php } ?>
+    <?php if (isset($team->name)) { ?><small>
+    — <?php echo $team->getName(); ?></small>
+    <?php } ?>
     <i class="help-tip icon-question-sign" href="#teams"></i>
 </h2>
 <br>

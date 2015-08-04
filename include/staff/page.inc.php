@@ -8,7 +8,7 @@ $pageTypes = array(
         );
 $info = $qs = array();
 if($page && $_REQUEST['a']!='add'){
-    $title=__('Update Page –');
+    $title=__('Update Page');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$page->getHashtable();
@@ -43,7 +43,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo $title; ?>
-     <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
      <?php } ?>
     <i class="help-tip icon-question-sign" href="#site_pages"></i>
     </h2>

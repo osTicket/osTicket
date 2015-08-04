@@ -6,7 +6,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
 $info=array();
 $qs = array();
 if($category && $_REQUEST['a']!='add'){
-    $title=__('Update Category').': '.$category->getName();
+    $title=__('Update Category');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$category->getHashtable();
@@ -41,10 +41,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('FAQ Category');?></h2>
- <div class="faq-title" style="margin:5px 0 15px">
-    <?php echo $title; ?>
- </div>
+ <h2><?php echo $title; ?>
+     <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
+    </h2>
+
 
     <div style="margin:8px 0"><strong><?php echo __('Category Type');?>:</strong>
         <span class="error">*</span></div>

@@ -2,7 +2,6 @@
 <script type="text/javascript" src="js/g.raphael.js"></script>
 <script type="text/javascript" src="js/g.line-min.js"></script>
 <script type="text/javascript" src="js/g.dot-min.js"></script>
-<script type="text/javascript" src="js/bootstrap-tab.js"></script>
 <script type="text/javascript" src="js/dashboard.inc.js"></script>
 
 <!--<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>-->
@@ -12,7 +11,6 @@
     <div style="min-height:25px;">
         <!--<p><?php //echo __('Select the starting time and period for the system activity graph');?></p>-->
         <form class="form-inline" id="timeframe-form">
-            &nbsp;<i class="help-tip icon-question-sign" href="#report_timeframe"></i>
             <label>
                 <?php echo __( 'Report timeframe'); ?>:
                 <input type="text" class="dp input-medium search-query" name="start" placeholder="<?php echo __('Last month');?>" />
@@ -40,6 +38,7 @@
             <button class="green button action-button muted" type="submit">
                 <?php echo __( 'Refresh');?>
             </button>
+            <i class="help-tip icon-question-sign" href="#report_timeframe"></i>
         </form>
     </div>
 </div>
@@ -60,24 +59,8 @@
 <hr/>
 <h2><?php echo __('Statistics'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
 <p><?php echo __('Statistics of tickets organized by department, help topic, and agent.');?></p>
-<ul class="tabs">
-    <li class="active">
-        <a href="#departments"><?php echo __('Departments'); ?></a>
-    </li>
-    <li>
-        <a href="#topics"><?php echo __('Topics'); ?></a>
-    </li>
-    <li>
-        <a href="#agents"><?php echo __('Agents'); ?></a>
-    </li>
+<ul id="tabular-navigation" class="tabs">
 </ul>
-<!--============= DEPARTMENTS ==============-->
-<div class="tab_content" id="departments">Department content goes here</div>
-<!--============= TOPICS ==============-->
-<div class="tab_content hidden" id="topics">Topics content goes here</div>
-<!--============= AGENTS ==============-->
-<div class="tab_content hidden" id="agents">Agents content goes here</div>
-
-<div id="table-here"></div>
+<!--<div id="table-here"></div>-->
 
 <?php
