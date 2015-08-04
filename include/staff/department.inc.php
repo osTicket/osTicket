@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $info = $qs = array();
 if($dept && $_REQUEST['a']!='add') {
     //Editing Department.
-    $title=__('Update Department –');
+    $title=__('Update Department');
     $action='update';
     $submit_text=__('Save Changes');
     $info = $dept->getInfo();
@@ -32,7 +32,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 <h2><?php echo $title; ?>
-    <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
     <?php } ?>
 </h2>
 <ul class="clean tabs">

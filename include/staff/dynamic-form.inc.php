@@ -2,7 +2,7 @@
 
 $info=array();
 if($form && $_REQUEST['a']!='add') {
-    $title = __('Update form section –');
+    $title = __('Update form section');
     $action = 'update';
     $url = "?id=".urlencode($_REQUEST['id']);
     $submit_text=__('Save Changes');
@@ -38,7 +38,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 
     <h2><?php echo $title; ?>
-        <?php if ($form) { ?> <span class="ltr"><?php echo $form->getTitle(); ?></span>
+    <?php if (isset($info['title'])) { ?><small>
+    — <?php echo $info['title']; ?></small>
         <?php } ?>
     </h2>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

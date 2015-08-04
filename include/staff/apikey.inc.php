@@ -23,6 +23,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo $title; ?>
+    <?php if (isset($info['ipaddr'])) { ?><small>
+    — <?php echo $info['ipaddr']; ?></small>
+    <?php } ?>
     <i class="help-tip icon-question-sign" href="#api_key"></i>
     </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -100,7 +103,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?>&nbsp;</em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal");?></em>
             </th>
         </tr>
         <tr>

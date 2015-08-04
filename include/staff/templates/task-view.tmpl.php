@@ -102,7 +102,7 @@ if ($task->isOverdue())
                 href="tasks.php?id=<?php echo $task->getId(); ?>"
                 ><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
-                <?php if ($task) { ?> – <span class="ltr"><?php echo $task->getTitle(); ?></span>
+                   <?php if ($task) { ?> – <small><span class="ltr"><?php echo $task->getTitle(); ?></span></small>
                 <?php } ?>
             </h2>
             <?php

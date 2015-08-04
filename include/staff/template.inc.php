@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 
 $info = $qs = array();
 if($template && $_REQUEST['a']!='add'){
-    $title=__('Update Template –');
+    $title=__('Update Template');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$template->getInfo();
@@ -25,7 +25,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
  <h2><?php echo $title; ?>
-     <?php if ($info) { ?> <span class="ltr"><?php echo $info['name']; ?></span>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
      <?php } ?>
 </h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

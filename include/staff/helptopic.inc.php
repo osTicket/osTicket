@@ -24,16 +24,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 
 <h2><?php echo $title; ?>
-<?php if ($topic) { ?>
- - <span class="ltr"><?php echo $topic->getLocal('topic'); ?></span>
+    <?php if (isset($info['topic'])) { ?><small>
+    — <?php echo $info['topic']; ?></small>
 <?php } ?>
  <i class="help-tip icon-question-sign" href="#help_topic_information"></i></h2>
-<br/>
 
 <ul class="clean tabs" id="topic-tabs">
-    <li class="active"><a href="#info"><i class="icon-info-sign"></i> Help Topic Information</a></li>
-    <li><a href="#routing"><i class="icon-ticket"></i> New ticket options</a></li>
-    <li><a href="#forms"><i class="icon-paste"></i> Forms</a></li>
+    <li class="active"><a href="#info"><i class="icon-info-sign"></i> <?php echo __('Help Topic Information'); ?></a></li>
+    <li><a href="#routing"><i class="icon-ticket"></i> <?php echo __('New ticket options'); ?></a></li>
+    <li><a href="#forms"><i class="icon-paste"></i> <?php echo __('Forms'); ?></a></li>
 </ul>
 
 <form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
@@ -99,7 +98,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </table>
 
         <div style="padding:8px 3px;border-bottom: 2px dotted #ddd;">
-            <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+            <strong><?php echo __('Internal Notes');?>:</strong>
             <?php echo __("be liberal, they're internal.");?>
         </div>
 

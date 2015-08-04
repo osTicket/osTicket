@@ -184,7 +184,7 @@ $pages = Page::getPages();
                                             margin: 0.5em; height: 5em;
                                             vertical-align: middle;"/>
                                 <?php if ($logo->getId() != $current && $logo->getId() != $currentScp) { ?>
-                                <label>
+                                <label class="checkbox inline">
                                     <input type="checkbox" name="delete-logo[]" value="<?php
                                     echo $logo->getId(); ?>"/> <?php echo __('Delete'); ?>
                                 </label>

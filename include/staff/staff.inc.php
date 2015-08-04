@@ -27,7 +27,7 @@ if ($_REQUEST['a']=='add'){
 }
 else {
     //Editing Department.
-    $title=__('Manage Agent –');
+    $title=__('Manage Agent');
     $action='update';
     $submit_text=__('Save Changes');
     $info['id'] = $staff->getId();
@@ -42,8 +42,8 @@ else {
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 
   <h2><?php echo $title; ?>
-      <?php if ($staff) { ?> <span class="ltr">
-      <?php echo $staff->getName(); ?></span>
+      <?php if (isset($staff->staff_id)) { ?><small>
+      — <?php echo $staff->getName(); ?></small>
       <?php } ?>
 </h2>
 
@@ -198,7 +198,7 @@ if (count($bks) > 1) {
     </table>
 
     <div style="padding:8px 3px; margin-top: 1.6em">
-        <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+        <strong class="big"><?php echo __('Internal Notes');?>: </strong>
         <?php echo __("be liberal, they're internal.");?>
     </div>
 

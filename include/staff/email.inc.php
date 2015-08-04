@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = array();
 if($email && $_REQUEST['a']!='add'){
-    $title=__('Update Email Address –');
+    $title=__('Update Email Address');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$email->getInfo();
@@ -35,7 +35,8 @@ if($email && $_REQUEST['a']!='add'){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <h2><?php echo $title; ?>
-    <?php if ($info) { ?> <span class="ltr"><?php echo $info['email']; ?></span>
+    <?php if (isset($info['email'])) { ?><small>
+    — <?php echo $info['email']; ?></small>
     <?php } ?>
 </h2>
 <form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">

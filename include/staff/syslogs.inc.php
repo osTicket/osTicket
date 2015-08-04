@@ -114,7 +114,7 @@ else
             <div class="content">
                 <div class="pull-left flush-left">
                     <h2><?php echo __('System Logs');?>
-            &nbsp;<i class="help-tip icon-question-sign" href="#system_logs"></i>
+            <i class="help-tip icon-question-sign" href="#system_logs"></i>
             </h2>
                 </div>
                 <div id="actions" class="pull-right flush-right">

@@ -102,7 +102,6 @@
         if (this.start) build_table.apply(this);
         return false;
     }
-    //$(function() { $('tabular-navigation').tab(); });
 
     // Add tabs for the tabular display
     $(function() {
@@ -116,8 +115,12 @@
                         .append($('<li>').attr(first ? {'class':'active'} : {})
                         .append($('<a>')
                             .click(build_table)
-                            .attr({'table-group':key,'href':'#'})
-                            .append(json[key])));
+                            .attr({'href':'#'+key})
+                            .append(json[key]))
+                        )
+                        .after($('<div class="tab_content"></div>')
+                            .addClass(first ? 'hidden' : undefined))
+
                     first=false;
                 }
                 build_table.apply($('#tabular-navigation li:first-child a')[0])
@@ -127,13 +130,8 @@
 
     var start, stop;
     function build_table() {
-        if (this.tagName == 'A') {
-            //current_tab = $(this).tab('show');
-        }
-        else if (this.start) {
-            start = this.start.value || 'last month';
-            stop = this.period.value || 'now';
-        }
+        start = this.start ? this.start.value : 'last month';
+        stop = this.period ? this.period.value : 'now';
 
         if (!current_tab)
             current_tab = $('#tabular-navigation li:first-child a');
@@ -147,7 +145,7 @@
             url:        'ajax.php/report/overview/table',
             data:       {group: group, start: start, period: stop},
             success:    function(json) {
-                var q = $('<table>').attr({'class':'table table-condensed table-striped'}),
+                var q = $('<table>'),
                     h = $('<tr>').appendTo($('<thead>').appendTo(q)),
                     max = [];
                 for (var c in json.columns) {

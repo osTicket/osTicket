@@ -792,7 +792,7 @@ div.section-break h3 {
 h2 {
     margin:0 0 0.7em;
     padding:0;
-    font-size:1.2em;
+    font-size:1.4em;
     color:#0A568E;
 }
 
@@ -803,7 +803,10 @@ h2 i {
     color:#0a0;
 }
 
-h2 span { color:#000; }
+h2 small {
+    font-size:.8em;
+}
+/*h2 span { color:#000; }*/
 
 h3 {
     margin:10px 0 0 0;
@@ -1431,7 +1434,7 @@ caption:hover > i.help-tip {
 
 h2 > i.help-tip {
     vertical-align: middle;
-    font-size: .85em;
+    font-size: .7em;
 }
 .form_table th h4 i.help-tip {
     color: white;
@@ -2392,8 +2395,7 @@ tr i.help-tip.warning {
 .ltr {
     direction: ltr;
     unicode-bidi: embed;
-    font-weight:normal;
-    font-style:italic;
+
 }
 .required {
     font-weight: bold;
@@ -2799,6 +2801,16 @@ table.grid.form caption {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
+select {
+    height:24px;
+    line-height:24px;
+    max-width:500px;
+    border:1px solid #bbb;
+    display:inline-block;
+    padding:4px;
+    font-size:13px;
+}
+
 a.attachment {
     padding-left: 1.2em;
     display: block;
