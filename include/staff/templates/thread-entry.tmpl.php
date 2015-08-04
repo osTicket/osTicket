@@ -41,9 +41,12 @@ if ($user)
             echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated),
                 ($editor = $entry->getEditor()) ? $editor->getName() : '');
                 ?>"><?php echo __('Edited'); ?></span>
-<?php   } ?>
-<?php   if ($entry->flags & ThreadEntry::FLAG_RESENT) { ?>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_RESENT) { ?>
             <span class="label label-bare"><?php echo __('Resent'); ?></span>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR) { ?>
+            <span class="label label-bare"><?php echo __('Collaborator'); ?></span>
 <?php   } ?>
         </span>
         </div>

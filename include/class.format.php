@@ -352,7 +352,7 @@ class Format {
     }
 
     //Format text for display..
-    function display($text, $inline_images=true) {
+    function display($text, $inline_images=true, $balance=true) {
         // Make showing offsite images optional
         $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
             function($match) {
@@ -363,8 +363,10 @@ class Format {
             },
             $text);
 
-        //make urls clickable.
-        $text = self::html_balance($text, false);
+        if ($balance)
+            $text = self::html_balance($text, false);
+
+        // make urls clickable.
         $text = Format::clickableurls($text);
 
         if ($inline_images)

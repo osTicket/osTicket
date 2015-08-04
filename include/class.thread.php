@@ -378,6 +378,7 @@ class Thread extends VerySimpleModel {
         ) {
             $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
             $vars['message'] = $body;
+            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('M', $vars);
@@ -611,6 +612,9 @@ implements TemplateVariable {
     const FLAG_GUARDED                  = 0x0008;   // No replace on edit
     const FLAG_RESENT                   = 0x0010;
 
+    const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
+    const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
+
     const PERM_EDIT     = 'thread.edit';
 
     var $_headers;
@@ -665,7 +669,9 @@ implements TemplateVariable {
     }
 
     function getBody() {
-        return ThreadEntryBody::fromFormattedText($this->body, $this->format);
+        return ThreadEntryBody::fromFormattedText($this->body, $this->format,
+            array('balanced' => $this->hasFlag(self::FLAG_BALANCED))
+        );
     }
 
     function setBody($body) {
@@ -1354,7 +1360,12 @@ implements TemplateVariable {
             'user_id' => $vars['userId'],
             'poster' => $poster,
             'source' => $vars['source'],
+            'flags' => $vars['flags'] ?: 0,
         ));
+
+        if ($entry->format == 'html')
+            // The current codebase properly balances html
+            $entry->flags |= self::FLAG_BALANCED;
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
@@ -2113,12 +2124,12 @@ class ThreadEntryBody /* extends SplString */ {
         return Format::searchable($this->body);
     }
 
-    static function fromFormattedText($text, $format=false) {
+    static function fromFormattedText($text, $format=false, $options=array()) {
         switch ($format) {
         case 'text':
             return new TextThreadEntryBody($text);
         case 'html':
-            return new HtmlThreadEntryBody($text, array('strip-embedded'=>false));
+            return new HtmlThreadEntryBody($text, array('strip-embedded'=>false) + $options);
         default:
             return new ThreadEntryBody($text);
         }
@@ -2207,7 +2218,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         case 'pdf':
             return Format::clickableurls($this->body);
         default:
-            return Format::display($this->body);
+            return Format::display($this->body, true, !$this->options['balanced']);
         }
     }
 }

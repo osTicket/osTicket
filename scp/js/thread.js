@@ -65,7 +65,7 @@ var thread = {
               .text(' ' + __('Show Images'))
               .click(function(ev) {
                 imgs.each(function(i, img) {
-                  this.showExternalImage(img);
+                  thread.showExternalImage(img);
                   $(img).removeClass('non-local-image')
                     // Remove placeholder sizing
                     .css({'display':'inline-block'})
