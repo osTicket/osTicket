@@ -102,20 +102,20 @@ a time.relative {
     color: #555;
 }
 
-.banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
+.banner { margin: 0; padding: 5px 5px 11px; margin-bottom: 10px; color: #444; border: 1px solid #444;  background-color: #ddd; border-radius: 4px; }
 
 #msg_info,
-.info-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
+.info-banner { margin: 0; padding: 5px; margin-bottom: 10px; color: #3a87ad; border: 1px solid #bce8f1;  background-color: #d9edf7; }
 
 #msg_notice,
 .success-banner,
-.notice-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px;  border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
+.notice-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
 
 #msg_warning,
-.warning-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; border: 1px solid #f26522; background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
+.warning-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #f26522; background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
 
 #msg_error,
-.error-banner { margin: -10px 0 10px 0; padding: 10px 10px 10px 36px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
+.error-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
 
 #notice_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
 
@@ -2819,7 +2819,7 @@ table.grid.form caption {
 select {
     height:24px;
     line-height:24px;
-    max-width:500px;
+    max-width:350px;
     border:1px solid #bbb;
     display:inline-block;
     padding:4px;

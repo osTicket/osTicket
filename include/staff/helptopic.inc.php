@@ -360,7 +360,7 @@ foreach ($forms as $F) {
                 <div><?php echo Format::display($F->getLocal('instructions')); ?></div>
             </td>
         </tr>
-        <tr>
+        <tr style="text-align:left">
             <th><?php echo __('Enable'); ?></th>
             <th><?php echo __('Label'); ?></th>
             <th><?php echo __('Type'); ?></th>
