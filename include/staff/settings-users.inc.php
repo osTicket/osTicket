@@ -48,7 +48,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                         foreach ($modes as $mid=>$mname) {
                             $oid = "$id.$mid";
                             $selected = ($config['client_avatar'] == $oid) ? 'selected="selected"' : '';
-                            echo "<option {$selected} value=\"{$oid}\">{$mname}</option>";
+                            echo "<option {$selected} value=\"{$oid}\">{$class::getName()} / {$mname}</option>";
                         }
                         echo "</optgroup>";
                     }
