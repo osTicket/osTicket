@@ -324,6 +324,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     // Fields shown on the list items page
     function getSummaryFields() {
+        $prop_fields = array();
         foreach ($this->getConfigurationForm()->getFields() as $f) {
             if (in_array($f->get('type'), array('text', 'datetime', 'phone')))
                 $prop_fields[] = $f;
@@ -1121,6 +1122,7 @@ class TicketStatusList extends CustomListHandler {
     function getSummaryFields() {
         // Like the main one, except the description and state fields are
         // welcome on the screen
+        $prop_fields = array();
         foreach ($this->getConfigurationForm()->getFields() as $f) {
             if (in_array($f->get('type'), array('state', 'text', 'datetime', 'phone')))
                 $prop_fields[] = $f;

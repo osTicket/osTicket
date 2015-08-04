@@ -164,6 +164,10 @@ class NumberFormatter {
     function getSymbol() {}
 }
 
+class Collator {
+    function setStrength() {}
+}
+
 class Aws_Route53_Client {
     function changeResourceRecordSets() {}
 }

@@ -110,9 +110,6 @@ extends Avatar {
     }
 
     function getUrl($size) {
-        if (false && ($file = $this->user->getAvatarFile()))
-            return $file->getDownloadUrl();
-
         $code = $this->code;
         if (!$code && method_exists($this->user, 'getExtraAttr'))
             $code = $this->user->getExtraAttr('avatar');

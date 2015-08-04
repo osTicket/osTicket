@@ -187,8 +187,6 @@ class TicketsAjaxAPI extends AjaxController {
             return 1;
         }
         return $lock->release() ? 1 : 0;
-
-        return Lock::removeStaffLocks($thisstaff->getId(), $ticket) ? 1 : 0;
     }
 
     function previewTicket ($tid) {
