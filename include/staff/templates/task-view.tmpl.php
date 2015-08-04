@@ -6,8 +6,9 @@ if (!defined('OSTSCPINC')
 
 global $cfg;
 
+$iscloseable = $task->isCloseable();
+$canClose = ($role->hasPerm(TaskModel::PERM_CLOSE) && $iscloseable === true);
 $actions = array();
-
 $actions += array(
         'print' => array(
             'href' => sprintf('tasks.php?id=%d&a=print', $task->getId()),
@@ -398,10 +399,15 @@ else
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Open'); ?></option>
+                            <?php
+                            if ($task->isClosed() || $canClose) {
+                                ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Closed'); ?></option>
+                            <?php
+                            } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
                         $errors['task_status']; ?></span>
@@ -453,10 +459,15 @@ else
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Open'); ?></option>
+                            <?php
+                            if ($task->isClosed() || $canClose) {
+                                ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo _('Closed'); ?></option>
+                            <?php
+                            } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
                         $errors['task_status']; ?></span>

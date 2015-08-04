@@ -49,6 +49,14 @@ class TaskModel extends VerySimpleModel {
                 'constraint' => array('id' => 'TaskCData.task_id'),
                 'list' => false,
             ),
+            'entries' => array(
+                'constraint' => array(
+                    "'A'" => 'DynamicFormEntry.object_type',
+                    'id' => 'DynamicFormEntry.object_id',
+                ),
+                'list' => true,
+            ),
+
             'ticket' => array(
                 'constraint' => array(
                     'object_type' => "'T'",
@@ -172,6 +180,22 @@ class TaskModel extends VerySimpleModel {
 
     function isClosed() {
         return !$this->isOpen();
+    }
+
+    function isCloseable() {
+
+        if ($this->isClosed())
+            return true;
+
+        $warning = null;
+        if ($this->getMissingRequiredFields()) {
+            $warning = sprintf(
+                    __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
+                    __('This task'),
+                    '', '');
+        }
+
+        return $warning ?: true;
     }
 
     protected function close() {
@@ -332,6 +356,25 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->lastrespondent;
     }
 
+    function getDynamicFields($criteria=array()) {
+
+        $fields = DynamicFormField::objects()->filter(array(
+                    'id__in' => $this->entries
+                    ->filter($criteria)
+                ->values_flat('answers__field_id')));
+
+        return ($fields && count($fields)) ? $fields : array();
+    }
+
+    function getMissingRequiredFields() {
+
+        return $this->getDynamicFields(array(
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
+                    'answers__value__isnull' => true,
+                    ));
+    }
+
     function getParticipants() {
         $participants = array();
         foreach ($this->getThread()->collaborators as $c)
@@ -452,6 +495,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             break;
         case 'closed':
             if ($this->isClosed())
+                return false;
+
+            // Check if task is closeable
+            $closeable = $this->isCloseable();
+            if ($closeable !== true)
+                $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This task'));
+
+            if ($errors)
                 return false;
 
             $this->close();

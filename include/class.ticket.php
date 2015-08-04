@@ -86,6 +86,7 @@ class TicketModel extends VerySimpleModel {
                     "'T'" => 'DynamicFormEntry.object_type',
                     'ticket_id' => 'DynamicFormEntry.object_id',
                 ),
+                'list' => true,
             ),
         )
     );
@@ -275,6 +276,25 @@ implements RestrictedAccess, Threadable {
 
     function isClosed() {
          return $this->hasState('closed');
+    }
+
+    function isCloseable() {
+
+        if ($this->isClosed())
+            return true;
+
+        $warning = null;
+        if ($this->getMissingRequiredFields()) {
+            $warning = sprintf(
+                    __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
+                    __('This ticket'),
+                    '', '');
+        } elseif (($num=$this->getNumOpenTasks())) {
+            $warning = sprintf(__('%1$s has %2$d open tasks and cannot be closed'),
+                    __('This ticket'), $num);
+        }
+
+        return $warning ?: true;
     }
 
     function isArchived() {
@@ -725,6 +745,12 @@ implements RestrictedAccess, Threadable {
         return count($this->tasks);
     }
 
+    function getNumOpenTasks() {
+        return count($this->tasks->filter(array(
+                        'flags__hasbit' => TaskModel::ISOPEN)));
+    }
+
+
     function getThreadId() {
         if ($this->thread)
             return $this->thread->id;
@@ -792,6 +818,16 @@ implements RestrictedAccess, Threadable {
         return $this->recipients;
     }
 
+    function getDynamicFields($criteria=array()) {
+
+        $fields = DynamicFormField::objects()->filter(array(
+                    'id__in' => $this->entries
+                    ->filter($criteria)
+                ->values_flat('answers__field_id')));
+
+        return ($fields && count($fields)) ? $fields : array();
+    }
+
     function hasClientEditableFields() {
         $forms = DynamicFormEntry::forTicket($this->getId());
         foreach ($forms as $form) {
@@ -803,23 +839,17 @@ implements RestrictedAccess, Threadable {
     }
 
     function getMissingRequiredFields() {
-        $returnArray = array();
-        $forms=DynamicFormEntry::forTicket($this->getId());
-        foreach ($forms as $form) {
-            foreach ($form->getFields() as $field) {
-                if ($field->isRequiredForClose()) {
-                    if (!$field->answer || !$field->answer->get('value')) {
-                        array_push($returnArray, $field->getLocal('label'));
-                    }
-                }
-            }
-        }
-        return $returnArray;
+
+        return $this->getDynamicFields(array(
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
+                    'answers__value__isnull' => true,
+                    ));
     }
 
     function getMissingRequiredField() {
         $fields = $this->getMissingRequiredFields();
-        return $fields[0];
+        return $fields ? $fields[0] : null;
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
@@ -1041,12 +1071,14 @@ implements RestrictedAccess, Threadable {
         $ecb = null;
         switch ($status->getState()) {
             case 'closed':
-                if ($this->getMissingRequiredFields()) {
-                    $errors['err'] = sprintf(__(
-                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
-                    '', '');
+                // Check if ticket is closeable
+                $closeable = $this->isCloseable();
+                if ($closeable !== true)
+                    $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
+
+                if ($errors)
                     return false;
-                }
+
                 $this->closed = $this->lastupdate = SqlFunction::NOW();
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
