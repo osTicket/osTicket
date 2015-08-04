@@ -109,7 +109,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tbody>
   </table>
 <hr/>
-  <p style="text-align:center;">
+  <p class="buttons" style="text-align:center;">
         <input type="submit" value="<?php echo __('Create Ticket');?>">
         <input type="reset" name="reset" value="<?php echo __('Reset');?>">
         <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
