@@ -608,7 +608,7 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
-        $data['flags'] = new ArrayObject();
+        $data['mailflags'] = new ArrayObject();
 
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList())) {
@@ -699,14 +699,14 @@ class EmailDataParser {
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();
             $data['thread-type'] = 'N';
-            $data['flags']['bounce'] = true;
+            $data['mailflags']['bounce'] = true;
         }
         else {
             // Typical email
             $data['message'] = $parser->getBody();
             $data['in-reply-to'] = @$parser->struct->headers['in-reply-to'];
             $data['references'] = @$parser->struct->headers['references'];
-            $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
+            $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
         $data['to-email-id'] = $data['emailId'];

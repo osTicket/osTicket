@@ -2136,8 +2136,8 @@ implements RestrictedAccess, Threadable {
             return $message; //Our work is done...
 
         // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['flags'])
-            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+        $autorespond = isset($vars['mailflags'])
+            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
             : true;
         if ($autorespond && $message->isAutoReply())
             $autorespond = false;
@@ -2406,9 +2406,9 @@ implements RestrictedAccess, Threadable {
             return null;
 
         $alert = $alert && (
-            isset($vars['flags'])
+            isset($vars['mailflags'])
             // No alerts for bounce and auto-reply emails
-            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
             : true
         );
 
@@ -3241,7 +3241,7 @@ implements RestrictedAccess, Threadable {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
-        if (isset($vars['flags']) && $vars['flags']['bounce'])
+        if (isset($vars['mailflags']) && $vars['mailflags']['bounce'])
             $autorespond = false;
         if ($autorespond && $message instanceof ThreadEntry && $message->isAutoReply())
             $autorespond = false;
