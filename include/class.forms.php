@@ -930,7 +930,7 @@ class FormField {
             case 'nequal':
                 $Q->negate();
             case 'equal':
-                $criteria[$name . '__eq'] = $value;
+                $criteria[$name] = $value;
                 break;
 
             case 'contains':
