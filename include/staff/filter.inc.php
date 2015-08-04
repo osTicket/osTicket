@@ -213,7 +213,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 if ($filter) { foreach ($filter->getActions() as $A) {
                     $existing[] = $A->type;
                 ?>
-                <tr style="background-color:white"><td><i class="icon-bolt icon-large icon-muted"></i>
+                <tr style="background-color:white"><td><i class="icon-sort icon-large icon-muted"></i>
                     <?php echo $A->getImpl()->getName(); ?>:</td>
                     <td>
                         <div style="position:relative"><?php
@@ -236,54 +236,48 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     </td>
                 </tr>
                 <?php } } ?>
-                <tr>
-                    <td>
-                        <strong><i class="icon-plus-sign"></i>
-                        <?php echo __('Add'); ?>:
-                        </strong>
-                    </td>
-                    <td>
-                        <select name="new-action" id="new-action-select"
-                                onchange="javascript: $('#new-action-btn').trigger('click');">
-                            <option value=""><?php echo __('— Select an Action —'); ?></option>
-                            <?php
-                            $current_group = '';
-                            foreach (FilterAction::allRegistered() as $group=>$actions) {
-                                if ($group && $current_group != $group) {
-                                    if ($current_group) echo '</optgroup>';
-                                    $current_group = $group;
-                                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
-                                }
-                                foreach ($actions as $type=>$name) {
-                            ?>
-                            <option data-title="<?php echo $name; ?>" value="<?php echo $type; ?>"
-                                    data-multi-use="<?php echo $mu = FilterAction::lookupByType($type)->hasFlag(TriggerAction::FLAG_MULTI_USE); ?> " <?php
-                                    if (in_array($type, $existing) && !$mu) echo 'disabled="disabled"';
-                                    ?>><?php echo $name; ?></option>
-                            <?php }
-                            } ?>
-                        </select>
-                        <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
-                            var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
-                            dropdown.val('');
-                            $('#dynamic-actions')
-                              .append($('<tr></tr>')
-                                .append($('<td></td>')
-                                  .text(selected.data('title') + ':')
-                                ).append($('<td></td>')
-                                  .append($('<em></em>').text(__('Loading ...')))
-                                  .load('ajax.php/filter/action/' + selected.val() + '/config', function() {
-                                    if (!selected.data('multiUse')) selected.prop('disabled', true);
-                                  })
-                                )
-                              ).append(
-                                $('<input>').attr({type:'hidden',name:'actions[]',value:'N'+selected.val()})
-                              );"><?php echo __('Add'); ?>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+            <div style="padding: 5px">
+                <i class="icon-plus-sign"></i>
+                <select name="new-action" id="new-action-select"
+                        onchange="javascript: $('#new-action-btn').trigger('click');">
+                    <option value=""><?php echo __('— Select an Action —'); ?></option>
+                    <?php
+                    $current_group = '';
+                    foreach (FilterAction::allRegistered() as $group=>$actions) {
+                        if ($group && $current_group != $group) {
+                            if ($current_group) echo '</optgroup>';
+                            $current_group = $group;
+                            ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
+                        }
+                        foreach ($actions as $type=>$name) {
+                    ?>
+                    <option data-title="<?php echo $name; ?>" value="<?php echo $type; ?>"
+                            data-multi-use="<?php echo $mu = FilterAction::lookupByType($type)->hasFlag(TriggerAction::FLAG_MULTI_USE); ?> " <?php
+                            if (in_array($type, $existing) && !$mu) echo 'disabled="disabled"';
+                            ?>><?php echo $name; ?></option>
+                    <?php }
+                    } ?>
+                </select>
+                <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
+                    var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
+                    dropdown.val('');
+                    $('#dynamic-actions')
+                      .append($('<tr></tr>')
+                        .append($('<td></td>')
+                          .text(selected.data('title') + ':')
+                        ).append($('<td></td>')
+                          .append($('<em></em>').text(__('Loading ...')))
+                          .load('ajax.php/filter/action/' + selected.val() + '/config', function() {
+                            if (!selected.data('multiUse')) selected.prop('disabled', true);
+                          })
+                        )
+                      ).append(
+                        $('<input>').attr({type:'hidden',name:'actions[]',value:'N'+selected.val()})
+                      );"><?php echo __('Add'); ?>
+                </button>
+            </div>
     </div>
     <!-- ======================== INTERNAL NOTES ======================== -->
     <div class="tab_content hidden" id="internal_notes">

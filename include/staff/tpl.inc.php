@@ -35,13 +35,10 @@ $tpl=$msgtemplates[$selected];
 
 ?>
 <form method="get" action="templates.php?">
-<h2><span><?php echo __('Email Template Set');
-    ?> &nbsp;/&nbsp; <span><a href="templates.php?tpl_id=<?php echo $tpl_id; ?>"><?php echo $name; ?></a>
-    <input type="hidden" name="a" value="manage">
-    <input type="hidden" name="tpl_id" value="<?php echo $tpl_id; ?>">
+<h2>
 <div class="pull-right">
     <span style="font-size:10pt"><?php echo __('Viewing'); ?>:</span>
-    <select id="tpl_options" name="id" style="width:300px;">
+    <select id="tpl_options" name="id" style="width:250px;">
         <option value="">&mdash; <?php echo __('Select Setting Group'); ?> &mdash;</option>
         <?php
         $impl = $group->getTemplates();
@@ -70,9 +67,13 @@ $tpl=$msgtemplates[$selected];
             echo "</optgroup>";
         ?>
     </select>
-    <input type="submit" value="Go">
     </div>
+
+    <span><?php echo __('Email Template Set'); ?></span>
+    <small> — <a href="templates.php?tpl_id=<?php echo $tpl_id; ?>"><?php echo $name; ?></a></small>
 </h2>
+    <input type="hidden" name="a" value="manage">
+    <input type="hidden" name="tpl_id" value="<?php echo $tpl_id; ?>">
 </form>
 <hr/>
 <form action="templates.php?id=<?php echo $id; ?>&amp;a=manage" method="post" id="save">
