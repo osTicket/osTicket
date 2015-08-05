@@ -94,6 +94,8 @@ a time.relative {
 #breadcrumbs {
     color: #333;
     margin-bottom: 15px;
+    background-color:#F4FAFF;
+    padding:8px;
 }
 
 #breadcrumbs a {
@@ -1458,7 +1460,9 @@ h2 > i.help-tip {
   background-repeat:no-repeat, repeat-x;
   border-bottom:1px solid #ddd;
 }
-
+#kb li:last-child {
+    border-bottom:none;
+}
 
 #kb li h4 {
     padding-bottom:3px;
@@ -1485,19 +1489,23 @@ h2 > i.help-tip {
 #faq {
   clear: both;
   margin: 0;
-  padding: 5px 0 10px 5px;
+  padding: 0px 0 10px 0px;
 }
 #faq ol {
   font-size: 15px;
   margin-left: 0;
   padding-left: 0;
+  margin:0!IMPORTANT;
 }
 #faq ol li {
   list-style: none;
-  margin: 0;
-  padding:5px 0;
+  margin: 0 0;
+  padding:10px 0 10px;
   color: #999;
   border-bottom:1px solid #ddd;
+}
+#faq ol li:last-child {
+  border-bottom:none;
 }
 
 #faq ol li a {
@@ -1520,13 +1528,12 @@ h2 > i.help-tip {
 
 time.faq {
     display:inline-block;
-    float:right;
     color:#777;
 }
 
 .cat-desc {
     padding-top:5px;
-    padding-bottom:25px;
+    padding-bottom:15px;
 }
 
 .cat-manage-bar {
@@ -2315,14 +2322,22 @@ table.custom-info td {
     border-bottom: 1px dotted rgba(0,0,0,0.3);
 }
 
+div.faq-status {
+   padding-top:6px;
+
+}
+
 .faq-title {
     font-size: 170%;
     font-weight: 400;
-    padding-right: 200px;
+    margin-right:10px;
 }
 .faq-content {
     width: 670px;
     margin: 0 15px;
+}
+.faq-category {
+    margin:0 15px;
 }
 .faq-meta section + section {
     margin-top: 15px;

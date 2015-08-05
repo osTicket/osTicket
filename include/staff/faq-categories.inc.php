@@ -93,11 +93,12 @@ foreach ($topics as $T) {
 
     </div>
 </form>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="flush-left">
-<h2><?php echo __('Frequently Asked Questions');?></h2>
-    </div></div>
-<hr>
+    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
+        <div class="pull-left">
+            <h2><?php echo __('Frequently Asked Questions');?></h2>
+        </div>
+        <div class="clear"></div>
+    </div>
 <div>
 <?php
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
