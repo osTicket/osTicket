@@ -227,6 +227,9 @@ if($_POST && !$errors):
                 $note_form->setSource(array());
                 $note_form->getField('attachments')->reset();
 
+                // Remove staff's locks
+                $ticket->releaseLock($thisstaff->getId());
+
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
                 else
