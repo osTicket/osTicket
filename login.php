@@ -124,8 +124,7 @@ if (!$nav) {
 }
 
 // Browsers shouldn't suggest saving that username/password
-Http::response(401);
-header('WWW-Authenticate: html-form id=clientLogin');
+Http::response(422);
 
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;
