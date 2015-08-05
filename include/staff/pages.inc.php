@@ -31,19 +31,39 @@ $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('pages.php', $qs);
 //Ok..lets roll...create the actual query
 if ($total)
-    $showing=$pageNav->showing()._N('site page','site pages', $num);
+    $showing=$pageNav->showing().' '._N('site page','site pages', $num);
 else
     $showing=__('No pages found!');
 
 ?>
+<form action="pages.php" method="POST" name="tpls">
 
-<div class="pull-left" style="width:700px;padding-top:5px;">
+<div class="pull-left" style="padding-top:5px;">
  <h2><?php echo __('Site Pages'); ?>
     <i class="help-tip icon-question-sign" href="#site_pages"></i>
     </h2>
 </div>
 <div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
- <b><a href="pages.php?a=add" class="Icon newPage"><?php echo __('Add New Page'); ?></a></b></div>
+    <a href="pages.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Page'); ?></a>
+
+    <span class="action-button" data-dropdown="#action-dropdown-more">
+       <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+    </span>
+     <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul id="actions">
+          <li><a class="confirm" data-name="enable" href="pages.php?a=enable">
+            <i class="icon-ok-sign icon-fixed-width"></i>
+            <?php echo __('Enable'); ?></a></li>
+          <li><a class="confirm" data-name="disable" href="pages.php?a=disable">
+            <i class="icon-ban-circle icon-fixed-width"></i>
+            <?php echo __('Disable'); ?></a></li>
+          <li class="danger"><a class="confirm" data-name="delete" href="pages.php?a=delete">
+            <i class="icon-trash icon-fixed-width"></i>
+            <?php echo __('Delete'); ?></a></li>
+        </ul>
+    </div>
+</div>
 <div class="clear"></div>
 <form action="pages.php" method="POST" name="tpls">
  <?php csrf_token(); ?>
@@ -63,7 +83,6 @@ else
     </thead>
     <tbody>
     <?php
-        $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         $defaultPages=$cfg->getDefaultPages();
         foreach ($pages as $page) {
@@ -91,7 +110,7 @@ else
     <tfoot>
      <tr>
         <td colspan="6">
-            <?php if($res && $num){ ?>
+            <?php if($total){ ?>
             <?php echo __('Select'); ?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None'); ?></a>&nbsp;&nbsp;
@@ -104,14 +123,10 @@ else
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if($total): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="<?php echo __('Enable'); ?>" >
-    <input class="button" type="submit" name="disable" value="<?php echo __('Disable'); ?>" >
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>" >
-</p>
+
 <?php
 endif;
 ?>

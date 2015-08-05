@@ -23,10 +23,10 @@ if ($content) {
     <div class="login-box">
     <strong><?php echo Format::htmlchars($errors['login']); ?></strong>
     <div>
-        <input id="username" placeholder="<?php echo __('Email or Username'); ?>" type="text" name="luser" size="30" value="<?php echo $email; ?>">
+        <input id="username" placeholder="<?php echo __('Email or Username'); ?>" type="text" name="luser" size="30" value="<?php echo $email; ?>" class="nowarn">
     </div>
     <div>
-        <input id="passwd" placeholder="<?php echo __('Password'); ?>" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>"></td>
+        <input id="passwd" placeholder="<?php echo __('Password'); ?>" type="password" name="lpasswd" size="30" value="<?php echo $passwd; ?>" class="nowarn"></td>
     </div>
     <p>
         <input class="btn" type="submit" value="<?php echo __('Sign In'); ?>">
@@ -63,7 +63,9 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
 </form>
 <br>
 <p>
-<?php if ($cfg && !$cfg->isClientLoginRequired()) {
+<?php
+if ($cfg->getClientRegistrationMode() != 'disabled'
+    || !$cfg->isClientLoginRequired()) {
     echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %s open a new ticket %s'),
         '<a href="open.php">', '</a>');
 } ?>

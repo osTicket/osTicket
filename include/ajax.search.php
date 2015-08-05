@@ -128,7 +128,8 @@ class SearchAjaxAPI extends AjaxController {
             else
                 $data[$name] = $info['value'];
         }
-        $form = $search->getForm($data);
+        $form = $search->getForm();
+        $form->setSource($data);
         if (!$data || !$form->isValid()) {
             Http::response(422, 'Validation errors exist on form');
         }

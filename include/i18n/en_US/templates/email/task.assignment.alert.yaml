@@ -1,7 +1,7 @@
 #
 # Email template: task.assignment.alert.yaml
 #
-# Sent to agents when a ticket is assigned to them or the team to which
+# Sent to agents when a task is assigned to them or the team to which
 # they belong.
 # Use %{assigner} to distinguish who made the assignment.
 #
@@ -17,19 +17,6 @@ body: |
     Task <a href="%{task.staff_link}">#%{task.number}</a> has been
     assigned to you by %{assigner.name.short}
     <br>
-    <br>
-    <table>
-    <tbody>
-    <tr>
-        <td>
-             <strong>Title</strong>:
-        </td>
-        <td>
-             %{task.title}
-        </td>
-    </tr>
-    </tbody>
-    </table>
     <br>
     %{comments}
     <br>

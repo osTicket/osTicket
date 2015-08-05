@@ -57,7 +57,10 @@ if ($_POST) {
 //page
 $nav->setActiveNav('new');
 if ($cfg->isClientLoginRequired()) {
-    if (!$thisclient) {
+    if ($cfg->getClientRegistrationMode() == 'disabled') {
+        Http::redirect('view.php');
+    }
+    elseif (!$thisclient) {
         require_once 'secure.inc.php';
     }
     elseif ($thisclient->isGuest()) {

@@ -46,11 +46,14 @@ elseif ($_GET['token']) {
     $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
-            && ($acct = ClientAccount::lookup(array('user_id'=>$id)))) {
+            && ($acct = ClientAccount::lookup(array('user_id'=>substr($id,1))))) {
         if (!$acct->isConfirmed()) {
             $inc = 'register.confirmed.inc.php';
             $acct->confirm();
-            // TODO: Log the user in
+            // FIXME: The account has to be uncached in order for the lookup
+            // in the ::processSignOn to detect the confirmation
+            ModelInstanceManager::uncache($acct);
+            // Log the user in
             if ($client = UserAuthenticationBackend::processSignOn($errors)) {
                 if ($acct->hasPassword() && !$acct->get('backend')) {
                     $acct->cancelResetTokens();

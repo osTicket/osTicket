@@ -173,7 +173,7 @@ if($_POST && !$errors):
                      $errors['assignId']= sprintf('%s - %s',
                              __('Invalid assignee'),
                              __('get technical support'));
-                 elseif ($_POST['assignId'][0]!='s'
+                 elseif ($_POST['assignId'][0]=='s'
                          && $dept->assignMembersOnly()
                          && !$dept->isMember($id)) {
                      $errors['assignId'] = sprintf('%s. %s',
@@ -226,6 +226,9 @@ if($_POST && !$errors):
                 // Clear attachment list
                 $note_form->setSource(array());
                 $note_form->getField('attachments')->reset();
+
+                // Remove staff's locks
+                $ticket->releaseLock($thisstaff->getId());
 
                 if($wasOpen && $ticket->isClosed())
                     $ticket = null; //Going back to main listing.
@@ -318,7 +321,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'banemail':
-                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
+                    if (!$thisstaff->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
                     } elseif(BanList::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
@@ -329,7 +332,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'unbanemail':
-                    if (!$role->hasPerm(Email::PERM_BANLIST)) {
+                    if (!$thisstaff->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');
@@ -364,7 +367,7 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if (!$thisstaff ||
-                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
+                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s.'),
                                  __('to create tickets')),
@@ -483,7 +486,7 @@ if (isset($_SESSION['advsearch'])) {
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
 
-if ($thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
+if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
@@ -494,6 +497,7 @@ if ($thisstaff->hasPerm(TicketModel::PERM_CREATE)) {
 
 
 $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
+$ost->addExtraHeader('<script type="text/javascript" src="js/thread.js"></script>');
 $ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
     "$('#content').data('tipNamespace', 'tickets.queue');");
 
@@ -512,7 +516,7 @@ if($ticket) {
 } else {
 	$inc = 'tickets.inc.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(TicketModel::PERM_CREATE))
+            $thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');

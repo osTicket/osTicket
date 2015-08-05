@@ -55,13 +55,39 @@ class KbaseAjaxAPI extends AjaxController {
                 $faq->getId(),
                 $faq->getNumAttachments());
         if($thisstaff
-                && $thisstaff->getRole()->hasPerm(FAQ::PERM_MANAGE)) {
+                && $thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
             $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">'.__('Edit').'</a>',$faq->getId());
 
         }
         $resp.='</div>';
 
         return $resp;
+    }
+
+    function manageFaqAccess($id) {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->hasPerm(FAQ::PERM_MANAGE))
+            Http::response(403, 'Access denied');
+        if (!($faq = FAQ::lookup($id)))
+            Http::response(404, 'No such faq article');
+
+        $form = new FaqAccessMgmtForm($_POST ?: $faq->getHashtable());
+
+        if ($_POST && $form->isValid()) {
+            $clean = $form->getClean();
+            $faq->ispublished = $clean['ispublished'];
+            $faq->save();
+            Http::response(201, 'Have a nice day');
+        }
+
+        $title = __("Manage FAQ Access");
+        $verb = __('Update');
+        $path = ltrim($ost->get_path_info(), '/');
+
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
 }
 ?>

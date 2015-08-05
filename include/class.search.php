@@ -389,7 +389,7 @@ class MysqlSearchBackend extends SearchBackend {
         $galera = db_result(db_query($sql));
 
         if ($galera && !$mysql56)
-            throw new Exception('Galera cannot be used with MyISAM tables');
+            throw new Exception('Galera cannot be used with MyISAM tables. Upgrade to MariaDB 10 / MySQL 5.6 is required');
         $engine = $galera ? 'InnodB' : ($mysql56 ? '' : 'MyISAM');
         if ($engine)
             $engine = 'ENGINE='.$engine;
@@ -402,12 +402,18 @@ class MysqlSearchBackend extends SearchBackend {
             primary key `object` (`object_type`, `object_id`),
             fulltext key `search` (`title`, `content`)
         ) $engine CHARSET=utf8";
-        return db_query($sql);
+        if (!db_query($sql))
+            return false;
+
+        // Start rebuilding the index
+        $config = new MySqlSearchConfig();
+        $config->set('reindex', 1);
+        return true;
     }
 
     /**
      * Cooperates with the cron system to automatically find content that is
-     * not index in the _search table and add it to the index.
+     * not indexed in the _search table and add it to the index.
      */
     function IndexOldStuff() {
         $class = get_class();
@@ -706,7 +712,7 @@ class SavedSearch extends VerySimpleModel {
                 'id' => 3105,
                 'label' => __('Created'),
             )),
-            'duedate'   =>  new DateTimeField(array(
+            'est_duedate'   =>  new DateTimeField(array(
                 'id' => 3106,
                 'label' => __('Due Date'),
             )),
@@ -766,7 +772,8 @@ class SavedSearch extends VerySimpleModel {
         $pieces["{$name}+search"] = new BooleanField(array(
             'id' => $baseId + 50000,
             'configuration' => array(
-                'desc' => $field->get('label'),
+                'desc' => $field->getLocal('label'),
+                'classes' => 'inline',
             ),
         ));
         $methods = $field->getSearchMethods();
@@ -785,6 +792,7 @@ class SavedSearch extends VerySimpleModel {
             list($class, $args) = $w;
             $args['id'] = $baseId + 50002 + $offs++;
             $args['required'] = true;
+            $args['__searchval__'] = true;
             $args['visibility'] = new VisibilityConstraint(new Q(array(
                     "{$name}+method__eq" => $m,
                 )), VisibilityConstraint::HIDDEN);
@@ -792,17 +800,23 @@ class SavedSearch extends VerySimpleModel {
         }
         return $pieces;
     }
-
-    function mangleQuerySet(QuerySet $qs, $form=false) {
+    
+    /**
+     * Collect information on the search form.
+     *
+     * Returns:
+     * (<array(name => array('field' => <FormField>, 'method' => <string>,
+     *      'value' => <mixed>, 'active' => <bool>))>), which will help to
+     * explain each field active in the search form.
+     */
+    function getSearchFields($form=false) {
         $form = $form ?: $this->getForm();
         $searchable = $this->getCurrentSearchFields($form->state);
-        $qs = clone $qs;
-
-        // Figure out fields to search on
+        $info = array();
         foreach ($form->getFields() as $f) {
-            if (substr($f->get('name'), -7) == '+search' && $f->getClean()) {
+            if (substr($f->get('name'), -7) == '+search') {
                 $name = substr($f->get('name'), 0, -7);
-                $filter = new Q();
+                $value = null;
                 // Determine the search method and fetch the original field
                 if (($M = $form->getField("{$name}+method"))
                     && ($method = $M->getClean())
@@ -810,48 +824,75 @@ class SavedSearch extends VerySimpleModel {
                 ) {
                     // Request the field to generate a search Q for the
                     // search method and given value
-                    $value = null;
                     if ($value = $form->getField("{$name}+{$method}"))
                         $value = $value->getClean();
-
-                    if ($name[0] == ':') {
-                        // This was an 'other' field, fetch a special "name"
-                        // for it which will be the ORM join path
-                        static $other_paths = array(
-                            ':ticket' => 'cdata__',
-                            ':user' => 'user__cdata__',
-                            ':organization' => 'user__org__cdata__',
-                        );
-                        $column = $field->get('name') ?: 'field_'.$field->get('id');
-                        list($type,$id) = explode('!', $name, 2);
-                        // XXX: Last mile — find a better idea
-                        switch (array($type, $column)) {
-                        case array(':user', 'name'):
-                            $name = 'user__name';
-                            break;
-                        case array(':user', 'email'):
-                            $name = 'user__emails__address';
-                            break;
-                        case array(':organization', 'name'):
-                            $name = 'user__org__name';
-                            break;
-                        default:
-                            if ($type == ':field' && $id) {
-                                $name = 'entries__answers__value';
-                                $filter->add(array('entries__answers__field_id' => $id));
-                                break;
-                            }
-                            $OP = $other_paths[$type];
-                            $name = $OP . $column;
-                        }
-                    }
-
-                    // Add the criteria to the QuerySet
-                    if ($Q = $field->getSearchQ($method, $value, $name)) {
-                        $filter->add($Q);
-                        $qs = $qs->filter($filter);
-                    }
                 }
+                $info[$name] = array(
+                    'field' => $field,
+                    'method' => $method,
+                    'value' => $value,
+                    'active' =>  $f->getClean(),
+                );
+            }
+        }
+        return $info;
+    }
+    
+    /**
+     * Get a description of a field in a search. Expects an entry from the
+     * array retrieved in ::getSearchFields()
+     */
+    function describeField($info, $name=false) {
+        return $info['field']->describeSearch($info['method'], $info['value'], $name);
+    }
+
+    function mangleQuerySet(QuerySet $qs, $form=false) {
+        $form = $form ?: $this->getForm();
+        $searchable = $this->getCurrentSearchFields($form->state);
+        $qs = clone $qs;
+        
+        // Figure out fields to search on
+        foreach ($this->getSearchFields($form) as $name=>$info) {
+            if (!$info['active'])
+                continue;
+            $field = $info['field'];
+            $filter = new Q();
+            if ($name[0] == ':') {
+                // This was an 'other' field, fetch a special "name"
+                // for it which will be the ORM join path
+                static $other_paths = array(
+                    ':ticket' => 'cdata__',
+                    ':user' => 'user__cdata__',
+                    ':organization' => 'user__org__cdata__',
+                );
+                $column = $field->get('name') ?: 'field_'.$field->get('id');
+                list($type,$id) = explode('!', $name, 2);
+                // XXX: Last mile — find a better idea
+                switch (array($type, $column)) {
+                case array(':user', 'name'):
+                    $name = 'user__name';
+                    break;
+                case array(':user', 'email'):
+                    $name = 'user__emails__address';
+                    break;
+                case array(':organization', 'name'):
+                    $name = 'user__org__name';
+                    break;
+                default:
+                    if ($type == ':field' && $id) {
+                        $name = 'entries__answers__value';
+                        $filter->add(array('entries__answers__field_id' => $id));
+                        break;
+                    }
+                    $OP = $other_paths[$type];
+                    $name = $OP . $column;
+                }
+            }
+
+            // Add the criteria to the QuerySet
+            if ($Q = $field->getSearchQ($info['method'], $info['value'], $name)) {
+                $filter->add($Q);
+                $qs = $qs->filter($filter);
             }
         }
 
@@ -1089,11 +1130,22 @@ class TicketSourceChoiceField extends ChoiceField {
     }
 }
 
+class OpenClosedTicketStatusList extends TicketStatusList {
+    function getItems($criteria=array()) {
+        $rv = array();
+        $base = parent::getItems($criteria);
+        foreach ($base as $idx=>$S) {
+            if (in_array($S->state, array('open', 'closed')))
+                $rv[$idx] = $S;
+        }
+        return $rv;
+    }
+}
 class TicketStatusChoiceField extends SelectionField {
     static $widget = 'ChoicesWidget';
 
     function getList() {
-        return new TicketStatusList(
+        return new OpenClosedTicketStatusList(
             DynamicList::lookup(
                 array('type' => 'ticket-status'))
         );

@@ -547,26 +547,18 @@ abstract class Plugin {
             return self::VERIFY_ERROR;
         }
 
-        require_once(PEAR_DIR.'Net/DNS2.php');
         $P = new Phar($phar);
         $sig = $P->getSignature();
         $info = array();
-        try {
-            $q = new Net_DNS2_Resolver();
-            $r = $q->query(strtolower($sig['hash']) . '.' . self::$verify_domain, 'TXT');
-            foreach ($r->answer as $rec) {
-                foreach ($rec->text as $txt) {
-                    foreach (explode(';', $txt) as $kv) {
-                        list($k, $v) = explode('=', trim($kv));
-                        $info[$k] = trim($v);
-                    }
-                    if ($info['v'] && $info['s'])
-                        break;
+        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain, DNS_TXT)) {
+            foreach ($r as $rec) {
+                foreach (explode(';', $rec['txt']) as $kv) {
+                    list($k, $v) = explode('=', trim($kv));
+                    $info[$k] = trim($v);
                 }
+                if ($info['v'] && $info['s'])
+                    break;
             }
-        }
-        catch (Net_DNS2_Exception $e) {
-            // TODO: Differenciate NXDOMAIN and DNS failure
         }
 
         if (is_array($info) && isset($info['v'])) {

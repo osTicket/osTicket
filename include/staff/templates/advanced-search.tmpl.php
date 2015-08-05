@@ -1,6 +1,3 @@
-<?php
-  $ff_uid = FormField::$uid;
-?>
 <div id="advanced-search">
 <h3 class="drag-handle"><?php echo __('Advanced Ticket Search');?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -14,11 +11,55 @@ foreach ($form->errors(true) ?: array() as $message) {
     ?><div class="error-banner"><?php echo $message;?></div><?php
 }
 
-foreach ($form->getFields() as $name=>$field) { ?>
-    <fieldset id="field<?php echo $field->getWidget()->id;
-        ?>" <?php if (!$field->isVisible()) echo 'class="hidden"'; ?>
-        <?php if (substr($field->get('name'), -7) === '+search') echo 'class="advanced-search-field"'; ?>>
+$info = $search->getSearchFields($form);
+$errors = !!$form->errors();
+$inbody = false;
+$first_field = true;
+foreach ($form->getFields() as $name=>$field) {
+    @list($name, $sub) = explode('+', $field->get('name'), 2);
+    if ($sub === 'search') {
+        if (!$first_field) {
+            echo '</div></div>';
+        }
+        echo '<div class="adv-search-field-container">';
+        $inbody = false;
+        $first_field = false;
+    }
+    elseif (!$first_field && !$inbody) {
+        echo sprintf('<div class="adv-search-field-body %s">',
+            !$errors && isset($info[$name]) && $info[$name]['active'] ? 'hidden' : '');
+        $inbody = true;
+    }
+?>
+    <fieldset id="field<?php echo $field->getWidget()->id; ?>" <?php
+        $class = array();
+        if (!$field->isVisible())
+            $class[] = "hidden";
+        if ($sub === 'method')
+            $class[] = "adv-search-method";
+        elseif ($sub === 'search')
+            $class[] = "adv-search-field";
+        elseif ($field->get('__searchval__'))
+            $class[] = "adv-search-val";
+        if ($class)
+            echo 'class="'.implode(' ', $class).'"';
+        ?>>
         <?php echo $field->render(); ?>
+        <?php if (!$errors && $sub === 'search' && isset($info[$name]) && $info[$name]['active']) { ?>
+            <span style="padding-left: 5px">
+            <a href="#"  data-name="<?php echo Format::htmlchars($name); ?>" onclick="javascript:
+    var $this = $(this),
+        name = $this.data('name'),
+        expanded = $this.data('expanded') || false;
+    $this.closest('.adv-search-field-container').find('.adv-search-field-body').slideDown('fast');
+    $this.find('span.faded').hide();
+    $this.find('i').removeClass('icon-caret-right').addClass('icon-caret-down');
+    return false;
+"><i class="icon-caret-right"></i>
+            <span class="faded"><?php echo $search->describeField($info[$name]); ?></span>
+            </a>
+            </span>
+        <?php } ?>
         <?php foreach ($field->errors() as $E) {
             ?><div class="error"><?php echo $E; ?></div><?php
         } ?>
@@ -29,6 +70,8 @@ foreach ($form->getFields() as $name=>$field) { ?>
     <input type="hidden" name="fields[]" value="<?php echo $N; ?>"/>
     <?php }
 }
+if (!$first_field)
+    echo '</div></div>';
 ?>
 <div id="extra-fields"></div>
 <hr/>
@@ -61,8 +104,9 @@ foreach ($matches as $name => $fields) { ?>
     <dd>
         <span>
             <button type="button" onclick="javascript:$(this).closest('form').attr({
-'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> Load</button>
+'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> <?php echo __('Load'); ?></button>
             <button type="button" onclick="javascript:
+var that = this;
 $.ajax({
     url: 'ajax.php/tickets/search/<?php echo $S->id; ?>',
     type: 'POST',
@@ -71,7 +115,7 @@ $.ajax({
     success: function(json) {
       if (!json.id)
         return;
-      $('<dt>').effect('highlight');
+      $(that).closest('dd').effect('highlight');
     }
 });
 return false;
@@ -100,10 +144,10 @@ return false;
 <div style="position:absolute;bottom:0">
 <hr>
     <form method="post">
-    <fieldset>
-    <input name="title" type="text" size="30" placeholder="Enter a title for the search"/>
-        <span class="action-button">
-            <a href="#tickets/search/create" onclick="javascript:
+    <div class="attached input">
+    <input name="title" type="text" size="27" placeholder="<?php
+        echo __('Enter a title for the search'); ?>"/>
+        <a class="attached button" href="#tickets/search/create" onclick="javascript:
 $.ajax({
     url: 'ajax.php/' + $(this).attr('href').substr(1),
     type: 'POST',
@@ -120,9 +164,8 @@ $.ajax({
     }
 });
 return false;
-"><i class="icon-save"></i> <?php echo __('Save'); ?></a>
-        </span>
-    </fieldset>
+"><i class="icon-save"></i></a>
+    </div>
 </div>
 </div>
 </div>
@@ -163,13 +206,11 @@ $(function() {
     });
   }, 200);
 
-  var ff_uid = <?php echo $ff_uid; ?>;
   $('#search-add-new-field').on('change', function() {
     var that=this;
     $.ajax({
       url: 'ajax.php/tickets/search/field/'+$(this).val(),
       type: 'get',
-      data: {ff_uid: ff_uid},
       dataType: 'json',
       success: function(json) {
         if (!json.success)

@@ -54,6 +54,7 @@ class Thread extends VerySimpleModel {
 
     var $_object;
     var $_collaborators; // Cache for collabs
+    var $_participants;
 
     function getId() {
         return $this->id;
@@ -211,8 +212,33 @@ class Thread extends VerySimpleModel {
 
         return true;
     }
+
+
+    //UserList of participants (collaborators)
+    function getParticipants() {
+
+        if (!isset($this->_participants)) {
+            $list = new UserList();
+            if ($collabs = $this->getActiveCollaborators()) {
+                foreach ($collabs as $c)
+                    $list->add($c);
+            }
+
+            $this->_participants = $list;
+        }
+
+        return $this->_participants;
+    }
+
+
     // Render thread
-    function render($type=false, $mode=self::MODE_STAFF) {
+    function render($type=false, $options=array()) {
+
+        $mode = $options['mode'] ?: self::MODE_STAFF;
+
+        // Register thread actions prior to rendering the thread.
+        if (!class_exists('tea_showemailheaders'))
+            include_once INCLUDE_DIR . 'class.thread_actions.php';
 
         $entries = $this->getEntries();
         if ($type && is_array($type))
@@ -352,6 +378,7 @@ class Thread extends VerySimpleModel {
         ) {
             $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
             $vars['message'] = $body;
+            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('M', $vars);
@@ -585,12 +612,14 @@ implements TemplateVariable {
     const FLAG_GUARDED                  = 0x0008;   // No replace on edit
     const FLAG_RESENT                   = 0x0010;
 
+    const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
+    const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
+
     const PERM_EDIT     = 'thread.edit';
 
     var $_headers;
     var $_thread;
     var $_actions;
-    var $_attachments;
 
     static protected $perms = array(
         self::PERM_EDIT => array(
@@ -640,7 +669,9 @@ implements TemplateVariable {
     }
 
     function getBody() {
-        return ThreadEntryBody::fromFormattedText($this->body, $this->format);
+        return ThreadEntryBody::fromFormattedText($this->body, $this->format,
+            array('balanced' => $this->hasFlag(self::FLAG_BALANCED))
+        );
     }
 
     function setBody($body) {
@@ -1032,6 +1063,10 @@ implements TemplateVariable {
         return $this->email_info->save();
     }
 
+    function getActivity() {
+        return new ThreadActivity('', '');
+    }
+
     /* variables */
 
     function __toString() {
@@ -1044,9 +1079,6 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         switch(strtolower($tag)) {
             case 'create_date':
                 return new FormattedDate($this->getCreateDate());
@@ -1055,8 +1087,6 @@ implements TemplateVariable {
             case 'files':
                 throw new OOBContent(OOBContent::FILES, $this->attachments->all());
         }
-
-        return false;
     }
 
     static function getVarScope() {
@@ -1330,7 +1360,12 @@ implements TemplateVariable {
             'user_id' => $vars['userId'],
             'poster' => $poster,
             'source' => $vars['source'],
+            'flags' => $vars['flags'] ?: 0,
         ));
+
+        if ($entry->format == 'html')
+            // The current codebase properly balances html
+            $entry->flags |= self::FLAG_BALANCED;
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
@@ -1386,9 +1421,6 @@ implements TemplateVariable {
             $entry->body = $body;
             if (!$entry->save())
                 return false;
-
-            // Set the $entry here for search indexing
-            $entry->ht['body'] = $body;
         }
 
         // Save mail message id, if available
@@ -1533,11 +1565,11 @@ class ThreadEvent extends VerySimpleModel {
 
     var $_data;
 
-    function getAvatar($size=16) {
+    function getAvatar($size=null) {
         if ($this->uid && $this->uid_type == 'S')
-            return $this->agent->get_gravatar($size);
+            return $this->agent->getAvatar($size);
         if ($this->uid && $this->uid_type == 'U')
-            return $this->user->get_gravatar($size);
+            return $this->user->getAvatar($size);
     }
 
     function getUserName() {
@@ -1579,9 +1611,9 @@ class ThreadEvent extends VerySimpleModel {
                 case 'assignees':
                     $assignees = array();
                     if ($S = $self->staff) {
-                        $url = $S->get_gravatar(16);
+                        $avatar = $S->getAvatar();
                         $assignees[] =
-                            "<img class=\"avatar\" src=\"{$url}\"> ".$S->getName();
+                            $avatar.$S->getName();
                     }
                     if ($T = $self->team) {
                         $assignees[] = $T->getLocalName();
@@ -1589,8 +1621,8 @@ class ThreadEvent extends VerySimpleModel {
                     return implode('/', $assignees);
                 case 'somebody':
                     $name = $self->getUserName();
-                    if ($url = $self->getAvatar())
-                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    if ($avatar = $self->getAvatar())
+                        $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
                     return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
@@ -1600,8 +1632,8 @@ class ThreadEvent extends VerySimpleModel {
                     );
                 case 'agent':
                     $name = $self->agent->getName();
-                    if ($url = $self->getAvatar())
-                        $name = "<img class=\"avatar\" src=\"{$url}\"> ".$name;
+                    if ($avatar = $self->getAvatar())
+                        $name = $avatar.$name;
                     return $name;
                 case 'dept':
                     if ($dept = $self->getDept())
@@ -1609,9 +1641,13 @@ class ThreadEvent extends VerySimpleModel {
                     return __('None');
                 case 'data':
                     $val = $self->getData($m['data']);
+                    if (is_array($val))
+                        list($val, $fallback) = $val;
                     if ($m['type'] && class_exists($m['type']))
                         $val = $m['type']::lookup($val);
-                    return (string) $val;
+                    if (!$val && $fallback)
+                        $val = $fallback;
+                    return Format::htmlchars((string) $val);
                 }
                 return $m[0];
             },
@@ -1782,7 +1818,7 @@ class CloseEvent extends ThreadEvent {
     static $state = 'closed';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
     }
 }
 
@@ -1865,7 +1901,6 @@ class EditEvent extends ThreadEvent {
             $desc = __('<b>{somebody}</b> changed the status to <strong>{<TicketStatus>data.status}</strong> {timestamp}');
             break;
         case isset($data['fields']):
-            $base = __('Updated by <b>{somebody}</b> {timestamp} — %s');
             $fields = $changes = array();
             foreach (DynamicFormField::objects()->filter(array(
                 'id__in' => array_keys($data['fields'])
@@ -1882,6 +1917,48 @@ class EditEvent extends ThreadEvent {
                 $after = $impl->to_php($new);
                 $changes[] = sprintf('<strong>%s</strong> %s',
                     $field->getLocal('label'), $impl->whatChanged($before, $after));
+            }
+            // Fallthrough to other editable fields
+        case isset($data['topic_id']):
+        case isset($data['sla_id']):
+        case isset($data['source']):
+        case isset($data['user_id']):
+        case isset($data['duedate']):
+            $base = __('Updated by <b>{somebody}</b> {timestamp} — %s');
+            foreach (array(
+                'topic_id' => array(__('Help Topic'), array('Topic', 'getTopicName')),
+                'sla_id' => array(__('SLA'), array('SLA', 'getSLAName')),
+                'duedate' => array(__('Duedate'), array('Format', 'date')),
+                'user_id' => array(__('Ticket Owner'), array('User', 'getNameById')),
+                'source' => array(__('Source'), null)
+            ) as $f => $info) {
+                if (isset($data[$f])) {
+                    list($name, $desc) = $info;
+                    list($old, $new) = $data[$f];
+                    if ($desc && is_callable($desc)) {
+                        $new = call_user_func($desc, $new);
+                        if ($old)
+                            $old = call_user_func($desc, $old);
+                    }
+                    if ($old and $new) {
+                        $changes[] = sprintf(
+                            __('<strong>%1$s</strong> changed from <strong>%2$s</strong> to <strong>%3$s</strong>'),
+                            Format::htmlchars($name), Format::htmlchars($old), Format::htmlchars($new)
+                        );
+                    }
+                    elseif ($new) {
+                        $changes[] = sprintf(
+                            __('<strong>%1$s</strong> set to <strong>%2$s</strong>'),
+                            Format::htmlchars($name), Format::htmlchars($new)
+                        );
+                    }
+                    else {
+                        $changes[] = sprintf(
+                            __('unset <strong>%1$s</strong>'),
+                            Format::htmlchars($name)
+                        );
+                    }
+                }
             }
             $desc = $changes
                 ? sprintf($base, implode(', ', $changes)) : '';
@@ -2047,12 +2124,12 @@ class ThreadEntryBody /* extends SplString */ {
         return Format::searchable($this->body);
     }
 
-    static function fromFormattedText($text, $format=false) {
+    static function fromFormattedText($text, $format=false, $options=array()) {
         switch ($format) {
         case 'text':
             return new TextThreadEntryBody($text);
         case 'html':
-            return new HtmlThreadEntryBody($text, array('strip-embedded'=>false));
+            return new HtmlThreadEntryBody($text, array('strip-embedded'=>false) + $options);
         default:
             return new ThreadEntryBody($text);
         }
@@ -2141,7 +2218,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         case 'pdf':
             return Format::clickableurls($this->body);
         default:
-            return Format::display($this->body);
+            return Format::display($this->body, true, !$this->options['balanced']);
         }
     }
 }
@@ -2192,6 +2269,12 @@ class ResponseThreadEntry extends ThreadEntry {
 
     const ENTRY_TYPE = 'R';
 
+    function getActivity() {
+        return new ThreadActivity(
+                _S('New Response'),
+                _S('New response posted'));
+    }
+
     function getSubject() {
         return $this->getTitle();
     }
@@ -2239,6 +2322,12 @@ class NoteThreadEntry extends ThreadEntry {
 
     function getMessage() {
         return $this->getBody();
+    }
+
+    function getActivity() {
+        return new ThreadActivity(
+                _S('New Internal Note'),
+                _S('New internal note posted'));
     }
 
     static function create($vars, &$errors) {
@@ -2364,7 +2453,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['staffId'] = 0;
 
-        return MessageThreadEntry::create($vars, $errors);
+        if (!($message = MessageThreadEntry::create($vars, $errors)))
+            return $message;
+
+        $this->lastmessage = SqlFunction::NOW();
+        $this->save(true);
+        return $message;
     }
 
     function addResponse($vars, &$errors) {
@@ -2372,7 +2466,12 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
 
-        return ResponseThreadEntry::create($vars, $errors);
+        if (!($resp = ResponseThreadEntry::create($vars, $errors)))
+            return $resp;
+
+        $this->lastresponse = SqlFunction::NOW();
+        $this->save(true);
+        return $resp;
     }
 
     function getVar($name) {
@@ -2514,4 +2613,46 @@ interface Threadable {
     function getThread();
     function postThreadEntry($type, $vars, $options=array());
 }
+
+/**
+ * ThreadActivity
+ *
+ * Object to thread activity
+ *
+ */
+class ThreadActivity implements TemplateVariable {
+    var $title;
+    var $desc;
+
+    function __construct($title, $desc) {
+        $this->title = $title;
+        $this->desc = $desc;
+    }
+
+    function getTitle() {
+        return $this->title;
+    }
+
+    function getDescription() {
+        return $this->desc;
+    }
+    function asVar() {
+        return (string) $this->getTitle();
+    }
+
+    function getVar($tag) {
+        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
+            return call_user_func(array($this, 'get'.ucfirst($tag)));
+
+        return false;
+    }
+
+    static function getVarScope() {
+        return array(
+          'title' => __('Activity Title'),
+          'description' => __('Activity Description'),
+        );
+    }
+}
+
 ?>

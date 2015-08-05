@@ -130,27 +130,26 @@ else {
         // Multi-lingual system
         foreach ($langs as $lang) {
             $attachments = $faq_form->getField('attachments.'.$lang);
-            $attachments->setAttachments($faq->getAttachments($lang));
+            $attachments->setAttachments($faq->getAttachments($lang)->window(array('inline' => false)));
         }
     }
     if ($faq) {
         // Common attachments
         $attachments = $faq_form->getField('attachments');
-        $attachments->setAttachments($faq->getAttachments());
+        $attachments->setAttachments($faq->getAttachments()->window(array('inline' => false)));
     }
 }
 
-$role = $thisstaff->getRole();
 $inc='faq-categories.inc.php'; //FAQs landing page.
 if($faq) {
     $inc='faq-view.inc.php';
     if ($_REQUEST['a']=='edit'
-            && $role->hasPerm(FAQ::PERM_MANAGE))
+            && $thisstaff->hasPerm(FAQ::PERM_MANAGE))
         $inc='faq.inc.php';
     elseif ($_REQUEST['a'] == 'print')
         return $faq->printPdf();
 }elseif($_REQUEST['a']=='add'
-        && $role->hasPerm(FAQ::PERM_MANAGE)) {
+        && $thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
     $inc='faq.inc.php';
 } elseif($category && $_REQUEST['a']!='search') {
     $inc='faq-category.inc.php';

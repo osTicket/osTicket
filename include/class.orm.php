@@ -304,12 +304,24 @@ class VerySimpleModel {
         if ($this->__new__)
             return null;
 
-        // TODO: Inspect fields from database before throwing this error
+        // Check to see if the column referenced is actually valid
+        if (in_array($field, static::getMeta('fields')))
+            return null;
+
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
             get_class($this), $field));
     }
     function __get($field) {
         return $this->get($field, null);
+    }
+
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P)
+            $root = $root->get($P);
+        return $root;
     }
 
     function __isset($field) {
@@ -792,11 +804,17 @@ class SqlInterval extends SqlFunction {
 }
 
 class SqlField extends SqlFunction {
-    function __construct($field) {
+    var $level;
+
+    function __construct($field, $level=0) {
         $this->field = $field;
+        $this->level = $level;
     }
 
     function toSql($compiler, $model=false, $alias=false) {
+        $L = $this->level;
+        while ($L--)
+            $compiler = $compiler->getParent();
         list($field) = $compiler->getField($this->field, $model);
         return $field;
     }
@@ -883,6 +901,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $model;
 
     var $constraints = array();
+    var $path_constraints = array();
     var $ordering = array();
     var $limit = false;
     var $offset = 0;
@@ -901,7 +920,6 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $compiler = 'MySqlCompiler';
     var $iterator = 'ModelInstanceManager';
 
-    var $params;
     var $query;
     var $count;
 
@@ -920,6 +938,35 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function exclude() {
         foreach (func_get_args() as $Q) {
             $this->constraints[] = $Q instanceof Q ? $Q->negate() : Q::not($Q);
+        }
+        return $this;
+    }
+
+    /**
+     * Add a path constraint for the query. This is different from ::filter
+     * in that the constraint is added to a join clause which is normally
+     * built from the model meta data. The ::filter() method on the other
+     * hand adds the constraint to the where clause. This is generally useful
+     * for aggregate queries and left join queries where multiple rows might
+     * match a filter in the where clause and would produce incorrect results.
+     *
+     * Example:
+     * Find users with personal email hosted with gmail.
+     * >>> $Q = User::objects();
+     * >>> $Q->constrain(['user__emails' => new Q(['type' => 'personal']))
+     * >>> $Q->filter(['user__emails__address__contains' => '@gmail.com'])
+     */
+    function constrain() {
+        foreach (func_get_args() as $I) {
+            foreach ($I as $path => $Q) {
+                if (!is_array($Q) && !$Q instanceof Q) {
+                    // ->constrain(array('field__path__op' => val));
+                    $Q = array($path => $Q);
+                    list(, $path) = SqlCompiler::splitCriteria($path);
+                    $path = implode('__', $path);
+                }
+                $this->path_constraints[$path][] = $Q instanceof Q ? $Q : Q::all($Q);
+            }
         }
         return $this;
     }
@@ -1034,7 +1081,6 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
                 .'multiple objects in the database matched the query. '
                 .sprintf('In fact, there are %d matching objects.', count($list))
             );
-        // TODO: Throw error if more than one result from database
         return $list[0];
     }
 
@@ -1043,20 +1089,26 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         if (isset($this->_iterator)) {
             return $this->_iterator->count();
         }
-        elseif (isset($this->_count)) {
-            return $this->_count;
+        elseif (isset($this->count)) {
+            return $this->count;
         }
         $class = $this->compiler;
         $compiler = new $class();
         return $this->_count = $compiler->compileCount($this);
     }
 
-    function toSql($compiler, $model, $alias) {
+    function toSql($compiler, $model, $alias=false) {
         // FIXME: Force root model of the compiler to $model
-        $exec = $this->getQuery(array('compiler' => get_class($compiler)));
-        foreach ($exec->params as $P)
-            $compiler->params[] = $P;
-        return "({$exec})".($alias ? " AS {$alias}" : '');
+        $exec = $this->getQuery(array('compiler' => get_class($compiler),
+             'parent' => $compiler, 'subquery' => true));
+        // Rewrite the parameter numbers so they fit the parameter numbers
+        // of the current parameters of the $compiler
+        $sql = preg_replace_callback("/:(\d+)/",
+        function($m) use ($compiler, $exec) {
+            $compiler->params[] = $exec->params[$m[1]-1];
+            return ':'.count($compiler->params);
+        }, $exec->sql);
+        return "({$sql})".($alias ? " AS {$alias}" : '');
     }
 
     /**
@@ -1128,6 +1180,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function __clone() {
         unset($this->_iterator);
         unset($this->query);
+        unset($this->count);
     }
 
     // IteratorAggregate interface
@@ -1194,6 +1247,10 @@ class {$classname} extends VerySimpleModel {
     static function getQuery(\$compiler) {
         return ' ('.static::\$queryset->getQuery().') ';
     }
+
+    static function getSqlAddParams(\$compiler) {
+        return static::\$queryset->toSql(\$compiler, self::\$queryset->model);
+    }
 }
 EOF;
         eval($class); // Ugh
@@ -1207,6 +1264,7 @@ EOF;
         unset($info['limit']);
         unset($info['offset']);
         unset($info['_iterator']);
+        unset($info['count']);
         return serialize($info);
     }
 
@@ -1312,6 +1370,10 @@ class ModelInstanceManager extends ResultSet {
         unset(self::$objectCache[$key]);
     }
 
+    static function flushCache() {
+        self::$objectCache = array();
+    }
+
     static function checkCache($modelClass, $fields) {
         $key = $modelClass::$meta->model;
         foreach ($modelClass::getMeta('pk') as $f)
@@ -1349,7 +1411,7 @@ class ModelInstanceManager extends ResultSet {
         // using an AnnotatedModel instance.
         if ($annotations && $modelClass == $this->model) {
             foreach ($annotations as $name=>$A) {
-                if (isset($fields[$name])) {
+                if (array_key_exists($name, $fields)) {
                     $extras[$name] = $fields[$name];
                     unset($fields[$name]);
                 }
@@ -1527,6 +1589,18 @@ class InstrumentedList extends ModelInstanceManager {
 
     function reset() {
         $this->cache = array();
+        unset($this->resource);
+    }
+
+    /**
+     * Slight edit to the standard ::next() iteration method which will skip
+     * deleted items.
+     */
+    function next() {
+        do {
+            parent::next();
+        }
+        while ($this->valid() && $this->current()->__deleted__);
     }
 
     /**
@@ -1544,6 +1618,86 @@ class InstrumentedList extends ModelInstanceManager {
             $key[$field] = $value;
         }
         return new static(array($this->model, $key), $this->filter($constraint));
+    }
+
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst(array $criteria) {
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field=>$check) {
+                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                return $record;
+        }
+    }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
+
+    /**
+     * Reverse the list item in place. Returns this object for chaining
+     */
+    function reverse() {
+        $this->asArray();
+        array_reverse($this->cache);
+        return $this;
+    }
+
+    // Save all changes made to any list items
+    function saveAll() {
+        foreach ($this as $I)
+            if (!$I->save())
+                return false;
+        return true;
     }
 
     // QuerySet delegates
@@ -1596,6 +1750,63 @@ class SqlCompiler {
     function __construct($options=false) {
         if ($options)
             $this->options = array_merge($this->options, $options);
+        if ($options['subquery'])
+            $this->alias_num += 150;
+    }
+
+    function getParent() {
+        return $this->options['parent'];
+    }
+
+    /**
+     * Split a criteria item into the identifying pieces: path, field, and
+     * operator.
+     */
+    static function splitCriteria($criteria) {
+        static $operators = array(
+            'exact' => 1, 'isnull' => 1,
+            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
+            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1,
+            'in' => 1, 'intersect' => 1,
+            'hasbit' => 1,
+        );
+        $path = explode('__', $criteria);
+        if (!isset($options['table'])) {
+            $field = array_pop($path);
+            if (isset($operators[$field])) {
+                $operator = $field;
+                $field = array_pop($path);
+            }
+        }
+        return array($field, $path, $operator ?: 'exact');
+    }
+
+    /**
+     * Check if the values match given the operator.
+     *
+     * Throws:
+     * OrmException - if $operator is not supported
+     */
+    static function evaluate($record, $field, $check) {
+        static $ops; if (!isset($ops)) { $ops = array(
+            'exact' => function($a, $b) { return is_string($a) ? strcasecmp($a, $b) == 0 : $a == $b; },
+            'isnull' => function($a, $b) { return is_null($a) == $b; },
+            'gt' => function($a, $b) { return $a > $b; },
+            'gte' => function($a, $b) { return $a >= $b; },
+            'lt' => function($a, $b) { return $a < $b; },
+            'lte' => function($a, $b) { return $a <= $b; },
+            'contains' => function($a, $b) { return stripos($a, $b) !== false; },
+            'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
+            'hasbit' => function($a, $b) { return $a & $b == $b; },
+        ); }
+        list($field, $path, $operator) = self::splitCriteria($field);
+        if (!isset($ops[$operator]))
+            throw new OrmException($operator.': Unsupported operator');
+
+        if ($path)
+            $record = $record->getByPath($path);
+        // TODO: Support Q expressions
+        return $ops[$operator]($record->get($field), $check);
     }
 
     /**
@@ -1664,16 +1875,8 @@ class SqlCompiler {
         // The parts after each of the __ pieces are links to other tables.
         // The last item (after the last __) is allowed to be an operator
         // specifiction.
-        $parts = explode('__', $field);
-        $operator = static::$operators['exact'];
-        if (!isset($options['table'])) {
-            $field = array_pop($parts);
-            if (isset(static::$operators[$field])) {
-                $operator = static::$operators[$field];
-                $field = array_pop($parts);
-            }
-        }
-
+        list($field, $parts, $op) = static::splitCriteria($field);
+        $operator = static::$operators[$op];
         $path = '';
         $rootModel = $model;
 
@@ -1860,8 +2063,20 @@ class SqlCompiler {
 
     function getJoins($queryset) {
         $sql = '';
-        foreach ($this->joins as $j)
-            $sql .= $j['sql'];
+        foreach ($this->joins as $path => $j) {
+            if (!$j['sql'])
+                continue;
+            list($base, $constraints) = $j['sql'];
+            // Add in path-specific constraints, if any
+            if (isset($queryset->path_constraints[$path])) {
+                foreach ($queryset->path_constraints[$path] as $Q) {
+                    $constraints[] = $this->compileQ($Q, $queryset->model);
+                }
+            }
+            $sql .= $base;
+            if ($constraints)
+                $sql .= ' ON ('.implode(' AND ', $constraints).')';
+        }
         // Add extra items from QuerySet
         if (isset($queryset->extra['tables'])) {
             foreach ($queryset->extra['tables'] as $S) {
@@ -2052,36 +2267,40 @@ class MySqlCompiler extends SqlCompiler {
         // Support inline views
         $table = ($rmodel::getMeta('view'))
             // XXX: Support parameters from the nested query
-            ? $rmodel::getQuery($this)
+            ? $rmodel::getSqlAddParams($this)
             : $this->quote($rmodel::getMeta('table'));
         $base = "{$join}{$table} {$alias}";
-        if ($constraints)
-           $base .= ' ON ('.implode(' AND ', $constraints).')';
-        return $base;
+        return array($base, $constraints);
     }
 
     /**
      * input
      *
-     * Generate a parameterized input for a database query. Input value is
-     * received by reference to avoid copying.
+     * Generate a parameterized input for a database query.
      *
      * Parameters:
      * $what - (mixed) value to be sent to the database. No escaping is
      *      necessary. Pass a raw value here.
      *
      * Returns:
-     * (string) token to be placed into the compiled SQL statement. For
-     * MySQL, this is always the string '?'.
+     * (string) token to be placed into the compiled SQL statement. This
+     * is a colon followed by a number
      */
-    function input($what, $slot=false) {
+    function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>true));
-            $this->params = array_merge($this->params, $q->params);
-            return '('.$q->sql.')';
+            // Rewrite the parameter numbers so they fit the parameter numbers
+            // of the current parameters of the $compiler
+            $self = $this;
+            $sql = preg_replace_callback("/:(\d+)/",
+            function($m) use ($self, $q) {
+                $self->params[] = $q->params[$m[1]-1];
+                return ':'.count($self->params);
+            }, $q->sql);
+            return "({$sql})";
         }
         elseif ($what instanceof SqlFunction) {
-            return $what->toSql($this);
+            return $what->toSql($this, $model);
         }
         elseif (!isset($what)) {
             return 'NULL';
@@ -2369,7 +2588,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
-            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value));
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, false, $model));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
@@ -2422,7 +2641,8 @@ class MySqlExecutor {
     function fixupParams() {
         $self = $this;
         $params = array();
-        $sql = preg_replace_callback('/:(\d+)/', function($m) use ($self, &$params) {
+        $sql = preg_replace_callback("/:(\d+)/",
+        function($m) use ($self, &$params) {
             $params[] = $self->params[$m[1]-1];
             return '?';
         }, $this->sql);
@@ -2462,7 +2682,7 @@ class MySqlExecutor {
                 $types .= 's';
             elseif ($p instanceof DateTime) {
                 $types .= 's';
-                $p = $p->format('Y-m-d h:i:s');
+                $p = $p->format('Y-m-d H:i:s');
             }
             elseif (is_object($p)) {
                 $types .= 's';
@@ -2555,8 +2775,12 @@ class MySqlExecutor {
 
     function __toString() {
         $self = $this;
-        return preg_replace_callback('/:(\d+)/', function($m) use ($self) {
+        return preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
+        function($m) use ($self) {
             $p = $self->params[$m[1]-1];
+            if ($p instanceof DateTime) {
+                $p = $p->format('Y-m-d H:i:s');
+            }
             return db_real_escape($p, is_string($p));
         }, $this->sql);
     }
@@ -2567,7 +2791,6 @@ class Q implements Serializable {
     const ANY =     0x0002;
 
     var $constraints;
-    var $flags;
     var $negated = false;
     var $ored = false;
 
@@ -2614,20 +2837,16 @@ class Q implements Serializable {
         return new static($constraints, self::ANY);
     }
 
+    static function all($constraints) {
+        return new static($constraints);
+    }
+
     function serialize() {
-        return serialize(array(
-            'f' =>
-                ($this->negated ? self::NEGATED : 0)
-              | ($this->ored ? self::ANY : 0),
-            'c' => $this->constraints
-        ));
+        return serialize(array($this->negated, $this->ored, $this->constraints));
     }
 
     function unserialize($data) {
-        $data = unserialize($data);
-        $this->constraints = $data['c'];
-        $this->ored = $data['f'] & self::ANY;
-        $this->negated = $data['f'] & self::NEGATED;
+        list($this->negated, $this->ored, $this->constraints) = unserialize($data);
     }
 }
 ?>

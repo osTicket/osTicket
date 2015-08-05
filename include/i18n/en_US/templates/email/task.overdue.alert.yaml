@@ -2,14 +2,12 @@
 # Email template: task.overdue.alert.yaml
 #
 # Sent to agents when a tasks transitions to overdue in the system.
-# Overdue tasks occur based on set due-date as well as the SLA
-# defined for the task.
+# Overdue tasks occur based on set due-date.
 #
 ---
 notes: |
     Sent to agents when a task transitions to overdue in the system.
-    Overdue tasks occur based on the set due-date as well as the SLA
-    defined for the task.
+    Overdue tasks occur based on the set due-date.
 
 subject: |
     Stale Task Alert

@@ -14,18 +14,18 @@ $org = $user->getOrganization();
         </td>
         <td width="50%" class="right_align has_bottom_border">
 <?php if (($account && $account->isConfirmed())
-    || $thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+    || $thisstaff->hasPerm(User::PERM_EDIT)) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
                 <span><i class="icon-cog"></i> <?php echo __('More'); ?></span>
             </span>
 <?php }
-    if ($thisstaff->getRole()->hasPerm(User::PERM_DELETE)) { ?>
+    if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
             <a id="user-delete" class="action-button pull-right user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete User'); ?></a>
 <?php } ?>
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_MANAGE)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
             <?php
             if ($account) { ?>
             <a id="user-manage" class="action-button pull-right user-action"
@@ -55,7 +55,7 @@ $org = $user->getOrganization();
                         <?php echo __('Send Password Reset Email'); ?></a></li>
                     <?php
                     } ?>
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_MANAGE)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
                     <li><a class="user-action"
                         href="#users/<?php echo $user->getId(); ?>/manage/access"><i
                         class="icon-lock"></i>
@@ -63,7 +63,7 @@ $org = $user->getOrganization();
                 <?php
 }
                 } ?>
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                 <li><a href="#ajax.php/users/<?php echo $user->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
@@ -77,7 +77,10 @@ $org = $user->getOrganization();
         </td>
     </tr>
 </table>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<div class="avatar pull-left" style="margin: 10px; width: 80px;">
+    <?php echo $user->getAvatar(); ?>
+</div>
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="830" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
@@ -85,13 +88,13 @@ $org = $user->getOrganization();
                     <th width="150"><?php echo __('Name'); ?>:</th>
                     <td>
 <?php
-if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                     <b><a href="#users/<?php echo $user->getId();
                     ?>/edit" class="user-action"><i
                         class="icon-edit"></i>
 <?php }
                     echo Format::htmlchars($user->getName()->getOriginal());
-if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                     </a>
 <?php } ?>
 </td>
@@ -110,7 +113,7 @@ if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
                             if ($org)
                                 echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
                                         $user->getId(), $org->getName());
-                            elseif ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) {
+                            elseif ($thisstaff->hasPerm(User::PERM_EDIT)) {
                                 echo sprintf(
                                     '<a href="#users/%d/org" class="user-action">%s</a>',
                                     $user->getId(),

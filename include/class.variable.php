@@ -27,7 +27,7 @@ class VariableReplacer {
 
     var $errors;
 
-    function VariableReplacer($start_delim='%{', $end_delim='}') {
+    function VariableReplacer($start_delim='(?:%{|%%7B)', $end_delim='(?:}|%7D)') {
 
         $this->start_delim = $start_delim;
         $this->end_delim = $end_delim;
@@ -59,38 +59,48 @@ class VariableReplacer {
 
     function getVar($obj, $var) {
 
-        if(!$obj) return "";
-
-        if (!$var) {
-            if (method_exists($obj, 'asVar'))
-                return call_user_func(array($obj, 'asVar'), $this);
-            elseif (method_exists($obj, '__toString'))
-                return (string) $obj;
-        }
-
-        list($v, $part) = explode('.', $var, 2);
-        if ($v && is_callable(array($obj, 'get'.ucfirst($v)))) {
-            $rv = call_user_func(array($obj, 'get'.ucfirst($v)), $this);
-            if(!$rv || !is_object($rv))
-                return $rv;
-
-            return $this->getVar($rv, $part);
-        }
-
-        if (is_array($obj) && isset($obj[$v]))
-            return $obj[$v];
-
-        if (!$var || !method_exists($obj, 'getVar'))
+        if (!$obj)
             return "";
 
-        list($tag, $remainder) = explode('.', $var, 2);
-        if(($rv = call_user_func(array($obj, 'getVar'), $tag, $this))===false)
-            return "";
+        // Order or resolving %{... .tag.remainder}
+        // 1. $obj[$tag]
+        // 2. $obj->tag
+        // 3. $obj->getVar(tag)
+        // 4. $obj->getTag()
+        @list($tag, $remainder) = explode('.', $var ?: '', 2);
+        $tag = mb_strtolower($tag);
+        $rv = null;
 
-        if(!is_object($rv))
-            return $rv;
+        if (!is_object($obj)) {
+            if ($tag && is_array($obj) && array_key_exists($tag, $obj))
+                $rv = $obj[$tag];
+            else
+                // Not able to continue the lookup
+                return '';
+        }
+        else {
+            if (!$var) {
+                if (method_exists($obj, 'asVar'))
+                    return call_user_func(array($obj, 'asVar'), $this);
+                elseif (method_exists($obj, '__toString'))
+                    return (string) $obj;
+            }
+            if (method_exists($obj, 'getVar')) {
+                $rv = $obj->getVar($tag, $this);
+            }
+            if (!isset($rv) && property_exists($obj, $tag)) {
+                $rv = $obj->{$tag};
+            }
+            if (!isset($rv) && is_callable(array($obj, 'get'.ucfirst($tag)))) {
+                $rv = call_user_func(array($obj, 'get'.ucfirst($tag)));
+            }
+        }
 
-        return $this->getVar($rv, $remainder);
+        // Recurse with $rv
+        if (is_object($rv) || $remainder)
+            return $this->getVar($rv, $remainder);
+
+        return $rv;
     }
 
     function replaceVars($input) {
@@ -154,7 +164,8 @@ class VariableReplacer {
         $vars = array();
         foreach($result[0] as $k => $v) {
             if(isset($vars[$v])) continue;
-            $val=$this->_resolveVar($result[1][$k]);
+            // Format::html_balance() may urlencode() the contents here
+            $val=$this->_resolveVar(rawurldecode($result[1][$k]));
             if($val!==false)
                 $vars[$v] = $val;
         }
@@ -252,7 +263,7 @@ class VariableReplacer {
             return false;
 
         $contextTypes = array(
-            'activity' => __('Type of recent activity'),
+            'activity' => array('class' => 'ThreadActivity', 'desc' => __('Type of recent activity')),
             'assignee' => array('class' => 'Staff', 'desc' => __('Assigned agent/team')),
             'assigner' => array('class' => 'Staff', 'desc' => __('Agent performing the assignment')),
             'comments' => __('Assign/transfer comments'),
@@ -266,6 +277,7 @@ class VariableReplacer {
             'signature' => 'Selected staff or department signature',
             'staff' => array('class' => 'Staff', 'desc' => 'Agent originating the activity'),
             'ticket' => array('class' => 'Ticket', 'desc' => 'The ticket'),
+            'task' => array('class' => 'Task', 'desc' => 'The task'),
             'user' => array('class' => 'User', 'desc' => __('Message recipient')),
         );
         $context = array();
@@ -374,7 +386,7 @@ class TextWithExtras {
 
 interface TemplateVariable {
     // function asVar(); — not absolutely required
-    // function getVar($name); — not absolutely required
+    // function getVar($name, $parser); — not absolutely required
     static function getVarScope();
 }
 ?>

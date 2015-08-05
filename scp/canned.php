@@ -18,7 +18,7 @@ include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
 if(!$thisstaff
-        || !$thisstaff->getRole()->hasPerm(CannedModel::PERM_MANAGE)
+        || !$thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
@@ -45,20 +45,19 @@ if ($_POST) {
             } elseif($canned->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this canned response'));
+
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
+                // Upload NEW attachments IF ANY - TODO: validate attachment types??
                 $keepers = $canned_form->getField('attachments')->getClean();
+                $canned->attachments->keepOnlyFileIds($keepers, false);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
                     $images = $draft->getAttachmentIds($_POST['response']);
-                    $images = array_map(function($i) { return $i['id']; }, $images);
-                    $keepers = array_merge($keepers, $images);
+                    $canned->attachments->keepOnlyFileIds($images, true);
                 }
-
-                // Upload NEW attachments IF ANY - TODO: validate attachment types??
-                $canned->attachments->keepOnlyFileIds($keepers);
 
                 // XXX: Handle nicely notifying a user that the draft was
                 // deleted | OR | show the draft for the user on the name
@@ -73,7 +72,7 @@ if ($_POST) {
             }
             break;
         case 'create':
-            $premade = FAQ::create();
+            $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;

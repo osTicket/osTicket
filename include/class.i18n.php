@@ -461,6 +461,28 @@ class Internationalization {
         return $locales;
     }
 
+    static function sortKeyedList($list, $case=false) {
+        global $cfg;
+
+        if ($cfg && function_exists('collator_create')) {
+            $coll = Collator::create($cfg->getPrimaryLanguage());
+            if (!$case)
+                $coll->setStrength(Collator::TERTIARY);
+            // UASORT is necessary to preserve the keys
+            uasort($list, function($a, $b) use ($coll) {
+                return $coll->compare($a, $b); });
+        }
+        else {
+            if (!$case)
+                uasort($list, function($a, $b) {
+                    return strcmp(mb_strtoupper($a), mb_strtoupper($b)); });
+            else
+                // Really only works on ascii names
+                asort($list);
+        }
+        return $list;
+    }
+
     static function bootstrap() {
 
         require_once INCLUDE_DIR . 'class.translation.php';

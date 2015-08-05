@@ -15,7 +15,7 @@ if (($lang = Internationalization::getCurrentLanguage())
 <body>
     <div id="wizard">
         <div id="header">
-            <img id="logo" src="./images/<?php echo $wizard['logo']?$wizard['logo']:'logo.png'; ?>" width="280" height="72" alt="osTicket">
+            <img id="logo" src="./images/<?php echo $wizard['logo'] ?: 'logo.png'; ?>" alt="osTicket">
             <div class="info"><?php echo $wizard['tagline']; ?></div>
             <br/>
             <ul class="links">

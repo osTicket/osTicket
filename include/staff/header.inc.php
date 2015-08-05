@@ -65,7 +65,7 @@ if ($lang) {
             <?php }else{ ?>
             | <a href="index.php" class="no-pjax"><?php echo __('Agent Panel'); ?></a>
             <?php } ?>
-            | <a href="profile.php"><?php echo __('My Preferences'); ?></a>
+            | <a href="profile.php"><?php echo __('Profile'); ?></a>
             | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax"><?php echo __('Log Out'); ?></a>
         </p>
         <a href="index.php" class="no-pjax" id="logo">
@@ -100,4 +100,8 @@ if ($lang) {
             <div id="msg_notice"><?php echo $msg; ?></div>
         <?php }elseif($warn) { ?>
             <div id="msg_warning"><?php echo $warn; ?></div>
-        <?php } ?>
+        <?php }
+        foreach (Messages::getMessages() as $M) { ?>
+            <div class="<?php echo strtolower($M->getLevel()); ?>-banner"><?php
+                echo (string) $M; ?></div>
+<?php   } ?>

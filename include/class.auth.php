@@ -1,6 +1,8 @@
 <?php
 
 interface AuthenticatedUser {
+/* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue
+ * ------------------------------------------------------------
     // Get basic information
     function getId();
     function getUsername();
@@ -20,6 +22,7 @@ interface AuthenticatedUser {
     // Signal method to allow performing extra things when a user is logged
     // into the sysem
     function onLogin($bk);
+ */
 }
 
 abstract class BaseAuthenticatedUser
@@ -212,7 +215,7 @@ abstract class AuthenticationBackend {
             $bk->audit($result, $credentials);
     }
 
-    static function process($username, $password=null, &$errors) {
+    static function process($username, $password=null, &$errors=array()) {
 
         if (!$username)
             return false;
@@ -1223,7 +1226,7 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
-                || $id != $client->getId())
+                || $id != 'c'.$client->getId())
             $errors['msg'] = __('Invalid reset token');
         elseif (!($ts = $_config->lastModified($_POST['token']))
                 && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
@@ -1258,9 +1261,9 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
             return false;
         elseif (!($id = $_config->get($_GET['token'])))
             return false;
-        elseif (!($acct = ClientAccount::lookup(array('user_id'=>$id)))
+        elseif (!($acct = ClientAccount::lookup(array('user_id'=>substr($id,1))))
                 || !$acct->getId()
-                || $id != $acct->getUserId()
+                || $id != 'c'.$acct->getUserId()
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             return false;
         else

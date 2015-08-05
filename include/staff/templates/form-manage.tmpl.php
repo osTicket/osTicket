@@ -23,20 +23,10 @@ foreach ($forms as $e) { ?>
 <?php } ?>
 </div>
 <hr/>
+<div>
 <i class="icon-plus"></i>&nbsp;
 <select name="new-form" onchange="javascript:
-    var $sel = $(this).find('option:selected');
-    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
-        .text(' '+$sel.text())
-        .data('id', $sel.val())
-        .prepend($('<i>').addClass('icon-reorder'))
-        .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val($sel.val()))
-        .append($('<div></div>').addClass('button-group')
-          .append($('<div></div>').addClass('delete')
-            .append($('<a href=\'#\'>').append($('<i>').addClass('icon-trash')))
-        ))
-    );
-    $sel.prop('disabled',true);">
+    $(this).parent().find('button').trigger('click');">
 <option selected="selected" disabled="disabled"><?php
     echo __('Add a form'); ?></option>
 <?php foreach (DynamicForm::objects()->filter(array(
@@ -48,6 +38,36 @@ foreach ($forms as $e) { ?>
     echo $f->getTitle(); ?></option><?php
 } ?>
 </select>
+<button type="button" class="inline green button" onclick="javascript:
+    var select = $(this).parent().find('select'),
+        $sel = select.find('option:selected'),
+        id = $sel.val();
+    if (!id || !parseInt(id))
+        return;
+    if ($sel.prop('disabled'))
+        return;
+    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
+        .text(' '+$sel.text())
+        .data('id', id)
+        .prepend($('<i>').addClass('icon-reorder'))
+        .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val(id))
+        .append($('<div></div>').addClass('button-group')
+          .append($('<div></div>').addClass('delete')
+            .append($('<a href=\'#\'>')
+              .append($('<i>').addClass('icon-trash'))
+              .click(function() {
+                $sel.prop('disabled',false);
+                $(this).closest('div.row-item').remove();
+                $('#delete-warning').show();
+                return false;
+              })
+            )
+        ))
+    );
+    $sel.prop('disabled',true);"><i class="icon-plus-sign"></i>
+<?php echo __('Add'); ?></button>
+</div>
+
 <div id="delete-warning" style="display:none">
 <hr>
     <div id="msg_warning"><?php echo __(
@@ -70,13 +90,5 @@ foreach ($forms as $e) { ?>
 <script type="text/javascript">
 $(function() {
     $('#ticket-entries').sortable({containment:'parent',tolerance:'pointer'});
-    $(document).on('click', '#ticket-entries .delete a', function() {
-        var $div = $(this).closest('.sortable.row-item');
-        $('select[name=new-form]').find('option[data-id='+$div.data('id')+']')
-            .prop('disabled',false);
-        $div.remove();
-        $('#delete-warning').show();
-        return false;
-    })
 });
 </script>

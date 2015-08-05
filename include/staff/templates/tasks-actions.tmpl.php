@@ -3,7 +3,7 @@
 
 $actions = array();
 
-if ($agent->hasPerm(Task::PERM_CLOSE)) {
+if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
 
     if (isset($options['status'])) {
         $status = $options['status'];
@@ -26,7 +26,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE)) {
                     <a class="no-pjax tasks-action"
                         href="#tasks/mass/reopen"><i
                         class="icon-fixed-width icon-undo"></i> <?php
-                        echo __('Reopen Tasks');?> </a>
+                        echo __('Reopen');?> </a>
                 </li>
                 <?php
                 }
@@ -36,7 +36,7 @@ if ($agent->hasPerm(Task::PERM_CLOSE)) {
                     <a class="no-pjax tasks-action"
                         href="#tasks/mass/close"><i
                         class="icon-fixed-width icon-ok-circle"></i> <?php
-                        echo __('Close Tasks');?> </a>
+                        echo __('Close');?> </a>
                 </li>
                 <?php
                 } ?>
@@ -48,38 +48,39 @@ if ($agent->hasPerm(Task::PERM_CLOSE)) {
         $actions += array(
                 'reopen' => array(
                     'icon' => 'icon-undo',
-                    'action' => __('Reopen Tasks')
+                    'action' => __('Reopen')
                 ));
 
         $actions += array(
                 'close' => array(
                     'icon' => 'icon-ok-circle',
-                    'action' => __('Close Tasks')
+                    'action' => __('Close')
                 ));
     }
 }
 
-if ($agent->hasPerm(Task::PERM_ASSIGN)) {
+if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
             'assign' => array(
                 'icon' => 'icon-user',
-                'action' => __('Assign Tasks')
+                'action' => __('Assign')
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_TRANSFER)) {
+if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
-                'action' => __('Transfer Tasks')
+                'action' => __('Transfer')
             ));
 }
 
-if ($agent->hasPerm(Task::PERM_DELETE)) {
+if ($agent->hasPerm(Task::PERM_DELETE, false)) {
     $actions += array(
             'delete' => array(
+                'class' => 'danger',
                 'icon' => 'icon-trash',
-                'action' => __('Delete Tasks')
+                'action' => __('Delete')
             ));
 }
 if ($actions) {
@@ -98,11 +99,13 @@ if ($actions) {
         class="action-dropdown anchor-right">
         <ul>
     <?php foreach ($actions as $a => $action) { ?>
-            <li>
+            <li <?php
+                if ($action['class'])
+                    echo sprintf("class='%s'", $action['class']); ?> >
                 <a class="no-pjax tasks-action"
                     <?php
                     if ($action['dialog'])
-                        echo sprintf("data-dialog='%s'", $action['dialog']);
+                        echo sprintf("data-dialog-config='%s'", $action['dialog']);
                     if ($action['redirect'])
                         echo sprintf("data-redirect='%s'", $action['redirect']);
                     ?>
@@ -120,8 +123,8 @@ if ($actions) {
  } ?>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tasks');
-    $(document).on('click.tasks', 'a.tasks-action', function(e) {
+    $(document).off('.tasks-actions');
+    $(document).on('click.tasks-actions', 'a.tasks-action', function(e) {
         e.preventDefault();
         var count = checkbox_checker($('form#tasks'), 1);
         if (count) {

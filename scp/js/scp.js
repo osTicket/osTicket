@@ -84,14 +84,18 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
+    $('#actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
-        var formObj = $(this).closest('form');
-        e.preventDefault();
-        if($('.dialog#confirm-action p#'+this.name+'-confirm').length == 0) {
-            alert('Unknown action '+this.name+' - get technical help.');
+        var formObj,
+            name = this.name || $(this).data('name');
+        if ($(this).data('formId'))
+            formObj = $('#' + $(this).data('formId'));
+        else
+            formObj = $(this).closest('form');
+        if($('.dialog#confirm-action p#'+name+'-confirm').length === 0) {
+            alert('Unknown action '+name+' - get technical help.');
         } else if(checkbox_checker(formObj, 1)) {
-            var action = this.name;
+            var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
@@ -103,11 +107,11 @@ var scp_prep = function() {
              });
             $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p#'+this.name+'-confirm')
+            $('.dialog#confirm-action p#'+name+'-confirm')
             .show()
             .parent('div').show().trigger('click');
         }
-
+        e.preventDefault();
         return false;
      });
 
@@ -132,7 +136,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).css('color', 'red');
+            $('input[type=submit]', fObj).addClass('save pending');
             $(window).bind('beforeunload', function(e) {
                 return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
@@ -142,14 +146,14 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save :input[name]").change(function() {
+    $("form#save").on('change', ':input[name]', function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save :input[type=reset]").click(function() {
+    $("form#save").on('change', ':input[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
-            $('input[type=submit]', fObj).removeAttr('style');
+            $('input[type=submit]', fObj).removeClass('save pending');
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
@@ -248,11 +252,13 @@ var scp_prep = function() {
 
     /* Typeahead tickets lookup */
     var last_req;
-    $('#basic-ticket-search').typeahead({
+    $('input.basic-search').typeahead({
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
+            var $el = this.$element;
+            var url = $el.data('url')+'?q='+query;
             last_req = $.ajax({
-                url: "ajax.php/tickets/lookup?q="+query,
+                url: url,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);
@@ -260,9 +266,10 @@ var scp_prep = function() {
             });
         },
         onselect: function (obj) {
-            var form = $('#basic-ticket-search').closest('form');
+            var $el = this.$element;
+            var form = $el.closest('form');
             form.find('input[name=search-type]').val('typeahead');
-            $('#basic-ticket-search').val(obj.value);
+            $el.val(obj.value);
             form.submit();
         },
         property: "matches"
@@ -347,72 +354,6 @@ var scp_prep = function() {
         left : ($(window).width() - $("#loading").outerWidth()) / 2
     });
 
-    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
-        switch($(this).children('option:selected').data('state')) {
-            case 'closed':
-                $('select#assignee')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#flag')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#staffId').removeAttr('disabled');
-                break;
-            case 'open':
-                $('select#staffId')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-                break;
-            default:
-                $('select#staffId').removeAttr('disabled');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-        }
-    });
-
-    $('#advanced-search form#search').submit(function(e) {
-        e.preventDefault();
-        var fObj = $(this);
-        var elem = $('#advanced-search');
-        $('#result-count').html('');
-        fixupDatePickers.call(this);
-        $.ajax({
-                url: "ajax.php/tickets/search",
-                data: fObj.serialize(),
-                dataType: 'json',
-                beforeSend: function ( xhr ) {
-                   $('.buttons', elem).hide();
-                   $('.spinner', elem).show();
-                   return true;
-                },
-                success: function (resp) {
-
-                    if(resp.success) {
-                        $('#result-count').html('<div class="success">' + resp.success +'</div>');
-                    } else if (resp.fail) {
-                        $('#result-count').html('<div class="fail">' + resp.fail +'</div>');
-                    } else {
-                        $('#result-count').html('<div class="fail">Unknown error</div>');
-                    }
-                }
-            })
-            .done( function () {
-             })
-            .fail( function () {
-                $('#result-count').html('<div class="fail">'
-                    + __('Advanced search failed - try again!') + '</div>');
-            })
-            .always( function () {
-                $('.spinner', elem).hide();
-                $('.buttons', elem).show();
-             });
-    });
-
    // Return a helper with preserved width of cells
    var fixHelper = function(e, ui) {
       ui.children().each(function() {
@@ -445,7 +386,7 @@ var scp_prep = function() {
 
 
    // Make translatable fields translatable
-   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
+   $('input[data-translate-tag]').translatable();
 
    if (window.location.hash) {
      $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
@@ -514,6 +455,11 @@ var scp_prep = function() {
          }
        }
     });
+  });
+
+  $('div.tab_content[id] div.error:not(:empty)').each(function() {
+    var div = $(this).closest('.tab_content');
+    $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
   });
 
   $('[data-toggle="tooltip"]').tooltip()
@@ -657,7 +603,7 @@ $.dialog = function (url, codes, cb, options) {
     $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
     $popup.resize().show();
-    $('div.body', $popup).load(url, function () {
+    $('div.body', $popup).load(url, options.data, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({
             duration: 300,
@@ -708,6 +654,10 @@ $.dialog = function (url, codes, cb, options) {
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
+                        $('div.tab_content[id] div.error:not(:empty)', $popup).each(function() {
+                          var div = $(this).closest('.tab_content');
+                          $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+                        });
                     }
                 }
             })
@@ -720,6 +670,16 @@ $.dialog = function (url, codes, cb, options) {
      });
     if (options.onload) { options.onload(); }
  };
+$(document).on('click', 'a[data-dialog]', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var link = $(this);
+    $.dialog($(this).data('dialog'), 201, function() {
+      if (link.attr('href').length > 1) $.pjax.click(event, '#pjax-container');
+      else $.pjax.reload('#pjax-container');
+    });
+    return false;
+});
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
@@ -802,8 +762,134 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
++function($) {
+  var MessageBar = function() {
+    this.defaults = {
+      avatar: 'oscar-boy',
+      bar: '<div class="message bar"></div>',
+      button: '<button type="button" class="inline button"></button>',
+      buttonClass: '',
+      buttonText: __('OK'),
+      classes: '',
+      dismissible: true,
+      html: false,
+      onok: null,
+      position: 'top',
+    };
+
+    this.show = function(title, message, options) {
+      this.hide();
+      options = $.extend({}, this.defaults, options);
+      var bar = this.bar = $(options.bar).addClass(options.classes)
+        .append($('<div class="title"></div>').html(title))
+        .append($('<div class="body"></div>').html(message))
+        .addClass(options.position);
+      if (options.avatar)
+        bar.prepend($('<div class="avatar pull-left" title="Oscar"></div>')
+            .addClass(options.avatar));
+
+      if (options.onok || options.dismissible) {
+        bar
+          .prepend($('<div><div class="valign-helper"></div></div>')
+            // FIXME: This is not compatible with .rtl
+            .css({position: 'absolute', top: 0, bottom: 0, right: 0, margin: '0 15px'})
+            .append($(options.button)
+              .text(options.buttonText)
+              .click(this.dismiss.bind(this))
+              .addClass(options.buttonClass)
+            )
+          );
+      }
+      this.visible = true;
+      this.options = options;
+
+      $('body').append(bar);
+      this.height = bar.height();
+
+      // Slight slide in
+      if (options.position == 'bottom') {
+        bar.css('bottom', -this.height/2).animate({'bottom': 0});
+      }
+      // Otherwise assume TOP positioning
+      else {
+        var hovering = false,
+            y = $(window).scrollTop(),
+            targetY = (y < this.height) ? -this.height - 10 + y : 0;
+        bar.css('top', -this.height/2).animate({'top': targetY});
+
+        // Plop out on mouse hover
+        bar.hover(function() {
+          if (!hovering && this.visible && bar.css('top') != '0') {
+            bar.stop().animate({'margin-top': -parseInt(bar.css('top'), 10)}, 400, 'easeOutBounce');
+            hovering = true;
+          }
+        }.bind(this), function() {
+          if (this.visible && hovering) {
+            bar.stop().animate({'margin-top': 0});
+            hovering = false;
+          }
+        }.bind(this));
+      }
+
+      return bar;
+    };
+
+    this.scroll = function(event) {
+      // Shade on scroll to top
+      if (!this.visible || this.options.position != 'top')
+        return;
+      var y = $(window).scrollTop();
+      if (y < this.height) {
+        this.bar.css({top: -this.height -10 + y});
+        this.shading = true;
+      }
+      else if (this.bar.css('top') != '0') {
+        if (this.shading) {
+          this.bar.stop().animate({top: 0});
+          this.shading = false;
+        }
+      }
+    };
+
+    this.dismiss = function(event) {
+      if (this.options.onok) {
+        this.bar.find('button').replaceWith(
+          $('<i class="icon-spinner icon-spin icon-large"></i>')
+        );
+        if (this.options.onok(event) === false)
+          return;
+      }
+      this.hide();
+    };
+
+    this.hide = function() {
+      if (!this.bar || !this.visible)
+        return;
+      var bar = this.bar.removeAttr('style');
+      var dir = this.options.position == 'bottom' ? 'down' : 'up';
+      // NOTE: destroy() is not called here because a new bar might be
+      //       created before the animation finishes
+      bar.hide("slide", { direction: dir }, 400, function() { bar.remove(); });
+      this.visible = false;
+    };
+
+    this.destroy = function() {
+      if (!this.bar || !this.visible)
+        return;
+      this.bar.remove();
+      this.visible = false;
+    };
+
+    // Destroy on away navigation
+    $(document).on('pjax:start.messageBar', this.destroy.bind(this));
+    $(window).on('scroll.messageBar', this.scroll.bind(this));
+  };
+
+  $.messageBar = new MessageBar();
+}(window.jQuery);
+
 // Tabs
-$(document).on('click.tab', 'ul.tabs li a', function(e) {
+$(document).on('click.tab', 'ul.tabs > li > a', function(e) {
     e.preventDefault();
     var $this = $(this),
         $ul = $(this).closest('ul'),
@@ -824,10 +910,13 @@ $(document).on('click.tab', 'ul.tabs li a', function(e) {
                 // TODO: Add / hide loading spinner
             })
          );
+        $this.removeData('url');
     }
     else {
         $tab.addClass('tab_content');
-        $.changeHash($(this).attr('href'), true);
+        // Don't change the URL hash for nested tabs or in dialogs
+        if ($(this).closest('.tab_content, .dialog').length == 0)
+            $.changeHash($(this).attr('href'), true);
     }
 
     if ($tab.length) {
@@ -867,7 +956,8 @@ $.changeHash = function(hash, quiet) {
 
 // Forms — submit, stay on same tab
 $(document).on('submit', 'form', function() {
-    $(this).attr('action', $(this).attr('action') + window.location.hash);
+    if ($(this).attr('action').indexOf('#') == -1)
+        $(this).attr('action', $(this).attr('action') + window.location.hash);
 });
 
 //Collaborators
@@ -894,9 +984,6 @@ getConfig = (function() {
 })();
 
 $(document).on('pjax:click', function(options) {
-    // Release ticket lock (maybe)
-    if ($.autoLock !== undefined)
-        $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
 
@@ -956,6 +1043,29 @@ if ($.support.pjax) {
   })
 }
 
+// Quick-Add dialogs
+$(document).on('change', 'select[data-quick-add]', function() {
+    var $select = $(this),
+        selected = $select.find('option:selected'),
+        type = selected.parent().closest('[data-quick-add]').data('quickAdd');
+    if (!type || (selected.data('quickAdd') === undefined && selected.val() !== ':new:'))
+        return;
+    $.dialog('ajax.php/admin/quick-add/' + type, 201,
+    function(xhr, data) {
+        data = JSON.parse(data);
+        if (data && data.id && data.name) {
+          var id = data.id;
+          if (selected.data('idPrefix'))
+            id = selected.data('idPrefix') + id;
+          $('<option>')
+            .attr('value', id)
+            .text(data.name)
+            .insertBefore(selected)
+          $select.val(id);
+        }
+    });
+});
+
 // Quick note interface
 $(document).on('click.note', '.quicknote .action.edit-note', function() {
     var note = $(this).closest('.quicknote'),
@@ -965,7 +1075,7 @@ $(document).on('click.note', '.quicknote .action.edit-note', function() {
         T.addClass('no-bar small');
     body.replaceWith(T);
     $.redact(T);
-    $(T).redactor('focus');
+    $(T).redactor('focus.setStart');
     note.find('.action.edit-note').hide();
     note.find('.action.save-note').show();
     note.find('.action.cancel-edit').show();
@@ -977,7 +1087,7 @@ $(document).on('click.note', '.quicknote .action.cancel-edit', function() {
         T = note.find('textarea'),
         body = $('<div class="body">');
     body.load('ajax.php/note/' + note.data('id'), function() {
-      try { T.redactor('destroy'); } catch (e) {}
+      try { T.redactor('core.destroy'); } catch (e) {}
       T.replaceWith(body);
       note.find('.action.save-note').hide();
       note.find('.action.cancel-edit').hide();
@@ -990,10 +1100,10 @@ $(document).on('click.note', '.quicknote .action.save-note', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea');
     $.post('ajax.php/note/' + note.data('id'),
-      { note: T.redactor('get') },
+      { note: T.redactor('code.get') },
       function(html) {
         var body = $('<div class="body">').html(html);
-        try { T.redactor('destroy'); } catch (e) {}
+        try { T.redactor('core.destroy'); } catch (e) {}
         T.replaceWith(body);
         note.find('.action.save-note').hide();
         note.find('.action.cancel-edit').hide();
@@ -1024,9 +1134,9 @@ $(document).on('click', '#new-note', function() {
     button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
-        { note: T.redactor('get'), no_options: note.hasClass('no-options') },
+        { note: T.redactor('code.get'), no_options: note.hasClass('no-options') },
         function(response) {
-          $(T).redactor('destroy').replaceWith(note);
+          $(T).redactor('core.destroy').replaceWith(note);
           $(response).show('highlight').insertBefore(note.parent());
           $('.submit', note.parent()).remove();
         },
@@ -1039,7 +1149,7 @@ $(document).on('click', '#new-note', function() {
     $('<p>').addClass('submit').css('text-align', 'center')
         .append(button).appendTo(T.parent());
     $.redact(T);
-    $(T).redactor('focus');
+    $(T).redactor('focus.setStart');
     return false;
 });
 

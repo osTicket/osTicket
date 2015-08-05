@@ -132,7 +132,7 @@ class DbTimezone {
 
     function get_date_offset($checks) {
         static $fragment =
-            "-time_to_sec(timediff('%s', convert_tz('%s', @@session.time_zone, '+00:00'))) DIV 60";
+            "time_to_sec(timediff('%s', convert_tz('%s', @@session.time_zone, '+00:00'))) DIV 60";
 
         if (!is_array($checks))
             $checks = func_get_args();

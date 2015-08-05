@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__file__) . "/class.module.php";
-
 class Unpacker extends Module {
 
     var $prologue = "Unpacks osTicket into target install path";
@@ -33,6 +31,10 @@ class Unpacker extends Module {
              administrator should chose to locate it separate from the
              main installation path.",
     );
+
+    var $manifest;
+    var $source;
+    var $destination;
 
     function realpath($path) {
         return ($p = realpath($path)) ? $p : $path;
@@ -88,8 +90,52 @@ class Unpacker extends Module {
         return false;
     }
 
-    function copyFile($src, $dest) {
-        return copy($src, $dest);
+    function readManifest($file) {
+        if (isset($this->manifest))
+            return @$this->manifest[$file] ?: null;
+
+        $this->manifest = $lines = array();
+        $path = $this->get_include_dir() . '/.MANIFEST';
+        if (!is_file($path))
+            return null;
+
+        if (!preg_match_all('/^(\w+) (.+)$/mu', file_get_contents($path),
+            $lines, PREG_PATTERN_ORDER)
+        ) {
+            return null;
+        }
+
+        $this->manifest = array_combine($lines[2], $lines[1]);
+        return @$this->manifest[$file] ?: null;
+    }
+
+    function hashFile($file) {
+        static $hashes = array();
+
+        if (!isset($hashes[$file])) {
+            $md5 = md5_file($file);
+            $sha1 = sha1_file($file);
+            $hash = substr($md5, -20) . substr($sha1, -20);
+            $hashes[$file] = $hash;
+        }
+        return $hashes[$file];
+    }
+
+    function isChanged($source, $hash=false) {
+        $local = str_replace($this->source.'/', '', $source);
+        $hash = $hash ?: $this->hashFile($source);
+        return $this->readManifest($local) != $hash;
+    }
+
+    function updateManifest($file, $hash=false) {
+        $hash = $hash ?: $this->hashFile($file);
+        $local = str_replace($this->source.'/', '', $file);
+        $this->manifest[$local] = $hash;
+    }
+
+    function copyFile($src, $dest, $hash=false, $mode=0644) {
+        $this->updateManifest($src, $hash);
+        return copy($src, $dest) && chmod($dest, $mode);
     }
 
     /**
@@ -116,15 +162,17 @@ class Unpacker extends Module {
             if ($this->exclude($exclude, $file))
                 continue;
             if (is_file($file)) {
-                if (!is_dir($destination) && !$dryrun)
-                    mkdir($destination, 0751, true);
                 $target = $destination . basename($file);
-                if (is_file($target) && (md5_file($target) == md5_file($file)))
+                $hash = $this->hashFile($file);
+                if (is_file($target) && !$this->isChanged($file, $hash))
                     continue;
                 if ($verbose)
                     $this->stdout->write($target."\n");
-                if (!$dryrun)
-                    $this->copyFile($file, $target);
+                if ($dryrun)
+                    continue;
+                if (!is_dir($destination))
+                    mkdir($destination, 0755, true);
+                $this->copyFile($file, $target, $hash);
             }
         }
         if ($recurse) {
@@ -144,18 +192,27 @@ class Unpacker extends Module {
     }
 
     function get_include_dir() {
-        $bootstrap_php = $this->destination . '/bootstrap.php';
-        $lines = preg_grep("/define\s*\(\s*'INCLUDE_DIR'/",
-            explode("\n", file_get_contents($bootstrap_php)));
+        static $location;
 
-        // NOTE: that this won't work for crafty folks who have a define or some
-        //       variable in the value of their include path
-        if (!defined('ROOT_DIR'))
-            define('ROOT_DIR', rtrim($this->destination, '/').'/');
-        foreach ($lines as $line)
-            eval($line);
+        if (isset($location))
+            return $location;
 
-        return rtrim(INCLUDE_DIR, '/').'/';
+        $pipes = array();
+        $php = proc_open('php', array(
+            0 => array('pipe', 'r'),
+            1 => array('pipe', 'w'),
+        ), $pipes);
+
+        fwrite($pipes[0], "<?php
+        include '{$this->destination}/bootstrap.php';
+        print INCLUDE_DIR;
+        ");
+        fclose($pipes[0]);
+
+        $INCLUDE_DIR = fread($pipes[1], 8192);
+        proc_close($php);
+
+        return $location = rtrim($INCLUDE_DIR, '/').'/';
     }
 
     function run($args, $options) {
@@ -169,7 +226,7 @@ class Unpacker extends Module {
         $upgrade = file_exists("{$this->destination}/main.inc.php");
 
         # Locate the upload folder
-        $upload = $this->find_upload_folder();
+        $upload = $this->source = $this->find_upload_folder();
 
         # Unpack the upload folder to the destination, except the include folder
         if ($upgrade)

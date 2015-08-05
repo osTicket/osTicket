@@ -18,7 +18,6 @@ include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.error.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.role.php');
-include_once(INCLUDE_DIR.'class.group.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
 include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
@@ -36,8 +35,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             'role' => array(
                 'constraint' => array('role_id' => 'Role.id'),
             ),
-            'group' => array(
-                'constraint' => array('group_id' => 'Group.id'),
+            'dept_access' => array(
+                'reverse' => 'StaffDeptAccess.staff',
             ),
             'teams' => array(
                 'reverse' => 'TeamMember.staff',
@@ -52,7 +51,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     var $passwd_change;
     var $_roles = null;
     var $_teams = null;
-    var $_perms = null;
+    var $_perm;
 
     function __onload() {
 
@@ -101,8 +100,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getHashtable() {
         $base = $this->ht;
-        $base['group'] = $base['group_id'];
         unset($base['teams']);
+        unset($base['dept_access']);
         return $base;
     }
 
@@ -241,29 +240,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     function getEmail() {
         return $this->email;
     }
-    /**
-     * Get either a Gravatar URL or complete image tag for a specified email address.
-     *
-     * @param string $email The email address
-     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-     * @param boole $img True to return a complete IMG tag False for just the URL
-     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-     * @return String containing either just a URL or a complete image tag
-     * @source http://gravatar.com/site/implement/images/php/
-     */
-    function get_gravatar($s = 80, $img = false, $atts = array(), $d = 'retro', $r = 'g' ) {
-        $url = '//www.gravatar.com/avatar/';
-        $url .= md5( strtolower( $this->getEmail() ) );
-        $url .= "?s=$s&d=$d&r=$r";
-        if ( $img ) {
-            $url = '<img src="' . $url . '"';
-            foreach ( $atts as $key => $val )
-                $url .= ' ' . $key . '="' . $val . '"';
-            $url .= ' />';
-        }
-        return $url;
+
+    function getAvatar($size=null) {
+        global $cfg;
+        $source = $cfg->getStaffAvatarSource();
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getUserName() {
@@ -276,6 +260,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getName() {
         return new AgentsName(array('first' => $this->ht['firstname'], 'last' => $this->ht['lastname']));
+    }
+
+    function getAvatarAndName() {
+        return $this->getAvatar().Format::htmlchars((string) $this->getName());
     }
 
     function getFirstName() {
@@ -311,7 +299,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             // Departments the staff is "allowed" to access...
             // based on the group they belong to + user's primary dept + user's managed depts.
             $sql='SELECT DISTINCT d.id FROM '.STAFF_TABLE.' s '
-                .' LEFT JOIN '.GROUP_DEPT_TABLE.' g ON (s.group_id=g.group_id) '
+                .' LEFT JOIN '.STAFF_DEPT_TABLE.' g ON (s.staff_id=g.staff_id) '
                 .' INNER JOIN '.DEPT_TABLE.' d ON (LOCATE(CONCAT("/", s.dept_id, "/"), d.path) OR d.manager_id=s.staff_id OR LOCATE(CONCAT("/", g.dept_id, "/"), d.path)) '
                 .' WHERE s.staff_id='.db_input($this->getId());
             $depts = array();
@@ -325,8 +313,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 'path__contains' => '/'.$this->dept_id.'/',
                 'manager_id' => $this->getId(),
             ));
-            // Add in group access
-            foreach ($this->group->depts->values_flat('dept_id') as $row) {
+            // Add in extended access
+            foreach ($this->dept_access->depts->values_flat('dept_id') as $row) {
                 // Skip primary dept
                 if ($row[0] == $this->dept_id)
                     continue;
@@ -341,10 +329,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             foreach ($dept_ids as $row)
                 $depts[] = $row[0];
             */
-
-            if (!$depts) { //Neptune help us! (fallback)
-                $depts = array_merge($this->getGroup()->getDepartments(), array($this->getDeptId()));
-            }
 
             $this->departments = $depts;
         }
@@ -363,20 +347,33 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                     ))?array_keys($depts):array();
     }
 
-    function getGroupId() {
-        return $this->group_id;
-    }
-
-    function getGroup() {
-        return $this->group;
-    }
-
     function getDeptId() {
         return $this->dept_id;
     }
 
     function getDept() {
         return $this->dept;
+    }
+
+    function setDepartmentId($dept_id, $eavesdrop=false) {
+        // Grant access to the current department
+        $old = $this->dept_id;
+        if ($eavesdrop) {
+            $da = StaffDeptAccess::create(array(
+                'dept_id' => $old,
+                'role_id' => $this->role_id,
+            ));
+            $da->setAlerts(true);
+            $this->dept_access->add($da);
+        }
+
+        // Drop extended access to new department
+        $this->dept_id = $dept_id;
+        if ($da = $this->dept_access->findFirst(array(
+            'dept_id' => $dept_id))
+        ) {
+            $this->dept_access->remove($da);
+        }
     }
 
     function getLanguage() {
@@ -400,25 +397,25 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if (isset($this->_roles[$deptId]))
                 return $this->_roles[$deptId];
 
-            if (($role = $this->group->getRole($deptId)))
-                return $this->_roles[$deptId] = $role;
+            if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
+                return $this->_roles[$deptId] = $access->role;
+
+            // View only access
+            return new Role(array());
         }
         // For the primary department, use the primary role
         return $this->role;
     }
 
-    function hasPerm($perm) {
-        if (!isset($this->_perms)) {
-            $this->_perms = array();
-            foreach ($this->getDepartments() as $deptId) {
-                if (($role = $this->getRole($deptId))) {
-                    foreach ($role->getPermission()->getInfo() as $perm=>$v) {
-                        $this->_perms[$perm] |= $v;
-                    }
-                }
-            }
-        }
-        return @$this->_perms[$perm] ?: false;
+    function hasPerm($perm, $global=true) {
+        if ($global)
+            return $this->getPermission()->has($perm);
+        if ($this->getRole()->hasPerm($perm))
+            return true;
+        foreach ($this->dept_access as $da)
+            if ($da->role->hasPerm($perm))
+                return true;
+        return false;
     }
 
     function canManageTickets() {
@@ -435,10 +432,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return TRUE;
     }
 
-    function isGroupActive() {
-        return $this->group->isEnabled();
-    }
-
     function isactive() {
         return $this->isactive;
     }
@@ -452,7 +445,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     function isAvailable() {
-        return ($this->isactive() && $this->isGroupActive() && !$this->onVacation());
+        return ($this->isactive() && !$this->onVacation());
     }
 
     function showAssignedOnly() {
@@ -545,6 +538,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
     }
 
+    function getPermission() {
+        if (!isset($this->_perm)) {
+            $this->_perm = new RolePermission($this->permissions);
+        }
+        return $this->_perm;
+    }
+
+    function getPermissionInfo() {
+        return $this->getPermission()->getInfo();
+    }
+
     function onLogin($bk) {
         // Update last apparent language preference
         $this->setExtraAttr('browser_lang',
@@ -585,29 +589,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
-
-            if(!$vars['passwd1'])
-                $errors['passwd1']=__('New password is required');
-            elseif($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']=__('Passwords do not match');
-
-            if (($rtoken = $_SESSION['_staff']['reset-token'])) {
-                $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != $this->getId())
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-                elseif (!($ts = $_config->lastModified($rtoken))
-                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-            }
-            elseif(!$vars['cpasswd'])
-                $errors['cpasswd']=__('Current password is required');
-            elseif(!$this->cmp_passwd($vars['cpasswd']))
-                $errors['cpasswd']=__('Invalid current password!');
-        }
-
         if($vars['default_signature_type']=='mine' && !$vars['signature'])
             $errors['default_signature_type'] = __("You don't have a signature");
 
@@ -624,8 +605,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
 
-        if($errors) return false;
-
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
         $this->email = $vars['email'];
@@ -641,6 +620,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
+        $this->onvacation = isset($vars['onvacation'])?1:0;
+
+        if (isset($vars['avatar_code']))
+          $this->setExtraAttr('avatar', $vars['avatar_code']);
+
+        if ($errors)
+            return false;
 
         $_SESSION['::lang'] = null;
         TextDomain::configureForUser($this);
@@ -648,31 +634,30 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->save();
     }
 
-    function updateTeams($team_ids) {
+    function updateTeams($membership, &$errors) {
+        $dropped = array();
+        foreach ($this->teams as $TM)
+            $dropped[$TM->team_id] = 1;
 
-        if (is_array($team_ids)) {
-            $members = TeamMember::objects()
-                ->filter(array('staff_id' => $this->getId()));
-            foreach ($members as $member) {
-                if ($idx = array_search($member->team_id, $team_ids)) {
-                    unset($team_ids[$idx]);
-                } else {
-                    $member->delete();
-                }
+        reset($membership);
+        while(list(, list($team_id, $alerts)) = each($membership)) {
+            $member = $this->teams->findFirst(array('team_id' => $team_id));
+            if (!$member) {
+                $this->teams->add($member = TeamMember::create(array(
+                    'team_id' => $team_id,
+                )));
             }
-
-            foreach ($team_ids as $id) {
-                TeamMember::create(array(
-                    'staff_id'=>$this->getId(),
-                    'team_id'=>$id
-                ))->save();
-            }
-        } else {
-            TeamMember::objects()
-                ->filter(array('staff_id'=>$this->getId()))
-                ->delete();
+            $member->setAlerts($alerts);
+            if (!$errors)
+                $member->save();
+            unset($dropped[$member->team_id]);
         }
-
+        if (!$errors && $dropped) {
+            $member = $this->teams
+                ->filter(array('team_id__in' => array_keys($dropped)))
+                ->delete();
+            $this->teams->reset();
+        }
         return true;
     }
 
@@ -685,22 +670,24 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if (!parent::delete())
             return false;
 
-        //Update the poster and clear staff_id on ticket thread table.
-        db_query('UPDATE '.THREAD_ENTRY_TABLE
-                .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
-                .' WHERE staff_id='.db_input($this->getId()));
-
         // DO SOME HOUSE CLEANING
         //Move remove any ticket assignments...TODO: send alert to Dept. manager?
-        db_query('UPDATE '.TICKET_TABLE.' SET staff_id=0 WHERE staff_id='.db_input($this->getId()));
+        Ticket::objects()
+            ->filter(array('staff_id' => $this->getId()))
+            ->update(array('staff_id' => 0));
 
         //Update the poster and clear staff_id on ticket thread table.
-        db_query('UPDATE '.TICKET_THREAD_TABLE
-                .' SET staff_id=0, poster= '.db_input($this->getName()->getOriginal())
-                .' WHERE staff_id='.db_input($this->getId()));
+        ThreadEntry::objects()
+            ->filter(array('staff_id' => $this->getId()))
+            ->update(array(
+                'staff_id' => 0,
+                'poster' => $this->getName()->getOriginal(),
+            ));
 
         // Cleanup Team membership table.
-        $this->updateTeams(array());
+        TeamMember::objects()
+            ->filter(array('staff_id'=>$this->getId()))
+            ->delete();
 
         return true;
     }
@@ -726,7 +713,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if (isset($criteria['available'])) {
             $members = $members->filter(array(
-                'group__flags__hasbit' => Group::FLAG_ENABLED,
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
@@ -837,6 +823,66 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             $msg['body']);
     }
 
+    static function importCsv($stream, $defaults=array(), $callback=false) {
+        require_once INCLUDE_DIR . 'class.import.php';
+
+        $importer = new CsvImporter($stream);
+        $imported = 0;
+        $fields = array(
+            'firstname' => new TextboxField(array(
+                'label' => __('First name'),
+            )),
+            'lastname' => new TextboxField(array(
+                'label' => __('Last name'),
+            )),
+            'email' => new TextboxField(array(
+                'label' => __('Email Address'),
+                'configuration' => array(
+                    'validator' => 'email',
+                ),
+            )),
+            'username' => new TextboxField(array(
+                'label' => __('Username'),
+                'validators' => function($self, $value) {
+                    if (!Validator::is_username($value))
+                        $self->addError('Not a valid username');
+                },
+            )),
+        );
+        $form = new SimpleForm($fields);
+
+        try {
+            db_autocommit(false);
+            $records = $importer->importCsv($form->getFields(), $defaults);
+            foreach ($records as $data) {
+                if (!isset($data['email']) || !isset($data['username']))
+                    throw new ImportError('Both `username` and `email` fields are required');
+
+                if ($agent = self::lookup(array('username' => $data['username']))) {
+                    // TODO: Update the user
+                }
+                elseif ($agent = self::create($data, $errors)) {
+                    if ($callback)
+                        $callback($agent, $data);
+                    $agent->save();
+                }
+                else {
+                    throw new ImportError(sprintf(__('Unable to import (%s): %s'),
+                        $data['username'],
+                        print_r($errors, true)
+                    ));
+                }
+                $imported++;
+            }
+            db_autocommit(true);
+        }
+        catch (Exception $ex) {
+            db_rollback();
+            return $ex->getMessage();
+        }
+        return $imported;
+    }
+
     function save($refetch=false) {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
@@ -878,29 +924,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if($vars['mobile'] && !Validator::is_phone($vars['mobile']))
             $errors['mobile']=__('Valid phone number is required');
 
-        if($vars['passwd1'] || $vars['passwd2'] || !$vars['id']) {
-            if($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2'])) {
-                $errors['passwd2']=__('Passwords do not match');
-            }
-            elseif ($vars['backend'] != 'local' || $vars['welcome_email']) {
-                // Password can be omitted
-            }
-            elseif(!$vars['passwd1'] && !$vars['id']) {
-                $errors['passwd1']=__('Temporary password is required');
-                $errors['temppasswd']=__('Required');
-            }
-        }
-
         if(!$vars['dept_id'])
             $errors['dept_id']=__('Department is required');
         if(!$vars['role_id'])
             $errors['role_id']=__('Role for primary department is required');
 
-        if(!$vars['group_id'])
-            $errors['group_id']=__('Group is required');
-
         // Ensure we will still have an administrator with access
-        if ($vars['isadmin'] !== '1' || $vars['isactive'] !== '1') {
+        if ($vars['isadmin'] !== '1' || $vars['islocked'] === '1') {
             $sql = 'select count(*), max(staff_id) from '.STAFF_TABLE
                 .' WHERE isadmin=1 and isactive=1';
             if (($res = db_query($sql))
@@ -913,17 +943,37 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
 
-        if ($errors)
-            return false;
+        // Update some things for ::updateAccess to inspect
+        $this->setDepartmentId($vars['dept_id']);
+
+        // Format access update as [array(dept_id, role_id, alerts?)]
+        $access = array();
+        if (isset($vars['dept_access'])) {
+            foreach (@$vars['dept_access'] as $dept_id) {
+                $access[] = array($dept_id, $vars['dept_access_role'][$dept_id],
+                    @$vars['dept_access_alerts'][$dept_id]);
+            }
+        }
+        $this->updateAccess($access, $errors);
+
+        // Format team membership as [array(team_id, alerts?)]
+        $teams = array();
+        if (isset($vars['teams'])) {
+            foreach (@$vars['teams'] as $team_id) {
+                $teams[] = array($team_id, @$vars['team_alerts'][$team_id]);
+            }
+        }
+        $this->updateTeams($teams, $errors);
+
+        // Update the local permissions
+        $this->updatePerms($vars['perms'], $errors);
 
         $this->isadmin = $vars['isadmin'];
-        $this->isactive = $vars['isactive'];
+        $this->isactive = isset($vars['islocked']) ? 0 : 1;
         $this->isvisible = isset($vars['isvisible'])?1:0;
         $this->onvacation = isset($vars['onvacation'])?1:0;
         $this->assigned_only = isset($vars['assigned_only'])?1:0;
-        $this->dept_id = $vars['dept_id'];
         $this->role_id = $vars['role_id'];
-        $this->group_id = $vars['group_id'];
         $this->timezone = $vars['timezone'];
         $this->username = $vars['username'];
         $this->firstname = $vars['firstname'];
@@ -936,25 +986,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->notes = Format::sanitize($vars['notes']);
 
-        // Update the user's password if requested
-        if ($vars['passwd1']) {
-            try {
-                $this->setPassword($vars['passwd1'], null);
-            }
-            catch (BadPassword $ex) {
-                $errors['passwd1'] = $ex->getMessage();
-            }
-            catch (PasswordUpdateFailed $ex) {
-                // TODO: Add a warning banner or crash the update
-            }
-            if (isset($vars['change_passwd']))
-                $this->change_passwd = 1;
-        }
-        elseif (!isset($vars['change_passwd'])) {
-            $this->change_passwd = 0;
-        }
+        if ($errors)
+            return false;
 
-        if ($this->save() && $this->updateTeams($vars['teams'])) {
+        if ($this->save()) {
             if ($vars['welcome_email'])
                 $this->sendResetEmail('registration-staff', false);
             return true;
@@ -969,9 +1004,403 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
         return false;
     }
+
+    /**
+     * Parameters:
+     * $access - (<array($dept_id, $role_id, $alerts)>) a list of the complete,
+     *      extended access for this agent. Any the agent currently has, which
+     *      is not listed will be removed.
+     * $errors - (<array>) list of error messages from the process, which will
+     *      be indexed by the dept_id number.
+     */
+    function updateAccess($access, &$errors) {
+        reset($access);
+        $dropped = array();
+        foreach ($this->dept_access as $DA)
+            $dropped[$DA->dept_id] = 1;
+        while (list(, list($dept_id, $role_id, $alerts)) = each($access)) {
+            unset($dropped[$dept_id]);
+            if (!$role_id || !Role::lookup($role_id))
+                $errors['dept_access'][$dept_id] = __('Select a valid role');
+            if (!$dept_id || !Dept::lookup($dept_id))
+                $errors['dept_access'][$dept_id] = __('Select a valid departent');
+            if ($dept_id == $this->getDeptId())
+                $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
+            $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
+            if (!isset($da)) {
+                $da = StaffDeptAccess::create(array(
+                    'dept_id' => $dept_id, 'role_id' => $role_id
+                ));
+                $this->dept_access->add($da);
+            }
+            else {
+                $da->role_id = $role_id;
+            }
+            $da->setAlerts($alerts);
+            if (!$errors)
+                $da->save();
+        }
+        if (!$errors && $dropped) {
+            $this->dept_access
+                ->filter(array('dept_id__in' => array_keys($dropped)))
+                ->delete();
+            $this->dept_access->reset();
+        }
+        return !$errors;
+    }
+
+    function updatePerms($vars, &$errors=array()) {
+        if (!$vars) {
+            $this->permissions = '';
+            return;
+        }
+        $permissions = $this->getPermission();
+        foreach (RolePermission::allPermissions() as $g => $perms) {
+            foreach ($perms as $k => $v) {
+                $permissions->set($k, in_array($k, $vars) ? 1 : 0);
+            }
+        }
+        $this->permissions = $permissions->toJson();
+        return true;
+    }
+
 }
 
 interface RestrictedAccess {
     function checkStaffPerm($staff);
 }
-?>
+
+class StaffDeptAccess extends VerySimpleModel {
+    static $meta = array(
+        'table' => STAFF_DEPT_TABLE,
+        'pk' => array('staff_id', 'dept_id'),
+        'select_related' => array('dept', 'role'),
+        'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+            ),
+            'role' => array(
+                'constraint' => array('role_id' => 'Role.id'),
+            ),
+        ),
+    );
+
+    const FLAG_ALERTS =     0x0001;
+
+    function isAlertsEnabled() {
+        return $this->flags & self::FLAG_ALERTS != 0;
+    }
+
+    function setFlag($flag, $value) {
+        if ($value)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    function setAlerts($value) {
+        $this->setFlag(self::FLAG_ALERTS, $value);
+    }
+}
+
+/**
+ * This form is used to administratively change the password. The
+ * ChangePasswordForm is used for an agent to change their own password.
+ */
+class PasswordResetForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'welcome_email' => new BooleanField(array(
+                'default' => true,
+                'configuration' => array(
+                    'desc' => __('Send the agent a password reset email'),
+                ),
+            )),
+            'passwd1' => new PasswordField(array(
+                'placeholder' => __('New Password'),
+                'required' => true,
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'passwd2' => new PasswordField(array(
+                'placeholder' => __('Confirm Password'),
+                'required' => true,
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'change_passwd' => new BooleanField(array(
+                'default' => true,
+                'configuration' => array(
+                    'desc' => __('Require password change at next login'),
+                    'classes' => 'form footer',
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+        );
+    }
+
+    function validate($clean) {
+        if ($clean['passwd1'] != $clean['passwd2'])
+            $this->getField('passwd1')->addError(__('Passwords do not match'));
+    }
+}
+
+class PasswordChangeForm
+extends AbstractForm {
+    function buildFields() {
+        $fields = array(
+            'current' => new PasswordField(array(
+                'placeholder' => __('Current Password'),
+                'required' => true,
+                'configuration' => array(
+                    'autofocus' => true,
+                ),
+            )),
+            'passwd1' => new PasswordField(array(
+                'label' => __('Enter a new password'),
+                'placeholder' => __('New Password'),
+                'required' => true,
+            )),
+            'passwd2' => new PasswordField(array(
+                'placeholder' => __('Confirm Password'),
+                'required' => true,
+            )),
+        );
+
+        // When using the password reset system, the current password is not
+        // required for agents.
+        if (isset($_SESSION['_staff']['reset-token'])) {
+            unset($fields['current']);
+            $fields['passwd1']->set('configuration', array('autofocus' => true));
+        }
+        else {
+            $fields['passwd1']->set('layout',
+                new GridFluidCell(12, array('style' => 'padding-top: 20px'))
+            );
+        }
+        return $fields;
+    }
+
+    function getInstructions() {
+        return __('Confirm your current password and enter a new password to continue');
+    }
+
+    function validate($clean) {
+        if ($clean['passwd1'] != $clean['passwd2'])
+            $this->getField('passwd1')->addError(__('Passwords do not match'));
+    }
+}
+
+class ResetAgentPermissionsForm
+extends AbstractForm {
+    function buildFields() {
+        $permissions = array();
+        foreach (RolePermission::allPermissions() as $g => $perms) {
+            foreach ($perms as $k => $v) {
+                if (!$v['primary'])
+                    continue;
+                $permissions[$g][$k] = "{$v['title']} — {$v['desc']}";
+            }
+        }
+        return array(
+            'clone' => new ChoiceField(array(
+                'default' => 0,
+                'choices' =>
+                    array(0 => '— '.__('Clone an existing agent').' —')
+                    + Staff::getStaffMembers(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'perms' => new ChoiceField(array(
+                'choices' => $permissions,
+                'widget' => 'TabbedBoxChoicesWidget',
+                'configuration' => array(
+                    'multiple' => true,
+                ),
+            )),
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        // Index permissions as ['ticket.edit' => 1]
+        $clean['perms'] = array_keys($clean['perms']);
+        return $clean;
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
+
+class ChangeDepartmentForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'dept_id' => new ChoiceField(array(
+                'default' => 0,
+                'required' => true,
+                'label' => __('Primary Department'),
+                'choices' =>
+                    array(0 => '— '.__('Primary Department').' —')
+                    + Dept::getDepartments(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'role_id' => new ChoiceField(array(
+                'default' => 0,
+                'required' => true,
+                'label' => __('Primary Role'),
+                'choices' =>
+                    array(0 => '— '.__('Corresponding Role').' —')
+                    + Role::getRoles(),
+                'configuration' => array(
+                    'classes' => 'span12',
+                ),
+            )),
+            'eavesdrop' => new BooleanField(array(
+                'configuration' => array(
+                    'desc' => __('Maintain access to current primary department'),
+                    'classes' => 'form footer',
+                ),
+            )),
+            // alerts?
+        );
+    }
+
+    function getInstructions() {
+        return __('Change the primary department and primary role of the selected agents');
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        $clean['eavesdrop'] = $clean['eavesdrop'] ? 1 : 0;
+        return $clean;
+    }
+
+    function render($staff=true) {
+        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    }
+}
+
+class StaffQuickAddForm
+extends AbstractForm {
+    static $layout = 'GridFormLayout';
+
+    function buildFields() {
+        global $cfg;
+
+        return array(
+            'firstname' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("First Name"),
+                    'autofocus' => true,
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'lastname' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Last Name"),
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'email' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'validator' => 'email',
+                    'placeholder' => __('Email Address — e.g. me@mycompany.com'),
+                  ),
+            )),
+            'dept_id' => new ChoiceField(array(
+                'label' => __('Department'),
+                'required' => true,
+                'choices' => Dept::getDepartments(),
+                'default' => $cfg->getDefaultDeptId(),
+                'layout' => new GridFluidCell(6),
+            )),
+            'role_id' => new ChoiceField(array(
+                'label' => __('Primary Role'),
+                'required' => true,
+                'choices' =>
+                    array(0 => __('Select Role'))
+                    + Role::getRoles(),
+                'layout' => new GridFluidCell(6),
+            )),
+            'isadmin' => new BooleanField(array(
+                'label' => __('Account Type'),
+                'configuration' => array(
+                    'desc' => __('Agent has access to the admin panel'),
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'welcome_email' => new BooleanField(array(
+                'configuration' => array(
+                    'desc' => __('Send a welcome email with login information'),
+                ),
+                'default' => true,
+                'layout' => new GridFluidCell(12, array('style' => 'padding-top: 50px')),
+            )),
+            'passwd1' => new PasswordField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Temporary Password"),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false))
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'passwd2' => new PasswordField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __("Confirm Password"),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('welcome_email' => false))
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            // TODO: Add role_id drop-down
+        );
+    }
+
+    function getClean() {
+        $clean = parent::getClean();
+        list($clean['username'],) = preg_split('/[^\w.-]/u', $clean['email'], 2);
+        if (mb_strlen($clean['username']) < 3 || Staff::lookup($clean['username']))
+            $clean['username'] = mb_strtolower($clean['firstname']);
+        $clean['perms'] = array(
+            User::PERM_CREATE,
+            User::PERM_EDIT,
+            User::PERM_DELETE,
+            User::PERM_MANAGE,
+            User::PERM_DIRECTORY,
+            Organization::PERM_CREATE,
+            Organization::PERM_EDIT,
+            Organization::PERM_DELETE,
+            FAQ::PERM_MANAGE,
+        );
+        return $clean;
+    }
+}

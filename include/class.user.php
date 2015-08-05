@@ -267,29 +267,11 @@ implements TemplateVariable {
     function getEmail() {
         return new EmailAddress($this->default_email->address);
     }
-    /**
-     * Get either a Gravatar URL or complete image tag for a specified email address.
-     *
-     * @param string $email The email address
-     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-     * @param boole $img True to return a complete IMG tag False for just the URL
-     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-     * @return String containing either just a URL or a complete image tag
-     * @source http://gravatar.com/site/implement/images/php/
-     */
-    function get_gravatar($s = 80, $img = false, $atts = array(), $d = 'retro', $r = 'g' ) {
-        $url = '//www.gravatar.com/avatar/';
-        $url .= md5( strtolower( $this->default_email->address ) );
-        $url .= "?s=$s&d=$d&r=$r";
-        if ( $img ) {
-            $url = '<img src="' . $url . '"';
-            foreach ( $atts as $key => $val )
-                $url .= ' ' . $key . '="' . $val . '"';
-            $url .= ' />';
-        }
-        return $url;
+
+    function getAvatar() {
+        global $cfg;
+        $source = $cfg->getClientAvatarSource();
+        return $source->getAvatar($this);
     }
 
     function getFullName() {
@@ -360,9 +342,6 @@ implements TemplateVariable {
     }
 
     function getVar($tag) {
-        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         $tag = mb_strtolower($tag);
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
@@ -459,138 +438,31 @@ implements TemplateVariable {
     }
 
     static function importCsv($stream, $defaults=array()) {
-        //Read the header (if any)
-        $headers = array('name' => __('Full Name'), 'email' => __('Email Address'));
-        $uform = UserForm::getUserForm();
-        $all_fields = $uform->getFields();
-        $named_fields = array();
-        $has_header = true;
-        foreach ($all_fields as $f)
-            if ($f->get('name'))
-                $named_fields[] = $f;
+        require_once INCLUDE_DIR . 'class.import.php';
 
-        if (!($data = fgetcsv($stream, 1000, ",")))
-            return __('Whoops. Perhaps you meant to send some CSV records');
-
-        if (Validator::is_email($data[1])) {
-            $has_header = false; // We don't have an header!
-        }
-        else {
-            $headers = array();
-            foreach ($data as $h) {
-                $found = false;
-                foreach ($all_fields as $f) {
-                    if (in_array(mb_strtolower($h), array(
-                            mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
-                        $found = true;
-                        if (!$f->get('name'))
-                            return sprintf(__(
-                                '%s: Field must have `variable` set to be imported'), $h);
-                        $headers[$f->get('name')] = $f->get('label');
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $has_header = false;
-                    if (count($data) == count($named_fields)) {
-                        // Number of fields in the user form matches the number
-                        // of fields in the data. Assume things line up
-                        $headers = array();
-                        foreach ($named_fields as $f)
-                            $headers[$f->get('name')] = $f->get('label');
-                        break;
-                    }
-                    else {
-                        return sprintf(__('%s: Unable to map header to a user field'), $h);
-                    }
-                }
+        $importer = new CsvImporter($stream);
+        $imported = 0;
+        try {
+            db_autocommit(false);
+            $records = $importer->importCsv(UserForm::getUserForm()->getFields(), $defaults);
+            foreach ($records as $data) {
+                if (!isset($data['email']) || !isset($data['name']))
+                    throw new ImportError('Both `name` and `email` fields are required');
+                if (!($user = static::fromVars($data, true, true)))
+                    throw new ImportError(sprintf(__('Unable to import user: %s'),
+                        print_r($data, true)));
+                $imported++;
             }
+            db_autocommit(true);
         }
-
-        // 'name' and 'email' MUST be in the headers
-        if (!isset($headers['name']) || !isset($headers['email']))
-            return __('CSV file must include `name` and `email` columns');
-
-        if (!$has_header)
-            fseek($stream, 0);
-
-        $users = $fields = $keys = array();
-        foreach ($headers as $h => $label) {
-            if (!($f = $uform->getField($h)))
-                continue;
-
-            $name = $keys[] = $f->get('name');
-            $fields[$name] = $f->getImpl();
-        }
-
-        // Add default fields (org_id, etc).
-        foreach ($defaults as $key => $val) {
-            // Don't apply defaults which are also being imported
-            if (isset($header[$key]))
-                unset($defaults[$key]);
-            $keys[] = $key;
-        }
-
-        while (($data = fgetcsv($stream, 1000, ",")) !== false) {
-            if (count($data) == 1 && $data[0] == null)
-                // Skip empty rows
-                continue;
-            elseif (count($data) != count($headers))
-                return sprintf(__('Bad data. Expected: %s'), implode(', ', $headers));
-            // Validate according to field configuration
-            $i = 0;
-            foreach ($headers as $h => $label) {
-                $f = $fields[$h];
-                $T = $f->parse($data[$i]);
-                if ($f->validateEntry($T) && $f->errors())
-                    return sprintf(__(
-                        /* 1 will be a field label, and 2 will be error messages */
-                        '%1$s: Invalid data: %2$s'),
-                        $label, implode(', ', $f->errors()));
-                // Convert to database format
-                $data[$i] = $f->to_database($T);
-                $i++;
-            }
-            // Add default fields
-            foreach ($defaults as $key => $val)
-                $data[] = $val;
-
-            $users[] = $data;
-        }
-
-        db_autocommit(false);
-        $error = false;
-        foreach ($users as $u) {
-            $vars = array_combine($keys, $u);
-            if (!static::fromVars($vars, true, true)) {
-                $error = sprintf(__('Unable to import user: %s'),
-                    print_r($vars, true));
-                break;
-            }
-        }
-        if ($error)
+        catch (Exception $ex) {
             db_rollback();
-
-        db_autocommit(true);
-
-        return $error ?: count($users);
+            return $ex->getMessage();
+        }
+        return $imported;
     }
 
-    function importFromPost($stuff, $extra=array()) {
-        if (is_array($stuff) && !$stuff['error']) {
-            // Properly detect Macintosh style line endings
-            ini_set('auto_detect_line_endings', true);
-            $stream = fopen($stuff['tmp_name'], 'r');
-        }
-        elseif ($stuff) {
-            $stream = fopen('php://temp', 'w+');
-            fwrite($stream, $stuff);
-            rewind($stream);
-        }
-        else {
-            return __('Unable to parse submitted users');
-        }
-
+    function importFromPost($stream, $extra=array()) {
         return User::importCsv($stream, $extra);
     }
 
@@ -703,6 +575,11 @@ implements TemplateVariable {
 
     static function lookupByEmail($email) {
         return static::lookup(array('emails__address'=>$email));
+    }
+
+    static function getNameById($id) {
+        if ($user = static::lookup($id))
+            return $user->getName();
     }
 }
 
@@ -984,7 +861,7 @@ class UserEmail extends UserEmailModel {
 }
 
 
-class UserAccountModel extends VerySimpleModel {
+class UserAccount extends VerySimpleModel {
     static $meta = array(
         'table' => USER_ACCOUNT_TABLE,
         'pk' => array('id'),
@@ -996,11 +873,12 @@ class UserAccountModel extends VerySimpleModel {
         ),
     );
 
+    const LANG_MAILOUTS = 1;            // Language preference for mailouts
+
     var $_status;
     var $_extra;
 
-    function __construct() {
-        call_user_func_array(array('parent', '__construct'), func_get_args());
+    function __onload() {
         $this->_status = new UserAccountStatus($this->get('status'));
     }
 
@@ -1131,11 +1009,6 @@ class UserAccountModel extends VerySimpleModel {
         }
         return parent::save($refetch);
     }
-}
-
-class UserAccount extends UserAccountModel {
-
-    const LANG_MAILOUTS = 1;            // Language preference for mailouts
 
     function hasPassword() {
         return (bool) $this->get('passwd');
@@ -1187,7 +1060,7 @@ class UserAccount extends UserAccountModel {
         ), $vars);
 
         $_config = new Config('pwreset');
-        $_config->set($vars['token'], $this->getUser()->getId());
+        $_config->set($vars['token'], 'c'.$this->getUser()->getId());
 
         $email->send($this->getUser()->getEmail(),
             Format::striptags($msg['subj']), $msg['body']);

@@ -152,21 +152,10 @@ showImagesInline = function(urls, thread_id) {
             var timeout, caption = $('<div class="image-hover">')
                 .css({'float':e.css('float')});
             e.wrap(caption).parent()
-                .hover(
-                    function() {
-                        var self = this;
-                        timeout = setTimeout(
-                            function() { $(self).find('.caption').slideDown(250); },
-                            500);
-                    },
-                    function() {
-                        clearTimeout(timeout);
-                        $(this).find('.caption').slideUp(250);
-                    }
-                ).append($('<div class="caption">')
-                    .append('<span class="filename">'+info.filename+'</span>')
-                    .append($('<a href="'+info.download_url+'" class="action-button pull-right"><i class="icon-download-alt"></i> ' + __('Download') + '</a>')
+                .append($('<div class="caption">')
+                    .append($('<a href="'+info.download_url+'" class="button action-button pull-right no-pjax"><i class="icon-download-alt"></i></a>')
                       .attr('download', info.filename)
+                      .attr('title', __('Download'))
                     )
                 );
             e.data('wrapped', true);

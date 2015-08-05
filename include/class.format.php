@@ -165,7 +165,7 @@ class Format {
             $html = $doc->saveHTML();
             $html = preg_replace('`^<!DOCTYPE.+?>|<\?xml .+?>|</?html>|</?body>|</?head>|<meta .+?/?>`', '', $html); # <?php
         }
-        return preg_replace('`^<div>|</div>$`', '', $html);
+        return preg_replace('`^<div>|</div>$`', '', trim($html));
     }
 
     function html($html, $config=array()) {
@@ -288,7 +288,7 @@ class Format {
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
             'elements' => '*+iframe',
-            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder'.($spec ? '; '.$spec : ''),
+            'spec' => 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder'.($spec ? '; '.$spec : ''),
         );
 
         return Format::html($html, $config);
@@ -352,7 +352,7 @@ class Format {
     }
 
     //Format text for display..
-    function display($text, $inline_images=true) {
+    function display($text, $inline_images=true, $balance=true) {
         // Make showing offsite images optional
         $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
             function($match) {
@@ -363,8 +363,10 @@ class Format {
             },
             $text);
 
-        //make urls clickable.
-        $text = self::html_balance($text, false);
+        if ($balance)
+            $text = self::html_balance($text, false);
+
+        // make urls clickable.
         $text = Format::clickableurls($text);
 
         if ($inline_images)
@@ -724,36 +726,6 @@ class Format {
             // Normalize text input :: remove diacritics and such
             $text = normalizer_normalize($text, Normalizer::FORM_C);
         }
-        else {
-            // As a lightweight compatiblity, use a lightweight C
-            // normalizer with diacritic removal, thanks
-            // http://ahinea.com/en/tech/accented-translate.html
-            $tr = array(
-                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
-            );
-            $text = strtr($text, $tr);
-        }
-        // Decompose compatible versions of characters (ä => ae)
-        $tr = array(
-            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
-            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
-            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
-            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
-            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
-            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
-            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
-            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
-        );
-        $text = strtr($text, $tr);
-
-        // Drop separated diacritics
-        $text = preg_replace('/\p{M}/u', '', $text);
-
-        // Drop extraneous whitespace
-        $text = preg_replace('/(\s)\s+/u', '$1', $text);
-
-        // Drop leading and trailing whitespace
-        $text = trim($text);
 
         if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
@@ -772,12 +744,20 @@ class Format {
             // http://www.unicode.org/reports/tr29/#Word_Boundaries
 
             // Punt for now
+
+            // Drop extraneous whitespace
+            $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+            // Drop leading and trailing whitespace
+            $text = trim($text);
         }
         return $text;
     }
 
     function relativeTime($to, $from=false, $granularity=1) {
-        $timestamp = $to ?: Misc::gmtime();
+        if (!$to)
+            return false;
+        $timestamp = $to;
         if (gettype($timestamp) === 'string')
             $timestamp = strtotime($timestamp);
         $from = $from ?: Misc::gmtime();
@@ -891,11 +871,6 @@ implements TemplateVariable {
     }
 
     function getVar($what) {
-        global $cfg;
-
-        if (method_exists($this, 'get' . ucfirst($what)))
-            return call_user_func(array($this, 'get'.ucfirst($what)));
-
         // TODO: Rebase date format so that locale is discovered HERE.
 
         switch ($what) {
@@ -931,13 +906,21 @@ extends FormattedLocalDate {
         return (string) new FormattedLocalDate($this->date, $cfg->getTimezone(), false, $this->fromdb);
     }
 
-    function getVar($what) {
+    function getVar($what, $context=null) {
         global $cfg;
 
-        if ($rv = parent::getVar($what))
+        if ($rv = parent::getVar($what, $context))
             return $rv;
 
         switch ($what) {
+        case 'user':
+            // Fetch $recipient from the context and find that user's time zone
+            if ($context && ($recipient = $context->getObj('recipient'))) {
+                $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
+                return new FormattedLocalDate($this->date, $tz, $recipient);
+            }
+            // Don't resolve the variable until correspondance is sent out
+            return false;
         case 'system':
             return new FormattedLocalDate($this->date, $cfg->getDefaultTimezone());
         }
@@ -945,16 +928,6 @@ extends FormattedLocalDate {
 
     function getHumanize() {
         return Format::relativeTime(Misc::db2gmtime($this->date));
-    }
-
-    function getUser($context) {
-        global $cfg;
-
-        // Fetch $recipient from the context and find that user's time zone
-        if ($recipient = $context->getObj('recipient')) {
-            $tz = $recipient->getTimezone() ?: $cfg->getDefaultTimezone();
-            return new FormattedLocalDate($this->date, $tz, $recipient);
-        }
     }
 
     static function getVarScope() {

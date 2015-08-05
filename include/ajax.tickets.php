@@ -101,20 +101,23 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function acquireLock($tid) {
-        global $cfg,$thisstaff;
+        global $cfg, $thisstaff;
 
         if(!$tid || !is_numeric($tid) || !$thisstaff || !$cfg || !$cfg->getLockTime())
             return 0;
 
-        if(!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))
-            return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
+        if (!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))
+            return $this->encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Lock denied!')));
 
         //is the ticket already locked?
-        if($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
+        if ($ticket->isLocked() && ($lock=$ticket->getLock()) && !$lock->isExpired()) {
             /*Note: Ticket->acquireLock does the same logic...but we need it here since we need to know who owns the lock up front*/
             //Ticket is locked by someone else.??
-            if($lock->getStaffId()!=$thisstaff->getId())
-                return $this->json_encode(array('id'=>0, 'retry'=>false, 'msg'=>__('Unable to acquire lock.')));
+            if ($lock->getStaffId() != $thisstaff->getId())
+                return $this->json_encode(array('id'=>0, 'retry'=>false,
+                    'msg' => sprintf(__('Currently locked by %s'),
+                        $lock->getStaff()->getAvatarAndName())
+                    ));
 
             //Ticket already locked by staff...try renewing it.
             $lock->renew(); //New clock baby!
@@ -130,56 +133,60 @@ class TicketsAjaxAPI extends AjaxController {
         ));
     }
 
-    function renewLock($tid, $id) {
+    function renewLock($id, $ticketId) {
         global $thisstaff;
 
-        if(!$tid || !is_numeric($tid) || !$id || !is_numeric($id) || !$thisstaff)
-            return $this->json_encode(array('id'=>0, 'retry'=>true));
+        if (!$id || !is_numeric($id) || !$thisstaff)
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false)));
+        if (!($lock = Lock::lookup($id)))
+            Http::response(404, $this->encode(array('id'=>0, 'retry'=>'acquire')));
+        if (!($ticket = Ticket::lookup($ticketId)) || $ticket->lock_id != $lock->lock_id)
+            // Ticket / Lock mismatch
+            Http::response(400, $this->encode(array('id'=>0, 'retry'=>false)));
 
-        if (!($ticket = Ticket::lookup($tid)))
-            return $this->json_encode(array('id'=>0, 'retry'=>true));
+        if (!$lock->getStaffId() || $lock->isExpired())
+            // Said lock doesn't exist or is is expired — fetch a new lock
+            return self::acquireLock($ticket->getId());
 
-        $lock = $ticket->getLock();
-        if(!$lock || !$lock->getStaffId() || $lock->isExpired()) //Said lock doesn't exist or is is expired
-            return self::acquireLock($tid); //acquire the lock
+        if ($lock->getStaffId() != $thisstaff->getId())
+            // user doesn't own the lock anymore??? sorry...try to next time.
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false,
+                'msg' => sprintf(__('Currently locked by %s'),
+                    $lock->getStaff->getAvatarAndName())
+            ))); //Give up...
 
-        if($lock->getStaffId()!=$thisstaff->getId()) //user doesn't own the lock anymore??? sorry...try to next time.
-            return $this->json_encode(array('id'=>0, 'retry'=>false)); //Give up...
+        // Ensure staff still has access
+        if (!$ticket->checkStaffPerm($thisstaff))
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>false,
+                'msg' => sprintf(__('You no longer have access to #%s.'),
+                $ticket->getNumber())
+            )));
 
-        //Renew the lock.
-        $lock->renew(); //Failure here is not an issue since the lock is not expired yet.. client need to check time!
+        // Renew the lock.
+        // Failure here is not an issue since the lock is not expired yet.. client need to check time!
+        $lock->renew();
 
-        return $this->json_encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime()));
+        return $this->encode(array('id'=>$lock->getId(), 'time'=>$lock->getTime(),
+            'code' => $lock->getCode()));
     }
 
-    function releaseLock($tid, $id=0) {
+    function releaseLock($id) {
         global $thisstaff;
 
-        if (!($ticket = Ticket::lookup($tid))) {
+        if (!$id || !is_numeric($id) || !$thisstaff)
+            Http::response(403, $this->encode(array('id'=>0, 'retry'=>true)));
+        if (!($lock = Lock::lookup($id)))
+            Http::response(404, $this->encode(array('id'=>0, 'retry'=>true)));
+
+        // You have to own the lock
+        if ($lock->getStaffId() != $thisstaff->getId()) {
             return 0;
         }
-
-        if ($id) {
-            // Fetch the lock from the ticket
-            if (!($lock = $ticket->getLock())) {
-                return 1;
-            }
-            // Identify the lock by the ID number
-            if ($lock->getId() != $id) {
-                return 0;
-            }
-            // You have to own the lock
-            if ($lock->getStaffId() != $thisstaff->getId()) {
-                return 0;
-            }
-            // Can't be expired
-            if ($lock->isExpired()) {
-                return 1;
-            }
-            return $lock->release() ? 1 : 0;
+        // Can't be expired
+        if ($lock->isExpired()) {
+            return 1;
         }
-
-        return Lock::removeStaffLocks($thisstaff->getId(), $ticket) ? 1 : 0;
+        return $lock->release() ? 1 : 0;
     }
 
     function previewTicket ($tid) {
@@ -385,6 +392,11 @@ class TicketsAjaxAPI extends AjaxController {
                 if (!$role->hasPerm(TicketModel::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
+
+                // Check if ticket is closeable
+                if (is_string($closeable=$ticket->isCloseable()))
+                    $info['warn'] =  $closeable;
+
                 break;
             case 'delete':
                 if (!$role->hasPerm(TicketModel::PERM_DELETE))
@@ -495,12 +507,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
+                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
+                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
@@ -534,18 +546,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE)
-                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false)
+                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE))
+                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s.'),
                                 __('to archive/delete tickets'));
                     break;
@@ -793,30 +805,52 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$task->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown task');
 
-        $info=$errors=array();
-        $note_form = new SimpleForm(array(
+        $info = $errors = array();
+        $note_attachments_form = new SimpleForm(array(
             'attachments' => new FileUploadField(array('id'=>'attach',
-            'name'=>'attach:note',
-            'configuration' => array('extensions'=>'')))
-            ));
+                'name'=>'attach:note',
+                'configuration' => array('extensions'=>'')))
+        ));
+
+        $reply_attachments_form = new SimpleForm(array(
+            'attachments' => new FileUploadField(array('id'=>'attach',
+                'name'=>'attach:reply',
+                'configuration' => array('extensions'=>'')))
+        ));
 
         if ($_POST) {
+            $vars = $_POST;
             switch ($_POST['a']) {
             case 'postnote':
-                $vars = $_POST;
-                $attachments = $note_form->getField('attachments')->getClean();
+                $attachments = $note_attachments_form->getField('attachments')->getClean();
                 $vars['cannedattachments'] = array_merge(
                     $vars['cannedattachments'] ?: array(), $attachments);
-                if(($note=$task->postNote($vars, $errors, $thisstaff))) {
+                if (($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list
-                    $note_form->setSource(array());
-                    $note_form->getField('attachments')->reset();
+                    $note_attachments_form->setSource(array());
+                    $note_attachments_form->getField('attachments')->reset();
                     Draft::deleteForNamespace('task.note.'.$task->getId(),
                             $thisstaff->getId());
                 } else {
-                    if(!$errors['err'])
+                    if (!$errors['err'])
                         $errors['err'] = __('Unable to post the note - missing or invalid data.');
+                }
+                break;
+            case 'postreply':
+                $attachments = $reply_attachments_form->getField('attachments')->getClean();
+                $vars['cannedattachments'] = array_merge(
+                    $vars['cannedattachments'] ?: array(), $attachments);
+                if (($response=$task->postReply($vars, $errors))) {
+                    $msg=__('Update posted successfully');
+                    // Clear attachment list
+                    $reply_attachments_form->setSource(array());
+                    $reply_attachments_form->getField('attachments')->reset();
+                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                            $thisstaff->getId());
+                } else {
+                    if (!$errors['err'])
+                        $errors['err'] = __('Unable to post the reply - missing or invalid data.');
                 }
                 break;
             default:

@@ -22,6 +22,41 @@ require_once(INCLUDE_DIR.'class.task.php');
 
 class TasksAjaxAPI extends AjaxController {
 
+    function lookup() {
+        global $thisstaff;
+
+        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+        $tasks = array();
+
+        $visibility = Q::any(array(
+            'staff_id' => $thisstaff->getId(),
+            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
+        ));
+
+        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
+            $visibility->add(array('dept_id__in' => $depts));
+        }
+
+
+        $hits = TaskModel::objects()
+            ->filter(Q::any(array(
+                'number__startswith' => $_REQUEST['q'],
+            )))
+            ->filter($visibility)
+            ->values('number')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('id')))
+            ->order_by('-created')
+            ->limit($limit);
+
+        foreach ($hits as $T) {
+            $tasks[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                'info'=>"{$T['number']}",
+                'matches'=>$_REQUEST['q']);
+        }
+
+        return $this->json_encode($tasks);
+    }
+
     function add() {
         global $thisstaff;
 
@@ -86,9 +121,16 @@ class TasksAjaxAPI extends AjaxController {
         $forms = DynamicFormEntry::forObject($task->getId(),
                 ObjectModel::OBJECT_TYPE_TASK);
 
-        if ($_POST) {
+        if ($_POST && $forms) {
+            // TODO: Validate internal form
+
+            // Validate dynamic meta-data
+            if ($task->update($forms, $_POST, $errors)) {
+                Http::response(201, 'Task updated successfully');
+            } elseif(!$errors['err']) {
+                $errors['err']=__('Unable to update the task. Correct the errors below and try again!');
+            }
             $info = Format::htmlchars($_POST);
-            $info['error'] = $errors['err'] ?: __('Coming soon!');
         }
 
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';
@@ -198,7 +240,7 @@ class TasksAjaxAPI extends AjaxController {
             }
             // Check generic permissions --  department specific permissions
             // will be checked below.
-            if ($perm && !$thisstaff->hasPerm($perm))
+            if ($perm && !$thisstaff->hasPerm($perm, false))
                 $errors['err'] = sprintf(
                         __('You do not have permission to %s %s'),
                         __($action),

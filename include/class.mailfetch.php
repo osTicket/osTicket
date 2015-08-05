@@ -531,7 +531,7 @@ class MailFetcher {
                     if ($body = $this->getPart(
                         $mid, 'text/plain', $this->charset, $struct, false, 3, false
                     )) {
-                        return new TextThreadBody($body);
+                        return new TextThreadEntryBody($body);
                     }
                 }
             }
@@ -605,6 +605,7 @@ class MailFetcher {
     function createTicket($mid) {
         global $ost;
 
+        unset($this->tnef);
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
@@ -659,7 +660,7 @@ class MailFetcher {
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
-        $vars['flags'] = new ArrayObject();
+        $vars['mailflags'] = new ArrayObject();
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
@@ -670,11 +671,11 @@ class MailFetcher {
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
-            $vars['flags']['bounce'] = true;
+            $vars['mailflags']['bounce'] = true;
         }
         else {
             $vars['message'] = $this->getBody($mid);
-            $vars['flags']['bounce'] = TicketFilter::isBounce($info);
+            $vars['mailflags']['bounce'] = TicketFilter::isBounce($info);
         }
 
 

@@ -1,6 +1,4 @@
 <?php
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "/../cli.inc.php";
 
 class CronManager extends Module {
     var $prologue = 'CLI cron manager for osTicket';

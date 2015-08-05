@@ -386,6 +386,7 @@ class AttachmentFile extends VerySimpleModel {
             'key' => $file['key'],
             'ft' => $ft ?: 'T',
             'signature' => $file['signature'],
+            'created' => SqlFunction::NOW(),
         ));
 
         if (isset($file['size']))
@@ -546,9 +547,9 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function lookup($id) {
-        return is_numeric($id)
-            ? parent::lookup($id)
-            : static::lookupByHash($id);
+        return is_string($id)
+            ? static::lookupByHash($id)
+            : parent::lookup($id);
     }
 
     /*
@@ -623,6 +624,7 @@ class FileStorageBackend {
     static $desc = false;
     static $registry;
     static $blocksize = 131072;
+    static $private = false;
 
     /**
      * All storage backends should call this function during the request
@@ -632,8 +634,15 @@ class FileStorageBackend {
         self::$registry[$typechar] = $class;
     }
 
-    static function allRegistered() {
-        return self::$registry;
+    static function allRegistered($private=false) {
+        $R = self::$registry;
+        if (!$private) {
+            foreach ($R as $i=>$bk) {
+                if ($bk::$private)
+                    unset($R[$i]);
+            }
+        }
+        return $R;
     }
 
     /**
@@ -848,4 +857,54 @@ class AttachmentChunkedData extends FileStorageBackend {
 }
 FileStorageBackend::register('D', 'AttachmentChunkedData');
 
+/**
+ * This class provides an interface for files attached on the filesystem in
+ * versions previous to v1.7. The upgrader will keep the attachments on the
+ * disk where they were and write the path into the `attrs` field of the
+ * %file table. This module will continue to serve those files until they
+ * are migrated with the `file` cli app
+ */
+class OneSixAttachments extends FileStorageBackend {
+    static $desc = "upload_dir folder (from osTicket v1.6)";
+    static $private = true;
+
+    function read($bytes=32768, $offset=false) {
+        $filename = $this->meta->attrs;
+        if (!$this->fp)
+            $this->fp = @fopen($filename, 'rb');
+        if (!$this->fp)
+            throw new IOException($filename.': Unable to open for reading');
+        if ($offset)
+            fseek($this->fp, $offset);
+        if (($status = @fread($this->fp, $bytes)) === false)
+            throw new IOException($filename.': Unable to read from file');
+        return $status;
+    }
+
+    function passthru() {
+        $filename = $this->meta->attrs;
+        if (($status = @readfile($filename)) === false)
+            throw new IOException($filename.': Unable to read from file');
+        return $status;
+    }
+
+    function write($data) {
+        throw new IOException('This backend does not support new files');
+    }
+
+    function upload($filepath) {
+        throw new IOException('This backend does not support new files');
+    }
+
+    function unlink() {
+        $filename = $this->meta->attrs;
+        if (!@unlink($filename))
+            throw new IOException($filename.': Unable to delete file');
+        // Drop usage of the `attrs` field
+        $this->meta->attrs = null;
+        $this->meta->save();
+        return true;
+    }
+}
+FileStorageBackend::register('6', 'OneSixAttachments');
 ?>

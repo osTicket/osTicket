@@ -185,6 +185,22 @@ database engines other than MySQL. The ORM was originally introduced in
 osTicket v1.8.0, but has seen the greatest boost in capability in this release.
 About 47% of the SQL queries are removed between v1.9.7 and v1.10
 
+osTicket v1.9.9
+===============
+### Enhancements
+  * Properly balance stripped and invalid HTML (#2145)
+  * Add MANIFEST file to deployment process and retire duplicate code for packaging (#2052)
+
+### Improvements
+  * Fix inability to configure LDAP and S3 plugins (*regression*) (59337b3)
+  * Fix incorrect whitespace in search indexed HTML content (#2111)
+  * Add support for invalid `multipart/relative` content type (aaf1b74)
+  * Force line breaks for very long HTML lines (56cc709)
+
+### Performance and Security
+  * Fix slow query for ticket counts for large datasets (c4ace2d)
+  * Fix slow thread load query (thanks @torohill) (7b7e855)
+
 osTicket v1.9.8.1
 =================
 ### Enhancements

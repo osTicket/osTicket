@@ -26,13 +26,9 @@ ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `role_id` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `dept_id`;
 
 ALTER TABLE  `%TABLE_PREFIX%groups`
+    RENAME TO `%TABLE_PREFIX%group`,
     CHANGE  `group_id`  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    CHANGE  `group_name`  `name` VARCHAR(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT  '',
-    ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `id` ,
-    ADD  `flags` INT UNSIGNED NOT NULL DEFAULT  '1' AFTER  `role_id`,
-    ADD INDEX (`role_id`);
-
-RENAME TABLE  `%TABLE_PREFIX%groups` TO  `%TABLE_PREFIX%group`;
+    ADD  `role_id` INT UNSIGNED NOT NULL DEFAULT  '0' AFTER  `id`;
 
 -- department changes
 ALTER TABLE  `%TABLE_PREFIX%department`

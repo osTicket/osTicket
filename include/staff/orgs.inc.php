@@ -89,14 +89,14 @@ $_SESSION['orgs_qs_'.$qhash] = $query;
  </div>
 
 <div class="pull-right">
-<?php if ($thisstaff->getRole()->hasPerm(Organization::PERM_CREATE)) { ?>
-    <a class="action-button add-org"
+<?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
+    <a class="green button action-button add-org"
         href="#">
         <i class="icon-plus-sign"></i>
         <?php echo __('Add Organization'); ?>
     </a>
 <?php }
-if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
+if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
     <span class="action-button" data-dropdown="#action-dropdown-more"
         style="/*DELME*/ vertical-align:top; margin-bottom:0">
         <i class="icon-caret-down pull-right"></i>
@@ -104,7 +104,7 @@ if ($thisstaff->getRole()->hasPerm(Organization::PERM_DELETE)) { ?>
     </span>
     <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul>
-            <li><a class="orgs-action" href="#delete">
+            <li class="danger"><a class="orgs-action" href="#delete">
                 <i class="icon-trash icon-fixed-width"></i>
                 <?php echo __('Delete'); ?></a></li>
         </ul>

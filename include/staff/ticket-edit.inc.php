@@ -40,7 +40,7 @@ if ($_POST)
             <span id="client-name"><?php echo Format::htmlchars($user->getName()); ?></span>
             &lt;<span id="client-email"><?php echo $user->getEmail(); ?></span>&gt;
             </a>
-            <a class="action-button" style="overflow:inherit" href="#"
+            <a class="inline action-button" style="overflow:inherit" href="#"
                 onclick="javascript:
                     $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/change-user',
                             function(user) {
@@ -166,17 +166,24 @@ if ($_POST)
     <div class="body"></div>
 </div>
 <script type="text/javascript">
-$('table.dynamic-forms').sortable({
-  items: 'tbody',
-  handle: 'th',
-  helper: function(e, ui) {
-    ui.children().each(function() {
-      $(this).children().each(function() {
-        $(this).width($(this).width());
-      });
++(function() {
+  var I = setInterval(function() {
+    if (!$.fn.sortable)
+      return;
+    clearInterval(I);
+    $('table.dynamic-forms').sortable({
+      items: 'tbody',
+      handle: 'th',
+      helper: function(e, ui) {
+        ui.children().each(function() {
+          $(this).children().each(function() {
+            $(this).width($(this).width());
+          });
+        });
+        ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
+        return ui;
+      }
     });
-    ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
-    return ui;
-  }
-});
+  }, 20);
+})();
 </script>

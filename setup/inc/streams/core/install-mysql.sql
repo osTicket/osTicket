@@ -37,8 +37,6 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
   `answer` text NOT NULL,
   `keywords` tinytext,
   `notes` text,
-  `views` int(10) unsigned NOT NULL default '0',
-  `score` int(10) NOT NULL default '0',
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`faq_id`),
@@ -418,16 +416,6 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   UNIQUE KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%group_dept_access`;
-CREATE TABLE `%TABLE_PREFIX%group_dept_access` (
-  `group_id` int(10) unsigned NOT NULL default '0',
-  `dept_id` int(10) unsigned NOT NULL default '0',
-  `role_id` int(10) unsigned NOT NULL default '0',
-  UNIQUE KEY `group_dept` (`group_id`,`dept_id`),
-  KEY `dept_id`  (`dept_id`),
-  KEY `role_id`  (`role_id`)
-) DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
@@ -533,7 +521,6 @@ CREATE TABLE `%TABLE_PREFIX%session` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff`;
 CREATE TABLE `%TABLE_PREFIX%staff` (
   `staff_id` int(11) unsigned NOT NULL auto_increment,
-  `group_id` int(10) unsigned NOT NULL default '0',
   `dept_id` int(10) unsigned NOT NULL default '0',
   `role_id` int(10) unsigned NOT NULL default '0',
   `username` varchar(32) NOT NULL default '',
@@ -562,6 +549,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `default_signature_type` ENUM( 'none', 'mine', 'dept' ) NOT NULL DEFAULT 'none',
   `default_paper_size` ENUM( 'Letter', 'Legal', 'Ledger', 'A4', 'A3' ) NOT NULL DEFAULT 'Letter',
   `extra` text,
+  `permissions` text,
   `created` datetime NOT NULL,
   `lastlogin` datetime default NULL,
   `passwdreset` datetime default NULL,
@@ -569,8 +557,17 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   PRIMARY KEY  (`staff_id`),
   UNIQUE KEY `username` (`username`),
   KEY `dept_id` (`dept_id`),
-  KEY `issuperuser` (`isadmin`),
-  KEY `group_id` (`group_id`,`staff_id`)
+  KEY `issuperuser` (`isadmin`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%staff_dept_access`;
+CREATE TABLE `%TABLE_PREFIX%staff_dept_access` (
+  `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `dept_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `role_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY `staff_dept` (`staff_id`,`dept_id`),
+  KEY `dept_id` (`dept_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%syslog`;
@@ -605,7 +602,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%team_member`;
 CREATE TABLE `%TABLE_PREFIX%team_member` (
   `team_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL,
-  `updated` datetime NOT NULL,
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY  (`team_id`,`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
@@ -615,6 +612,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%thread` (
   `object_id` int(11) unsigned NOT NULL,
   `object_type` char(1) NOT NULL,
   `extra` text,
+  `lastresponse` datetime DEFAULT NULL,
+  `lastmessage` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `object_id` (`object_id`),
@@ -682,8 +681,6 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `est_duedate` datetime default NULL,
   `reopened` datetime default NULL,
   `closed` datetime default NULL,
-  `lastmessage` datetime default NULL,
-  `lastresponse` datetime default NULL,
   `lastupdate` datetime default NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -772,7 +769,8 @@ CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `collab` (`thread_id`,`user_id`)
+  UNIQUE KEY `collab` (`thread_id`,`user_id`),
+  KEY `user_id` (`user_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task`;
@@ -787,6 +785,7 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   `lock_id` int(11) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `duedate` datetime DEFAULT NULL,
+  `closed` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),

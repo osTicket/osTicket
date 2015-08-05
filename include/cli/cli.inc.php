@@ -21,11 +21,9 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('kwahe
 define('ROOT_PATH', '/');
 define('INC_DIR',dirname(__file__).'/../inc/'); //local include dir!
 
-require_once(dirname(__file__).'/../../bootstrap.php');
+require_once INCLUDE_DIR . "class.cli.php";
 
 Bootstrap::loadConfig();
 Bootstrap::defineTables(TABLE_PREFIX);
 Bootstrap::loadCode();
 Bootstrap::i18n_prep();
-
-?>

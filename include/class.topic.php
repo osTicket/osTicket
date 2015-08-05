@@ -110,7 +110,7 @@ implements TemplateVariable {
     }
 
     function getFullName() {
-        return self::getTopicName($this->getId());
+        return self::getTopicName($this->getId()) ?: $this->topic;
     }
 
     static function getTopicName($id) {
@@ -343,14 +343,16 @@ implements TemplateVariable {
             if (!$disabled && $info['disabled'])
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
-                $n .= " &mdash; ".__("(disabled)");
+                $n .= " - ".__("(disabled)");
             $requested_names[$id] = $n;
         }
 
-        // XXX: If localization requested and the current locale is not the
+        // If localization requested and the current locale is not the
         // primary, the list may need to be sorted. Caching is ok here,
         // because the locale is not going to be changed within a single
         // request.
+        if ($localize)
+            return Internationalization::sortKeyedList($requested_names);
 
         return $requested_names;
     }
@@ -520,16 +522,7 @@ implements TemplateVariable {
         if (!($names = static::getHelpTopics(false, true, false)))
             return;
 
-        if ($cfg && function_exists('collator_create')) {
-            $coll = Collator::create($cfg->getPrimaryLanguage());
-            // UASORT is necessary to preserve the keys
-            uasort($names, function($a, $b) use ($coll) {
-                return $coll->compare($a, $b); });
-        }
-        else {
-            // Really only works on English names
-            asort($names);
-        }
+        $names = Internationalization::sortKeyedList($names);
 
         $update = array_keys($names);
         foreach ($update as $idx=>&$id) {

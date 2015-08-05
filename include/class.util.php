@@ -15,7 +15,9 @@ class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Counta
 
     protected $storage = array();
 
-    function __construct(array $array=array()) {
+    function __construct($array=array()) {
+        if (!is_array($array) && !$array instanceof Traversable)
+            throw new InvalidArgumentException('Traversable object or array expected');
         foreach ($array as $v)
             $this->storage[] = $v;
     }
@@ -37,6 +39,8 @@ class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Counta
     }
 
     function insert($i, $value) {
+        if ($i < 0)
+            $i += count($this->storage) + 1;
         array_splice($this->storage, $i, 0, array($value));
     }
 

@@ -1,6 +1,4 @@
 <?php
-require_once dirname(__file__) . "/class.module.php";
-require_once dirname(__file__) . "/../cli.inc.php";
 
 class FileManager extends Module {
     var $prologue = 'CLI file manager for osTicket';
@@ -61,7 +59,7 @@ class FileManager extends Module {
         switch ($args['action']) {
         case 'backends':
             // List configured backends
-            foreach (FileStorageBackend::allRegistered() as $char=>$bk) {
+            foreach (FileStorageBackend::allRegistered(true) as $char=>$bk) {
                 print "$char -- {$bk::$desc} ($bk)\n";
             }
             break;

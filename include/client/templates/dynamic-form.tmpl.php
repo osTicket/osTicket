@@ -18,7 +18,7 @@
             continue;
         ?>
         <tr>
-            <td colspan="2" style="padding-top:8px;">
+            <td colspan="2" style="padding-top:10px;">
             <?php if (!$field->isBlockLevel()) { ?>
                 <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
                     if ($field->isRequiredForUsers()) echo 'required'; ?>">

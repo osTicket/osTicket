@@ -238,6 +238,8 @@ jQuery(function() {
     // Tooltip preview
     $(document).on('mouseover', '.preview', function(e) {
         var elem = $(this);
+        if (!elem.attr('href'))
+            return;
         var vars = elem.attr('href').split('=');
         if (!elem.data('preview'))
             return;

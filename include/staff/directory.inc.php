@@ -3,7 +3,6 @@ if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access
 $qs = array();
 
 $agents = Staff::objects()
-    ->filter(array('isvisible'=>1))
     ->select_related('dept');
 
 if($_REQUEST['q']) {

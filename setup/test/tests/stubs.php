@@ -109,6 +109,7 @@ class ZipArchive {
     function addFromString() {}
     function getFromIndex() {}
     function setCommentName() {}
+    function setExternalAttributesName() {}
 }
 
 class finfo {
@@ -161,6 +162,10 @@ class ResourceBundle {
 
 class NumberFormatter {
     function getSymbol() {}
+}
+
+class Collator {
+    function setStrength() {}
 }
 
 class Aws_Route53_Client {

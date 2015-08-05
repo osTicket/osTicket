@@ -14,10 +14,6 @@
 ALTER TABLE `%TABLE_PREFIX%attachment`
     ADD `lang` varchar(16) AFTER `inline`;
 
-ALTER TABLE `%TABLE_PREFIX%faq`
-    ADD `views` int(10) unsigned NOT NULL default '0' AFTER `notes`,
-    ADD `score` int(10) NOT NULL default '0' AFTER `views`;
-
 ALTER TABLE `%TABLE_PREFIX%staff`
     ADD `lang` varchar(16) DEFAULT NULL AFTER `signature`,
     ADD `timezone` varchar(64) default NULL AFTER `lang`,
@@ -253,13 +249,6 @@ UPDATE `%TABLE_PREFIX%ticket_attachment` A1
   SET A1.inline = 1;
 
 DROP TABLE `%TABLE_PREFIX%_unknown_inlines`;
-
--- Mark `message` field as externally stored
--- DynamicFormField::FLAG_EXT_STORED = 0x00002;
-UPDATE `%TABLE_PREFIX%form_field` A1
-  JOIN `%TABLE_PREFIX%form` A2 ON (A2.`id` = A1.`form_id`)
-  SET A1.`flags` = A1.`flags` | 0x00002
-  WHERE A2.`type` = 'T' AND A1.`name` = 'message';
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

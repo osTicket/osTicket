@@ -616,8 +616,8 @@ class DynamicFormField extends VerySimpleModel {
     const FLAG_MASK_VIEW        = 0x20000;
     const FLAG_MASK_NAME        = 0x40000;
 
-    const MASK_MASK_INTERNAL    = 0x400B0;  # !change, !delete, !disable, !edit-name
-    const MASK_MASK_ALL         = 0x700F0;
+    const MASK_MASK_INTERNAL    = 0x400B2;  # !change, !delete, !disable, !edit-name
+    const MASK_MASK_ALL         = 0x700F2;
 
     const FLAG_CLIENT_VIEW      = 0x00100;
     const FLAG_CLIENT_EDIT      = 0x00200;
@@ -684,12 +684,16 @@ class DynamicFormField extends VerySimpleModel {
             $config[$name] = $field->to_php($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
-        if (count($errors) === 0)
-            $this->set('configuration', JsonDataEncoder::encode($config));
 
+        if (count($errors))
+            return false;
+
+        // See if field impl. need to save or override anything
+        $config = $this->getImpl()->to_config($config);
+        $this->set('configuration', JsonDataEncoder::encode($config));
         $this->set('hint', Format::sanitize($vars['hint']));
 
-        return count($errors) === 0;
+        return true;
     }
 
     function isDeletable() {
@@ -902,14 +906,26 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function delete() {
-        // Don't really delete form fields as that will screw up the data
+        // Don't really delete form fields with data as that will screw up the data
         // model. Instead, just drop the association with the form which
         // will give the appearance of deletion. Not deleting means that
         // the field will continue to exist on form entries it may already
         // have answers on, but since it isn't associated with the form, it
         // won't be available for new form submittals.
         $this->set('form_id', 0);
-        $this->save();
+
+        $impl = $this->getImpl();
+
+        // Trigger db_clean so the field can do house cleaning
+        $impl->db_cleanup(true);
+
+        // Short-circuit deletion if the field has data.
+        if ($impl->hasData())
+            return $this->save();
+
+        // Delete the field for realz
+        parent::delete();
+
     }
 
     function save($refetch=false) {
@@ -1005,9 +1021,9 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form;
     }
 
-    function getForm() {
+    function getForm($source=false, $options=array()) {
         if (!isset($this->_form)) {
-            // XXX: Should source be $this?
+
             $fields = $this->getFields();
             if (isset($this->extra)) {
                 $x = JsonDataParser::decode($this->extra) ?: array();
@@ -1015,13 +1031,16 @@ class DynamicFormEntry extends VerySimpleModel {
                     unset($fields[$id]);
                 }
             }
-            $form = new SimpleForm($fields, $this->getSource(),
-            array(
+
+            $source = $source ?: $this->getSource();
+            $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions(),
-            ));
-            $this->_form = $form;
+                'instructions' => $this->getInstructions()
+                );
+            $this->_form = new CustomForm($fields, $source, $options);
         }
+
+
         return $this->_form;
     }
 
@@ -1040,8 +1059,6 @@ class DynamicFormEntry extends VerySimpleModel {
             // even when stored elsewhere -- important during validation
             foreach ($this->getDynamicFields() as $f) {
                 $f = $f->getImpl($f);
-                if ($f instanceof ThreadEntryField)
-                    continue;
                 $this->_fields[$f->get('id')] = $f;
                 $f->isnew = true;
             }
@@ -1087,16 +1104,17 @@ class DynamicFormEntry extends VerySimpleModel {
      * Parameters:
      * $filter - (callback) function to receive each field and return
      *      boolean true if the field's errors are significant
+     * $options - options to pass to form and fields.
+     *
      */
-    function isValid($filter=false) {
+    function isValid($filter=false, $options=array()) {
+
         if (!is_array($this->_errors)) {
-            $this->_errors = array();
-            $this->getClean();
-            foreach ($this->getFields() as $field) {
-                if ($field->errors() && (!$filter || $filter($field)))
-                    $this->_errors[$field->get('id')] = $field->errors();
-            }
+            $form = $this->getForm(false, $options);
+            $form->isValid($filter);
+            $this->_errors = $form->errors();
         }
+
         return !$this->_errors;
     }
 
@@ -1192,13 +1210,11 @@ class DynamicFormEntry extends VerySimpleModel {
             $field = $a->getField();
             if (!$field->hasData() || $field->isPresentationOnly())
                 continue;
-            $val = $v = $field->to_database($field->getClean());
-            if (is_array($val))
-                $v = $val[0];
-            if ($a->value == $v)
-                continue;
+            $after = $field->to_database($field->getClean());
             $before = $field->to_database($a->getValue());
-            $fields[$field->get('id')] = array($before, $val);
+            if ($before == $after)
+                continue;
+            $fields[$field->get('id')] = array($before, $after);
         }
         return $fields;
     }
@@ -1268,6 +1284,7 @@ class DynamicFormEntry extends VerySimpleModel {
             $a->entry = $this;
 
             try {
+                $field->setForm($this);
                 $val = $field->to_database($field->getClean());
             }
             catch (FieldUnchanged $e) {
@@ -1301,6 +1318,8 @@ class DynamicFormEntry extends VerySimpleModel {
     static function create($ht=false, $data=null) {
         $inst = parent::create($ht);
         $inst->set('created', new SqlFunction('NOW'));
+        if ($data)
+            $inst->setSource($data);
         foreach ($inst->getDynamicFields() as $field) {
             if (!($impl = $field->getImpl($field)))
                 continue;
@@ -1827,8 +1846,8 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
             placeholder="<?php echo $config['prompt'];
             ?>" autocomplete="off" />
         <input type="hidden" name="<?php echo $this->name;
-            ?>[<?php echo $value; ?>]" id="<?php echo $this->name;
-            ?>_id" value="<?php echo Format::htmlchars($name); ?>"/>
+            ?>_id" id="<?php echo $this->name;
+            ?>_id" value="<?php echo Format::htmlchars($value); ?>"/>
         <script type="text/javascript">
         $(function() {
             $('input#<?php echo $this->name; ?>').typeahead({
@@ -1854,12 +1873,17 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (isset($data[$this->name]))
-            return $data[$this->name];
-
         $name = $this->field->get('name');
-        if (isset($data[$name]))
-           return $data[$name];
+        if (isset($data["{$this->name}_id"]) && is_numeric($data["{$this->name}_id"])) {
+            return array($data["{$this->name}_id"] => $data["{$this->name}_name"]);
+        }
+        elseif (isset($data[$name])) {
+            return $data[$name];
+        }
+        // Attempt to lookup typed value (usually from a default)
+        elseif ($val = $this->getEnteredValue()) {
+            return $this->field->lookupChoice($val);
+        }
 
         return parent::getValue();
     }

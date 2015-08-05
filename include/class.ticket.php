@@ -86,6 +86,7 @@ class TicketModel extends VerySimpleModel {
                     "'T'" => 'DynamicFormEntry.object_type',
                     'ticket_id' => 'DynamicFormEntry.object_id',
                 ),
+                'list' => true,
             ),
         )
     );
@@ -143,7 +144,7 @@ class TicketModel extends VerySimpleModel {
 
     function getEffectiveDate() {
          return Format::datetime(max(
-             strtotime($this->lastmessage),
+             strtotime($this->thread->lastmessage),
              strtotime($this->closed),
              strtotime($this->reopened),
              strtotime($this->created)
@@ -240,8 +241,8 @@ implements RestrictedAccess, Threadable {
         $this->loadDynamicData();
     }
 
-    function loadDynamicData() {
-        if (!isset($this->_answers)) {
+    function loadDynamicData($force=false) {
+        if (!isset($this->_answers) || $force) {
             $this->_answers = array();
             foreach (DynamicFormEntryAnswer::objects()
                 ->filter(array(
@@ -275,6 +276,25 @@ implements RestrictedAccess, Threadable {
 
     function isClosed() {
          return $this->hasState('closed');
+    }
+
+    function isCloseable() {
+
+        if ($this->isClosed())
+            return true;
+
+        $warning = null;
+        if ($this->getMissingRequiredFields()) {
+            $warning = sprintf(
+                    __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
+                    __('This ticket'),
+                    '', '');
+        } elseif (($num=$this->getNumOpenTasks())) {
+            $warning = sprintf(__('%1$s has %2$d open tasks and cannot be closed'),
+                    __('This ticket'), $num);
+        }
+
+        return $warning ?: true;
     }
 
     function isArchived() {
@@ -542,10 +562,16 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLock() {
-        return $this->lock;
+        $lock = $this->lock;
+        if ($lock && !$lock->isExpired())
+            return $lock;
     }
 
-    function acquireLock($staffId, $lockTime) {
+    function acquireLock($staffId, $lockTime=null) {
+        global $cfg;
+
+        if (!isset($lockTime))
+            $lockTime = $cfg->getLockTime();
 
         if (!$staffId or !$lockTime) //Lockig disabled?
             return null;
@@ -683,7 +709,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastMessageDate() {
-        return $this->lastmessage;
+        return $this->thread->lastmessage;
     }
 
     function getLastMsgDate() {
@@ -691,7 +717,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getLastResponseDate() {
-        return $this->lastresponse;
+        return $this->thread->lastresponse;
     }
 
     function getLastRespDate() {
@@ -718,6 +744,12 @@ implements RestrictedAccess, Threadable {
         // FIXME: Implement this after merging Tasks
         return count($this->tasks);
     }
+
+    function getNumOpenTasks() {
+        return count($this->tasks->filter(array(
+                        'flags__hasbit' => TaskModel::ISOPEN)));
+    }
+
 
     function getThreadId() {
         if ($this->thread)
@@ -786,6 +818,16 @@ implements RestrictedAccess, Threadable {
         return $this->recipients;
     }
 
+    function getDynamicFields($criteria=array()) {
+
+        $fields = DynamicFormField::objects()->filter(array(
+                    'id__in' => $this->entries
+                    ->filter($criteria)
+                ->values_flat('answers__field_id')));
+
+        return ($fields && count($fields)) ? $fields : array();
+    }
+
     function hasClientEditableFields() {
         $forms = DynamicFormEntry::forTicket($this->getId());
         foreach ($forms as $form) {
@@ -797,23 +839,17 @@ implements RestrictedAccess, Threadable {
     }
 
     function getMissingRequiredFields() {
-        $returnArray = array();
-        $forms=DynamicFormEntry::forTicket($this->getId());
-        foreach ($forms as $form) {
-            foreach ($form->getFields() as $field) {
-                if ($field->isRequiredForClose()) {
-                    if (!($field->answer->get('value'))) {
-                        array_push($returnArray, $field->get('label'));
-                    }
-                }
-            }
-        }
-        return $returnArray;
+
+        return $this->getDynamicFields(array(
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
+                    'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
+                    'answers__value__isnull' => true,
+                    ));
     }
 
     function getMissingRequiredField() {
         $fields = $this->getMissingRequiredFields();
-        return $fields[0];
+        return $fields ? $fields[0] : null;
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
@@ -1035,20 +1071,22 @@ implements RestrictedAccess, Threadable {
         $ecb = null;
         switch ($status->getState()) {
             case 'closed':
-                if ($this->getMissingRequiredFields()) {
-                    $errors['err'] = sprintf(__(
-                        'This ticket is missing data on %s one or more required fields %s and cannot be closed'),
-                    '', '');
+                // Check if ticket is closeable
+                $closeable = $this->isCloseable();
+                if ($closeable !== true)
+                    $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
+
+                if ($errors)
                     return false;
-                }
+
                 $this->closed = $this->lastupdate = SqlFunction::NOW();
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
                     $this->staff = $thisstaff;
                 $this->clearOverdue(false);
 
-                $ecb = function($t) {
-                    $t->logEvent('closed');
+                $ecb = function($t) use ($status) {
+                    $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())));
                     $t->deleteDrafts();
                 };
                 break;
@@ -1209,7 +1247,7 @@ implements RestrictedAccess, Threadable {
 
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
-                if ($members = $dept->getMembersForAlerts())
+                if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
 
@@ -1283,7 +1321,6 @@ implements RestrictedAccess, Threadable {
 
     function onResponse($response, $options=array()) {
         $this->isanswered = 1;
-        $this->lastresponse = SqlFunction::NOW();
         $this->save();
 
         $vars = array_merge($options,
@@ -1362,30 +1399,35 @@ implements RestrictedAccess, Threadable {
         $this->lastupdate = SqlFunction::NOW();
         $this->save();
 
-        // Auto-assign to closing staff or last respondent
-        // If the ticket is closed and auto-claim is not enabled then put the
-        // ticket back to unassigned pool.
-        if ($this->isClosed() && !$cfg->autoClaimTickets()) {
-            $this->setStaffId(0);
-        } elseif(!($staff=$this->getStaff()) || !$staff->isAvailable()) {
-            // Ticket has no assigned staff -  if auto-claim is enabled then
-            // try assigning it to the last respondent (if available)
-            // otherwise leave the ticket unassigned.
-            if ($cfg->autoClaimTickets() //Auto claim is enabled.
-                    && ($lastrep=$this->getLastRespondent())
-                    && $lastrep->isAvailable()) {
-                $this->setStaffId($lastrep->getId()); //direct assignment;
-            } else {
-                $this->setStaffId(0); //unassign - last respondent is not available.
-            }
-        }
 
         // Reopen if closed AND reopenable
         // We're also checking autorespond flag because we don't want to
         // reopen closed tickets on auto-reply from end user. This is not to
         // confused with autorespond on new message setting
-        if ($autorespond && $this->isClosed() && $this->isReopenable())
+        if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
+
+            // Auto-assign to closing staff or last respondent
+            // If the ticket is closed and auto-claim is not enabled then put the
+            // ticket back to unassigned pool.
+            if (!$cfg->autoClaimTickets()) {
+                $this->setStaffId(0);
+            }
+            elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
+                // Ticket has no assigned staff -  if auto-claim is enabled then
+                // try assigning it to the last respondent (if available)
+                // otherwise leave the ticket unassigned.
+                if (($lastrep = $this->getLastRespondent())
+                    && $lastrep->isAvailable()
+                ) {
+                    $this->setStaffId($lastrep->getId()); //direct assignment;
+                }
+                else {
+                    // unassign - last respondent is not available.
+                    $this->setStaffId(0);
+                }
+            }
+        }
 
         // Figure out the user
         if ($this->getOwnerId() == $message->getUserId())
@@ -1630,7 +1672,7 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONOverdueTicket() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts())
+                if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
             // Always alert dept manager??
@@ -1662,9 +1704,6 @@ implements RestrictedAccess, Threadable {
 
     function getVar($tag) {
         global $cfg;
-
-        if ($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
 
         switch(mb_strtolower($tag)) {
         case 'phone':
@@ -1703,7 +1742,6 @@ implements RestrictedAccess, Threadable {
                 // answer is coerced into text
                 return $this->_answers[$tag];
         }
-        return false;
     }
 
     static function getVarScope() {
@@ -1882,7 +1920,7 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts())
+                if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
 
@@ -2094,15 +2132,12 @@ implements RestrictedAccess, Threadable {
             }
         }
 
-        // Set the last message time here
-        $this->lastmessage = SqlFunction::NOW();
-
         if (!$alerts)
             return $message; //Our work is done...
 
         // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['flags'])
-            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+        $autorespond = isset($vars['mailflags'])
+            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
             : true;
         if ($autorespond && $message->isAutoReply())
             $autorespond = false;
@@ -2187,7 +2222,7 @@ implements RestrictedAccess, Threadable {
         }
         $files = array();
         foreach ($canned->attachments->getAll() as $file)
-            $files[] = $file['id'];
+            $files[] = $file->file_id;
 
         if ($cfg->isRichTextEnabled())
             $response = new HtmlThreadEntryBody(
@@ -2371,9 +2406,9 @@ implements RestrictedAccess, Threadable {
             return null;
 
         $alert = $alert && (
-            isset($vars['flags'])
+            isset($vars['mailflags'])
             // No alerts for bounce and auto-reply emails
-            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
             : true
         );
 
@@ -2536,6 +2571,18 @@ implements RestrictedAccess, Threadable {
             // We are setting new duedate...
             $this->isoverdue = 0;
 
+        $changes = array();
+        foreach ($this->dirty as $F=>$old) {
+            switch ($F) {
+            case 'topic_id':
+            case 'user_id':
+            case 'source':
+            case 'duedate':
+            case 'sla_id':
+                $changes[$F] = array($old, $this->{$F});
+            }
+        }
+
         if (!$this->save())
             return false;
 
@@ -2546,9 +2593,9 @@ implements RestrictedAccess, Threadable {
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
-        $changes = array();
         foreach ($forms as $f) {
-            $changes += $f->getChanges();
+            if ($C = $f->getChanges())
+                $changes['fields'] = ($changes['fields'] ?: array()) + $C;
             // Drop deleted forms
             $idx = array_search($f->getId(), $vars['forms']);
             if ($idx === false) {
@@ -2561,7 +2608,7 @@ implements RestrictedAccess, Threadable {
         }
 
         if ($changes)
-            $this->logEvent('edited', array('fields' => $changes));
+            $this->logEvent('edited', $changes);
 
         // Reselect SLA if transient
         if (!$keepSLA
@@ -2951,7 +2998,7 @@ implements RestrictedAccess, Threadable {
                 }
 
                 $user_form = UserForm::getUserForm()->getForm($vars);
-                $can_create = !$thisstaff || $thisstaff->getRole()->hasPerm(User::PERM_CREATE);
+                $can_create = !$thisstaff || $thisstaff->hasPerm(User::PERM_CREATE);
                 if (!$user_form->isValid($field_filter('user'))
                     || !($user=User::fromVars($user_form->getClean(), $can_create))
                 ) {
@@ -3118,7 +3165,7 @@ implements RestrictedAccess, Threadable {
             $topic_form->save();
         }
 
-        $ticket->loadDynamicData();
+        $ticket->loadDynamicData(true);
 
         $dept = $ticket->getDept();
 
@@ -3194,7 +3241,7 @@ implements RestrictedAccess, Threadable {
 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
-        if (isset($vars['flags']) && $vars['flags']['bounce'])
+        if (isset($vars['mailflags']) && $vars['mailflags']['bounce'])
             $autorespond = false;
         if ($autorespond && $message instanceof ThreadEntry && $message->isAutoReply())
             $autorespond = false;
@@ -3239,8 +3286,12 @@ implements RestrictedAccess, Threadable {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if (!$thisstaff || !$thisstaff->hasPerm(TicketModel::PERM_CREATE))
+        if ($vars['deptId'] && $thisstaff && !$thisstaff->getRole($vars['deptId'])
+            ->hasPerm(TicketModel::PERM_CREATE)
+        ) {
+            $errors['err'] = __('You do not have permission to create a ticket in this department');
             return false;
+        }
 
         if ($vars['source'] && !in_array(
             strtolower($vars['source']), array('email','phone','other'))
@@ -3289,7 +3340,7 @@ implements RestrictedAccess, Threadable {
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
             if (!$cfg->isRichTextEnabled()) {
-                $vars['note'] = new TextThreadBody($vars['note']);
+                $vars['note'] = new TextThreadEntryBody($vars['note']);
             }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }

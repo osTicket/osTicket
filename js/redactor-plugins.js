@@ -671,7 +671,7 @@ RedactorPlugins.textdirection = function() {
     setRtl: function()
     {
         var c = this.getCurrent(), s = this.getSelection();
-        this.bufferSet();
+        this.buffer.set();
         if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
             this.linebreakHack(s);
         }
@@ -685,7 +685,7 @@ RedactorPlugins.textdirection = function() {
     setLtr: function()
     {
         var c = this.getCurrent(), s = this.getSelection();
-        this.bufferSet();
+        this.buffer.set();
         if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
             this.linebreakHack(s);
         }
@@ -799,7 +799,18 @@ RedactorPlugins.imagepaste = function() {
       setInterval(function() {
         if (plugin.inpaste)
           return;
-        plugin.offset = that.caret.getOffset() || plugin.offset;
+        that.selection.get();
+        var coords = that.range.getClientRects();
+        if (!coords.length)
+            return;
+        coords = coords[0];
+        var proxy = {
+          clientX: (Math.max(coords.left, 0) || 0) + 10,
+          clientY: (coords.top || 0) + 10,
+        };
+        if (coords.left < 0)
+            return;
+        plugin.offset = proxy; //that.caret.getOffset() || plugin.offset;
       }, 300);
     },
     offset: 0,
@@ -816,9 +827,10 @@ RedactorPlugins.imagepaste = function() {
           bail = function() {
             plugin.inpaste = false;
           };
-      plugin.inpaste = true;
 
-      if (typeof(cd) === 'undefined') return bail();
+      plugin.inpaste = true;
+      if (typeof(cd) === 'undefined')
+          return bail();
 
       if (cd.items && cd.items.length)
       {
@@ -838,8 +850,10 @@ RedactorPlugins.imagepaste = function() {
         for (i = 0, k = cd.types.length; i < k; i++) {
           if (cd.types[i].indexOf('image/') != -1) {
             var data = cd.getData(cd.types[i]);
-            if (data.length)
+            if (data.length) {
                 files.push(new Blob([data], {type: cd.types[i]}));
+                break;
+            }
           }
         }
       }
@@ -847,37 +861,42 @@ RedactorPlugins.imagepaste = function() {
       if (!files.length)
         return bail();
 
-      // Clipboard upload
+      e.preventDefault();
+      e.stopImmediatePropagation();
 
-      setTimeout(function() {
-        // We need to allow the paste operation to settle, so we can set
-        // self.clean.singleLine and not have to cleared by some other running
-        // code
+      if (plugin.offset == 0) {
+        // Assume top left of editor window since no last position is known
+        var offset = self.$editor.offset();
+        plugin.offset = {
+          clientX: offset.left - $(document).scrollLeft() + 20,
+          clientY: offset.top - $(document).scrollTop() + self.$toolbar.height() + 20
+        }
+      }
 
-        var oldIUC = self.opts.imageUploadCallback;
-        self.opts.imageUploadCallback = function(image, json) {
-          self.$editor.find('.-image-upload-placeholder').remove();
-          self.opts.imageUploadCallback = oldIUC;
-          // Add a zero-width space so that the caret:getOffset will find
-          // locations after pictures if only <br> tags exist otherwise. In
-          // other words, ensure there is at least one character after the
-          // image for text character counting. Additionally, Redactor will
-          // strip the zero-width space when saving
-          $(document.createTextNode("\u200b")).insertAfter($(image));
-          bail();
-        };
+      // Add cool wait cursor
+      var waitCursor = $('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+      self.insert.nodeToCaretPositionFromPoint(plugin.offset, waitCursor);
 
-        // Place the cursor back in the box!
-        self.caret.setOffset(plugin.offset);
+      var oldIUC = self.opts.imageUploadCallback;
+      self.opts.imageUploadCallback = function(image, json) {
+        if ($.contains(waitCursor.get(0), image))
+          waitCursor.replaceWith(image);
+        else
+          waitCursor.remove();
 
-        // Add cool wait cursor
-        self.insert.htmlWithoutClean('<span class="-image-upload-placeholder icon-stack"><i class="icon-circle icon-stack-base"></i><i class="icon-picture icon-light icon-spin"></i></span>');
+        self.opts.imageUploadCallback = oldIUC;
+        // Add a zero-width space so that the caret:getOffset will find
+        // locations after pictures if only <br> tags exist otherwise. In
+        // other words, ensure there is at least one character after the
+        // image for text character counting. Additionally, Redactor will
+        // strip the zero-width space when saving
+        $(document.createTextNode("\u200b")).insertAfter($(image));
+        bail();
+      };
 
-        // Upload clipboard files
-        self.clean.singleLine = false;
-        for (i = 0, k = files.length; i < k; i++)
-          self.upload.directUpload(files[i], e);
-      }, 1);
+      // Upload clipboard files
+      for (i = 0, k = files.length; i < k; i++)
+        self.upload.directUpload(files[i], plugin.offset);
     }
   };
 };
@@ -889,14 +908,6 @@ RedactorPlugins.imageannotate = function() {
     init: function() {
       var redactor = this,
           self = this.imageannotate;
-      if (typeof window.fabric === 'undefined' && !loadedFabric) {
-          $.ajax({
-            dataType: 'script',
-            cache: true,
-            url: '../js/fabric.min.js'
-          });
-          loadedFabric = true;
-      }
       $(document).on('click', '.redactor-box img', function() {
         var $image = $(this),
             image_box = $('#redactor-image-box');
@@ -1804,6 +1815,8 @@ RedactorPlugins.contexttypeahead = function() {
     },
 
     select: function(item, event) {
+      // Collapse multiple textNodes together
+      (this.selection.getBlock() || this.$editor.get(0)).normalize();
       var current = this.selection.getCurrent(),
           sel     = this.selection.get(),
           range   = this.sel.getRangeAt(0),
@@ -1838,5 +1851,165 @@ RedactorPlugins.contexttypeahead = function() {
       plugin.typeahead.typeahead('lookup');
       return false;
     }
+  };
+};
+
+RedactorPlugins.translatable = function() {
+  return {
+    langs: undefined,
+    config: undefined,
+    textareas: {},
+    current: undefined,
+    primary: undefined,
+    button: undefined,
+
+    init: function() {
+      $.ajax({
+        url: 'ajax.php/i18n/langs/all',
+        success: this.translatable.setLangs.bind(this)
+      });
+      getConfig().then(this.translatable.setConfig.bind(this));
+      this.opts.keydownCallback = this.translatable.showCommit.bind(this);
+      this.translatable.translateTag = this.$textarea.data('translateTag');
+    },
+
+    setLangs: function(langs) {
+      this.translatable.langs = langs;
+      this.translatable.buildDropdown();
+    },
+
+    setConfig: function(config) {
+      this.translatable.config = config;
+      this.translatable.buildDropdown();
+    },
+
+    buildDropdown: function() {
+      if (!this.translatable.config || !this.translatable.langs)
+        return;
+
+      var plugin = this.translatable,
+          primary = this.$textarea,
+          primary_lang = plugin.config.primary_language.replace('-','_'),
+          primary_info = plugin.langs[primary_lang],
+          dropdown = {},
+          items = {};
+
+      langs = plugin.langs;
+      plugin.textareas[primary_lang] = primary;
+      plugin.primary = plugin.current = primary_lang;
+
+      dropdown[primary_lang] = {
+        title: '<i class="flag flag-'+primary_info.flag+'"></i> '+primary_info.name,
+        func: function() { plugin.switchTo(primary_lang); }
+      }
+
+      $.each(langs, function(lang, info) {
+        if (lang == primary_lang)
+          return;
+        dropdown[lang] = {
+          title: '<i class="flag flag-'+info.flag+'"></i> '+info.name,
+          func: function() { plugin.switchTo(lang); }
+        };
+        plugin.textareas[lang] = primary.clone(false).attr({
+          lang: lang,
+          dir: info['direction'],
+          'class': '',
+        })
+        .removeAttr('name').removeAttr('data-translate-tag')
+        .text('')
+        .insertAfter(primary);
+      });
+
+      // Add the button to the toolbar
+      plugin.button = this.button.add('translate', __('Translate')),
+      this.button.setAwesome('translate', 'flag flag-' + plugin.config.primary_lang_flag);
+      plugin.button.parent().addClass('pull-right');
+      this.button.addDropdown(plugin.button, dropdown);
+
+      // Flip back to primary language before submitting
+      this.$textarea.closest('form').submit(function() {
+        plugin.switchTo(primary_lang);
+      });
+    },
+
+    switchTo: function(lang) {
+      var that = this;
+
+      if (lang == this.translatable.current)
+        return;
+
+      if (this.translatable.translations === undefined) {
+        this.translatable.fetch('ajax.php/i18n/translate/' + this.translatable.translateTag)
+        .then(function(json) {
+          that.translatable.translations = json;
+          $.each(json, function(l, text) {
+            that.translatable.textareas[l].val(text);
+          });
+          // Now switch to the language
+          that.translatable.switchTo(lang);
+        });
+        return;
+      }
+
+      var html = this.$editor.html();
+      this.$textarea.val(this.clean.onSync(html));
+      this.$textarea = this.translatable.textareas[lang];
+      this.code.set(this.$textarea.val());
+      this.translatable.current = lang;
+
+      this.button.setAwesome('translate', 'flag flag-' + this.translatable.langs[lang].flag);
+      this.$editor.attr({lang: lang, dir: this.translatable.langs[lang].direction});
+    },
+
+    showCommit: function() {
+      var plugin = this.translatable;
+
+      if (this.translatable.current == this.translatable.primary) {
+        if (this.translatable.$commit)
+          this.translatable.$commit
+          .slideUp(function() { $(this).remove(); plugin.$commit = undefined; });
+        return true;
+      }
+
+      if (this.translatable.$commit)
+        return true;
+
+      this.translatable.$commit = $('<div class="language-commit"></div>')
+      .hide()
+      .appendTo(this.$box)
+      .append($('<button type="button" class="white button commit"><i class="fa fa-save icon-save"></i> '+__('Save')+'</button>')
+        .on('click', $.proxy(this.translatable.commit, this))
+      )
+      .slideDown();
+    },
+
+    commit: function() {
+      var changes = {}, self = this,
+          plugin = this.translatable,
+          $commit = plugin.$commit;
+      $commit.find('button').empty().text(' '+__('Saving'))
+          .prop('disabled', true)
+          .prepend($('<i>').addClass('fa icon-spin icon-spinner'));
+      changes[plugin.current] = this.code.get();
+      $.ajax('ajax.php/i18n/translate/' + plugin.translateTag, {
+        type: 'post',
+        data: changes,
+        success: function() {
+          $commit.slideUp(function() { $(this).remove(); plugin.$commit = undefined; });
+        }
+      });
+    },
+
+    urlcache: {},
+    fetch: function( url, data, callback ) {
+      var urlcache = this.translatable.urlcache;
+      if ( !urlcache[ url ] ) {
+        urlcache[ url ] = $.Deferred(function( defer ) {
+          $.ajax( url, { data: data, dataType: 'json' } )
+            .then( defer.resolve, defer.reject );
+        }).promise();
+      }
+      return urlcache[ url ].done( callback );
+    },
   };
 };

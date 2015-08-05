@@ -22,7 +22,7 @@
             </div>
 <?php       foreach ($C->faqs
                     ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
-                    ->order_by('-views')->limit(5) as $F) { ?>
+                    ->limit(5) as $F) { ?>
                 <div class="popular-faq"><i class="icon-file-alt"></i>
                 <a href="faq.php?id=<?php echo $F->getId(); ?>">
                 <?php echo $F->getLocalQuestion() ?: $F->getQuestion(); ?>

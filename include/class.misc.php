@@ -73,6 +73,10 @@ class Misc {
 
         $dbtime = is_int($var) ? $var : strtotime($var);
         $D = DateTime::createFromFormat('U', $dbtime);
+        if (!$D)
+            // This happens e.g. from negative timestamps
+            return $var;
+
         return $dbtime - $dbtz->getOffset($D);
     }
 
@@ -95,7 +99,8 @@ class Misc {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
         }
         // UTC to db time
-        return $time + $dbtz->getOffset($time);
+        $D = DateTime::createFromFormat('U', $time);
+        return $time + $dbtz->getOffset($D);
     }
 
     /*Helper get GM time based on timezone offset*/
@@ -155,7 +160,7 @@ class Misc {
             $min=0;
 
         ob_start();
-        echo sprintf('<select name="%s" id="%s">',$name,$name);
+        echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
         echo '<option value="" selected>'.__('Time').'</option>';
         for($i=23; $i>=0; $i--) {
             for($minute=45; $minute>=0; $minute-=15) {

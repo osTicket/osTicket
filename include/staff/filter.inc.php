@@ -56,8 +56,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <em>(1...99)</em>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['execorder']; ?></span>
                 &nbsp;&nbsp;&nbsp;
+                <label class="inline checkbox">
                 <input type="checkbox" name="stop_onmatch" value="1" <?php echo $info['stop_onmatch']?'checked="checked"':''; ?> >
                 <?php echo __('<strong>Stop</strong> processing further on match!');?>
+                </label>
                 &nbsp;<i class="help-tip icon-question-sign" href="#execution_order"></i>
             </td>
         </tr>
@@ -114,10 +116,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td colspan=2>
                <em><?php echo __('Rules Matching Criteria');?>:</em>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" name="match_all_rules" value="1" <?php echo $info['match_all_rules']?'checked="checked"':''; ?>><?php echo __('Match All');?>
-                &nbsp;&nbsp;&nbsp;
-                <input type="radio" name="match_all_rules" value="0" <?php echo !$info['match_all_rules']?'checked="checked"':''; ?>><?php echo __('Match Any');?>
-                &nbsp;<span class="error">*&nbsp;</span>
+                <label>
+                <input type="radio" name="match_all_rules" value="1" <?php echo $info['match_all_rules']?'checked="checked"':''; ?>>
+                    <?php echo __('Match All');?>
+                </label>
+                <span style="display:inline-block;width:10px"> </span>
+                <label>
+                <input type="radio" name="match_all_rules" value="0" <?php echo !$info['match_all_rules']?'checked="checked"':''; ?>>
+                    <?php echo __('Match Any');?>
+                </label>
+                <span class="error">*</span>
                 <em>(<?php echo __('case-insensitive comparison');?>)</em>
                 &nbsp;<i class="help-tip icon-question-sign" href="#rules_matching_criteria"></i>
 
@@ -232,8 +240,7 @@ foreach (FilterAction::allRegistered() as $group=>$actions) {
 <?php }
 } ?>
                 </select>
-                <input id="new-action-btn" type="button" value="<?php echo __('Add'); ?>"
-                onclick="javascript:
+                <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
         var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
         dropdown.val('');
         $('#dynamic-actions')
@@ -248,7 +255,7 @@ foreach (FilterAction::allRegistered() as $group=>$actions) {
             )
           ).append(
             $('<input>').attr({type:'hidden',name:'actions[]',value:'N'+selected.val()})
-          );"/>
+          );"><?php echo __('Add'); ?></button>
             </td>
         </tr>
         <tr>

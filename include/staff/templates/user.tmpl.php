@@ -16,7 +16,9 @@ if ($info['error']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
 <div id="user-profile" style="display:<?php echo $forms ? 'none' : 'block'; ?>;margin:5px;">
-    <i class="icon-user icon-4x pull-left icon-border"></i>
+    <div class="avatar pull-left" style="margin: 0 10px;">
+    <?php echo $user->getAvatar(); ?>
+    </div>
     <?php
     if ($ticket) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
@@ -50,10 +52,10 @@ if ($info['error']) {
 <div id="user_tabs_container">
 <div class="tab_content" id="info-tab">
 <div class="floating-options">
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_EDIT)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
 <?php }
-      if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+      if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
     <a href="users.php?id=<?php echo $user->getId(); ?>" title="<?php
         echo __('Manage User'); ?>" class="action"><i class="icon-share"></i></a>
 <?php } ?>
@@ -76,7 +78,7 @@ if ($info['error']) {
 
 <?php if ($org) { ?>
 <div class="hidden tab_content" id="org-tab">
-<?php if ($thisstaff->getRole()->hasPerm(User::PERM_DIRECTORY)) { ?>
+<?php if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
     echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>

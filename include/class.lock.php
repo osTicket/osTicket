@@ -50,6 +50,10 @@ class Lock extends VerySimpleModel {
         return $this->staff->getName();
     }
 
+    function getStaff() {
+        return $this->staff;
+    }
+
     function getCreateTime() {
         return $this->created;
     }

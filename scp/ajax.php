@@ -37,7 +37,8 @@ $dispatcher = patterns('',
     url('^/kb/', patterns('ajax.kbase.php:KbaseAjaxAPI',
         # Send ticket-id as a query arg => canned-response/33?ticket=83
         url_get('^canned-response/(?P<id>\d+).(?P<format>json|txt)', 'cannedResp'),
-        url_get('^faq/(?P<id>\d+)', 'faq')
+        url('^faq/(?P<id>\d+)/access', 'manageFaqAccess'),
+        url_get('^faq/(?P<id>\d+)$', 'faq')
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
         url_get('^log/(?P<id>\d+)', 'log'),
@@ -67,6 +68,7 @@ $dispatcher = patterns('',
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^(?P<list>\w+)/items$', 'getListItems'),
+        url_get('^(?P<list>\w+)/items/search$', 'searchListItems'),
         url_get('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'getListItem'),
         url_post('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'saveListItem'),
         url('^(?P<list>\w+)/item/add$', 'addListItem'),
@@ -135,15 +137,17 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)/forms/manage$', 'manageForms'),
         url_post('^/(?P<id>\d+)/forms/manage$', 'updateForms')
     )),
+    url('^/lock/', patterns('ajax.tickets.php:TicketsAjaxAPI',
+        url_post('^ticket/(?P<tid>\d+)$', 'acquireLock'),
+        url_post('^(?P<id>\d+)/ticket/(?P<tid>\d+)/renew', 'renewLock'),
+        url_post('^(?P<id>\d+)/release', 'releaseLock')
+    )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
         url_post('^(?P<tid>\d+)/change-user$', 'changeUser'),
         url_get('^(?P<tid>\d+)/user$', 'viewUser'),
         url_post('^(?P<tid>\d+)/user$', 'updateUser'),
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
-        url_post('^(?P<tid>\d+)/lock$', 'acquireLock'),
-        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/renew', 'renewLock'),
-        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock'),
         url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
         url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms'),
         url_get('^(?P<tid>\d+)/canned-resp/(?P<cid>\w+).(?P<format>json|txt)', 'cannedResponse'),
@@ -181,6 +185,7 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/view$', 'task'),
         url_post('^(?P<tid>\d+)$', 'task'),
         url('^add$', 'add'),
+        url('^lookup', 'lookup'),
         url_get('^mass/(?P<action>[\w.]+)', 'massProcess'),
         url_post('^mass/(?P<action>[\w.]+)', 'massProcess')
     )),
@@ -220,15 +225,39 @@ $dispatcher = patterns('',
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     )),
     url('^/i18n/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('^langs/all$', 'getConfiguredLanguages'),
         url_get('^langs$', 'getSecondaryLanguages'),
         url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
         url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
         url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
+    )),
+    url('^/admin', patterns('ajax.admin.php:AdminAjaxAPI',
+        url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
+            url('^/department$', 'addDepartment'),
+            url('^/team$', 'addTeam'),
+            url('^/role$', 'addRole'),
+            url('^/staff$', 'addStaff')
+        )),
+        url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
+    )),
+    url('^/staff', patterns('ajax.staff.php:StaffAjaxAPI',
+        url('^/(?P<id>\d+)/set-password$', 'setPassword'),
+        url('^/(?P<id>\d+)/change-password$', 'changePassword'),
+        url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
+        url('^/reset-permissions', 'resetPermissions'),
+        url('^/change-department', 'changeDepartment'),
+        url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
     ))
 );
 
 Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
-print $dispatcher->resolve($ost->get_path_info());
+$rv = $dispatcher->resolve($ost->get_path_info());
+
+// Indicate JSON response content-type
+if (is_string($rv) && $rv[0] == '{')
+    Http::response(200, $rv, 'application/json');
+
+print $rv;
 ?>

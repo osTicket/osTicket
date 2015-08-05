@@ -1,7 +1,9 @@
 <?php
 $error=$msg=$warn=null;
 
-if($task->isOverdue())
+if (!$task->checkStaffPerm($thisstaff))
+     $warn.= __('You do not have access to this task');
+elseif ($task->isOverdue())
     $warn.='&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 echo sprintf(

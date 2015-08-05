@@ -36,9 +36,8 @@ class Config {
         if ($this->section === null)
             return false;
 
-        if (!isset($_SESSION['cfg:'.$this->section]))
-            $_SESSION['cfg:'.$this->section] = array();
-        $this->session = &$_SESSION['cfg:'.$this->section];
+        if (isset($_SESSION['cfg:'.$this->section]))
+            $this->session = &$_SESSION['cfg:'.$this->section];
         $this->load();
     }
 
@@ -64,7 +63,7 @@ class Config {
     }
 
     function get($key, $default=null) {
-        if (isset($this->session[$key]))
+        if (isset($this->session) && isset($this->session[$key]))
             return $this->session[$key];
         elseif (isset($this->config[$key]))
             return $this->config[$key]['value'];
@@ -83,6 +82,10 @@ class Config {
     }
 
     function persist($key, $value) {
+        if (!isset($this->session)) {
+            $this->session = &$_SESSION['cfg:'.$this->section];
+            $this->session = array();
+        }
         $this->session[$key] = $value;
         return true;
     }
@@ -170,6 +173,8 @@ class OsticketConfig extends Config {
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
         'verify_email_addrs' => 1,
+        'client_avatar' => 'gravatar.mm',
+        'agent_avatar' => 'gravatar.mm',
     );
 
     function OsticketConfig($section=null) {
@@ -400,6 +405,18 @@ class OsticketConfig extends Config {
 
     function getStaffMaxLogins() {
         return $this->get('staff_max_logins');
+    }
+
+    function getStaffAvatarSource() {
+        require_once INCLUDE_DIR . 'class.avatar.php';
+        list($source, $mode) = explode('.', $this->get('agent_avatar'), 2);
+        return AvatarSource::lookup($source, $mode);
+    }
+
+    function getClientAvatarSource() {
+        require_once INCLUDE_DIR . 'class.avatar.php';
+        list($source, $mode) = explode('.', $this->get('client_avatar'), 2);
+        return AvatarSource::lookup($source, $mode);
     }
 
     function getLockTime() {
@@ -1096,6 +1113,11 @@ class OsticketConfig extends Config {
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
             'error'=>__('Valid password reset window required'));
 
+        require_once INCLUDE_DIR.'class.avatar.php';
+        list($avatar_source) = explode('.', $vars['agent_avatar']);
+        if (!AvatarSource::lookup($avatar_source))
+            $errors['agent_avatar'] = __('Select a value from the list');
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
@@ -1108,13 +1130,18 @@ class OsticketConfig extends Config {
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
             'agent_name_format'=>$vars['agent_name_format'],
-
+            'agent_avatar'=>$vars['agent_avatar'],
         ));
     }
 
     function updateUsersSettings($vars, &$errors) {
         $f=array();
         $f['client_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
+
+        require_once INCLUDE_DIR.'class.avatar.php';
+        list($avatar_source) = explode('.', $vars['client_avatar']);
+        if (!AvatarSource::lookup($avatar_source))
+            $errors['client_avatar'] = __('Select a value from the list');
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1127,7 +1154,7 @@ class OsticketConfig extends Config {
             'client_registration'=>$vars['client_registration'],
             'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
             'client_name_format'=>$vars['client_name_format'],
-
+            'client_avatar'=>$vars['client_avatar'],
         ));
     }
 
@@ -1181,7 +1208,6 @@ class OsticketConfig extends Config {
 
     function updateTasksSettings($vars, &$errors) {
         $f=array();
-        $f['default_task_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['default_task_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
 
         if (!preg_match('`(?!<\\\)#`', $vars['task_number_format']))
@@ -1292,7 +1318,7 @@ class OsticketConfig extends Config {
 
     function getLogo($site) {
         $id = $this->get("{$site}_logo_id", false);
-        return ($id) ? AttachmentFile::lookup($id) : null;
+        return ($id) ? AttachmentFile::lookup((int) $id) : null;
     }
     function getClientLogo() {
         return $this->getLogo('client');
