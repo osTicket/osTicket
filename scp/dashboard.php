@@ -14,9 +14,13 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+
+require_once INCLUDE_DIR . 'class.report.php';
+
 $nav->setTabActive('dashboard');
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.dashboard" />',
     "$('#content').data('tipNamespace', 'dashboard.dashboard');");
+
 require(STAFFINC_DIR.'header.inc.php');
 require_once(STAFFINC_DIR.'dashboard.inc.php');
 include(STAFFINC_DIR.'footer.inc.php');

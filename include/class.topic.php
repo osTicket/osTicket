@@ -371,6 +371,11 @@ implements TemplateVariable {
         return self::getHelpTopics(false, true, $localize);
     }
 
+    static function getLocalNameById($id) {
+        $topics = static::getHelpTopics(false, true);
+        return $topics[$id];
+    }
+
     static function getIdByName($name, $pid=0) {
         $list = self::objects()->filter(array(
             'topic'=>$name,

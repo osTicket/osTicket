@@ -1,19 +1,25 @@
+<?php
+$report = new OverviewReport($_POST['start'], $_POST['period']);
+$plots = $report->getPlotData();
+
+?>
 <script type="text/javascript" src="js/raphael-min.js"></script>
 <script type="text/javascript" src="js/g.raphael.js"></script>
 <script type="text/javascript" src="js/g.line-min.js"></script>
 <script type="text/javascript" src="js/g.dot-min.js"></script>
 <script type="text/javascript" src="js/dashboard.inc.js"></script>
 
-<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>-->
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
 <div id="basic_search">
     <div style="min-height:25px;">
         <!--<p><?php //echo __('Select the starting time and period for the system activity graph');?></p>-->
-        <form class="form-inline" id="timeframe-form">
+        <form method="post" action="dashboard.php">
+            <?php echo csrf_token(); ?>
             <label>
                 <?php echo __( 'Report timeframe'); ?>:
-                <input type="text" class="dp input-medium search-query" name="start" placeholder="<?php echo __('Last month');?>" />
+                <input type="text" class="dp input-medium search-query" name="start" placeholder="<?php echo __('Last month');?>"i
+                    value="<?php echo Format::htmlchars($_POST['start']); ?>" />
             </label>
             <label>
                 <?php echo __( 'period');?>:
@@ -59,8 +65,54 @@
 <hr/>
 <h2><?php echo __('Statistics'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
 <p><?php echo __('Statistics of tickets organized by department, help topic, and agent.');?></p>
-<ul id="tabular-navigation" class="tabs">
+
+<ul class="clean tabs">
+<?php
+$first = true;
+$groups = $report->enumTabularGroups();
+foreach ($groups as $g=>$desc) { ?>
+    <li class="<?php echo $first ? 'active' : ''; ?>"><a href="#<?php echo Format::slugify($g); ?>"
+        ><?php echo Format::htmlchars($desc); ?></a></li>
+<?php
+    $first = false;
+} ?>
 </ul>
-<!--<div id="table-here"></div>-->
 
 <?php
+$first = true;
+foreach ($groups as $g=>$desc) {
+    $data = $report->getTabularData($g); ?>
+    <div class="tab_content <?php echo (!$first) ? 'hidden' : ''; ?>" id="<?php echo Format::slugify($g); ?>">
+    <table class="table"><tbody><tr>
+<?php
+    foreach ($data['columns'] as $c) { ?>
+        <th><?php echo Format::htmlchars($c); ?></th>
+<?php
+    } ?>
+    </tr></tbody>
+    <tbody>
+<?php
+    foreach ($data['data'] as $i=>$row) {
+        echo '<tr>';
+        foreach ($row as $j=>$td) {
+            if ($j === 0) { ?>
+                <th><?php echo Format::htmlchars($td); ?></th>
+<?php       }
+            else { ?>
+                <td><?php echo Format::htmlchars($td);
+                if ($td) { // TODO Add head map
+                }
+                echo '</td>';
+            }
+        }
+        echo '</tr>';
+    }
+    $first = false; ?>
+    </tbody></table>
+    </div>
+<?php
+}
+?>
+<script>
+    $.drawPlots(<?php echo JsonDataEncoder::encode($report->getPlotData()); ?>);
+</script>

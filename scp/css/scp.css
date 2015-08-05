@@ -2248,12 +2248,12 @@ tr.disabled th {
     float: right;
     margin-bottom: 4px;
     font-size: 11px;
-    padding: 0px 4px;
+    padding: 0px 7px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
     font-weight: bold;
-    line-height: 24px;
+    line-height: 18px;
     color: #ffffff;
     vertical-align: baseline;
     white-space: nowrap;

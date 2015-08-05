@@ -1806,7 +1806,7 @@ class SqlCompiler {
     static function splitCriteria($criteria) {
         static $operators = array(
             'exact' => 1, 'isnull' => 1,
-            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
+            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1, 'range' => 1,
             'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1, 'regex' => 1,
             'in' => 1, 'intersect' => 1,
             'hasbit' => 1,
@@ -2199,6 +2199,7 @@ class MySqlCompiler extends SqlCompiler {
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
         'lte' => '%1$s <= %2$s',
+        'range' => array('self', '__range'),
         'isnull' => array('self', '__isnull'),
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
@@ -2271,6 +2272,11 @@ class MySqlCompiler extends SqlCompiler {
         if ($b[0] == '/')
             $b = preg_replace('`/[^/]*$`', '', substr($b, 1));
         return sprintf('%s REGEXP %s', $a, $this->input($b));
+    }
+
+    function __range($a, $b) {
+        // XXX: Crash if $b is not array of two items
+        return sprintf('%s BETWEEN %s AND %s', $a, $b[0], $b[1]);
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
