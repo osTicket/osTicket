@@ -581,7 +581,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
-    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
                     ?></textarea>
                 <div id="reply_form_attachments" class="attachments">
                 <?php
@@ -698,7 +698,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
-    echo $attrs; ?>><?php echo $draft ?: $info['note'];
+    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
                         ?></textarea>
                 <div class="attachments">
                 <?php
