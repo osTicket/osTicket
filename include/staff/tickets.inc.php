@@ -291,16 +291,17 @@ while ($row = db_fetch_array($res)) {
 
 // Fetch attachment and thread entry counts
 if ($results) {
-    $counts_sql = 'SELECT ticket.ticket_id, coalesce(attach.count, 0) as attachments, '
-        .'coalesce(thread.count, 0) as thread_count, coalesce(collab.count, 0) as collaborators '
-        .'FROM '.TICKET_TABLE.' ticket '
-        .'left join (select count(attach.attach_id) as count, ticket_id from '.TICKET_ATTACHMENT_TABLE
-            .' attach group by attach.ticket_id) as attach on (attach.ticket_id = ticket.ticket_id) '
-        .'left join (select count(thread.id) as count, ticket_id from '.TICKET_THREAD_TABLE
-            .' thread group by thread.ticket_id) as thread on (thread.ticket_id = ticket.ticket_id) '
-        .'left join (select count(collab.id) as count, ticket_id from '.TICKET_COLLABORATOR_TABLE
-            .' collab group by collab.ticket_id) as collab on (collab.ticket_id = ticket.ticket_id) '
-         .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).');';
+    $counts_sql = 'SELECT ticket.ticket_id,
+        count(DISTINCT attach.attach_id) as attachments,
+        count(DISTINCT thread.id) as thread_count,
+        count(DISTINCT collab.id) as collaborators
+        FROM '.TICKET_TABLE.' ticket
+        LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
+     .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
+     .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+            ON ( ticket.ticket_id=collab.ticket_id) '
+     .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
+        GROUP BY ticket.ticket_id';
     $ids_res = db_query($counts_sql);
     while ($row = db_fetch_array($ids_res)) {
         $results[$row['ticket_id']] += $row;
