@@ -23,7 +23,7 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
     if ($faqs->all()) { ?>
             <section><div class="header"><?php echo __('Featured Questions'); ?></div>
 <?php   foreach ($faqs as $F) { ?>
-            <div><a href="<?php echo ROOT_PATH; ?>/kb/faq.php?id=<?php
+            <div><a href="<?php echo ROOT_PATH; ?>kb/faq.php?id=<?php
                 echo urlencode($F->getId());
                 ?>"><?php echo $F->getLocalQuestion(); ?></a></div>
 <?php   } ?>
