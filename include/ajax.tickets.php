@@ -369,6 +369,276 @@ class TicketsAjaxAPI extends AjaxController {
         return $canned->getFormattedResponse($format, $varReplacer);
     }
 
+    function transfer($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_TRANSFER))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Transfer')),
+                ':action' => sprintf('#tickets/%d/transfer',
+                    $ticket->getId())
+                );
+
+        $form = $ticket->getTransferForm($_POST);
+        if ($_POST && $form->isValid()) {
+            if ($ticket->transfer($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s transferred to %s department'),
+                            __('Ticket'),
+                            $ticket->getDept()
+                            )
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to transfer ticket');
+        }
+
+        $info['dept_id'] = $info['dept_id'] ?: $ticket->getDeptId();
+
+        include STAFFINC_DIR . 'templates/transfer.tmpl.php';
+    }
+
+
+    function assign($tid, $to=null) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    $ticket->isAssigned() ? __('Reassign') :  __('Assign')),
+                ':action' => sprintf('#tickets/%d/assign%s',
+                    $ticket->getId(),
+                    ($to  ? "/$to": '')),
+                );
+        if ($ticket->isAssigned()) {
+            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
+                    __('Ticket'),
+                    $ticket->getAssigned());
+        }
+
+        $form = $ticket->getAssignmentForm($_POST);
+        if ($_POST && $form->isValid()) {
+            if ($ticket->assign($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s assigned to %s'),
+                            __('Ticket'),
+                            $form->getAssignee())
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to assign ticket');
+        }
+
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
+    }
+
+    function massProcess($action)  {
+        global $thisstaff;
+
+        $actions = array(
+                'transfer' => array(
+                    'verbed' => __('transferred'),
+                    ),
+                'assign' => array(
+                    'verbed' => __('assigned'),
+                    ),
+                'delete' => array(
+                    'verbed' => __('deleted'),
+                    ),
+                'reopen' => array(
+                    'verbed' => __('reopen'),
+                    ),
+                'close' => array(
+                    'verbed' => __('closed'),
+                    ),
+                );
+
+        if (!isset($actions[$action]))
+            Http::response(404, __('Unknown action'));
+
+
+        $info = $errors = $e = array();
+        $inc = null;
+        $i = $count = 0;
+        if ($_POST) {
+            if (!$_POST['tids'] || !($count=count($_POST['tids'])))
+                $errors['err'] = sprintf(
+                        __('You must select at least %s.'),
+                        __('one ticket'));
+        } else {
+            $count  =  $_REQUEST['count'];
+        }
+        switch ($action) {
+        case 'assign':
+            $inc = 'assign.tmpl.php';
+            $info[':action'] = '#tickets/mass/assign';
+            $info[':title'] = sprintf('Assign %s',
+                    _N('selected ticket', 'selected tickets', $count));
+            $form = AssignmentForm::instantiate($_POST);
+            if ($_POST && $form->isValid()) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Ticket::lookup($tid))
+                            // Make sure the agent is allowed to
+                            // access and assign the task.
+                            && $t->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                            // Do the assignment
+                            && $t->assign($form, $e)
+                            )
+                        $i++;
+                }
+
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('assign'),
+                            _N('selected ticket', 'selected tickets', $count));
+                }
+            }
+            break;
+        case 'transfer':
+            $inc = 'transfer.tmpl.php';
+            $info[':action'] = '#tickets/mass/transfer';
+            $info[':title'] = sprintf('Transfer %s',
+                    _N('selected ticket', 'selected tickets', $count));
+            $form = TransferForm::instantiate($_POST);
+            if ($_POST && $form->isValid()) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Ticket::lookup($tid))
+                            // Make sure the agent is allowed to
+                            // access and transfer the task.
+                            && $t->checkStaffPerm($thisstaff, Ticket::PERM_TRANSFER)
+                            // Do the transfer
+                            && $t->transfer($form, $e)
+                            )
+                        $i++;
+                }
+
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('transfer'),
+                            _N('selected ticket', 'selected tickets', $count));
+                }
+            }
+            break;
+        case 'delete':
+            $inc = 'delete.tmpl.php';
+            $info[':action'] = '#tickets/mass/delete';
+            $info[':title'] = sprintf('Delete %s',
+                    _N('selected ticket', 'selected tickets', $count));
+
+            $info[':placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    _N('selected ticket', 'selected tickets', $count));
+            $info['warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                    _N('selected ticket', 'selected tickets', $count));
+            $info[':extra'] = sprintf('<strong>%s</strong>',
+                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        );
+
+            // Generic permission check.
+            if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
+                $errors['err'] = sprintf(
+                        __('You do not have permission to %s %s'),
+                        __('delete'),
+                        __('tickets'));
+
+
+            if ($_POST && !$errors) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Ticket::lookup($tid))
+                            && $t->getDeptId() != $_POST['dept_id']
+                            && $t->checkStaffPerm($thisstaff, Ticket::PERM_DELETE)
+                            && $t->delete($_POST, $e)
+                            )
+                        $i++;
+                }
+
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('delete'),
+                            _N('selected ticket', 'selected tickets', $count));
+                }
+            }
+            break;
+        default:
+            Http::response(404, __('Unknown action'));
+        }
+
+        if ($_POST && $i) {
+
+            // Assume success
+            if ($i==$count) {
+                $msg = sprintf(__('Successfully %s %s.'),
+                        $actions[$action]['verbed'],
+                        sprintf(__('%1$d %2$s'),
+                            $count,
+                            _N('selected ticket', 'selected tickets', $count))
+                        );
+                $_SESSION['::sysmsgs']['msg'] = $msg;
+            } else {
+                $warn = sprintf(
+                        __('%1$d of %2$d %3$s %4$s'), $i, $count,
+                        _N('selected ticket', 'selected tickets',
+                            $count),
+                        $actions[$action]['verbed']);
+                $_SESSION['::sysmsgs']['warn'] = $warn;
+            }
+            Http::response(201, 'processed');
+        } elseif($_POST && !isset($info['error'])) {
+            $info['error'] = $errors['err'] ?: sprintf(
+                    __('Unable to %1$s  %2$s'),
+                    __('process'),
+                    _N('selected ticket', 'selected tickets', $count));
+        }
+
+        if ($_POST)
+            $info = array_merge($info, Format::htmlchars($_POST));
+
+        include STAFFINC_DIR . "templates/$inc";
+        //  Copy checked tickets to the form.
+        echo "
+        <script type=\"text/javascript\">
+        $(function() {
+            $('form#tickets input[name=\"tids[]\"]:checkbox:checked')
+            .each(function() {
+                $('<input>')
+                .prop('type', 'hidden')
+                .attr('name', 'tids[]')
+                .val($(this).val())
+                .appendTo('form.mass-action');
+            });
+        });
+        </script>";
+
+    }
+
     function changeTicketStatus($tid, $status, $id=0) {
         global $thisstaff;
 

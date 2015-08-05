@@ -2,10 +2,6 @@
 global $cfg;
 
 $form = $form ?: TransferForm::instantiate($info);
-
-if (!$info[':title'])
-    $info[':title'] = sprintf(__('%s Selected Tasks'),
-            __('Tranfer'));
 ?>
 <h3 class="drag-handle"><?php echo $info[':title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -23,8 +19,7 @@ if ($info['error']) {
            $info['notice']);
 }
 
-
-$action = $info[':action'] ?: ('#tasks/mass/transfer');
+$action = $info[':action'] ?: ('#');
 ?>
 <div style="display:block; margin:5px;">
 <form method="post" name="transfer" id="transfer"
@@ -59,7 +54,7 @@ $action = $info[':action'] ?: ('#tasks/mass/transfer');
         </span>
         <span class="buttons pull-right">
             <input type="submit" value="<?php
-            echo $verb ?: __('Submit'); ?>">
+            echo $verb ?: __('Transfer'); ?>">
         </span>
      </p>
 </form>
