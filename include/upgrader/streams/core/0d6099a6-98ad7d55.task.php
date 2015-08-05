@@ -5,7 +5,11 @@ class StaffPermissions extends MigrationTask {
 
     function run($time) {
         foreach (Staff::objects() as $staff) {
-            $role = $staff->getRole()->getPermission();
+            $role = $staff->getRole();
+            if ($role)
+                $role_perms = $role->getPermission();
+            else
+                $role_perms = new RolePermission(null);
             $perms = array(
                 User::PERM_CREATE,
                 User::PERM_EDIT,
@@ -16,9 +20,9 @@ class StaffPermissions extends MigrationTask {
                 Organization::PERM_EDIT,
                 Organization::PERM_DELETE,
             );
-            if ($role->has(FAQ::PERM_MANAGE))
+            if ($role_perms->has(FAQ::PERM_MANAGE))
                 $perms[] = FAQ::PERM_MANAGE;
-            if ($role->has(Email::PERM_BANLIST))
+            if ($role_perms->has(Email::PERM_BANLIST))
                 $perms[] = Email::PERM_BANLIST;
 
             $errors = array();
