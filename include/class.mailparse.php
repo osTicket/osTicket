@@ -694,7 +694,7 @@ class EmailDataParser {
             // Fetch the original References and assign to 'references'
             if ($headers = $parser->getOriginalMessageHeaders()) {
                 $data['references'] = $headers['references'];
-                $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $data['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();

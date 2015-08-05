@@ -666,7 +666,7 @@ class MailFetcher {
             // Fetch the original References and assign to 'references'
             if ($headers = $this->getOriginalMessageHeaders($mid)) {
                 $vars['references'] = $headers['references'];
-                $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $vars['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
