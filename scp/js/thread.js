@@ -165,7 +165,7 @@ var thread = {
 
         // Open first response option tab if not already active
         if (!document.location.hash)
-            $('.actions .tabs li:visible:first:not(.active) a', $container).trigger('click');
+            $('.actions .tabs li:visible:first:not(.active) a', $container.parent()).trigger('click');
     }
 };
 

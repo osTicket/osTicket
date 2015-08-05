@@ -956,7 +956,8 @@ $.changeHash = function(hash, quiet) {
 
 // Forms — submit, stay on same tab
 $(document).on('submit', 'form', function() {
-    $(this).attr('action', $(this).attr('action') + window.location.hash);
+    if ($(this).attr('action').indexOf('#') == -1)
+        $(this).attr('action', $(this).attr('action') + window.location.hash);
 });
 
 //Collaborators
