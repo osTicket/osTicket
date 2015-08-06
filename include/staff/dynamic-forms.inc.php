@@ -45,8 +45,8 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th><?php echo __('Built-in Forms'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="50%"><?php echo __('Built-in Forms'); ?></th>
             <th><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
@@ -63,7 +63,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
             ->filter(array('type__in'=>array_keys($forms)))
             ->order_by('type', 'title') as $form) { ?>
         <tr>
-        <td><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
+        <td align="center"><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
                 <?php echo $form->get('title'); ?></a>
             <td><?php echo $form->get('updated'); ?></td>
@@ -73,7 +73,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
     <tbody>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
+            <th width="4%">&nbsp;</th>
             <th><?php echo __('Custom Forms'); ?></th>
             <th><?php echo __('Last Updated'); ?></th>
         </tr>

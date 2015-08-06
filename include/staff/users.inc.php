@@ -63,7 +63,7 @@ $users->order_by($order . $order_column);
             <input type="hidden" name="a" value="search">
             <div class="attached input">
                 <input type="search" class="basic-search" id="basic-user-search" name="query"
-                        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                         size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                         autocomplete="off" autocorrect="off" autocapitalize="off">
             <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
                 <button type="submit" class="attached button"><i class="icon-search"></i>
@@ -149,14 +149,14 @@ else
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th nowrap width="12"> </th>
-            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
+            <th nowrap width="4%">&nbsp;</th>
+            <th width="45%"><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
+            <th width="11%"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
-            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php
+            <th width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php
+            <th width="20%"><a <?php echo $update_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
         </tr>
     </thead>
@@ -181,7 +181,7 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $U['id']; ?>">
-                <td nowrap>
+                <td nowrap align="center">
                     <input type="checkbox" value="<?php echo $U['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp;

@@ -109,11 +109,11 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
     <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
         <thead>
             <tr>
-                <th width="7px">&nbsp;</th>
-                <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
-                <th width="200"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Ban Status');?></a></th>
-                <th width="120"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
-                <th width="120"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+                <th width="4%">&nbsp;</th>
+                <th width="56%"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+                <th width="10%"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Ban Status');?></a></th>
+                <th width="10%"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
+                <th width="20%"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
             </tr>
         </thead>
         <tbody>
@@ -126,7 +126,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
                         $sel=true;
                     ?>
                    <tr id="<?php echo $row['id']; ?>">
-                    <td width=7px>
+                    <td align="center">
                       <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                     </td>
                     <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
