@@ -239,7 +239,7 @@ if ($_POST)
         </tr>
 
         <?php
-        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
+        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)) { ?>
         <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -336,7 +336,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE))
+                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
