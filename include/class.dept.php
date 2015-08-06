@@ -215,7 +215,7 @@ implements TemplateVariable {
                 'dept_id' => $this->getId(),
                 // NOTE: Manager is excluded here if not a member
                 Q::all(array(
-                    'group_membership' => self::ALERTS_DEPT_AND_EXTENDED,
+                    'dept_access__dept__group_membership' => self::ALERTS_DEPT_AND_EXTENDED,
                     'dept_access__flags__hasbit' => StaffDeptAccess::FLAG_ALERTS,
                 )),
             )));
