@@ -27,6 +27,17 @@ RENAME TABLE `%TABLE_PREFIX%ticket_collaborator` TO `%TABLE_PREFIX%thread_collab
 ALTER TABLE `%TABLE_PREFIX%thread_collaborator`
   CHANGE `ticket_id` `thread_id` int(11) unsigned NOT NULL DEFAULT '0';
 
+UPDATE `%TABLE_PREFIX%thread_collaborator` t1
+    LEFT JOIN  `%TABLE_PREFIX%thread` t2 ON (t2.object_id = t1.thread_id  and t2.object_type = 'T')
+    SET t1.thread_id = t2.id, t1.created = t2.created;
+
+-- Drop zombie collaborators from tickets which were deleted and had
+-- collaborators and the collaborators were not removed
+DELETE A1.*
+    FROM `%TABLE_PREFIX%thread_collaborator` A1
+    LEFT JOIN `%TABLE_PREFIX%thread` A2 ON (A2.id = A1.thread_id)
+    WHERE A2.id IS NULL;
+
 ALTER TABLE `%TABLE_PREFIX%task`
   ADD `lock_id` int(11) unsigned NOT NULL DEFAULT '0' AFTER `team_id`;
 

@@ -114,6 +114,12 @@ implements EmailContact, ITicketUser {
         return $this->user_id;
     }
 
+    static function create($vars=false) {
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
+    }
+
     function save($refetch=false) {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
