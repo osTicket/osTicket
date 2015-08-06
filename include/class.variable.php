@@ -329,6 +329,10 @@ class PlaceholderList
         }
         return new static(array_filter($items));
     }
+
+    function __toString() {
+        return $this->asVar();
+    }
 }
 
 /**
