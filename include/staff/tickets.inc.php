@@ -369,15 +369,7 @@ return false;">
         <div class="pull-right flush-right">
             <?php
             if ($count) {
-                if ($thisstaff->canManageTickets()) {
-                    echo TicketStatus::status_options();
-                }
-                if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
-                <a id="tickets-delete" class="red button action-button tickets-action"
-                    href="#tickets/status/delete"><i
-                class="icon-trash"></i> <?php echo __('Delete'); ?></a>
-                <?php
-                }
+                Ticket::agentActions($thisstaff, array('status' => $status));
             }?>
         </div>
     </div>
@@ -587,7 +579,7 @@ $(function() {
             +'?count='+count
             +'&_uid='+new Date().getTime();
             $.dialog(url, [201], function (xhr) {
-                window.location.href = window.location.href;
+                $.pjax.reload('#pjax-container');
              });
         }
         return false;

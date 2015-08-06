@@ -853,6 +853,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         try {
             db_autocommit(false);
+            $errors = array();
             $records = $importer->importCsv($form->getFields(), $defaults);
             foreach ($records as $data) {
                 if (!isset($data['email']) || !isset($data['username']))

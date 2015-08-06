@@ -644,15 +644,32 @@ implements RestrictedAccess, Threadable {
         return $this->team;
     }
 
+    function getAssigneeId() {
+
+        if (!($assignee=$this->getAssignee()))
+            return null;
+
+        $id = '';
+        if ($assignee instanceof Staff)
+            $id = 's'.$assignee->getId();
+        elseif ($assignee instanceof Team)
+            $id = 't'.$assignee->getId();
+
+        return $id;
+    }
+
     function getAssignee() {
 
-        if ($staff=$this->getStaff())
-            return $staff->getName();
+        if (!$this->isOpen() || !$this->isAssigned())
+            return false;
 
-        if ($team=$this->getTeam())
-            return $team->getName();
+        if ($this->staff)
+            return $this->staff;
 
-        return '';
+        if ($this->team)
+            return $this->team;
+
+        return null;
     }
 
     function getAssignees() {
@@ -816,6 +833,24 @@ implements RestrictedAccess, Threadable {
             $this->recipients = $list;
         }
         return $this->recipients;
+    }
+
+    function getAssignmentForm($source=null, $options=array()) {
+
+        if (!$source)
+            $source = array('assignee' => array($this->getAssigneeId()));
+
+        $options += array('dept' => $this->getDept());
+
+        return AssignmentForm::instantiate($source, $options);
+    }
+
+    function getTransferForm($source=null) {
+
+        if (!$source)
+            $source = array('dept' => array($this->getDeptId()));
+
+        return TransferForm::instantiate($source);
     }
 
     function getDynamicFields($criteria=array()) {
@@ -1853,47 +1888,61 @@ implements RestrictedAccess, Threadable {
     }
 
     //Dept Tranfer...with alert.. done by staff
-    function transfer($deptId, $comments, $alert=true) {
-        global $cfg, $thisstaff;
+    function transfer(TransferForm $form, &$errors, $alert=true) {
+        global $thisstaff, $cfg;
 
-        if (!$this->checkStaffPerm($thisstaff, TicketModel::PERM_TRANSFER))
+        // Check if staff can do the transfer
+        if (!$this->checkStaffPerm($thisstaff, Ticket::PERM_TRANSFER))
             return false;
 
-        $currentDept = $this->getDeptName(); //Current department
+        $cdept = $this->getDept(); // Current department
+        $dept = $form->getDept(); // Target department
+        if (!$dept || !($dept instanceof Dept))
+            $errors['dept'] = __('Department selection required');
+        elseif ($dept->getid() == $this->getDeptId())
+            $errors['dept'] = sprintf(
+                    __('%s already in the department'), __('Ticket'));
+        else {
+            $this->dept_id = $dept->getId();
 
-        if (!$deptId || !$this->setDeptId($deptId))
+            // Make sure the new department allows assignment to the
+            // currently assigned agent (if any)
+            if ($this->isAssigned()
+                && ($staff=$this->getStaff())
+                && $dept->assignMembersOnly()
+                && !$dept->isMember($staff)
+            ) {
+                $this->staff_id = 0;
+            }
+        }
+
+        if ($errors || !$this->save(true))
             return false;
 
         // Reopen ticket if closed
         if ($this->isClosed())
             $this->reopen();
 
-        $dept = $this->getDept();
-
         // Set SLA of the new department
         if (!$this->getSLAId() || $this->getSLA()->isTransient())
             $this->selectSLAId();
 
-        // Make sure the new department allows assignment to the
-        // currently assigned agent (if any)
-        if ($this->isAssigned()
-            && ($staff=$this->getStaff())
-            && $dept->assignMembersOnly()
-            && !$dept->isMember($staff)
-        ) {
-            $this->setStaffId(0);
-        }
-
-        /*** log the transfer comments as internal note - with alerts disabled - ***/
-        $title=sprintf(_S('Ticket transferred from %1$s to %2$s'),
-            $currentDept, $this->getDeptName());
-
-        if ($comments) {
-            $note = $this->logNote($title, $comments, $thisstaff, false);
-        }
-        $comments = $comments ?: $title;
-
+        // Log transfer event
         $this->logEvent('transferred');
+
+        // Post internal note if any
+        $note = $form->getField('comments')->getClean();
+        if ($note) {
+            $title = sprintf(__('%1$s transferred from %2$s to %3$s'),
+                    __('Ticket'),
+                   $cdept->getName(),
+                    $dept->getName());
+
+            $_errors = array();
+            $note = $this->postNote(
+                    array('note' => $note, 'title' => $title),
+                    $_errors, $thisstaff, false);
+        }
 
         //Send out alerts if enabled AND requested
         if (!$alert || !$cfg->alertONTransfer())
@@ -1904,7 +1953,7 @@ implements RestrictedAccess, Threadable {
              && ($msg=$tpl->getTransferAlertMsgTemplate())
          ) {
             $msg = $this->replaceVars($msg->asArray(),
-                array('comments' => $comments, 'staff' => $thisstaff));
+                array('comments' => $note, 'staff' => $thisstaff));
             // Recipients
             $recipients = array();
             // Assigned staff or team... if any
@@ -1950,6 +1999,7 @@ implements RestrictedAccess, Threadable {
                 $sentlist[] = $staff->getEmail();
             }
          }
+
          return true;
     }
 
@@ -2007,23 +2057,50 @@ implements RestrictedAccess, Threadable {
         return true;
     }
 
-    //Assign ticket to staff or team - overloaded ID.
-    function assign($assignId, $note, $alert=true) {
+    function assign(AssignmentForm $form, &$errors, $alert=true) {
         global $thisstaff;
 
-        $rv = 0;
-        $id = preg_replace("/[^0-9]/", "", $assignId);
-        if ($assignId[0] == 't') {
-            $rv = $this->assignToTeam($id, $note, $alert);
+        $evd = array();
+        $assignee = $form->getAssignee();
+        if ($assignee instanceof Staff) {
+            if ($this->getStaffId() == $assignee->getId()) {
+                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
+                        __('Ticket'),
+                        __('the agent')
+                        );
+            } elseif(!$assignee->isAvailable()) {
+                $errors['assignee'] = __('Agent is unavailable for assignment');
+            } else {
+                $this->staff_id = $assignee->getId();
+                if ($thisstaff && $thisstaff->getId() == $assignee->getId())
+                    $evd['claim'] = true;
+                else
+                    $evd['staff'] = array($assignee->getId(), $assignee->getName());
+            }
+        } elseif ($assignee instanceof Team) {
+            if ($this->getTeamId() == $assignee->getId()) {
+                $errors['assignee'] = sprintf(__('%s already assigned to %s'),
+                        __('Ticket'),
+                        __('the team')
+                        );
+            } else {
+                $this->team_id = $assignee->getId();
+                $evd = array('team' => $assignee->getId());
+            }
+        } else {
+            $errors['assignee'] = __('Unknown assignee');
         }
-        elseif ($assignId[0] == 's' || is_numeric($assignId)) {
-            $alert = ($alert && $thisstaff && $thisstaff->getId() == $id)
-                ? false : $alert; //No alerts on self assigned tickets!!!
-            // We don't care if a team is already assigned to the ticket -
-            // staff assignment takes precedence
-            $rv = $this->assignToStaff($id, $note, $alert);
-        }
-        return $rv;
+
+        if ($errors || !$this->save(true))
+            return false;
+
+        $this->logEvent('assigned', $evd);
+
+        $this->onAssign($assignee,
+                $form->getField('comments')->getClean(),
+                $alert);
+
+        return true;
     }
 
     // Unassign primary assignee
@@ -3431,5 +3508,11 @@ implements RestrictedAccess, Threadable {
         }
    }
 
+    static function agentActions($agent, $options=array()) {
+        if (!$agent)
+            return;
+
+        require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
+    }
 }
 ?>

@@ -85,7 +85,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                         <textarea name="comments" id="comments"
                             cols="50" rows="3" wrap="soft" style="width:100%"
                             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> no-bar"
+                            ?> no-bar small"
                             placeholder="<?php echo $placeholder; ?>"><?php
                             echo $info['comments']; ?></textarea>
                     </td>

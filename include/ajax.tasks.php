@@ -175,7 +175,10 @@ class TasksAjaxAPI extends AjaxController {
 
         switch ($action) {
         case 'assign':
-            $inc = 'task-assign.tmpl.php';
+            $inc = 'assign.tmpl.php';
+            $info[':action'] = '#tasks/mass/assign';
+            $info[':title'] = sprintf('Assign %s',
+                    _N('selected task', 'selected tasks', $count));
             $form = AssignmentForm::instantiate($_POST);
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
@@ -198,7 +201,10 @@ class TasksAjaxAPI extends AjaxController {
             }
             break;
         case 'transfer':
-            $inc = 'task-transfer.tmpl.php';
+            $inc = 'transfer.tmpl.php';
+            $info[':action'] = '#tasks/mass/transfer';
+            $info[':title'] = sprintf('Transfer %s',
+                    _N('selected task', 'selected tasks', $count));
             $form = TransferForm::instantiate($_POST);
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
@@ -268,7 +274,10 @@ class TasksAjaxAPI extends AjaxController {
             }
             break;
         case 'delete':
-            $inc = 'task-delete.tmpl.php';
+            $inc = 'delete.tmpl.php';
+            $info[':action'] = '#tasks/mass/delete';
+            $info[':title'] = sprintf('Delete %s',
+                    _N('selected task', 'selected tasks', $count));
             $info[':placeholder'] = sprintf(__(
                         'Optional reason for deleting %s'),
                     _N('selected task', 'selected tasks', $count));
@@ -389,7 +398,7 @@ class TasksAjaxAPI extends AjaxController {
 
         $info['dept_id'] = $info['dept_id'] ?: $task->getDeptId();
 
-        include STAFFINC_DIR . 'templates/task-transfer.tmpl.php';
+        include STAFFINC_DIR . 'templates/transfer.tmpl.php';
     }
 
     function assign($tid) {
@@ -432,7 +441,7 @@ class TasksAjaxAPI extends AjaxController {
             $info['error'] = $errors['err'] ?: __('Unable to assign task');
         }
 
-        include STAFFINC_DIR . 'templates/task-assign.tmpl.php';
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
     }
 
    function delete($tid) {
@@ -475,7 +484,7 @@ class TasksAjaxAPI extends AjaxController {
                     __('Deleted tasks CANNOT be recovered, including any associated attachments.')
                     );
 
-        include STAFFINC_DIR . 'templates/task-delete.tmpl.php';
+        include STAFFINC_DIR . 'templates/delete.tmpl.php';
     }
 
 
