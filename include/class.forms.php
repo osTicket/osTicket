@@ -1896,6 +1896,11 @@ class DatetimeField extends FormField {
         case 'before':
             return new Q(array("{$name}__lt" => $value));
         case 'between':
+            foreach (array('left', 'right') as $side) {
+                $value[$side] = is_int($value[$side])
+                    ? DateTime::createFromFormat('U', Misc::dbtime($value[$side])) ?: $value[$side]
+                    : $value[$side];
+            }
             return new Q(array(
                 "{$name}__gte" => $value['left'],
                 "{$name}__lte" => $value['right'],
