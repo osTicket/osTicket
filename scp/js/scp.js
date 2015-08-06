@@ -1004,8 +1004,6 @@ $(document).on('pjax:start', function() {
     $.toggleOverlay(false);
     // Close tooltips
     $('.tip_box').remove();
-    // Cancel refreshes
-    clearInterval(window.ticket_refresh);
 });
 
 $(document).on('pjax:send', function(event) {

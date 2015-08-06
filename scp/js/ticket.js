@@ -279,8 +279,7 @@ $.showImagesInline = function(urls, thread_id) {
 };
 
 $.refreshTicketView = function(interval) {
-    var refresh =
-    window.ticket_refresh = setInterval(function() {
+    var refresh = setInterval(function() {
       if ($('table.list input.ckb[name=tids\\[\\]]:checked').length)
         // Skip the refresh b/c items are checked
         return;
@@ -291,6 +290,9 @@ $.refreshTicketView = function(interval) {
       clearInterval(refresh);
       $.pjax({url: document.location.href, container:'#pjax-container'});
     }, interval);
+    $(document).on('pjax:start', function() {
+        clearInterval(refresh);
+    });
 };
 
 var ticket_onload = function($) {
