@@ -1574,9 +1574,9 @@ class ThreadEvent extends VerySimpleModel {
 
     function getUserName() {
         if ($this->uid && $this->uid_type == 'S')
-            return $this->agent->getName();
+            return $this->agent ? $this->agent->getName() : $this->username;
         if ($this->uid && $this->uid_type == 'U')
-            return $this->user->getName();
+            return $this->user ? $this->user->getName() : $this->username;
         return $this->username;
     }
 
