@@ -275,17 +275,17 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+	        <th width="4%">&nbsp;</th>
             <?php } ?>
-	        <th width="70">
+	        <th width="8%">
                 <?php echo __('Number'); ?></th>
-	        <th width="70">
+	        <th width="20%">
                 <?php echo $date_header ?: __('Date'); ?></th>
-	        <th width="280">
+	        <th width="38%">
                 <?php echo __('Title'); ?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Department');?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Assignee');?></th>
         </tr>
      </thead>

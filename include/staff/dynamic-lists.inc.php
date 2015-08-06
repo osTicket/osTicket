@@ -42,10 +42,10 @@ $showing=$pageNav->showing().' '._N('custom list', 'custom lists', $count);
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th><?php echo __('List Name'); ?></th>
-            <th><?php echo __('Created') ?></th>
-            <th><?php echo __('Last Updated'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="32%"><?php echo __('List Name'); ?></th>
+            <th width="32%"><?php echo __('Created') ?></th>
+            <th width="32%"><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -56,7 +56,7 @@ $showing=$pageNav->showing().' '._N('custom list', 'custom lists', $count);
             if ($ids && in_array($form->get('id'),$ids))
                 $sel = true; ?>
         <tr>
-            <td>
+            <td align="center">
                 <?php
                 if ($list->isDeleteable()) { ?>
                 <input width="7" type="checkbox" class="ckb" name="ids[]"

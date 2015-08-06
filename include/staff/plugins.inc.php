@@ -54,10 +54,10 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th><?php echo __('Plugin Name'); ?></th>
-            <th><?php echo __('Status'); ?></th>
-            <th><?php echo __('Date Installed'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="66%"><?php echo __('Plugin Name'); ?></th>
+            <th width="10%"><?php echo __('Status'); ?></th>
+            <th width="20%"><?php echo __('Date Installed'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -65,7 +65,7 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
 foreach ($ost->plugins->allInstalled() as $p) {
     if ($p instanceof Plugin) { ?>
     <tr>
-        <td><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
+        <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
                 <?php echo $sel?'checked="checked"':''; ?>></td>
         <td><a href="plugins.php?id=<?php echo $p->getId(); ?>"
             ><?php echo $p->getName(); ?></a></td>

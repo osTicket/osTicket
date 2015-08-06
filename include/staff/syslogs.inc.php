@@ -131,11 +131,11 @@ else
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $title_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Log Title');?></a></th>
-            <th width="100"><a  <?php echo $type_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Log Type');?></a></th>
-            <th width="200" nowrap><a  <?php echo $date_sort; ?>href="logs.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Log Date');?></a></th>
-            <th width="120"><a  <?php echo $ip_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="40%"><a <?php echo $title_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Log Title');?></a></th>
+            <th width="11%"><a  <?php echo $type_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Log Type');?></a></th>
+            <th width="30%" nowrap><a  <?php echo $date_sort; ?>href="logs.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Log Date');?></a></th>
+            <th width="15%"><a  <?php echo $ip_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -149,7 +149,7 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['log_id']; ?>">
-                <td width=7px>
+                <td align="center" nowrap>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>

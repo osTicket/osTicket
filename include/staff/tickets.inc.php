@@ -378,23 +378,23 @@ return false;">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="12px">&nbsp;</th>
+	        <th width="4%">&nbsp;</th>
             <?php } ?>
-	        <th width="70">
+	        <th width="10%">
                 <?php echo __('Ticket'); ?></th>
-	        <th width="100">
+	        <th width="15%">
                 <?php echo $date_header ?: __('Date Created'); ?></th>
-	        <th width="280">
+	        <th width="36%">
                 <?php echo __('Subject'); ?></th>
-            <th width="170">
+            <th width="15%">
                 <?php echo __('From');?></th>
             <?php
             if($search && !$status) { ?>
-                <th width="60">
+                <th width="5%">
                     <?php echo __('Status');?></th>
             <?php
             } else { ?>
-                <th width="60" <?php echo $pri_sort;?>>
+                <th width="5%" <?php echo $pri_sort;?>>
                     <?php echo __('Priority');?></th>
             <?php
             }
@@ -402,16 +402,16 @@ return false;">
             if($showassigned ) {
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
-                    <th width="150">
+                    <th width="15%">
                         <?php echo __('Closed By'); ?></th>
                 <?php
                 } else { //assigned to ?>
-                    <th width="150">
+                    <th width="15%">
                         <?php echo __('Assigned To'); ?></th>
                 <?php
                 }
             } else { ?>
-                <th width="150">
+                <th width="15%">
                     <?php echo __('Department');?></th>
             <?php
             } ?>

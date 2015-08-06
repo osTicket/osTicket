@@ -483,6 +483,32 @@ a {
     text-align:center;
     font-size:0.9em;
 }
+table.dashboard-stats {
+    text-align:right;
+}
+table.dashboard-stats tbody:first-child th {
+    border-bottom:1px dashed #ddd;
+    padding:0 4px 8px;
+}
+table.dashboard-stats tbody:nth-child(2) tr:nth-child(odd) {
+    background-color:#f0faff;
+}
+
+table.dashboard-stats tbody:nth-child(2) th {
+    padding:5px 8px;
+    border-right: 1px solid #ccc;
+    color:#999;
+}
+table.dashboard-stats tbody:nth-child(2) td {
+    padding:5px 4px;
+    border-right: 1px solid #ccc;
+}
+table.dashboard-stats tbody:nth-child(2) tr:hover {
+    background-color:#FFFFDD;
+}
+table.dashboard-stats tbody:nth-child(2) tr:hover th {
+    color:#000;
+}
 
 table { vertical-align:top; }
 

@@ -83,7 +83,7 @@ $first = true;
 foreach ($groups as $g=>$desc) {
     $data = $report->getTabularData($g); ?>
     <div class="tab_content <?php echo (!$first) ? 'hidden' : ''; ?>" id="<?php echo Format::slugify($g); ?>">
-    <table class="table"><tbody><tr>
+    <table class="dashboard-stats table"><tbody><tr>
 <?php
     foreach ($data['columns'] as $c) { ?>
         <th><?php echo Format::htmlchars($c); ?></th>

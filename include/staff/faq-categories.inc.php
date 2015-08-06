@@ -20,14 +20,14 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
             <span class="action-button muted" data-dropdown="#category-dropdown">
                 <i class="icon-caret-down pull-right"></i>
                 <span>
-                    <i class="icon icon-filter"></i>
+                    <i class="icon-filter"></i>
                     <?php echo __('Category'); ?>
                 </span>
             </span>
             <span class="action-button muted" data-dropdown="#topic-dropdown">
                 <i class="icon-caret-down pull-right"></i>
                 <span>
-                    <i class="icon icon-filter"></i>
+                    <i class="icon-filter"></i>
                     <?php echo __('Help Topic'); ?>
                 </span>
             </span>

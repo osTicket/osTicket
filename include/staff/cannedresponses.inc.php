@@ -96,11 +96,11 @@ else
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="46%"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
+            <th width="10%"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="20%"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -115,7 +115,7 @@ else
                 $files=$row['files']?'<span class="Icon file">&nbsp;</span>':'';
                 ?>
             <tr id="<?php echo $row['canned_id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?> />
                 </td>

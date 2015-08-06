@@ -88,14 +88,14 @@ else
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order"><?php echo __('Order');?></a></th>
-            <th width="80" style="text-align:center;"><a  <?php echo $rules_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=rules"><?php echo __('Rules');?></a></th>
-            <th width="100"><a  <?php echo $target_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=target"><?php echo __('Target');?></a></th>
-            <th width="120" nowrap><a  <?php echo $created_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="32%"><a <?php echo $name_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="8%"><a  <?php echo $status_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="8%" style="text-align:center;"><a  <?php echo $order_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=order"><?php echo __('Order');?></a></th>
+            <th width="8%" style="text-align:center;"><a  <?php echo $rules_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=rules"><?php echo __('Rules');?></a></th>
+            <th width="10%"><a  <?php echo $target_sort; ?> href="filters.php?<?php echo $qstr; ?>&sort=target"><?php echo __('Target');?></a></th>
+            <th width="12%" nowrap><a  <?php echo $created_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
+            <th width="18%" nowrap><a  <?php echo $updated_sort; ?>href="filters.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -109,7 +109,7 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>

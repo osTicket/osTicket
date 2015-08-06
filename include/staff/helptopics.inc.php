@@ -70,13 +70,13 @@ $order_by = 'sort';
     </div>-->
     <thead>
         <tr>
-            <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="360"><?php echo __('Help Topic'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="80"><?php echo __('Status'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Type'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Priority'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="160"><?php echo __('Department'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="150" nowrap><?php echo __('Last Updated'); ?></th>
+            <th width="4%" style="height:20px;">&nbsp;</th>
+            <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Type'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Priority'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="14%"><?php echo __('Department'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="20%" nowrap><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
@@ -114,7 +114,7 @@ $order_by = 'sort';
                 $priority = $topic->priority ?: $defaultPriority;
                 ?>
             <tr id="<?php echo $id; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="hidden" name="sort-<?php echo $id; ?>" value="<?php
                         echo $topic->sort ?: $sort; ?>"/>
                   <input type="checkbox" class="ckb" name="ids[]"

@@ -137,7 +137,7 @@ if (count($langs) > 1) { ?>
 
 <div class="tab_content" id="notes" style="display:none;">
     <b><?php echo __('Internal Notes');?></b>:
-    <div class="faded"><?php echo __("Be liberal, they're internal");?></div>
+    <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     <textarea class="richtext no-bar" name="notes" cols="21"
         rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
 </div>
