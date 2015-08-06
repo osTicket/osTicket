@@ -1332,6 +1332,7 @@ extends AbstractForm {
                 'configuration' => array(
                     'validator' => 'email',
                     'placeholder' => __('Email Address — e.g. me@mycompany.com'),
+                    'length' => 128,
                   ),
             )),
             'dept_id' => new ChoiceField(array(
