@@ -12,7 +12,7 @@ $actions = array();
 $actions += array(
         'print' => array(
             'href' => sprintf('tasks.php?id=%d&a=print', $task->getId()),
-            'class' => 'none',
+            'class' => 'no-pjax',
             'icon' => 'icon-print',
             'label' => __('Print')
         ));
@@ -136,6 +136,11 @@ if ($task->isOverdue())
                                 echo sprintf("data-redirect='%s'", $action['redirect']);
                             ?>
                             href="<?php echo $action['href']; ?>"
+                            <?php
+                            if (isset($action['href']) &&
+                                    $action['href'][0] != '#') {
+                                echo 'target="blank"';
+                            } ?>
                             ><i class="<?php
                             echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
                             echo  $action['label']; ?></a>
