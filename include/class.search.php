@@ -612,7 +612,7 @@ MysqlSearchBackend::register();
 class SavedSearch extends VerySimpleModel {
 
     static $meta = array(
-        'table' => 'ost_queue', # QUEUE_TABLE
+        'table' => QUEUE_TABLE,
         'pk' => array('id'),
         'ordering' => array('sort'),
     );
