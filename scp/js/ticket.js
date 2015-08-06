@@ -22,7 +22,11 @@
     this.objectId = this.$element.data('lockObjectId');
     this.lockId = options.lockId || this.$element.data('lockId') || undefined;
     this.fails = 0;
-    this.setup();
+    this.disabled = false;
+    getConfig().then(function(c) {
+      if (c.lock_time)
+        this.setup();
+    }.bind(this));
   }
 
   Lock.prototype = {
@@ -49,7 +53,7 @@
         return this.renew();
       if (this.nextRenew && new Date().getTime() < this.nextRenew)
         return this.locked;
-      if (this.ajaxActive)
+      if (this.disabled || this.ajaxActive)
         return this.locked;
 
       this.ajaxActive = $.ajax({
@@ -69,7 +73,7 @@
         return;
       if (this.nextRenew && new Date().getTime() < this.nextRenew)
         return this.locked;
-      if (this.ajaxActive)
+      if (this.disabled || this.ajaxActive)
         return this.locked;
 
       this.ajaxActive = $.ajax({
@@ -93,6 +97,11 @@
 
     retry: function(func, xhr, textStatus, response) {
       var json = xhr ? xhr.responseJSON : response;
+
+      if (xhr.status == 418) {
+          this.disabled = true;
+          return this.destroy();
+      }
 
       if ((typeof json == 'object' && !json.retry) || !this.options.retry)
         return this.fail(json.msg);
@@ -133,6 +142,8 @@
       this.shutdown();
       delete this.lockId;
       $(this.options.lockInput, this.$element).val('');
+      if (this.locked)
+        this.locked.reject();
     },
 
     update: function(lock) {

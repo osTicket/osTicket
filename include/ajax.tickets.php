@@ -103,7 +103,10 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg, $thisstaff;
 
-        if(!$tid || !is_numeric($tid) || !$thisstaff || !$cfg || !$cfg->getLockTime())
+        if(!$cfg || !$cfg->getLockTime())
+            Http::response(418, $this->encode(array('id'=>0, 'retry'=>false)));
+
+        if(!$tid || !is_numeric($tid) || !$thisstaff)
             return 0;
 
         if (!($ticket = Ticket::lookup($tid)) || !$ticket->checkStaffPerm($thisstaff))

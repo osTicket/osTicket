@@ -27,6 +27,7 @@ class Http {
         case 404: return '404 Not Found';
         case 405: return '405 Method Not Allowed';
         case 416: return '416 Requested Range Not Satisfiable';
+        case 418: return "418 I'm a teapot";
         case 422: return '422 Unprocessable Entity';
         default:  return '500 Internal Server Error';
         endswitch;
