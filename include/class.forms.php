@@ -970,6 +970,10 @@ class FormField {
             return __('%s contains "%s"');
         case 'match':
             return __('%s matches pattern %s');
+        case 'includes':
+            return __('%s in (%s)');
+        case '!includes':
+            return __('%s not in (%s)');
         }
     }
     function describeSearch($method, $value, $name=false) {

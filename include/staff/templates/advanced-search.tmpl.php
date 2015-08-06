@@ -16,6 +16,7 @@ $errors = !!$form->errors();
 $inbody = false;
 $first_field = true;
 foreach ($form->getFields() as $name=>$field) {
+    ?><input type="hidden" name="fields[]" value="<?php echo $name; ?>"/><?php
     @list($name, $sub) = explode('+', $field->get('name'), 2);
     if ($sub === 'search') {
         if (!$first_field) {

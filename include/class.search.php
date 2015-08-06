@@ -1055,6 +1055,17 @@ class AssigneeChoiceField extends ChoiceField {
         }
         return $Q;
     }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'assigned':
+            return __('assigned');
+        case '!assigned':
+            return __('unassigned');
+        default:
+            return parent::describeSearchMethod($method);
+        }
+    }
 }
 
 class TicketStateChoiceField extends ChoiceField {
