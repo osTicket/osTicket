@@ -306,7 +306,7 @@ class FA_AssignPriority extends TriggerAction {
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
         if ($config['priority'])
-            $ticket['priority_id'] = $config['priority']->getId();
+            $ticket['priorityId'] = $config['priority'];
     }
 
     function getConfigurationOptions() {
