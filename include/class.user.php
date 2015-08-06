@@ -190,6 +190,10 @@ class UserCdata extends VerySimpleModel {
         $exclude = array('name', 'email');
         return '('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).')';
     }
+
+    static function getSqlAddParams($compiler) {
+        return static::getQuery($compiler);
+    }
 }
 
 class User extends UserModel
