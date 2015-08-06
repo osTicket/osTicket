@@ -1931,8 +1931,9 @@ implements RestrictedAccess, Threadable {
         $this->logEvent('transferred');
 
         // Post internal note if any
-        $note = $form->getField('comments')->getClean();
-        if ($note) {
+        $note = null;
+        $comments = $form->getField('comments')->getClean();
+        if ($comments) {
             $title = sprintf(__('%1$s transferred from %2$s to %3$s'),
                     __('Ticket'),
                    $cdept->getName(),
@@ -1940,7 +1941,7 @@ implements RestrictedAccess, Threadable {
 
             $_errors = array();
             $note = $this->postNote(
-                    array('note' => $note, 'title' => $title),
+                    array('note' => $comments, 'title' => $title),
                     $_errors, $thisstaff, false);
         }
 
@@ -1980,7 +1981,7 @@ implements RestrictedAccess, Threadable {
             ) {
                 $recipients[] = $manager;
             }
-            $sentlist = array();
+            $sentlist = $options = array();
             if ($note) {
                 $options += array(
                     'inreplyto'=>$note->getEmailMessageId(),
