@@ -3286,7 +3286,8 @@ implements RestrictedAccess, Threadable {
 
         // Assign ticket to staff or team (new ticket by staff)
         if ($vars['assignId']) {
-            $ticket->assign($vars['assignId'], $vars['note']);
+            $asnform = new AssignmentForm(array('assignee' => $vars['assignId']));
+            $ticket->assign($asnform, $vars['note']);
         }
         else {
             // Auto assign staff or team - auto assignment based on filter
@@ -3363,8 +3364,12 @@ implements RestrictedAccess, Threadable {
     static function open($vars, &$errors) {
         global $thisstaff, $cfg;
 
-        if ($vars['deptId'] && $thisstaff && !$thisstaff->getRole($vars['deptId'])
-            ->hasPerm(TicketModel::PERM_CREATE)
+        if (!$thisstaff)
+            return false;
+
+        if ($vars['deptId']
+            && ($role = $thisstaff->getRole($vars['deptId']))
+            && !$role->hasPerm(TicketModel::PERM_CREATE)
         ) {
             $errors['err'] = __('You do not have permission to create a ticket in this department');
             return false;
@@ -3387,8 +3392,14 @@ implements RestrictedAccess, Threadable {
                 $errors['name'] = __('Name is required');
         }
 
-        if (!$thisstaff->hasPerm(TicketModel::PERM_ASSIGN))
-            unset($vars['assignId']);
+        // Ensure agent has rights to make assignment in the cited
+        // department
+        if ($role
+            ? !$role->hasPerm(TicketModel::PERM_ASSIGN)
+            : !$thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
+        ) {
+            $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
+        }
 
         // TODO: Deny action based on selected department.
 
