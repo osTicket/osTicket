@@ -95,9 +95,9 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
 <?php }
                     echo Format::htmlchars($user->getName()->getOriginal());
 if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                    </a>
+                        </a></b>
 <?php } ?>
-</td>
+                    </td>
                 </tr>
                 <tr>
                     <th><?php echo __('Email'); ?>:</th>
