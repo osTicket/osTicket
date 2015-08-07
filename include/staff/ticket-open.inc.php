@@ -66,7 +66,7 @@ if ($_POST)
                 <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
-                <a class="action-button" style="overflow:inherit" href="#"
+                <a class="inline button" style="overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
@@ -75,7 +75,7 @@ if ($_POST)
                                 $('#user-email').text('<'+user.email+'>');
                         });
                         return false;
-                    "><i class="icon-edit"></i> <?php echo __('Change'); ?></a>
+                    "><i class="icon-retweet"></i> <?php echo __('Change'); ?></a>
             </div>
         </td></tr>
         <?php
@@ -84,9 +84,12 @@ if ($_POST)
         <tr>
             <td width="160" class="required"> <?php echo __('Email Address'); ?>: </td>
             <td>
-                <span style="display:inline-block;">
-                    <input type="text" size=45 name="email" id="user-email"
+                <div class="attached input">
+                    <input type="text" size=45 name="email" id="user-email" class="attached"
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
+                <a href="?a=open&amp;uid={id}" data-dialog="ajax.php/users/lookup/form"
+                    class="attached button"><i class="icon-search"></i></a>
+                </div>
                 <span class="error">*</span>
                 <div class="error"><?php echo $errors['email']; ?></div>
             </td>

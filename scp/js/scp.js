@@ -463,6 +463,11 @@ var scp_prep = function() {
   });
 
   $('[data-toggle="tooltip"]').tooltip()
+
+  $('.attached.input input[autofocus]').parent().addClass('focus')
+  $('.attached.input input')
+    .on('focus', function() { alert('hi'); $(this).parent().addClass('focus'); })
+    .on('blur', function() { $(this).parent().removeClass('focus'); })
 };
 
 $(document).ready(scp_prep);
@@ -674,8 +679,17 @@ $(document).on('click', 'a[data-dialog]', function(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
     var link = $(this);
-    $.dialog($(this).data('dialog'), 201, function() {
-      if (link.attr('href').length > 1) $.pjax.click(event, '#pjax-container');
+    $.dialog($(this).data('dialog'), 201, function(xhr, json) {
+      try {
+        json = JSON.parse(json);
+      } catch (e) {}
+      if (link.attr('href').length > 1) {
+        // Replace {xx} expressions with data from JSON
+        if (typeof json === 'object')
+            link.attr('href',
+              link.attr('href').replace(/\{([^}]+)\}/, function($0, $1) { return json[$1]; }));
+        $.pjax.click(event, '#pjax-container');
+      }
       else $.pjax.reload('#pjax-container');
     });
     return false;

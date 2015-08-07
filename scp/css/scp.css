@@ -1784,6 +1784,7 @@ select + .button {
 
 .button.attached {
   margin-left: -4px;
+  margin-right: -4px;
   box-shadow: none !important;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -1795,6 +1796,16 @@ select + .button {
   height: 24px;
   box-sizing: border-box;
   display: inline-block;
+  margin-right: 5px;
+}
+.input.attached.focus {
+  outline-offset: -2px;
+  outline-style: auto;
+  outline-width: 5px;
+  outline-color: -webkit-focus-ring-color;
+}
+.input.attached input:focus {
+  outline-style: none;
 }
 .input.attached input {
   height: 100%;
