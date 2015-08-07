@@ -20,8 +20,17 @@ if ($info['error']) {
 } ?>
 
 <div id="user-profile" style="margin:5px;">
+<?php
+if ($user) { ?>
+    <div class="avatar pull-left" style="margin: 0 10px;">
+    <?php echo $user->getAvatar(); ?>
+    </div>
+<?php
+}
+else { ?>
     <i class="icon-user icon-4x pull-left icon-border"></i>
-    <?php
+<?php
+}
     // TODO: Implement change of ownership
     if (0 && $user->getNumTickets()) { ?>
     <a class="action-button pull-right change-user" style="overflow:inherit"
