@@ -79,11 +79,11 @@ if ($num) { ?>
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>
-            <th width="350"><?php echo __('Name'); ?></th>
-            <th width="300"><?php echo __('Email'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
-            <th width="100"><?php echo __('Created'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="38%"><?php echo __('Name'); ?></th>
+            <th width="35%"><?php echo __('Email'); ?></th>
+            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="15%"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -99,7 +99,7 @@ if ($num) { ?>
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]"
                     value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 </td>
