@@ -615,7 +615,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->timezone = $vars['timezone'];
         $this->locale = $vars['locale'];
-        $this->show_assigned_tickets = isset($vars['show_assigned_tickets'])?1:0;
+        $this->show_assigned_tickets = isset($vars['hide_assigned_tickets'])?0:1;
         $this->max_page_size = $vars['max_page_size'];
         $this->auto_refresh_rate = $vars['auto_refresh_rate'];
         $this->default_signature_type = $vars['default_signature_type'];

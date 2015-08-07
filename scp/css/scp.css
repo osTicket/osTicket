@@ -1412,6 +1412,7 @@ i.help-tip {
     vertical-align: inherit;
     color: #aaa;
     opacity: 0.8;
+    text-indent: initial;
 }
 i.help-tip:hover {
     color: orange !important;

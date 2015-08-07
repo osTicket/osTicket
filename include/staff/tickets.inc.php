@@ -40,7 +40,7 @@ case 'closed':
     $status='closed';
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
-    $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
+    $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     $queue_sort_options = array('closed', 'priority,due', 'due',
         'priority,updated', 'priority,created', 'answered', 'number', 'hot');
     break;
@@ -146,17 +146,23 @@ case 'search':
 case 'open':
     $status='open';
     $results_type=__('Open Tickets');
-    $showassigned = ($cfg && $cfg->showAssignedTickets()) || $thisstaff->showAssignedTickets();
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
-    if (!$showassigned)
-        $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
-    else
-        $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     $queue_sort_options = array('priority,updated', 'updated',
         'priority,due', 'due', 'priority,created', 'answered', 'number',
         'hot');
     break;
+}
+
+// Open queues _except_ assigned should respect showAssignedTickets()
+// settings
+if ($status == 'open' && $queue_name != 'assigned') {
+    $hideassigned = ($cfg && !$cfg->showAssignedTickets()) || !$thisstaff->showAssignedTickets();
+    $showassigned = !$hideassigned;
+    if ($hideassigned)
+        $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
+    else
+        $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
 }
 
 // Apply primary ticket status
