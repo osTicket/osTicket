@@ -51,6 +51,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             $changes = array();
             foreach ($forms as $form) {
+                $form->filterFields(function($f) { return !$f->isStorable(); });
                 $form->setSource($_POST);
                 if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
@@ -120,7 +121,10 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
-        foreach ($forms as $f) $f->addMissingFields();
+        foreach ($forms as $f) {
+            $f->filterFields(function($f) { return !$f->isStorable(); });
+            $f->addMissingFields();
+        }
     }
     else
         $inc='view.inc.php';

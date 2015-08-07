@@ -433,7 +433,10 @@ if($ticket) {
         $inc = 'ticket-edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
-        foreach ($forms as $f) $f->addMissingFields();
+        foreach ($forms as $f) {
+            $f->filterFields(function($f) { return !$f->isStorable(); });
+            $f->addMissingFields();
+        }
     } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
 } else {
