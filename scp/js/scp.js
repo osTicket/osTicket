@@ -1158,23 +1158,16 @@ function __(s) {
 }
 
 // Thanks, http://stackoverflow.com/a/487049
-function addSearchParam(key, value) {
-    key = encodeURI(key); value = encodeURI(value);
-
+function addSearchParam(data) {
     var kvp = document.location.search.substr(1).split('&');
-    var i=kvp.length; var x;
+    var i=kvp.length, x, params = {};
     while (i--) {
         x = kvp[i].split('=');
-        if (x[0]==key) {
-            x[1] = value;
-            kvp[i] = x.join('=');
-            break;
-        }
+        params[decodeURIComponent(x[0])] = decodeURIComponent(x[1]);
     }
-    if(i<0) {kvp[kvp.length] = [key,value].join('=');}
 
     //this will reload the page, it's likely better to store this until finished
-    return kvp.join('&');
+    return $.param($.extend(params, data));
 }
 
 // Periodically adjust relative times

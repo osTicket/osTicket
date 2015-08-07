@@ -20,8 +20,8 @@ $sort_options = array(
     'priority,updated' =>   __('Priority + Most Recently Updated'),
     'updated' =>            __('Most Recently Updated'),
     'priority,created' =>   __('Priority + Most Recently Created'),
-    'due' =>                __('Due Soon'),
-    'priority,due' =>       __('Priority + Due Soon'),
+    'due' =>                __('Due Date'),
+    'priority,due' =>       __('Priority + Due Date'),
     'number' =>             __('Ticket Number'),
     'answered' =>           __('Most Recently Answered'),
     'closed' =>             __('Most Recently Closed'),
@@ -196,73 +196,78 @@ $tickets = $pageNav->paginate($tickets);
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
 
 if (isset($_GET['sort'])) {
-    $_SESSION[$queue_sort_key] = $_GET['sort'];
+    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-    $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
 }
 
-switch ($_SESSION[$queue_sort_key]) {
+list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
+$orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
+$orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+switch ($sort_cols) {
 case 'number':
     $tickets->extra(array(
-        'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
+        'order_by'=>array(
+            array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
+        )
     ));
     break;
 
 case 'priority,created':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
     // Fall through to columns for `created`
 case 'created':
     $date_header = __('Date Created');
     $date_col = 'created';
     $tickets->values('created');
-    $tickets->order_by('-created');
+    $tickets->order_by($sort_dir ? 'created' : '-created');
     break;
 
 case 'priority,due':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
 case 'due':
     $date_header = __('Due Date');
     $date_col = 'est_duedate';
     $tickets->values('est_duedate');
-    $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'));
+    $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
     break;
 
 case 'closed':
     $date_header = __('Date Closed');
     $date_col = 'closed';
     $tickets->values('closed');
-    $tickets->order_by('-closed');
+    $tickets->order_by('closed', $orm_dir);
     break;
 
 case 'answered':
     $date_header = __('Last Response');
     $date_col = 'thread__lastresponse';
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-    $tickets->order_by('-thread__lastresponse');
+    $tickets->order_by('thread__lastresponse', $orm_dir);
     $tickets->values('thread__lastresponse');
     break;
 
 case 'hot':
-    $tickets->order_by('-thread_count');
+    $tickets->order_by('thread_count', $orm_dir);
     $tickets->annotate(array(
         'thread_count' => SqlAggregate::COUNT('thread__entries'),
     ));
     break;
 
 case 'relevance':
-    $tickets->order_by(new SqlCode('relevance'));
+    $tickets->order_by(new SqlCode('relevance'), $orm_dir);
     break;
 
 default:
 case 'priority,updated':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through for columns defined for `updated`
 case 'updated':
     $date_header = __('Last Updated');
     $date_col = 'lastupdate';
-    $tickets->order_by('-lastupdate');
+    $tickets->order_by('lastupdate', $orm_dir);
     break;
 }
 
@@ -312,23 +317,33 @@ $_SESSION[':Q:tickets'] = $orig_tickets;
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
-    <span class="action-button muted" data-dropdown="#sort-dropdown">
+    <span class="action-button muted" data-dropdown="#sort-dropdown" data-toggle="tooltip" title="<?php echo $sort_options[$sort_cols]; ?>">
       <i class="icon-caret-down pull-right"></i>
-      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
+      <span><i class="icon-sort-by-attributes-alt <?php if ($sort_dir) echo 'icon-flip-vertical'; ?>"></i> <?php echo __('Sort');?></span>
     </span>
     <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: $.pjax({
-        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
+    onclick="javascript:
+    var query = addSearchParam({'sort': $(event.target).data('mode'), 'dir': $(event.target).data('dir')});
+    $.pjax({
+        url: '?' + query,
         timeout: 2000,
         container: '#pjax-container'});">
       <ul class="bleed-left">
 <?php foreach ($queue_sort_options as $mode) {
 $desc = $sort_options[$mode];
-$selected = $mode == $_SESSION[$queue_sort_key]; ?>
-      <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
-          if ($selected) echo 'icon-hand-right';
-          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
+$icon = '';
+$dir = '0';
+$selected = $sort_cols == $mode; ?>
+    <li <?php
+if ($selected) {
+    echo 'class="active"';
+    $dir = ($sort_dir == '1') ? '0' : '1'; // Flip the direction
+    $icon = ($sort_dir == '1') ? 'icon-hand-up' : 'icon-hand-down';
+}
+?>>
+        <a href="#" data-mode="<?php echo $mode; ?>" data-dir="<?php echo $dir; ?>">
+          <i class="icon-fixed-width <?php echo $icon; ?>"
+          ></i> <?php echo Format::htmlchars($desc); ?></a>
       </li>
 <?php } ?>
     </div>
@@ -584,6 +599,7 @@ $(function() {
         }
         return false;
     });
+    $('[data-toggle=tooltip]').tooltip();
 });
 </script>
 
