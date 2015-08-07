@@ -161,7 +161,7 @@ if ($form && count($langs) > 1) { ?>
             </th>
         </tr>
         <tr>
-            <th nowrap
+            <th nowrap width="4%"
                 ><i class="help-tip icon-question-sign" href="#field_sort"></i></th>
             <th nowrap><?php echo __('Label'); ?>
                 <i class="help-tip icon-question-sign" href="#field_label"></i></th>
@@ -183,12 +183,13 @@ if ($form && count($langs) > 1) { ?>
         $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
-            <td><i class="icon-sort"></i></td>
+            <td align="center"><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
                 data-translate-tag="<?php echo $f->getTranslateTag('label'); ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
+                </font>
             </td>
             <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
                 if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
@@ -224,18 +225,20 @@ if ($form && count($langs) > 1) { ?>
                     if ($ferrors['name']) echo '<br/>'; echo $ferrors['name'];
                 ?></font>
                 </td>
-            <td><input class="delete-box" type="checkbox" name="delete-<?php echo $id; ?>"
+            <td align="center">
+                <input class="delete-box" type="checkbox" name="delete-<?php echo $id; ?>"
                     data-field-label="<?php echo $f->get('label'); ?>"
                     data-field-id="<?php echo $id; ?>"
                     <?php echo $deletable; ?>/>
                 <input type="hidden" name="sort-<?php echo $id; ?>"
                     value="<?php echo $f->get('sort'); ?>"/>
-                </td>
+            </td>
         </tr>
+    <tr>
     <?php
     }
     for ($i=0; $i<$newcount; $i++) { ?>
-            <td><em>+</em>
+            <td align="center"><em>+</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"
                     value="<?php echo $info["sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"
@@ -252,9 +255,10 @@ if ($form && count($langs) > 1) { ?>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
-            </select></td>
-            <td>
-                <select name="visibility-new-<?php echo $i; ?>">
+            </select>
+        </td>
+        <td>
+            <select name="visibility-new-<?php echo $i; ?>">
 <?php
     $rmode = $info['visibility-new-'.$i];
     foreach (DynamicFormField::allRequirementModes() as $m=>$I) { ?>
@@ -262,12 +266,15 @@ if ($form && count($langs) > 1) { ?>
          echo 'selected="selected"'; ?>><?php echo $I['desc']; ?></option>
 <?php } ?>
                 <select>
-            <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
-                value="<?php echo $info["name-new-$i"]; ?>"/>
-                <font class="error"><?php
-                    if ($errors["new-$i"]['name']) echo '<br/>'; echo $errors["new-$i"]['name'];
-                ?></font>
-            <td></td>
+                    <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
+                        value="<?php echo $info["name-new-$i"]; ?>"/>
+                        <font class="error"><?php
+                            if ($errors["new-$i"]['name']) echo '<br/>'; echo $errors["new-$i"]['name'];
+                            ?>
+                        </font>
+                    </td>
+                </select>
+            </select>
         </tr>
     <?php } ?>
     </tbody>
