@@ -12,11 +12,13 @@ foreach ($form->errors(true) ?: array() as $message) {
 }
 
 $info = $search->getSearchFields($form);
+foreach (array_keys($info) as $F) {
+    ?><input type="hidden" name="fields[]" value="<?php echo $F; ?>"/><?php
+}
 $errors = !!$form->errors();
 $inbody = false;
 $first_field = true;
 foreach ($form->getFields() as $name=>$field) {
-    ?><input type="hidden" name="fields[]" value="<?php echo $name; ?>"/><?php
     @list($name, $sub) = explode('+', $field->get('name'), 2);
     if ($sub === 'search') {
         if (!$first_field) {
