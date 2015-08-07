@@ -394,7 +394,7 @@ else
                 <td>
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
-                        <select  name="task_status">
+                        <select  name="task:status">
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
@@ -410,7 +410,7 @@ else
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
-                        $errors['task_status']; ?></span>
+                        $errors['task:status']; ?></span>
                     </div>
                 </td>
             </tr>
@@ -454,7 +454,7 @@ else
                 <td>
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
-                        <select  name="task_status">
+                        <select  name="task:status">
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
@@ -470,7 +470,7 @@ else
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
-                        $errors['task_status']; ?></span>
+                        $errors['task:status']; ?></span>
                     </div>
                 </td>
             </tr>
