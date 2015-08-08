@@ -466,7 +466,7 @@ var scp_prep = function() {
 
   $('.attached.input input[autofocus]').parent().addClass('focus')
   $('.attached.input input')
-    .on('focus', function() { alert('hi'); $(this).parent().addClass('focus'); })
+    .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
 };
 
