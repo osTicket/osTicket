@@ -393,14 +393,14 @@ if($stats['overdue']) {
 }
 
 if($thisstaff->showAssignedOnly() && $stats['closed']) {
-    $nav->addSubMenu(array('desc'=>__('My Closed Tickets').' ('.number_format($stats['closed']).')',
+    $nav->addSubMenu(array('desc'=>__('My Closed Tickets'),
                            'title'=>__('My Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
 } else {
 
-    $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
+    $nav->addSubMenu(array('desc' => __('Closed'),
                            'title'=>__('Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),

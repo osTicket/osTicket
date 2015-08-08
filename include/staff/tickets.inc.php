@@ -56,7 +56,10 @@ case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tickets');
-    $tickets->filter(array('staff_id'=>$thisstaff->getId()));
+    $tickets->filter(Q::any(array(
+        'staff_id'=>$thisstaff->getId(),
+        Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
+    )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
         'hot');
@@ -153,7 +156,7 @@ case 'open':
 if ($status != 'closed' && $queue_name != 'assigned') {
     $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$thisstaff->showAssignedTickets();
     $showassigned = !$hideassigned;
-    if ($status == 'open' && $hideassigned)
+    if ($queue_name == 'open' && $hideassigned)
         $tickets->filter(array('staff_id'=>0, 'team_id'=>0));
 }
 
@@ -535,7 +538,10 @@ return false;">
     </table>
     <?php
     if ($total>0) { //if we actually had any tickets returned.
-        echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
+?>      <div>
+            <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
+<?php
+        echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'h' => $hash,

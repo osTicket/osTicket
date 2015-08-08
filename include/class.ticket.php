@@ -2765,66 +2765,44 @@ implements RestrictedAccess, Threadable {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $where = array('(ticket.staff_id='.db_input($staff->getId()) .' AND
-                    status.state="open")');
-        $where2 = '';
+        // -- Open and assigned to me
+        $assigned = Q::any(array(
+            'staff_id' => $staff->getId(),
+        ));
+        // -- Open and assigned to a team of mine
+        if ($teams = array_filter($staff->getTeams()))
+            $assigned->add(array('team_id__in' => $teams));
 
-        if(($teams=$staff->getTeams()))
-            $where[] = ' ( ticket.team_id IN('.implode(',', db_input(array_filter($teams)))
-                        .') AND status.state="open")';
+        $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
-        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
+        // -- Routed to a department of mine
+        if (!$staff->showAssignedOnly() && ($depts = $staff->getDepts()))
+            $visibility->add(array('dept_id__in' => $depts));
 
-        if (($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets())
-            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
-        $where = implode(' OR ', $where);
-        if ($where) $where = 'AND ( '.$where.' ) ';
+        $blocks = Ticket::objects()
+            ->filter(Q::any($visibility))
+            ->filter(array('status__state' => 'open'))
+            ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
+            ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
 
-        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isanswered = 0 '
-                . $where . $where2
-
-                .'UNION SELECT \'answered\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isanswered = 1 '
-                . $where . ($cfg->showAnsweredTickets() ? $where2 : '')
-
-                .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isoverdue =1 '
-                . $where
-
-                .'UNION SELECT \'assigned\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.staff_id = ' . db_input($staff->getId()) . ' '
-                . $where
-
-                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                .'WHERE 1 '
-                . $where;
-
-        $res = db_query($sql);
         $stats = array();
-        while($row = db_fetch_row($res)) {
-            $stats[$row[0]] = $row[1];
+        $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets();
+        $showanswered = $cfg->showAnsweredTickets();
+        $id = $staff->getId();
+        foreach ($blocks as $S) {
+            if ($showanswered || !$S['isanswered']) {
+                if (!($hideassigned && ($S['staff_id'] || $S['team_id'])))
+                    $stats['open'] += $S['count'];
+            }
+            else {
+                $stats['answered'] += $S['count'];
+            }
+            if ($S['isoverdue'])
+                $stats['overdue'] += $S['count'];
+            if ($S['staff_id'] == $id)
+                $stats['assigned'] += $S['count'];
+            elseif ($S['team_id'] && $S['staff_id'] == 0)
+                $stats['assigned'] += $S['count'];
         }
         return $stats;
     }

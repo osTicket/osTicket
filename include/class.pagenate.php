@@ -58,6 +58,14 @@ class PageNate {
         return max($this->start - $this->slack, 0);
     }
 
+    function getStop() {
+        return min($this->getStart() + $this->getLimit(), $this->total);
+    }
+
+    function getCount() {
+        return $this->total;
+    }
+
     function getLimit() {
         return $this->limit;
     }
