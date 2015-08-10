@@ -420,11 +420,11 @@ implements TemplateVariable {
     }
 
     /*----Static functions-------*/
-	static function getIdByName($name, $pid=0) {
+	static function getIdByName($name, $pid=null) {
         $row = static::objects()
             ->filter(array(
                         'name' => $name,
-                        'pid'  => $pid ?: 0))
+                        'pid'  => $pid ?: null))
             ->values_flat('id')
             ->first();
 
@@ -553,7 +553,7 @@ implements TemplateVariable {
         if (!$vars['name']) {
             $errors['name']=__('Name required');
         } elseif (($did = static::getIdByName($vars['name'], $vars['pid']))
-                && $did != $this->id) {
+                && $did != $id) {
             $errors['name']=__('Department already exists');
         }
 
@@ -576,7 +576,7 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
-        $this->pid = $vars['pid'] ?: 0;
+        $this->pid = $vars['pid'] ?: null;
         $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
         $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
         $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
