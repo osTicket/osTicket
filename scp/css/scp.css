@@ -2404,6 +2404,9 @@ tr i.help-tip.warning {
     text-overflow: ellipsis;
     vertical-align: bottom;
 }
+.truncate.bleed {
+    text-overflow: hidden;
+}
 td.indented {
     padding-left: 20px;
 }
