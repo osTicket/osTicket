@@ -91,7 +91,7 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart());
             $defaultId=$cfg->getDefaultDeptId();
-            $defaultEmailId = $cfg->getDefaultEmail()->getId();
+            $defaultEmailId = $cfg->getDefaultEmailId();
             $defaultEmailAddress = (string) $cfg->getDefaultEmail();
             foreach ($depts as $dept) {
                 $id = $dept->getId();
