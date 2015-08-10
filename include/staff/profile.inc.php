@@ -133,9 +133,10 @@ if ($avatar->isChangeable()) { ?>
         <tr>
           <td colspan="2">
             <label class="checkbox">
-            <input type="checkbox" name="hide_assigned_tickets"
-              <?php echo (!$staff->show_assigned_tickets) ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Exclude assigned tickets on open queue.'); ?>
+            <input type="checkbox" name="show_assigned_tickets"
+              <?php echo $cfg->showAssignedTickets() ? 'disabled="disabled" ' : ''; ?>
+              <?php echo $staff->show_assigned_tickets ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Show assigned tickets on open queue.'); ?>
             <i class="help-tip icon-question-sign" href="#show_assigned_tickets"></i>
             </label>
             <label class="checkbox">

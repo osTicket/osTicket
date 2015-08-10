@@ -54,10 +54,15 @@ default_paper_size:
 show_assigned_tickets:
     title: Show Assigned Tickets
     content: >
-        Enable this to hide your name from the <span class="doc-desc-title">Open 
-        Tickets</span> queue for those tickets which you have been assigned. Upon 
-        hiding, the <span class="doc-desc-title">Department</span> name to which
-        you belong will replace where your name would normally be displayed.
+        <p>
+        Enabling this option will override the global setting to hide
+        assigned tickets from the open queues.
+        </p>
+        <p class="info-banner">
+        <i class="icon-info-sign"></i>
+        This setting is only available when assigned tickets are excluded
+        globally.
+        </p>
 
 password:
     title: Password

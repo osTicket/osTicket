@@ -2762,7 +2762,7 @@ implements RestrictedAccess, Threadable {
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
-        if(!$cfg || !($cfg->showAssignedTickets() || $staff->showAssignedTickets()))
+        if (($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets())
             $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';

@@ -159,11 +159,11 @@ case 'open':
 
 // Open queues _except_ assigned should respect showAssignedTickets()
 // settings
-if ($status == 'open' && $queue_name != 'assigned') {
-    $hideassigned = ($cfg && !$cfg->showAssignedTickets()) || !$thisstaff->showAssignedTickets();
+if ($status != 'closed' && $queue_name != 'assigned') {
+    $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$thisstaff->showAssignedTickets();
     $showassigned = !$hideassigned;
-    if ($hideassigned)
-        $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
+    if ($status == 'open' && $hideassigned)
+        $tickets->filter(array('staff_id'=>0, 'team_id'=>0));
     else
         $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
 }
