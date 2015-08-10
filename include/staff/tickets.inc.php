@@ -280,6 +280,8 @@ case 'updated':
     break;
 }
 
+// Save the query to the session for exporting
+$_SESSION[':Q:tickets'] = $tickets;
 
 // Rewrite $tickets to use a nested query, which will include the LIMIT part
 // in order to speed the result
@@ -316,9 +318,6 @@ $tickets->annotate(array(
         ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
-
-// Save the query to the session for exporting
-$_SESSION[':Q:tickets'] = $orig_tickets;
 
 ?>
 
