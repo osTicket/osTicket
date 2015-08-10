@@ -1567,9 +1567,9 @@ class ThreadEvent extends VerySimpleModel {
 
     function getAvatar($size=null) {
         if ($this->uid && $this->uid_type == 'S')
-            return $this->agent->getAvatar($size);
+            return $this->agent ? $this->agent->getAvatar($size) : '';
         if ($this->uid && $this->uid_type == 'U')
-            return $this->user->getAvatar($size);
+            return $this->user ? $this->user->getAvatar($size) : '';
     }
 
     function getUserName() {
