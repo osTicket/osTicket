@@ -157,6 +157,7 @@ class Unpacker extends Module {
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
         $force = $this->getOption('force', false);
+        $deployed = array();
         if (substr($destination, -1) !== '/')
             $destination .= '/';
         foreach (glob($folder, GLOB_BRACE|GLOB_NOSORT) as $file) {
@@ -179,6 +180,7 @@ class Unpacker extends Module {
                 if (!is_dir($destination))
                     mkdir($destination, 0755, true);
                 $this->copyFile($file, $target, $hash);
+                $deployed[] = $file;
             }
         }
         if ($recurse) {
@@ -189,12 +191,13 @@ class Unpacker extends Module {
                     continue;
                 elseif ($this->exclude($exclude, $dir))
                     continue;
-                $this->unpackage(
+                $deployed = array_merge($deployed, $this->unpackage(
                     dirname($folder).'/'.basename($dir).'/'.basename($folder),
                     $destination.basename($dir),
-                    $recurse - 1, $exclude);
+                    $recurse - 1, $exclude));
             }
         }
+        return $deployed;
     }
 
     function get_include_dir() {
