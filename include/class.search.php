@@ -612,7 +612,7 @@ MysqlSearchBackend::register();
 class SavedSearch extends VerySimpleModel {
 
     static $meta = array(
-        'table' => 'ost_queue', # QUEUE_TABLE
+        'table' => QUEUE_TABLE,
         'pk' => array('id'),
         'ordering' => array('sort'),
     );
@@ -1054,6 +1054,17 @@ class AssigneeChoiceField extends ChoiceField {
             $Q->add(Q::any($constraints));
         }
         return $Q;
+    }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'assigned':
+            return __('assigned');
+        case '!assigned':
+            return __('unassigned');
+        default:
+            return parent::describeSearchMethod($method);
+        }
     }
 }
 

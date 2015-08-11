@@ -419,9 +419,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     function canManageTickets() {
-        return ($this->isAdmin()
-                || $this->hasPerm(TicketModel::PERM_DELETE)
-                || $this->hasPerm(TicketModel::PERM_CLOSE));
+        return $this->hasPerm(TicketModel::PERM_DELETE, false)
+                || $this->hasPerm(TicketModel::PERM_TRANSFER, false)
+                || $this->hasPerm(TicketModel::PERM_ASSIGN, false)
+                || $this->hasPerm(TicketModel::PERM_CLOSE, false);
     }
 
     function isManager() {
@@ -614,7 +615,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->timezone = $vars['timezone'];
         $this->locale = $vars['locale'];
-        $this->show_assigned_tickets = isset($vars['show_assigned_tickets'])?1:0;
+        if (!$cfg->showAssignedTickets())
+            // Allow local unsetting if unset globally
+            $this->show_assigned_tickets = isset($vars['show_assigned_tickets']) ? 1 : 0;
         $this->max_page_size = $vars['max_page_size'];
         $this->auto_refresh_rate = $vars['auto_refresh_rate'];
         $this->default_signature_type = $vars['default_signature_type'];
@@ -853,6 +856,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         try {
             db_autocommit(false);
+            $errors = array();
             $records = $importer->importCsv($form->getFields(), $defaults);
             foreach ($records as $data) {
                 if (!isset($data['email']) || !isset($data['username']))
@@ -1330,6 +1334,7 @@ extends AbstractForm {
                 'configuration' => array(
                     'validator' => 'email',
                     'placeholder' => __('Email Address — e.g. me@mycompany.com'),
+                    'length' => 128,
                   ),
             )),
             'dept_id' => new ChoiceField(array(

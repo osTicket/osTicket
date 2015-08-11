@@ -17,8 +17,8 @@ SET @s = (SELECT IF(
         AND table_schema = DATABASE()
         AND column_name = 'updated'
     ) > 0,
-    "SELECT 1",
-    "ALTER TABLE `%TABLE_PREFIX%team_member` DROP `updated`"
+    "ALTER TABLE `%TABLE_PREFIX%team_member` DROP `updated`",
+    "SELECT 1"
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;
@@ -31,8 +31,8 @@ SET @s = (SELECT IF(
         AND table_schema = DATABASE()
         AND column_name = 'views'
     ) > 0,
-    "SELECT 1",
-    "ALTER TABLE `%TABLE_PREFIX%faq` DROP `views`, DROP `score`"
+    "ALTER TABLE `%TABLE_PREFIX%faq` DROP `views`, DROP `score`",
+    "SELECT 1"
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;

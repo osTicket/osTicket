@@ -1,5 +1,16 @@
-ALTER TABLE `%TABLE_PREFIX%thread`
-    DROP COLUMN `tid`;
+-- Drop `tid` from thread (if it exists)
+SET @s = (SELECT IF(
+    (SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = '%TABLE_PREFIX%thread'
+        AND table_schema = DATABASE()
+        AND column_name = 'tid'
+    ) > 0,
+    "ALTER TABLE `%TABLE_PREFIX%thread` DROP COLUMN `tid`",
+    "SELECT 1"
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
 
 ALTER TABLE `%TABLE_PREFIX%thread_entry`
     DROP COLUMN `ticket_id`;

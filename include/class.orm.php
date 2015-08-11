@@ -917,6 +917,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
 
+    const ASC = 'ASC';
+    const DESC = 'DESC';
+
     var $compiler = 'MySqlCompiler';
     var $iterator = 'ModelInstanceManager';
 
@@ -976,10 +979,21 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
             $this->defer[$f] = true;
         return $this;
     }
+    function order_by($order, $direction=false) {
+        $args = func_get_args();
+        if (in_array($direction, array(self::ASC, self::DESC))) {
+            $args = array($args[0]);
+        }
+        else
+            $direction = false;
 
-    function order_by($order) {
-        $this->ordering = array_merge($this->ordering,
-            is_array($order) ?  $order : func_get_args());
+        $new = is_array($order) ?  $order : $args;
+        if ($direction) {
+            foreach ($new as $i=>$x) {
+                $new[$i] = array($x, $direction);
+            }
+        }
+        $this->ordering = array_merge($this->ordering, $new);
         return $this;
     }
     function getSortFields() {
@@ -2370,6 +2384,9 @@ class MySqlCompiler extends SqlCompiler {
             $orders = array();
             foreach ($columns as $sort) {
                 $dir = 'ASC';
+                if (is_array($sort)) {
+                    list($sort, $dir) = $sort;
+                }
                 if ($sort instanceof SqlFunction) {
                     $field = $sort->toSql($this, $model);
                 }

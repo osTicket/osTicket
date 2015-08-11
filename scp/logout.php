@@ -38,6 +38,4 @@ catch (Exception $x) {
     // Lock::removeStaffLocks may throw InconsistentModel on upgrade
 }
 
-@header('Location: login.php');
-require('login.php');
-?>
+Http::redirect('login.php');

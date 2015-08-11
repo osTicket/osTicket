@@ -4,6 +4,9 @@ $tickets = TicketModel::objects();
 $clear_button = false;
 $view_all_tickets = $date_header = $date_col = false;
 
+// Make sure the cdata materialized view is available
+TicketForm::ensureDynamicDataView();
+
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
 list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
@@ -20,8 +23,8 @@ $sort_options = array(
     'priority,updated' =>   __('Priority + Most Recently Updated'),
     'updated' =>            __('Most Recently Updated'),
     'priority,created' =>   __('Priority + Most Recently Created'),
-    'due' =>                __('Due Soon'),
-    'priority,due' =>       __('Priority + Due Soon'),
+    'due' =>                __('Due Date'),
+    'priority,due' =>       __('Priority + Due Date'),
     'number' =>             __('Ticket Number'),
     'answered' =>           __('Most Recently Answered'),
     'closed' =>             __('Most Recently Closed'),
@@ -40,7 +43,7 @@ case 'closed':
     $status='closed';
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
-    $tickets->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
+    $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     $queue_sort_options = array('closed', 'priority,due', 'due',
         'priority,updated', 'priority,created', 'answered', 'number', 'hot');
     break;
@@ -146,17 +149,23 @@ case 'search':
 case 'open':
     $status='open';
     $results_type=__('Open Tickets');
-    $showassigned = ($cfg && $cfg->showAssignedTickets()) || $thisstaff->showAssignedTickets();
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
-    if (!$showassigned)
-        $tickets->filter(Q::any(array('staff_id'=>0, 'team_id'=>0)));
-    else
-        $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
     $queue_sort_options = array('priority,updated', 'updated',
         'priority,due', 'due', 'priority,created', 'answered', 'number',
         'hot');
     break;
+}
+
+// Open queues _except_ assigned should respect showAssignedTickets()
+// settings
+if ($status != 'closed' && $queue_name != 'assigned') {
+    $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$thisstaff->showAssignedTickets();
+    $showassigned = !$hideassigned;
+    if ($status == 'open' && $hideassigned)
+        $tickets->filter(array('staff_id'=>0, 'team_id'=>0));
+    else
+        $tickets->values('staff__firstname', 'staff__lastname', 'team__name');
 }
 
 // Apply primary ticket status
@@ -196,76 +205,83 @@ $tickets = $pageNav->paginate($tickets);
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
 
 if (isset($_GET['sort'])) {
-    $_SESSION[$queue_sort_key] = $_GET['sort'];
+    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-    $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
 }
 
-switch ($_SESSION[$queue_sort_key]) {
+list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
+$orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
+$orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+switch ($sort_cols) {
 case 'number':
     $tickets->extra(array(
-        'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
+        'order_by'=>array(
+            array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
+        )
     ));
     break;
 
 case 'priority,created':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
     // Fall through to columns for `created`
 case 'created':
     $date_header = __('Date Created');
     $date_col = 'created';
     $tickets->values('created');
-    $tickets->order_by('-created');
+    $tickets->order_by($sort_dir ? 'created' : '-created');
     break;
 
 case 'priority,due':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
 case 'due':
     $date_header = __('Due Date');
     $date_col = 'est_duedate';
     $tickets->values('est_duedate');
-    $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'));
+    $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
     break;
 
 case 'closed':
     $date_header = __('Date Closed');
     $date_col = 'closed';
     $tickets->values('closed');
-    $tickets->order_by('-closed');
+    $tickets->order_by('closed', $orm_dir);
     break;
 
 case 'answered':
     $date_header = __('Last Response');
     $date_col = 'thread__lastresponse';
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-    $tickets->order_by('-thread__lastresponse');
+    $tickets->order_by('thread__lastresponse', $orm_dir);
     $tickets->values('thread__lastresponse');
     break;
 
 case 'hot':
-    $tickets->order_by('-thread_count');
+    $tickets->order_by('thread_count', $orm_dir);
     $tickets->annotate(array(
         'thread_count' => SqlAggregate::COUNT('thread__entries'),
     ));
     break;
 
 case 'relevance':
-    $tickets->order_by(new SqlCode('relevance'));
+    $tickets->order_by(new SqlCode('relevance'), $orm_dir);
     break;
 
 default:
 case 'priority,updated':
-    $tickets->order_by('cdata__:priority__priority_urgency');
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through for columns defined for `updated`
 case 'updated':
     $date_header = __('Last Updated');
     $date_col = 'lastupdate';
-    $tickets->order_by('-lastupdate');
+    $tickets->order_by('lastupdate', $orm_dir);
     break;
 }
 
+// Save the query to the session for exporting
+$_SESSION[':Q:tickets'] = $tickets;
 
 // Rewrite $tickets to use a nested query, which will include the LIMIT part
 // in order to speed the result
@@ -303,32 +319,39 @@ $tickets->annotate(array(
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
-// Save the query to the session for exporting
-$_SESSION[':Q:tickets'] = $orig_tickets;
-
 ?>
 
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
-    <span class="action-button muted" data-dropdown="#sort-dropdown">
+    <span class="action-button muted" data-dropdown="#sort-dropdown" data-toggle="tooltip" title="<?php echo $sort_options[$sort_cols]; ?>">
       <i class="icon-caret-down pull-right"></i>
-      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
+      <span><i class="icon-sort-by-attributes-alt <?php if ($sort_dir) echo 'icon-flip-vertical'; ?>"></i> <?php echo __('Sort');?></span>
     </span>
     <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: $.pjax({
-        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
+    onclick="javascript:
+    var query = addSearchParam({'sort': $(event.target).data('mode'), 'dir': $(event.target).data('dir')});
+    $.pjax({
+        url: '?' + query,
         timeout: 2000,
         container: '#pjax-container'});">
       <ul class="bleed-left">
 <?php foreach ($queue_sort_options as $mode) {
 $desc = $sort_options[$mode];
-$selected = $mode == $_SESSION[$queue_sort_key]; ?>
-      <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
-          if ($selected) echo 'icon-hand-right';
-          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
+$icon = '';
+$dir = '0';
+$selected = $sort_cols == $mode; ?>
+    <li <?php
+if ($selected) {
+    echo 'class="active"';
+    $dir = ($sort_dir == '1') ? '0' : '1'; // Flip the direction
+    $icon = ($sort_dir == '1') ? 'icon-hand-up' : 'icon-hand-down';
+}
+?>>
+        <a href="#" data-mode="<?php echo $mode; ?>" data-dir="<?php echo $dir; ?>">
+          <i class="icon-fixed-width <?php echo $icon; ?>"
+          ></i> <?php echo Format::htmlchars($desc); ?></a>
       </li>
 <?php } ?>
     </div>
@@ -369,15 +392,7 @@ return false;">
         <div class="pull-right flush-right">
             <?php
             if ($count) {
-                if ($thisstaff->canManageTickets()) {
-                    echo TicketStatus::status_options();
-                }
-                if ($thisstaff->hasPerm(TicketModel::PERM_DELETE, false)) { ?>
-                <a id="tickets-delete" class="red button action-button tickets-action"
-                    href="#tickets/status/delete"><i
-                class="icon-trash"></i> <?php echo __('Delete'); ?></a>
-                <?php
-                }
+                Ticket::agentActions($thisstaff, array('status' => $status));
             }?>
         </div>
     </div>
@@ -587,11 +602,12 @@ $(function() {
             +'?count='+count
             +'&_uid='+new Date().getTime();
             $.dialog(url, [201], function (xhr) {
-                window.location.href = window.location.href;
+                $.pjax.reload('#pjax-container');
              });
         }
         return false;
     });
+    $('[data-toggle=tooltip]').tooltip();
 });
 </script>
 

@@ -128,7 +128,7 @@ class SearchAjaxAPI extends AjaxController {
             else
                 $data[$name] = $info['value'];
         }
-        $form = $search->getForm();
+        $form = $search->getForm($data);
         $form->setSource($data);
         if (!$data || !$form->isValid()) {
             Http::response(422, 'Validation errors exist on form');
@@ -137,6 +137,8 @@ class SearchAjaxAPI extends AjaxController {
         $search->config = JsonDataEncoder::encode($form->getState());
         if (isset($_POST['name']))
             $search->title = $_POST['name'];
+        elseif ($search->__new__)
+            Http::response(400, 'A name is required');
         if (!$search->save()) {
             Http::response(500, 'Internal error. Unable to update search');
         }

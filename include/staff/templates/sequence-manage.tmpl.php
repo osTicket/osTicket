@@ -136,7 +136,7 @@ $(function() {
   $(document).on('click.seq', '#sequences .save a', save);
   $(document).on('click.seq', '#sequences .delete a', remove);
   $('.close, input:submit').click(function() {
-      $(document).die('click.seq');
+      $(document).off('click.seq');
   });
 });
 </script>

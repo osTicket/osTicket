@@ -26,6 +26,8 @@ require_once('../main.inc.php');
 if (($logo = $ost->getConfig()->getStaffLogo())) {
     $logo->display();
 } else {
+    header("Cache-Control: private, max-age=86400");
+    header('Pragma: private');
     header('Location: images/ost-logo.png');
 }
 

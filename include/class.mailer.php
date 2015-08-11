@@ -225,7 +225,8 @@ class Mailer {
         'B' => function($id, $tag) use ($self) {
             $format = 'Vuid/VentryId/VthreadId/auserClass/a*sig';
             if ($tag && ($tag = base64_decode($tag))) {
-                $info = unpack($format, $tag);
+                if (!($info = @unpack($format, $tag)) || !isset($info['sig']))
+                    return false;
                 $sysid = $self::getSystemMessageIdCode();
                 $shorttag = substr($tag, 0, 13);
                 $chksig = substr(hash_hmac('sha1', $shorttag.$id.$sysid,

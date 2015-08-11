@@ -27,8 +27,18 @@ if ($info['error']) {
 <div id="selected-user-info" style="display:<?php echo $user ? 'block' :'none'; ?>;margin:5px;">
 <form method="post" class="user" action="<?php echo $info['action'] ?  $info['action'] : '#users/lookup'; ?>">
     <input type="hidden" id="user-id" name="id" value="<?php echo $user ? $user->getId() : 0; ?>"/>
+<?php
+if ($user) { ?>
+    <div class="avatar pull-left" style="margin: 0 10px;">
+    <?php echo $user->getAvatar(); ?>
+    </div>
+<?php
+}
+else { ?>
     <i class="icon-user icon-4x pull-left icon-border"></i>
-<?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
+<?php
+}
+if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i>
         <?php echo __('Add New User'); ?></a>

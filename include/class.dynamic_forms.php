@@ -1079,6 +1079,14 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->_fields;
     }
 
+    function filterFields($filter) {
+        $this->getFields();
+        foreach ($this->_fields as $i=>$f) {
+            if ($filter($f))
+                unset($this->_fields[$i]);
+        }
+    }
+
     function getSource() {
         return $this->_source ?: (isset($this->id) ? false : $_POST);
     }

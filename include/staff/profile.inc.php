@@ -132,14 +132,14 @@ if ($avatar->isChangeable()) { ?>
         </tr>
         <tr>
           <td colspan="2">
-            <label>
+            <label class="checkbox">
             <input type="checkbox" name="show_assigned_tickets"
-              <?php echo ($staff->show_assigned_tickets) ? 'checked="checked"' : ''; ?> />
+              <?php echo $cfg->showAssignedTickets() ? 'disabled="disabled" ' : ''; ?>
+              <?php echo $staff->show_assigned_tickets ? 'checked="checked"' : ''; ?> />
               <?php echo __('Show assigned tickets on open queue.'); ?>
-            </label>
             <i class="help-tip icon-question-sign" href="#show_assigned_tickets"></i>
-            <br/>
-            <label>
+            </label>
+            <label class="checkbox">
             <input type="checkbox" name="onvacation"
               <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Vacation Mode'); ?>

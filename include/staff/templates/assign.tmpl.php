@@ -1,9 +1,10 @@
 <?php
 global $cfg;
+
+$form = $form ?: AssignmentForm::instantiate($info);
+
 if (!$info[':title'])
-    $info[':title'] = sprintf(__('%s %s'),
-            __('Delete'),
-            _N('selected task', 'selected tasks', $count));
+    $info[':title'] = __('Assign');
 ?>
 <h3 class="drag-handle"><?php echo $info[':title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -22,12 +23,13 @@ if ($info['error']) {
 }
 
 
-$action = $info[':action'] ?: ('#tasks/mass/delete');
+$action = $info[':action'] ?: ('#');
 ?>
-<div id="ticket-status" style="display:block; margin:5px;">
-<form method="post" name="delete" id="delete"
-    action="<?php echo $action; ?>"
-    class="mass-action">
+<div style="display:block; margin:5px;">
+<form class="mass-action" method="post"
+    name="assign"
+    id="<?php echo $form->getId(); ?>"
+    action="<?php echo $action; ?>">
     <table width="100%">
         <?php
         if ($info[':extra']) {
@@ -40,19 +42,12 @@ $action = $info[':action'] ?: ('#tasks/mass/delete');
         }
        ?>
         <tbody>
-            <tr>
-                <td colspan="2">
-                <?php
-                $placeholder = $info[':placeholder'] ?: __('Optional reason for the deletion');
-                ?>
-                <textarea name="comments" id="comments"
-                    cols="50" rows="3" wrap="soft" style="width:100%"
-                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                    ?> no-bar"
-                    placeholder="<?php echo $placeholder; ?>"><?php
-                    echo $info['comments']; ?></textarea>
-                </td>
-            </tr>
+            <tr><td colspan=2>
+             <?php
+             $options = array('template' => 'simple', 'form_id' => 'assign');
+             $form->render($options);
+             ?>
+            </td> </tr>
         </tbody>
     </table>
     <hr>
@@ -64,7 +59,7 @@ $action = $info[':action'] ?: ('#tasks/mass/delete');
         </span>
         <span class="buttons pull-right">
             <input type="submit" value="<?php
-            echo $verb ?: __('Submit'); ?>">
+            echo $verb ?: __('Assign'); ?>">
         </span>
      </p>
 </form>

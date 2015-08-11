@@ -477,10 +477,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->_entries ?: array();
     }
 
-    function setStatus($status, $comments='') {
+    function setStatus($status, $comments='', &$errors=array()) {
         global $thisstaff;
 
-         $ecb = null;
+        $ecb = null;
         switch($status) {
         case 'open':
             if ($this->isOpen())

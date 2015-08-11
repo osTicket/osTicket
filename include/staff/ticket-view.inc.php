@@ -71,16 +71,36 @@ if($ticket->isOverdue())
                 <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
-            }
-            if ($ticket->isOpen()
-                    && !$ticket->isAssigned()
-                    && $role->hasPerm(TicketModel::PERM_ASSIGN)
-                    && $ticket->getDept()->isMember($thisstaff)) {?>
-                <a id="ticket-claim" class="action-button pull-right confirm-action" href="#claim"><i class="icon-user"></i> <?php
-                    echo __('Claim'); ?></a>
+            } ?>
+            <?php
+            // Transfer
+            if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
+            <a class="ticket-action action-button pull-right" id="ticket-transfer"
+                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i> <?php
+                echo __('Transfer'); ?></a>
+            <?php
+            } ?>
 
             <?php
-            }?>
+            // Assign
+            if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
+                <i class="icon-caret-down pull-right"></i>
+                <a class="ticket-action" id="ticket-assign" href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
+                    echo $ticket->isAssigned() ? __('Assign') :  __('Reassign'); ?></a>
+            </span>
+            <div id="action-dropdown-assign" class="action-dropdown anchor-right">
+              <ul>
+                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
+                    class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
+                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
+                    class="icon-user"></i> <?php echo __('Agent'); ?></a>
+                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/teams"><i
+                    class="icon-group"></i> <?php echo __('Team'); ?></a>
+              </ul>
+            </div>
+            <?php
+            } ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
                 <i class="icon-caret-down pull-right"></i>
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
@@ -453,17 +473,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <?php
         } ?>
         <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
-        <?php
-        if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
-        <li><a href="#transfer"><?php echo __('Department Transfer');?></a></li>
-        <?php
-        }
-
-        if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
-        <li><a href="#assign"><?php
-            echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
-        <?php
-        } ?>
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
@@ -744,168 +753,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
-    <?php
-    if ($role->hasPerm(TicketModel::PERM_TRANSFER)) { ?>
-    <form id="transfer" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
-        echo $ticket->getId(); ?>#transfer" name="transfer" method="post" enctype="multipart/form-data">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
-        <input type="hidden" name="a" value="transfer">
-        <table width="100%" border="0" cellspacing="0" cellpadding="3">
-            <?php
-            if($errors['transfer']) {
-                ?>
-            <tr>
-                <td width="120">&nbsp;</td>
-                <td class="error"><?php echo $errors['transfer']; ?></td>
-            </tr>
-            <?php
-            } ?>
-            <tr>
-                <td width="120">
-                    <label for="deptId"><strong><?php echo __('Department');?>:</strong></label>
-                </td>
-                <td>
-                    <?php
-                        echo sprintf('<span class="faded">'.__('Ticket is currently in <b>%s</b> department.').'</span>', $ticket->getDeptName());
-                    ?>
-                    <br>
-                    <select id="deptId" name="deptId" data-quick-add="department">
-                        <option value="0" selected="selected">&mdash; <?php echo __('Select Target Department');?> &mdash;</option>
-                        <?php
-                        if($depts=Dept::getDepartments()) {
-                            foreach($depts as $id =>$name) {
-                                if($id==$ticket->getDeptId()) continue;
-                                echo sprintf('<option value="%d" %s>%s</option>',
-                                        $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
-                            }
-                        }
-                        ?>
-                        <option value="0" data-quick-add>— <?php echo __('Add New'); ?> —</option>
-                    </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['deptId']; ?></span>
-                </td>
-            </tr>
-            <tr>
-                <td width="120" style="vertical-align:top">
-                    <label><strong><?php echo __('Comments'); ?>:</strong><span class='error'>&nbsp;*</span></label>
-                </td>
-                <td>
-                    <textarea name="transfer_comments" id="transfer_comments"
-                        placeholder="<?php echo __('Enter reasons for the transfer'); ?>"
-                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> no-bar" cols="80" rows="7" wrap="soft"><?php
-                        echo $info['transfer_comments']; ?></textarea>
-                    <span class="error"><?php echo $errors['transfer_comments']; ?></span>
-                </td>
-            </tr>
-        </table>
-        <p style="padding-left:165px;">
-           <input class="save pending" type="submit" value="<?php echo __('Transfer');?>">
-           <input class="" type="reset" value="<?php echo __('Reset');?>">
-        </p>
-    </form>
-    <?php
-    } ?>
-    <?php
-    if ($role->hasPerm(TicketModel::PERM_ASSIGN)) { ?>
-    <form id="assign" class="hidden tab_content spellcheck" action="tickets.php?id=<?php
-         echo $ticket->getId(); ?>#assign" name="assign" method="post" enctype="multipart/form-data">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
-        <input type="hidden" name="a" value="assign">
-        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
-
-            <?php
-            if($errors['assign']) {
-                ?>
-            <tr>
-                <td width="120">&nbsp;</td>
-                <td class="error"><?php echo $errors['assign']; ?></td>
-            </tr>
-            <?php
-            } ?>
-            <tr>
-                <td width="120" style="vertical-align:top">
-                    <label for="assignId"><strong><?php echo __('Assignee');?>:</strong></label>
-                </td>
-                <td>
-                    <select id="assignId" name="assignId">
-                        <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
-                        <?php
-                        if ($ticket->isOpen()
-                                && !$ticket->isAssigned()
-                                && $ticket->getDept()->isMember($thisstaff))
-                            echo sprintf('<option value="%d">'.__('Claim Ticket (comments optional)').'</option>', $thisstaff->getId());
-
-                        $sid=$tid=0;
-
-                        if ($dept->assignMembersOnly())
-                            $users = $dept->getAvailableMembers();
-                        else
-                            $users = Staff::getAvailableStaffMembers();
-
-                        if ($users) {
-                            echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
-                            $staffId=$ticket->isAssigned()?$ticket->getStaffId():0;
-                            foreach($users as $id => $name) {
-                                if($staffId && $staffId==$id)
-                                    continue;
-
-                                if (!is_object($name))
-                                    $name = new AgentsName($name);
-
-                                $k="s$id";
-                                echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k,(($info['assignId']==$k)?'selected="selected"':''), $name);
-                            }
-                            echo '</OPTGROUP>';
-                        }
-
-                        if(($teams=Team::getActiveTeams())) {
-                            echo '<OPTGROUP label="'.sprintf(__('Teams (%d)'), count($teams)).'">';
-                            $teamId=(!$sid && $ticket->isAssigned())?$ticket->getTeamId():0;
-                            foreach($teams as $id => $name) {
-                                if($teamId && $teamId==$id)
-                                    continue;
-
-                                $k="t$id";
-                                echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k,(($info['assignId']==$k)?'selected="selected"':''),$name);
-                            }
-                            echo '</OPTGROUP>';
-                        }
-                        ?>
-                    </select>&nbsp;<span class='error'>*&nbsp;<?php echo $errors['assignId']; ?></span>
-                    <?php
-                    if ($ticket->isAssigned() && $ticket->isOpen()) { ?>
-                        <div class="faded"><?php echo sprintf(__('Ticket is currently assigned to %s'),
-                            sprintf('<b>%s</b>', $ticket->getAssignee())); ?></div> <?php
-                    } elseif ($ticket->isClosed()) { ?>
-                        <div class="faded"><?php echo __('Assigning a closed ticket will <b>reopen</b> it!'); ?></div>
-                    <?php } ?>
-                </td>
-            </tr>
-            <tr>
-                <td width="120" style="vertical-align:top">
-                    <label><strong><?php echo __('Comments');?>:</strong><span class='error'>&nbsp;</span></label>
-                </td>
-                <td>
-                    <textarea name="assign_comments" id="assign_comments"
-                        cols="80" rows="7" wrap="soft"
-                        placeholder="<?php echo __('Enter reasons for the assignment or instructions for assignee'); ?>"
-                        class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> no-bar"><?php echo $info['assign_comments']; ?></textarea>
-                    <span class="error"><?php echo $errors['assign_comments']; ?></span><br>
-                </td>
-            </tr>
-        </table>
-        <p  style="padding-left:165px;">
-            <input class="save pending" type="submit" value="<?php echo $ticket->isAssigned()?__('Reassign'):__('Assign'); ?>">
-            <input class="" type="reset" value="<?php echo __('Reset');?>">
-        </p>
-    </form>
-    <?php
-    } ?>
  </div>
  </div>
 </div>

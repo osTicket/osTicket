@@ -71,8 +71,7 @@ elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
 }
 
 // Browsers shouldn't suggest saving that username/password
-Http::response(401);
-header('WWW-Authenticate: html-form id=login');
+Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');

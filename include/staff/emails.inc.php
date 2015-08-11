@@ -89,7 +89,7 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
             foreach ($emails as $email) {
                 $id = $email->getId();
                 $sel=false;
-                if ($ids && in_array($email, $ids))
+                if ($ids && in_array($id, $ids))
                     $sel=true;
                 $default=($id==$defaultId);
                 ?>
@@ -97,11 +97,13 @@ $def_priority = $cfg->getDefaultPriority()->getDesc();
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]"
                     value="<?php echo $id; ?>"
-                    <?php echo $sel ? 'checked="checked"' : ''; ?>
-                    <?php echo $default?'disabled="disabled"':''; ?>>
+                    <?php echo $sel ? 'checked="checked" ' : ''; ?>
+                    <?php echo $default?'disabled="disabled" ':''; ?>>
                 </td>
                 <td><span class="ltr"><a href="emails.php?id=<?php echo $id; ?>"><?php
-                    echo Format::htmlchars((string) $email); ?></a></span></td>
+                    echo Format::htmlchars((string) $email); ?></a></span>
+                <?php echo ($default) ?' <small>'.__('(Default)').'</small>' : ''; ?>
+                </td>
                 <td><?php echo $email->priority ?: $def_priority; ?></td>
                 <td><a href="departments.php?id=<?php $email->dept_id ?: $def_dept_id; ?>"><?php
                     echo $email->dept ?: $def_dept_name; ?></a></td>
