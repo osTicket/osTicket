@@ -2635,6 +2635,9 @@ implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
+        // Decide if we need to keep the just selected SLA
+        $keepSLA = ($this->getSLAId() != $vars['slaId']);
+
         $this->topic_id = $vars['topicId'];
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
@@ -2665,9 +2668,6 @@ implements RestrictedAccess, Threadable {
 
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
-
-        // Decide if we need to keep the just selected SLA
-        $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
         foreach ($forms as $f) {
