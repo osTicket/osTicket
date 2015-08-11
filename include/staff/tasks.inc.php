@@ -129,30 +129,35 @@ $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
 
 if (isset($_GET['sort'])) {
-        $_SESSION[$queue_sort_key] = $_GET['sort'];
+    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-        $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
 }
 
-switch ($_SESSION[$queue_sort_key]) {
+list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
+$orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
+$orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+
+switch ($sort_cols) {
 case 'number':
     $tasks->extra(array(
-        'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
+        'order_by'=>array(
+            array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
+        )
     ));
     break;
 case 'due':
     $date_header = __('Due Date');
     $date_col = 'duedate';
     $tasks->values('duedate');
-    $tasks->filter(array('duedate__isnull'=>false));
-    $tasks->order_by('duedate');
+    $tasks->order_by(SqlFunction::COALESCE(new SqlField('duedate'), 'zzz'), $orm_dir_r);
     break;
 case 'updated':
     $date_header = __('Last Updated');
     $date_col = 'updated';
     $tasks->values('updated');
-    $tasks->order_by('-updated');
+    $tasks->order_by($sort_dir ? 'updated' : '-updated');
     break;
 case 'hot':
     $tasks->order_by('-thread_count');
@@ -162,7 +167,7 @@ case 'hot':
     break;
 case 'created':
 default:
-    $tasks->order_by('-created');
+    $tasks->order_by($sort_dir ? 'created' : '-created');
     break;
 }
 
@@ -211,28 +216,10 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
-    <span class="action-button muted" data-dropdown="#sort-dropdown">
-      <i class="icon-caret-down pull-right"></i>
-      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
-    </span>
-    <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: $.pjax({
-        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
-        timeout: 2000,
-        container: '#pjax-container'});">
-      <ul class="bleed-left">
-        <?php foreach ($queue_sort_options as $mode) {
-        $desc = $sort_options[$mode];
-        $selected = $mode == $_SESSION[$queue_sort_key]; ?>
-      <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
-          if ($selected) echo 'icon-hand-right';
-          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
-      </li>
-<?php } ?>
-      </ul>
-    </div>
-  </div>
+    <?php
+        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+    ?>
+   </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
   $.pjax({
     url:$(this).attr('action') + '?' + $(this).serialize(),
@@ -250,6 +237,7 @@ return false;">
       </button>
     </div>
     </form>
+
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
@@ -453,5 +441,7 @@ $(function() {
 
         return false;
     });
+
+    $('[data-toggle=tooltip]').tooltip();
 });
 </script>
