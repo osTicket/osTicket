@@ -30,6 +30,9 @@ body {
     line-height: 1.5em;
     margin: 0;
     text-align: center;
+}
+
+#brickwall {
     background-image: url(../images/oscar-wall.jpg);
     background-color:orange;
     background-blend-mode: multiply;
@@ -37,6 +40,11 @@ body {
        -moz-background-size: cover;
          -o-background-size: cover;
             background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 #background-compat {

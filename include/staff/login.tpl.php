@@ -2,6 +2,7 @@
 include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
+<div id="brickwall"></div>
 <div id="background-compat"></div>
 <div id="loginBox">
     <div class="tape"></div>
