@@ -36,10 +36,6 @@ UPDATE `%TABLE_PREFIX%thread_event` A1
 ALTER TABLE `%TABLE_PREFIX%user_email`
   ADD `flags` int(10) unsigned NOT NULL DEFAULT 0 AFTER `user_id`;
 
-ALTER TABLE `%TABLE_PREFIX%thread_entry`
-  ADD `editor` int(10) unsigned NULL AFTER `poster`,
-  ADD `editor_type` char(1) NULL AFTER `editor`;
-
 ALTER TABLE `%TABLE_PREFIX%form`
   CHANGE `deletable` `flags` int(10) unsigned NOT NULL DEFAULT 1;
 

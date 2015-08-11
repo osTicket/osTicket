@@ -34,20 +34,53 @@ INSERT INTO `%TABLE_PREFIX%thread`
     ON (t1.ticket_id=t2.ticket_id and t1.id=t2.id)
     ORDER BY t1.created;
 
-ALTER TABLE  `%TABLE_PREFIX%ticket_thread`
-    ADD  `thread_id` INT( 11 ) UNSIGNED NOT NULL DEFAULT  '0' AFTER  `pid` ,
-    ADD INDEX (  `thread_id` );
-
-UPDATE  `%TABLE_PREFIX%ticket_thread` t1
-    LEFT JOIN  `%TABLE_PREFIX%thread` t2 ON ( t2.object_id = t1.ticket_id )
-    SET t1.thread_id = t2.id;
-
 -- convert ticket_thread to thread_entry
-ALTER TABLE  `%TABLE_PREFIX%ticket_thread`
-    CHANGE  `thread_type`  `type` CHAR( 1 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    ADD INDEX (  `type` );
+CREATE TABLE `%TABLE_PREFIX%thread_entry` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `pid` int(11) unsigned NOT NULL default '0',
+  `thread_id` int(11) unsigned NOT NULL default '0',
+  `staff_id` int(11) unsigned NOT NULL default '0',
+  `user_id` int(11) unsigned not null default 0,
+  `type` char(1) NOT NULL default '',
+  `flags` int(11) unsigned NOT NULL default '0',
+  `poster` varchar(128) NOT NULL default '',
+  `editor` int(10) unsigned NULL,
+  `editor_type` char(1) NULL,
+  `source` varchar(32) NOT NULL default '',
+  `title` varchar(255),
+  `body` text NOT NULL,
+  `format` varchar(16) NOT NULL default 'html',
+  `ip_address` varchar(64) NOT NULL default '',
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`),
+  KEY `thread_id` (`thread_id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `type` (`type`)
+) DEFAULT CHARSET=utf8;
 
-RENAME TABLE `%TABLE_PREFIX%ticket_thread` TO  `%TABLE_PREFIX%thread_entry` ;
+-- Set the ORIGINAL_MESSAGE flag to all the first messages of each thread
+CREATE TABLE `%TABLE_PREFIX%_orig_msg_ids`
+  (`id` INT NOT NULL, PRIMARY KEY (id))
+  SELECT MIN(id) AS `id` FROM `%TABLE_PREFIX%ticket_thread`
+  WHERE `thread_type` = 'M'
+  GROUP BY `ticket_id`;
+
+INSERT INTO `%TABLE_PREFIX%thread_entry`
+  (`id`, `pid`, `thread_id`, `staff_id`, `user_id`, `type`, `flags`,
+    `poster`, `source`, `title`, `body`, `format`, `ip_address`, `created`,
+    `updated`)
+  SELECT t1.`id`, t1.`pid`, t2.`id`, t1.`staff_id`, t1.`user_id`, t1.`thread_type`,
+    CASE WHEN t3.`id` IS NULL THEN 0 ELSE 1 END,
+    t1.`poster`, t1.`source`, t1.`title`, t1.`body`, t1.`format`, t1.`ip_address`,
+    t1.`created`, t1.`updated`
+  FROM `%TABLE_PREFIX%ticket_thread` t1
+  LEFT JOIN `%TABLE_PREFIX%thread` t2 ON (t2.object_id = t1.ticket_id AND t2.object_type = 'T')
+  LEFT JOIN `%TABLE_PREFIX%_orig_msg_ids` t3 ON (t1.id = t3.id);
+
+DROP TABLE `%TABLE_PREFIX%ticket_thread`;
+DROP TABLE `%TABLE_PREFIX%_orig_msg_ids`;
 
 -- add thread id to ticket table
 ALTER TABLE  `%TABLE_PREFIX%ticket`
