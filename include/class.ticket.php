@@ -3394,10 +3394,11 @@ implements RestrictedAccess, Threadable {
 
         // Ensure agent has rights to make assignment in the cited
         // department
-        if ($role
-            ? !$role->hasPerm(TicketModel::PERM_ASSIGN)
-            : !$thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
-        ) {
+        if ($vars['assignId'] && !(
+            $role
+            ? $role->hasPerm(TicketModel::PERM_ASSIGN)
+            : $thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
+        )) {
             $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
         }
 

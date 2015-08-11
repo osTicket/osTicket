@@ -3530,7 +3530,7 @@ class ThreadEntryWidget extends Widget {
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
-            $draft ?: Format::htmlchars($this->value); ?></textarea>
+            Format::htmlchars($this->value) ?: $draft; ?></textarea>
     <?php
         $config = $this->field->getConfiguration();
         if (!$config['attachments'])
