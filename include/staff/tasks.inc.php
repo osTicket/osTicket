@@ -43,7 +43,16 @@ case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tasks');
-    $tasks->filter(array('staff_id'=>$thisstaff->getId()));
+    // Assigned to agent directly
+    $assigned = Q::any(array(
+        'staff_id' => $thisstaff->getId(),
+    ));
+    // Unassigned tickets assigned to my team.
+    if ($teams = array_filter($thisstaff->getTeams()))
+        $assigned->add(Q::all(array('team_id__in' => $teams, 'staff_id' => 0)));
+
+    $tasks->filter($assigned);
+
     $queue_sort_options = array('updated', 'created', 'hot', 'number');
     break;
 default:

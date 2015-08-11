@@ -2753,17 +2753,20 @@ implements RestrictedAccess, Threadable {
 
         $where = array('(ticket.staff_id='.db_input($staff->getId()) .' AND
                     status.state="open")');
-        $where2 = '';
+        $where1 = $where2 = '';
 
-        if(($teams=$staff->getTeams()))
-            $where[] = ' ( ticket.team_id IN('.implode(',', db_input(array_filter($teams)))
+        if (($teams=array_filter($staff->getTeams()))) {
+            $where[] = ' ( ticket.team_id IN('.implode(',', db_input($teams))
                         .') AND status.state="open")';
+            $where1 = ' OR ( ticket.team_id IN('.implode(',', db_input($teams))
+                        .') AND ticket.staff_id=0) ';
+        }
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
             $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
 
         if (($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets())
-            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
+            $where2 =' AND (ticket.staff_id=0 AND ticket.team_id=0)';
         $where = implode(' OR ', $where);
         if ($where) $where = 'AND ( '.$where.' ) ';
 
@@ -2796,7 +2799,8 @@ implements RestrictedAccess, Threadable {
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
                     ON (ticket.status_id=status.id
                             AND status.state=\'open\') '
-                .'WHERE ticket.staff_id = ' . db_input($staff->getId()) . ' '
+                .'WHERE (ticket.staff_id = ' . db_input($staff->getId()) . "
+                        $where1)"
                 . $where
 
                 .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '

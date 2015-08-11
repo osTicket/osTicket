@@ -1291,13 +1291,17 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $where = array('(task.staff_id='.db_input($staff->getId())
                     .sprintf(' AND task.flags & %d != 0 ', TaskModel::ISOPEN)
                     .') ');
-        $where2 = '';
 
-        if(($teams=$staff->getTeams()))
-            $where[] = ' ( task.team_id IN('.implode(',', db_input(array_filter($teams)))
+        $where1 = $where2 = '';
+
+        if (($teams=array_filter($staff->getTeams()))) {
+            $where[] = ' ( task.team_id IN('.implode(',', db_input($teams))
                         .') AND '
                         .sprintf('task.flags & %d != 0 ', TaskModel::ISOPEN)
                         .')';
+            $where1 = ' OR ( task.team_id IN('.implode(',',db_input($teams))
+                        .') AND task.staff_id = 0) ';
+        }
 
         if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tasks.
             $where[] = 'task.dept_id IN('.implode(',', db_input($depts)).') ';
@@ -1320,7 +1324,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 .'FROM ' . TASK_TABLE . ' task '
                 . sprintf(' WHERE task.flags & %d != 0 ', TaskModel::ISOPEN)
                 .'AND task.staff_id = ' . db_input($staff->getId()) . ' '
-                . $where
+                . $where1 . $where
 
                 .'UNION SELECT \'closed\', count( task.id ) AS tasks '
                 .'FROM ' . TASK_TABLE . ' task '
