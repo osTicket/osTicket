@@ -121,7 +121,7 @@ class ContentAjaxAPI extends AjaxController {
         case 'none':
             break;
         case 'agent':
-            if (!($staff = Staff::lookup($id)))
+            if (!($staff = Staff::lookup((int) $id)))
                 Http::response(404, 'No such staff member');
             echo Format::viewableImages($staff->getSignature());
             break;

@@ -1016,7 +1016,7 @@ implements RestrictedAccess, Threadable {
         if (!is_numeric($staffId))
             return false;
 
-        $this->staff = Staff::lookup($staffId);
+        $this->staff = Staff::lookup((int) $staffId);
         return $this->save();
     }
 

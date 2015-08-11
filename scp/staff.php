@@ -19,7 +19,7 @@ require('admin.inc.php');
 require_once INCLUDE_DIR . 'class.report.php';
 
 $staff=null;
-if($_REQUEST['id'] && !($staff=Staff::lookup($_REQUEST['id'])))
+if($_REQUEST['id'] && !($staff=Staff::lookup((int) $_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('agent'));
 
 if($_POST){

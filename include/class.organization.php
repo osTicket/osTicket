@@ -72,7 +72,7 @@ class OrganizationModel extends VerySimpleModel {
             if ($this->manager[0] == 't')
                 $this->_manager = Team::lookup(substr($this->manager, 1));
             elseif ($this->manager[0] == 's')
-                $this->_manager = Staff::lookup(substr($this->manager, 1));
+                $this->_manager = Staff::lookup((int) substr($this->manager, 1));
             else
                 $this->_manager = ''; // None.
         }
@@ -349,7 +349,7 @@ implements TemplateVariable {
         if ($vars['manager']) {
             switch ($vars['manager'][0]) {
             case 's':
-                if ($staff = Staff::lookup(substr($vars['manager'], 1)))
+                if ($staff = Staff::lookup((int) substr($vars['manager'], 1)))
                     break;
             case 't':
                 if ($vars['manager'][0] == 't'

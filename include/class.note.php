@@ -20,7 +20,12 @@ class QuickNoteModel extends VerySimpleModel {
     static $meta = array(
         'table' => NOTE_TABLE,
         'pk' => array('id'),
-        'ordering' => array('sort', 'created')
+        'ordering' => array('sort', 'created'),
+        'joins' => array(
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id'),
+            ),
+        ),
     );
 }
 
@@ -30,18 +35,13 @@ class QuickNote extends QuickNoteModel {
         'U' => /* @trans */ 'User',
         'O' => /* @trans */ 'Organization',
     );
-    var $_staff;
 
     function display() {
         return Format::display($this->body);
     }
 
     function getStaff() {
-        if (!isset($this->_staff) && $this->staff_id) {
-            $this->_staff = Staff::lookup($this->staff_id);
-        }
-        return $this->_staff;
-    }
+        return $this->staff;
 
     function getFormattedTime() {
         return Format::datetime(strpos($this->updated, '0000-') !== 0
