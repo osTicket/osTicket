@@ -58,7 +58,7 @@ class Bootstrap {
     }
 
     static function defineTables($prefix) {
-        #Tables being used sytem wide
+        #Tables being used system wide
         define('SYSLOG_TABLE',$prefix.'syslog');
         define('SESSION_TABLE',$prefix.'session');
         define('CONFIG_TABLE',$prefix.'config');
@@ -197,7 +197,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.model.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
-        require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
+        require(INCLUDE_DIR.'class.pagenate.php'); //Pagination helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.page.php');
@@ -261,7 +261,7 @@ class Bootstrap {
             define('MB_CASE_UPPER', 2);
             define('MB_CASE_TITLE', 3);
             function mb_convert_case($str, $mode) {
-                // XXX: Techincally the calls to strto...() will fail if the
+                // XXX: Technically the calls to strto...() will fail if the
                 //      char is not a single-byte char
                 switch ($mode) {
                 case MB_CASE_LOWER:

@@ -3,7 +3,7 @@
 main.inc.php
 
 Master include file which must be included at the start of every file.
-The brain of the whole sytem. Don't monkey with it.
+The brain of the whole system. Don't monkey with it.
 
 Peter Rotich <peter@osticket.com>
 Copyright (c)  2006-2013 osTicket
@@ -34,7 +34,7 @@ Bootstrap::croak(__('Unable to load config info from DB. Get tech support.'));
 $session = $ost->getSession();
 
 //System defaults we might want to make global//
-#pagenation default - user can override it!
+#pagination default - user can override it!
 define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);
 
 #Cleanup magic quotes crap.

@@ -91,7 +91,7 @@ if(!$thisstaff->isAdmin()) {
 //Keep the session activity alive
 $thisstaff->refreshSession();
 
-/******* CSRF Protectin *************/
+/******* CSRF Protecting *************/
 // Enforce CSRF protection for POSTS
 if ($_POST  && !$ost->checkCSRFToken()) {
     Http::response(400, __('Valid CSRF Token Required'));

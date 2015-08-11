@@ -54,7 +54,7 @@ class JsonDataParser {
                 return $message;
             return __("Unknown error");
         } else {
-            # Doesn't look like Servies_JSON supports errors for decode()
+            # Doesn't look like Services_JSON supports errors for decode()
             return __("Unknown JSON parsing error");
         }
     }

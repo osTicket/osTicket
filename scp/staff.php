@@ -2,7 +2,7 @@
 /*********************************************************************
     staff.php
 
-    Evertything about staff members.
+    Everything about staff members.
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
