@@ -288,7 +288,7 @@ class DynamicForm extends VerySimpleModel {
     }
 
     static function buildDynamicDataView($cdata) {
-        $sql = 'CREATE TABLE `'.$cdata['table'].'` (PRIMARY KEY
+        $sql = 'CREATE TABLE IF NOT EXISTS `'.$cdata['table'].'` (PRIMARY KEY
                 ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
              .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
         db_query($sql);
@@ -489,7 +489,7 @@ class TicketForm extends DynamicForm {
         // ans.entry_id = entry.id LEFT JOIN ost_form_field field ON
         // field.id=ans.field_id
         // where entry.object_type='T' group by entry.object_id;
-        $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
+        $sql = 'CREATE TABLE IF NOT EXISTS `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
             (ticket_id)) DEFAULT CHARSET=utf8 AS '
             . static::getCrossTabQuery('T', 'ticket_id');
         db_query($sql);
