@@ -1238,7 +1238,10 @@ class DynamicFormEntry extends VerySimpleModel {
     function addMissingFields() {
         foreach ($this->getFields() as $field) {
             if ($field->isnew && $field->isEnabled()
-                    && !$field->isPresentationOnly()) {
+                && !$field->isPresentationOnly()
+                && $field->hasData()
+                && $field->isStorable()
+            ) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry'=>$this));
 

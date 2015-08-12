@@ -2624,6 +2624,7 @@ implements RestrictedAccess, Threadable {
             // Don't validate deleted forms
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
+            $form->filterFields(function($f) { return !$f->isStorable(); });
             $form->setSource($_POST);
             if (!$form->isValid(function($f) {
                 return $f->isVisibleToStaff() && $f->isEditableToStaff();
