@@ -20,7 +20,7 @@ if ($info['error']) {
         ><i class="icon-fixed-width icon-cogs faded"></i>&nbsp;<?php
         echo __('Settings'); ?></a></li>
 </ul>
-<form method="post" class="org" action="<?php echo $action; ?>">
+<form method="post" class="org" action="<?php echo $action; ?>" data-tip-namespace="org">
 <div id="orgprofile_container">
 <div class="tab_content" id="profile" style="margin:5px;">
 <?php
@@ -111,7 +111,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                         <option value="sharing-all" <?php echo $info['sharing-all'] ? 'selected="selected"' : '';
                             ?>><?php echo __('All members see all tickets'); ?></option>
                     </select>
-                    <i class="help-tip icon-question-sign" href="#org-sharing"></i>
+                    <i class="help-tip icon-question-sign" href="#org_sharing"></i>
                 </td>
             </tr>
             <tr>
@@ -140,6 +140,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
             <tr>
                 <th colspan="2">
                     <?php echo __('Email Domain'); ?>
+                    <i class="help-tip icon-question-sign" href="#email_domain"></i>
                 </th>
             </tr>
             <tr>
