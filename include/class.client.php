@@ -164,6 +164,8 @@ class  EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;
+    protected $_stats;
+    protected $topic_stats;
 
     function __construct($user) {
         $this->user = $user;
@@ -223,43 +225,53 @@ class  EndUser extends BaseAuthenticatedUser {
     }
 
     function getTicketStats() {
+        if (!isset($this->_stats))
+            $this->_stats = $this->getStats();
 
-        if (!isset($this->ht['stats']))
-            $this->ht['stats'] = $this->getStats();
-
-        return $this->ht['stats'];
+        return $this->_stats;
     }
 
-    function getNumTickets() {
-        if (!($stats=$this->getTicketStats()))
-            return 0;
-
-        return $stats['open']+$stats['closed'];
+    function getNumTickets($forMyOrg=false, $state=false) {
+        $stats = $this->getTicketStats();
+        $count = 0;
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        foreach ($stats[$section] as $row) {
+            if ($state && $row['status__state'] != $state)
+                continue;
+            $count += $row['count'];
+        }
+        return $count;
     }
 
-    function getNumOpenTickets() {
-        return ($stats=$this->getTicketStats())?$stats['open']:0;
+    function getNumOpenTickets($forMyOrg=false) {
+        return $this->getNumTickets($forMyOrg, 'open') ?: 0;
     }
 
     function getNumClosedTickets() {
-        return ($stats=$this->getTicketStats())?$stats['closed']:0;
+        return $this->getNumTickets($forMyOrg, 'closed') ?: 0;
     }
 
-    function getNumTopicTickets($topic_id) {
-        return ($stats=$this->getTicketStats())?$stats['topics'][$topic_id]:0;
+    function getNumTopicTickets($topic_id, $forMyOrg=false) {
+        $stats = $this->getTicketStats();
+        $count = 0;
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        if (!isset($this->topic_stats)) {
+            $this->topic_stats = array();
+            foreach ($stats[$section] as $row) {
+                $this->topic_stats[$row['topic_id']] += $row['count'];
+            }
+        }
+        return $this->topic_stats[$topic_id];
     }
 
     function getNumOrganizationTickets() {
-        if (!($stats=$this->getTicketStats()))
-            return 0;
-
-        return $stats['org']['open']+$stats['org']['closed'];
+        return $this->getNumTickets(true);
     }
     function getNumOpenOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org']['open']:0;
+        return $this->getNumTickets(true, 'open');
     }
     function getNumClosedOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org']['closed']:0;
+        return $this->getNumTickets(true, 'closed');
     }
 
     function getAccount() {
@@ -278,33 +290,24 @@ class  EndUser extends BaseAuthenticatedUser {
     private function getStats() {
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'topic_id', 'user__org_id');
-
-        $q = new Q(); $q->union();
-        if ($this->getOrgId())
-            $q->add(array('user__org_id' => $this->getOrgId()));
+            ->values('status__state', 'topic_id');
 
         // Share tickets among the organization for owners only
-        $owners = clone $basic;
-        $q->add(array('user_id' => $this->getId()));
-        $owners->filter($q);
+        $mine = clone $basic;
+        $mine->filter(Q::any(array(
+            'user_id' => $this->getId(),
+            'thread__collaborators__user_id' => $this->getId()
+        )));
 
-        $collabs = clone $basic;
-        $collabs->filter(array('thread__collaborators__user_id' => $this->getId()));
+        if ($this->getOrgId()) {
+            $myorg = clone $basic;
+            $myorg->filter(array('user__org_id' => $this->getOrgId()))
+                ->values('user__org_id');
+        }
 
         // TODO: Implement UNION ALL support in the ORM
 
-        $stats = array('open' => 0, 'closed' => 0, 'topics' => array());
-        foreach (array($owners, $collabs) as $rs) {
-            foreach ($rs as $row) {
-                $stats[$row['status__state']] += $row['count'];
-                if ($row['topic_id'])
-                    $stats['topics'][$row['topic_id']] += $row['count'];
-                if ($row['user__org_id'])
-                    $stats['org'][$row['status__state']] += $row['count'];
-            }
-        }
-        return $stats;
+        return array('mine' => $mine, 'myorg' => $myorg);
     }
 
     function onLogin($bk) {
