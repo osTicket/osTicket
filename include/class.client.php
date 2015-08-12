@@ -362,6 +362,11 @@ class ClientAccount extends UserAccount {
     function update($vars, &$errors) {
         global $cfg;
 
+        // FIXME: Updates by agents should go through UserAccount::update()
+        global $thisstaff;
+        if ($thisstaff)
+            return parent::update($vars, $errors);
+
         $rtoken = $_SESSION['_client']['reset-token'];
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
 
