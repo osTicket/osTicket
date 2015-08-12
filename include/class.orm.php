@@ -913,6 +913,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $extra = array();
     var $distinct = array();
     var $lock = false;
+    var $chain = array();
 
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
@@ -1171,6 +1172,17 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Disable other fields from being fetched
         $this->aggregated = true;
         $this->related = false;
+        return $this;
+    }
+
+    function union(QuerySet $other, $all=true) {
+        // Values and values_list _must_ match for this to work
+        if (count($this->values) != count($other->values))
+            throw new OrmException('Union queries must have matching values counts');
+
+        // TODO: Clear OFFSET and LIMIT in the $other query
+
+        $this->chain[] = array($other, $all);
         return $this;
     }
 
@@ -2529,8 +2541,26 @@ class MySqlCompiler extends SqlCompiler {
 
         $joins = $this->getJoins($queryset);
 
+        // UNIONS
+        $unions='';
+        if ($queryset->chain) {
+            foreach ($queryset->chain as $qs) {
+                list($qs, $all) = $qs;
+                $q = $qs->getQuery(array('nosort' => true));
+                // Rewrite the parameter numbers so they fit the parameter numbers
+                // of the current parameters of the $compiler
+                $self = $this;
+                $sql = preg_replace_callback("/:(\d+)/",
+                function($m) use ($self, $q) {
+                    $self->params[] = $q->params[$m[1]-1];
+                    return ':'.count($self->params);
+                }, $q->sql);
+                $unions .= ' UNION '.($all ? 'ALL ' : '').$sql;
+            }
+        }
+
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
-            .$table.$joins.$where.$group_by.$having.$sort;
+            .$table.$joins.$where.$group_by.$having.$unions.$sort;
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)
