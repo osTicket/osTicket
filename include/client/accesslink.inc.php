@@ -17,9 +17,9 @@ if ($cfg->isClientEmailVerificationRequired())
 else
     echo ' '.__('This will sign you in to view your ticket.');
 ?></p>
-<form action="login.php" method="post" id="clientLogin">
+<form action="login.php" method="post" id="clientLogin" class="form-horizontal">
     <?php csrf_token(); ?>
-<div style="display:table-row">
+<div class="well">
     <div class="login-box">
     <div><strong><?php echo Format::htmlchars($errors['login']); ?></strong></div>
     <div>

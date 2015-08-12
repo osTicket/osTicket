@@ -6,13 +6,10 @@ if($thisclient && $thisclient->isValid()) {
                 'email'=>$thisclient->getEmail(),
                 'phone'=>$thisclient->getPhoneNumber());
 }
-
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
-
 $form = null;
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
-
 $forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     foreach ($topic->getForms() as $F) {
@@ -25,31 +22,20 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         $forms[] = $F;
     }
 }
-
 ?>
-<h1><?php echo __('Open a New Ticket');?></h1>
-<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+<h1><?php echo __('Create a new Suggestion');?></h1>
+<p><?php echo __('Please fill in the form below to open a new suggestion.');?></p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
   <table width="800" cellpadding="1" cellspacing="0" border="0">
     <tbody>
-<?php
-        if (!$thisclient) {
-            $uform = UserForm::getUserForm()->getForm($_POST);
-            if ($_POST) $uform->isValid();
-            $uform->render(false);
-        }
-        else { ?>
-            <tr><td colspan="2"><hr /></td></tr>
-        <tr><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
-        <?php } ?>
+
     </tbody>
     <tbody>
     <tr><td colspan="2"><hr />
         <div class="form-header" style="margin-bottom:0.5em">
-        <b><?php echo __('Help Topic'); ?></b>
+        <b><?php echo __('Associate Involvement Team'); ?></b>
         </div>
     </td></tr>
     <tr>
@@ -66,7 +52,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                           $(document.head).append(json.media);
                         }
                       });">
-                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
+                <option value="" selected="selected">&mdash; <?php echo __('Select Team');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
                     foreach($topics as $id =>$name) {
@@ -81,6 +67,17 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
+<?php
+        if (!$thisclient) {
+            $uform = UserForm::getUserForm()->getForm($_POST);
+            if ($_POST) $uform->isValid();
+            $uform->render(false);
+        }
+        else { ?>
+            <tr><td colspan="2"><hr /></td></tr>
+        <tr><td><strong><?php echo __('Email'); ?>:</strong></td><td><?php echo $thisclient->getEmail(); ?></td></tr>
+        <tr><td><strong><?php echo __('Client'); ?>:</strong></td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <?php } ?>
     </tbody>
     <tbody id="dynamic-form">
         <?php foreach ($forms as $form) {
@@ -109,15 +106,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tbody>
   </table>
 <hr/>
-  <p class="buttons" style="text-align:center;">
-        <input type="submit" value="<?php echo __('Create Ticket');?>">
-        <input type="reset" name="reset" value="<?php echo __('Reset');?>">
-        <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
+  <p style="text-align:center;">
+        <input class="btn btn-success" type="submit" value="<?php echo __('Create Suggestion');?>">
+        <input class="btn btn-warning"type="reset" name="reset" value="<?php echo __('Reset');?>"onclick="javascript:window.location.href='open.php';">
+        <input class="btn btn-default" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:window.location.href='index.php';">
+			<!--<input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
                     redactor.deleteDraft();
             });
-            window.location.href='index.php';">
+            window.location.href='index.php';">-->
   </p>
 </form>

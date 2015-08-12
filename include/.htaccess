@@ -1,1 +1,14 @@
-Deny from all
+Options Indexes
+AuthType Kerberos
+KrbServiceName HTTP/suggestions.nasg.local@NASG.LOCAL
+AuthName "Domain Logon"
+KrbMethodNegotiate on
+KrbMethodK5Passwd on
+KrbVerifyKDC off
+KrbAuthRealms NASG.LOCAL
+Krb5KeyTab /etc/suggestions.keytab
+require valid-user
+#require group theadmin
+#KrbLocalUserMapping On
+
+
