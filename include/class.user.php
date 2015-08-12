@@ -432,6 +432,12 @@ implements TemplateVariable {
         return (string) $account->getStatus();
     }
 
+    function canSeeOrgTickets() {
+        return $this->org && (
+                $this->org->shareWithEverybody()
+            || ($this->isPrimaryContact() && $this->org->shareWithPrimaryContacts()));
+    }
+
     function register($vars, &$errors) {
 
         // user already registered?

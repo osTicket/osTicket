@@ -98,6 +98,22 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     </select>
                     <br/><span class="error"><?php echo $errors['contacts']; ?></span>
                 </td>
+            </tr>
+            <tr>
+                <td width="180">
+                    <?php echo __('Ticket Sharing'); ?>:
+                </td>
+                <td>
+                    <select name="sharing">
+                        <option value=""><?php echo __('Disable'); ?></option>
+                        <option value="sharing-primary" <?php echo $info['sharing-primary'] ? 'selected="selected"' : '';
+                            ?>><?php echo __('Primary contacts see all tickets'); ?></option>
+                        <option value="sharing-all" <?php echo $info['sharing-all'] ? 'selected="selected"' : '';
+                            ?>><?php echo __('All members see all tickets'); ?></option>
+                    </select>
+                    <i class="help-tip icon-question-sign" href="#org-sharing"></i>
+                </td>
+            </tr>
             <tr>
                 <th colspan="2">
                     <?php echo __('Automated Collaboration'); ?>:
@@ -123,7 +139,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
             </tr>
             <tr>
                 <th colspan="2">
-                    <?php echo __('Main Domain'); ?>
+                    <?php echo __('Email Domain'); ?>
                 </th>
             </tr>
             <tr>

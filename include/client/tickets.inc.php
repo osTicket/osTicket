@@ -16,17 +16,20 @@ if (isset($_REQUEST['status'])) {
     $settings['status'] = $_REQUEST['status'];
 }
 
+$org_tickets = $thisclient->canSeeOrgTickets();
 if ($settings['keywords']) {
     // Don't show stat counts for searches
     $openTickets = $closedTickets = -1;
 }
 elseif ($settings['topic_id']) {
-    $openTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'open');
-    $closedTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'closed');
+    $openTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'],
+        'open', $org_tickets);
+    $closedTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'],
+        'closed', $org_tickets);
 }
 else {
-    $openTickets = $thisclient->getNumOpenTickets();
-    $closedTickets = $thisclient->getNumClosedTickets();
+    $openTickets = $thisclient->getNumOpenTickets($org_tickets);
+    $closedTickets = $thisclient->getNumClosedTickets($org_tickets);
 }
 
 $tickets = TicketModel::objects();
@@ -63,10 +66,15 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($_REQUEST['order'] ?: 'desc').'" ';
 
 // Add visibility constraints
-$tickets->filter(Q::any(array(
+$visibility = Q::any(array(
     'user_id' => $thisclient->getId(),
     'thread__collaborators__user_id' => $thisclient->getId(),
-)));
+));
+
+if ($thisclient->canSeeOrgTickets())
+    $visibility->add(array('user__org_id' => $thisclient->getOrgId()));
+
+$tickets->filter($visibility);
 
 // Perform basic search
 if ($settings['keywords']) {
@@ -122,8 +130,9 @@ $tickets->values(
     <?php echo __('Help Topic'); ?>:
     <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
         <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-<?php foreach (Topic::getHelpTopics(true) as $id=>$name) {
-        $count = $thisclient->getNumTopicTickets($id);
+<?php
+foreach (Topic::getHelpTopics(true) as $id=>$name) {
+        $count = $thisclient->getNumTopicTickets($id, $org_tickets);
         if ($count == 0)
             continue;
 ?>

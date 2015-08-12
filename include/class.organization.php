@@ -35,6 +35,9 @@ class OrganizationModel extends VerySimpleModel {
     const COLLAB_PRIMARY_CONTACT =  0x0002;
     const ASSIGN_AGENT_MANAGER =    0x0004;
 
+    const SHARE_PRIMARY_CONTACT =   0x0008;
+    const SHARE_EVERYBODY =         0x0010;
+
     const PERM_CREATE =     'org.create';
     const PERM_EDIT =       'org.edit';
     const PERM_DELETE =     'org.delete';
@@ -98,6 +101,14 @@ class OrganizationModel extends VerySimpleModel {
 
     function autoAssignAccountManager() {
         return $this->check(self::ASSIGN_AGENT_MANAGER);
+    }
+
+    function shareWithPrimaryContacts() {
+        return $this->check(self::SHARE_PRIMARY_CONTACT);
+    }
+
+    function shareWithEverybody() {
+        return $this->check(self::SHARE_EVERYBODY);
     }
 
     function getUpdateDate() {
@@ -206,6 +217,8 @@ implements TemplateVariable {
                 'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
                 'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,
                 'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
             if ($this->check($flag))
                 $base[$ck] = true;
@@ -388,6 +401,16 @@ implements TemplateVariable {
                 'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
         ) as $ck=>$flag) {
             if ($vars[$ck])
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
+        foreach (array(
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
+        ) as $ck=>$flag) {
+            if ($vars['sharing'] == $ck)
                 $this->setStatus($flag);
             else
                 $this->clearStatus($flag);
