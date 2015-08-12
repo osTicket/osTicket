@@ -970,7 +970,7 @@ $.changeHash = function(hash, quiet) {
 
 // Forms — submit, stay on same tab
 $(document).on('submit', 'form', function() {
-    if ($(this).attr('action').indexOf('#') == -1)
+    if (!!$(this).attr('action') && $(this).attr('action').indexOf('#') == -1)
         $(this).attr('action', $(this).attr('action') + window.location.hash);
 });
 
