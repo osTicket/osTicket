@@ -139,7 +139,7 @@ class Unpacker extends Module {
     }
 
     /**
-     * Copy from source to destination, perhaps recurring up to n folders.
+     * Copy from source to destination, perhaps recursing up to n folders.
      * Exclusions are also permitted. If any files match an MD5 sum, they
      * will be excluded from the copy operation.
      *
