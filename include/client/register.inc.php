@@ -27,7 +27,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <tbody>
 <?php
     $cf = $user_form ?: UserForm::getInstance();
-    $cf->render(false);
+    $cf->render(false, false, array('mode' => 'create'));
 ?>
 <tr>
     <td colspan="2">
