@@ -69,6 +69,9 @@ implements TemplateVariable {
 
     const FLAG_CUSTOM_NUMBERS = 0x0001;
 
+    const SORT_ALPHA = 'a';
+    const SORT_MANUAL = 'm';
+
     function asVar() {
         return $this->getName();
     }
@@ -353,7 +356,7 @@ implements TemplateVariable {
         // primary, the list may need to be sorted. Caching is ok here,
         // because the locale is not going to be changed within a single
         // request.
-        if ($localize)
+        if ($localize && $cfg->getTopicSortMode() == self::SORT_ALPHA)
             return Internationalization::sortKeyedList($requested_names);
 
         return $requested_names;
