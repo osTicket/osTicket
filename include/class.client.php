@@ -253,7 +253,6 @@ class  EndUser extends BaseAuthenticatedUser {
 
     function getNumTopicTickets($topic_id, $forMyOrg=false) {
         $stats = $this->getTicketStats();
-        $count = 0;
         $section = $forMyOrg ? 'myorg' : 'mine';
         if (!isset($this->topic_stats)) {
             $this->topic_stats = array();
@@ -262,6 +261,20 @@ class  EndUser extends BaseAuthenticatedUser {
             }
         }
         return $this->topic_stats[$topic_id];
+    }
+
+    function getNumTopicTicketsInState($topic_id, $state=false, $forMyOrg=false) {
+        $stats = $this->getTicketStats();
+        $count = 0;
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        foreach ($stats[$section] as $row) {
+            if ($topic_id != $row['topic_id'])
+                continue;
+            if ($state && $state != $row['status__state'])
+                continue;
+            $count += $row['count'];
+        }
+        return $count;
     }
 
     function getNumOrganizationTickets() {

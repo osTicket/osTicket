@@ -6,12 +6,28 @@ $settings = &$_SESSION['client:Q'];
 // Unpack search, filter, and sort requests
 if (isset($_REQUEST['clear']))
     $settings = array();
-if (isset($_REQUEST['keywords']))
+if (isset($_REQUEST['keywords'])) {
     $settings['keywords'] = $_REQUEST['keywords'];
-if (isset($_REQUEST['topic_id']))
+}
+if (isset($_REQUEST['topic_id'])) {
     $settings['topic_id'] = $_REQUEST['topic_id'];
-if (isset($_REQUEST['status']))
+}
+if (isset($_REQUEST['status'])) {
     $settings['status'] = $_REQUEST['status'];
+}
+
+if ($settings['keywords']) {
+    // Don't show stat counts for searches
+    $openTickets = $closedTickets = -1;
+}
+elseif ($settings['topic_id']) {
+    $openTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'open');
+    $closedTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'closed');
+}
+else {
+    $openTickets = $thisclient->getNumOpenTickets();
+    $closedTickets = $thisclient->getNumClosedTickets();
+}
 
 $tickets = TicketModel::objects();
 
@@ -136,19 +152,25 @@ $tickets->values(
 
 <div class="pull-right states">
     <small>
+<?php if ($openTickets) { ?>
     <i class="icon-file-alt"></i>
     <a class="state <?php if ($status == 'open') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-    <?php echo sprintf('%s (%d)', _P('ticket-status', 'Open'), $thisclient->getNumOpenTickets()); ?>
+    <?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
     </a>
+    <?php if ($closedTickets) { ?>
     &nbsp;
     <span style="color:lightgray">|</span>
+    <?php }
+}
+if ($closedTickets) {?>
     &nbsp;
     <i class="icon-file-text"></i>
     <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
-    <?php echo sprintf('%s (%d)', __('Closed'), $thisclient->getNumClosedTickets()); ?>
+    <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
     </a>
+<?php } ?>
     </small>
 </div>
 </h1>
