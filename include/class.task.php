@@ -170,8 +170,7 @@ class TaskModel extends VerySimpleModel {
     }
 
     function getCloseDate() {
-        // TODO: have true close date
-        return $this->isClosed() ? $this->updated : '';
+        return $this->isClosed() ? $this->closed : '';
     }
 
     function isOpen() {

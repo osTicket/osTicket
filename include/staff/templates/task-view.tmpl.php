@@ -178,7 +178,7 @@ if (!$ticket) { ?>
                     </tr>
 
                     <tr>
-                        <th><?php echo __('Create Date');?>:</th>
+                        <th><?php echo __('Created');?>:</th>
                         <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
                     </tr>
                     <?php
@@ -192,7 +192,7 @@ if (!$ticket) { ?>
                     <?php
                     }else { ?>
                     <tr>
-                        <th><?php echo __('Close Date');?>:</th>
+                        <th><?php echo __('Completed');?>:</th>
                         <td><?php echo Format::datetime($task->getCloseDate()); ?></td>
                     </tr>
                     <?php
