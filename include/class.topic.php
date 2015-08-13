@@ -281,7 +281,9 @@ implements TemplateVariable {
     }
 
     static function __create($vars, &$errors) {
-        $topic = self::create();
+        $topic = self::create($vars);
+        if (!isset($vars['dept_id']))
+            $vars['dept_id'] = 0;
         $topic->update($vars, $errors);
         return $topic;
     }
