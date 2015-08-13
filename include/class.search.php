@@ -329,13 +329,14 @@ class MysqlSearchBackend extends SearchBackend {
 
         $criteria = clone $criteria;
 
-        $mode = ' IN BOOLEAN MODE';
+        $mode = ' IN NATURAL LANGUAGE MODE';
+        // If using boolean operators, search in boolean mode
+        if (preg_match('/["+<>(~-]\w|\w["*)]/u', $query, $T = array()))
+            $mode = ' IN BOOLEAN MODE';
         #if (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
         $query = $this->quote($query);
-        $search = 'MATCH (search.title, search.content) AGAINST ('
-            .db_input($query)
-            .$mode.')';
+        $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
         $tables = array();
         $P = TABLE_PREFIX;
         $sort = '';
@@ -343,29 +344,18 @@ class MysqlSearchBackend extends SearchBackend {
         switch ($criteria->model) {
         case false:
         case 'TicketModel':
-            if ($query) {
-            $key = 'COALESCE(Z1.ticket_id, Z2.ticket_id)';
             $criteria->extra(array(
                 'select' => array(
-                    'ticket_id' => $key,
-                    'relevance'=>'`search`.`relevance`',
+                    '__relevance__' => 'Z1.`relevance`',
                 ),
-                'order_by' => array(new SqlCode('`relevance`')),
                 'tables' => array(
-                    "(SELECT object_type, object_id, $search AS `relevance`
-                        FROM `{$P}_search` `search` WHERE $search) `search`",
-                    "(select ticket_id as ticket_id from {$P}ticket
-                ) Z1 ON (Z1.ticket_id = search.object_id and search.object_type = 'T')",
-                    "(select A3.id as thread_id, A1.ticket_id from {$P}ticket A1
-                    join {$P}thread A2 on (A1.ticket_id = A2.object_id and A2.object_type = 'T')
-                    join {$P}thread_entry A3 on (A2.id = A3.thread_id)
-                ) Z2 ON (Z2.thread_id = search.object_id and search.object_type = 'H')",
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                        "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`) as `ticket_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) WHERE {}) Z1"),
                 )
             ));
             // XXX: This is extremely ugly
-            $criteria->filter(array('ticket_id'=>new SqlCode($key)));
-            $criteria->distinct('ticket_id');
-            }
+            $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')))->distinct('ticket_id');
+
             // TODO: Consider sorting preferences
         }
 
@@ -800,7 +790,7 @@ class SavedSearch extends VerySimpleModel {
         }
         return $pieces;
     }
-    
+
     /**
      * Collect information on the search form.
      *
@@ -837,7 +827,7 @@ class SavedSearch extends VerySimpleModel {
         }
         return $info;
     }
-    
+
     /**
      * Get a description of a field in a search. Expects an entry from the
      * array retrieved in ::getSearchFields()
@@ -850,7 +840,7 @@ class SavedSearch extends VerySimpleModel {
         $form = $form ?: $this->getForm();
         $searchable = $this->getCurrentSearchFields($form->state);
         $qs = clone $qs;
-        
+
         // Figure out fields to search on
         foreach ($this->getSearchFields($form) as $name=>$info) {
             if (!$info['active'])
@@ -1167,5 +1157,17 @@ class TicketStatusChoiceField extends SelectionField {
             'includes' =>   __('is'),
             '!includes' =>  __('is not'),
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case '!includes':
+            return Q::not(array("{$name}__in" => array_keys($value)));
+        case 'includes':
+            return new Q(array("{$name}__in" => array_keys($value)));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }

@@ -673,7 +673,7 @@ class SqlFunction {
         foreach ($this->args as $A) {
             $args[] = $this->input($A, $compiler, $model);
         }
-        return sprintf('%s(%s)%s', $this->func, implode(',', $args),
+        return sprintf('%s(%s)%s', $this->func, implode(', ', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 
@@ -826,7 +826,7 @@ class SqlCode extends SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        return $this->code;
+        return $this->code.($alias ? ' AS '.$alias : '');
     }
 }
 
@@ -860,7 +860,7 @@ class SqlAggregate extends SqlFunction {
         // specification.
         $E = $this->expr;
         if ($E instanceof SqlFunction) {
-            $field = $E->toSql($compiler, $model, $alias);
+            $field = $E->toSql($compiler, $model);
         }
         else {
         list($field, $rmodel) = $compiler->getField($E, $model, $options);
@@ -1175,9 +1175,17 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function countSelectFields() {
+        $count = count($this->values) + count($this->annotations);
+        if (isset($this->extra['select']))
+            foreach (@$this->extra['select'] as $S)
+                $count += count($S);
+        return $count;
+    }
+
     function union(QuerySet $other, $all=true) {
         // Values and values_list _must_ match for this to work
-        if (count($this->values) != count($other->values))
+        if ($this->countSelectFields() != $other->countSelectFields())
             throw new OrmException('Union queries must have matching values counts');
 
         // TODO: Clear OFFSET and LIMIT in the $other query
@@ -1242,7 +1250,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
-        if (!$options['nosort'] && !$query->ordering && $model::getMeta('ordering'))
+        if ($options['nosort'])
+            $query->ordering = array();
+        elseif (!$query->ordering && $model::getMeta('ordering'))
             $query->ordering = $model::getMeta('ordering');
         if (false !== $query->related && !$query->values && $model::getMeta('select_related'))
             $query->related = $model::getMeta('select_related');
@@ -2219,7 +2229,7 @@ class MySqlCompiler extends SqlCompiler {
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
         // the query as a JOIN and add the join constraint into the WHERE
         // clause.
-        elseif ($b instanceof QuerySet && $b->isWindowed()) {
+        elseif ($b instanceof QuerySet && ($b->isWindowed() || $b->countSelectFields() > 1)) {
             $f1 = $b->values[0];
             $view = $b->asView();
             $alias = $this->pushJoin($view, $a, $view, array('constraint'=>array()));
@@ -2371,14 +2381,15 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function compileCount($queryset) {
-        $model = $queryset->model;
-        $table = $model::getMeta('table');
-        list($where, $having) = $this->getWhereHavingClause($queryset);
-        $joins = $this->getJoins($queryset);
-        $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
-        $exec = new MysqlExecutor($sql, $this->params);
-        $row = $exec->getArray();
-        return $row['count'];
+        $q = clone $queryset;
+        // Drop extra fields from the queryset
+        $q->related = $q->anotations = false;
+        $model = $q->model;
+        $q->values = $model::getMeta('pk');
+        $exec = $q->getQuery(array('nosort' => true));
+        $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
+        $row = $exec->getRow();
+        return $row ? $row[0] : null;
     }
 
     function compileSelect($queryset) {
@@ -2530,6 +2541,8 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->extra['select'] as $name=>$expr) {
                 if ($expr instanceof SqlFunction)
                     $expr = $expr->toSql($this, false, $name);
+                else
+                    $expr = sprintf('%s AS %s', $expr, $this->quote($name));
                 $fields[] = $expr;
             }
         }
@@ -2555,6 +2568,9 @@ class MySqlCompiler extends SqlCompiler {
                     $self->params[] = $q->params[$m[1]-1];
                     return ':'.count($self->params);
                 }, $q->sql);
+                // Wrap unions in parentheses if they are windowed or sorted
+                if ($qs->isWindowed() || count($qs->getSortFields()))
+                    $sql = "($sql)";
                 $unions .= ' UNION '.($all ? 'ALL ' : '').$sql;
             }
         }

@@ -83,7 +83,7 @@ class PageNate {
         } else {
             $to= $this->total;
         }
-        $html="&nbsp;".__('Showing')."&nbsp;&nbsp;";
+        $html=__('Showing')."&nbsp;";
         if ($this->total > 0) {
             $html .= sprintf(__('%1$d - %2$d of %3$d' /* Used in pagination output */),
                $start, $end, $this->total);
