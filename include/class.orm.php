@@ -2324,7 +2324,7 @@ class MySqlCompiler extends SqlCompiler {
      */
     function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
-            $q = $what->getQuery(array('nosort'=>true));
+            $q = $what->getQuery(array('nosort'=>!($what->limit || $what->offset)));
             // Rewrite the parameter numbers so they fit the parameter numbers
             // of the current parameters of the $compiler
             $self = $this;

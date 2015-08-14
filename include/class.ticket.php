@@ -708,15 +708,17 @@ implements RestrictedAccess, Threadable {
 
     function getLastRespondent() {
         if (!isset($this->lastrespondent)) {
+            if (!$this->thread || !$this->thread->entries)
+                return $this->lastrespondent = false;
             $this->lastrespondent = Staff::objects()
                 ->filter(array(
-                'staff_id' => static::objects()
+                'staff_id' => $this->thread->entries
                     ->filter(array(
-                        'thread__entries__type' => 'R',
-                        'thread__entries__staff_id__gt' => 0
+                        'type' => 'R',
+                        'staff_id__gt' => 0,
                     ))
-                    ->values_flat('thread__entries__staff_id')
-                    ->order_by('-thread__entries__id')
+                    ->values_flat('staff_id')
+                    ->order_by('-id')
                     ->limit(1)
                 ))
                 ->first()
@@ -2245,8 +2247,8 @@ implements RestrictedAccess, Threadable {
             // Build list of recipients and fire the alerts.
             $recipients = array();
             //Last respondent.
-            if ($cfg->alertLastRespondentONNewMessage() || $cfg->alertAssignedONNewMessage())
-                $recipients[] = $this->getLastRespondent();
+            if ($cfg->alertLastRespondentONNewMessage() && ($lr = $this->getLastRespondent()))
+                $recipients[] = $lr;
 
             //Assigned staff if any...could be the last respondent
             if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
