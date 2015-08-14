@@ -2212,6 +2212,17 @@ implements RestrictedAccess, Threadable {
             }
         }
 
+        // Find the last message from this user on this thread
+        if ($this->getThread()->getLastMessage(array(
+            'user_id' => $message->user_id,
+            'id__lt' => $message->id,
+            'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
+        ))) {
+            // One message already from this user in the last five minutes
+            $alerts = false;
+        }
+
+
         if (!$alerts)
             return $message; //Our work is done...
 

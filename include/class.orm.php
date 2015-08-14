@@ -689,6 +689,11 @@ class SqlFunction {
         $I->args = $args;
         return $I;
     }
+
+    function __call($operator, $other) {
+        array_unshift($other, $this);
+        return SqlExpression::__callStatic($operator, $other);
+    }
 }
 
 class SqlCase extends SqlFunction {

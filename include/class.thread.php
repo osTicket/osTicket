@@ -2410,12 +2410,14 @@ implements TemplateVariable {
         ));
     }
 
-    function getLastMessage() {
-        return $this->entries->filter(array(
+    function getLastMessage($criteria=false) {
+        $entries = $this->entries->filter(array(
             'type' => MessageThreadEntry::ENTRY_TYPE
-        ))
-        ->order_by('-id')
-        ->first();
+        ));
+        if ($criteria)
+            $entries->filter($criteria);
+
+        return $entries->order_by('-id')->first();
     }
 
     function getEntry($var) {
