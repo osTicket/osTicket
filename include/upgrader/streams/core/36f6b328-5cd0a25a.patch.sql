@@ -82,15 +82,6 @@ INSERT INTO `%TABLE_PREFIX%thread_entry`
 DROP TABLE `%TABLE_PREFIX%ticket_thread`;
 DROP TABLE `%TABLE_PREFIX%_orig_msg_ids`;
 
--- add thread id to ticket table
-ALTER TABLE  `%TABLE_PREFIX%ticket`
-    ADD  `thread_id` INT( 11 ) UNSIGNED NOT NULL DEFAULT  '0' AFTER  `number` ,
-    ADD INDEX (  `thread_id` );
-
-UPDATE  `%TABLE_PREFIX%ticket` t1
-    LEFT JOIN  `%TABLE_PREFIX%thread` t2 ON ( t2.object_id = t1.ticket_id )
-    SET t1.thread_id = t2.id;
-
 -- move records in ticket_attachment to generic attachment table
 ALTER TABLE  `%TABLE_PREFIX%attachment`
     DROP PRIMARY KEY,
