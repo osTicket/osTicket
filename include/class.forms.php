@@ -2086,6 +2086,10 @@ class PriorityField extends ChoiceField {
         return ($value instanceof Priority) ? $value->getDesc() : $value;
     }
 
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
+    }
+
     function searchable($value) {
         // Priority isn't searchable this way
         return null;
