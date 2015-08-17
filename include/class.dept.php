@@ -530,7 +530,7 @@ implements TemplateVariable {
     }
 
     static function __create($vars, &$errors) {
-        $dept = self::create();
+        $dept = self::create($vars);
         $dept->update($vars, $errors);
 
         return isset($dept->id) ? $dept : null;
