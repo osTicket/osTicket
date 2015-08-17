@@ -8,7 +8,7 @@ $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('helptopics.php', $_qstr);
 $showing = $pageNav->showing().' '._N('help topic', 'help topics', $count);
 
-$order_by = ($cfg->getTopicSortMode() == 'm') ? 'sort' : 'topic';
+$order_by = 'sort';
 
 ?>
 <form action="helptopics.php" method="POST" name="topics">
