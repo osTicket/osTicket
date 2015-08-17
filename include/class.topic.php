@@ -287,6 +287,7 @@ implements TemplateVariable {
         $topic = self::create($vars);
         if (!isset($vars['dept_id']))
             $vars['dept_id'] = 0;
+        $vars['id'] = $vars['topic_id'];
         $topic->update($vars, $errors);
         return $topic;
     }
