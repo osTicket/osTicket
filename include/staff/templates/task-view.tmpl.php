@@ -32,7 +32,8 @@ if ($role->hasPerm(Task::PERM_ASSIGN)) {
             'assign' => array(
                 'href' => sprintf('#tasks/%d/assign', $task->getId()),
                 'icon' => 'icon-user',
-                'label' => $task->isAssigned() ? __('Reassign') : __('Assign')
+                'label' => $task->isAssigned() ? __('Reassign') : __('Assign'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -41,7 +42,8 @@ if ($role->hasPerm(Task::PERM_TRANSFER)) {
             'transfer' => array(
                 'href' => sprintf('#tasks/%d/transfer', $task->getId()),
                 'icon' => 'icon-share',
-                'label' => __('Transfer')
+                'label' => __('Transfer'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -52,7 +54,8 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
                 'href' => sprintf('#tasks/%d/delete', $task->getId()),
                 'icon' => 'icon-trash',
                 'class' => 'red button task-action',
-                'label' => __('Delete')
+                'label' => __('Delete'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -152,6 +155,8 @@ if ($task->isOverdue())
                     <?php
                     if ($action['dialog'])
                         echo sprintf("data-dialog-config='%s'", $action['dialog']);
+                    if ($action['redirect'])
+                        echo sprintf("data-redirect='%s'", $action['redirect']);
                     ?>
                     href="<?php echo $action['href']; ?>"><i
                     class="<?php
@@ -504,7 +509,7 @@ $(function() {
         var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if ($redirect)
+            if (!!$redirect)
                 window.location.href = $redirect;
             else
                 $.pjax.reload('#pjax-container');

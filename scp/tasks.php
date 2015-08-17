@@ -118,6 +118,24 @@ $stats= $thisstaff->getTasksStats();
 if (isset($_GET['clear_filter']))
     unset($_SESSION['advsearch:tasks']);
 
+
+if (!$task) {
+    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TASK);
+    $queue_name = strtolower($_GET['status'] ?: $_GET['a']);
+    if (!$queue_name && isset($_SESSION[$queue_key]))
+        $queue_name = $_SESSION[$queue_key];
+
+    // Stash current queue view
+    $_SESSION[$queue_key] = $queue_name;
+
+    // Set queue as status
+    if (@!isset($_REQUEST['advanced'])
+            && @$_REQUEST['a'] != 'search'
+            && !isset($_GET['status'])
+            && $queue_name)
+        $_GET['status'] = $_REQUEST['status'] = $queue_name;
+}
+
 //Navigation
 $nav->setTabActive('tasks');
 $open_name = _P('queue-name',

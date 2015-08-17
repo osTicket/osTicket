@@ -71,6 +71,7 @@ if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {
     $actions += array(
             'transfer' => array(
                 'icon' => 'icon-share',
+                'redirect' => 'tickets.php',
                 'action' => __('Transfer')
             ));
 }

@@ -35,13 +35,25 @@ if($_REQUEST['id']) {
     }
 }
 
-//Lookup user if id is available.
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
+} elseif (!$ticket) {
+    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
+    $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+    if (!$queue_name && isset($_SESSION[$queue_key]))
+        $queue_name = $_SESSION[$queue_key];
+
+    // Stash current queue view
+    $_SESSION[$queue_key] = $queue_name;
+
+    // Set queue as status
+    if (@!isset($_REQUEST['advanced'])
+            && @$_REQUEST['a'] != 'search'
+            && !isset($_GET['status'])
+            && $queue_name)
+        $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
-elseif (@!isset($_REQUEST['advanced']) && @$_REQUEST['a'] != 'search' && !isset($_GET['status']) && isset($_SESSION['::Q'])) {
-    $_GET['status'] = $_REQUEST['status'] = $_SESSION['::Q'];
-}
+
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',

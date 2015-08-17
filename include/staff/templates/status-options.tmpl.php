@@ -55,7 +55,7 @@ if (!$nextStatuses)
                             $status->getId()); ?>"
                 <?php
                 if (isset($actions[$status->getState()]['href']))
-                    echo sprintf('data-href="%s"',
+                    echo sprintf('data-redirect="%s"',
                             $actions[$status->getState()]['href']);
 
                 ?>
