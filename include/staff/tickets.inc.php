@@ -33,10 +33,9 @@ $sort_options = array(
 );
 $use_subquery = true;
 
-$queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
-
-// Stash current queue view
-$_SESSION['::Q'] = $queue_name;
+// Figure out the queue we're viewing
+$queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
+$queue_name = $_SESSION[$queue_key] ?: '';
 
 switch ($queue_name) {
 case 'closed':
@@ -106,6 +105,8 @@ case 'search':
             }
             $tickets->filter($basic_search);
         }
+        // Clear sticky search queue
+        unset($_SESSION[$queue_key]);
         break;
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');

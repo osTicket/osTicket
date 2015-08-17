@@ -24,11 +24,14 @@ $sort_options = array(
     'relevance' =>          __('Relevance'),
 );
 
-$queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+// Queue we're viewing
+$queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TASK);
+$queue_name = $_SESSION[$queue_key] ?: '';
+
 switch ($queue_name) {
 case 'closed':
     $status='closed';
-    $results_type=__('Closed Tasks');
+    $results_type=__('Completed Tasks');
     $showassigned=true; //closed by.
     $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
 
@@ -56,6 +59,7 @@ case 'search':
             'number__startswith' => $_REQUEST['query'],
             'cdata__title__contains' => $_REQUEST['query'],
         )));
+        unset($_SESSION[$queue_key]);
         break;
     } elseif (isset($_SESSION['advsearch:tasks'])) {
         // XXX: De-duplicate and simplify this code
@@ -418,8 +422,12 @@ $(function() {
             +$(this).attr('href').substr(1)
             +'?count='+count
             +'&_uid='+new Date().getTime();
+            var $redirect = $(this).data('redirect');
             $.dialog(url, [201], function (xhr) {
-                $.pjax.reload('#pjax-container');
+                if (!!$redirect)
+                    $.pjax({url: $redirect, container:'#pjax-container'});
+                else
+                    $.pjax.reload('#pjax-container');
              });
         }
         return false;
@@ -433,7 +441,7 @@ $(function() {
         var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if ($redirect)
+            if (!!$redirect)
                 window.location.href = $redirect;
             else
                 $.pjax.reload('#pjax-container');

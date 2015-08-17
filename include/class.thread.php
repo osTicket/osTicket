@@ -1818,7 +1818,10 @@ class CloseEvent extends ThreadEvent {
     static $state = 'closed';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+        if ($this->getData('status'))
+            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+        else
+            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
     }
 }
 

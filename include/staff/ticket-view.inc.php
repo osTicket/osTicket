@@ -76,6 +76,7 @@ if($ticket->isOverdue())
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
             <a class="ticket-action action-button pull-right" id="ticket-transfer"
+                data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i> <?php
                 echo __('Transfer'); ?></a>
             <?php
@@ -86,16 +87,24 @@ if($ticket->isOverdue())
             if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
                 <i class="icon-caret-down pull-right"></i>
-                <a class="ticket-action" id="ticket-assign" href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
+                <a class="ticket-action" id="ticket-assign"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
                     echo $ticket->isAssigned() ? __('Assign') :  __('Reassign'); ?></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
-                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
-                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
                     class="icon-user"></i> <?php echo __('Agent'); ?></a>
-                 <li><a class="no-pjax ticket-action" href="#tickets/<?php echo $ticket->getId(); ?>/assign/teams"><i
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/teams"><i
                     class="icon-group"></i> <?php echo __('Team'); ?></a>
               </ul>
             </div>
@@ -173,7 +182,7 @@ if($ticket->isOverdue())
                      ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php
                     echo $ticket->getId(); ?>/status/delete"
-                    data-href="tickets.php"><i class="icon-trash"></i> <?php
+                    data-redirect="tickets.php"><i class="icon-trash"></i> <?php
                     echo __('Delete Ticket'); ?></a></li>
                 <?php
                  }
