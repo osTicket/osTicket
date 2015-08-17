@@ -2512,7 +2512,7 @@ class MySqlCompiler extends SqlCompiler {
                 $T = $A->toSql($this, $model, $alias);
                 if ($fieldMap) {
                     array_splice($fields, count($fieldMap[0][0]), 0, array($T));
-                    $fieldMap[0][0][] = $A->getAlias();
+                    $fieldMap[0][0][] = $alias;
                 }
                 else {
                     // No field map — just add to end of field list
