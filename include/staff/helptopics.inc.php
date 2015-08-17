@@ -105,7 +105,7 @@ $order_by = ($cfg->getTopicSortMode() == 'm') ? 'sort' : 'topic';
                     $deptId = 0;
                     $dept = '';
                 }
-                $priority = $team->priority ?: $defaultPriority;
+                $priority = $topic->priority ?: $defaultPriority;
                 ?>
             <tr id="<?php echo $id; ?>">
                 <td width=7px>
