@@ -85,8 +85,8 @@ foreach ($groups as $g=>$desc) {
     <div class="tab_content <?php echo (!$first) ? 'hidden' : ''; ?>" id="<?php echo Format::slugify($g); ?>">
     <table class="dashboard-stats table"><tbody><tr>
 <?php
-    foreach ($data['columns'] as $c) { ?>
-        <th><?php echo Format::htmlchars($c); ?></th>
+    foreach ($data['columns'] as $j=>$c) { ?>
+        <th <?php if ($j === 0) echo 'width="30%" class="flush-left"'; ?>><?php echo Format::htmlchars($c); ?></th>
 <?php
     } ?>
     </tr></tbody>
@@ -96,7 +96,7 @@ foreach ($groups as $g=>$desc) {
         echo '<tr>';
         foreach ($row as $j=>$td) {
             if ($j === 0) { ?>
-                <th><?php echo Format::htmlchars($td); ?></th>
+                <th class="flush-left"><?php echo Format::htmlchars($td); ?></th>
 <?php       }
             else { ?>
                 <td><?php echo Format::htmlchars($td);

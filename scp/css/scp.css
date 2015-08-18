@@ -1,7 +1,9 @@
 body {
   font-family: "Lato", "Helvetica Neue", arial, helvetica, sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.15px;
+  -webkit-font-smoothing:antialiased;
+          font-smoothing:antialiased;
 }
 body, html {
     background:#eee;
@@ -1133,7 +1135,7 @@ ul.tabs.clean li.active {
 }
 
 ul.tabs li a {
-    font-weight: 300;
+    font-weight: 400;
     line-height: 20px;
     color: #444;
     color: rgba(0,0,0,0.6);
@@ -1777,6 +1779,7 @@ input[type="button"],
     border-radius: 3px;
     font-family: inherit;
     font-size: 0.95em;
+    font-weight: normal;
 -webkit-user-select: none;
    -moz-user-select: none;
     -ms-user-select: none;
@@ -2355,7 +2358,7 @@ div.faq-status {
 
 .faq-title {
     font-size: 170%;
-    font-weight: 400;
+    font-weight: 600;
     margin-right:10px;
 }
 .faq-content {
@@ -2794,7 +2797,7 @@ input, textarea {
 }
 
 small {
-    font-weight: 300;
+    font-weight: normal;
     letter-spacing: 0.01px;
 }
 

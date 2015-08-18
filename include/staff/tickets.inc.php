@@ -115,7 +115,7 @@ case 'search':
         $tickets = $search->mangleQuerySet($tickets, $form);
         $view_all_tickets = $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
         $results_type=__('Advanced Search')
-            . '<a class="action-button" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
+            . '<a class="action-button" style="font-size: 15px;" href="?clear_filter"><i style="top:0" class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
         foreach ($form->getFields() as $sf) {
             if ($sf->get('name') == 'keywords' && $sf->getClean()) {
                 $has_relevance = true;
@@ -378,23 +378,23 @@ return false;">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="4%">&nbsp;</th>
+	        <th width="2%">&nbsp;</th>
             <?php } ?>
-	        <th width="10%">
+	        <th width="7.4%">
                 <?php echo __('Ticket'); ?></th>
-	        <th width="15%">
+	        <th width="14.6%">
                 <?php echo $date_header ?: __('Date Created'); ?></th>
-	        <th width="36%">
+	        <th width="29.8%">
                 <?php echo __('Subject'); ?></th>
-            <th width="15%">
+            <th width="18.1%">
                 <?php echo __('From');?></th>
             <?php
             if($search && !$status) { ?>
-                <th width="5%">
+                <th width="8.4%">
                     <?php echo __('Status');?></th>
             <?php
             } else { ?>
-                <th width="5%" <?php echo $pri_sort;?>>
+                <th width="8.4%" <?php echo $pri_sort;?>>
                     <?php echo __('Priority');?></th>
             <?php
             }
@@ -402,16 +402,16 @@ return false;">
             if($showassigned ) {
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
-                    <th width="15%">
+                    <th width="16%">
                         <?php echo __('Closed By'); ?></th>
                 <?php
                 } else { //assigned to ?>
-                    <th width="15%">
+                    <th width="16%">
                         <?php echo __('Assigned To'); ?></th>
                 <?php
                 }
             } else { ?>
-                <th width="15%">
+                <th width="16%">
                     <?php echo __('Department');?></th>
             <?php
             } ?>
@@ -511,7 +511,7 @@ return false;">
                 <?php
                 }
                 ?>
-                <td nowrap><span class="truncate" style="max-width: 150px"><?php
+                <td nowrap><span class="truncate" style="max-width: 169px"><?php
                     echo Format::htmlchars($lc); ?></span></td>
             </tr>
             <?php

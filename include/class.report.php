@@ -191,8 +191,9 @@ class OverviewReport {
                 $depts = array_merge($depts, $thisstaff->getDepts());
             $Q = Q::any(array(
                 'staff_id' => $thisstaff->getId(),
-                'dept_id__in' => $depts
             ));
+            if ($depts)
+                $Q->add(array('dept_id__in' => $depts));
             $stats = $stats->filter(array('staff_id__gt'=>0))->filter($Q);
             $times = $times->filter(array('staff_id__gt'=>0))->filter($Q);
             break;
