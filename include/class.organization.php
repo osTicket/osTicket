@@ -257,7 +257,7 @@ implements TemplateVariable {
         }
     }
 
-    function addForm($form, $sort=1, $data) {
+    function addForm($form, $sort=1, $data=null) {
         $entry = $form->instanciate($sort, $data);
         $entry->set('object_type', 'O');
         $entry->set('object_id', $this->getId());
