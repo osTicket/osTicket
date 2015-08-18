@@ -1807,7 +1807,7 @@ class SqlCompiler {
         static $operators = array(
             'exact' => 1, 'isnull' => 1,
             'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
-            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1,
+            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1, 'regex' => 1,
             'in' => 1, 'intersect' => 1,
             'hasbit' => 1,
         );
@@ -2204,6 +2204,7 @@ class MySqlCompiler extends SqlCompiler {
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
         'intersect' => array('self', '__find_in_set'),
+        'regex' => array('self', '__regex'),
     );
 
     // Thanks, http://stackoverflow.com/a/3683868
@@ -2263,6 +2264,13 @@ class MySqlCompiler extends SqlCompiler {
             return $parens ? ('('.$sql.')') : $sql;
         }
         return sprintf('FIND_IN_SET(%s, %s)', $b, $a);
+    }
+
+    function __regex($a, $b) {
+        // Strip slashes and options
+        if ($b[0] == '/')
+            $b = preg_replace('`/[^/]*$`', '', substr($b, 1));
+        return sprintf('%s REGEXP %s', $a, $this->input($b));
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {

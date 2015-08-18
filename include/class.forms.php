@@ -907,7 +907,8 @@ class FormField {
                 'placeholder' => __('Valid regular expression'),
                 'configuration' => array('size'=>30),
                 'validators' => function($self, $v) {
-                    if (false === @preg_match($v, ' '))
+                    if (false === @preg_match($v, ' ')
+                        && false === @preg_match("/$v/", ' '))
                         $self->addError(__('Cannot compile this regular expression'));
                 })),
         );
