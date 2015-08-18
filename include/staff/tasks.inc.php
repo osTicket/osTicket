@@ -2,6 +2,9 @@
 $tasks = Task::objects();
 $date_header = $date_col = false;
 
+// Make sure the cdata materialized view is available
+TaskForm::ensureDynamicDataView();
+
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
 list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
