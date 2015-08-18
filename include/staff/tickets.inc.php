@@ -57,7 +57,23 @@ case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tickets');
-    $tickets->filter(array('staff_id'=>$thisstaff->getId()));
+
+    /*
+     * My Tickets - Ticket assigned to the agent directly as well as
+     * unassigned-tickets assigned to agent's teams (unassigned to any other
+     * agent).
+     *
+     */
+    //Assigned to me directly
+    $assigned = Q::any(array(
+        'staff_id' => $thisstaff->getId(),
+    ));
+    // Include unassigned tickets assigned to my team.
+    if ($teams = array_filter($thisstaff->getTeams()))
+        $assigned->add(Q::all(array('team_id__in' => $teams, 'staff_id' => 0)));
+
+    $tickets->filter($assigned);
+
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
         'hot');
