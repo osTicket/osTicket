@@ -361,19 +361,18 @@ class FA_AssignTeam extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $choices = Team::getTeams();
-        return array(
+       return array(
             'team_id' => new ChoiceField(array(
                 'configuration' => array(
                     'prompt' => __('Unchanged'),
                     'data' => array('quick-add' => 'team'),
                 ),
-                'choices' => array_merge(
-                    $choices,
+                'choices' =>
+                    Team::getTeams() +
                     array(':new:' => '— '.__('Add New').' —')
-                ),
-                'validators' => function($self) {
-                    if ($self->getClean() === ':new:')
+                ,
+                'validators' => function($self, $clean) {
+                    if ($clean === ':new:')
                         $self->addError(__('Select a team'));
                 }
             )),
