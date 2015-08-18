@@ -215,6 +215,9 @@ $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queu
 if ($has_relevance) {
     array_unshift($queue_sort_options, 'relevance');
 }
+elseif ($_SESSION[$queue_sort_key][0] == 'relevance') {
+    unset($_SESSION[$queue_sort_key]);
+}
 
 if (isset($_GET['sort'])) {
     $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
