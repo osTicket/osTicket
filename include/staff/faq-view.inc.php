@@ -33,7 +33,7 @@ if($thisstaff->canManageFAQ()) {
     <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
     </div>
 </p>
-<div class="faded">&nbsp;<?php echo __('Last updated');?> <?php echo Format::db_daydatetime($category->getUpdateDate()); ?></div>
+<div class="faded">&nbsp;<?php echo __('Last updated');?> <?php echo Format::db_daydatetime($faq->getUpdateDate()); ?></div>
 <hr>
 <?php
 if($thisstaff->canManageFAQ()) {
