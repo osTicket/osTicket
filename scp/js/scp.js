@@ -1173,7 +1173,7 @@ function __(s) {
 
 // Thanks, http://stackoverflow.com/a/487049
 function addSearchParam(data) {
-    var kvp = document.location.search.substr(1).split('&');
+    var kvp = document.location.search.substr(1).replace('+', ' ').split('&');
     var i=kvp.length, x, params = {};
     while (i--) {
         x = kvp[i].split('=');

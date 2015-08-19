@@ -330,16 +330,15 @@ class MysqlSearchBackend extends SearchBackend {
         $criteria = clone $criteria;
 
         $mode = ' IN NATURAL LANGUAGE MODE';
-        // If using boolean operators, search in boolean mode
-        if (preg_match('/["+<>(~-]\w|\w["*)]/u', $query, $T = array()))
+        // If using boolean operators, search in boolean mode. This regex
+        // will ensure proper placement of operators, whitespace, and quotes
+        // in an effort to avoid crashing the query at MySQL
+        if (preg_match('/^(?:[(+<>~-]*(\w+[*]?|"[^"]+")[)]?(\s+|$))+$/u', $query, $T = array()))
             $mode = ' IN BOOLEAN MODE';
-        #if (count(explode(' ', $query)) == 1)
+        #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
         $query = $this->quote($query);
         $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
-        $tables = array();
-        $P = TABLE_PREFIX;
-        $sort = '';
 
         switch ($criteria->model) {
         case false:
@@ -353,10 +352,7 @@ class MysqlSearchBackend extends SearchBackend {
                         "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`) as `ticket_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) WHERE {}) Z1"),
                 )
             ));
-            // XXX: This is extremely ugly
             $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')))->distinct('ticket_id');
-
-            // TODO: Consider sorting preferences
         }
 
         // TODO: Ensure search table exists;
