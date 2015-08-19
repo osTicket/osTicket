@@ -845,6 +845,16 @@ h3 {
     padding:5px 0;
     color:#444;
 }
+.tixTitle {
+   padding:0 5px 0px;
+}
+.tixTitle h3 {
+   color:#444;
+   padding:0;
+   margin:0;
+   font-size:1.4em;
+   font-weight:300;
+}
 
 .has_bottom_border {
     padding-bottom:5px;
@@ -857,6 +867,17 @@ h3 {
 
 .ticket_info {
     background:#F4FAFF;
+}
+
+.ticket_info.custom-data thead th {
+    border-bottom: 2px solid #ccc;
+    background-color: white;
+}
+.custom-data th, .custom-data td {
+    padding: 3px;
+}
+table.custom-data {
+    margin-bottom: 1em;
 }
 
 .right_align { text-align:right; }

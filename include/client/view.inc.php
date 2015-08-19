@@ -32,7 +32,7 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h1>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
-                <b><?php echo $ticket->getSubject(); ?></b>
+                <b><?php echo Format::htmlchars($ticket->getSubject()); ?></b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
     <a class="action-button" href="tickets.php?a=print&id=<?php
