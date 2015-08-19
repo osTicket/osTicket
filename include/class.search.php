@@ -280,7 +280,7 @@ class MysqlSearchBackend extends SearchBackend {
             . ', object_id='.db_input($id)
             . ', content='.db_input($content)
             . ', title='.db_input($title);
-        return db_query($sql);
+        return db_query($sql, false);
     }
 
     function delete($model) {
