@@ -1,7 +1,9 @@
 body {
   font-family: "Lato", "Helvetica Neue", arial, helvetica, sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.15px;
+  -webkit-font-smoothing:antialiased;
+          font-smoothing:antialiased;
 }
 body, html {
     background:#eee;
@@ -11,13 +13,14 @@ body, html {
     padding:0;
 }
 
+.button.link,
 a {
     color:#184E81;
     text-decoration:none;
     display: inline-block;
 }
 
-a:hover {
+a:hover, .button.link:hover {
     text-decoration: underline;
 }
 
@@ -94,6 +97,8 @@ a time.relative {
 #breadcrumbs {
     color: #333;
     margin-bottom: 15px;
+    background-color:#F4FAFF;
+    padding:8px;
 }
 
 #breadcrumbs a {
@@ -481,6 +486,33 @@ a {
     text-align:center;
     font-size:0.9em;
 }
+table.dashboard-stats {
+    text-align:right;
+    border-bottom: 2px solid #ddd;
+}
+table.dashboard-stats tbody:first-child th {
+    border-bottom:1px dashed #ddd;
+    padding:0 4px 8px;
+}
+table.dashboard-stats tbody:nth-child(2) tr:nth-child(odd) {
+    background-color:#f0faff;
+}
+
+table.dashboard-stats tbody:nth-child(2) th {
+    padding:5px 8px;
+    border-right: 1px solid #ccc;
+    color:#999;
+}
+table.dashboard-stats tbody:nth-child(2) td {
+    padding:5px 4px;
+    border-right: 1px solid #ccc;
+}
+table.dashboard-stats tbody:nth-child(2) tr:hover {
+    background-color:#FFFFDD;
+}
+table.dashboard-stats tbody:nth-child(2) tr:hover th {
+    color:#000;
+}
 
 table { vertical-align:top; }
 
@@ -792,7 +824,7 @@ div.section-break h3 {
 h2 {
     margin:0 0 0.7em;
     padding:0;
-    font-size:1.2em;
+    font-size:1.4em;
     color:#0A568E;
 }
 
@@ -803,12 +835,25 @@ h2 i {
     color:#0a0;
 }
 
-h2 span { color:#000; }
+h2 small {
+    font-size:.8em;
+}
+/*h2 span { color:#000; }*/
 
 h3 {
     margin:10px 0 0 0;
     padding:5px 0;
     color:#444;
+}
+.tixTitle {
+   padding:0 5px 0px;
+}
+.tixTitle h3 {
+   color:#444;
+   padding:0;
+   margin:0;
+   font-size:1.4em;
+   font-weight:300;
 }
 
 .has_bottom_border {
@@ -822,6 +867,17 @@ h3 {
 
 .ticket_info {
     background:#F4FAFF;
+}
+
+.ticket_info.custom-data thead th {
+    border-bottom: 2px solid #ccc;
+    background-color: white;
+}
+.custom-data th, .custom-data td {
+    padding: 3px;
+}
+table.custom-data {
+    margin-bottom: 1em;
 }
 
 .right_align { text-align:right; }
@@ -1040,7 +1096,6 @@ ul.tabs {
 }
 
 #response_options ul.tabs {
-    padding-left:190px;
 }
 
 ul.tabs li {
@@ -1103,7 +1158,7 @@ ul.tabs.clean li.active {
 }
 
 ul.tabs li a {
-    font-weight: 300;
+    font-weight: 400;
     line-height: 20px;
     color: #444;
     color: rgba(0,0,0,0.6);
@@ -1432,7 +1487,7 @@ caption:hover > i.help-tip {
 
 h2 > i.help-tip {
     vertical-align: middle;
-    font-size: 1.1em;
+    font-size: .7em;
 }
 .form_table th h4 i.help-tip {
     color: white;
@@ -1456,7 +1511,9 @@ h2 > i.help-tip {
   background-repeat:no-repeat, repeat-x;
   border-bottom:1px solid #ddd;
 }
-
+#kb li:last-child {
+    border-bottom:none;
+}
 
 #kb li h4 {
     padding-bottom:3px;
@@ -1483,19 +1540,23 @@ h2 > i.help-tip {
 #faq {
   clear: both;
   margin: 0;
-  padding: 5px 0 10px 5px;
+  padding: 0px 0 10px 0px;
 }
 #faq ol {
   font-size: 15px;
   margin-left: 0;
   padding-left: 0;
+  margin:0!IMPORTANT;
 }
 #faq ol li {
   list-style: none;
-  margin: 0;
-  padding:5px 0;
+  margin: 0 0;
+  padding:10px 0 10px;
   color: #999;
   border-bottom:1px solid #ddd;
+}
+#faq ol li:last-child {
+  border-bottom:none;
 }
 
 #faq ol li a {
@@ -1518,13 +1579,12 @@ h2 > i.help-tip {
 
 time.faq {
     display:inline-block;
-    float:right;
     color:#777;
 }
 
 .cat-desc {
     padding-top:5px;
-    padding-bottom:25px;
+    padding-bottom:15px;
 }
 
 .cat-manage-bar {
@@ -1742,6 +1802,7 @@ input[type="button"],
     border-radius: 3px;
     font-family: inherit;
     font-size: 0.95em;
+    font-weight: normal;
 -webkit-user-select: none;
    -moz-user-select: none;
     -ms-user-select: none;
@@ -1769,6 +1830,14 @@ select + .button {
     background-color: rgba(0,0,0,0.8);
     box-shadow: 0 0 0 2px rgba(255,255,255,0.7) inset;
     color: white;
+}
+.link.button, .link.button:hover, .link.button:active {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+    color:#184E81;
+    padding: 0;
+    font-size: inherit;
 }
 
 .light .button:hover,
@@ -1836,7 +1905,7 @@ select + .button {
 }
 
 button[type=submit], input[type="submit"], .primary.button {
-    font-weight: bold;
+    font-weight: normal;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.45) inset;
     background-color: rgba(0,0,0,0.07);
 }
@@ -2236,18 +2305,20 @@ tr.disabled th {
 }
 
 .label {
-  font-size: 11px;
-  padding: 1px 4px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  font-weight: bold;
-  line-height: 14px;
-  color: #ffffff;
-  vertical-align: baseline;
-  white-space: nowrap;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #999999;
+    float: right;
+    margin-bottom: 4px;
+    font-size: 11px;
+    padding: 0px 7px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-weight: bold;
+    line-height: 18px;
+    color: #ffffff;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #999999;
 }
 .label-bare {
   background-color: transparent;
@@ -2311,14 +2382,22 @@ table.custom-info td {
     border-bottom: 1px dotted rgba(0,0,0,0.3);
 }
 
+div.faq-status {
+   padding-top:6px;
+
+}
+
 .faq-title {
     font-size: 170%;
-    font-weight: 400;
-    padding-right: 200px;
+    font-weight: 600;
+    margin-right:10px;
 }
 .faq-content {
     width: 670px;
     margin: 0 15px;
+}
+.faq-category {
+    margin:0 15px;
 }
 .faq-meta section + section {
     margin-top: 15px;
@@ -2391,6 +2470,7 @@ tr i.help-tip.warning {
 .ltr {
     direction: ltr;
     unicode-bidi: embed;
+
 }
 .required {
     font-weight: bold;
@@ -2748,7 +2828,7 @@ input, textarea {
 }
 
 small {
-    font-weight: 300;
+    font-weight: normal;
     letter-spacing: 0.01px;
 }
 
@@ -2796,6 +2876,16 @@ table.grid.form caption {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
+select {
+    height:24px;
+    line-height:24px;
+    max-width:350px;
+    border:1px solid #bbb;
+    display:inline-block;
+    padding:4px;
+    font-size:13px;
+}
+
 a.attachment {
     padding-left: 1.2em;
     display: block;

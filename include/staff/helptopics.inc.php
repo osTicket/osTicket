@@ -12,46 +12,56 @@ $order_by = 'sort';
 
 ?>
 <form action="helptopics.php" method="POST" name="topics">
-
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Help Topics');?></h2>
- </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <?php if ($cfg->getTopicSortMode() != 'a') { ?>
-        <input class="button no-confirm" type="submit" name="sort" value="Save"/>
-    <?php } ?>
-    <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="helptopics.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="helptopics.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="helptopics.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Help Topics');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <?php if ($cfg->getTopicSortMode() != 'a') { ?>
+                <button class="button no-confirm" type="submit" name="sort"><i class="icon-save"></i>
+                <?php echo __('Save'); ?></button>
+                <?php } ?>
+                <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
+           <i class="icon-caret-down pull-right"></i>
+            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-name="enable" href="helptopics.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-name="disable" href="helptopics.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li class="danger">
+                            <a class="confirm" data-name="delete" href="helptopics.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-
-
-
-</div>
-<div class="clear"></div>
+    <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
-         echo $showing; ?></span>
-         <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
-        <select name="help_topic_sort_mode" onchange="javascript:
+
+    <thead>
+<tr><td colspan="7">
+    <div style="padding:3px" class="pull-right"><?php echo __('Sorting Mode'); ?>:
+    <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
     $form.submit();
@@ -61,16 +71,15 @@ $order_by = 'sort';
         $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
         </select>
     </div>
-    </caption>
-    <thead>
+</td></tr>
         <tr>
-            <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="360"><?php echo __('Help Topic'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="80"><?php echo __('Status'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Type'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Priority'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="160"><?php echo __('Department'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="150" nowrap><?php echo __('Last Updated'); ?></th>
+            <th width="4%" style="height:20px;">&nbsp;</th>
+            <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Type'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Priority'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="14%"><?php echo __('Department'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="20%" nowrap><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
@@ -108,7 +117,7 @@ $order_by = 'sort';
                 $priority = $topic->priority ?: $defaultPriority;
                 ?>
             <tr id="<?php echo $id; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="hidden" name="sort-<?php echo $id; ?>" value="<?php
                         echo $topic->sort ?: $sort; ?>"/>
                   <input type="checkbox" class="ckb" name="ids[]"
@@ -118,7 +127,7 @@ $order_by = 'sort';
                 <td>
                     <?php
                     if ($cfg->getTopicSortMode() == 'm') { ?>
-                        <i class="icon-sort"></i>
+                        <i class="icon-sort faded"></i>
                     <?php } ?>
                     <a href="helptopics.php?id=<?php echo $id; ?>"><?php
                     echo Topic::getTopicName($id); ?></a>&nbsp;

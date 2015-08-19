@@ -228,27 +228,27 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
-  $.pjax({
-    url:$(this).attr('action') + '?' + $(this).serialize(),
-    container:'#pjax-container',
-    timeout: 2000
-  });
-return false;">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="search-type" value=""/>
-    <div class="attached input">
-      <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-        autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button type="submit" class="attached button"><i class="icon-search"></i>
-      </button>
-    </div>
+        $.pjax({
+        url:$(this).attr('action') + '?' + $(this).serialize(),
+        container:'#pjax-container',
+        timeout: 2000
+        });
+        return false;">
+        <input type="hidden" name="a" value="search">
+        <input type="hidden" name="search-type" value=""/>
+        <div class="attached input">
+            <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
+                   autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+                   autocomplete="off" autocorrect="off" autocapitalize="off">
+            <button type="submit" class="attached button"><i class="icon-search"></i>
+            </button>
+        </div>
     </form>
 
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:10px;">
+<div style="margin-bottom:20px; padding-top:5px;">
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">
@@ -275,17 +275,17 @@ return false;">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+	        <th width="4%">&nbsp;</th>
             <?php } ?>
-	        <th width="70">
+	        <th width="8%">
                 <?php echo __('Number'); ?></th>
-	        <th width="70">
+	        <th width="20%">
                 <?php echo $date_header ?: __('Date'); ?></th>
-	        <th width="280">
+	        <th width="38%">
                 <?php echo __('Title'); ?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Department');?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Assignee');?></th>
         </tr>
      </thead>

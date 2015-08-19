@@ -112,6 +112,9 @@ implements TemplateVariable {
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : $default;
     }
+    static function getLocalNameById($id, $default) {
+        return static::getLocalById($id, 'name', $default);
+    }
 
     function getTranslateTag($subtag='name') {
         return _H(sprintf('dept.%s.%s', $subtag, $this->getId()));

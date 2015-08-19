@@ -392,21 +392,6 @@ if($stats['overdue']) {
         $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
 }
 
-if($thisstaff->showAssignedOnly() && $stats['closed']) {
-    $nav->addSubMenu(array('desc'=>__('My Closed Tickets'),
-                           'title'=>__('My Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-} else {
-
-    $nav->addSubMenu(array('desc' => __('Closed'),
-                           'title'=>__('Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-}
-
 if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
@@ -420,6 +405,12 @@ if (isset($_SESSION['advsearch'])) {
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
+
+$nav->addSubMenu(array('desc' => __('Closed'),
+                       'title'=>__('Closed Tickets'),
+                       'href'=>'tickets.php?status=closed',
+                       'iconclass'=>'closedTickets'),
+                    ($_REQUEST['status']=='closed'));
 
 if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),

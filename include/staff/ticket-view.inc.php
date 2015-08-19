@@ -50,7 +50,7 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 ?>
-<div class="has_bottom_border">
+<div>
     <div class="sticky bar">
        <div class="content">
         <div class="pull-right flush-right">
@@ -193,10 +193,16 @@ if($ticket->isOverdue())
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
-             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a></h2>
+             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
+            </h2>
         </div>
     </div>
   </div>
+</div>
+<div class="clear tixTitle has_bottom_border">
+    <h3>
+    <?php echo Format::htmlchars($ticket->getSubject()); ?>
+    </h3>
 </div>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
@@ -401,9 +407,7 @@ if($ticket->isOverdue())
     </tr>
 </table>
 <br>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
 <?php
-$idx = 0;
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     // Skip core fields shown earlier in the ticket view
     // TODO: Rewrite getAnswers() so that one could write
@@ -413,32 +417,38 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
         'field__name__in' => array('subject', 'priority')
     )));
-    if (count($answers) == 0)
+    $displayed = array();
+    foreach($answers as $a) {
+        if (!($v = $a->display()))
+            continue;
+        $displayed[] = array($a->getLocal('label'), $v);
+    }
+    if (count($displayed) == 0)
         continue;
     ?>
+    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="940" border="0">
+    <thead>
+        <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
+    </thead>
+    <tbody>
+<?php
+    foreach ($displayed as $stuff) {
+        list($label, $v) = $stuff;
+?>
         <tr>
-        <td colspan="2">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
-            <?php foreach($answers as $a) {
-                if (!($v = $a->display())) continue; ?>
-                <tr>
-                    <th width="100"><?php
-    echo $a->getLocal('label');
-                    ?>:</th>
-                    <td><?php
-    echo $v;
-                    ?></td>
-                </tr>
-                <?php } ?>
-            </table>
-        </td>
+            <td width="200"><?php
+echo Format::htmlchars($label);
+            ?>:</th>
+            <td><?php
+echo $v;
+            ?></td>
         </tr>
-    <?php
-    $idx++;
-    } ?>
-</table>
+<?php } ?>
+    </tbody>
+    </table>
+<?php } ?>
 <div class="clear"></div>
-<h2 style="padding:10px 0 5px 0; font-size:11pt;"><?php echo Format::htmlchars($ticket->getSubject()); ?></h2>
+
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
@@ -670,7 +680,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
          </tbody>
         </table>
-        <p  style="padding:0 165px;">
+        <p  style="text-align:center;">
             <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
@@ -757,7 +767,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
             </tr>
         </table>
 
-       <p  style="padding-left:165px;">
+       <p style="text-align:center;">
            <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>

@@ -40,45 +40,55 @@ $showing = $pageNav->showing().' '._N('SLA plan', 'SLA plans', $count);
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 ?>
 <form action="slas.php" method="POST" name="slas">
-
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('Service Level Agreements');?></h2>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <a href="slas.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New SLA Plan');?></a>
-
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="slas.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="slas.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="slas.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Service Level Agreements');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <a href="slas.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New SLA Plan');?></a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-name="enable" href="slas.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-name="disable" href="slas.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li class="danger">
+                            <a class="confirm" data-name="delete" href="slas.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-<div class="clear"></div>
+    <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="100"><a <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="130"><a <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period"><?php echo __('Grace Period (hrs)');?></a></th>
-            <th width="120" nowrap><a <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
-            <th width="150" nowrap><a <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="38%"><a <?php echo $name_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="8%"><a <?php echo $status_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th><a <?php echo $period_sort; ?> href="slas.php?<?php echo $qstr; ?>&sort=period"><?php echo __('Grace Period (hrs)');?></a></th>
+            <th width="15%" nowrap><a <?php echo $created_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
+            <th width="20%" nowrap><a <?php echo $updated_sort; ?>href="slas.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -105,7 +115,7 @@ $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
                     $default = '<small><em>(Default)</em></small>';
                 ?>
             <tr id="<?php echo $id; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $id; ?>"
                     <?php echo $sel ? 'checked="checked"' :'' ; ?>>
                 </td>
