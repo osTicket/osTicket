@@ -1864,10 +1864,11 @@ class CollaboratorEvent extends ThreadEvent {
                             break;
                         }
                     }
-                    $c = sprintf(__("%s via %s"
-                        /* e.g. "Me <me@company.me> via Email (to)" */),
+                    $c = sprintf("%s %s",
                         Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c),
-                        $c['src'] ?: '?'
+                        $c['src'] ? sprintf(__('via %s'
+                            /* e.g. "Added collab "Me <me@company.me>" via Email (to)" */
+                            ), $c['src']) : ''
                     );
                     $collabs[] = $c;
                 }
