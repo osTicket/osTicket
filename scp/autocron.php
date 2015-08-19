@@ -41,7 +41,7 @@ $caller = $thisstaff->getUserName();
 
 // Agent can call cron once every 3 minutes.
 if ($sec < 180 || !$ost || $ost->isUpgradePending())
-    ob_end_clean();
+    return ob_end_clean();
 
 require_once(INCLUDE_DIR.'class.cron.php');
 
