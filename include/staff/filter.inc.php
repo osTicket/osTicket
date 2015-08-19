@@ -9,14 +9,16 @@ if($filter && $_REQUEST['a']!='add'){
     $title=__('Update Filter');
     $action='update';
     $submit_text=__('Save Changes');
-    $info=array_merge($filter->getInfo(),$filter->getFlatRules());
+    $info=array_merge($filter->getInfo());
     $info['id']=$filter->getId();
+    $info['rules'] = $filter->getRules();
     $qs += array('id' => $filter->getId());
 }else {
     $title=__('Add New Filter');
     $action='add';
     $submit_text=__('Add Filter');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
+    $info['rules'] = array();
     $qs += array('a' => $_REQUEST['a']);
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
@@ -127,7 +129,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="rules">
                 <tr>
                     <td colspan=2>
                        <em><?php echo __('Rules Matching Criteria');?>:</em>
@@ -147,50 +149,75 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     </td>
                 </tr>
                 <?php
-                $n=($filter?$filter->getNumRules():0)+2; //2 extra rules of unlimited.
-                for($i=1; $i<=$n; $i++){ ?>
-                <tr id="r<?php echo $i; ?>">
+                foreach ($info['rules'] as $i=>$rule) { ?>
+                <tr>
                     <td colspan="2">
-                        <div>
-                            <select style="max-width: 200px;" name="rule_w<?php echo $i; ?>">
-                                <option value="">&mdash; <?php echo __('Select One');?> &mdash;</option>
+                        <select style="max-width: 200px;" name="rules[<?php echo $i; ?>][w]">
+                            <option value="">&mdash; <?php echo __('Select One');?> &mdash;</option>
                                 <?php
                                 foreach ($matches as $group=>$ms) { ?>
                                     <optgroup label="<?php echo __($group); ?>"><?php
                                     foreach ($ms as $k=>$v) {
-                                        $sel=($info["rule_w$i"]==$k)?'selected="selected"':'';
+                                        $sel=($rule["w"]==$k)?'selected="selected"':'';
                                         echo sprintf('<option value="%s" %s>%s</option>',
                                             $k,$sel,__($v));
                                     } ?>
                                 </optgroup>
                                 <?php } ?>
                             </select>
-                            <select name="rule_h<?php echo $i; ?>">
+                            <select name="rules[<?php echo $i; ?>][h]">
                                 <option value="0">&mdash; <?php echo __('Select One');?> &mdash;</option>
                                 <?php
                                     foreach($match_types as $k=>$v){
-                                    $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';
+                                    $sel=($rule["h"]==$k)?'selected="selected"':'';
                                     echo sprintf('<option value="%s" %s>%s</option>',
                                         $k,$sel,$v);
                                 }
                                 ?>
                             </select>&nbsp;
-                            <input class="ltr" type="text" size="60" name="rule_v<?php echo $i; ?>" value="<?php echo $info["rule_v$i"]; ?>">
-                            &nbsp;<span class="error">&nbsp;<?php echo $errors["rule_$i"]; ?></span>
-                        <?php
-                        if($info["rule_w$i"] || $info["rule_h$i"] || $info["rule_v$i"]){ ?>
-                        <div class="pull-right" style="padding-right:20px;"><a href="#" class="clearrule">(<?php echo __('clear');?>)</a></div>
-                        <?php
-                        } ?>
-                        </div>
+                            <input type="text" size="60" name="rules[<?php echo $i; ?>][v]" value="<?php echo $rule["v"]; ?>">
+                        <div class="pull-right" style="padding-right:20px;"><a href="#" class="clearrule"
+                            onclick="javascript: $(this).closest('tr').remove();">(<?php echo __('clear');?>)</a></div>
+                        <div class="error"><?php echo $errors["rule_$i"]; ?></div>
                     </td>
                 </tr>
-                <?php
-                    if($i>=25) //Hardcoded limit of 25 rules...also see class.filter.php
-                       break;
+<?php           $maxi = max($maxi ?: 0, $i+1);
                 } ?>
             </tbody>
+            <tbody class="hidden" id="new-rule-template">
+                <tr>
+                    <td colspan="2">
+                        <select style="max-width: 200px;" data-name="rulew">
+                            <option value="">&mdash; <?php echo __('Select One');?> &mdash;</option>
+                            <?php
+                            foreach ($matches as $group=>$ms) { ?>
+                                <optgroup label="<?php echo __($group); ?>"><?php
+                                foreach ($ms as $k=>$v) {
+                                    echo sprintf('<option value="%s">%s</option>',
+                                        $k,__($v));
+                                } ?>
+                            </optgroup>
+                            <?php } ?>
+                        </select>
+                        <select data-name="ruleh">
+                            <option value="0">&mdash; <?php echo __('Select One');?> &mdash;</option>
+                            <?php
+                                foreach($match_types as $k=>$v){
+                                echo sprintf('<option value="%s">%s</option>',
+                                    $k,$v);
+                            }
+                            ?>
+                        </select>&nbsp;
+                        <input type="text" size="60" data-name="rulev">
+                    </td>
+                </tr>
+            </tbody>
         </table>
+        <div style="padding: 5px">
+            <button class="green button" type="button" id="add-rule">
+                <i class="icon-plus-sign"></i> <?php echo __('Add Rule'); ?>
+            </button>
+        </div>
     </div>
     <!-- ======================= FILTER ACTIONS ========================= -->
     <div class="tab_content hidden" id="filter_actions">
@@ -313,5 +340,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
       });
       return ui;
    };
-   $('#dynamic-actions').sortable({helper: fixHelper, opacity: 0.5});
+   $(function() {
+     $('#dynamic-actions').sortable({helper: fixHelper, opacity: 0.5});
+     var next = <?php echo $maxi; ?>;
+     $('#add-rule').click(function() {
+       var clone = $('#new-rule-template tr').clone();
+       clone.find('[data-name=rulew]').attr('name', 'rules['+next+'][w]');
+       clone.find('[data-name=ruleh]').attr('name', 'rules['+next+'][h]');
+       clone.find('[data-name=rulev]').attr('name', 'rules['+next+'][v]');
+       clone.appendTo('#rules');
+       next++;
+     });
+   });
 </script>
