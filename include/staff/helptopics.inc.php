@@ -19,7 +19,8 @@ $order_by = 'sort';
             </div>
             <div class="pull-right flush-right">
                 <?php if ($cfg->getTopicSortMode() != 'a') { ?>
-                <input class="button no-confirm" type="submit" name="sort" value="Save" />
+                <button class="button no-confirm" type="submit" name="sort"><i class="icon-save"></i>
+                <?php echo __('Save'); ?></button>
                 <?php } ?>
                 <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
                 <span class="action-button" data-dropdown="#action-dropdown-more">
@@ -57,18 +58,20 @@ $order_by = 'sort';
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
 
-    <!-- <div class="pull-right"><?php //echo __('Sorting Mode'); ?>:
+    <thead>
+<tr><td colspan="7">
+    <div style="padding:3px" class="pull-right"><?php echo __('Sorting Mode'); ?>:
     <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
     $form.submit();
 ">
-<?php// foreach (OsticketConfig::allTopicSortModes() as $i=>$m)
-    //echo sprintf('<option value="%s"%s>%s</option>',
-    //    $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
+<?php foreach (OsticketConfig::allTopicSortModes() as $i=>$m)
+    echo sprintf('<option value="%s"%s>%s</option>',
+        $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
         </select>
-    </div>-->
-    <thead>
+    </div>
+</td></tr>
         <tr>
             <th width="4%" style="height:20px;">&nbsp;</th>
             <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
@@ -124,7 +127,7 @@ $order_by = 'sort';
                 <td>
                     <?php
                     if ($cfg->getTopicSortMode() == 'm') { ?>
-                        <i class="icon-sort"></i>
+                        <i class="icon-sort faded"></i>
                     <?php } ?>
                     <a href="helptopics.php?id=<?php echo $id; ?>"><?php
                     echo Topic::getTopicName($id); ?></a>&nbsp;

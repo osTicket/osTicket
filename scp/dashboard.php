@@ -35,9 +35,9 @@ if ($_POST['export']) {
         Http::download("stats-$group-$ts.csv", 'text/csv');
         $output = fopen('php://output', 'w');
         fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, $data['columns'], $delimeter);
+        fputcsv($output, $data['columns'], $delimiter);
         foreach ($data['data'] as $row)
-            fputcsv($output, $row, $delimeter);
+            fputcsv($output, $row, $delimiter);
         exit;
     }
 }

@@ -314,7 +314,8 @@ if ($avatar->isChangeable()) { ?>
 
   <p style="text-align:center;">
     <button class="button action-button" type="submit" name="submit" ><i class="icon-save"></i> <?php echo __('Save Changes'); ?></button>
-    <button class="button action-button" type="reset"  name="reset"><?php echo __('Reset');?></button>
+    <button class="button action-button" type="reset"  name="reset"><i class="icon-undo"></i>
+        <?php echo __('Reset');?></button>
     <button class="red button action-button" type="button" name="cancel" onclick="window.history.go(-1);"><i class="icon-remove-circle"></i> <?php echo __('Cancel');?></button>
   </p>
     <div class="clear"></div>
