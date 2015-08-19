@@ -11,10 +11,10 @@ $plots = $report->getPlotData();
 
 <link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
 
+<form method="post" action="dashboard.php">
 <div id="basic_search">
     <div style="min-height:25px;">
         <!--<p><?php //echo __('Select the starting time and period for the system activity graph');?></p>-->
-        <form method="post" action="dashboard.php">
             <?php echo csrf_token(); ?>
             <label>
                 <?php echo __( 'Report timeframe'); ?>:
@@ -45,7 +45,6 @@ $plots = $report->getPlotData();
                 <?php echo __( 'Refresh');?>
             </button>
             <i class="help-tip icon-question-sign" href="#report_timeframe"></i>
-        </form>
     </div>
 </div>
 <div class="clear"></div>
@@ -109,10 +108,15 @@ foreach ($groups as $g=>$desc) {
     }
     $first = false; ?>
     </tbody></table>
+    <div style="margin-top: 5px"><button type="submit" class="link button" name="export"
+        value="<?php echo Format::htmlchars($g); ?>">
+        <i class="icon-download"></i>
+        <?php echo __('Export'); ?></a></div>
     </div>
 <?php
 }
 ?>
+</form>
 <script>
     $.drawPlots(<?php echo JsonDataEncoder::encode($report->getPlotData()); ?>);
 </script>

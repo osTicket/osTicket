@@ -17,6 +17,31 @@ require('staff.inc.php');
 
 require_once INCLUDE_DIR . 'class.report.php';
 
+if ($_POST['export']) {
+    $report = new OverviewReport($_POST['start'], $_POST['period']);
+    switch (true) {
+    case ($data = $report->getTabularData($_POST['export'])):
+        $ts = strftime('%Y%m%d');
+        $group = Format::slugify($_POST['export']);
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        }
+
+        Http::download("stats-$group-$ts.csv", 'text/csv');
+        $output = fopen('php://output', 'w');
+        fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fputcsv($output, $data['columns'], $delimeter);
+        foreach ($data['data'] as $row)
+            fputcsv($output, $row, $delimeter);
+        exit;
+    }
+}
+
 $nav->setTabActive('dashboard');
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.dashboard" />',
     "$('#content').data('tipNamespace', 'dashboard.dashboard');");

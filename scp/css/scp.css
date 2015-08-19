@@ -13,13 +13,14 @@ body, html {
     padding:0;
 }
 
+.button.link,
 a {
     color:#184E81;
     text-decoration:none;
     display: inline-block;
 }
 
-a:hover {
+a:hover, .button.link:hover {
     text-decoration: underline;
 }
 
@@ -487,6 +488,7 @@ a {
 }
 table.dashboard-stats {
     text-align:right;
+    border-bottom: 2px solid #ddd;
 }
 table.dashboard-stats tbody:first-child th {
     border-bottom:1px dashed #ddd;
@@ -1807,6 +1809,14 @@ select + .button {
     background-color: rgba(0,0,0,0.8);
     box-shadow: 0 0 0 2px rgba(255,255,255,0.7) inset;
     color: white;
+}
+.link.button, .link.button:hover, .link.button:active {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+    color:#184E81;
+    padding: 0;
+    font-size: inherit;
 }
 
 .light .button:hover,
