@@ -333,11 +333,11 @@ class MysqlSearchBackend extends SearchBackend {
         // If using boolean operators, search in boolean mode. This regex
         // will ensure proper placement of operators, whitespace, and quotes
         // in an effort to avoid crashing the query at MySQL
-        if (preg_match('/^(?:[(+<>~-]*(\w+[*]?|"[^"]+")[)]?(\s+|$))+$/u', $query, $T = array()))
+        $query = $this->quote($query);
+        if (preg_match('/(?=(?:^|\s)[()"+<>~-])\s*(?:[(+<>~-]*(\w+[*]?|"[^"]+")[)]?(\s+|$))+$|\w[*]/u', $query, $T = array()))
             $mode = ' IN BOOLEAN MODE';
         #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
-        $query = $this->quote($query);
         $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
 
         switch ($criteria->model) {
@@ -349,10 +349,37 @@ class MysqlSearchBackend extends SearchBackend {
                 ),
                 'tables' => array(
                     str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
-                        "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`) as `ticket_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) WHERE {}) Z1"),
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {}) Z1"),
                 )
             ));
-            $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')))->distinct('ticket_id');
+            $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')));
+            break;
+
+        case 'User':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z6.`id` as `user_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`user_id`')));
+            break;
+
+        case 'Organization':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z2.`id` as `org_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:organization` Z2 ON (Z2.`id` = Z1.`object_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`org_id`')));
+            break;
         }
 
         // TODO: Ensure search table exists;

@@ -79,16 +79,24 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         $hits = TicketModel::objects()
-            ->filter(Q::any(array(
-                'user__emails__address__contains' => $_REQUEST['q'],
-                'user__name__contains' => $_REQUEST['q'],
-                'user__account__username' => $_REQUEST['q'],
-                'user__org__name__contains' => $_REQUEST['q'],
-            )))
             ->filter($visibility)
             ->values('user__emails__address')
             ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
             ->limit($limit);
+
+        $q = $_REQUEST['q'];
+        // Drop at sign in email addresses
+        $q = str_replace('@', ' ', $q);
+
+        global $ost;
+        $hits = $ost->searcher->find($q, $hits)
+            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+
+        if (!count($hits) && $q[strlen($q)-1] != '*') {
+            // Do wild-card fulltext search
+            $_REQUEST['q'] = $q.'*';
+            return $this->lookupByEmail();
+        }
 
         foreach ($hits as $T) {
             $email = $T['user__emails__address'];

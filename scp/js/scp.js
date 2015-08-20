@@ -746,7 +746,7 @@ $.confirm = function(message, title, options) {
                 .append($('<input type="button" class="close"/>')
                     .attr('value', __('Cancel'))
                     .click(function() { hide(); })
-            )).append($('<span class="buttons pull-right">test</span>')
+            )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
                     .click(function() {  hide(); D.resolve(body.find('input').serializeArray()); })
