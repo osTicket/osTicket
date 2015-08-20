@@ -278,8 +278,6 @@ class Thread extends VerySimpleModel {
      *      - body - (string) email message body (decoded)
      */
     function postEmail($mailinfo) {
-        global $ost;
-
         // +==================+===================+=============+
         // | Orig Thread-Type | Reply Thread-Type | Requires    |
         // +==================+===================+=============+
@@ -301,27 +299,6 @@ class Thread extends VerySimpleModel {
             // Ticket is closed, not reopenable, and email was not submitted
             // by an agent. Email cannot be submitted
             return false;
-        }
-
-        // Mail sent by this system will have a message-id format of
-        // <code-random-mailbox@domain.tld>
-        // where code is a predictable string based on the SECRET_SALT of
-        // this osTicket installation. If this incoming mail matches the
-        // code, then it very likely originated from this system and looped
-        @list($code) = explode('-', $mailinfo['mid'], 2);
-        if (0 === strcasecmp(ltrim($code, '<'), substr(md5('mail'.SECRET_SALT), -9))) {
-            // This mail was sent by this system. It was received due to
-            // some kind of mail delivery loop. It should not be considered
-            // a response to an existing thread entry
-            if ($ost) $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
-                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
-                $mailinfo['email']),
-
-                // This is quite intentional -- don't continue the loop
-                false,
-                // Force the message, even if logging is disabled
-                true);
-            return true;
         }
 
         $vars = array(
@@ -477,13 +454,13 @@ class Thread extends VerySimpleModel {
      */
     function lookupByEmailHeaders(&$mailinfo) {
         $possibles = array();
-        foreach (array('in-reply-to', 'references') as $header) {
+        foreach (array('mid', 'in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
                 continue;
             // Header may have multiple entries (usually separated by
             // spaces ( )
-            elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
+            elseif (!preg_match_all('/<([^>@]+@[^>]+)>/', $mailinfo[$header],
                         $matches))
                 continue;
 
@@ -491,12 +468,12 @@ class Thread extends VerySimpleModel {
             // (parent) on the far right.
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
-            $possibles = array_merge($possibles, array_reverse($matches[0]));
+            $possibles = array_merge($possibles, array_reverse($matches[1]));
         }
 
         // Add the message id if it is embedded in the body
         $match = array();
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match)
             && !in_array($match[1], $possibles)
         ) {
@@ -510,7 +487,9 @@ class Thread extends VerySimpleModel {
             // from this help desk, the 'loopback' property will be set
             // to true.
             $mid_info = Mailer::decodeMessageId($mid);
-            if ($mid_info['loopback'] && isset($mid_info['uid'])
+            if (!$mid_info || !$mid_info['loopback'])
+                continue;
+            if (isset($mid_info['uid'])
                 && @$mid_info['threadId']
                 && ($t = Thread::lookup($mid_info['threadId']))
             ) {
@@ -630,6 +609,8 @@ implements TemplateVariable {
     );
 
     function postEmail($mailinfo) {
+        global $ost;
+
         if (!($thread = $this->getThread()))
             // Kind of hard to continue a discussion without a thread ...
             return false;
@@ -637,6 +618,26 @@ implements TemplateVariable {
         elseif ($this->getEmailMessageId() == $mailinfo['mid'])
             // Reporting success so the email can be moved or deleted.
             return true;
+
+        // Mail sent by this system will have a predictable message-id
+        // If this incoming mail matches the code, then it very likely
+        // originated from this system and looped
+        $info = Mailer::decodeMessageId($mailinfo['mid']);
+        if ($info && $info['loopback']) {
+            // This mail was sent by this system. It was received due to
+            // some kind of mail delivery loop. It should not be considered
+            // a response to an existing thread entry
+            if ($ost)
+                $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
+                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                $mailinfo['email']),
+
+                // This is quite intentional -- don't continue the loop
+                false,
+                // Force the message, even if logging is disabled
+                true);
+            return $this;
+        }
 
         return $thread->postEmail($mailinfo);
     }
@@ -1134,13 +1135,13 @@ implements TemplateVariable {
         }
 
         $possibles = array();
-        foreach (array('in-reply-to', 'references') as $header) {
+        foreach (array('mid', 'in-reply-to', 'references') as $header) {
             $matches = array();
             if (!isset($mailinfo[$header]) || !$mailinfo[$header])
                 continue;
             // Header may have multiple entries (usually separated by
             // spaces ( )
-            elseif (!preg_match_all('/<[^>@]+@[^>]+>/', $mailinfo[$header],
+            elseif (!preg_match_all('/<([^>@]+@[^>]+)>/', $mailinfo[$header],
                         $matches))
                 continue;
 
@@ -1148,13 +1149,13 @@ implements TemplateVariable {
             // (parent) on the far right.
             // @see rfc 1036, section 2.2.5
             // @see http://www.jwz.org/doc/threading.html
-            $possibles = array_merge($possibles, array_reverse($matches[0]));
+            $possibles = array_merge($possibles, array_reverse($matches[1]));
         }
 
         // Add the message id if it is embedded in the body
         $match = array();
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
-                $mailinfo['message'], $match)
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
+                (string) $mailinfo['message'], $match)
             && !in_array($match[1], $possibles)
         ) {
             $possibles[] = $match[1];
@@ -1168,7 +1169,9 @@ implements TemplateVariable {
             // from this help desk, the 'loopback' property will be set
             // to true.
             $mid_info = Mailer::decodeMessageId($mid);
-            if ($mid_info['loopback'] && isset($mid_info['uid'])
+            if (!$mid_info || !$mid_info['loopback'])
+                continue;
+            if (isset($mid_info['uid'])
                 && @$mid_info['entryId']
                 && ($t = ThreadEntry::lookup($mid_info['entryId']))
                 && ($t->thread_id == $mid_info['threadId'])
@@ -1246,24 +1249,6 @@ implements TemplateVariable {
                 $mailinfo['userId'] = $user->getId();
                 return $ticket->getLastMessage();
             }
-        }
-
-        // Search for the message-id token in the body
-        // *DEPRECATED* the current algo on outgoing mail will use
-        // Mailer::getMessageId as the message id tagged here
-        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
-                $mailinfo['message'], $match)) {
-            // Support new Message-Id format
-            if (($info = Mailer::decodeMessageId($match[1]))
-                && $info['loopback']
-                && $info['entryId']
-            ) {
-                return ThreadEntry::lookup($info['entryId']);
-            }
-            // Support old (deprecated) reference format
-            if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
-                    $mailinfo['email']))
-                return $thread;
         }
 
         return null;
