@@ -2580,29 +2580,31 @@ class MySqlCompiler extends SqlCompiler {
 
         $joins = $this->getJoins($queryset);
 
+        $sql = 'SELECT '.implode(', ', $fields).' FROM '
+            .$table.$joins.$where.$group_by.$having.$sort;
         // UNIONS
-        $unions='';
         if ($queryset->chain) {
+            // If the main query is sorted, it will need parentheses
+            if ($parens = (bool) $sort)
+                $sql = "($sql)";
             foreach ($queryset->chain as $qs) {
                 list($qs, $all) = $qs;
                 $q = $qs->getQuery(array('nosort' => true));
                 // Rewrite the parameter numbers so they fit the parameter numbers
                 // of the current parameters of the $compiler
                 $self = $this;
-                $sql = preg_replace_callback("/:(\d+)/",
+                $S = preg_replace_callback("/:(\d+)/",
                 function($m) use ($self, $q) {
                     $self->params[] = $q->params[$m[1]-1];
                     return ':'.count($self->params);
                 }, $q->sql);
                 // Wrap unions in parentheses if they are windowed or sorted
-                if ($qs->isWindowed() || count($qs->getSortFields()))
-                    $sql = "($sql)";
-                $unions .= ' UNION '.($all ? 'ALL ' : '').$sql;
+                if ($parens || $qs->isWindowed() || count($qs->getSortFields()))
+                    $S = "($S)";
+                $sql .= ' UNION '.($all ? 'ALL ' : '').$S;
             }
         }
 
-        $sql = 'SELECT '.implode(', ', $fields).' FROM '
-            .$table.$joins.$where.$group_by.$having.$unions.$sort;
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)

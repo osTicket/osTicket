@@ -196,21 +196,6 @@ $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 
-// Rewrite $tickets to use a nested query, which will include the LIMIT part
-// in order to speed the result
-//
-// ATM, advanced search with keywords doesn't support the subquery approach
-if ($use_subquery) {
-    $orig_tickets = clone $tickets;
-    $tickets2 = TicketModel::objects();
-    $tickets2->values = $tickets->values;
-    $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
-
-    // Transfer the order_by from the original tickets
-    $tickets2->order_by($orig_tickets->getSortFields());
-    $tickets = $tickets2;
-}
-
 // Apply requested sorting
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
 
@@ -299,6 +284,17 @@ case 'updated':
     break;
 }
 
+// Rewrite $tickets to use a nested query, which will include the LIMIT part
+// in order to speed the result
+$orig_tickets = clone $tickets;
+$tickets2 = TicketModel::objects();
+$tickets2->values = $tickets->values;
+$tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
+
+// Transfer the order_by from the original tickets
+$tickets2->order_by($orig_tickets->getSortFields());
+$tickets = $tickets2;
+
 // Save the query to the session for exporting
 $_SESSION[':Q:tickets'] = $tickets;
 
@@ -307,6 +303,7 @@ TicketForm::ensureDynamicDataView();
 // Select pertinent columns
 // ------------------------------------------------------------
 $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__priority__priority_color', 'cdata__priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
+
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
