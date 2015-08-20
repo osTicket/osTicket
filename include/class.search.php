@@ -737,6 +737,18 @@ class SavedSearch extends VerySimpleModel {
 #            ':org' =>        new OrganizationChoiceField(array(
 #                'label' => __('Organization'),
 #            )),
+            ':closed' =>     new DatetimeField(array(
+                'id' => 3204,
+                'label' => __('Closed Date'),
+            )),
+            ':thread__lastresponse' => new DatetimeField(array(
+                'id' => 3205,
+                'label' => __('Last Response'),
+            )),
+            ':thread__lastmessage' => new DatetimeField(array(
+                'id' => 3206,
+                'label' => __('Last Message'),
+            )),
             ':source' =>     new TicketSourceChoiceField(array(
                 'id' => 3201,
                 'label' => __('Source'),
@@ -870,8 +882,10 @@ class SavedSearch extends VerySimpleModel {
                         $filter->add(array('entries__answers__field_id' => $id));
                         break;
                     }
-                    $OP = $other_paths[$type];
-                    $name = $OP . $column;
+                    if ($OP = $other_paths[$type])
+                        $name = $OP . $column;
+                    else
+                        $name = substr($name, 1);
                 }
             }
 

@@ -3764,6 +3764,9 @@ class FreeTextWidget extends Widget {
 }
 
 class VisibilityConstraint {
+    static $operators = array(
+        'eq' => 1,
+    );
 
     const HIDDEN =      0x0001;
     const VISIBLE =     0x0002;
@@ -3821,6 +3824,13 @@ class VisibilityConstraint {
         return $this->compileQPhp($this->constraint, $field);
     }
 
+    static function splitFieldAndOp($field) {
+        $op = substr($field, strrpos($field, '__') + 2);
+        if (isset(static::$operators[$op]))
+            $field = substr($field, 0, strrpos($field, '__'));
+        return array($field, $op);
+    }
+
     function compileQPhp(Q $Q, $field) {
         if (!($form = $field->getForm())) {
             return $this->initial == self::VISIBLE;
@@ -3831,7 +3841,7 @@ class VisibilityConstraint {
                 $expr[] = $this->compileQPhp($value, $field);
             }
             else {
-                @list($f, $op) = explode('__', $c, 2);
+                @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
                 $wval = $field->getClean();
                 switch ($op) {
@@ -3857,7 +3867,7 @@ class VisibilityConstraint {
                 $this->getAllFields($c, $fields);
             }
             else {
-                list($f, $op) = explode('__', $c, 2);
+                @list($f) = self::splitFieldAndOp($c);
                 $fields[$f] = true;
             }
         }
@@ -3871,7 +3881,7 @@ class VisibilityConstraint {
                 $expr[] = $this->compileQ($value, $form);
             }
             else {
-                list($f, $op) = explode('__', $c, 2);
+                list($f, $op) = self::splitFieldAndOp($c);
                 $widget = $form->getField($f)->getWidget();
                 $id = $widget->id;
                 switch ($op) {
