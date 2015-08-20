@@ -20,38 +20,41 @@ require_once INCLUDE_DIR . 'class.page.php';
 $section = 'home';
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
-<div id="landing_page">
+
+	<div class="clearfix"></div>
+<div id="landing_page" class="container">
     <div class="row">
-        <div class="col-xs-12 col-sm-8">
-            <div class="row">
-                <div class="col-xs-12">
+        <div class="col-xs-12 col-md-8">
+            
+           
+                    <?php if($cfg && ($page = $cfg->getLandingPage()))
+                        echo $page->getBodyWithImages();
+                    else
+                        echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
+                    ?>
+            
+        </div>
+        <?php
+            $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
+        ?>
+        <div class="sidebar col-xs-12 col-sm-4">
+		
+		<div class="row">
+                <div class="col-xs-12" >
                     <?php if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
                         <form method="get" action="kb/faq.php" class="search-form">
                             <div class="input-group">
                                 <input type="hidden" name="a" value="search"/>
                                 <input type="text" name="q" class="search form-control" placeholder="Search our knowledge base"/>
                                 <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-success">Search</button>
+                                    <button type="submit" class="btn btn-info">Search</button>
                                 </span>
                             </div>
-                        </form>
+                        </form><br>
                     <?php } ?>
                 </div>
             </div>
-            <div class="row">
-                <div class="welcome col-xs-12">
-                    <?php if($cfg && ($page = $cfg->getLandingPage()))
-                        echo $page->getBodyWithImages();
-                    else
-                        echo  '<h1>'.__('Welcome to the Support Center').'</h1>';
-                    ?>
-                </div>
-            </div>
-        </div>
-        <?php
-            $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
-        ?>
-        <div class="sidebar col-xs-12 col-sm-4">
+			
             <?php
             $faqs = FAQ::getFeatured()->select_related('category')->limit(5); 
             if ($faqs->all()) { ?>
@@ -102,7 +105,7 @@ require(CLIENTINC_DIR.'header.inc.php');
         </div>
     </div>
 </div>
-<div class="row">
+<div class="container row">
     <div class="col-xs-12 col-sm-6">
     <?php if($cfg && $cfg->isKnowledgebaseEnabled()){
         //FIXME: provide ability to feature or select random FAQs ??
@@ -110,7 +113,7 @@ require(CLIENTINC_DIR.'header.inc.php');
     </div>
 </div>
 </div>
-<div class="row">
+<div class="container row">
     <div class="col-xs-12">
         <?php
         $cats = Category::getFeatured();

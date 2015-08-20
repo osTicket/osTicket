@@ -26,6 +26,7 @@ $category=$faq->getCategory();
 </div>
 </div>
 
+
 <div class="col-xs-12 col-sm-4">
     <div class="searchbar">
         <form method="get" action="faq.php">
@@ -64,5 +65,6 @@ $category=$faq->getCategory();
                 } ?>
             </div>-->
         </div>
+
     </div>
 </div>

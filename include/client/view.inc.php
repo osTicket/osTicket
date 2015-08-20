@@ -1,12 +1,17 @@
 <?php
-//if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
+if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
+
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
+
 $dept = $ticket->getDept();
+
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = __('This ticket is marked as closed and cannot be reopened.');
+
 //Making sure we don't leak out internal dept names
 if(!$dept || !$dept->isPublic())
     $dept = $cfg->getDefaultDept();
+
 if ($thisclient && $thisclient->isGuest()
     && $cfg->isClientRegistrationEnabled()) { ?>
 
@@ -22,76 +27,64 @@ if ($thisclient && $thisclient->isGuest()
 
 <?php } ?>
 
-<table cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
+<table width="800" cellpadding="1" cellspacing="0" border="0" id="ticketInfo">
     <tr>
         <td colspan="2" width="100%">
-            <h1>
+            <h2>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
                 <b><?php echo $ticket->getSubject(); ?></b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
-    <a class="action-button" href="tickets.php?a=print&id=<?php
+    <a class="action-button btn-lg" href="tickets.php?a=print&id=<?php
         echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
 <?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
-                <a class="action-button" href="tickets.php?a=edit&id=<?php
+                <a class="action-button  btn-lg" href="tickets.php?a=edit&id=<?php
                      echo $ticket->getId(); ?>"><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
 <?php } ?>
 </div>
-            </h1>
+            </h2>
         </td>
-    </tr>
-    <tr>
-        <td colspan="2">
-          <div class="row">
-            <div class="col-sm-6">
-              <table class="infoTable table table-condensed">
-                <thead>
-                    <tr><td class="headline" colspan="2">
-                        <?php echo __('<h1><small>Basic Suggestion Information</small></h1>'); ?>
-                    </td></tr>
-                </thead>
-                <tr>
-                    <th class="text-nowrap"><?php echo __('Suggestion Status');?>:</th>
-                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
-                </tr>
-                <tr>
-                    <th class="text-nowrap"><?php echo __('Team');?>:</th>
-                    <td><?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?></td>
-                </tr>
-                <tr>
-                    <th class="text-nowrap"><?php echo __('Create Date');?>:</th>
-                    <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
-                </tr>
-             </table>
-           </div>
-           <div class="col-sm-6">
-             <table class="infoTable table table-condensed">
-                <thead>
-                    <tr><td class="headline" colspan="2">
-                        <?php echo __('<h1><small>User Information</small></h1>'); ?>
-                    </td></tr>
-                </thead>
-               <tr>
-                   <th class="text-nowrap"><?php echo __('Name');?>:</th>
-                   <td><?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?></td>
-               </tr>
-               <tr>
-                   <th class="text-nowrap"><?php echo __('Email');?>:</th>
-                   <td><?php echo Format::htmlchars($ticket->getEmail()); ?></td>
-               </tr>
-               <tr>
-                   <th class="text-nowrap"><?php echo __('Phone');?>:</th>
-                   <td><?php echo $ticket->getPhoneNumber(); ?></td>
-               </tr>
-              </table>
-            </div>
-          </div>
-       </td>
-    </tr>
-    <tr>
-        <td colspan="2">
+    </tr></table>
+<div class="row">
+    <div class="col-md-6">
+		<div>
+			<h3><?php echo __('Basic Ticket Information'); ?></h3>
+		</div>
+		<div>
+			<label><?php echo __('Ticket Status');?>:</label>
+			<?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?>
+		</div>
+		<div>
+			<label><?php echo __('Department');?>:</label>
+			<?php echo Format::htmlchars($dept instanceof Dept ? $dept->getName() : ''); ?>
+		</div>
+		<div>
+			<label><?php echo __('Create Date');?>:</label>
+			<?php echo Format::datetime($ticket->getCreateDate()); ?>
+		</div>
+    </div>
+	<div class="col-md-6">
+		<div>
+			  <h3><?php echo __('User Information'); ?></h3>
+		</div>
+		<div>
+			<label><?php echo __('Name');?>:</label>
+			<?php echo mb_convert_case(Format::htmlchars($ticket->getName()), MB_CASE_TITLE); ?>
+		</div>
+		<div>
+			<label><?php echo __('Email');?>:</label>
+			<?php echo Format::htmlchars($ticket->getEmail()); ?>
+		</div>
+		<div>
+			<label><?php echo __('Phone');?>:</label>
+			<?php echo $ticket->getPhoneNumber(); ?>
+		 </div> 
+	 </div>
+</div>
+<div class="row">
+<div class="col-md-12">
 <!-- Custom Data -->
 <?php
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
@@ -104,62 +97,47 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     if (count($answers) == 0)
         continue;
     ?>
-	
-        <table class="infoTable table table-condensed" cellspacing="0" cellpadding="4" width="100%" border="0">
-        <tr><td colspan="2" class="headline flush-left"><h1><small><?php echo $form->getTitle(); ?></small></h1></th></tr>
+        <div class="col-md-4 row">
+        <div><h3><?php echo $form->getTitle(); ?></h3></div>
         <?php foreach($answers as $a) {
             if (!($v = $a->display())) continue; ?>
-            <tr>
-                <th><?php
+            <div>
+                <label><?php
     echo $a->getField()->get('label');
-                ?>:</th>
-                <td><?php
+                ?>:</label>
+               <?php
     echo $v;
-                ?></td>
-            </tr>
+                ?>
+            
             <?php } ?>
-        </table>
-	
+			</div>
     <?php
     $idx++;
-} ?>
-    </td>
-</tr>
-</table>
+} ?></br>
+	</div>
+</div>
+</div>
 
-<!--
+<div class="col-md-12">
 
-</br>
 
-<div class="subject"><?php echo __('Subject'); ?>: <strong><?php echo Format::htmlchars($ticket->getSubject()); ?></strong></div>
-<div class="clearfix">&nbsp;</div>
-
--->
-<div id="ticketThread">
 <?php
-     $ticket->getThread()->render(array('M', 'R'), array(
+    $ticket->getThread()->render(array('M', 'R'), array(
                 'mode' => Thread::MODE_CLIENT,
                 'html-id' => 'ticketThread')
             );
 ?>
-</div>
-<div class="clearfix"></div>
-<?php if($errors['err']) { ?>
-    <div id="msg_error" class="alert alert-danger" role="alert"><?php echo $errors['err']; ?></div>
-<?php }elseif($msg) { ?>
-    <div id="msg_notice" class="alert alert-info" role="alert"><?php echo $msg; ?></div>
-<?php }elseif($warn) { ?> 
-    <div id="msg_warning" class="alert alert-warning" role="alert"><?php echo $warn; ?></div>
 
+
+<?php if($errors['err']) { ?>
+    <div id="error" class="alert alert-danger"><?php echo $errors['err']; ?></div>
+<?php }elseif($msg) { ?>
+    <div id="msg_notice" class="alert alert-warning"><?php echo $msg; ?></div>
+<?php }elseif($warn) { ?>
+    <div id="msg_warning" class="alert alert-danger"><?php echo $warn; ?></div>
 <?php }
 
-//if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!'); *************||!$thisclient->getId() == $ticket->getUserId()
-//
-//if (!$ticket->isClosed() || $ticket->isReopenable())
-
-if ($ticket->hasClientEditableFields()
-        // Only ticket owners can edit the ticket details (and other forms)
-        && $thisclient->getId() == $ticket->getUserId())	{ ?>
+if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getId();
 ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
@@ -169,7 +147,8 @@ if ($ticket->hasClientEditableFields()
     <div>
         <p><em><?php
          echo __('To best assist you, we request that you be specific and detailed'); ?></em>
-        <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
+		
+        <font class="error alert">*&nbsp;<?php echo $errors['message']; ?></font>
         </p>
         <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
@@ -183,27 +162,20 @@ echo $attrs; ?>><?php echo $draft ?: $info['message'];
     } ?>
     </div>
 <?php if ($ticket->isClosed()) { ?>
-    <div class="warning-banner">
-        <?php echo __('Suggestion will be reopened on message post'); ?>
+    <div class="alert alert-info">
+        <?php echo __('Ticket will be reopened on message post'); ?>
     </div>
 <?php } ?>
-    <p style="text-align:center">
-        <input class="btn btn-success" type="submit" value="<?php echo __('Post Reply');?>">
-        <input class="btn btn-warning" type="reset" value="<?php echo __('Reset');?>">
-        <input class="btn btn-default" type="button" value="<?php echo __('Cancel');?>" onClick="history.go(-1)">
+    <p >
+        <input  class="btn btn-success" type="submit" value="<?php echo __('Post Reply');?>">
+        <input  class="btn btn-warning" type="reset" value="<?php echo __('Reset');?>">
+        <input  class="btn btn-default" type="button" value="<?php echo __('Cancel');?>" onClick="location.href='/tickets.php'">
     </p>
 </form>
+</div>
+<div class="clearfix"></div>
 <?php
-
-}
-
-else {
-?>
- <p style="text-align:center">
- <input class="btn btn-success" type="button" value="<?php echo __('Go back');?>" onClick="history.go(-1)">
- </p>
-<?php
-}	?>   
+} ?>
 <script type="text/javascript">
 <?php
 // Hover support for all inline images

@@ -64,7 +64,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         <?php echo __('Current Password'); ?>:
     </td>
     <td>
-        <input type="password" size="18" name="cpasswd" value="<?php echo $info['cpasswd']; ?>">
+        <input class="form-control" type="password" size="18" name="cpasswd" value="<?php echo $info['cpasswd']; ?>">
         &nbsp;<span class="error">&nbsp;<?php echo $errors['cpasswd']; ?></span>
     </td>
 </tr>
@@ -74,16 +74,16 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         <?php echo __('New Password'); ?>:
     </td>
     <td>
-        <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
+        <input class="form-control" type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
         &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd1']; ?></span>
     </td>
 </tr>
 <tr>
     <td class="text-nowrap">
-        <?php echo __('Confirm New Password'); ?>:
+        <?php echo __('Confirm New Password'); ?>:&nbsp;
     </td>
     <td>
-        <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
+        <input class="form-control" type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
         &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
     </td>
 </tr>
