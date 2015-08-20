@@ -37,9 +37,10 @@ if($_REQUEST['id']) {
 
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-} elseif (!$ticket) {
+}
+if (!$ticket) {
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
-    $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
     if (!$queue_name && isset($_SESSION[$queue_key]))
         $queue_name = $_SESSION[$queue_key];
 

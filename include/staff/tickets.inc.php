@@ -110,6 +110,25 @@ case 'search':
         // Clear sticky search queue
         unset($_SESSION[$queue_key]);
         break;
+    }
+    // Apply user filter
+    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
+        $tickets->filter(array('user__id'=>$_GET['uid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $user->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
+        break;
+    }
+    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
+        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $org->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
+        break;
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');
         $tickets = $search->mangleQuerySet($tickets, $form);
@@ -122,21 +141,6 @@ case 'search':
                 break;
             }
         }
-        break;
-    }
-    // Apply user filter
-    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
-        $tickets->filter(array('user__id'=>$_GET['uid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $user->getName());
-        // Don't apply normal open ticket
-        break;
-    }
-    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
-        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $org->getName());
-        // Don't apply normal open ticket
         break;
     }
     // Fall-through and show open tickets
