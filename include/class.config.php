@@ -124,6 +124,7 @@ class Config {
             return false;
 
         $setting['value'] = $value;
+        $setting['updated'] = Misc::dbtime();
         return true;
     }
 
