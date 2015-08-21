@@ -17,7 +17,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
+    <strong><?php echo __('Looking for your other tickets?'); ?></strong><br />
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
     ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a>
@@ -32,7 +32,7 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h1>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
-                <b><?php echo $ticket->getSubject(); ?></b>
+                <b><?php echo Format::htmlchars($ticket->getSubject()); ?></b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
     <a class="action-button" href="tickets.php?a=print&id=<?php

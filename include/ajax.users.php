@@ -36,7 +36,7 @@ class UsersAjaxAPI extends AjaxController {
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
-                $users[] = array('email' => $u['email'], 'name'=>$name,
+                $users[] = array('email' => $u['email'], 'name'=>(string) $name,
                     'info' => "{$u['email']} - $name (remote)",
                     'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
                 $emails[] = $u['email'];

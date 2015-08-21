@@ -530,8 +530,8 @@ class OsticketConfig extends Config {
 
     static function allTopicSortModes() {
         return array(
-            'a' => __('Alphabetically'),
-            'm' => __('Manually'),
+            Topic::SORT_ALPHA   => __('Alphabetically'),
+            Topic::SORT_MANUAL  => __('Manually'),
         );
     }
 
@@ -1370,7 +1370,7 @@ class OsticketConfig extends Config {
         if (isset($vars['delete-logo']))
             foreach ($vars['delete-logo'] as $id)
                 if (($vars['selected-logo'] != $id)
-                        && ($f = AttachmentFile::lookup($id)))
+                        && ($f = AttachmentFile::lookup((int) $id)))
                     $f->delete();
 
         return $this->updateAll(array(

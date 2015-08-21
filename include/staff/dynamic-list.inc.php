@@ -24,9 +24,11 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2><?php echo __('Custom List'); ?>
-    <?php echo $list ? $list->getName() : __('Add new list'); ?></h2>
-
+    <h2><?php echo $title; ?>
+        <?php if (isset($info['name'])) { ?><small>
+        — <?php echo $info['name']; ?></small>
+        <?php } ?>
+    </h2>
 <ul class="clean tabs" id="list-tabs">
     <li <?php if (!$list) echo 'class="active"'; ?>><a href="#definition">
         <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
@@ -43,7 +45,6 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __(
                 'Custom lists are used to provide drop-down lists for custom forms.'
                 ); ?>&nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>

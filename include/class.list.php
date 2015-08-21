@@ -271,7 +271,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             'list_id' => $this->getId(),
             'sort'  => $vars['sort'],
             'value' => $vars['value'],
-            'extra' => $vars['abbrev']
+            'extra' => $vars['extra']
         ));
         $this->_items = false;
 

@@ -358,7 +358,7 @@ class ApiXmlDataParser extends XmlDataParser {
                     $value = new TextThreadEntryBody($value['body']);
 
             } else if ($key == "attachments") {
-                if(!isset($value['file'][':text']))
+                if(isset($value['file']) && !isset($value['file'][':text']))
                     $value = $value['file'];
 
                 if($value && is_array($value)) {

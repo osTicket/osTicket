@@ -20,14 +20,14 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
             <span class="action-button muted" data-dropdown="#category-dropdown">
                 <i class="icon-caret-down pull-right"></i>
                 <span>
-                    <i class="icon icon-filter"></i>
+                    <i class="icon-filter"></i>
                     <?php echo __('Category'); ?>
                 </span>
             </span>
             <span class="action-button muted" data-dropdown="#topic-dropdown">
                 <i class="icon-caret-down pull-right"></i>
                 <span>
-                    <i class="icon icon-filter"></i>
+                    <i class="icon-filter"></i>
                     <?php echo __('Help Topic'); ?>
                 </span>
             </span>
@@ -93,8 +93,12 @@ foreach ($topics as $T) {
 
     </div>
 </form>
-<h2><?php echo __('Frequently Asked Questions');?></h2>
-<hr>
+    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
+        <div class="pull-left">
+            <h2><?php echo __('Frequently Asked Questions');?></h2>
+        </div>
+        <div class="clear"></div>
+    </div>
 <div>
 <?php
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
