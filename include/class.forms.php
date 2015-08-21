@@ -597,6 +597,8 @@ class FormField {
     function getClean() {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
+                // XXX: The widget value may be parsed already if this is
+                //      linked to dynamic data via ::getAnswer()
                 ? $this->value : $this->parse($this->getWidget()->value);
 
             if ($vs = $this->get('cleaners')) {
@@ -2065,6 +2067,8 @@ class PriorityField extends ChoiceField {
     }
 
     function to_php($value, $id=false) {
+        if ($value instanceof Priority)
+            return $value;
         if (is_array($id)) {
             reset($id);
             $id = key($id);
@@ -2081,6 +2085,13 @@ class PriorityField extends ChoiceField {
         return ($prio instanceof Priority)
             ? array($prio->getDesc(), $prio->getId())
             : $prio;
+    }
+
+    function display($prio) {
+        if (!$prio instanceof Priority)
+            return parent::display($prio);
+        return sprintf('<span style="padding: 2px; background-color: %s">%s</span>',
+            $prio->getColor(), Format::htmlchars($prio->getDesc()));
     }
 
     function toString($value) {
