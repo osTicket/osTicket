@@ -15,7 +15,7 @@ nav.navbar.navbar-inverse{
     border-radius: 0px;
 	max-width: 1290px;
 	min-width: 320px;
-	
+
 }
 
 .navbar-fixed-top {
@@ -26,9 +26,13 @@ nav.navbar.navbar-inverse{
 .navbar-fixed-top, .navbar-fixed-bottom {
   position: static; /* this can also be static */
 }
-a.navbar-brand>img{
-height: 65px;
-padding-bottom: 2px;
+div.navbar-header>a.navbar-left>img.img-responsive{
+max-height: 65px;
+  max-width: 380px;
+  width: auto;
+  height: auto;
+  vertical-align: middle;	
+	
 }
 
 .navbar-left
