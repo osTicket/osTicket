@@ -25,6 +25,7 @@ require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
 $page='';
 $ticket = $user = null; //clean start.
+$redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
@@ -131,6 +132,7 @@ if($_POST && !$errors):
 
                 // Go back to the ticket listing page on reply
                 $ticket = null;
+                $redirect = 'tickets.php';
 
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
@@ -173,6 +175,7 @@ if($_POST && !$errors):
                     Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
                         $thisstaff->getId());
 
+                 $redirect = 'tickets.php';
             } else {
 
                 if(!$errors['err'])
@@ -187,6 +190,7 @@ if($_POST && !$errors):
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
+                $redirect = 'tickets.php?id='.$ticket->getId();
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
                 if(!$ticket->checkStaffPerm($thisstaff))
@@ -334,6 +338,12 @@ if($_POST && !$errors):
     if(!$errors)
         $thisstaff ->resetStats(); //We'll need to reflect any changes just made!
 endif;
+
+if ($redirect) {
+    if ($msg)
+        Messages::success($msg);
+    Http::redirect($redirect);
+}
 
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();

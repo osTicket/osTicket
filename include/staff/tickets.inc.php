@@ -587,7 +587,7 @@ $(function() {
             +'?count='+count
             +'&_uid='+new Date().getTime();
             $.dialog(url, [201], function (xhr) {
-                $.pjax.reload('#pjax-container');
+                $.pjax({url: 'tickets.php', container: '#pjax-container'});
              });
         }
         return false;
