@@ -42,15 +42,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Site Pages'); ?>
+ <h2><?php echo $title; ?>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
     <i class="help-tip icon-question-sign" href="#site_pages"></i>
     </h2>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
-        <tr><td></td><td></td></tr> <!-- For fixed table layout -->
+        <tr><td style="padding:0"></td><td style="padding:0;"></td></tr> <!-- For fixed table layout -->
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Page information'); ?></em>
             </th>
         </tr>
@@ -188,7 +190,7 @@ else
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="pages.php"'>

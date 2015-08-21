@@ -288,10 +288,9 @@ class FA_RouteDepartment extends TriggerAction {
                 ),
                 'choices' =>
                     Dept::getDepartments() +
-                    array(':new:' => '— '.__('Add New').' —')
-                ,
-                'validators' => function($self) {
-                    if ($self->getClean() === ':new:')
+                    array(':new:' => '— '.__('Add New').' —'),
+                'validators' => function($self, $clean) {
+                    if ($clean === ':new:')
                         $self->addError(__('Select a department'));
                 }
             )),
@@ -368,12 +367,11 @@ class FA_AssignTeam extends TriggerAction {
                     'prompt' => __('Unchanged'),
                     'data' => array('quick-add' => 'team'),
                 ),
-                'choices' => array_merge(
-                    $choices,
-                    array(':new:' => '— '.__('Add New').' —')
-                ),
-                'validators' => function($self) {
-                    if ($self->getClean() === ':new:')
+                'choices' =>
+                    Team::getTeams() +
+                    array(':new:' => '— '.__('Add New').' —'),
+                'validators' => function($self, $clean) {
+                    if ($clean === ':new:')
                         $self->addError(__('Select a team'));
                 }
             )),

@@ -69,6 +69,9 @@ implements TemplateVariable {
 
     const FLAG_CUSTOM_NUMBERS = 0x0001;
 
+    const SORT_ALPHA = 'a';
+    const SORT_MANUAL = 'm';
+
     function asVar() {
         return $this->getName();
     }
@@ -281,7 +284,10 @@ implements TemplateVariable {
     }
 
     static function __create($vars, &$errors) {
-        $topic = self::create();
+        $topic = self::create($vars);
+        if (!isset($vars['dept_id']))
+            $vars['dept_id'] = 0;
+        $vars['id'] = $vars['topic_id'];
         $topic->update($vars, $errors);
         return $topic;
     }
@@ -351,7 +357,7 @@ implements TemplateVariable {
         // primary, the list may need to be sorted. Caching is ok here,
         // because the locale is not going to be changed within a single
         // request.
-        if ($localize)
+        if ($localize && $cfg->getTopicSortMode() == self::SORT_ALPHA)
             return Internationalization::sortKeyedList($requested_names);
 
         return $requested_names;
@@ -363,6 +369,11 @@ implements TemplateVariable {
 
     static function getAllHelpTopics($localize=false) {
         return self::getHelpTopics(false, true, $localize);
+    }
+
+    static function getLocalNameById($id) {
+        $topics = static::getHelpTopics(false, true);
+        return $topics[$id];
     }
 
     static function getIdByName($name, $pid=0) {

@@ -42,10 +42,10 @@ else {
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
 
   <h2><?php echo $title; ?>
-    <div>
-      <small><?php echo $staff->getName(); ?></small>
-    </div>
-  </h2>
+      <?php if (isset($staff->staff_id)) { ?><small>
+      — <?php echo $staff->getName(); ?></small>
+      <?php } ?>
+</h2>
 
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
@@ -198,7 +198,7 @@ if (count($bks) > 1) {
     </table>
 
     <div style="padding:8px 3px; margin-top: 1.6em">
-        <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+        <strong class="big"><?php echo __('Internal Notes');?>: </strong>
         <?php echo __("be liberal, they're internal.");?>
     </div>
 

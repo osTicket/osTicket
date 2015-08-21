@@ -790,7 +790,8 @@ class FormField {
                 'placeholder' => __('Valid regular expression'),
                 'configuration' => array('size'=>30),
                 'validators' => function($self, $v) {
-                    if (false === @preg_match($v, ' '))
+                    if (false === @preg_match($v, ' ')
+                        && false === @preg_match("/$v/", ' '))
                         $self->addError(__('Cannot compile this regular expression'));
                 })),
         );
@@ -1851,6 +1852,9 @@ class PriorityField extends ChoiceField {
     }
     function toString($value) {
         return ($value instanceof Priority) ? $value->getDesc() : $value;
+    }
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
     }
     function searchable($value) {
         // Priority isn't searchable this way
@@ -3100,7 +3104,7 @@ class ThreadEntryWidget extends Widget {
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
-            $draft ?: Format::htmlchars($this->value); ?></textarea>
+            Format::htmlchars($this->value) ?: $draft; ?></textarea>
     <?php
         $config = $this->field->getConfiguration();
         if (!$config['attachments'])

@@ -24,12 +24,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
- <h2><?php echo __('Email Template');?></h2>
+ <h2><?php echo $title; ?>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
+</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Template information');?></em>
             </th>
         </tr>

@@ -4,12 +4,29 @@ $settings = &$_SESSION['client:Q'];
 // Unpack search, filter, and sort requests
 if (isset($_REQUEST['clear']))
     $settings = array();
-if (isset($_REQUEST['keywords']))
+if (isset($_REQUEST['keywords'])) {
     $settings['keywords'] = $_REQUEST['keywords'];
-if (isset($_REQUEST['topic_id']))
+}
+if (isset($_REQUEST['topic_id'])) {
     $settings['topic_id'] = $_REQUEST['topic_id'];
-if (isset($_REQUEST['status']))
+}
+if (isset($_REQUEST['status'])) {
     $settings['status'] = $_REQUEST['status'];
+}
+
+if ($settings['keywords']) {
+    // Don't show stat counts for searches
+    $openTickets = $closedTickets = -1;
+}
+elseif ($settings['topic_id']) {
+    $openTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'open');
+    $closedTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'], 'closed');
+}
+else {
+    $openTickets = $thisclient->getNumOpenTickets();
+    $closedTickets = $thisclient->getNumClosedTickets();
+}
+
 $tickets = TicketModel::objects();
 $qs = array();
 $status=null;
@@ -150,7 +167,7 @@ $tickets->values(
 			</a>
 			</h3>
 		</div>
-	
+
 </div>
 <div class="row">
 <table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0" class="table table-striped table-hover table-condensed">

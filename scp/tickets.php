@@ -35,13 +35,25 @@ if($_REQUEST['id']) {
     }
 }
 
-//Lookup user if id is available.
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
+} elseif (!$ticket) {
+    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
+    $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+    if (!$queue_name && isset($_SESSION[$queue_key]))
+        $queue_name = $_SESSION[$queue_key];
+
+    // Stash current queue view
+    $_SESSION[$queue_key] = $queue_name;
+
+    // Set queue as status
+    if (@!isset($_REQUEST['advanced'])
+            && @$_REQUEST['a'] != 'search'
+            && !isset($_GET['status'])
+            && $queue_name)
+        $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
-elseif (@!isset($_REQUEST['advanced']) && @$_REQUEST['a'] != 'search' && !isset($_GET['status']) && isset($_SESSION['::Q'])) {
-    $_GET['status'] = $_REQUEST['status'] = $_SESSION['::Q'];
-}
+
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -380,21 +392,6 @@ if($stats['overdue']) {
         $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
 }
 
-if($thisstaff->showAssignedOnly() && $stats['closed']) {
-    $nav->addSubMenu(array('desc'=>__('My Closed Tickets').' ('.number_format($stats['closed']).')',
-                           'title'=>__('My Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-} else {
-
-    $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
-                           'title'=>__('Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-}
-
 if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
@@ -408,6 +405,12 @@ if (isset($_SESSION['advsearch'])) {
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
+
+$nav->addSubMenu(array('desc' => __('Closed'),
+                       'title'=>__('Closed Tickets'),
+                       'href'=>'tickets.php?status=closed',
+                       'iconclass'=>'closedTickets'),
+                    ($_REQUEST['status']=='closed'));
 
 if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),

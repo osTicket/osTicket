@@ -54,7 +54,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 <?php }
       if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
-    <td colspan=2">
+    <td colspan="2">
         <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
     </td>
 </tr>

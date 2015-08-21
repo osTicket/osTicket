@@ -23,7 +23,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
     <h2><?php echo __('Manage Plugin'); ?>
-        <small><?php echo $plugin->getName(); ?></small></h2>
+       — <small><?php echo $plugin->getName(); ?></small></h2>
 
     <h3><?php echo __('Configuration'); ?></h3>
 <?php

@@ -16,13 +16,11 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <li><a href="#alerts"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
 </ul>
-
 <div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Global Ticket Settings');?></h4>
                 <em><?php echo __('System-wide default ticket settings and options.'); ?></em>
             </th>
         </tr>

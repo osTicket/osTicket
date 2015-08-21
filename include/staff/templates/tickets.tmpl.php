@@ -48,7 +48,7 @@ TicketForm::ensureDynamicDataView();
 // Fetch the results
 $results = count($tickets);
 ?>
-<div style="width:700px;" class="pull-left">
+<div class="pull-left" style="margin-top:5px;">
    <?php
     if ($results) {
         echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
@@ -58,13 +58,15 @@ $results = count($tickets);
     }
    ?>
 </div>
-<div class="pull-right flush-right" style="padding-right:5px;">
-    <?php
-    if ($user) { ?>
-    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
-    <?php print __('Create New Ticket'); ?></a></b>
-    <?php
-    } ?>
+<div style="margin-bottom:10px;">
+    <div class="pull-right flush-right">
+        <?php
+        if ($user) { ?>
+            <a class="green button action-button" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
+                <i class="icon-plus"></i> <?php print __('Create New Ticket'); ?></a>
+        <?php
+        } ?>
+    </div>
 </div>
 <br/>
 <div>
@@ -79,20 +81,20 @@ if ($results) { ?>
         <tr>
             <?php
             if (0) {?>
-            <th width="8px">&nbsp;</th>
+            <th width="4%">&nbsp;</th>
             <?php
             } ?>
-            <th width="70"><?php echo __('Ticket'); ?></th>
-            <th width="120"><?php echo __('Last Updated'); ?></th>
-            <th width="70"><?php echo __('Status'); ?></th>
-            <th width="380"><?php echo __('Subject'); ?></th>
+            <th width="10%"><?php echo __('Ticket'); ?></th>
+            <th width="18%"><?php echo __('Last Updated'); ?></th>
+            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="30%"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="125"><?php echo __('Department'); ?></th>
-            <th width="125"><?php echo __('Assignee'); ?></th>
+            <th width="15%"><?php echo __('Department'); ?></th>
+            <th width="15%"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="250"><?php echo __('User'); ?></th>
+            <th width="30%"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
@@ -157,7 +159,7 @@ if ($results) { ?>
                         echo '<span class="faded-more" data-toggle="tooltip" title="'
                             .$T['collab_count'].'"><i class="icon-group"></i></span>';
                 ?>
-            </span></td>
+            </td>
             <?php
             if ($user) {
                 $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']); ?>
@@ -170,7 +172,7 @@ if ($results) { ?>
             <td><a class="truncate" style="max-width:250px" href="users.php?id="<?php
                 echo $T['user_id']; ?>><?php echo Format::htmlchars($T['user__name']);
                     ?> <em>&lt;<?php echo Format::htmlchars($T['user__default_email__address']);
-                    ?>&gt;</em</a>
+                ?>&gt;</em></a>
             </td>
             <?php
             } ?>

@@ -80,74 +80,87 @@ $qstr .= '&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 // add limits.
 $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
 ?>
-<div class="sticky bar">
-    <div class="content">
-        <h2 class="inline"><?php echo __('Agents');?></h2>
-            <div class="pull-left inline">
-                <form action="staff.php" method="GET" name="filter">
-                    <input type="hidden" name="a" value="filter" >
-                    <select name="did" id="did">
-                        <option value="0">&mdash; <?php echo __('All Department');?> &mdash;</option>
-                        <?php
-                        if (($depts=Dept::getDepartments())) {
-                            foreach ($depts as $id => $name) {
-                                $sel=($_REQUEST['did'] && $_REQUEST['did']==$id)?'selected="selected"':'';
-                                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                            }
-                        }
-                        ?>
-                    </select>
-                    <select name="tid" id="tid">
-                        <option value="0">&mdash; <?php echo __('All Teams');?> &mdash;</option>
-                        <?php
-                        if (($teams=Team::getTeams())) {
-                            foreach ($teams as $id => $name) {
-                                $sel=($_REQUEST['tid'] && $_REQUEST['tid']==$id)?'selected="selected"':'';
-                                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
-                            }
-                        }
-                        ?>
-                    </select>
-                    <input type="submit" name="submit" class="small button" value="<?php echo __('Apply');?>"/>
-                </form>
+<div id="basic_search">
+    <div style="min-height:25px;">
+        <div class="pull-left">
+            <form action="staff.php" method="GET" name="filter">
+                <input type="hidden" name="a" value="filter">
+                <select name="did" id="did">
+                    <option value="0">&mdash;
+                        <?php echo __( 'All Department');?> &mdash;</option>
+                    <?php if (($depts=Dept::getDepartments())) { foreach ($depts as $id=> $name) { $sel=($_REQUEST['did'] && $_REQUEST['did']==$id)?'selected="selected"':''; echo sprintf('
+                    <option value="%d" %s>%s</option>',$id,$sel,$name); } } ?>
+                </select>
+                <select name="tid" id="tid">
+                    <option value="0">&mdash;
+                        <?php echo __( 'All Teams');?> &mdash;</option>
+                    <?php if (($teams=Team::getTeams())) { foreach ($teams as $id=> $name) { $sel=($_REQUEST['tid'] && $_REQUEST['tid']==$id)?'selected="selected"':''; echo sprintf('
+                    <option value="%d" %s>%s</option>',$id,$sel,$name); } } ?>
+                </select>
+                <input type="submit" name="submit" class="button muted" value="<?php echo __('Apply');?>" />
+            </form>
+        </div>
+    </div>
+</div>
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Agents');?></h2>
             </div>
-        <div class="pull-right">
-            <a class="green button action-button" href="staff.php?a=add">
-                <i class="icon-plus-sign"></i>
-                <?php echo __('Add New Agent'); ?>
-            </a>
-            <span class="action-button" data-dropdown="#action-dropdown-more">
+            <div class="pull-right">
+                <a class="green button action-button" href="staff.php?a=add">
+                    <i class="icon-plus-sign"></i>
+                    <?php echo __( 'Add New Agent'); ?>
+                </a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
                 <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-            </span>
-            <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                <ul id="actions">
-                    <li><a class="confirm" data-form-id="mass-actions" data-name="enable" href="staff.php?a=enable">
-                        <i class="icon-ok-sign icon-fixed-width"></i>
-                        <?php echo __('Enable'); ?></a></li>
-                    <li><a class="confirm" data-form-id="mass-actions" data-name="disable" href="staff.php?a=disable">
-                        <i class="icon-ban-circle icon-fixed-width"></i>
-                        <?php echo __('Disable'); ?></a></li>
-                    <li><a class="dialog-first" data-action="permissions" href="#staff/reset-permissions">
-                        <i class="icon-sitemap icon-fixed-width"></i>
-                        <?php echo __('Reset Permissions'); ?></a></li>
-                    <li><a class="dialog-first" data-action="department" href="#staff/change-department">
-                        <i class="icon-truck icon-fixed-width"></i>
-                        <?php echo __('Change Department'); ?></a></li>
-                    <!-- TODO: Implement "Reset Access" mass action
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-form-id="mass-actions" data-name="enable" href="staff.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-form-id="mass-actions" data-name="disable" href="staff.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dialog-first" data-action="permissions" href="#staff/reset-permissions">
+                                <i class="icon-sitemap icon-fixed-width"></i>
+                                <?php echo __( 'Reset Permissions'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dialog-first" data-action="department" href="#staff/change-department">
+                                <i class="icon-truck icon-fixed-width"></i>
+                                <?php echo __( 'Change Department'); ?>
+                            </a>
+                        </li>
+                        <!-- TODO: Implement "Reset Access" mass action
                     <li><a class="dialog-first" href="#staff/reset-access">
                     <i class="icon-puzzle-piece icon-fixed-width"></i>
                         <?php echo __('Reset Access'); ?></a></li>
                     -->
-                    <li class="danger"><a class="confirm" data-form-id="mass-actions" data-name="delete" href="staff.php?a=delete">
-                        <i class="icon-trash icon-fixed-width"></i>
-                        <?php echo __('Delete'); ?></a></li>
-                </ul>
+                        <li class="danger">
+                            <a class="confirm" data-form-id="mass-actions" data-name="delete" href="staff.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="clear" style="padding: 3px 0"></div>
     </div>
 </div>
+<div class="clear"></div>
 
 <form id="mass-actions" action="staff.php" method="POST" name="staff" >
 
@@ -155,16 +168,15 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>
-            <th width="200"><a <?php echo $name_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="100"><a <?php echo $username_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=username"><?php echo __('Username');?></a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="150"><a  <?php echo $dept_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
-            <th width="100"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
-            <th width="145"><a <?php echo $login_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=login"><?php echo __('Last Login');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="28%"><a <?php echo $name_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="16%"><a <?php echo $username_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=username"><?php echo __('Username');?></a></th>
+            <th width="8%"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="14%"><a  <?php echo $dept_sort; ?>href="staff.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="14%"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
+            <th width="16%"><a <?php echo $login_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=login"><?php echo __('Last Login');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -178,7 +190,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                     $sel=true;
                 ?>
                <tr id="<?php echo $id; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]"
                   value="<?php echo $id; ?>" <?php echo $sel ? 'checked="checked"' : ''; ?> >
                 <td><a href="staff.php?id=<?php echo $id; ?>"><?php echo
