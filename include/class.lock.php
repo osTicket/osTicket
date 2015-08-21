@@ -38,6 +38,10 @@ class Lock extends VerySimpleModel {
         ),
     );
 
+    const MODE_DISABLED = 0;
+    const MODE_ON_VIEW = 1;
+    const MODE_ON_ACTIVITY = 2;
+
     function getId() {
         return $this->lock_id;
     }

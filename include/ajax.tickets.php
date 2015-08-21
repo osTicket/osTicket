@@ -92,7 +92,7 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg, $thisstaff;
 
-        if(!$cfg || !$cfg->getLockTime())
+        if(!$cfg || !$cfg->getLockTime() || $cfg->getTicketLockMode() == Lock::MODE_DISABLED)
             Http::response(418, $this->encode(array('id'=>0, 'retry'=>false)));
 
         if(!$tid || !is_numeric($tid) || !$thisstaff)

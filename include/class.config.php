@@ -176,6 +176,7 @@ class OsticketConfig extends Config {
         'verify_email_addrs' => 1,
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
+        'ticket_lock' => 2, // Lock on activity
     );
 
     function OsticketConfig($section=null) {
@@ -422,6 +423,10 @@ class OsticketConfig extends Config {
 
     function getLockTime() {
         return $this->get('autolock_minutes');
+    }
+
+    function getTicketLockMode() {
+        return $this->get('ticket_lock');
     }
 
     function getAgentNameFormat() {
@@ -1204,6 +1209,7 @@ class OsticketConfig extends Config {
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
+            'ticket_lock' => $vars['ticket_lock'],
         ));
     }
 
