@@ -95,9 +95,11 @@ if ($settings['keywords']) {
         $tickets->filter(array('number__startswith'=>$q));
     } else { //Deep search!
         // Use the search engine to perform the search
-        $tickets = $ost->searcher->find($q, $tickets)->distinct('ticket_id');
+        $tickets = $ost->searcher->find($q, $tickets);
     }
 }
+
+$tickets->distinct('ticket_id');
 
 TicketForm::ensureDynamicDataView();
 
