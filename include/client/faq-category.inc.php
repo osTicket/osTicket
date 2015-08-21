@@ -3,13 +3,13 @@ if(!defined('OSTCLIENTINC') || !$category || !$category->isPublic()) die('Access
 ?>
 
 <div class="row">
-<div class="span8">
+<div class="col-xs-12 col-sm-8">
     <h1><?php echo __('Frequently Asked Questions');?></h1>
-    <h2><strong><?php echo $category->getLocalName() ?></strong></h2>
-<p>
-<?php echo Format::safe_html($category->getLocalDescriptionWithImages()); ?>
-</p>
-<hr>
+    <h3><?php echo $category->getLocalName() ?></h3>
+    <div class="list-group">
+        <div class="list-group-item text-muted">
+            <?php echo Format::safe_html($category->getLocalDescriptionWithImages()); ?>
+        </div>
 <?php
 $faqs = FAQ::objects()
     ->filter(array('category'=>$category))
@@ -21,37 +21,39 @@ $faqs = FAQ::objects()
     ->order_by('-ispublished', 'question');
 
 if ($faqs->exists(true)) {
-    echo '
-         <h2>'.__('Further Articles').'</h2>
-         <div id="faq">
-            <ol>';
 foreach ($faqs as $F) {
-        $attachments=$F->has_attachments?'<span class="Icon file"></span>':'';
+        $attachments=$F->has_attachments?'<span class="glyphicon glyphicon-file"></span>':'';
         echo sprintf('
-            <li><a href="faq.php?id=%d" >%s &nbsp;%s</a></li>',
+            <div class="list-group-item">
+              <a href="faq.php?id=%d" >%s &nbsp;%s</a></div>',
             $F->getId(),Format::htmlchars($F->question), $attachments);
     }
-    echo '  </ol>
-         </div>';
 }else {
-    echo '<strong>'.__('This category does not have any FAQs.').' <a href="index.php">'.__('Back To Index').'</a></strong>';
+    echo '<div class="list-group-item"><strong>'.__('This category does not have any FAQs.').' <a href="index.php">'.__('Back To Index').'</a></strong></div>';
 }
 ?>
 </div>
+</div>
 
-<div class="span4">
+<div class="col-xs-12 col-sm-4">
     <div class="sidebar">
     <div class="searchbar">
         <form method="get" action="faq.php">
-        <input type="hidden" name="a" value="search"/>
-        <input type="text" name="q" class="search" placeholder="<?php
-            echo __('Search our knowledge base'); ?>"/>
-        <input type="submit" style="display:none" value="search"/>
+            <div class="input-group">
+                <input type="hidden" name="a" value="search"/>
+                <input type="text" class="form-control" name="q" class="search" placeholder="<?php
+                    echo __('Search our knowledge base'); ?>"/>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-success">Search</button>
+                </span>
+            </div>
         </form>
     </div>
+    <div class="clearfix">&nbsp;</div>
     <div class="content">
-        <section>
-            <div class="header"><?php echo __('Help Topics'); ?></div>
+        <div class="panel panel-primary">
+            <div class="panel-heading"><?php echo __('Help Topics'); ?></div>
+            <div class="panel-body">
 <?php
 foreach (Topic::objects()
     ->filter(array('faqs__faq__category__category_id'=>$category->getId()))
@@ -59,7 +61,8 @@ foreach (Topic::objects()
         <a href="?topicId=<?php echo urlencode($t->getId()); ?>"
             ><?php echo $t->getFullName(); ?></a>
 <?php } ?>
-        </section>
+            </div>
+        </div>
     </div>
     </div>
 </div>
