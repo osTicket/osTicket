@@ -394,6 +394,7 @@ class User extends UserModel {
         else {
             $headers = array();
             foreach ($data as $h) {
+                $h = trim($h);
                 $found = false;
                 foreach ($all_fields as $f) {
                     if (in_array(mb_strtolower($h), array(
