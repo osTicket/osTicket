@@ -115,15 +115,16 @@ fieldset {
   padding: 0;
 }
 /* Typography */
-a {
+a, .link {
   color: #0072bc;
   text-decoration: none;
   display: inline-block;
   margin-bottom: 1px;
 }
-a:hover {
+a:hover, .link:hover {
     border-bottom: 1px dotted #0072bc;
     margin-bottom: 0;
+    cursor: pointer;
 }
 h1 {
   color: #00AEEF;

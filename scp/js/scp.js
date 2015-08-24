@@ -1055,6 +1055,14 @@ if ($.support.pjax) {
   })
 }
 
+$(document).on('click', '.link:not(a):not(.button)', function(event) {
+  var $e = $(event.currentTarget);
+  $('<a>').attr({href: $e.attr('href'), 'class': $e.attr('class')})
+    .hide()
+    .insertBefore($e)
+    .get(0).click(event);
+});
+
 // Quick-Add dialogs
 $(document).on('change', 'select[data-quick-add]', function() {
     var $select = $(this),
