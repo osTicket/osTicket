@@ -760,7 +760,7 @@ class Ticket {
 
         if(!is_numeric($staffId)) return false;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id='.db_input($staffId)
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id = "0" , staff_id='.db_input($staffId)
             .' WHERE ticket_id='.db_input($this->getId());
 
         if (!db_query($sql)  || !db_affected_rows())
@@ -815,7 +815,7 @@ class Ticket {
 
         if(!is_numeric($teamId)) return false;
 
-        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), team_id='.db_input($teamId)
+        $sql='UPDATE '.TICKET_TABLE.' SET updated=NOW(), staff_id = "0", team_id='.db_input($teamId)
             .' WHERE ticket_id='.db_input($this->getId());
 
         return (db_query($sql)  && db_affected_rows());
