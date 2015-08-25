@@ -16,8 +16,9 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
-require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.variable.php';
+require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -191,7 +192,7 @@ class UserCdata extends VerySimpleModel {
 }
 
 class User extends UserModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     var $_entries;
     var $_forms;
@@ -360,6 +361,20 @@ implements TemplateVariable {
         );
         $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
         return $base + $extra;
+    }
+
+    static function getSearchableFields() {
+        $uform = UserForm::getUserForm();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
     }
 
     function addDynamicData($data) {
@@ -598,6 +613,15 @@ implements TemplateVariable {
     static function getNameById($id) {
         if ($user = static::lookup($id))
             return $user->getName();
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('users.php?id=%s', $id);
     }
 }
 

@@ -21,6 +21,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.role.php';
+require_once INCLUDE_DIR . 'class.list.php';
 
 abstract class SearchBackend {
     static $id = false;
@@ -672,6 +674,19 @@ class SavedSearch extends VerySimpleModel {
         )));
     }
 
+    function getName() {
+        return $this->name;
+    }
+
+    function getSearchForm() {
+        if ($state = JsonDataParser::parse($search->config)) {
+            $form = $search->loadFromState($state);
+            $form->loadState($state);
+            return $form;
+        }
+        return $this->getForm();
+    }
+
     function loadFromState($source=false) {
         // Pull out 'other' fields from the state so the fields will be
         // added to the form. The state will be loaded below
@@ -787,6 +802,39 @@ class SavedSearch extends VerySimpleModel {
         }
         return $core;
     }
+    static function getSupportedTicketMatches() {
+        // User information
+        $matches = array(
+            __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
+        );
+        foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
+            $form = $F::objects()->one();
+            $fields = &$matches[$form->getLocal('title')];
+            foreach ($form->getFields() as $f) {
+                if (!$f->hasData() || $f->isPresentationOnly())
+                    continue;
+                $fields[":$k!".$f->get('id')] = __(ucfirst($k)).' / '.$f->getLocal('label');
+                /* TODO: Support matches on list item properties
+                if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+                    foreach ($fi->getSubFields() as $p) {
+                        $fields[":$k.".$f->get('id').'.'.$p->get('id')]
+                            = __(ucfirst($k)).' / '.$f->getLocal('label').' / '.$p->getLocal('label');
+                    }
+                }
+                */
+            }
+        }
+        $fields = &$matches[__('Custom Forms')];
+        foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
+            foreach ($form->getFields() as $f) {
+                if (!$f->hasData() || $f->isPresentationOnly())
+                    continue;
+                $key = sprintf(':field!%d', $f->get('id'), $f->get('id'));
+                $fields[$key] = $form->getLocal('title').' / '.$f->getLocal('label');
+            }
+        }
+        return $matches;
+    }
 
     static function getExtendedTicketFields() {
         return array(
@@ -821,6 +869,36 @@ class SavedSearch extends VerySimpleModel {
                 'label' => __('Flags'),
             )),
         );
+    }
+
+    static function getSearchableFields($base, $recurse=2, $cache=true) {
+        static $cache;
+
+        if (!in_array('Searchable', class_implements($base)))
+            return array();
+
+        // FIXME: The fields from dynamicFormFields seem to be cached, and
+        // setting the label is preserved across multiple calls to this
+        // function. The caching helps with this phenomenon, but a better
+        // mechanism should be employed
+        if ($cache && isset($cache[$base]))
+            return $cache[$base];
+
+        $fields = $base::getSearchableFields();
+        if ($recurse) {
+            foreach ($base::getMeta('joins') as $path=>$j) {
+                $fc = $j['fkey'][0];
+                if ($fc == $base || $j['list'] || $j['reverse'])
+                    continue;
+                foreach (static::getSearchableFields($fc, $recurse-1, false) as $path2=>$F) {
+                    $fields["{$path}__{$path2}"] = $F;
+                    $F->set('label', sprintf("%s / %s", $fc, $F->get('label')));
+                }
+            }
+        }
+        if ($cache)
+            $cache[$base] = $fields;
+        return $fields;
     }
 
     static function getSearchField($field, $name) {
@@ -1125,6 +1203,27 @@ class AssigneeChoiceField extends ChoiceField {
             return parent::describeSearchMethod($method);
         }
     }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
+    }
+
+    function from_query($row, $name=false) {
+        if ($row['staff__firstname'])
+            return new AgentsName(array('first' => $row['staff__firstname'], 'last' => $row['staff__lastname']));
+        if ($row['team_id'])
+            return Team::getLocalById($row['team_id'], 'name', $row['team__name']);
+    }
+
+    function display($value) {
+        return (string) $value;
+    }
+}
+
+class AgentSelectionField extends ChoiceField {
+    function getChoices() {
+        return Staff::getStaffMembers();
+    }
 }
 
 class TicketStateChoiceField extends ChoiceField {
@@ -1239,4 +1338,11 @@ class TicketStatusChoiceField extends SelectionField {
             return parent::getSearchQ($method, $value, $name);
         }
     }
+}
+
+interface Searchable {
+    // Fetch an array of [ orm__path => Field() ] pairs. The field label is
+    // used when this list is rendered in a dropdown, and the field search
+    // mechanisms are use to apply query filtering based on the field.
+    static function getSearchableFields();
 }

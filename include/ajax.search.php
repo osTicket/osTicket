@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
+require_once(INCLUDE_DIR.'class.queue.php');
 
 class SearchAjaxAPI extends AjaxController {
 
@@ -30,7 +31,7 @@ class SearchAjaxAPI extends AjaxController {
 
         $search = SavedSearch::create();
         $form = $search->getFormFromSession('advsearch') ?: $search->getForm();
-        $matches = self::_getSupportedTicketMatches();
+        $matches = SavedSearch::getSupportedTicketMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
@@ -96,7 +97,7 @@ class SearchAjaxAPI extends AjaxController {
 
         $form = $search->getForm($_POST);
         if (!$form->isValid()) {
-            $matches = self::_getSupportedTicketMatches();
+            $matches = SavedSearch::getSupportedTicketMatches();
             include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
             return;
         }
@@ -148,41 +149,6 @@ class SearchAjaxAPI extends AjaxController {
         )));
     }
 
-    function _getSupportedTicketMatches() {
-        // User information
-        $matches = array(
-            __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
-            __('Custom Forms') => array()
-        );
-        foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
-            $form = $F::objects()->one();
-            $fields = &$matches[$form->getLocal('title')];
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $fields[":$k!".$f->get('id')] = __(ucfirst($k)).' / '.$f->getLocal('label');
-                /* TODO: Support matches on list item properties
-                if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
-                    foreach ($fi->getSubFields() as $p) {
-                        $fields[":$k.".$f->get('id').'.'.$p->get('id')]
-                            = __(ucfirst($k)).' / '.$f->getLocal('label').' / '.$p->getLocal('label');
-                    }
-                }
-                */
-            }
-        }
-        $fields = &$matches[__('Custom Forms')];
-        foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $key = sprintf(':field!%d', $f->get('id'), $f->get('id'));
-                $fields[$key] = $form->getLocal('title').' / '.$f->getLocal('label');
-            }
-        }
-        return $matches;
-    }
-
     function createSearch() {
         global $thisstaff;
 
@@ -208,7 +174,7 @@ class SearchAjaxAPI extends AjaxController {
             $form = $search->loadFromState($state);
             $form->loadState($state);
         }
-        $matches = self::_getSupportedTicketMatches();
+        $matches = SavedSearch::getSupportedTicketMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
@@ -230,5 +196,121 @@ class SearchAjaxAPI extends AjaxController {
             'id' => $search->id,
             'success' => true,
         )));
+    }
+
+
+    function editColumn($queue_id, $column) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!($queue = CustomQueue::lookup($queue_id))) {
+            Http::response(404, 'No such queue');
+        }
+
+        $data_form = new QueueDataConfigForm($_POST);
+        include STAFFINC_DIR . 'templates/queue-column.tmpl.php';
+    }
+
+    function previewQueue($id=false) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        if ($id && (!($queue = CustomQueue::lookup($id)))) {
+            Http::response(404, 'No such queue');
+        }
+
+        if (!$queue) {
+            $queue = CustomQueue::create();
+        }
+
+        $form = $queue->getForm($_POST);
+
+        // TODO: Update queue columns (but without save)
+        foreach ($_POST['columns'] as $colid) {
+            $col = QueueColumn::create(array("id" => $colid));
+            $col->update($_POST);
+            $queue->addColumn($col);
+        }
+
+        $tickets = $queue->getQuery($form);
+        $count = 10; // count($queue->getBasicQuery($form));
+
+        include STAFFINC_DIR . 'templates/queue-tickets.tmpl.php';
+    }
+
+    function addCondition() {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!isset($_GET['field'])) {
+            Http::response(400, '`field` parameter is required');
+        }
+        $fields = SavedSearch::getSearchableFields('Ticket');
+        if (!isset($fields[$_GET['field']])) {
+            Http::response(400, sprintf('%s: No such searchable field'),
+                Format::htmlchars($_GET['field']));
+        }
+      
+        $field = $fields[$_GET['field']];
+        $condition = new QueueColumnCondition();
+        include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
+    }
+
+    function addConditionProperty() {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!isset($_GET['prop'])) {
+            Http::response(400, '`prop` parameter is required');
+        }
+
+        $prop = $_GET['prop'];
+        include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
+    }
+
+    function addColumn() {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!isset($_GET['field'])) {
+            Http::response(400, '`field` parameter is required');
+        }
+
+        $field = $_GET['field'];
+        // XXX: This method should receive a queue ID or queue root so that
+        //      $field can be properly checked
+        $fields = SavedSearch::getSearchableFields('Ticket');
+        if (!isset($fields[$field])) {
+            Http::response(400, 'Not a supported field for this queue');
+        }
+
+        // Get the tabbed column configuration
+        $F = $fields[$field];
+        $column = QueueColumn::create(array(
+            "id"        => (int) $_GET['id'],
+            "heading"   => _S($F->getLabel()),
+            "primary"   => $field,
+            "width"     => 100,
+        ));
+        ob_start();
+        include STAFFINC_DIR .  'templates/queue-column.tmpl.php';
+        $config = ob_get_clean();
+
+        // Send back the goodies
+        Http::response(200, $this->encode(array(
+            'config' => $config,
+            'heading' => _S($F->getLabel()),
+            'width' => $column->getWidth(),
+        )), 'application/json');
     }
 }

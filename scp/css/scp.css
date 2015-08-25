@@ -1709,7 +1709,7 @@ time.faq {
     width:100%;
 }
 
-.dialog fieldset {
+fieldset {
     margin:0;
     padding:0 0;
     border:none;
@@ -1771,12 +1771,12 @@ time.faq {
     margin-top: 5px !important;
 }
 
-#advanced-search fieldset {
+.advanced-search fieldset {
   margin-top: 3px;
   position: relative;
 }
-#advanced-search .adv-search-method:before,
-#advanced-search .adv-search-val:before {
+.advanced-search .adv-search-method:before,
+.advanced-search .adv-search-val:before {
   content: "";
   border-left: 2px dotted #ccc;
   border-bottom: 2px dotted #ccc;
@@ -1787,10 +1787,10 @@ time.faq {
   position: absolute;
   left: -16px;
 }
-#advanced-search .adv-search-method {
+.advanced-search .adv-search-method {
   margin-left: 24px;
 }
-#advanced-search .adv-search-val {
+.advanced-search .adv-search-val {
   margin-left: 45px;
 }
 
@@ -2876,7 +2876,9 @@ table.grid.form caption {
 .grid.form .field textarea,
 .grid.form .field select {
   width: 100%;
+  max-width: 100%;
   display: block;
+  box-sizing: border-box;
 }
 .grid.form .field > label {
   display: block;
@@ -2919,6 +2921,49 @@ a.attachment {
 .sidebar section header {
     font-weight: bold;
     margin-bottom: 0.3em;
+}
+
+#resizable-columns {
+  margin: 10px 0;
+  position: relative;
+}
+#resizable-columns .column-header:hover {
+  cursor: pointer;
+}
+#resizable-columns .column-header {
+  display: inline-block;
+  padding: 5px 20px;
+  background-color: #ddd;
+  margin: 0 1px;
+  position: relative;
+  text-align: center;
+  box-sizing: border-box;
+}
+#resizable-columns .column-header.ui-resizable:not(.active) {
+  opacity: 0.4;
+}
+#resizable-columns .column-header.ui-resizable.active {
+  background-color: #cfe6ff;
+}
+
+.ui-resizable-handle {
+  cursor: pointer;
+  cursor: ew-resize;
+  cursor: col-resize;
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  right: 5px;
+  color: #777;
+}
+.decoration + .decoration {
+    margin-top: 10px;
+}
+.advanced-search .condition-property {
+    margin: 7px  0 7px 25px;
+}
+.conditions .condition + .condition {
+    margin-top: 10px;
 }
 
 /* FIXME: Drop this with select2 4.0.1

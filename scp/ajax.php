@@ -253,6 +253,12 @@ $dispatcher = patterns('',
         url('^/reset-permissions', 'resetPermissions'),
         url('^/change-department', 'changeDepartment'),
         url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
+    )),
+    url('^/queue/', patterns('ajax.search.php:SearchAjaxAPI',
+        url('^(?P<id>\d+/)?preview$', 'previewQueue'),
+        url_get('^addColumn$', 'addColumn'),
+        url_get('^condition/add$', 'addCondition'),
+        url_get('^condition/addProperty$', 'addConditionProperty')
     ))
 );
 

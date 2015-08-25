@@ -245,7 +245,7 @@ class TicketCData extends VerySimpleModel {
 }
 
 class Ticket extends TicketModel
-implements RestrictedAccess, Threadable {
+implements RestrictedAccess, Threadable, Searchable {
 
     static $meta = array(
         'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread',
@@ -1945,6 +1945,57 @@ implements RestrictedAccess, Threadable {
 
         $extra = VariableReplacer::compileFormScope(TicketForm::getInstance());
         return $base + $extra;
+    }
+
+    // Searchable interface
+    static function getSearchableFields() {
+        $base = array(
+            'number' => new TextboxField(array(
+                'label' => __('Ticket Number')
+            )),
+            'ip_address' => new TextboxField(array(
+                'label' => __('IP Address'),
+                'configuration' => array('validator' => 'ip'),
+            )),
+            'source' => new TicketSourceChoiceField(array(
+                'label' => __('Ticket Source'),
+            )),
+            'isoverdue' => new BooleanField(array(
+                'label' => __('Overdue'),
+            )),
+            'isanswered' => new BooleanField(array(
+                'label' => __('Answered'),
+            )),
+            'duedate' => new DatetimeField(array(
+                'label' => __('Due Date'),
+            )),
+            'reopened' => new DatetimeField(array(
+                'label' => __('Reopen Date'),
+            )),
+            'closed' => new DatetimeField(array(
+                'label' => __('Close Date'),
+            )),
+            'lastupdate' => new DatetimeField(array(
+                'label' => __('Last Update'),
+            )),
+            'created' => new DatetimeField(array(
+                'label' => __('Create Date'),
+            )),
+            'assignee' => new AssigneeChoiceField(array(
+                'label' => __('Assignee'),
+            )),
+        );
+        $tform = TicketForm::getInstance();
+        foreach ($tform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
     }
 
     //Replace base variables.
@@ -3673,6 +3724,15 @@ implements RestrictedAccess, Threadable {
             return;
 
         require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        switch (true) {
+        case ($thisstaff instanceof Staff):
+            return ROOT_PATH . sprintf('scp/tickets.php?id=%s', $id);
+        }
     }
 }
 ?>

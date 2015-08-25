@@ -229,7 +229,7 @@ if (!$view_all_tickets) {
     if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
         $visibility->add(array('dept_id__in' => $depts));
 
-    $tickets->filter(Q::any($visibility));
+    $tickets->filter($visibility);
 }
 
 // TODO :: Apply requested quick filter

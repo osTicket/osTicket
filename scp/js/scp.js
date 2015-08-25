@@ -945,7 +945,7 @@ $(document).on('click.tab', 'ul.tabs > li > a', function(e) {
         $ul.children('li.active').removeClass('active');
         $(this).closest('li').addClass('active');
         $container.children('.tab_content').hide();
-        $tab.fadeIn('fast');
+        $tab.fadeIn('fast').show();
         return false;
     }
 
@@ -1228,3 +1228,51 @@ window.relativeAdjust = setInterval(function() {
   });
 }, 20000);
 
+// Add 'afterShow' event to jQuery elements,
+// thanks http://stackoverflow.com/a/1225238/1025836
+(function ($) {
+    var _oldShow = $.fn.show;
+
+    $.fn.show = function (/*speed, easing, callback*/) {
+        var argsArray = Array.prototype.slice.call(arguments),
+            duration = argsArray[0],
+            easing,
+            callback,
+            callbackArgIndex;
+
+        // jQuery recursively calls show sometimes; we shouldn't
+        //  handle such situations. Pass it to original show method.
+        if (!this.selector) {
+            _oldShow.apply(this, argsArray);
+            return this;
+        }
+
+        if (argsArray.length === 2) {
+            if ($.isFunction(argsArray[1])) {
+                callback = argsArray[1];
+                callbackArgIndex = 1;
+            } else {
+                easing = argsArray[1];
+            }
+        } else if (argsArray.length === 3) {
+            easing = argsArray[1];
+            callback = argsArray[2];
+            callbackArgIndex = 2;
+        }
+        return $(this).each(function () {
+            var obj = $(this),
+                oldCallback = callback,
+                newCallback = function () {
+                    if ($.isFunction(oldCallback)) {
+                        oldCallback.apply(obj);
+                    }
+                };
+            if (callback) {
+                argsArray[callbackArgIndex] = newCallback;
+            }
+            obj.trigger('beforeShow');
+            _oldShow.apply(obj, argsArray);
+            obj.trigger('afterShow');
+        });
+    };
+})(jQuery);
