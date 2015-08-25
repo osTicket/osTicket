@@ -33,9 +33,7 @@ body {
 }
 
 #brickwall {
-    background-image: url(../images/oscar-wall.jpg);
-    background-color:orange;
-    background-blend-mode: multiply;
+    background-image: url(../images/login-headquarters.jpg);
     -webkit-background-size: cover;
        -moz-background-size: cover;
          -o-background-size: cover;
@@ -63,14 +61,12 @@ body {
     right: 0;
     bottom: 0;
     z-index: -1;
-    background-image: url(../images/oscar-wall.jpg);
+    background-image: url(../images/login-headquarters.jpg);
     -webkit-background-size: cover;
        -moz-background-size: cover;
          -o-background-size: cover;
             background-size: cover;
-    background-blend-mode: multiply;
     background-attachment: fixed;
-    background-color: orange;
     mix-blend-mode: normal;
     filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
     -ms-filter:"progid:DXImageTransform.Microsoft.Blur(PixelRadius='6')";
@@ -96,7 +92,7 @@ body, input {
 
 #loginBox {
     border:1px solid rgba(0,0,0,0.3);
-    box-shadow:0 0 30px 5px orange, 0 0 5px -1px black;
+    box-shadow:0 0 30px 5px rgba(0,0,0,0.3), 0 0 5px -1px white;
     mix-blend-mode: normal;
     isolation: isolate;
     width:400px;
@@ -120,7 +116,7 @@ body, input {
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255,255,255,0.6);
     border-radius: 5px;
     z-index: -1;
     mix-blend-mode: normal;
