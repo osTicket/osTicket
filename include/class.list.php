@@ -1094,7 +1094,7 @@ CustomListHandler::register('ticket-status', 'TicketStatusList');
 
 class TicketStatus
 extends VerySimpleModel
-implements CustomListItem, TemplateVariable {
+implements CustomListItem, TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => TICKET_STATUS_TABLE,
@@ -1271,6 +1271,18 @@ implements CustomListItem, TemplateVariable {
             'state' => __('State name (e.g. open or closed)'),
         );
         return $base;
+    }
+
+    // Searchable interface
+    static function getSearchableFields() {
+        return array(
+            'state' => new TicketStateChoiceField(array(
+                'label' => __('State'),
+            )),
+            'name' => new TicketStatusChoiceField(array(
+                'label' => __('Status Name'),
+            )),
+        );
     }
 
     function getList() {
