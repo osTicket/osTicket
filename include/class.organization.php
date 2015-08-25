@@ -16,6 +16,7 @@ require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
 require_once(INCLUDE_DIR . 'class.user.php');
+require_once INCLUDE_DIR . 'class.search.php';
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -160,7 +161,7 @@ class OrganizationCdata extends VerySimpleModel {
 }
 
 class Organization extends OrganizationModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
     var $_entries;
     var $_forms;
 
@@ -341,6 +342,20 @@ implements TemplateVariable {
         return $base + $extra;
     }
 
+    static function getSearchableFields() {
+        $uform = OrganizationForm::objects()->one();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
     function update($vars, &$errors) {
 
         $valid = true;
@@ -444,6 +459,15 @@ implements TemplateVariable {
                 return false;
         }
         return true;
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('orgs.php?id=%s', $id);
     }
 
     static function fromVars($vars) {

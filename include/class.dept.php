@@ -13,9 +13,10 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.search.php';
 
 class Dept extends VerySimpleModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => DEPT_TABLE,
@@ -96,6 +97,17 @@ implements TemplateVariable {
         case 'members':
             return new UserList($this->getMembers()->all());
         }
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'label' => __('Name'),
+            )),
+            'manager' => new AgentSelectionField(array(
+                'label' => __('Manager'),
+            )),
+        );
     }
 
     function getId() {
