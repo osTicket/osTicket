@@ -488,6 +488,27 @@ class VerySimpleModel {
         return ($key) ? $M->offsetGet($key) : $M;
     }
 
+    static function getOrmFields($recurse=false) {
+        $fks = $lfields = $fields = array();
+        $myname = get_called_class();
+        foreach (static::getMeta('joins') as $name=>$j) {
+            $fks[$j['local']] = true;
+            if (!$j['reverse'] && !$j['list'] && $recurse) {
+                foreach ($j['fkey'][0]::getOrmFields($recurse - 1) as $name2=>$f) {
+                    $fields["{$name}__{$name2}"] = "{$name} / $f";
+                }
+            }
+        }
+        foreach (static::getMeta('fields') as $f) {
+            if (isset($fks[$f]))
+                continue;
+            if (in_array($f, static::getMeta('pk')))
+                continue;
+            $lfields[$f] = "{$f}";
+        }
+        return $lfields + $fields;
+    }
+
     /**
      * objects
      *
@@ -794,17 +815,23 @@ class SqlCase extends SqlFunction {
 
 class SqlExpr extends SqlFunction {
     function __construct($args) {
-        $this->args = $args;
+        $this->args = (array) $args;
     }
 
     function toSql($compiler, $model=false, $alias=false) {
         $O = array();
         foreach ($this->args as $field=>$value) {
-            list($field, $op) = $compiler->getField($field, $model);
-            if (is_callable($op))
-                $O[] = call_user_func($op, $field, $value, $model);
-            else
-                $O[] = sprintf($op, $field, $compiler->input($value));
+            if ($value instanceof Q) {
+                $ex = $compiler->compileQ($value);
+                $O[] = $ex->text;
+            }
+            else {
+                list($field, $op) = $compiler->getField($field, $model);
+                if (is_callable($op))
+                    $O[] = call_user_func($op, $field, $value, $model);
+                else
+                    $O[] = sprintf($op, $field, $compiler->input($value));
+            }
         }
         return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
     }
@@ -1951,10 +1978,10 @@ extends ModelResultSet {
         return true;
     }
 
-    // QuerySet delegates
     function count() {
-        return $this->objects()->count();
+        return count($this->asArray());
     }
+    // QuerySet delegates
     function exists() {
         return $this->queryset->exists();
     }
@@ -1977,7 +2004,8 @@ extends ModelResultSet {
     }
     function offsetSet($a, $b) {
         $this->fillTo($a);
-        $this->cache[$a]->delete();
+        if ($obj = $this->cache[$a])
+            $obj->delete();
         $this->add($b, $a);
     }
 
