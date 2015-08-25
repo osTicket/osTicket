@@ -23,7 +23,7 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser, EmailContact, TemplateVariable {
+implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => STAFF_TABLE,
@@ -125,6 +125,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         case 'phone':
             return Format::phone($this->ht['phone']);
         }
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'email' => new TextboxField(array(
+                'label' => __('Email Address'),
+            )),
+        );
     }
 
     function getHashtable() {

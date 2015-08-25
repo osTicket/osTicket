@@ -47,7 +47,10 @@ class Form {
     }
 
     function getId() {
-        return static::$id;
+        return @$this->id ?: static::$id;
+    }
+    function setId($id) {
+        $this->id = $id;
     }
 
     function data($source) {
@@ -997,6 +1000,19 @@ class FormField {
         return sprintf($desc, $name, $value);
     }
 
+    function addToQuery($query, $name=false) {
+        return $query->values($name ?: $this->get('name'));
+    }
+
+    /**
+     * Similary to to_php() and parse(), except a row from a queryset is
+     * passed. The value returned should be what would be retured from
+     * parse() or to_php()
+     */
+    function from_query($row, $name=false) {
+        return $row[$name ?: $this->get('name')];
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
@@ -1041,12 +1057,25 @@ class FormField {
         $this->getWidget()->value = $value;
     }
 
+    /**
+     * Fetch a pseudo-random id for this form field. It is used when
+     * rendering the widget in the @name attribute emitted in the resulting
+     * HTML. The form element is based on the form id, field id and name,
+     * and the current user's session id. Therefor, the same form fields
+     * will yield differing names for different users. This is used to ward
+     * off bot attacks as it makes it very difficult to predict and
+     * correlate the form names to the data they represent.
+     */
     function getFormName() {
-        if (is_numeric($this->get('id')))
+        $default = $this->get('name') ?: $this->get('id');
+        if ($this->_form && is_numeric($fid = $this->_form->getId()))
+            return substr(md5(
+                session_id() . '-form-field-id-' . $fid . $default), -14);
+        elseif (is_numeric($this->get('id')))
             return substr(md5(
                 session_id() . '-field-id-'.$this->get('id')), -16);
-        else
-            return $this->get('name') ?: $this->get('id');
+
+        return $default;
     }
 
     function setForm($form) {
@@ -1172,17 +1201,6 @@ class FormField {
         return null;
     }
 
-    /**
-     * Indicates if the field provides for searching for something other
-     * than keywords. For instance, textbox fields can have hits by keyword
-     * searches alone, but selection fields should provide the option to
-     * match a specific value or set of values and therefore need to
-     * participate on any search builder.
-     */
-    function hasSpecialSearch() {
-        return true;
-    }
-
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -1291,10 +1309,6 @@ class TextboxField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function validateEntry($value) {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
@@ -1378,10 +1392,6 @@ class TextareaField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1431,10 +1441,6 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
-    }
-
-    function hasSpecialSearch() {
-        return false;
     }
 
     function validateEntry($value) {
@@ -1776,6 +1782,10 @@ class DatetimeField extends FormField {
             return (int) strtotime($value);
     }
 
+    function from_query($row, $name=false) {
+        return strtotime(parent::from_query($row, $name));
+    }
+
     function asVar($value, $id=false) {
         if (!$value) return null;
         return new FormattedDate((int) $value, 'UTC', false, false);
@@ -2008,10 +2018,6 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function getMedia() {
         $config = $this->getConfiguration();
         $media = parent::getMedia() ?: array();
@@ -2590,10 +2596,6 @@ class FileUploadField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     /**
      * Called from the ajax handler for async uploads via web clients.
      */
@@ -2872,6 +2874,10 @@ class FileFieldAttachments {
             'files' => __('Attached files'),
         );
     }
+}
+
+class ColorChoiceField extends FormField {
+    static $widget = 'ColorPickerWidget';
 }
 
 class InlineFormData extends ArrayObject {
@@ -3874,6 +3880,27 @@ class FreeTextWidget extends Widget {
             <?php } ?>
         </section>
         <?php }
+    }
+}
+
+class ColorPickerWidget extends Widget {
+    static $media = array(
+        'css' => array(
+            'css/spectrum.css',
+        ),
+        'js' => array(
+            'js/spectrum.js',
+        ),
+    );
+
+    function render($options=array()) {
+        ?><input type="color"
+            id="<?php echo $this->id; ?>"
+            <?php echo implode(' ', array_filter(array(
+                $classes
+            ))); ?>
+            name="<?php echo $this->name; ?>"
+            value="<?php echo Format::htmlchars($this->value); ?>"/><?php
     }
 }
 

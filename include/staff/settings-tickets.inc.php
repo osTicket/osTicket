@@ -15,6 +15,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <?php echo __('Autoresponder'); ?></a></li>
     <li><a href="#alerts"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
+    <li><a href="#queues"><i class="icon-table"></i>
+        <?php echo __('Queues'); ?></a></li>
 </ul>
 <div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -237,6 +239,10 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <div class="hidden tab_content" id="alerts"
     data-tip-namespace="settings.alerts">
     <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+
+<div class="hidden tab_content" id="queues">
+    <?php include STAFFINC_DIR . 'queues-ticket.inc.php'; ?>
 </div>
 
 <p style="text-align:center;">

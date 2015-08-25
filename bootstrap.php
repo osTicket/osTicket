@@ -133,6 +133,7 @@ class Bootstrap {
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');
+        define('QUEUE_COLUMN_TABLE', $prefix.'queue_column');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
