@@ -130,8 +130,7 @@ if ($task->isOverdue())
                 class="action-dropdown anchor-right">
                 <ul>
             <?php foreach ($actions as $a => $action) { ?>
-                    <li class="<?php
-                            echo $action['class'] ?: 'task-action'; ?>">
+                    <li <?php if ($action['class']) echo sprintf("class='%s'", $action['class']); ?> >
                         <a class="no-pjax task-action" <?php
                             if ($action['dialog'])
                                 echo sprintf("data-dialog-config='%s'", $action['dialog']);
