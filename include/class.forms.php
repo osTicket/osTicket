@@ -884,6 +884,10 @@ class FormField {
         return Format::searchable($this->toString($value));
     }
 
+    function getKeys($value) {
+        return $this->to_database($value);
+    }
+
     /**
      * Fetches a list of options for searching. The values returned from
      * this method are passed to the widget's `::render()` method so that
@@ -1379,9 +1383,8 @@ class TextareaField extends FormField {
     }
 
     function searchable($value) {
-        $value = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $value); //<?php
-        $value = Format::htmldecode(Format::striptags($value));
-        return Format::searchable($value);
+        $body = new HtmlThreadEntryBody($value);
+        return $body->getSearchable();
     }
 
     function export($value) {
@@ -1597,6 +1600,14 @@ class ChoiceField extends FormField {
         return (string) $value;
     }
 
+    function getKeys($value) {
+        if (!is_array($value))
+            $value = $this->getChoice($value);
+        if (is_array($value))
+            return implode(', ', array_keys($value));
+        return (string) $value;
+    }
+
     function whatChanged($before, $after) {
         $B = (array) $before;
         $A = (array) $after;
@@ -1743,14 +1754,14 @@ class DatetimeField extends FormField {
 
     function to_database($value) {
         // Store time in gmt time, unix epoch format
-        return (string) $value;
+        return date('Y-m-d H:i:s', $value);
     }
 
     function to_php($value) {
         if (!$value)
             return $value;
         else
-            return (int) $value;
+            return (int) strtotime($value);
     }
 
     function asVar($value, $id=false) {
@@ -1766,18 +1777,12 @@ class DatetimeField extends FormField {
         $config = $this->getConfiguration();
         // If GMT is set, convert to local time zone. Otherwise, leave
         // unchanged (default TZ is UTC)
+        if (!$value)
+            return '';
         if ($config['time'])
             return Format::datetime($value, false, !$config['gmt'] ? 'UTC' : false);
         else
             return Format::date($value, false, false, !$config['gmt'] ? 'UTC' : false);
-    }
-
-    function export($value) {
-        $config = $this->getConfiguration();
-        if (!$value)
-            return '';
-        else
-            return Format::date($value, false, 'y-MM-dd HH:mm:ss', !$config['gmt'] ? 'UTC' : false);
     }
 
     function getConfigurationOptions() {
@@ -1884,8 +1889,9 @@ class DatetimeField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        $config = $this->getConfiguration();
         $value = is_int($value)
-            ? DateTime::createFromFormat('U', Misc::dbtime($value)) ?: $value
+            ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::dbtime($value) : $value) ?: $value
             : $value;
         switch ($method) {
         case 'equal':
@@ -1909,7 +1915,7 @@ class DatetimeField extends FormField {
         case 'between':
             foreach (array('left', 'right') as $side) {
                 $value[$side] = is_int($value[$side])
-                    ? DateTime::createFromFormat('U', Misc::dbtime($value[$side])) ?: $value[$side]
+                    ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::dbtime($value[$side]) : $value[$side]) ?: $value[$side]
                     : $value[$side];
             }
             return new Q(array(
@@ -2116,6 +2122,10 @@ class PriorityField extends ChoiceField {
     function searchable($value) {
         // Priority isn't searchable this way
         return null;
+    }
+
+    function getKeys($value) {
+        return ($value instanceof Priority) ? array($value->getId()) : null;
     }
 
     function getConfigurationOptions() {

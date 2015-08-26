@@ -406,6 +406,7 @@ if($stats['overdue']) {
 
 if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
+    TicketForm::ensureDynamicDataView();
     $search = SavedSearch::create();
     $form = $search->getFormFromSession('advsearch');
     $tickets = TicketModel::objects();

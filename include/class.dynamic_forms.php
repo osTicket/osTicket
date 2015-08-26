@@ -321,8 +321,7 @@ class DynamicForm extends VerySimpleModel {
         $f = $answer->getField();
         $name = $f->get('name') ? $f->get('name')
             : 'field_'.$f->get('id');
-        $fields = sprintf('`%s`=', $name) . db_input(
-            implode(',', $answer->getSearchKeys()));
+        $fields = sprintf('`%s`=', $name) . db_input($answer->getSearchKeys());
         $sql = 'INSERT INTO `'.$cdata['table'].'` SET '.$fields
             . sprintf(', `%s`= %s',
                     $cdata['object_id'],
@@ -533,8 +532,7 @@ class TicketForm extends DynamicForm {
             return;
 
         $name = $f->get('name') ?: ('field_'.$f->get('id'));
-        $fields = sprintf('`%s`=', $name) . db_input(
-            implode(',', $answer->getSearchKeys()));
+        $fields = sprintf('`%s`=', $name) . db_input($answer->getSearchKeys());
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
@@ -1443,14 +1441,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getSearchKeys() {
-        $val = $this->getField()->to_php(
-            $this->get('value'), $this->get('value_id'));
-        if (is_array($val))
-            return array_keys($val);
-        elseif (is_object($val) && method_exists($val, 'getId'))
-            return array($val->getId());
-
-        return array($val);
+        return implode(',', (array) $this->getField()->getKeys($this->getValue()));
     }
 
     function asVar() {
@@ -1568,6 +1559,14 @@ class SelectionField extends FormField {
         // Don't set the ID here as multiselect prevents using exactly one
         // ID value. Instead, stick with the JSON value only.
         return $value;
+    }
+
+    function getKeys($value) {
+        if (!is_array($value))
+            $value = $this->getChoice($value);
+        if (is_array($value))
+            return implode(', ', array_keys($value));
+        return (string) $value;
     }
 
     // PHP 5.4 Move this to a trait
