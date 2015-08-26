@@ -735,6 +735,9 @@ td.multi-line {
 .form_table input[type=text], .form_table input[type=password], .form_table textarea {
     background:#fff;
     border:1px solid #aaa;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 .form_table input[type=radio], .form_table input[type=checkbox] {
@@ -1280,6 +1283,9 @@ ul.tabs.alt li.active {
 #response_options input[type=text], #response_options textarea:not(.richtext) {
     border:1px solid #aaa;
     background:#fff;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 .attachments .uploads div {
@@ -1882,6 +1888,8 @@ select + .button {
   margin-right:0;
   border: 1px solid #999;
   border-right:none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .input.attached .button.attached {
   height: 100%;
@@ -2825,6 +2833,9 @@ input, textarea {
     padding: 3px 5px;
     font-size: 0.95em;
     font-family: inherit;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 small {
@@ -2882,8 +2893,11 @@ select {
     max-width:350px;
     border:1px solid #bbb;
     display:inline-block;
-    padding:4px;
+    padding:0 4px;
     font-size:13px;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 a.attachment {
