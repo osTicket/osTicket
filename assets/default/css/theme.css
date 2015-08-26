@@ -80,12 +80,7 @@ input[type="checkbox"],
 input[type="radio"] {
   box-sizing: border-box;
 }
-input[type="search"] {
-  -webkit-appearance: textfield;
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-}
+
 textarea {
   overflow: auto;
   vertical-align: top;
