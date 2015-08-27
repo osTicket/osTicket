@@ -1138,11 +1138,11 @@ class TicketFlagChoiceField extends ChoiceField {
 class TicketSourceChoiceField extends ChoiceField {
     function getChoices() {
         return array(
-            'w' => __('Web'),
-            'e' => __('Email'),
-            'p' => __('Phone'),
-            'a' => __('API'),
-            'o' => __('Other'),
+            'web' => __('Web'),
+            'email' => __('Email'),
+            'phone' => __('Phone'),
+            'api' => __('API'),
+            'other' => __('Other'),
         );
     }
 
