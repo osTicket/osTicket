@@ -623,7 +623,7 @@ implements TemplateVariable {
           unset($dropped[$staff_id]);
           if (!$role_id || !Role::lookup($role_id))
               $errors['members'][$staff_id] = __('Select a valid role');
-          if (!$staff_id || !Staff::lookup($staff_id))
+          if (!$staff_id || !Staff::lookup((int) $staff_id))
               $errors['members'][$staff_id] = __('No such agent');
           $da = $this->extended->findFirst(array('staff_id' => $staff_id));
           if (!isset($da)) {

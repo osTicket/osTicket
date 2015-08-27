@@ -25,7 +25,7 @@ class StaffAjaxAPI extends AjaxController {
           Http::response(403, 'Agent login required');
       if (!$thisstaff->isAdmin())
           Http::response(403, 'Access denied');
-      if ($id && !($staff = Staff::lookup($id)))
+      if ($id && !($staff = Staff::lookup((int) $id)))
           Http::response(404, 'No such agent');
 
       $form = new PasswordResetForm($_POST);
@@ -128,7 +128,7 @@ class StaffAjaxAPI extends AjaxController {
             Http::response(403, 'Agent login required');
         if (!$thisstaff->isAdmin())
             Http::response(403, 'Access denied');
-        if (!($staff = Staff::lookup($id)))
+        if (!($staff = Staff::lookup((int) $id)))
             Http::response(404, 'No such agent');
 
         return $this->encode($staff->getPermissionInfo());
