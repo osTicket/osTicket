@@ -33,6 +33,15 @@ RedactorPlugins.draft = {
                 .text(__('Draft Saved')));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
+
+        this.$draft_not_saved = $('<span id="draft-error">')
+            .addClass("pull-right draft-saved error")
+            .hide()
+            .append($('<span>')
+                .text(__('Unable to save draft. Refresh the current page to restore and continue your draft.')));
+        // Float the [Draft Saved] box with the toolbar
+        this.$toolbar.append(this.$draft_not_saved);
+
         if (this.opts.draftDelete) {
             var trash = this.buttonAdd('deleteDraft', __('Delete Draft'), this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
@@ -313,8 +322,9 @@ $(document).ajaxError(function(event, request, settings) {
                 clearInterval(redactor.autosaveInterval);
             }
         });
-        $('#overlay').show();
-        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
-        $('#overlay').hide();
+        //$('#overlay').show();
+        //alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
+        //$('#overlay').hide();
+        document.getElementById('draft-error').style.display = "block";
     }
 });
