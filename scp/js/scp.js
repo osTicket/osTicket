@@ -256,7 +256,7 @@ var scp_prep = function() {
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
             var $el = this.$element;
-            var url = $el.data('url')+'?q='+query;
+            var url = $el.data('url')+'?q='+encodeURIComponent(query);
             last_req = $.ajax({
                 url: url,
                 dataType: 'json',
