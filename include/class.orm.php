@@ -2523,7 +2523,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
                 // If there are annotations, add in these fields to the
                 // GROUP BY clause
-                if ($queryset->annotations)
+                if ($queryset->annotations && !$queryset->distinct)
                     $group_by[] = $unaliased;
             }
         }
@@ -2557,7 +2557,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by && !$queryset->aggregated) {
+            if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
                 foreach ($model::getMeta('pk') as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }

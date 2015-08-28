@@ -303,7 +303,8 @@ class  EndUser extends BaseAuthenticatedUser {
     private function getStats() {
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'topic_id');
+            ->values('status__state', 'topic_id')
+            ->distinct('status_id', 'topic_id');
 
         // Share tickets among the organization for owners only
         $mine = clone $basic;
