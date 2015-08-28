@@ -415,7 +415,7 @@ class Topic {
         if (!($names = static::getHelpTopics(false, true)))
             return;
 
-        uasort($names, function($a, $b) { return strcmp($a, $b); });
+        uasort($names, function($a, $b) { return strcasecmp($a, $b); });
 
         $update = array_keys($names);
         foreach ($update as $idx=>&$id) {
