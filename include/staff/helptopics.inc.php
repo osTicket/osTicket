@@ -28,7 +28,7 @@ foreach ($topics as &$t)
     $t['name'] = Topic::getTopicName($t['topic_id']);
 
 if ($cfg->getTopicSortMode() == 'a')
-    usort($topics, function($a, $b) { return strcmp($a['name'], $b['name']); });
+    usort($topics, function($a, $b) { return strcasecmp($a['name'], $b['name']); });
 
 ?>
 <div class="pull-left" style="width:700px;padding-top:5px;">
