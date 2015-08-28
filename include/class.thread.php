@@ -1128,6 +1128,7 @@ implements TemplateVariable {
         // in-reply-to header
         if ($entry = ThreadEntry::objects()
             ->filter(array('email_info__mid' => $mailinfo['mid']))
+            ->order_by(false)
             ->first()
         ) {
             $seen = true;
@@ -1201,7 +1202,8 @@ implements TemplateVariable {
                 $mid = "$left@$right";
             }
             $entries = ThreadEntry::objects()
-                ->filter(array('email_info__mid' => $mid));
+                ->filter(array('email_info__mid' => $mid))
+                ->order_by(false);
             foreach ($entries as $t) {
                 // Capture the first match thread item
                 if (!$thread)

@@ -919,6 +919,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $distinct = array();
     var $lock = false;
     var $chain = array();
+    var $options = array();
 
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
@@ -986,6 +987,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
     function order_by($order, $direction=false) {
+        if ($order === false)
+            return $this->options(array('nosort' => true));
+
         $args = func_get_args();
         if (in_array($direction, array(self::ASC, self::DESC))) {
             $args = array($args[0]);
@@ -1184,6 +1188,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function options($options) {
+        $this->options = array_merge($this->options, $options);
+        return $this;
+    }
+
     function countSelectFields() {
         $count = count($this->values) + count($this->annotations);
         if (isset($this->extra['select']))
@@ -1259,6 +1268,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
+        $options += $this->options;
         if ($options['nosort'])
             $query->ordering = array();
         elseif (!$query->ordering && $model::getMeta('ordering'))
