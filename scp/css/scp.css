@@ -1047,6 +1047,9 @@ img.avatar {
   border-top-color: rgba(0,0,0,0.2);
   border-radius: 0 0 6px 6px;
 }
+.thread-body .attachments:empty {
+    display: none;
+}
 .thread-body .attachments .filesize {
   margin-left: 0.5em;
   line-height: 1em;
