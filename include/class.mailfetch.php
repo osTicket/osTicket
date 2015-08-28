@@ -193,9 +193,34 @@ class MailFetcher {
             $text=imap_binary($text);
             break;
             case 3:
-            // imap_base64 implies strict mode. If it refuses to decode the
-            // data, then fallback to base64_decode in non-strict mode
-            $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
+            if(10000000 > strlen($text))
+            {
+                // imap_base64 implies strict mode. If it refuses to decode the
+                // data, then fallback to base64_decode in non-strict mode
+                $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
+            }
+            else
+            {
+                 $temp = tempnam(sys_get_temp_dir(), 'attachments');
+                 if(!$temp)
+                     break;
+                 $f = fopen($temp, 'w');
+                 if(!$f)
+                     break;
+                 $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
+                 if(!fwrite($f, $text))
+                     break;
+                 stream_filter_remove($s_filter); 
+                 fclose($f);
+                 $f = fopen($temp, 'r');		
+                 if(!$f)
+                     break;
+                 $text = fread($f,filesize($temp));
+                 if(!$text)
+                     break;
+                 fclose($f);
+                 unlink($temp);
+            }
             break;
             case 4:
             $text=imap_qprint($text);
