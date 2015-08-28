@@ -1818,7 +1818,10 @@ class CloseEvent extends ThreadEvent {
     static $state = 'closed';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+        if ($this->getData('status'))
+            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+        else
+            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
     }
 }
 
@@ -1861,10 +1864,11 @@ class CollaboratorEvent extends ThreadEvent {
                             break;
                         }
                     }
-                    $c = sprintf(__("%s via %s"
-                        /* e.g. "Me <me@company.me> via Email (to)" */),
+                    $c = sprintf("%s %s",
                         Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c),
-                        $c['src'] ?: '?'
+                        $c['src'] ? sprintf(__('via %s'
+                            /* e.g. "Added collab "Me <me@company.me>" via Email (to)" */
+                            ), $c['src']) : ''
                     );
                     $collabs[] = $c;
                 }
@@ -2407,12 +2411,14 @@ implements TemplateVariable {
         ));
     }
 
-    function getLastMessage() {
-        return $this->entries->filter(array(
+    function getLastMessage($criteria=false) {
+        $entries = $this->entries->filter(array(
             'type' => MessageThreadEntry::ENTRY_TYPE
-        ))
-        ->order_by('-id')
-        ->first();
+        ));
+        if ($criteria)
+            $entries->filter($criteria);
+
+        return $entries->order_by('-id')->first();
     }
 
     function getEntry($var) {

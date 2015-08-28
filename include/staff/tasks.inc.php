@@ -2,6 +2,9 @@
 $tasks = Task::objects();
 $date_header = $date_col = false;
 
+// Make sure the cdata materialized view is available
+TaskForm::ensureDynamicDataView();
+
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
 list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
@@ -24,11 +27,14 @@ $sort_options = array(
     'relevance' =>          __('Relevance'),
 );
 
-$queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+// Queue we're viewing
+$queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TASK);
+$queue_name = $_SESSION[$queue_key] ?: '';
+
 switch ($queue_name) {
 case 'closed':
     $status='closed';
-    $results_type=__('Closed Tasks');
+    $results_type=__('Completed Tasks');
     $showassigned=true; //closed by.
     $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
 
@@ -56,6 +62,7 @@ case 'search':
             'number__startswith' => $_REQUEST['query'],
             'cdata__title__contains' => $_REQUEST['query'],
         )));
+        unset($_SESSION[$queue_key]);
         break;
     } elseif (isset($_SESSION['advsearch:tasks'])) {
         // XXX: De-duplicate and simplify this code
@@ -129,30 +136,35 @@ $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
 
 if (isset($_GET['sort'])) {
-        $_SESSION[$queue_sort_key] = $_GET['sort'];
+    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
-        $_SESSION[$queue_sort_key] = $queue_sort_options[0];
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
 }
 
-switch ($_SESSION[$queue_sort_key]) {
+list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
+$orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
+$orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+
+switch ($sort_cols) {
 case 'number':
     $tasks->extra(array(
-        'order_by'=>array(SqlExpression::times(new SqlField('number'), 1))
+        'order_by'=>array(
+            array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
+        )
     ));
     break;
 case 'due':
     $date_header = __('Due Date');
     $date_col = 'duedate';
     $tasks->values('duedate');
-    $tasks->filter(array('duedate__isnull'=>false));
-    $tasks->order_by('duedate');
+    $tasks->order_by(SqlFunction::COALESCE(new SqlField('duedate'), 'zzz'), $orm_dir_r);
     break;
 case 'updated':
     $date_header = __('Last Updated');
     $date_col = 'updated';
     $tasks->values('updated');
-    $tasks->order_by('-updated');
+    $tasks->order_by($sort_dir ? 'updated' : '-updated');
     break;
 case 'hot':
     $tasks->order_by('-thread_count');
@@ -162,7 +174,7 @@ case 'hot':
     break;
 case 'created':
 default:
-    $tasks->order_by('-created');
+    $tasks->order_by($sort_dir ? 'created' : '-created');
     break;
 }
 
@@ -211,49 +223,32 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
-    <span class="action-button muted" data-dropdown="#sort-dropdown">
-      <i class="icon-caret-down pull-right"></i>
-      <span><i class="icon-sort-by-attributes-alt"></i> <?php echo __('Sort');?></span>
-    </span>
-    <div id="sort-dropdown" class="action-dropdown anchor-right"
-    onclick="javascript: $.pjax({
-        url:'?' + addSearchParam('sort', $(event.target).data('mode')),
-        timeout: 2000,
-        container: '#pjax-container'});">
-      <ul class="bleed-left">
-        <?php foreach ($queue_sort_options as $mode) {
-        $desc = $sort_options[$mode];
-        $selected = $mode == $_SESSION[$queue_sort_key]; ?>
-      <li <?php if ($selected) echo 'class="active"'; ?>>
-        <a href="#" data-mode="<?php echo $mode; ?>"><i class="icon-fixed-width <?php
-          if ($selected) echo 'icon-hand-right';
-          ?>"></i> <?php echo Format::htmlchars($desc); ?></a>
-      </li>
-<?php } ?>
-      </ul>
-    </div>
-  </div>
+    <?php
+        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+    ?>
+   </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
-  $.pjax({
-    url:$(this).attr('action') + '?' + $(this).serialize(),
-    container:'#pjax-container',
-    timeout: 2000
-  });
-return false;">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="search-type" value=""/>
-    <div class="attached input">
-      <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-        autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button type="submit" class="attached button"><i class="icon-search"></i>
-      </button>
-    </div>
+        $.pjax({
+        url:$(this).attr('action') + '?' + $(this).serialize(),
+        container:'#pjax-container',
+        timeout: 2000
+        });
+        return false;">
+        <input type="hidden" name="a" value="search">
+        <input type="hidden" name="search-type" value=""/>
+        <div class="attached input">
+            <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
+                   autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+                   autocomplete="off" autocorrect="off" autocapitalize="off">
+            <button type="submit" class="attached button"><i class="icon-search"></i>
+            </button>
+        </div>
     </form>
+
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:10px;">
+<div style="margin-bottom:20px; padding-top:5px;">
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">
@@ -280,17 +275,17 @@ return false;">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
-	        <th width="8px">&nbsp;</th>
+	        <th width="4%">&nbsp;</th>
             <?php } ?>
-	        <th width="70">
+	        <th width="8%">
                 <?php echo __('Number'); ?></th>
-	        <th width="70">
+	        <th width="20%">
                 <?php echo $date_header ?: __('Date'); ?></th>
-	        <th width="280">
+	        <th width="38%">
                 <?php echo __('Title'); ?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Department');?></th>
-            <th width="250">
+            <th width="15%">
                 <?php echo __('Assignee');?></th>
         </tr>
      </thead>
@@ -430,8 +425,12 @@ $(function() {
             +$(this).attr('href').substr(1)
             +'?count='+count
             +'&_uid='+new Date().getTime();
+            var $redirect = $(this).data('redirect');
             $.dialog(url, [201], function (xhr) {
-                $.pjax.reload('#pjax-container');
+                if (!!$redirect)
+                    $.pjax({url: $redirect, container:'#pjax-container'});
+                else
+                    $.pjax.reload('#pjax-container');
              });
         }
         return false;
@@ -445,7 +444,7 @@ $(function() {
         var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if ($redirect)
+            if (!!$redirect)
                 window.location.href = $redirect;
             else
                 $.pjax.reload('#pjax-container');
@@ -453,5 +452,7 @@ $(function() {
 
         return false;
     });
+
+    $('[data-toggle=tooltip]').tooltip();
 });
 </script>

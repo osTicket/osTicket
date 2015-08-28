@@ -6,8 +6,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $staff->getId(); ?>">
- <h2><?php echo __('My Account Profile');?></h2>
-
+<h2><?php echo __('My Account Profile');?></h2>
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#preferences"><?php echo __('Preferences'); ?></a></li>
@@ -314,10 +313,12 @@ if ($avatar->isChangeable()) { ?>
   </div>
 
   <p style="text-align:center;">
-      <input type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
-      <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-      <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);">
+    <button class="button action-button" type="submit" name="submit" ><i class="icon-save"></i> <?php echo __('Save Changes'); ?></button>
+    <button class="button action-button" type="reset"  name="reset"><i class="icon-undo"></i>
+        <?php echo __('Reset');?></button>
+    <button class="red button action-button" type="button" name="cancel" onclick="window.history.go(-1);"><i class="icon-remove-circle"></i> <?php echo __('Cancel');?></button>
   </p>
+    <div class="clear"></div>
 </form>
 <?php
 if ($staff->change_passwd) { ?>

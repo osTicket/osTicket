@@ -84,7 +84,7 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
+    $('#actions:submit, #actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
         var formObj,
             name = this.name || $(this).data('name');
@@ -136,7 +136,7 @@ var scp_prep = function() {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).addClass('save pending');
+            $('input[type=submit], button[type=submit]', fObj).addClass('save pending');
             $(window).bind('beforeunload', function(e) {
                 return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
@@ -146,14 +146,14 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save").on('change', ':input[name]', function() {
+    $("form#save").on('change', ':input[name], :button[name]', function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save").on('change', ':input[type=reset]', function() {
+    $("form#save").on('click', ':input[type=reset], :button[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
-            $('input[type=submit]', fObj).removeClass('save pending');
+            $('input[type=submit], button[type=submit]', fObj).removeClass('save pending');
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
@@ -587,7 +587,7 @@ $.toggleOverlay = function (show) {
     $('body').css('overflow', 'auto');
   }
 };
-
+//modal---------//
 $.dialog = function (url, codes, cb, options) {
     options = options||{};
 
@@ -746,7 +746,7 @@ $.confirm = function(message, title, options) {
                 .append($('<input type="button" class="close"/>')
                     .attr('value', __('Cancel'))
                     .click(function() { hide(); })
-            )).append($('<span class="buttons pull-right"></span>')
+            )).append($('<span class="buttons pull-right">test</span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
                     .click(function() {  hide(); D.resolve(body.find('input').serializeArray()); })
@@ -970,7 +970,7 @@ $.changeHash = function(hash, quiet) {
 
 // Forms — submit, stay on same tab
 $(document).on('submit', 'form', function() {
-    if ($(this).attr('action').indexOf('#') == -1)
+    if (!!$(this).attr('action') && $(this).attr('action').indexOf('#') == -1)
         $(this).attr('action', $(this).attr('action') + window.location.hash);
 });
 
@@ -1173,7 +1173,7 @@ function __(s) {
 
 // Thanks, http://stackoverflow.com/a/487049
 function addSearchParam(data) {
-    var kvp = document.location.search.substr(1).split('&');
+    var kvp = document.location.search.substr(1).replace('+', ' ').split('&');
     var i=kvp.length, x, params = {};
     while (i--) {
         x = kvp[i].split('=');

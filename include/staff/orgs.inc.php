@@ -71,47 +71,52 @@ $query="$select $from $where GROUP BY org.id ORDER BY $order_by LIMIT ".$pageNav
 $qhash = md5($query);
 $_SESSION['orgs_qs_'.$qhash] = $query;
 ?>
-<h2><?php echo __('Organizations'); ?></h2>
-<div class="pull-left">
-    <form action="orgs.php" method="get">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="a" value="search">
-        <table>
-            <tr>
-                <td><input type="search" id="basic-org-search" name="query"
-                    autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
-                    autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
-                <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
-            </tr>
-        </table>
-    </form>
- </div>
-
-<div class="pull-right">
-<?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
-    <a class="green button action-button add-org"
-        href="#">
-        <i class="icon-plus-sign"></i>
-        <?php echo __('Add Organization'); ?>
-    </a>
-<?php }
-if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
-    <span class="action-button" data-dropdown="#action-dropdown-more"
-        style="/*DELME*/ vertical-align:top; margin-bottom:0">
-        <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-    <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul>
-            <li class="danger"><a class="orgs-action" href="#delete">
-                <i class="icon-trash icon-fixed-width"></i>
-                <?php echo __('Delete'); ?></a></li>
-        </ul>
+<div id="basic_search">
+    <div style="min-height:25px;">
+        <form action="orgs.php" method="get">
+            <?php csrf_token(); ?>
+            <div class="attached input">
+            <input type="hidden" name="a" value="search">
+            <input type="search" class="basic-search" id="basic-org-search" name="query" autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <button type="submit" class="attached button"><i class="icon-search"></i>
+                </button>
+            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+            </div>
+        </form>
     </div>
-<?php } ?>
 </div>
-
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Organizations'); ?></h2>
+            </div>
+            <div class="pull-right">
+                <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
+                <a class="green button action-button add-org"
+                   href="#">
+                    <i class="icon-plus-sign"></i>
+                    <?php echo __('Add Organization'); ?>
+                </a>
+                <?php }
+            if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
+                <span class="action-button" data-dropdown="#action-dropdown-more"
+                      style="/*DELME*/ vertical-align:top; margin-bottom:0">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul>
+                        <li class="danger"><a class="orgs-action" href="#delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __('Delete'); ?></a></li>
+                    </ul>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -127,14 +132,13 @@ else
  <input type="hidden" id="action" name="do" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th nowrap width="12"> </th>
-            <th width="400"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="100"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
-            <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update"><?php echo __('Last Updated'); ?></a></th>
+            <th nowrap width="4%">&nbsp;</th>
+            <th width="45%"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
+            <th width="11%"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
+            <th width="20%"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
+            <th width="20%"><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update"><?php echo __('Last Updated'); ?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -148,7 +152,7 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
-                <td nowrap>
+                <td nowrap align="center">
                     <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp; <a href="orgs.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a> </td>

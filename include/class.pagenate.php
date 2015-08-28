@@ -58,6 +58,14 @@ class PageNate {
         return max($this->start - $this->slack, 0);
     }
 
+    function getStop() {
+        return min($this->getStart() + $this->getLimit(), $this->total);
+    }
+
+    function getCount() {
+        return $this->total;
+    }
+
     function getLimit() {
         return $this->limit;
     }
@@ -83,7 +91,7 @@ class PageNate {
         } else {
             $to= $this->total;
         }
-        $html="&nbsp;".__('Showing')."&nbsp;&nbsp;";
+        $html=__('Showing')."&nbsp;";
         if ($this->total > 0) {
             $html .= sprintf(__('%1$d - %2$d of %3$d' /* Used in pagination output */),
                $start, $end, $this->total);

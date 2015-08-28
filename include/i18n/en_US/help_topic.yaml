@@ -21,7 +21,6 @@
 - topic_id: 1
   isactive: 1
   ispublic: 1
-  dept_id: 1
   priority_id: 2
   forms: [2]
   topic: General Inquiry
@@ -30,7 +29,6 @@
 
 - isactive: 1
   ispublic: 1
-  dept_id: 1
   priority_id: 1
   forms: [2]
   topic: Feedback
@@ -40,7 +38,7 @@
 - topic_id: 10
   isactive: 1
   ispublic: 1
-  dept_id: 1
+  dept_id: 3
   priority_id: 2
   forms: [2]
   topic: Report a Problem
@@ -50,7 +48,6 @@
 - topic_pid: 10
   isactive: 1
   ispublic: 1
-  dept_id: 1
   sla_id: 1
   priority_id: 3
   forms: [2]

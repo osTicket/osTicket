@@ -21,8 +21,8 @@ SET @s = (SELECT IF(
         AND table_schema = DATABASE()
         AND column_name = 'content_id'
     ) > 0,
-    "SELECT 1",
-    "ALTER TABLE `%TABLE_PREFIX%content` DROP `content_id`"
+    "ALTER TABLE `%TABLE_PREFIX%content` DROP `content_id`",
+    "SELECT 1"
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;
@@ -35,8 +35,8 @@ SET @s = (SELECT IF(
         AND table_schema = DATABASE()
         AND column_name = 'sla_id'
     ) > 0,
-    "SELECT 1",
-    "ALTER TABLE `%TABLE_PREFIX%task` DROP `sla_id`"
+    "ALTER TABLE `%TABLE_PREFIX%task` DROP `sla_id`",
+    "SELECT 1"
 ));
 PREPARE stmt FROM @s;
 EXECUTE stmt;

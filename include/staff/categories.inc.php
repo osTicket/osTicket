@@ -36,43 +36,50 @@ else
     $showing=__('No FAQ categories found!');
 
 ?>
-<div class="pull-right flush-right">
-    <a href="categories.php?a=add" class="green button">
-       <i class="icon-plus-sign"></i> <?php echo __('Add New Category');?>
-    </a>
 
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-        <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-    <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-            <li class="danger"><a class="confirm" data-form-id="mass-actions" data-name="delete" href="categories.php?a=delete">
-                <i class="icon-trash icon-fixed-width"></i>
-                <?php echo __('Delete'); ?></a></li>
-        </ul>
-    </div>
-</div>
-
-<div class="pull-left">
- <h2><?php echo __('FAQ Categories');?></h2>
-</div>
-
-
-<div class="clear"></div>
 <form action="categories.php" method="POST" id="mass-actions">
- <?php csrf_token(); ?>
- <input type="hidden" name="do" value="mass_process" >
- <input type="hidden" id="action" name="a" value="" >
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('FAQ Categories');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <a href="categories.php?a=add" class="green button">
+                    <i class="icon-plus-sign"></i>
+                    <?php echo __( 'Add New Category');?>
+                </a>
+                <div class="pull-right flush-right">
+
+                    <span class="action-button" data-dropdown="#action-dropdown-more">
+                        <i class="icon-caret-down pull-right"></i>
+                        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                    </span>
+                    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                        <ul id="actions">
+                            <li class="danger">
+                                <a class="confirm" data-form-id="mass-actions" data-name="delete" href="categories.php?a=delete">
+                                    <i class="icon-trash icon-fixed-width"></i>
+                                    <?php echo __( 'Delete'); ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <?php csrf_token(); ?>
+    <input type="hidden" name="do" value="mass_process" >
+    <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="150"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <th width="80"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="56%"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="10%"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
+            <th width="10%"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
+            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -89,7 +96,7 @@ else
                 $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$C->getId(),$C->faq_count);
             ?>
             <tr id="<?php echo $C->getId(); ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>

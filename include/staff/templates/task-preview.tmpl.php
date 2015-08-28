@@ -48,7 +48,16 @@ echo sprintf('
         </tr>',$status,
         Format::datetime($task->getCreateDate()));
 
-if ($task->isOpen() && $task->duedate) {
+if ($task->isClosed()) {
+
+    echo sprintf('
+            <tr>
+                <th>'.__('Completed').':</th>
+                <td>%s</td>
+            </tr>',
+            Format::datetime($task->getCloseDate()));
+
+} elseif ($task->isOpen() && $task->duedate) {
     echo sprintf('
             <tr>
                 <th>'.__('Due Date').':</th>

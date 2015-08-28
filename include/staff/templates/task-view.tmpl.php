@@ -12,7 +12,7 @@ $actions = array();
 $actions += array(
         'print' => array(
             'href' => sprintf('tasks.php?id=%d&a=print', $task->getId()),
-            'class' => 'none',
+            'class' => 'no-pjax',
             'icon' => 'icon-print',
             'label' => __('Print')
         ));
@@ -32,7 +32,8 @@ if ($role->hasPerm(Task::PERM_ASSIGN)) {
             'assign' => array(
                 'href' => sprintf('#tasks/%d/assign', $task->getId()),
                 'icon' => 'icon-user',
-                'label' => $task->isAssigned() ? __('Reassign') : __('Assign')
+                'label' => $task->isAssigned() ? __('Reassign') : __('Assign'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -41,7 +42,8 @@ if ($role->hasPerm(Task::PERM_TRANSFER)) {
             'transfer' => array(
                 'href' => sprintf('#tasks/%d/transfer', $task->getId()),
                 'icon' => 'icon-share',
-                'label' => __('Transfer')
+                'label' => __('Transfer'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -52,7 +54,8 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
                 'href' => sprintf('#tasks/%d/delete', $task->getId()),
                 'icon' => 'icon-trash',
                 'class' => 'red button task-action',
-                'label' => __('Delete')
+                'label' => __('Delete'),
+                'redirect' => 'tasks.php'
             ));
 }
 
@@ -99,8 +102,9 @@ if ($task->isOverdue())
                 href="tasks.php?id=<?php echo $task->getId(); ?>"
                 ><i class="icon-refresh"></i> <?php
                 echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
-                <span class="faded notsticky">&nbsp;&mdash; &nbsp;<?php echo $task->getTitle(); ?></span>
-               </h2>
+                   <?php if ($task) { ?> – <small><span class="ltr"><?php echo $task->getTitle(); ?></span></small>
+                <?php } ?>
+            </h2>
             <?php
             } ?>
         </div>
@@ -136,6 +140,11 @@ if ($task->isOverdue())
                                 echo sprintf("data-redirect='%s'", $action['redirect']);
                             ?>
                             href="<?php echo $action['href']; ?>"
+                            <?php
+                            if (isset($action['href']) &&
+                                    $action['href'][0] != '#') {
+                                echo 'target="blank"';
+                            } ?>
                             ><i class="<?php
                             echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
                             echo  $action['label']; ?></a>
@@ -152,6 +161,8 @@ if ($task->isOverdue())
                     <?php
                     if ($action['dialog'])
                         echo sprintf("data-dialog-config='%s'", $action['dialog']);
+                    if ($action['redirect'])
+                        echo sprintf("data-redirect='%s'", $action['redirect']);
                     ?>
                     href="<?php echo $action['href']; ?>"><i
                     class="<?php
@@ -178,7 +189,7 @@ if (!$ticket) { ?>
                     </tr>
 
                     <tr>
-                        <th><?php echo __('Create Date');?>:</th>
+                        <th><?php echo __('Created');?>:</th>
                         <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
                     </tr>
                     <?php
@@ -192,7 +203,7 @@ if (!$ticket) { ?>
                     <?php
                     }else { ?>
                     <tr>
-                        <th><?php echo __('Close Date');?>:</th>
+                        <th><?php echo __('Completed');?>:</th>
                         <td><?php echo Format::datetime($task->getCloseDate()); ?></td>
                     </tr>
                     <?php
@@ -394,7 +405,7 @@ else
                 <td>
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
-                        <select  name="task_status">
+                        <select  name="task:status">
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
@@ -410,14 +421,14 @@ else
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
-                        $errors['task_status']; ?></span>
+                        $errors['task:status']; ?></span>
                     </div>
                 </td>
             </tr>
         </table>
-       <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Update');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+       <p  style="text-align:center;">
+           <input class="save pending" type="submit" value="<?php echo __('Post Update');?>">
+           <input type="reset" value="<?php echo __('Reset');?>">
        </p>
     </form>
     <?php
@@ -454,7 +465,7 @@ else
                 <td>
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
-                        <select  name="task_status">
+                        <select  name="task:status">
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
@@ -470,14 +481,14 @@ else
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
-                        $errors['task_status']; ?></span>
+                        $errors['task:status']; ?></span>
                     </div>
                 </td>
             </tr>
         </table>
-       <p  style="padding-left:165px;">
-           <input class="btn_sm" type="submit" value="<?php echo __('Post Note');?>">
-           <input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+       <p  style="text-align:center;">
+           <input class="save pending" type="submit" value="<?php echo __('Post Note');?>">
+           <input type="reset" value="<?php echo __('Reset');?>">
        </p>
     </form>
  </div>
@@ -504,7 +515,7 @@ $(function() {
         var $options = $(this).data('dialogConfig');
         var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if ($redirect)
+            if (!!$redirect)
                 window.location.href = $redirect;
             else
                 $.pjax.reload('#pjax-container');

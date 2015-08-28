@@ -882,12 +882,14 @@ class UserAccount extends VerySimpleModel {
     var $_status;
     var $_extra;
 
-    function __onload() {
-        $this->_status = new UserAccountStatus($this->get('status'));
+    function getStatus() {
+        if (!isset($this->_status))
+            $this->_status = new UserAccountStatus($this->get('status'));
+        return $this->_status;
     }
 
     protected function hasStatus($flag) {
-        return $this->_status->check($flag);
+        return $this->getStatus()->check($flag);
     }
 
     protected function clearStatus($flag) {
@@ -904,7 +906,7 @@ class UserAccount extends VerySimpleModel {
     }
 
     function isConfirmed() {
-        return $this->_status->isConfirmed();
+        return $this->getStatus()->isConfirmed();
     }
 
     function lock() {
@@ -918,7 +920,7 @@ class UserAccount extends VerySimpleModel {
     }
 
     function isLocked() {
-        return $this->_status->isLocked();
+        return $this->getStatus()->isLocked();
     }
 
     function forcePasswdReset() {
@@ -932,10 +934,6 @@ class UserAccount extends VerySimpleModel {
 
     function isPasswdResetEnabled() {
         return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET);
-    }
-
-    function getStatus() {
-        return $this->_status;
     }
 
     function getInfo() {

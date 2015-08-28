@@ -14,7 +14,7 @@
   position: relative;
   overflow: visible;
   overflow-x: hidden;
-  background: #ddd !important;
+  border: 1px solid #ddd;
 }
 .redactor-box textarea {
   display: block;
@@ -107,11 +107,12 @@ body .redactor-box-fullscreen {
   min-height: 80px;
   outline: none;
   white-space: normal;
-  border: 1px solid #eee;
   font-family: Arial, Helvetica, Verdana, Tahoma, sans-serif !important;
   font-size: 14px;
   line-height: 1.6em;
-  box-shadow: 5px 0 10px -8px rgba(0,0,0,0.5);
+}
+.redactor-editor[style*='width:'] {
+  border-right: 1px dashed #999;
 }
 .redactor-editor:focus {
   outline: none;
@@ -150,8 +151,7 @@ body .redactor-box-fullscreen {
   font-size: 14px !important;
   line-height: 1 !important;
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.05);
-  border-bottom: 0;
+  border: none;
   box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.4);
 }
 .redactor-toolbar:after {

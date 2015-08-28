@@ -170,8 +170,7 @@ class TaskModel extends VerySimpleModel {
     }
 
     function getCloseDate() {
-        // TODO: have true close date
-        return $this->isClosed() ? $this->updated : '';
+        return $this->isClosed() ? $this->closed : '';
     }
 
     function isOpen() {
@@ -805,8 +804,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $assignee = $this->getStaff();
 
-        if (isset($vars['task_status']))
-            $this->setStatus($vars['task_status']);
+        if (isset($vars['task:status']))
+            $this->setStatus($vars['task:status']);
 
         $this->onActivity(array(
             'activity' => $note->getActivity(),
@@ -835,12 +834,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return null;
 
         $assignee = $this->getStaff();
-        // Set status - if checked.
-        if ($vars['reply_status_id']
-            && $vars['reply_status_id'] != $this->getStatusId()
-        ) {
-            $this->setStatus($vars['reply_status_id']);
-        }
+
+        if (isset($vars['task:status']))
+            $this->setStatus($vars['task:status']);
 
         /*
         // TODO: add auto claim setting for tasks.

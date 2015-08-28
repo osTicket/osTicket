@@ -29,19 +29,18 @@ if ($_POST)
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
- <h2><?php echo __('Open a New Ticket');?></h2>
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="pull-left flush-left">
+        <h2><?php echo __('Open a New Ticket');?></h2>
+    </div>
+</div>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to
          construct the column widths of the entire toable. Therefore, the
          first row needs to have two cells -->
-        <tr><td></td><td></td></tr>
-        <tr>
-            <th colspan="2">
-                <h4><?php echo __('New Ticket');?></h4>
-            </th>
-        </tr>
+        <tr><td style="padding:0;"></td><td style="padding:0;"></td></tr>
     </thead>
     <tbody>
         <tr>
@@ -306,8 +305,8 @@ if ($_POST)
                         }
                         ?>
                     </select>
-                    &nbsp;&nbsp;&nbsp;
-                    <label><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
+                    &nbsp;&nbsp;
+                    <label class="checkbox inline"><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
                 </div>
             <?php
             }
@@ -323,7 +322,7 @@ if ($_POST)
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
                 ?></textarea>
                     <div class="attachments">
 <?php
@@ -392,7 +391,7 @@ print $response_form->getField('attachments')->render();
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
                     name="note" cols="21" rows="6" style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
-    echo $attrs; ?>><?php echo $draft ?: $info['note'];
+    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
                 ?></textarea>
             </td>
         </tr>

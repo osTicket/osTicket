@@ -50,25 +50,57 @@ else
     $showing=__('No premade responses found!');
 
 ?>
-<div class="pull-left" style="width:700px;padding-top:5px;">
- <h2><?php echo __('Canned Responses');?></h2>
- </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <b><a href="canned.php?a=add" class="Icon newReply"><?php echo __('Add New Response');?></a></b></div>
-<div class="clear"></div>
 <form action="canned.php" method="POST" name="canned">
+
+<div class="sticky bar opaque">
+    <div class="content">
+        <div class="pull-left flush-left">
+            <h2><?php echo __('Canned Responses');?></h2>
+        </div>
+        <div class="pull-right flush-right">
+            <a href="canned.php?a=add" class="green button"><i class="icon-plus-sign"></i> <?php echo __('Add New Response');?></a>
+
+            <span class="action-button" data-dropdown="#action-dropdown-more" style="/*DELME*/ vertical-align:top; margin-bottom:0">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li>
+                        <a class="confirm" data-name="enable" href="canned.php?a=enable">
+                            <i class="icon-ok-sign icon-fixed-width"></i>
+                            <?php echo __( 'Enable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="disable" href="canned.php?a=disable">
+                            <i class="icon-ban-circle icon-fixed-width"></i>
+                            <?php echo __( 'Disable'); ?>
+                        </a>
+                    </li>
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="canned.php?a=delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
-            <th width="80"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="200"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="46%"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
+            <th width="10%"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="20%"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -83,7 +115,7 @@ else
                 $files=$row['files']?'<span class="Icon file">&nbsp;</span>':'';
                 ?>
             <tr id="<?php echo $row['canned_id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" name="ids[]" value="<?php echo $row['canned_id']; ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?> />
                 </td>
@@ -116,11 +148,7 @@ else
 if($res && $num): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="enable" value="<?php echo __('Enable');?>" >
-    <input class="button" type="submit" name="disable" value="<?php echo __('Disable');?>" >
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>" >
-</p>
+
 <?php
 endif;
 ?>

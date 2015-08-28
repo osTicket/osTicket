@@ -33,9 +33,6 @@ ALTER TABLE `%TABLE_PREFIX%staff`
 ALTER TABLE `%TABLE_PREFIX%team_member`
   ADD `flags` int(10) unsigned NOT NULL DEFAULT 1 AFTER `staff_id`;
 
-ALTER TABLE `%TABLE_PREFIX%thread_collaborator`
-  ADD KEY `user_id` (`user_id`);
-
 ALTER TABLE `%TABLE_PREFIX%task`
   ADD `closed` datetime DEFAULT NULL AFTER `duedate`;
 

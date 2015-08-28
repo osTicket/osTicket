@@ -328,10 +328,13 @@ var ticket_onload = function($) {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $redirect = $(this).data('href');
+        var $redirect = $(this).data('redirect');
         var $options = $(this).data('dialog');
         $.dialog(url, [201], function (xhr) {
-            window.location.href = $redirect ? $redirect : window.location.href;
+            if (!!$redirect)
+                window.location.href = $redirect;
+            else
+                $.pjax.reload('#pjax-container');
         }, $options);
 
         return false;

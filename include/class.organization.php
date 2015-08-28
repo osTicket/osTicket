@@ -214,6 +214,8 @@ implements TemplateVariable {
     }
 
     function isMappedToDomain($domain) {
+        if (!$domain || !$this->domain)
+            return false;
         foreach (explode(',', $this->domain) as $d) {
             $d = trim($d);
             if ($d[0] == '.') {
@@ -230,8 +232,12 @@ implements TemplateVariable {
     }
 
     static function forDomain($domain) {
-        foreach (static::objects()
-                ->filter(array('domain__contains'=>$domain)) as $org) {
+        if (!$domain)
+            return null;
+        foreach (static::objects()->filter(array(
+            'domain__gt'=>'',
+            'domain__contains'=>$domain
+        )) as $org) {
             if ($org->isMappedToDomain($domain)) {
                 return $org;
             }

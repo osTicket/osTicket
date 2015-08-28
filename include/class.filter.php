@@ -176,20 +176,6 @@ class Filter {
         return $this->ht['rules'];
     }
 
-    function getFlatRules() { //Format used on html... I'm ashamed
-
-        $info=array();
-        if(($rules=$this->getRules())) {
-            foreach($rules as $k=>$rule) {
-                $i=$k+1;
-                $info["rule_w$i"]=$rule['w'];
-                $info["rule_h$i"]=$rule['h'];
-                $info["rule_v$i"]=$rule['v'];
-            }
-        }
-        return $info;
-    }
-
     function addRule($what, $how, $val,$extra=array()) {
         $errors = array();
 
@@ -410,36 +396,36 @@ class Filter {
         $types = array_keys(self::getSupportedMatchTypes());
 
         $rules=array();
-        for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
-            if($vars["rule_w$i"] || $vars["rule_h$i"]) {
+        foreach ($vars['rules'] as $i=>$rule) {
+            if($rule["w"] || $rule["h"]) {
                 // Check for REGEX compile errors
-                if (in_array($vars["rule_h$i"], array('match','not_match'))) {
-                    $wrapped = "/".$vars["rule_v$i"]."/iu";
-                    if (false === @preg_match($vars["rule_v$i"], ' ')
+                if (in_array($rule["h"], array('match','not_match'))) {
+                    $wrapped = "/".$rule["v"]."/iu";
+                    if (false === @preg_match($rule["v"], ' ')
                             && (false !== @preg_match($wrapped, ' ')))
-                        $vars["rule_v$i"] = $wrapped;
+                        $rule["v"] = $wrapped;
                 }
 
-                if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
+                if(!$rule["w"] || !in_array($rule["w"],$matches))
                     $errors["rule_$i"]=__('Invalid match selection');
-                elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
+                elseif(!$rule["h"] || !in_array($rule["h"],$types))
                     $errors["rule_$i"]=__('Invalid match type selection');
-                elseif(!$vars["rule_v$i"])
+                elseif(!$rule["v"])
                     $errors["rule_$i"]=__('Value required');
-                elseif($vars["rule_w$i"]=='email'
-                        && $vars["rule_h$i"]=='equal'
-                        && !Validator::is_email($vars["rule_v$i"]))
+                elseif($rule["w"]=='email'
+                        && $rule["h"]=='equal'
+                        && !Validator::is_email($rule["v"]))
                     $errors["rule_$i"]=__('Valid email required for the match type');
-                elseif (in_array($vars["rule_h$i"], array('match','not_match'))
-                        && (false === @preg_match($vars["rule_v$i"], ' ')))
+                elseif (in_array($rule["h"], array('match','not_match'))
+                        && (false === @preg_match($rule["v"], ' ')))
                     $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
                         preg_last_error());
 
 
                 else //for everything-else...we assume it's valid.
-                    $rules[]=array('what'=>$vars["rule_w$i"],
-                        'how'=>$vars["rule_h$i"],'val'=>trim($vars["rule_v$i"]));
-            }elseif($vars["rule_v$i"]) {
+                    $rules[]=array('what'=>$rule["w"],
+                        'how'=>$rule["h"],'val'=>trim($rule["v"]));
+            }elseif($rule["v"]) {
                 $errors["rule_$i"]=__('Incomplete selection');
             }
         }

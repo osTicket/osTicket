@@ -575,9 +575,8 @@ class TicketsAjaxAPI extends AjaxController {
             if ($_POST && !$errors) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
-                            && $t->getDeptId() != $_POST['dept_id']
                             && $t->checkStaffPerm($thisstaff, Ticket::PERM_DELETE)
-                            && $t->delete($_POST, $e)
+                            && $t->delete($_POST['comments'], $e)
                             )
                         $i++;
                 }
