@@ -3030,18 +3030,20 @@ class Ticket {
    function ClosePending() {
 	global $cfg;
 	
-	$days = $cfg->getAutoCloseGrace();
+	$grace = $cfg->getAutoCloseGrace();
 
-	if($days != 0){ 
+	if($grace != 0){ 
+
+	if($grace == 1){$dayplural = 'day';} else {$dayplural = 'days';}
 
 	// select all tickets marked as 'pending' where updated is older than ($days) days ago
 	$sql  = 'SELECT ticket_id FROM ' .TICKET_TABLE .' ticket '
 		 .' INNER JOIN '.TICKET_STATUS_TABLE.' status ON (status.id=ticket.status_id AND status.name = "pending") '
-	     .' AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$days.'*86400';
+	     .' AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$grace.'*86400';
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
-                if(($ticket=Ticket::lookup($id)) && $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$days.' days of no activity.', false));
+                if(($ticket=Ticket::lookup($id)) && $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$grace.' '.$dayplural.' of no activity.', false));
 	}}}
 
    }
