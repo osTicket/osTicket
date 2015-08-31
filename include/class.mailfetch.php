@@ -193,34 +193,33 @@ class MailFetcher {
             $text=imap_binary($text);
             break;
             case 3:
-            if(10000000 > strlen($text))
-            {
-                // imap_base64 implies strict mode. If it refuses to decode the
-                // data, then fallback to base64_decode in non-strict mode
-                $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
+            if (strlen($text) > (1 << 20)) {
+                try {
+                    if (!($temp = tempnam(sys_get_temp_dir(), 'attachments'))
+                        || !($f = fopen($temp, 'w'))
+                        ) {
+                            throw new Exception();
+                    }
+                    $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
+                    if (!fwrite($f, $text))
+                        throw new Exception();
+                    stream_filter_remove($s_filter); 
+                    fclose($f);
+                    if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp)))
+                        throw new Exception();
+                    fclose($f);
+                    unlink($temp);
+                    break;
+                }
+                catch (Exception $e) {
+                    // Noop. Fall through to imap_base64 method below
+                    @fclose($f);
+                    @unlink($temp);
+                }
             }
-            else
-            {
-                 $temp = tempnam(sys_get_temp_dir(), 'attachments');
-                 if(!$temp)
-                     break;
-                 $f = fopen($temp, 'w');
-                 if(!$f)
-                     break;
-                 $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
-                 if(!fwrite($f, $text))
-                     break;
-                 stream_filter_remove($s_filter); 
-                 fclose($f);
-                 $f = fopen($temp, 'r');		
-                 if(!$f)
-                     break;
-                 $text = fread($f,filesize($temp));
-                 if(!$text)
-                     break;
-                 fclose($f);
-                 unlink($temp);
-            }
+            // imap_base64 implies strict mode. If it refuses to decode the
+            // data, then fallback to base64_decode in non-strict mode
+            $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
             break;
             case 4:
             $text=imap_qprint($text);
