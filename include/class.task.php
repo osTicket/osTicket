@@ -1078,7 +1078,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof Message) {
+        if ($entry instanceof MessageThreadEntry) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;

@@ -360,6 +360,9 @@ class Thread extends VerySimpleModel {
             $vars['message'] = $body;
             $vars['userId'] = $mailinfo['userId'] ?: $object->getUserId();
 
+            if ($mailinfo['userClass'] == 'C')
+                $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('M', $vars);
             elseif ($this instanceof ObjectThread)
@@ -389,9 +392,18 @@ class Thread extends VerySimpleModel {
         }
         // Accept internal note from staff members' replies
         elseif ($mailinfo['staffId']
-                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
-            $vars['staffId'] = $mailinfo['staffId'];
-            $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))
+                || $mailinfo['userClass'] == 'A' //Admin email
+                ) {
+
+            if ($mailinfo['staffId']) {
+                $vars['staffId'] = $mailinfo['staffId'];
+                $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+            }
+
+            if (!$vars['poster'])
+                $vars['poster'] = $mailinfo['name'];
+
             $vars['note'] = $body;
 
             if ($object instanceof Threadable)
@@ -1178,6 +1190,12 @@ implements TemplateVariable {
                 elseif (@$mid_info['staffId']) {
                     $mailinfo['staffId'] = $mid_info['staffId'];
                 }
+
+                // Capture the user type
+                if (@$mid_info['userClass'])
+                    $mailinfo['userClass'] = $mid_info['userClass'];
+
+
                 // ThreadEntry was positively identified
                 return $t;
             }
