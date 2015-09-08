@@ -159,7 +159,7 @@ abstract class QueueDecoration {
             'b' => '%2$s %1$s',
         );
 
-        $pos = strtolower($this->config['p']);
+        $pos = $this->getPosition();
         if (!isset($positions[$pos]))
             return $text;
 
@@ -206,7 +206,7 @@ extends QueueDecoration {
         $threadcount = $row[static::$qname];
         if ($threadcount > 1) {
             return sprintf(
-                '<i class="icon-comments-alt"></i><small>%s</small>',
+                '<small class="faded-more"><i class="icon-comments-alt"></i> %s</small>',
                 $threadcount
             );
         }
@@ -249,9 +249,8 @@ extends QueueDecoration {
     }
 
     function getDecoration($row, $text) {
-        return sprintf(
-            '<span class="Icon overdueTicket">%s</span>',
-            $text);
+        if ($row['isoverdue'])
+            return '<span class="Icon overdueTicket"></span>';
     }
 }
 
@@ -265,9 +264,8 @@ extends QueueDecoration {
     }
 
     function getDecoration($row, $text) {
-        return sprintf(
-            '<span class="Icon %sTicket">%s</span>',
-            $row['source'], $text);
+        return sprintf('<span class="Icon %sTicket"></span>',
+            strtolower($row['source']));
     }
 }
 
@@ -628,6 +626,20 @@ extends VerySimpleModel {
         $form = $this->getDataConfigForm($vars);
         foreach ($form->getClean() as $k=>$v)
             $this->set($k, $v);
+
+        // Do the decorations
+        $this->_decorations = $this->decorations = array();
+        foreach ($vars['decorations'] as $i=>$class) {
+            if (!class_exists($class) || !is_subclass_of($class, 'QueueDecoration'))
+                continue;
+            if ($vars['deco_column'][$i] != $this->id)
+                continue;
+            $json = array('c' => $class, 'p' => $vars['deco_pos'][$i]);
+            $this->_decorations[] = QueueDecoration::fromJson($json);
+            $this->decorations[] = $json;
+        }
+        // Store as JSON array
+        $this->decorations = JsonDataEncoder::encode($this->decorations);
     }
 }
 
