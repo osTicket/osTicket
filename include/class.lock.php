@@ -63,12 +63,12 @@ class Lock extends VerySimpleModel {
     }
     //Get remaiming time before the lock expires
     function getTime() {
-        return $this->isExpired()?0:($this->getExpireTime()-time());
+        return max(0, $this->getExpireTime() - Misc::dbtime());
     }
 
     //Should we be doing realtime check here? (Ans: not really....expiretime is local & based on loadtime)
     function isExpired() {
-        return (time()>$this->getExpireTime());
+        return (Misc::dbtime() > $this->getExpireTime());
     }
 
     function getCode() {
