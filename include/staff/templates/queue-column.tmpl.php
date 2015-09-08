@@ -19,24 +19,33 @@ $data_form = $column->getDataConfigForm($_POST);
 ?>
 </div>
 
-<div class="hidden tab_content" id="<?php echo $colid; ?>-decorations" style="max-width: 400px">
+<div class="hidden tab_content" data-col-id="<?php echo $colid; ?>"
+  id="<?php echo $colid; ?>-decorations" style="max-width: 400px">
   <div class="empty placeholder" style="margin-left: 20px">
     <em><?php echo __('No decorations for this field'); ?></em>
   </div>
-  <div style="margin: 20px;">
+  <div style="margin: 0 20px;">
     <div class="decoration clear template hidden">
       <input data-field="input" data-name="decorations[]" value="" type="hidden" />
+      <input data-field="column" data-name="deco_column[]" value="" type="hidden" />
       <i data-field="icon"></i>
       <span data-field="name"></span>
       <div class="pull-right">
-        <select data-field="position">
+        <select data-field="position" data-name="deco_pos[]">
 <?php foreach (QueueDecoration::getPositions() as $key=>$desc) {
           echo sprintf('<option value="%s">%s</option>', $key, Format::htmlchars($desc));
 } ?>
         </select>
         <a href="#" data-field="delete" title="<?php echo __('Delete'); ?>"
             onclick="javascript: 
-            $(this).closest('.decoration').remove();
+            var tab = $(this).closest('.tab_content'),
+                decoration = $(this).closest('.decoration'),
+                klass = decoration.find('input[data-field=input]').val(),
+                select = $('select.add-decoration', tab);
+            select.find('option[value=' + klass + ']').prop('disabled', false);
+            decoration.remove();
+            if (tab.find('.decoration:not(.template)').length === 0)
+                tab.find('.empty.placeholder').show()
             return false;"><i class="icon-trash"></i></a>
       </div>
     </div>
@@ -54,22 +63,27 @@ $data_form = $column->getDataConfigForm($_POST);
 
     <script>
       $(function() {
-        var addDecoration = function(type, icon, pos) {
+        var addDecoration = function(type, desc, icon, pos) {
           var template = $('.decoration.template', '#<?php echo $colid; ?>-decorations'),
               clone = template.clone().show().removeClass('template').insertBefore(template),
               input = clone.find('[data-field=input]'),
+              colid = clone.closest('.tab_content').data('colId'),
+              column = clone.find('[data-field=column]'),
               name = clone.find('[data-field=name]'),
               i = clone.find('[data-field=icon]'),
               position = clone.find('[data-field=position]');
-          input.attr('name', input.data('name'));
+          input.attr('name', input.data('name')).val(type);
+          column.attr('name', column.data('name')).val(colid);
           i.addClass('icon-fixed-width icon-' + icon);
-          name.text(type);
-          if (pos) position.val(pos);
-          template.parent().find('.empty').hide();
+          name.text(desc);
+          position.attr('name', position.data('name'));
+          if (pos)
+            position.val(pos);
+          template.closest('.tab_content').find('.empty').hide();
         };
         $('select.add-decoration', '#<?php echo $colid; ?>-decorations').change(function() {
           var selected = $(this).find(':selected');
-          addDecoration(selected.text(), selected.data('icon'));
+          addDecoration(selected.val(), selected.text(), selected.data('icon'));
           selected.prop('disabled', true);
         });
         $('#<?php echo $colid; ?>-decorations').click('a[data-field=delete]',
