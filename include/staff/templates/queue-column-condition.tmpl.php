@@ -4,8 +4,15 @@
 // $field - field for the condition (Ticket / Last Update)
 // $properties - currently-configured properties for the condition
 // $condition - <QueueColumnCondition> instance for this condition
+// $column - <QueueColumn> to which the condition belongs
+// $id - temporary ID number for the condition
+// $field_name - search path / name for the field
 ?>
 <div class="condition">
+  <input name="conditions[]" value="<?php echo $id; ?>" type="hidden" />
+  <input name="condition_column[]" value="<?php echo $column->getId(); ?>"
+    type="hidden" />
+  <input name="condition_field[]" value="<?php echo $field_name; ?>" type="hidden" />
   <div class="pull-right">
     <a href="#" onclick="javascript: $(this).closest('.condition').remove();
       "><i class="icon-trash"></i></a>
@@ -13,16 +20,15 @@
   <?php echo $field->get('label'); ?>
   <div class="advanced-search">
 <?php
-$name = $field->get('name');
-$parts = SavedSearch::getSearchField($field, $name);
+$parts = SavedSearch::getSearchField($field, $field_name);
 // Drop the search checkbox field
-unset($parts["{$name}+search"]);
+unset($parts["{$field_name}+search"]);
 foreach ($parts as $name=>$F) {
     if (substr($name, -7) == '+method')
         // XXX: Hack
         unset($F->ht['visibility']);
 }
-$form = new SimpleForm($parts);
+$form = new SimpleForm($parts, false, array('id' => $id));
 foreach ($form->getFields() as $F) { ?>
     <fieldset id="field<?php echo $F->getWidget()->id;
         ?>" <?php
@@ -44,7 +50,8 @@ foreach ($form->getFields() as $F) { ?>
 <?php } ?>
 
     <div class="properties" style="margin-left: 25px; margin-top: 10px">
-<?php foreach ($condition->getProperties() as $prop=>$v) {
+<?php
+foreach ($condition->getProperties() as $prop=>$v) {
     include 'queue-column-condition-prop.tmpl.php';
 } ?>
       <div style="margin-top: 10px">
@@ -55,7 +62,7 @@ foreach ($form->getFields() as $F) { ?>
             container = $this.closest('.properties');
         $.ajax({
           url: 'ajax.php/queue/condition/addProperty',
-          data: { prop: selected.val() },
+          data: { prop: selected.val(), condition: <?php echo $id; ?> },
           dataType: 'html',
           success: function(html) {
             $(html).insertBefore(container);

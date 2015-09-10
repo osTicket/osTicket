@@ -4213,7 +4213,7 @@ class VisibilityConstraint {
             else {
                 @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
-                $wval = $field->getClean();
+                $wval = $field ? $field->getClean() : null;
                 switch ($op) {
                 case 'eq':
                 case null:
