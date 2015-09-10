@@ -822,7 +822,7 @@ class SqlExpr extends SqlFunction {
         $O = array();
         foreach ($this->args as $field=>$value) {
             if ($value instanceof Q) {
-                $ex = $compiler->compileQ($value);
+                $ex = $compiler->compileQ($value, $model);
                 $O[] = $ex->text;
             }
             else {
@@ -833,7 +833,7 @@ class SqlExpr extends SqlFunction {
                     $O[] = sprintf($op, $field, $compiler->input($value));
             }
         }
-        return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
+        return implode(' ', $O) . ($alias ? ' AS ' .  $compiler->quote($alias) : '');
     }
 }
 

@@ -284,10 +284,12 @@ extends ChoiceField {
 
 class QueueColumnCondition {
     var $config;
+    var $queue;
     var $properties = array();
 
-    function __construct($config) {
+    function __construct($config, $queue=null) {
         $this->config = $config;
+        $this->queue = $queue;
         if (is_array($config['prop']))
             $this->properties = $config['prop'];
     }
@@ -296,17 +298,34 @@ class QueueColumnCondition {
         return $this->properties;
     }
 
-    function getField() {
-    }
-
     // Add the annotation to a QuerySet
     function annotate($query) {
-        $criteria = $this->config['crit'];
-        $searchable = SavedSearch::getSearchableFields('Ticket');
+        $Q = $this->getSearchQ();
 
-        // Setup a dummy form with a source for field setup
-        $form = new Form($criteria);
-        $fields = array();
+        // Add an annotation to the query
+        return $query->annotate(array(
+            $this->getAnnotationName() => new SqlExpr(array($Q))
+        ));
+    }
+
+    function getSearchQ() {
+        // FIXME
+        #$root = $this->getColumn()->getQueue()->getRoot();
+        $root = 'Ticket';
+        $searchable = SavedSearch::getSearchableFields($root);
+        list($name, $method, $value) = $this->config['crit'];
+
+        // Lookup the field to search this condition
+        if (!isset($searchable[$name]))
+            return null;
+        $field = $searchable[$name];
+
+        // Fetch a criteria Q for the query
+        return $field->getSearchQ($method, $value, $name);
+    }
+
+    static function isolateCriteria($criteria, $root='Ticket') {
+        $searchable = SavedSearch::getSearchableFields($root);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
@@ -317,55 +336,66 @@ class QueueColumnCondition {
                 $field = $searchable[$name];
 
                 // Get the search method and value
-                $breakout = SavedSearch::getSearchField($field, $name);
-                $method = $breakout["{$name}+method"];
-                $method->setForm($form);
-                if (!($method = $method->getClean()))
-                    continue;
+                $method = $v;
+                // Not all search methods require a value
+                $value = $criteria["{$name}+{$method}"];
 
-                if (!($value = $breakout["{$name}+{$method}"]))
-                    continue;
-
-                // Fetch a criteria Q for the query
-                $value = $value->getClean();
-                $Q = $field->getSearchQ($method, $value, $name);
-
-                // Add an annotation to the query
-                $query = $query->annotate(array(
-                    $this->getAnnotationName() => new SqlExpr($Q)
-                ));
-
-                // Only one field can be considered in the condition
-                break;
+                return array($name, $method, $value);
             }
         }
-        return $query;
     }
 
     function render($row, $text) {
-        $field = $this->getAnnotationName();
-        if ($V = $row[$field]) {
+        $annotation = $this->getAnnotationName();
+        if ($V = $row[$annotation]) {
             $style = array();
             foreach ($this->getProperties() as $css=>$value) {
-                $style[] = "{$css}:{$value}";
+                $field = QueueColumnConditionProperty::getField($css);
+                $field->value = $value;
+                $V = $field->getClean();
+                if (is_array($V))
+                    $V = current($V);
+                $style[] = "{$css}:{$V}";
             }
             $text = sprintf('<span style="%s">%s</span>',
-                implode(' ', $style), $text);
+                implode(';', $style), $text);
         }
         return $text;
     }
 
     function getAnnotationName() {
-        return 'howdy';
+        // This should be predictable based on the criteria so that the
+        // query can deduplicate the same annotations used in different
+        // conditions
+        if (!isset($this->annotation_name)) {
+            $this->annotation_name = $this->getShortHash();
+        }
+        return $this->annotation_name;
     }
 
-    static function fromJson($config) {
+    function __toString() {
+        list($name, $method, $value) = $this->config['crit'];
+        if (is_array($value))
+            $value = implode('+', $value);
+
+        return "{$name} {$method} {$value}";
+    }
+
+    function getHash($binary=false) {
+        return sha1($this->__toString(), $binary);
+    }
+
+    function getShortHash() {
+        return substr($this->getHash(), -10);
+    }
+
+    static function fromJson($config, $queue=null) {
         if (is_string($config))
-            $config = JsonDataParser::decode($cnofig);
+            $config = JsonDataParser::decode($config);
         if (!is_array($config))
             throw new BadMethodCallException('$config must be string or array');
 
-        return new static($config);
+        return new static($config, $queue);
     }
 }
 
@@ -399,17 +429,20 @@ extends ChoiceField {
     }
 
     static function getProperties() {
-        return array_keys(static::$properties[$this->property]);
+        return array_keys(static::$properties);
     }
 
     static function getField($prop) {
         $choices = static::$properties[$prop];
+        if (!isset($choices))
+            return null;
         if (is_array($choices))
             return new ChoiceField(array(
+                'name' => $prop,
                 'choices' => array_combine($choices, $choices),
             ));
         elseif (class_exists($choices))
-            return new $choices();
+            return new $choices(array('name' => $prop));
     }
 
     function getChoices() {
@@ -629,7 +662,7 @@ extends VerySimpleModel {
 
         // Do the decorations
         $this->_decorations = $this->decorations = array();
-        foreach ($vars['decorations'] as $i=>$class) {
+        foreach (@$vars['decorations'] as $i=>$class) {
             if (!class_exists($class) || !is_subclass_of($class, 'QueueDecoration'))
                 continue;
             if ($vars['deco_column'][$i] != $this->id)
@@ -638,8 +671,54 @@ extends VerySimpleModel {
             $this->_decorations[] = QueueDecoration::fromJson($json);
             $this->decorations[] = $json;
         }
+
+        // Do the conditions
+        $this->_conditions = $this->conditions = array();
+        foreach (@$vars['conditions'] as $i=>$id) {
+            if ($vars['condition_column'][$i] != $this->id)
+                // Not a condition for this column
+                continue;
+            // Determine the criteria
+            $name = $vars['condition_field'][$i];
+            $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
+            if (!isset($fields[$name]))
+                // No such field exists for this queue root type
+                continue;
+            $field = $fields[$name];
+            $parts = SavedSearch::getSearchField($field, $name);
+            $search_form = new SimpleForm($parts, $vars, array('id' => $id));
+            $search_form->getField("{$name}+search")->value = true;
+            $crit = $search_form->getClean();
+            // Check the box to enable searching on the field
+            $crit["{$name}+search"] = true;
+
+            // Convert search criteria to a Q instance
+            $crit = QueueColumnCondition::isolateCriteria($crit);
+
+            // Determine the properties
+            $props = array();
+            foreach ($vars['properties'] as $i=>$cid) {
+                if ($cid != $id)
+                    // Not a property for this condition
+                    continue;
+
+                // Determine the property configuration
+                $prop = $vars['property_name'][$i];
+                if (!($F = QueueColumnConditionProperty::getField($prop))) {
+                    // Not a valid property
+                    continue;
+                }
+                $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
+                $props[$prop] = $prop_form->getClean();
+            }
+            $json = array('crit' => $crit, 'prop' => $props);
+            $this->_conditions[] = QueueColumnCondition::fromJson($json);
+            $this->conditions[] = $json;
+        }
+
         // Store as JSON array
         $this->decorations = JsonDataEncoder::encode($this->decorations);
+        $this->conditions = JsonDataEncoder::encode($this->conditions);
     }
 }
 
