@@ -113,18 +113,7 @@ $data_form = $column->getDataConfigForm($_POST);
 } ?>
     <div style="margin-top: 20px">
       <i class="icon-plus-sign"></i>
-      <select id="add-condition" onchange="javascript:
-      var $this = $(this),
-          container = $this.closest('div');
-      $.ajax({
-        url: 'ajax.php/queue/condition/add',
-        data: { field: $(this).find(':selected').val() },
-        dataType: 'html',
-        success: function(html) {
-          $(html).insertBefore(container);
-        }
-      });
-      ">
+      <select class="add-condition">
         <option>— <?php echo __("Add a condition"); ?> —</option>
 <?php
       foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
@@ -132,6 +121,26 @@ $data_form = $column->getDataConfigForm($_POST);
       }
 ?>
       </select>
+      <script>
+      $(function() {
+        var colid = <?php echo $colid ?: 0 ?>,
+            nextid = colid * 40;
+        $('#' + colid + '-conditions select.add-condition').change(function() {
+          var $this = $(this),
+              container = $this.closest('div'),
+              selected = $this.find(':selected');
+          $.ajax({
+            url: 'ajax.php/queue/condition/add',
+            data: { field: selected.val(), colid: colid, id: nextid },
+            dataType: 'html',
+            success: function(html) {
+              $(html).insertBefore(container);
+              nextid++;
+            }
+          });
+        });
+      });
+      </script>
     </div>
   </div>
 </div>
