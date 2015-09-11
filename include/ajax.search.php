@@ -132,7 +132,7 @@ class SearchAjaxAPI extends AjaxController {
         $form = $search->getForm($data);
         $form->setSource($data);
         if (!$data || !$form->isValid()) {
-            Http::response(422, 'Validation errors exist on form');
+            Http::response(422, 'Validation errors exist on criteria');
         }
 
         $search->config = JsonDataEncoder::encode($form->getState());
@@ -227,15 +227,14 @@ class SearchAjaxAPI extends AjaxController {
             $queue = CustomQueue::create();
         }
 
-        $form = $queue->getForm($_POST);
-
-        // TODO: Update queue columns (but without save)
+        // Update queue columns (but without save)
         foreach ($_POST['columns'] as $colid) {
             $col = QueueColumn::create(array("id" => $colid, "queue" => $queue));
             $col->update($_POST);
             $queue->addColumn($col);
         }
 
+        $form = $queue->getForm($_POST);
         $tickets = $queue->getQuery($form);
         $count = 10; // count($queue->getBasicQuery($form));
 
