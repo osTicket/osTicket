@@ -348,7 +348,6 @@ class Thread extends VerySimpleModel {
             $vars['attachments'] = $mailinfo['attachments'];
 
         $body = $mailinfo['message'];
-        $poster = $mailinfo['email'];
 
         // Attempt to determine the user posting the entry and the
         // corresponding entry type by the information determined by the
@@ -403,6 +402,10 @@ class Thread extends VerySimpleModel {
             }
         }
 
+        // Ensure we record the name of the person posting
+        $vars['poster'] = $vars['poster']
+            ?: $mailinfo['name'] ?: $mailinfo['email'];
+
         // TODO: Consider security constraints
         if (!$vars['thread-type']) {
             //XXX: Are we potentially leaking the email address to
@@ -432,7 +435,6 @@ class Thread extends VerySimpleModel {
 
         case 'N':
             $vars['note'] = $body;
-            $vars['poster'] = $vars['poster'] ?: $poster;
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('N', $vars);
@@ -1180,6 +1182,12 @@ implements TemplateVariable {
                 elseif (@$mid_info['staffId']) {
                     $mailinfo['staffId'] = $mid_info['staffId'];
                 }
+
+                // Capture the user type
+                if (@$mid_info['userClass'])
+                    $mailinfo['userClass'] = $mid_info['userClass'];
+
+
                 // ThreadEntry was positively identified
                 return $t;
             }
