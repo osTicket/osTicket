@@ -675,12 +675,12 @@ class SavedSearch extends VerySimpleModel {
     }
 
     function getName() {
-        return $this->name;
+        return $this->title;
     }
 
     function getSearchForm() {
-        if ($state = JsonDataParser::parse($search->config)) {
-            $form = $search->loadFromState($state);
+        if ($state = JsonDataParser::parse($this->config)) {
+            $form = $this->loadFromState($state);
             $form->loadState($state);
             return $form;
         }
