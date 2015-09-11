@@ -22,6 +22,11 @@ class CustomQueue extends SavedSearch {
             'columns' => array(
                 'reverse' => 'QueueColumn.queue',
             ),
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                )
+            )
         ),
     );
 
@@ -31,8 +36,8 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    static function getDecorations($root) {
-        // Ticket decorations
+    static function getAnnotations($root) {
+        // Ticket annotations
         return array(
             'TicketThreadCount',
             'ThreadAttachmentCount',
@@ -93,8 +98,16 @@ class CustomQueue extends SavedSearch {
         $col->queue = $this;
     }
 
+    function getId() {
+        return $this->id;
+    }
+
     function getRoot() {
         return 'Ticket';
+    }
+
+    function getStatus() {
+        return 'bogus';
     }
 
     function getBasicQuery($form=false) {
@@ -118,9 +131,60 @@ class CustomQueue extends SavedSearch {
         }
         return $query;
     }
+
+    function update($vars, &$errors) {
+        // TODO: Move this to SavedSearch::update() and adjust
+        //       AjaxSearch::_saveSearch()
+        $form = $this->getForm($vars);
+        $form->setSource($vars);
+        if (!$vars || !$form->isValid()) {
+            $errors['criteria'] = __('Validation errors exist on criteria');
+        }
+        else {
+            $this->config = JsonDataEncoder::encode($form->getState());
+        }
+
+        // Set basic queue information
+        $this->title = $vars['name'];
+
+        // Update queue columns (but without save)
+        if (isset($vars['columns'])) {
+            foreach ($vars['columns'] as $sort=>$colid) {
+                // Try and find the column in this queue, if it's a new one,
+                // add it to the columns list
+                if (!($col = $this->columns->findFirst(array('id' => $colid)))) {
+                    $col = QueueColumn::create(array("id" => $colid, "queue" => $this));
+                    $this->addColumn($col);
+                }
+                $col->set('sort', $sort+1);
+                $col->update($vars, $errors);
+            }
+            // Re-sort the in-memory columns array
+            $this->columns->sort(function($c) { return $c->sort; });
+        }
+        return 0 === count($errors);
+    }
+
+    function save($refetch=false) {
+        if (!($rv = parent::save($refetch)))
+            return $rv;
+
+        return $this->columns->saveAll();
+    }
+
+    static function create($vars=false) {
+        global $thisstaff;
+
+        $queue = parent::create($vars);
+        $queue->setFlag(SavedSearch::FLAG_QUEUE);
+        if ($thisstaff)
+            $queue->staff_id = $thisstaff->getId();
+
+        return $queue;
+    }
 }
 
-abstract class QueueDecoration {
+abstract class QueueColumnAnnotation {
     static $icon = false;
     static $desc = '';
 
@@ -167,7 +231,7 @@ abstract class QueueDecoration {
     }
 
     // Render the annotation with the database record $row. $text is the
-    // text of the cell before decorations were applied.
+    // text of the cell before annotations were applied.
     function render($row, $cell) {
         if ($decoration = $this->getDecoration($row, $cell))
             return $this->decorate($cell, $decoration);
@@ -185,10 +249,14 @@ abstract class QueueDecoration {
     function getPosition() {
         return strtolower($this->config['p']) ?: 'a';
     }
+
+    function getClassName() {
+        return @$this->config['c'] ?: get_class();
+    }
 }
 
 class TicketThreadCount
-extends QueueDecoration {
+extends QueueColumnAnnotation {
     static $icon = 'comments-alt';
     static $qname = '_thread_count';
     static $desc = /* @trans */ 'Thread Count';
@@ -214,7 +282,7 @@ extends QueueDecoration {
 }
 
 class ThreadAttachmentCount
-extends QueueDecoration {
+extends QueueColumnAnnotation {
     static $icon = 'paperclip';
     static $qname = '_att_count';
     static $desc = /* @trans */ 'Attachment Count';
@@ -240,7 +308,7 @@ extends QueueDecoration {
 }
 
 class OverdueFlagDecoration
-extends QueueDecoration {
+extends QueueColumnAnnotation {
     static $icon = 'exclamation';
     static $desc = /* @trans */ 'Overdue Icon';
 
@@ -255,7 +323,7 @@ extends QueueDecoration {
 }
 
 class TicketSourceDecoration
-extends QueueDecoration {
+extends QueueColumnAnnotation {
     static $icon = 'phone';
     static $desc = /* @trans */ 'Ticket Source';
 
@@ -308,22 +376,36 @@ class QueueColumnCondition {
         ));
     }
 
-    function getSearchQ() {
-        // FIXME
-        #$root = $this->getColumn()->getQueue()->getRoot();
-        $root = 'Ticket';
-        $searchable = SavedSearch::getSearchableFields($root);
-        list($name, $method, $value) = $this->config['crit'];
+    function getField() {
+      // FIXME
+      #$root = $this->getColumn()->getQueue()->getRoot();
+      $root = 'Ticket';
+      $searchable = SavedSearch::getSearchableFields($root);
+      list($name, $method, $value) = $this->config['crit'];
 
-        // Lookup the field to search this condition
-        if (!isset($searchable[$name]))
-            return null;
-        $field = $searchable[$name];
-
-        // Fetch a criteria Q for the query
-        return $field->getSearchQ($method, $value, $name);
+      // Lookup the field to search this condition
+      if (isset($searchable[$name]))
+          return $searchable[$name];
     }
 
+    function getFieldName() {
+        list($name) = $this->config['crit'];
+        return $name;
+    }
+
+    function getSearchQ() {
+        list($name, $method, $value) = $this->config['crit'];
+
+        // Fetch a criteria Q for the query
+        if ($field = $this->getField())
+            return $field->getSearchQ($method, $value, $name);
+    }
+
+    /**
+     * Take the criteria from the SavedSearch fields setup and isolate the
+     * field name being search, the method used for searhing, and the method-
+     * specific data entered in the UI.
+     */
     static function isolateCriteria($criteria, $root='Ticket') {
         $searchable = SavedSearch::getSearchableFields($root);
         foreach ($criteria as $k=>$v) {
@@ -456,40 +538,26 @@ extends ChoiceField {
 
 
 /**
- * Object version of JSON-serialized column array which has several
- * properties:
+ * A column of a custom queue. Columns have many customizable features
+ * including:
  *
- * {
- *   "heading": "Header Text",
- *   "primary": "user__name",
- *   "secondary": null,
- *   "width": 100,
- *   "link": 'ticket',
- *   "truncate": "wrap",
- *   "filter": "UsersName"
- *   "annotations": [
- *     {
- *       "c": "ThreadCollabCount",
- *       "p": ">"
- *     }
- *   ],
- *   "conditions": [
- *     {
- *       "crit": {
- *         "created+method": {"ndaysago": "in the last n days"}, "created+ndaysago": {"until":"7"}
- *       },
- *       "prop": {
- *         "font-weight": "bold"
- *       }
- *     }
- *   ]
- * }
+ *   * Data Source (primary and secondary)
+ *   * Heading
+ *   * Link (to an object like the ticket)
+ *   * Size and truncate settings
+ *   * annotations (like counts and flags)
+ *   * Conditions (which change the formatting like bold text)
+ *
+ * Columns are stored in a separate table from the queue itself, but other
+ * breakout items for the annotations and conditions, for instance, are stored
+ * as JSON text in the QueueColumn model.
  */
 class QueueColumn
 extends VerySimpleModel {
     static $meta = array(
         'table' => QUEUE_COLUMN_TABLE,
         'pk' => array('id'),
+        'ordering' => array('sort'),
         'joins' => array(
             'queue' => array(
                 'constraint' => array('queue_id' => 'CustomQueue.id'),
@@ -497,17 +565,23 @@ extends VerySimpleModel {
         ),
     );
 
-    var $_decorations = array();
+    var $_annotations = array();
     var $_conditions = array();
 
     function __onload() {
-        if ($this->annotations) {
-            foreach ($this->annotations as $D)
-                $this->_decorations[] = QueueDecoration::fromJson($D) ?: array();
+        if ($this->annotations
+            && ($anns = JsonDataParser::decode($this->annotations))
+        ) {
+            foreach ($anns as $D)
+                if ($T = QueueColumnAnnotation::fromJson($D))
+                    $this->_annotations[] = $T;
         }
-        if ($this->conditions) {
-            foreach ($this->conditions as $C)
-                $this->_conditions[] = QueueColumnCondition::fromJson($C) ?: array();
+        if ($this->conditions
+            && ($conds = JsonDataParser::decode($this->conditions))
+        ) {
+            foreach ($conds as $C)
+                if ($T = QueueColumnCondition::fromJson($C))
+                    $this->_conditions[] = $T;
         }
     }
 
@@ -554,8 +628,8 @@ extends VerySimpleModel {
             $text = sprintf('<a href="%s">%s</a>', $link, $text);
         }
 
-        // Decorations and conditions
-        foreach ($this->_decorations as $D) {
+        // annotations and conditions
+        foreach ($this->_annotations as $D) {
             $text = $D->render($row, $text);
         }
         foreach ($this->_conditions as $C) {
@@ -615,8 +689,8 @@ extends VerySimpleModel {
             break;
         }
 
-        // Decorations
-        foreach ($this->_decorations as $D) {
+        // annotations
+        foreach ($this->_annotations as $D) {
             $query = $D->annotate($query);
         }
 
@@ -637,8 +711,8 @@ extends VerySimpleModel {
         return $name;
     }
 
-    function getDecorations() {
-        return $this->_decorations;
+    function getAnnotations() {
+        return $this->_annotations;
     }
 
     function getConditions() {
@@ -651,7 +725,7 @@ extends VerySimpleModel {
      */
     static function create($vars=array()) {
         $inst = parent::create($vars);
-        // TODO: Convert decorations and conditions
+        // TODO: Convert annotations and conditions
         return $inst;
     }
 
@@ -660,65 +734,78 @@ extends VerySimpleModel {
         foreach ($form->getClean() as $k=>$v)
             $this->set($k, $v);
 
-        // Do the decorations
-        $this->_decorations = $this->decorations = array();
-        foreach (@$vars['decorations'] as $i=>$class) {
-            if (!class_exists($class) || !is_subclass_of($class, 'QueueDecoration'))
-                continue;
-            if ($vars['deco_column'][$i] != $this->id)
-                continue;
-            $json = array('c' => $class, 'p' => $vars['deco_pos'][$i]);
-            $this->_decorations[] = QueueDecoration::fromJson($json);
-            $this->decorations[] = $json;
+        // Do the annotations
+        $this->_annotations = $annotations = array();
+        if (isset($vars['annotations'])) {
+            foreach (@$vars['annotations'] as $i=>$class) {
+                if ($vars['deco_column'][$i] != $this->id)
+                    continue;
+                if (!class_exists($class) || !is_subclass_of($class, 'QueueColumnAnnotation'))
+                    continue;
+                $json = array('c' => $class, 'p' => $vars['deco_pos'][$i]);
+                $annotations[] = $json;
+                $this->_annotations[] = QueueColumnAnnotation::fromJson($json);
+            }
         }
 
         // Do the conditions
-        $this->_conditions = $this->conditions = array();
-        foreach (@$vars['conditions'] as $i=>$id) {
-            if ($vars['condition_column'][$i] != $this->id)
-                // Not a condition for this column
-                continue;
-            // Determine the criteria
-            $name = $vars['condition_field'][$i];
-            $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
-            if (!isset($fields[$name]))
-                // No such field exists for this queue root type
-                continue;
-            $field = $fields[$name];
-            $parts = SavedSearch::getSearchField($field, $name);
-            $search_form = new SimpleForm($parts, $vars, array('id' => $id));
-            $search_form->getField("{$name}+search")->value = true;
-            $crit = $search_form->getClean();
-            // Check the box to enable searching on the field
-            $crit["{$name}+search"] = true;
-
-            // Convert search criteria to a Q instance
-            $crit = QueueColumnCondition::isolateCriteria($crit);
-
-            // Determine the properties
-            $props = array();
-            foreach ($vars['properties'] as $i=>$cid) {
-                if ($cid != $id)
-                    // Not a property for this condition
+        $this->_conditions = $conditions = array();
+        if (isset($vars['conditions'])) {
+            foreach (@$vars['conditions'] as $i=>$id) {
+                if ($vars['condition_column'][$i] != $this->id)
+                    // Not a condition for this column
                     continue;
-
-                // Determine the property configuration
-                $prop = $vars['property_name'][$i];
-                if (!($F = QueueColumnConditionProperty::getField($prop))) {
-                    // Not a valid property
+                // Determine the criteria
+                $name = $vars['condition_field'][$i];
+                $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
+                if (!isset($fields[$name]))
+                    // No such field exists for this queue root type
                     continue;
+                $field = $fields[$name];
+                $parts = SavedSearch::getSearchField($field, $name);
+                $search_form = new SimpleForm($parts, $vars, array('id' => $id));
+                $search_form->getField("{$name}+search")->value = true;
+                $crit = $search_form->getClean();
+                // Check the box to enable searching on the field
+                $crit["{$name}+search"] = true;
+
+                // Isolate only the critical parts of the criteria
+                $crit = QueueColumnCondition::isolateCriteria($crit);
+
+                // Determine the properties
+                $props = array();
+                foreach ($vars['properties'] as $i=>$cid) {
+                    if ($cid != $id)
+                        // Not a property for this condition
+                        continue;
+
+                    // Determine the property configuration
+                    $prop = $vars['property_name'][$i];
+                    if (!($F = QueueColumnConditionProperty::getField($prop))) {
+                        // Not a valid property
+                        continue;
+                    }
+                    $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
+                    $props[$prop] = $prop_form->getField($prop)->getClean();
                 }
-                $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
-                $props[$prop] = $prop_form->getClean();
+                $json = array('crit' => $crit, 'prop' => $props);
+                $this->_conditions[] = QueueColumnCondition::fromJson($json);
+                $conditions[] = $json;
             }
-            $json = array('crit' => $crit, 'prop' => $props);
-            $this->_conditions[] = QueueColumnCondition::fromJson($json);
-            $this->conditions[] = $json;
         }
 
         // Store as JSON array
-        $this->decorations = JsonDataEncoder::encode($this->decorations);
-        $this->conditions = JsonDataEncoder::encode($this->conditions);
+        $this->annotations = JsonDataEncoder::encode($annotations);
+        $this->conditions = JsonDataEncoder::encode($conditions);
+    }
+
+    function save($refetch=false) {
+        if ($this->__new__ && isset($this->id))
+            // The ID is used to synchrize the POST data with the forms API.
+            // It should not be assumed to be a valid or unique database ID
+            // number
+            unset($this->id);
+        return parent::save($refetch);
     }
 }
 

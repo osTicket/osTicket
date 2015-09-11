@@ -2,7 +2,6 @@
 // Calling convention:
 //
 // $field - field for the condition (Ticket / Last Update)
-// $properties - currently-configured properties for the condition
 // $condition - <QueueColumnCondition> instance for this condition
 // $column - <QueueColumn> to which the condition belongs
 // $id - temporary ID number for the condition
@@ -25,7 +24,8 @@ $parts = SavedSearch::getSearchField($field, $field_name);
 unset($parts["{$field_name}+search"]);
 foreach ($parts as $name=>$F) {
     if (substr($name, -7) == '+method')
-        // XXX: Hack
+        // XXX: Hack — drop visibility connection between the method drop-down
+        //      and the enabled checkbox
         unset($F->ht['visibility']);
 }
 $form = new SimpleForm($parts, false, array('id' => $id));

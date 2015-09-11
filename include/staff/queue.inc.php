@@ -5,18 +5,15 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 
 $info = $qs = array();
 
-if ($_REQUEST['a']=='add'){
-    if (!$queue) {
-        $queue = CustomQueue::create(array(
-            'flags' => CustomQueue::FLAG_QUEUE,
-        ));
-    }
+if (!$queue) {
+    $queue = CustomQueue::create(array(
+        'flags' => CustomQueue::FLAG_QUEUE,
+    ));
     $title=__('Add New Queue');
     $action='create';
     $submit_text=__('Create');
 }
 else {
-    //Editing Department.
     $title=__('Manage Custom Queue');
     $action='update';
     $submit_text=__('Save Changes');
@@ -30,6 +27,7 @@ else {
   <input type="hidden" name="do" value="<?php echo $action; ?>">
   <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
+  <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
 
   <h2><?php echo __('Ticket Queues'); ?> // <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
@@ -59,6 +57,7 @@ else {
         <br/>
         <div><strong><?php echo __("Queue Search Criteria"); ?></strong></div>
         <hr/>
+        <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">
 <?php
             $form = $queue->getSearchForm();
@@ -128,7 +127,7 @@ else {
             config.append($(json.config)).insertAfter(columns.append(div));
             $this.data('nextId', nextId+1);
           }
-        }); 
+        });
       ">
         <option value="">— <?php echo __('Add a column'); ?> —</option>
 <?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) { ?>
@@ -140,12 +139,13 @@ else {
 <?php foreach ($queue->getColumns() as $column) {
         $colid = $column->getId();
         $maxcolid = max(@$maxcolid ?: 0, $colid);
-        echo sprintf('<div data-id="%s" data-col-id="colconfig-%s" class="column-header" '
-          .'data-width="%s">%s'
+        echo sprintf('<div data-id="%1$s" data-col-id="colconfig-%1$s" class="column-header" '
+          .'data-width="%2$s">%3$s'
           .'<i class="icon-ellipsis-vertical ui-resizable-handle ui-resizable-handle-e"></i>'
-          .'<input type="hidden" name="columns[]" value="%s"/>'
+          .'<input type="hidden" name="columns[]" value="%1$s"/>'
           .'</div>',
-          $colid, $colid, $column->getWidth(), $column->getHeading(), $colid);
+          $colid, $column->getWidth(), $column->getHeading(),
+          $column->sort ?: 1);
 } ?>
       </div>
       <script>

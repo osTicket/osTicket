@@ -9,7 +9,7 @@ $data_form = $column->getDataConfigForm($_POST);
 ?>
 <ul class="alt tabs">
   <li class="active"><a href="#<?php echo $colid; ?>-data"><?php echo __('Data'); ?></a></li>
-  <li><a href="#<?php echo $colid; ?>-decorations"><?php echo __('Decorations'); ?></a></li>
+  <li><a href="#<?php echo $colid; ?>-annotations"><?php echo __('Annotations'); ?></a></li>
   <li><a href="#<?php echo $colid; ?>-conditions"><?php echo __('Conditions'); ?></a></li>
 </ul>
 
@@ -20,31 +20,31 @@ $data_form = $column->getDataConfigForm($_POST);
 </div>
 
 <div class="hidden tab_content" data-col-id="<?php echo $colid; ?>"
-  id="<?php echo $colid; ?>-decorations" style="max-width: 400px">
+  id="<?php echo $colid; ?>-annotations" style="max-width: 400px">
   <div class="empty placeholder" style="margin-left: 20px">
-    <em><?php echo __('No decorations for this field'); ?></em>
+    <em><?php echo __('No annotations for this field'); ?></em>
   </div>
   <div style="margin: 0 20px;">
-    <div class="decoration clear template hidden">
-      <input data-field="input" data-name="decorations[]" value="" type="hidden" />
+    <div class="annotation clear template hidden">
+      <input data-field="input" data-name="annotations[]" value="" type="hidden" />
       <input data-field="column" data-name="deco_column[]" value="" type="hidden" />
       <i data-field="icon"></i>
       <span data-field="name"></span>
       <div class="pull-right">
         <select data-field="position" data-name="deco_pos[]">
-<?php foreach (QueueDecoration::getPositions() as $key=>$desc) {
+<?php foreach (QueueColumnAnnotation::getPositions() as $key=>$desc) {
           echo sprintf('<option value="%s">%s</option>', $key, Format::htmlchars($desc));
 } ?>
         </select>
         <a href="#" data-field="delete" title="<?php echo __('Delete'); ?>"
-            onclick="javascript: 
+            onclick="javascript:
             var tab = $(this).closest('.tab_content'),
-                decoration = $(this).closest('.decoration'),
-                klass = decoration.find('input[data-field=input]').val(),
-                select = $('select.add-decoration', tab);
+                annotation = $(this).closest('.annotation'),
+                klass = annotation.find('input[data-field=input]').val(),
+                select = $('select.add-annotation', tab);
             select.find('option[value=' + klass + ']').prop('disabled', false);
-            decoration.remove();
-            if (tab.find('.decoration:not(.template)').length === 0)
+            annotation.remove();
+            if (tab.find('.annotation:not(.template)').length === 0)
                 tab.find('.empty.placeholder').show()
             return false;"><i class="icon-trash"></i></a>
       </div>
@@ -52,9 +52,9 @@ $data_form = $column->getDataConfigForm($_POST);
 
     <div style="margin-top: 20px">
       <i class="icon-plus-sign"></i>
-      <select class="add-decoration">
-        <option>— <?php echo __("Add a decoration"); ?> —</option>
-<?php foreach (CustomQueue::getDecorations('Ticket') as $class) {
+      <select class="add-annotation">
+        <option>— <?php echo __("Add a annotation"); ?> —</option>
+<?php foreach (CustomQueue::getAnnotations('Ticket') as $class) {
         echo sprintf('<option data-icon="%s" value="%s">%s</option>',
           $class::$icon, $class, $class::getDescription());
       } ?>
@@ -63,8 +63,8 @@ $data_form = $column->getDataConfigForm($_POST);
 
     <script>
       $(function() {
-        var addDecoration = function(type, desc, icon, pos) {
-          var template = $('.decoration.template', '#<?php echo $colid; ?>-decorations'),
+        var addAnnotation = function(type, desc, icon, pos) {
+          var template = $('.annotation.template', '#<?php echo $colid; ?>-annotations'),
               clone = template.clone().show().removeClass('template').insertBefore(template),
               input = clone.find('[data-field=input]'),
               colid = clone.closest('.tab_content').data('colId'),
@@ -81,19 +81,20 @@ $data_form = $column->getDataConfigForm($_POST);
             position.val(pos);
           template.closest('.tab_content').find('.empty').hide();
         };
-        $('select.add-decoration', '#<?php echo $colid; ?>-decorations').change(function() {
+        $('select.add-annotation', '#<?php echo $colid; ?>-annotations').change(function() {
           var selected = $(this).find(':selected');
-          addDecoration(selected.val(), selected.text(), selected.data('icon'));
+          addAnnotation(selected.val(), selected.text(), selected.data('icon'));
           selected.prop('disabled', true);
         });
-        $('#<?php echo $colid; ?>-decorations').click('a[data-field=delete]',
+        $('#<?php echo $colid; ?>-annotations').click('a[data-field=delete]',
         function() {
-          var tab = $('#<?php echo $colid; ?>-decorations');
-          if ($('.decoration', tab).length === 0)
+          var tab = $('#<?php echo $colid; ?>-annotations');
+          if ($('.annotation', tab).length === 0)
             tab.find('.empty').show();
         });
-        <?php foreach ($column->getDecorations() as $d) {
-            echo sprintf('addDecoration(%s, %s, %s);',
+        <?php foreach ($column->getAnnotations() as $d) {
+            echo sprintf('addAnnotation(%s, %s, %s, %s);',
+                JsonDataEncoder::encode($d->getClassName()),
                 JsonDataEncoder::encode($d::getDescription()),
                 JsonDataEncoder::encode($d::getIcon()),
                 JsonDataEncoder::encode($d->getPosition())
@@ -108,8 +109,15 @@ $data_form = $column->getDataConfigForm($_POST);
   <div style="margin: 0 20px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
   ?></div>
   <div class="conditions" style="margin: 20px; max-width: 400px">
-<?php foreach ($column->getConditions() as $condition) {
+<?php
+if ($column->getConditions()) {
+  $fields = SavedSearch::getSearchableFields($column->getQueue()->getRoot());
+  foreach ($column->getConditions() as $i=>$condition) {
+     $id = $column->getId() * 40 + $i;
+     $field = $condition->getField();
+     $field_name = $condition->getFieldName();
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
+  }
 } ?>
     <div style="margin-top: 20px">
       <i class="icon-plus-sign"></i>
