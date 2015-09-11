@@ -1,38 +1,38 @@
-
+<?php
+require_once INCLUDE_DIR . 'class.queue.php';
+?>
 <form action="queues.php?t=tickets" method="POST" name="keys">
-    <div class="sticky bar opaque">
-        <div class="content">
-            <div class="pull-right">
-                <a href="queues.php?t=tickets&amp;a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Queue');?></a>
-                <span class="action-button" data-dropdown="#action-dropdown-more">
-                            <i class="icon-caret-down pull-right"></i>
-                            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                </span>
-                <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                    <ul id="actions">
-                        <li>
-                            <a class="confirm" data-name="enable" href="queues.php?t=tickets&amp;a=enable">
-                                <i class="icon-ok-sign icon-fixed-width"></i>
-                                <?php echo __( 'Enable'); ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="confirm" data-name="disable" href="queues.php?t=tickets&amp;a=disable">
-                                <i class="icon-ban-circle icon-fixed-width"></i>
-                                <?php echo __( 'Disable'); ?>
-                            </a>
-                        </li>
-                        <li class="danger">
-                            <a class="confirm" data-name="delete" href="queues.php?t=tickets&amp;a=delete#queues">
-                                <i class="icon-trash icon-fixed-width"></i>
-                                <?php echo __( 'Delete'); ?>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+    <div>
+        <div class="pull-right">
+            <a href="queues.php?t=tickets&amp;a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Queue');?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                        <i class="icon-caret-down pull-right"></i>
+                        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li>
+                        <a class="confirm" data-name="enable" href="queues.php?t=tickets&amp;a=enable">
+                            <i class="icon-ok-sign icon-fixed-width"></i>
+                            <?php echo __( 'Enable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="disable" href="queues.php?t=tickets&amp;a=disable">
+                            <i class="icon-ban-circle icon-fixed-width"></i>
+                            <?php echo __( 'Disable'); ?>
+                        </a>
+                    </li>
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="queues.php?t=tickets&amp;a=delete#queues">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <h3><?php echo __('Ticket Queues');?></h3>
         </div>
+        <h3><?php echo __('Ticket Queues');?></h3>
     </div>
     <div class="clear"></div>
  <?php csrf_token(); ?>
@@ -49,6 +49,16 @@
         </tr>
     </thead>
     <tbody>
+<?php foreach (CustomQueue::objects() as $q) { ?>
+    <tr>
+      <td><input type="checkbox" class="checkbox" name="ckb[]"></td>
+      <td><a href="queues.php?id=<?php echo $q->getId(); ?>"><?php
+        echo Format::htmlchars($q->getName()); ?></a></td>
+      <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>
+      <td><?php echo Format::htmlchars($q->getStatus()); ?></td>
+      <td><?php echo Format::date($q->created); ?></td>
+    </tr>
+<?php } ?>
     </tbody>
 </table>
 </form>
