@@ -232,7 +232,7 @@ case 'number':
     break;
 
 case 'priority,created':
-    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__priority__priority_urgency');
+    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
     // Fall through to columns for `created`
 case 'created':
     $date_header = __('Date Created');
@@ -242,7 +242,7 @@ case 'created':
     break;
 
 case 'priority,due':
-    $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
 case 'due':
     $date_header = __('Due Date');
@@ -279,7 +279,7 @@ case 'relevance':
 
 default:
 case 'priority,updated':
-    $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through for columns defined for `updated`
 case 'updated':
     $date_header = __('Last Updated');
@@ -306,8 +306,10 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__priority__priority_color', 'cdata__priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
-
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id',
+        'ticket_id', 'number', 'cdata__subject',
+        'user__default_email__address', 'source',
+        'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
@@ -518,8 +520,9 @@ return false;">
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $T['cdata__priority__priority_color']; ?>;">
-                    <?php echo $T['cdata__priority__priority_desc']; ?></td>
+                <td class="nohover" align="center"
+                    style="background-color:<?php echo $T['cdata__:priority__priority_color']; ?>;">
+                    <?php echo $T['cdata__:priority__priority_desc']; ?></td>
                 <?php
                 }
                 ?>

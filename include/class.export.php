@@ -59,7 +59,7 @@ class Export {
         // Reset the $sql query
         $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',
-                'team', 'staff', 'cdata', 'topic', 'status', 'cdata.priority')
+                'team', 'staff', 'cdata', 'topic', 'status', 'cdata__:priority')
             ->annotate(array(
                 'collab_count' => TicketThread::objects()
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
@@ -81,7 +81,7 @@ class Export {
                 'cdata.subject' =>  __('Subject'),
                 'user.name' =>      __('From'),
                 'user.default_email.address' => __('From Email'),
-                'cdata.priority.priority_desc' => __('Priority'),
+                'cdata.:priority.priority_desc' => __('Priority'),
                 'dept::getLocalName' => __('Department'),
                 'topic::getName' => __('Help Topic'),
                 'source' =>         __('Source'),
