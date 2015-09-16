@@ -94,10 +94,13 @@ if ($lang) {
     <ul id="nav">
 <?php include STAFFINC_DIR . "templates/navigation.tmpl.php"; ?>
     </ul>
-    <ul id="sub_nav">
-<?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
-    </ul>
-    <div id="content">
+        <nav id="customQ_nav" class="jb-overflowmenu">
+            <ul>
+                <?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
+            </ul>
+        </nav>
+
+        <div id="content">
         <?php if($errors['err']) { ?>
             <div id="msg_error"><?php echo $errors['err']; ?></div>
         <?php }elseif($msg) { ?>
