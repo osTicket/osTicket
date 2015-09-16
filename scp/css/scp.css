@@ -3143,6 +3143,7 @@ tr i.help-tip.warning {
 .truncate.bleed {
     text-overflow: clip;
 }
+
 td.indented {
     padding-left: 20px;
 }
@@ -3337,6 +3338,36 @@ td.indented {
     margin: -4px 0.3em 0;
     vertical-align: middle;
 }
+
+/******** Start Thread Preview Styles ********/
+
+.thread-preview .truncate {
+    max-width: 90%;
+}
+
+.thread-preview {
+    max-height:350px;
+    overflow-x:auto;
+    margin:5px 0px;
+}
+
+.thread-preview #thread-items {
+    z-index: 0;
+    position: relative;
+    padding:0 10px;
+    margin-top: 0px;
+}
+
+.thread-preview #thread-items::before {
+    margin-left: 84px;
+}
+
+.thread-preview #thread-items .muted-button {
+    font-size:12px;
+    margin:-1px 0 -1px 0px;
+}
+
+/******** End Thread Preview Styles ********/
 
 #thread-items::before {
   border-left: 2px dotted #ddd;
