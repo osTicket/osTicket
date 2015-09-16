@@ -29,7 +29,7 @@
   margin: 0;
   line-height: 18px;
 }
-.action-dropdown ul li > a {
+.action-dropdown ul li > a{
   display: block;
   color: #555;
   text-decoration: none;
@@ -53,15 +53,18 @@
   background-color: rgba(0, 136, 204, 0.2);
   color: #08C;
 }
-.action-dropdown ul li.danger > a:hover {
+.action-dropdown ul li.positive > a:hover, .customQ-dropdown ul li.positive > a:hover {
+  background-color: #02aa4c;
+}
+.action-dropdown ul li.danger > a:hover, .customQ-dropdown ul li.danger > a:hover {
   background-color: #CF3F3F;
 }
-.action-dropdown ul li > a.disabled {
+.action-dropdown ul li > a.disabled, .customQ-dropdown ul li > a.disabled {
   pointer-events: none;
   color: #999;
   color: rgba(85,85,85,0.5);
 }
-.action-dropdown hr {
+.action-dropdown hr, .customQ-dropdown hr {
   height: 1px;
   border: none;
   border-bottom: 1px solid #ddd;
