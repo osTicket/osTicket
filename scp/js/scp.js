@@ -1276,3 +1276,35 @@ window.relativeAdjust = setInterval(function() {
         });
     };
 })(jQuery);
+
+/*Custom Queues Dropdown*/
+
+$(function() {
+  // whenever we hover over a menu item that has a submenu
+  $('.editQ').on('mouseover', function() {
+    var $menuItem = $(this),
+        $submenuWrapper = $('.manageQ', $menuItem);
+
+    // grab the menu item's position relative to its positioned parent
+    var menuItemPos = $menuItem.position();
+
+    // place the submenu in the correct position relevant to the menu item
+    $submenuWrapper.css({
+      top: menuItemPos.top - 41,
+      left: menuItemPos.left + Math.round($menuItem.outerWidth() * 0)
+    });
+  });
+});
+
+$( document ).ready(function(){
+    var target = $('#customQ_nav').overflowmenu({
+        change: function( e, ui ){
+            var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
+            if( ui.secondary.children().length ){
+                handle.css('display', 'inline-block')
+            }else{
+                handle.css('display', 'none')
+            }
+        }
+    });
+})
