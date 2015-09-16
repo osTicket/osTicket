@@ -171,7 +171,7 @@ a time {
     text-align:center;
 }
 
-#nav, #sub_nav {
+#nav {
     clear:both;
     margin:0;
     padding:0 20px;
@@ -182,7 +182,9 @@ a time {
     white-space: nowrap;
 }
 
-#nav .active, #sub_nav li {
+
+
+#nav .active {
     padding:0;
     list-style:none;
     display:inline;
@@ -297,38 +299,426 @@ a time {
     color:#E65524;
     background-color: #fbfbfb;
     background-color: rgba(0,0,0,0.05);
-}
 
-#sub_nav {
+}
+/***********************************************************************
+                 Start Custom Queues Menu System
+/***********************************************************************/
+
+#customQ_nav {
     background:#f7f7f7;
     border-bottom:1px solid #bebebe;
-    padding: 2px 20px;
+    clear:both;
+    margin:0;
+    padding:0;
+    line-height:26px;
+    border-left:1px solid #aaa;
+    border-right:1px solid #aaa;
 }
 
-#sub_nav a {
+#customQ_nav li.item a > i {
+    margin-top:5px;
+}
+
+#customQ_nav li.item {
+    position:relative;
+    padding:3px 6px 4px;
+    display: inline-block;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+    z-index:10;
+}
+
+#customQ_nav li.item > a {
     display:inline-block;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
     color:#000;
 }
-#sub_nav li + li > a {
-    margin-left:10px;
-}
 
-#sub_nav a:hover {
+#customQ_nav li.item:hover {
+    padding:2px 5px 4px;
     color:#E65524;
+    background-color: #fff;
+    border-left:1px solid #bebebe;
+    border-top:1px solid #bebebe;
+    border-right:1px solid #bebebe;
 }
 
-#sub_nav a.active {
+#customQ_nav li.item:hover > a {
+    color:#E65524;
+    text-decoration: none;
+}
+
+#customQ_nav li.item > a.active {
     font-weight:bold;
 }
 
-#sub_nav .open     { background-image:url(../images/icons/open.gif) }
-#sub_nav .answered { background-image:url(../images/icons/answered.gif) }
-#sub_nav .mine     { background-image:url(../images/icons/mine.gif) }
-#sub_nav .closed   { background-image:url(../images/icons/closed.gif) }
-#sub_nav .new      { background-image:url(../images/icons/new.gif) }
+#customQ_nav .open     { background-image:url(../images/icons/open.gif) }
+#customQ_nav .answered { background-image:url(../images/icons/answered.gif) }
+#customQ_nav .mine     { background-image:url(../images/icons/mine.gif) }
+#customQ_nav .closed   { background-image:url(../images/icons/closed.gif) }
+#customQ_nav .search   { background-image:url(../images/icons/search.gif) }
+#customQ_nav .new      { background-image:url(../images/icons/new.gif) }
+
+/**********************initiate Custom Queues Dropdown******************/
+
+#customQ_nav ul li.item div.customQ-dropdown {
+    display:none;
+}
+
+#customQ_nav ul li.item:hover div.customQ-dropdown {
+    display:block;
+}
+
+/***************************************
+          Custom Q Dropdown
+****************************************/
+
+/*** custom Queue global settings ***/
+
+.customQ-dropdown * {
+    padding:0;
+    margin:0;
+}
+
+.customQ-dropdown a:only-of-type   {
+    padding-top:2px;
+    padding-bottom:2px;
+    display:inline-block;
+    text-decoration:none;
+    text-transform:capitalize;
+}
+
+.customQ-dropdown ul li {
+    list-style:none;
+    list-style-image: none;
+}
+
+.customQ-dropdown li h4 {
+    padding:2px 8px;
+    margin:0;
+    background-color:#ddd;
+    color:#666;
+}
+
+.customQ-dropdown li > span {
+    color:#CF3F3F;
+    font-weight:bold;
+    float:right;
+}
+.customQ-dropdown li > span.disabled {
+    color:#ccc;
+    font-weight:normal;
+}
+
+/*** custom queue dropdown container ***/
+
+.customQ-dropdown {
+    border-top-right-radius:6px;
+    border-bottom-right-radius:6px;
+    border-bottom-left-radius:6px;
+    border: solid 1px #ddd;
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding:6px 0;
+    background:#fff;
+    text-align: left;
+    font-size: 0.95em;
+    min-width: 280px;
+
+    list-style: none;
+    left:-1px;
+    top:32px;
+    position:absolute;
+    z-index:-10;
+}
+
+.customQ-dropdown ul.scroll-height {
+    max-height:400px;
+    border-bottom:1px solid #ddd;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+/*** set max width for truncating long links ***/
+
+.customQ-dropdown ul li > a {
+    max-width:170px;
+}
+
+.customQ-dropdown ul li > ul li > a {
+    max-width:180px!IMPORTANT;
+}
+
+/************ Custom Queue Button Styles *************/
+
+.customQ-dropdown ul li, .customQ-dropdown ul li > a {
+    color:#666;
+    white-space: nowrap;
+
+}
+.customQ-dropdown ul li > a {
+    margin-right:42px;
+}
+
+.customQ-dropdown ul li:hover, .customQ-dropdown ul li:hover > a {
+    color:#fff;
+    background-color:#08C;
+    cursor:pointer;
+}
+/************ Custom Queue Button with Sub Queues *************/
+
+.customQ-dropdown ul li.subQ > i, .customQ-dropdown ul li div.editQ > i {
+    padding:0px 8px;
+}
+
+/************ Custom Queue Button without Sub Queues *************/
+
+.customQ-dropdown ul li.subQ > ul li > a:before  {
+    content:"";
+    padding:0px 8px;
+
+}
+
+.customQ-dropdown ul li:not(.subQ) > a:before  {
+    content:"";
+    padding:0px 4px;
+
+}
+.customQ-dropdown ul li:not(.subQ) > a {
+    max-width:190px;
+}
+
+/************ Custom Queue Nested Queue Container *************/
+
+.customQ-dropdown ul li > ul {
+    background-color:#eee;
+    border-top:1px dotted #ddd;
+    border-bottom:1px dotted #ddd;
+}
+
+.customQ-dropdown ul li.subQ > ul li > a {
+    padding-left:10px;
+    padding-right:10px;
+}
+
+/************ Custom Queue Add/Save a Queue Button *************/
+
+.customQ-dropdown .add-queue a {
+    display:block;
+    padding:10px;
+    color:#666!IMPORTANT;
+    cursor:pointer;
+    white-space: nowrap;
+}
+
+.customQ-dropdown .add-queue a span {
+    padding:0 10px;
+    -webkit-opacity: .4;
+    -moz-opacity: .4;
+    opacity: .4;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -ms-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.customQ-dropdown .add-queue a:hover span {
+    -webkit-opacity: 1;
+    -moz-opacity: 1;
+    opacity: 1;
+}
+
+.customQ-dropdown .add-queue a:hover {
+    color:#666!IMPORTANT;
+    text-decoration: none;
+    background-color:#ddd;
+}
+
+.customQ-dropdown .add-queue .add {
+    color: #16ab39;
+}
+
+.no-queue.customQ-dropdown .add-queue a span {
+    opacity: 1;
+}
+
+/***************** Custom Queue Edit Nav ******************/
+
+/*** icon cog styles ***/
+
+.customQ-dropdown ul li > div.editQ {
+    margin-top:2px;
+}
+
+.customQ-dropdown ul li > div.editQ i {
+    color:rgba(255, 255, 255, 0);
+}
+
+.customQ-dropdown ul li:hover > div.editQ i {
+    color:rgba(255, 255, 255, 0.2);
+}
+
+.customQ-dropdown ul li > div.editQ:hover i {
+    color:rgba(255, 255, 255, 1);
+}
+
+/***edit nav popout ***/
+
+.customQ-dropdown ul li > div.editQ .manageQ a:before  {
+    content:none;
+    padding:0;
+}
+
+.customQ-dropdown div.editQ .manageQ a {
+    padding-left:0px;
+    padding-right:10px;
+    white-space: nowrap;
+    margin-right:0px;
+
+}
+
+.customQ-dropdown div.editQ .manageQ a > i {
+    margin-left:5px;
+    margin-right:5px;
+}
+
+.customQ-dropdown div.editQ .manageQ {
+    display:none;
+    position:absolute;
+    top:0;
+    left:0px;
+    z-index:2;
+    padding:34px 28px;
+}
+
+.customQ-dropdown div.editQ .manageQ ul {
+    border:1px solid #ddd;
+    min-width:75px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding:6px 0;
+    background-color:#fff;
+}
+
+/*** edit nav link styles ***/
+
+.customQ-dropdown div.editQ:hover .manageQ {
+    display:block;
+}
+
+.customQ-dropdown div.editQ:hover .manageQ i {
+    color:#555;
+}
+
+.customQ-dropdown div.editQ:hover .manageQ a {
+    min-width:100px;
+
+}
+
+.customQ-dropdown div.editQ:hover .manageQ a:hover i {
+    color:#fff;
+}
+
+/***************************************
+          Overflow Menu
+****************************************/
+
+.jb-overflowmenu {
+    position: relative;
+    height:35px;
+}
+
+.jb-overflowmenu-menu-secondary{
+    text-align: right;
+}
+
+.jb-overflowmenu ul.jb-overflowmenu-menu-primary {
+    padding: 0;
+    margin: 2px 0 0 0;
+    height:30px!IMPORTANT;
+    right:30px!IMPORTANT;
+}
+
+.jb-overflowmenu .jb-overflowmenu-helper-postion {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0px;
+    overflow: visible;
+    position: absolute;
+}
+
+/*holds the overflow menu and label*/
+
+.jb-overflowmenu .jb-overflowmenu-container {
+    display: inline;
+    left: auto;
+    bottom: 0px;
+}
+
+.jb-overflowmenu .jb-overflowmenu-container a {
+    color:#666;
+    padding:10px;
+    background-color:#eee;
+    border-left:1px solid #bebebe;
+}
+.jb-overflowmenu .jb-overflowmenu-container a:hover {
+    color:#000;
+    background-color:#ddd;
+    }
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    display: none;
+    position: absolute;
+    min-width: 15em;
+    z-index: 100;
+    max-height: 44em;
+    padding:0;
+    margin:0;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-primary li.item {
+    display:inline-block;
+    padding:6px 0px;
+    margin:0 5px;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-primary li.item > a {
+     padding:4px 15px;
+
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary li {
+    display:block;
+    padding:5px;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary li > a {
+    display:block;
+    padding:11px;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary-handle {
+    width:12px;
+    text-align:center;
+    padding:5px;
+    line-height:15px;
+    color:#666;
+}
+
+.jb-overflowmenu .placeholder{
+    visibility: hidden;
+}
+
+/**********************End Custom Queues Dropdown******************/
 
 a.test  { background-image:url(../images/icons/open.gif) }
 
