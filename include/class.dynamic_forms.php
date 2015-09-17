@@ -345,6 +345,9 @@ class DynamicForm extends VerySimpleModel {
             return TaskForm::updateDynamicDataView($answer, $data);
         case OBJECT_TYPE_USER:
             return UserForm::updateDynamicDataView($answer, $data);
+        case OBJECT_TYPE_ORG:
+            return OrganizationForm::updateDynamicDataView($answer, $data);
+
         }
 
     }
@@ -360,6 +363,8 @@ class DynamicForm extends VerySimpleModel {
             return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
         case OBJECT_TYPE_USER:
             return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+        case OBJECT_TYPE_ORG:
+            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
         }
 
     }

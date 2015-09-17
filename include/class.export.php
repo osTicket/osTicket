@@ -217,30 +217,19 @@ class Export {
 
         $exclude = array('name');
         $form = OrganizationForm::getDefaultForm();
-        $fields = $form->getExportableFields($exclude);
-
-        // Field selection callback
-        $fname = function ($f) {
-            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
-        };
-
-        $sql = substr_replace($sql,
-                ','.implode(',', array_map($fname, $fields)).' ',
-                strpos($sql, 'FROM '), 0);
-
-        $sql = substr_replace($sql,
-                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, '_org_id', $exclude).') cdata
-                    ON (cdata._org_id = org.id) ',
-                strpos($sql, 'WHERE '), 0);
-
+        $fields = $form->getExportableFields($exclude, 'cdata.');
         $cdata = array_combine(array_keys($fields),
                 array_values(array_map(
-                        function ($f) { return $f->get('label'); }, $fields)));
+                        function ($f) { return $f->getLocal('label'); }, $fields)));
 
-        $cdata += array('account_manager' => 'Account Manager', 'users' => 'Users');
+        $cdata += array(
+                '::getNumUsers' => 'Users',
+                '::getAccountManager' => 'Account Manager',
+                );
 
+        $orgs = $sql->models();
         ob_start();
-        echo self::dumpQuery($sql,
+        echo self::dumpQuery($orgs,
                 array(
                     'name'  =>  'Name',
                     ) + $cdata,

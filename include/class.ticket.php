@@ -205,6 +205,7 @@ RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions(), 
 
 class TicketCData extends VerySimpleModel {
     static $meta = array(
+        'table' => TICKET_CDATA_TABLE,
         'pk' => array('ticket_id'),
         'joins' => array(
             'ticket' => array(
@@ -217,7 +218,6 @@ class TicketCData extends VerySimpleModel {
         ),
     );
 }
-TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 class Ticket extends TicketModel
 implements RestrictedAccess, Threadable {
