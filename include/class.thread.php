@@ -287,19 +287,14 @@ class Thread extends VerySimpleModel {
         // | Message (M)      | Response (R)      | From: Staff |
         // +------------------+-------------------+-------------+
 
-        if (!$object = $this->getObject()) {
-            // How should someone find this thread?
-            return false;
-        }
-        elseif ($object instanceof Ticket && (
-               !$mailinfo['staffId']
-            && $object->isClosed()
-            && !$object->isReopenable()
-        )) {
-            // Ticket is closed, not reopenable, and email was not submitted
-            // by an agent. Email cannot be submitted
-            return false;
-        }
+        // Make sure object is Threadable instance
+        $object = $this->getObject();
+        if (!$object instanceof Threadable
+                // Object is not threadable and email was not submitted by
+                // an agent. Cannot continue the conversation
+                || (!$object->isThreadable() && $mailinfo['staffId'])
+                )
+             return false;
 
         $vars = array(
             'mid' =>    $mailinfo['mid'],
@@ -2612,6 +2607,7 @@ interface Threadable {
     function getThreadId();
     function getThread();
     function postThreadEntry($type, $vars, $options=array());
+    function isThreadable();
 }
 
 /**

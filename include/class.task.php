@@ -253,6 +253,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->_answers;
     }
 
+    function isThreadable() {
+        return true;
+    }
+
     function getStatus() {
         return $this->isOpen() ? __('Open') : __('Completed');
     }

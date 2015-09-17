@@ -1040,6 +1040,20 @@ class TicketStatusList extends CustomListHandler {
                 $status_choices[$s->getId()] = $s->getName();
 
         return array(
+            'threadable' => new BooleanField(array(
+                'label' =>__('Conversation Threading'),
+                'default' => isset($source['threadable'])
+                    ?  $source['threadable']: true,
+                'id' => 'threadable',
+                'name' => 'threadable',
+                'configuration' => array(
+                    'desc'=>__('Enable threading for tickets on this status'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'open')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
             'allowreopen' => new BooleanField(array(
                 'label' =>__('Allow Reopen'),
                 'default' => isset($source['allowreopen'])
@@ -1075,26 +1089,29 @@ class TicketStatusList extends CustomListHandler {
     }
 
     function getConfigurationForm($source=null) {
-        if (!($form = $this->getForm()))
-            return null;
 
-        $form = $form->getForm($source);
-        $fields = $form->getFields();
-        foreach ($fields as $k => $f) {
-            if ($f->get('name') == 'state' //TODO: check if editable.
-                    && ($extras=$this->getExtraConfigOptions($source))) {
-                foreach ($extras as $extra) {
-                    $extra->setForm($form);
-                    $fields->insert(++$k, $extra);
+        if (!$this->_form && ($form = $this->getForm())) {
+
+            $this->_form = $form->getForm($source);
+            $fields = $this->_form->getFields();
+            foreach ($fields as $k => $f) {
+                if ($f->get('name') == 'state') {
+                    // See if we need to add extra options
+                    if (($extras=$this->getExtraConfigOptions($source))) {
+                        foreach ($extras as $extra) {
+                            $extra->setForm($this->_form);
+                            $fields->insert(++$k, $extra);
+                        }
+                        break;
+                    }
                 }
-                break;
             }
+
+            // Enable selection and display of private states
+            $this->_form->getField('state')->options['private_too'] = true;
         }
 
-        // Enable selection and display of private states
-        $form->getField('state')->options['private_too'] = true;
-
-        return $form;
+        return $this->_form;
     }
 
     function getListItemBasicForm($source=null, $item=false) {
@@ -1185,6 +1202,7 @@ implements CustomListItem, TemplateVariable {
 
     function isReopenable() {
 
+        // TODO: Consider archived & deleted states
         if (strcasecmp($this->get('state'), 'closed'))
             return true;
 
@@ -1194,6 +1212,19 @@ implements CustomListItem, TemplateVariable {
             return true;
 
         return false;
+    }
+
+    function isThreadable() {
+
+        if (strcasecmp($this->get('state'), 'open'))
+            return false;
+
+        if (($c=$this->getConfiguration())
+                && isset($c['threadable']))
+            return ($c['threadable']);
+
+        // Assume threadable if the config is not set.
+        return true;
     }
 
     function getReopenStatus() {
@@ -1207,6 +1238,7 @@ implements CustomListItem, TemplateVariable {
                     $c['reopenstatus'] ?: $cfg->getDefaultTicketStatusId());
 
         return ($status
+                && $status->isEnabled()
                 && !strcasecmp($status->getState(), 'open'))
             ?  $status : null;
     }
@@ -1329,17 +1361,22 @@ implements CustomListItem, TemplateVariable {
 
     function getConfigurationForm($source=null) {
         if (!$this->_form) {
-            $config = $this->getConfiguration();
             $this->_form = $this->getList()->getConfigurationForm($source);
+            $isinternal = $this->isInternal();
+            $config = $this->getConfiguration();
             if (!$source && $config) {
-                $fields = $this->_form->getFields();
-                foreach ($fields as $f) {
+                foreach ($this->_form->getFields() as $f) {
                     $val = $config[$f->get('id')] ?: $config[$f->get('name')];
                     if (isset($val))
                         $f->value = $f->to_php($val);
                     elseif ($f->get('default'))
                         $f->value = $f->get('default');
                 }
+            }
+
+            // Retain state and set rendering option if internal status
+            if ($isinternal && ($f=$this->_form->getField('state'))) {
+                $f->options['render_mode'] = 'view';
             }
         }
 
@@ -1378,15 +1415,26 @@ implements CustomListItem, TemplateVariable {
     }
 
     function setConfiguration($vars, &$errors=array()) {
+
         $properties = array();
-        foreach ($this->getList()->getConfigurationForm($vars)->getFields() as $f) {
-            if ($this->isInternal() //Item is internal.
-                    && !$f->isEditable())
-                continue;
+        $isinternal = $this->isInternal();
+
+        //Add state for validation purposes
+        if ($isinternal && $vars)
+            $vars['state'] = $this->getState();
+
+        // Validate form and save data if no errors
+        $form = $this->getList()->getConfigurationForm($vars);
+        foreach ($form->getFields() as $f) {
             $val = $f->getClean();
             $errors = array_merge($errors, $f->errors());
             if ($f->errors()) continue;
+
             $name = mb_strtolower($f->get('name'));
+            // State of internal status cannot be changed.
+            if ($isinternal && $name == 'state')
+                continue;
+
             switch ($name) {
                 case 'flags':
                     if ($val && is_array($val)) {

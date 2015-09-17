@@ -26,6 +26,10 @@ if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
             __('Current ticket status (%s) does not allow the end user to reply.'),
             $ticket->getStatus());
+elseif (!$ticket->isThreadable())
+    $warn = sprintf(
+            __('Current ticket status (%s) does not allow for threaded conversation.'),
+            $ticket->getStatus());
 elseif ($ticket->isAssigned()
         && (($staff && $staff->getId()!=$thisstaff->getId())
             || ($team && !$team->hasMember($thisstaff))

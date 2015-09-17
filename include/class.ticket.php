@@ -274,6 +274,35 @@ implements RestrictedAccess, Threadable {
         return $this->getStatus()->isReopenable();
     }
 
+    /*
+     * isThreadable()
+     *
+     * Deptermine if a ticket can continue the thread of conversation
+     *
+     */
+    function isThreadable() {
+
+        // Current 'Open' status forbids threading
+        if ($this->isOpen() && !$this->getStatus()->isThreadable())
+            return false;
+
+        // Ticket is closed
+        if ($this->isClosed()) {
+            // Current status doesn't allow for the ticket to be reopened
+            if ($this->getStatus()->isReopenable())
+                return false;
+
+            // Configured reopen status doesn't allow threading
+            $status=$this->getStatus()->getReopenStatus();
+            if ($status && !$status->isThreadable())
+                return false;
+        }
+
+        // At this point we're clear to thread the conversation
+
+        return true;
+    }
+
     function isClosed() {
          return $this->hasState('closed');
     }

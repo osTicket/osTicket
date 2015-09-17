@@ -1,7 +1,7 @@
 <?php
-    $properties_form = $item ? $item->getConfigurationForm($_POST ?: null)
-        : $list->getConfigurationForm($_POST ?: null);
-    $hasProperties = count($properties_form->getFields()) > 0;
+$properties_form = $item ? $item->getConfigurationForm($_POST ?: null)
+    : $list->getConfigurationForm($_POST ?: null);
+$hasProperties = count($properties_form->getFields()) > 0;
 ?>
 <h3 class="drag-handle"><?php echo $list->getName(); ?> &mdash; <?php
     echo $item ? $item->getValue() : __('Add New List Item'); ?></h3>

@@ -1,15 +1,18 @@
 <div class="form-simple">
     <?php
     echo $form->getMedia();
-    foreach ($form->getFields() as $name=>$f) { ?>
+    foreach ($form->getFields() as $name=>$f) {
+        $mode = $options['mode'] ?: @$f->options['render_mode'];
+        $required = ($f->get('required') && $mode != 'view');
+        ?>
         <div class="flush-left custom-field" id="field<?php echo $f->getWidget()->id;
             ?>" <?php if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
         <div>
   <?php if ($f->get('label')) { ?>
-        <div class="field-label <?php if ($f->get('required')) echo 'required'; ?>">
+        <div class="field-label <?php if ($required) echo 'required'; ?>">
         <label for="<?php echo $f->getWidget()->name; ?>">
             <?php echo Format::htmlchars($f->get('label')); ?>:
-  <?php if ($f->get('required')) { ?>
+  <?php if ($required) { ?>
             <span class="error">*</span>
   <?php } ?>
         </label>
