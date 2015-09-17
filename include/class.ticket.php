@@ -1496,6 +1496,10 @@ implements RestrictedAccess, Threadable {
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
         $options = array('thread' => $entry);
+
+        if ($vars['from_name'])
+            $options += array('from_name' => $vars['from_name']);
+
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of
             // the conversation
@@ -2494,15 +2498,33 @@ implements RestrictedAccess, Threadable {
         if (!$alert)
             return $response;
 
-        $options = array();
         $email = $dept->getEmail();
-
+        $options = array('thread'=>$response);
+        $signature = $from_name = '';
         if ($thisstaff && $vars['signature']=='mine')
             $signature=$thisstaff->getSignature();
         elseif ($vars['signature']=='dept' && $dept->isPublic())
             $signature=$dept->getSignature();
-        else
-            $signature='';
+
+        if ($thisstaff && ($type=$thisstaff->getReplyFromNameType())) {
+            switch ($type) {
+                case 'mine':
+                    if (!$cfg->hideStaffName())
+                        $from_name = (string) $thisstaff->getName();
+                    break;
+                case 'dept':
+                    if ($dept->isPublic())
+                        $from_name = $dept->getName();
+                    break;
+                case 'email':
+                default:
+                    $from_name =  $email->getName();
+            }
+
+            if ($from_name)
+                $options += array('from_name' => $from_name);
+
+        }
 
         $variables = array(
             'response' => $response,
@@ -2511,9 +2533,7 @@ implements RestrictedAccess, Threadable {
             'poster' => $thisstaff
         );
 
-
         $user = $this->getOwner();
-        $options = array('thread' => $response);
         if (($email=$dept->getEmail())
             && ($tpl = $dept->getTemplate())
             && ($msg=$tpl->getReplyMsgTemplate())
@@ -2528,7 +2548,9 @@ implements RestrictedAccess, Threadable {
 
         if ($vars['emailcollab']) {
             $this->notifyCollaborators($response,
-                array('signature' => $signature)
+                array(
+                    'signature' => $signature,
+                    'from_name' => $from_name)
             );
         }
         return $response;
