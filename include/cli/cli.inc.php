@@ -23,7 +23,4 @@ define('INC_DIR',dirname(__file__).'/../inc/'); //local include dir!
 
 require_once INCLUDE_DIR . "class.cli.php";
 
-Bootstrap::loadConfig();
-Bootstrap::defineTables(TABLE_PREFIX);
-Bootstrap::loadCode();
 Bootstrap::i18n_prep();
