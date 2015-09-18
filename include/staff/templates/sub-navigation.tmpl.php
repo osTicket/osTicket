@@ -38,7 +38,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
             <li class="subQ">
                 <i class="icon-caret-down"></i>
                 <!-- Edit Queue -->
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -58,7 +58,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <ul>
                     <li>
                         <!-- Edit Queue -->
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -79,7 +79,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
             </li>
             <li>
                 <!-- Edit Queue -->
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -101,7 +101,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -133,7 +133,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
     <div class="customQ-dropdown">
         <ul class="scroll-height">
             <li>
-                <div class="editQ pull-right"><i class="icon-cog"></i>
+                <div class="editQ"><i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
                             <li>
@@ -166,7 +166,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Shared Searches</h4>
             </li>
             <li>
-                <div class="editQ pull-right"><i class="icon-cog"></i>
+                <div class="editQ"><i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
                             <li>
@@ -187,7 +187,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>My Searches</h4>
             </li>
             <li>
-                <div class="editQ pull-right"><i class="icon-cog"></i>
+                <div class="editQ"><i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
                             <li>
@@ -220,7 +220,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
     <div class="customQ-dropdown">
         <ul class="scroll-height">
             <li>
-                <div class="editQ pull-right"><i class="icon-cog"></i>
+                <div class="editQ"><i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
                             <li>
@@ -253,7 +253,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         <ul class="scroll-height">
             <li class="subQ">
                 <i class="icon-caret-down"></i>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -269,7 +269,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <a class="truncate">Open</a>
                 <ul>
                     <li>
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -287,7 +287,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 </ul>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -306,7 +306,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -337,7 +337,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         <ul class="scroll-height">
             <li class="subQ">
                 <i class="icon-caret-down"></i>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -353,7 +353,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <a class="truncate">Open</a>
                 <ul>
                     <li>
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -371,7 +371,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 </ul>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -390,7 +390,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -421,7 +421,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         <ul class="scroll-height">
             <li class="subQ">
                 <i class="icon-caret-down"></i>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -437,7 +437,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <a class="truncate">Open</a>
                 <ul>
                     <li>
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -455,7 +455,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 </ul>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -474,7 +474,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -505,7 +505,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         <ul class="scroll-height">
             <li class="subQ">
                 <i class="icon-caret-down"></i>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -521,7 +521,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <a class="truncate">Open</a>
                 <ul>
                     <li>
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -539,7 +539,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 </ul>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -558,7 +558,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -589,7 +589,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         <ul class="scroll-height">
             <li class="subQ">
                 <i class="icon-caret-down"></i>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -605,7 +605,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 <a class="truncate">Open</a>
                 <ul>
                     <li>
-                        <div class="editQ pull-right">
+                        <div class="editQ">
                             <i class="icon-cog"></i>
                             <div class="manageQ">
                                 <ul>
@@ -623,7 +623,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                 </ul>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
@@ -636,13 +636,14 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                         </ul>
                     </div>
                 </div>
+                <span>(80)</span>
                 <a href="#">Answered</a>
             </li>
             <li>
                 <h4>Personal Queue</h4>
             </li>
             <li>
-                <div class="editQ pull-right">
+                <div class="editQ">
                     <i class="icon-cog"></i>
                     <div class="manageQ">
                         <ul>
