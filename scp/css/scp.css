@@ -324,7 +324,6 @@ a time {
     display: inline-block;
     border-top-right-radius: 6px;
     border-top-left-radius: 6px;
-    z-index:10;
     margin:0 2px;
 }
 
@@ -435,7 +434,7 @@ a time {
     left:-1px;
     top:32px;
     position:absolute;
-    z-index:-10;
+    z-index:10;
 }
 
 .customQ-dropdown ul.scroll-height {
@@ -714,7 +713,7 @@ a time {
     left: auto;
     display: none;
     position: absolute;
-    z-index: 20;
+    z-index: 9;
     padding:0;
     margin:0;
 }
@@ -781,7 +780,7 @@ a time {
     left:-247px;
     top:-1px;
     position:absolute;
-    z-index:-10;
+    z-index:10;
 }
 .jb-overflowmenu-menu-secondary .customQ-dropdown ul li > div.editQ {
     margin-top:2px;
