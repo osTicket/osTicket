@@ -316,20 +316,19 @@ a time {
     border-right:1px solid #aaa;
 }
 
-#customQ_nav li.item a > i {
-    margin-top:5px;
-}
 
-#customQ_nav li.item {
+
+#customQ_nav .jb-overflowmenu-menu-primary li.item {
     position:relative;
     padding:3px 6px 4px;
     display: inline-block;
     border-top-right-radius: 6px;
     border-top-left-radius: 6px;
     z-index:10;
+    margin:0 2px;
 }
 
-#customQ_nav li.item > a {
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a {
     display:inline-block;
     padding:0 10px 0 21px;
     background-position:0 50%;
@@ -337,7 +336,7 @@ a time {
     color:#000;
 }
 
-#customQ_nav li.item:hover {
+#customQ_nav .jb-overflowmenu-menu-primary li.item:hover {
     padding:2px 5px 4px;
     color:#E65524;
     background-color: #fff;
@@ -346,13 +345,17 @@ a time {
     border-right:1px solid #bebebe;
 }
 
-#customQ_nav li.item:hover > a {
+#customQ_nav .jb-overflowmenu-menu-primary li.item:hover > a {
     color:#E65524;
     text-decoration: none;
 }
 
-#customQ_nav li.item > a.active {
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
     font-weight:bold;
+}
+
+#customQ_nav .jb-overflowmenu-menu-primary li.item a > i {
+    margin-top:5px;
 }
 
 #customQ_nav .open     { background-image:url(../images/icons/open.gif) }
@@ -401,10 +404,11 @@ a time {
     margin:0;
     background-color:#ddd;
     color:#666;
+    text-align:left;
 }
 
 .customQ-dropdown li > span {
-    color:#CF3F3F;
+    color:#E65524;
     font-weight:bold;
     float:right;
 }
@@ -415,19 +419,18 @@ a time {
 
 /*** custom queue dropdown container ***/
 
-.customQ-dropdown {
+.jb-overflowmenu-menu-primary div.customQ-dropdown {
     border-top-right-radius:6px;
     border-bottom-right-radius:6px;
     border-bottom-left-radius:6px;
     border: solid 1px #ddd;
     border: solid 1px rgba(0, 0, 0, 0.2);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    padding:6px 0;
+    padding:12px 0;
     background:#fff;
     text-align: left;
     font-size: 0.95em;
-    min-width: 280px;
-
+    min-width: 245px;
     list-style: none;
     left:-1px;
     top:32px;
@@ -460,12 +463,16 @@ a time {
 
 }
 .customQ-dropdown ul li > a {
-    margin-right:42px;
+    margin-right:0px;
 }
 
-.customQ-dropdown ul li:hover, .customQ-dropdown ul li:hover > a {
+.customQ-dropdown ul li:hover {
     color:#fff;
     background-color:#08C;
+    cursor:pointer;
+}
+.customQ-dropdown ul li:hover > a {
+    color:#fff;
     cursor:pointer;
 }
 /************ Custom Queue Button with Sub Queues *************/
@@ -550,8 +557,9 @@ a time {
 
 /*** icon cog styles ***/
 
-.customQ-dropdown ul li > div.editQ {
+.jb-overflowmenu-menu-primary .customQ-dropdown ul li > div.editQ {
     margin-top:2px;
+    float:right;
 }
 
 .customQ-dropdown ul li > div.editQ i {
@@ -566,7 +574,7 @@ a time {
     color:rgba(255, 255, 255, 1);
 }
 
-/***edit nav popout ***/
+/*** edit nav popout ***/
 
 .customQ-dropdown ul li > div.editQ .manageQ a:before  {
     content:none;
@@ -586,16 +594,15 @@ a time {
     margin-right:5px;
 }
 
-.customQ-dropdown div.editQ .manageQ {
+.jb-overflowmenu-menu-primary .customQ-dropdown div.editQ .manageQ {
     display:none;
     position:absolute;
     top:0;
     left:0px;
-    z-index:2;
     padding:34px 28px;
 }
 
-.customQ-dropdown div.editQ .manageQ ul {
+.jb-overflowmenu-menu-primary .customQ-dropdown div.editQ .manageQ ul {
     border:1px solid #ddd;
     min-width:75px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -633,15 +640,9 @@ a time {
     height:35px;
 }
 
-.jb-overflowmenu-menu-secondary{
-    text-align: right;
-}
 
-.jb-overflowmenu ul.jb-overflowmenu-menu-primary {
-    padding: 0;
-    margin: 2px 0 0 0;
-    height:30px!IMPORTANT;
-    right:30px!IMPORTANT;
+.jb-overflowmenu .placeholder{
+    visibility: hidden;
 }
 
 .jb-overflowmenu .jb-overflowmenu-helper-postion {
@@ -655,55 +656,30 @@ a time {
 
 /*holds the overflow menu and label*/
 
-.jb-overflowmenu .jb-overflowmenu-container {
-    display: inline;
-    left: auto;
-    bottom: 0px;
-}
-
-.jb-overflowmenu .jb-overflowmenu-container a {
-    color:#666;
-    padding:10px;
-    background-color:#eee;
-    border-left:1px solid #bebebe;
-}
-.jb-overflowmenu .jb-overflowmenu-container a:hover {
-    color:#000;
-    background-color:#ddd;
-    }
-
-.jb-overflowmenu .jb-overflowmenu-menu-secondary {
-    top: auto;
-    bottom: auto;
-    left: auto;
-    display: none;
-    position: absolute;
-    min-width: 15em;
-    z-index: 100;
-    max-height: 44em;
-    padding:0;
-    margin:0;
+.jb-overflowmenu .jb-overflowmenu-menu-primary {
+    padding: 0;
+    margin: 2px 0 0 0;
+    height:30px!IMPORTANT;
+    right:30px!IMPORTANT;
 }
 
 .jb-overflowmenu .jb-overflowmenu-menu-primary li.item {
     display:inline-block;
     padding:6px 0px;
-    margin:0 5px;
+    margin:0 0px;
 }
 
 .jb-overflowmenu .jb-overflowmenu-menu-primary li.item > a {
-     padding:4px 15px;
+     padding:4px 10px;
 
 }
 
-.jb-overflowmenu .jb-overflowmenu-menu-secondary li {
-    display:block;
-    padding:5px;
-}
+/******** Overflow menu and Dropdown *********/
 
-.jb-overflowmenu .jb-overflowmenu-menu-secondary li > a {
-    display:block;
-    padding:11px;
+.jb-overflowmenu .jb-overflowmenu-container {
+    display: inline;
+    left: auto;
+    bottom: 0px;
 }
 
 .jb-overflowmenu .jb-overflowmenu-menu-secondary-handle {
@@ -714,8 +690,127 @@ a time {
     color:#666;
 }
 
-.jb-overflowmenu .placeholder{
-    visibility: hidden;
+.jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle {
+    color:#666;
+    padding:10px;
+    background-color:#eee;
+    border-left:1px solid #bebebe;
+}
+.jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle:hover {
+    color:#000;
+    background-color:#ddd;
+}
+
+/*** Overflow navigation ***/
+.jb-overflowmenu-menu-secondary {
+    background-color:#f7f7f7;
+    border:1px solid #bebebe;
+    padding:5px 0;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    display: none;
+    position: absolute;
+    z-index: 20;
+    padding:0;
+    margin:0;
+}
+
+/*** Overflow Dropdown ***/
+#customQ_nav .jb-overflowmenu-menu-secondary li.item:before {
+    font-family: "FontAwesome";
+    content:"\F0D9";
+    padding:5px;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item a > i {
+    margin-top:5px;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item {
+    position:relative;
+    padding:0px 10px;
+    display: inline-block;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom:1px solid #bebebe;
+    white-space:nowrap;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item > a {
+    display:inline-block;
+    padding:5px 10px 5px 21px;
+    background-position:0 50%;
+    background-repeat:no-repeat;
+    color:#000;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item:hover {
+    padding:0 10px;
+    color:#E65524;
+    background-color: #fff;
+    border-left:none;
+    border-top:none;
+    border-right:none;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item:hover > a {
+    color:#E65524;
+    text-decoration: none;
+}
+
+#customQ_nav .jb-overflowmenu-menu-secondary li.item > a.active {
+    font-weight:bold;
+}
+.jb-overflowmenu-menu-secondary div.customQ-dropdown {
+    border-top-left-radius:6px;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:6px;
+    border-bottom-left-radius:6px;
+    border: solid 1px #ddd;
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding:12px 0;
+    background:#fff;
+    font-size: 0.95em;
+    min-width: 245px;
+    list-style: none;
+    left:-247px;
+    top:-1px;
+    position:absolute;
+    z-index:-10;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown ul li > div.editQ {
+    margin-top:2px;
+    float:left;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ .manageQ {
+    display:none;
+    position:absolute;
+    z-index:20;
+    top:0;
+    left:0px;
+    padding:34px 28px;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ:hover .manageQ {
+    display:block;
+}
+
+.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ .manageQ ul {
+    border:1px solid #ddd;
+    min-width:75px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding:6px 0;
+    background-color:#fff;
+}
+
+.jb-overflowmenu-menu-secondary .customQ-dropdown li > span {
+    padding:0 5px;
 }
 
 /**********************End Custom Queues Dropdown******************/
