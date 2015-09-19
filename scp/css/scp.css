@@ -174,10 +174,9 @@ a time.relative {
     text-align:center;
 }
 
-#nav {
+#nav, #sub_nav ul {
     clear:both;
     margin:0;
-    padding:0 20px;
     height:26px;
     line-height:26px;
     border-left:1px solid #aaa;
@@ -185,9 +184,7 @@ a time.relative {
     white-space: nowrap;
 }
 
-
-
-#nav .active {
+#nav .active, #sub_nav li {
     padding:0;
     list-style:none;
     display:inline;
@@ -304,6 +301,39 @@ a time.relative {
     background-color: rgba(0,0,0,0.05);
 
 }
+
+#sub_nav ul {
+    background:#f7f7f7;
+    border-bottom:1px solid #bebebe;
+    padding:2px 20px;
+}
+
+#sub_nav a {
+    display:inline-block;
+    padding:0 10px 0 21px;
+    background-position:0 50%;
+    background-repeat:no-repeat;
+    color:#000;
+}
+
+#sub_nav ul li + li > a {
+    margin-left:10px;
+}
+
+#sub_nav a:hover {
+    color:#E65524;
+}
+
+#sub_nav a.active {
+    font-weight:bold;
+}
+
+#sub_nav .open     { background-image:url(../images/icons/open.gif) }
+#sub_nav .answered { background-image:url(../images/icons/answered.gif) }
+#sub_nav .mine     { background-image:url(../images/icons/mine.gif) }
+#sub_nav .closed   { background-image:url(../images/icons/closed.gif) }
+#sub_nav .new      { background-image:url(../images/icons/new.gif) }
+
 /***********************************************************************
                  Start Custom Queues Menu System
 /***********************************************************************/
@@ -318,8 +348,6 @@ a time.relative {
     border-left:1px solid #aaa;
     border-right:1px solid #aaa;
 }
-
-
 
 #customQ_nav .jb-overflowmenu-menu-primary li.item {
     position:relative;
