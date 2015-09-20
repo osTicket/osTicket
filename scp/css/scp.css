@@ -42,6 +42,7 @@ div#header a {
 
 .full-width {
     width: 100%;
+    box-sizing: border-box;
 }
 .headline {
     margin-bottom: 15px;
@@ -171,7 +172,7 @@ a time {
     text-align:center;
 }
 
-#nav {
+#nav, #sub_nav {
     clear:both;
     margin:0;
     padding:0 20px;
@@ -182,9 +183,7 @@ a time {
     white-space: nowrap;
 }
 
-
-
-#nav .active {
+#nav .active, #sub_nav > li  {
     padding:0;
     list-style:none;
     display:inline;
@@ -305,18 +304,25 @@ a time {
                  Start Custom Queues Menu System
 /***********************************************************************/
 
-#customQ_nav {
+#sub_nav {
     background:#f7f7f7;
     border-bottom:1px solid #bebebe;
+    padding: 2px 20px;
+}
+#customQ_nav {
     clear:both;
     margin:0;
     padding:0;
     line-height:26px;
-    border-left:1px solid #aaa;
-    border-right:1px solid #aaa;
 }
 
+#sub_nav > ul {
+    margin-top: 0;
+}
 
+#sub_nav > li + li > a {
+    margin-left: 10px;
+}
 
 #customQ_nav .jb-overflowmenu-menu-primary li.item {
     position:relative;
@@ -327,6 +333,7 @@ a time {
     margin:0 2px;
 }
 
+#sub_nav > li > a,
 #customQ_nav .jb-overflowmenu-menu-primary li.item > a {
     display:inline-block;
     padding:0 10px 0 21px;
@@ -344,25 +351,31 @@ a time {
     border-right:1px solid #bebebe;
 }
 
+#sub_nav > li > a:hover,
 #customQ_nav .jb-overflowmenu-menu-primary li.item:hover > a {
     color:#E65524;
     text-decoration: none;
 }
 
+#sub_nav a.active, #sub_nav li.active,
 #customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
     font-weight:bold;
+}
+
+#sub_nav li.child.active {
+    font-weight: 500;
 }
 
 #customQ_nav .jb-overflowmenu-menu-primary li.item a > i {
     margin-top:5px;
 }
 
-#customQ_nav .open     { background-image:url(../images/icons/open.gif) }
-#customQ_nav .answered { background-image:url(../images/icons/answered.gif) }
-#customQ_nav .mine     { background-image:url(../images/icons/mine.gif) }
-#customQ_nav .closed   { background-image:url(../images/icons/closed.gif) }
-#customQ_nav .search   { background-image:url(../images/icons/search.gif) }
-#customQ_nav .new      { background-image:url(../images/icons/new.gif) }
+#sub_nav .open     { background-image:url(../images/icons/open.gif) }
+#sub_nav .answered { background-image:url(../images/icons/answered.gif) }
+#sub_nav .mine     { background-image:url(../images/icons/mine.gif) }
+#sub_nav .closed   { background-image:url(../images/icons/closed.gif) }
+#sub_nav .search   { background-image:url(../images/icons/search.gif) }
+#sub_nav .new      { background-image:url(../images/icons/new.gif) }
 
 /**********************initiate Custom Queues Dropdown******************/
 
@@ -409,7 +422,6 @@ a time {
 .customQ-dropdown li > span {
     color:#E65524;
     font-weight:bold;
-    float:right;
 }
 .customQ-dropdown li > span.disabled {
     color:#ccc;
@@ -425,7 +437,7 @@ a time {
     border: solid 1px #ddd;
     border: solid 1px rgba(0, 0, 0, 0.2);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    padding:12px 0;
+    padding:3px 0;
     background:#fff;
     text-align: left;
     font-size: 0.95em;
@@ -558,11 +570,10 @@ a time {
 
 .jb-overflowmenu-menu-primary .customQ-dropdown ul li > div.editQ {
     margin-top:2px;
-    float:right;
 }
 
 .customQ-dropdown ul li > div.editQ i {
-    color:rgba(255, 255, 255, 0);
+    color:rgba(255, 255, 255, 0.6);
 }
 
 .customQ-dropdown ul li:hover > div.editQ i {
@@ -659,7 +670,6 @@ a time {
     padding: 0;
     margin: 2px 0 0 0;
     height:30px!IMPORTANT;
-    right:30px!IMPORTANT;
 }
 
 .jb-overflowmenu .jb-overflowmenu-menu-primary li.item {
@@ -719,17 +729,17 @@ a time {
 }
 
 /*** Overflow Dropdown ***/
-#customQ_nav .jb-overflowmenu-menu-secondary li.item:before {
+#sub_nav .jb-overflowmenu-menu-secondary li.item:before {
     font-family: "FontAwesome";
     content:"\F0D9";
     padding:5px;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item a > i {
+#sub_nav .jb-overflowmenu-menu-secondary li.item a > i {
     margin-top:5px;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item {
+#sub_nav .jb-overflowmenu-menu-secondary li.item {
     position:relative;
     padding:0px 10px;
     display: inline-block;
@@ -739,7 +749,7 @@ a time {
     white-space:nowrap;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item > a {
+#sub_nav .jb-overflowmenu-menu-secondary li.item > a {
     display:inline-block;
     padding:5px 10px 5px 21px;
     background-position:0 50%;
@@ -747,7 +757,7 @@ a time {
     color:#000;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item:hover {
+#sub_nav .jb-overflowmenu-menu-secondary li.item:hover {
     padding:0 10px;
     color:#E65524;
     background-color: #fff;
@@ -756,12 +766,12 @@ a time {
     border-right:none;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item:hover > a {
+#sub_nav .jb-overflowmenu-menu-secondary li.item:hover > a {
     color:#E65524;
     text-decoration: none;
 }
 
-#customQ_nav .jb-overflowmenu-menu-secondary li.item > a.active {
+#sub_nav .jb-overflowmenu-menu-secondary li.item > a.active {
     font-weight:bold;
 }
 .jb-overflowmenu-menu-secondary div.customQ-dropdown {
