@@ -475,6 +475,22 @@ var scp_prep = function() {
   $('.attached.input input')
     .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
+
+  $('#customQ_nav').overflowmenu({
+    guessHeight: false,
+    change: function( e, ui ) {
+      var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
+      if ( ui.secondary.children().length > 0 ) {
+        // necessary?
+        ui.primary.css('right', ui.secondary.width());
+        handle.css('display', 'inline-block')
+      }
+      else {
+        ui.primary.css('right', 0);
+        handle.css('display', 'none')
+      }
+    }
+  });
 };
 
 $(document).ready(scp_prep);
@@ -1295,16 +1311,3 @@ $(function() {
     });
   });
 });
-
-$( document ).ready(function(){
-    var target = $('#customQ_nav').overflowmenu({
-        change: function( e, ui ){
-            var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
-            if( ui.secondary.children().length ){
-                handle.css('display', 'inline-block')
-            }else{
-                handle.css('display', 'none')
-            }
-        }
-    });
-})

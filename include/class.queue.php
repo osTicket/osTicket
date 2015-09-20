@@ -26,6 +26,15 @@ class CustomQueue extends SavedSearch {
                 'constraint' => array(
                     'staff_id' => 'Staff.staff_id',
                 )
+            ),
+            'parent' => array(
+                'constraint' => array(
+                    'parent_id' => 'CustomQueue.id',
+                ),
+                'null' => true,
+            ),
+            'children' => array(
+                'reverse' => 'CustomQueue.parent',
             )
         ),
     );
@@ -110,9 +119,39 @@ class CustomQueue extends SavedSearch {
         return 'bogus';
     }
 
+    function getChildren() {
+        return $this->children;
+    }
+
+    function getPublicChildren() {
+        return $this->children->findAll(array(
+            'flags__hasbit' => self::FLAG_PUBLIC
+        ));
+    }
+
+    function getMyChildren() {
+        global $thisstaff;
+        if (!$thisstaff instanceof Staff)
+            return array();
+
+        return $this->children->findAll(array(
+            'staff_id' => $thisstaff->getId(),
+            Q::not(array(
+                'flags__hasbit' => self::FLAG_PUBLIC
+            ))
+        ));
+    }
+
+    function getHref() {
+        // TODO: Get base page from getRoot();
+        $root = $this->getRoot();
+        return 'tickets.php?queue='.$this->getId();
+    }
+
     function getBasicQuery($form=false) {
         $root = $this->getRoot();
         $query = $root::objects();
+        $form = $form ?: $this->loadFromState($this->getCriteria());
         return $this->mangleQuerySet($query, $form);
     }
 
@@ -146,6 +185,7 @@ class CustomQueue extends SavedSearch {
 
         // Set basic queue information
         $this->title = $vars['name'];
+        $this->parent_id = $vars['parent_id'];
 
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {
