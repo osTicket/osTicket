@@ -20,6 +20,7 @@ class StaffNav {
     var $activetab;
     var $activeMenu;
     var $panel;
+    var $subnavinfo;
 
     var $staff;
 
@@ -109,6 +110,17 @@ class StaffNav {
             $this->activeMenu=sizeof($this->submenus[$this->getPanel().'.'.$this->activetab]);
     }
 
+    function addSubNavInfo($classes=null, $id=null) {
+        $T = $this->subnavinfo;
+        $this->subnavinfo = array(
+            'classes' => (@$T['classes'] ?: '') . ($classes ? " $classes" : ''),
+            'id' => $id ?: @$T['id'],
+        );
+    }
+
+    function getSubNavInfo() {
+        return $this->subnavinfo;
+    }
 
     function getTabs(){
         global $thisstaff;
