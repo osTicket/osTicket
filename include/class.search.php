@@ -664,8 +664,11 @@ class SavedSearch extends VerySimpleModel {
         'ordering' => array('sort'),
     );
 
-    const FLAG_PUBLIC =     0x0001;
-    const FLAG_QUEUE =      0x0002;
+    const FLAG_PUBLIC =     0x0001;   // Shows up in e'eryone's saved searches
+    const FLAG_QUEUE =      0x0002;   // Shows up in queue navigation
+    const FLAG_CONTAINER =  0x0004;   // Container for other queues ('Open')
+
+    var $criteria;
 
     static function forStaff(Staff $agent) {
         return static::objects()->filter(Q::any(array(
@@ -676,6 +679,13 @@ class SavedSearch extends VerySimpleModel {
 
     function getName() {
         return $this->title;
+    }
+
+    function getCriteria() {
+        if (!isset($this->criteria)) {
+            $this->criteria = JsonDataParser::decode($this->config);
+        }
+        return $this->criteria;
     }
 
     function getSearchForm() {
