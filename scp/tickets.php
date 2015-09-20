@@ -58,6 +58,11 @@ if (!$ticket) {
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
 
+require_once INCLUDE_DIR . 'class.queue.php';
+if (isset($_REQUEST['queue'])) {
+    $queue = CustomQueue::lookup($_REQUEST['queue']);
+}
+
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -356,7 +361,7 @@ if ($redirect) {
 }
 
 /*... Quick stats ...*/
-$stats= $thisstaff->getTicketsStats();
+$stats = $thisstaff->getTicketsStats();
 
 // Clear advanced search upon request
 if (isset($_GET['clear_filter']))
@@ -364,53 +369,26 @@ if (isset($_GET['clear_filter']))
 
 //Navigation
 $nav->setTabActive('tickets');
-$open_name = _P('queue-name',
-    /* This is the name of the open ticket queue */
-    'Open');
-if($cfg->showAnsweredTickets()) {
-    $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
-                            'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php?status=open',
-                            'iconclass'=>'Ticket'),
-                        ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
-} else {
+$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
-    if ($stats) {
+// Fetch ticket queues organized by root and sub-queues
+$queues = CustomQueue::objects()
+    ->filter(Q::any(array(
+        'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+        'staff_id' => $thisstaff->getId(),
+    )))
+    ->all();
 
-        $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
-                               'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php?status=open',
-                               'iconclass'=>'Ticket'),
-                            ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
-    }
-
-    if($stats['answered']) {
-        $nav->addSubMenu(array('desc'=>__('Answered').' ('.number_format($stats['answered']).')',
-                               'title'=>__('Answered Tickets'),
-                               'href'=>'tickets.php?status=answered',
-                               'iconclass'=>'answeredTickets'),
-                            ($_REQUEST['status']=='answered'));
-    }
-}
-
-if($stats['assigned']) {
-
-    $nav->addSubMenu(array('desc'=>__('My Tickets').' ('.number_format($stats['assigned']).')',
-                           'title'=>__('Assigned Tickets'),
-                           'href'=>'tickets.php?status=assigned',
-                           'iconclass'=>'assignedTickets'),
-                        ($_REQUEST['status']=='assigned'));
-}
-
-if($stats['overdue']) {
-    $nav->addSubMenu(array('desc'=>__('Overdue').' ('.number_format($stats['overdue']).')',
-                           'title'=>__('Stale Tickets'),
-                           'href'=>'tickets.php?status=overdue',
-                           'iconclass'=>'overdueTickets'),
-                        ($_REQUEST['status']=='overdue'));
-
-    if(!$sysnotice && $stats['overdue']>10)
-        $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
+// Start with all the top-level (container) queues
+foreach ($queues->findAll(array('parent_id' => 0))
+as $q) {
+    $nav->addSubMenu(function() use ($q, $queue) {
+        // A queue is selected if it is the one being displayed. It is
+        // "child" selected if its ID is in the path of the one selected
+        $child_selected = $queue
+            && false !== strpos($queue->getPath(), "/{$q->getId()}/");
+        include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
+    });
 }
 
 if (isset($_SESSION['advsearch'])) {
@@ -427,12 +405,6 @@ if (isset($_SESSION['advsearch'])) {
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
-
-$nav->addSubMenu(array('desc' => __('Closed'),
-                       'title'=>__('Closed Tickets'),
-                       'href'=>'tickets.php?status=closed',
-                       'iconclass'=>'closedTickets'),
-                    ($_REQUEST['status']=='closed'));
 
 if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
@@ -472,11 +444,21 @@ if($ticket) {
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
-        if (!($query=$_SESSION[':Q:tickets']))
-            $errors['err'] = __('Query token not found');
-        elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
-            $errors['err'] = __('Unable to dump query results.')
-                .' '.__('Internal error occurred');
+        if (isset($queue) && $queue) {
+            // XXX: Check staff access?
+            $inc = 'templates/queue-tickets.tmpl.php';
+            if (!($query = $queue->getBasicQuery()))
+                $errors['err'] = __('Query token not found');
+            elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
+                $errors['err'] = __('Unable to dump query results.')
+                    .' '.__('Internal error occurred');
+        }
+    }
+    elseif (isset($queue) && $queue) {
+        // XXX: Check staff access?
+        $inc = 'templates/queue-tickets.tmpl.php';
+        $tickets = $queue->getQuery();
+        $count = count($tickets);
     }
 
     //Clear active submenu on search with no status

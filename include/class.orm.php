@@ -1196,7 +1196,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * If no such model or multiple models exist, an exception is thrown.
      */
     function one() {
-        $list = $this->all();
+        $list = $this->all()->asArray();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)
@@ -1846,6 +1846,82 @@ implements Iterator {
             $this->eoi = true;
         }
     }
+
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. See ::findAll() for more details.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst(array $criteria) {
+        $records = $this->findAll($criteria, 1);
+        return @$records[0];
+    }
+
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance, as they can provide results with one more trip to the
+     * database.
+     */
+    function findAll(array $criteria, $limit=false) {
+        $records = array();
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field => $check) {
+                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                $records[] = $record;
+        }
+        return $records;
+    }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
 }
 
 // Use a global variable, as constructing exceptions is expensive
@@ -2076,7 +2152,9 @@ class SqlCompiler {
             'lte' => function($a, $b) { return $a <= $b; },
             'contains' => function($a, $b) { return stripos($a, $b) !== false; },
             'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
-            'hasbit' => function($a, $b) { return $a & $b == $b; },
+            'endswith' => function($a, $b) { return iEndsWith($a, $b); },
+            'regex' => function($a, $b) { return preg_match("/$a/iu", $b); },
+            'hasbit' => function($a, $b) { return ($a & $b) == $b; },
         ); }
         list($field, $path, $operator) = self::splitCriteria($field);
         if (!isset($ops[$operator]))
