@@ -238,7 +238,7 @@ class SearchAjaxAPI extends AjaxController {
         $tickets = $queue->getQuery($form);
         $count = 10; // count($queue->getBasicQuery($form));
 
-        include STAFFINC_DIR . 'templates/queue-tickets.tmpl.php';
+        include STAFFINC_DIR . 'templates/queue-preview.tmpl.php';
     }
 
     function addCondition() {
