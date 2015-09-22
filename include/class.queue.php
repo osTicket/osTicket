@@ -6,7 +6,7 @@
 
     Jared Hancock <jared@osticket.com>
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
+    Copyright (c)  2006-2015 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -125,7 +125,7 @@ class CustomQueue extends SavedSearch {
 
     function getPublicChildren() {
         return $this->children->findAll(array(
-            'flags__hasbit' => self::FLAG_PUBLIC
+            'flags__hasbit' => self::FLAG_QUEUE
         ));
     }
 
@@ -163,12 +163,34 @@ class CustomQueue extends SavedSearch {
      * Returns:
      * <QuerySet> instance
      */
-    function getQuery($form=false) {
+    function getQuery($form=false, $quick_filter=false) {
+        // Start with basic criteria
         $query = $this->getBasicQuery($form);
+
+        // Apply quick filter
+        if (isset($quick_filter)
+            && ($qf = $this->getQuickFilterField($quick_filter))
+        ) {
+            $query = $qf->applyQuickFilter($query, $quick_filter,
+                $this->filter); 
+        }
+
+        // Apply column, annotations and conditions additions
         foreach ($this->getColumns() as $C) {
             $query = $C->mangleQuery($query);
         }
         return $query;
+    }
+
+    function getQuickFilterField($value=null) {
+        if ($this->filter
+            && ($fields = SavedSearch::getSearchableFields($this->getRoot()))
+            && ($f = @$fields[$this->filter])
+            && $f->supportsQuickFilter()
+        ) {
+            $f->value = $value;
+            return $f;
+        }
     }
 
     function update($vars, &$errors) {
@@ -186,6 +208,7 @@ class CustomQueue extends SavedSearch {
         // Set basic queue information
         $this->title = $vars['name'];
         $this->parent_id = $vars['parent_id'];
+        $this->filter = $vars['filter'];
 
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {
