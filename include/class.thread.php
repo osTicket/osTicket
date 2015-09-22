@@ -385,12 +385,9 @@ class Thread extends VerySimpleModel {
             // Consider collaborator role (disambiguate staff members as
             // collaborators). Normally, the block above should match based
             // on the Referenced message-id header
-            elseif ($object instanceof Ticket
-                && ($E = UserEmail::lookup($mailinfo['email']))
-                && ($C = Collaborator::lookup(array(
-                    'ticketId' => $object->getId(), 'userId' => $E->user_id
-                )))
-            ) {
+            elseif ($C = $this->collaborators->filter(array(
+                'user__emails__address' => $mailinfo['email']
+            ))->first()) {
                 $vars['thread-type'] = 'M';
                 // XXX: There's no way that mailinfo[userId] would be set
                 $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
