@@ -35,7 +35,8 @@ $refresh_url = $path . '?' . http_build_query($args);
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-    require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+    require 'queue-quickfilter.tmpl.php';
+    require 'queue-sort.tmpl.php';
     ?>
   </div>
     <form action="tickets.php" method="get" onsubmit="javascript:
