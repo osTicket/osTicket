@@ -457,7 +457,8 @@ if($ticket) {
     elseif (isset($queue) && $queue) {
         // XXX: Check staff access?
         $inc = 'templates/queue-tickets.tmpl.php';
-        $tickets = $queue->getQuery();
+        $quick_filter = @$_REQUEST['filter'];
+        $tickets = $queue->getQuery(false, $quick_filter);
         $count = count($tickets);
     }
 
