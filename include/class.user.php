@@ -621,7 +621,7 @@ implements TemplateVariable, Searchable {
         if (!$id || !$thisstaff)
             return false;
 
-        return ROOT_PATH . sprintf('users.php?id=%s', $id);
+        return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
     }
 }
 
