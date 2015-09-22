@@ -85,10 +85,15 @@ else {
         <br/>
         <div><strong><?php echo __("Quick Filter"); ?></strong></div>
         <hr/>
-        <select name="quick-filter">
-          <option value=":p:">— <?php echo __('Inherit from parent'); ?> —</option>
-<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) { ?>
-          <option value="<?php echo $path; ?>"><?php echo $f->get('label'); ?></option>
+        <select name="filter">
+          <option value="::">— <?php echo __('Inherit from parent'); ?> —</option>
+<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
+        if (!$f->supportsQuickFilter())
+          continue;
+?>
+          <option value="<?php echo $path; ?>"
+            <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>
+            ><?php echo $f->get('label'); ?></option>
 <?php } ?>
         </select>
         <br/>

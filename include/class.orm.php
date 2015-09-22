@@ -866,9 +866,14 @@ class SqlExpression extends SqlFunction {
             case 'bitor':
                 $operator = '|'; break;
             default:
-                throw new InvalidArgumentException('Invalid operator specified');
+                throw new InvalidArgumentException($operator.': Invalid operator specified');
         }
         return parent::__callStatic($operator, $operands);
+    }
+
+    function __call($operator, $operands) {
+        array_unshift($operands, $this);
+        return static::__callStatic($operator, $operands);
     }
 }
 
@@ -2615,7 +2620,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function __range($a, $b) {
         // XXX: Crash if $b is not array of two items
-        return sprintf('%s BETWEEN %s AND %s', $a, $b[0], $b[1]);
+        return sprintf('%s BETWEEN %s AND %s', $a, $this->input($b[0]), $this->input($b[1]));
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {

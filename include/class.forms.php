@@ -1014,6 +1014,33 @@ class FormField {
         return $row[$name ?: $this->get('name')];
     }
 
+    /**
+     * If the field can be used in a quick filter. To be used, it should
+     * also implement getQuickFilterChoices() which should return a list of
+     * choices to appear in a quick filter drop-down
+     */
+    function supportsQuickFilter() {
+        return false;
+    }
+
+    /**
+     * Fetch a keyed array of quick filter choices. The keys should be
+     * passed later to ::applyQuickFilter() to apply the quick filter to a
+     * query. The values should be localized titles for the choices.
+     */
+    function getQuickFilterChoices() {
+        return array();
+    }
+
+    /**
+     * Apply a quick filter selection of this field to the query. The
+     * modified query should be returned. Optionally, the orm path / field
+     * name can be passed.
+     */
+    function applyQuickFilter($query, $choice, $name=false) {
+        return $query;
+    }
+
     function getLabel() { return $this->get('label'); }
 
     /**
@@ -1535,6 +1562,23 @@ class BooleanField extends FormField {
             return parent::getSearchQ($method, $value, $name);
         }
     }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return array(
+            true => __('Checked'),
+            false => __('Not Checked'),
+        );
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        return $query->filter(array(
+            $name ?: $this->get('name') => (int) $qf_value,
+        ));
+    }
 }
 
 class ChoiceField extends FormField {
@@ -1765,6 +1809,20 @@ class ChoiceField extends FormField {
         default:
             return parent::describeSearchMethod($method);
         }
+    }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return $this->getChoices();
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        return $query->filter(array(
+            $name ?: $this->get('name') => $qf_value,
+        ));
     }
 }
 
