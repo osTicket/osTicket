@@ -80,5 +80,4 @@ class Manager extends Module {
 }
 
 $manager = new Manager();
-$manager->parseOptions();
-$manager->_run(basename(__file__));
+$manager->_run(basename(__file__), false);
