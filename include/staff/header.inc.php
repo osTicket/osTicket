@@ -70,7 +70,7 @@ if ($lang) {
         </p>
         <a href="index.php" class="no-pjax" id="logo">
             <span class="valign-helper"></span>
-            <img src="logo.php" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/>
+            <img src="logo.php?<?php echo strtotime($cfg->lastModified('staff_logo_id')); ?>" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/>
         </a>
     </div>
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
