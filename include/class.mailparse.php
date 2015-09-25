@@ -208,14 +208,14 @@ class Mail_Parse {
         if (!($header = $this->struct->headers['from']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getDeliveredToAddressList() {
         if (!($header = $this->struct->headers['delivered-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getToAddressList(){
@@ -223,7 +223,7 @@ class Mail_Parse {
         $tolist = array();
         if ($header = $this->struct->headers['to'])
             $tolist = array_merge($tolist,
-                Mail_Parse::parseAddressList($header));
+                Mail_Parse::parseAddressList($header, $this->charset));
         return $tolist ? $tolist : null;
     }
 
@@ -231,14 +231,14 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['cc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getBccAddressList(){
         if (!($header = @$this->struct->headers['bcc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getMessageId(){
@@ -258,7 +258,7 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['reply-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function isBounceNotice() {
@@ -543,7 +543,7 @@ class Mail_Parse {
     	return 0;
     }
 
-    function parseAddressList($address){
+    function parseAddressList($address, $charset='UTF-8'){
         if (!$address)
             return array();
 
@@ -558,11 +558,11 @@ class Mail_Parse {
 
         // Decode name and mailbox
         foreach ($parsed as $p) {
-            $p->personal = Format::mimedecode($p->personal, $this->charset);
+            $p->personal = Format::mimedecode($p->personal, $charset);
             // Some mail clients may send ISO-8859-1 strings without proper encoding.
             // Also, handle the more sane case where the mailbox is properly encoded
             // against RFC2047
-            $p->mailbox = Format::mimedecode($p->mailbox, $this->charset);
+            $p->mailbox = Format::mimedecode($p->mailbox, $charset);
         }
 
         return $parsed;
