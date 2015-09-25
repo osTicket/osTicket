@@ -87,7 +87,7 @@ case 'search':
                     'user__emails__address' => $_REQUEST['query'],
                 ));
             }
-            elseif (is_numeric($_REQUEST['query'])) {
+            elseif ($_REQUEST['query']) {
                 $tickets = $tickets->filter(array(
                     'number' => $_REQUEST['query'],
                 ));
