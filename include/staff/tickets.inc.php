@@ -81,34 +81,52 @@ case 'search':
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
         // Use an index if possible
-        if ($_REQUEST['search-type'] == 'typeahead' && Validator::is_email($_REQUEST['query'])) {
-            $tickets = $tickets->filter(array(
-                'user__emails__address' => $_REQUEST['query'],
-            ));
-        }
-        else {
-            $basic_search = Q::any(array(
-                'number__startswith' => $_REQUEST['query'],
-                'user__name__contains' => $_REQUEST['query'],
-                'user__emails__address__contains' => $_REQUEST['query'],
-                'user__org__name__contains' => $_REQUEST['query'],
-            ));
-            $tickets->filter($basic_search);
-            if (!$_REQUEST['search-type']) {
-                // [Search] click, consider keywords too. This is a
-                // relatively ugly hack. SearchBackend::find() add in a
-                // constraint for the search. We need to pop that off and
-                // include it as an OR with the above constraints
-                $keywords = TicketModel::objects();
-                $keywords->extra(array('select' => array('ticket_id' => 'Z1.ticket_id')));
-                $keywords = $ost->searcher->find($_REQUEST['query'], $keywords);
-                $tickets->values('ticket_id')->annotate(array('__relevance__' => new SqlCode(0.5)));
-                $keywords->aggregated = true; // Hack to prevent select ticket.*
-                $tickets->union($keywords)->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+        if ($_REQUEST['search-type'] == 'typeahead') {
+            if (Validator::is_email($_REQUEST['query'])) {
+                $tickets = $tickets->filter(array(
+                    'user__emails__address' => $_REQUEST['query'],
+                ));
             }
+            elseif ($_REQUEST['query']) {
+                $tickets = $tickets->filter(array(
+                    'number' => $_REQUEST['query'],
+                ));
+            }
+        }
+        elseif ($_REQUEST['query']) {
+            // [Search] click, consider keywords
+            $__tickets = $ost->searcher->find($_REQUEST['query'], $tickets);
+            if (!count($__tickets)) {
+                // Do wildcard search if no hits
+                $__tickets = $ost->searcher->find($_REQUEST['query'].'*', $tickets);
+            }
+            $tickets = $__tickets->distinct('ticket_id');
+            $has_relevance = true;
+        }
+        if (count($tickets) == 1) {
+            // Redirect to ticket page
         }
         // Clear sticky search queue
         unset($_SESSION[$queue_key]);
+        break;
+    }
+    // Apply user filter
+    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
+        $tickets->filter(array('user__id'=>$_GET['uid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $user->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
+        break;
+    }
+    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
+        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $org->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
         break;
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');
@@ -122,21 +140,6 @@ case 'search':
                 break;
             }
         }
-        break;
-    }
-    // Apply user filter
-    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
-        $tickets->filter(array('user__id'=>$_GET['uid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $user->getName());
-        // Don't apply normal open ticket
-        break;
-    }
-    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
-        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $org->getName());
-        // Don't apply normal open ticket
         break;
     }
     // Fall-through and show open tickets

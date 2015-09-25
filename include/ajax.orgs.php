@@ -26,26 +26,32 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(400, 'Query argument is required');
         }
 
+        $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $orgs=array();
 
-        $escaped = db_input(strtolower($_REQUEST['q']), false);
-        $sql='SELECT DISTINCT org.id, org.name '
-            .' FROM '.ORGANIZATION_TABLE.' org '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'O\' AND entry.object_id = org.id)
-               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-            .' WHERE org.name LIKE \'%'.$escaped.'%\' OR value.value LIKE \'%'.$escaped.'%\''
-            .' ORDER BY org.created '
-            .' LIMIT '.$limit;
+        $orgs = Organization::objects()
+            ->values_flat('id', 'name')
+            ->limit($limit);
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id, $name)=db_fetch_row($res)) {
-                $orgs[] = array('name' => Format::htmlchars($name), 'info' => $name,
-                    'id' => $id, '/bin/true' => $_REQUEST['q']);
-            }
+        global $ost;
+        $orgs = $ost->searcher->find($q, $orgs);
+        $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+            ->distinct('id');
+
+        if (!count($orgs) && substr($q, strlen($q)-1) != '*') {
+            // Do wildcard full-text search
+            $_REQUEST['q'] = $q."*";
+            return $this->search($type);
         }
 
-        return $this->json_encode(array_values($orgs));
+        $matched = array();
+        foreach ($orgs as $O) {
+            list($id, $name) = $O;
+            $matched[] = array('name' => Format::htmlchars($name), 'info' => $name,
+                'id' => $id, '/bin/true' => $_REQUEST['q']);
+        }
+
+        return $this->json_encode(array_values($matched));
 
     }
 

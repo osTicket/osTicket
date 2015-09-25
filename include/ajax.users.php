@@ -29,54 +29,61 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(400, __('Query argument is required'));
         }
 
+        $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
 
         if (!$type || !strcasecmp($type, 'remote')) {
-            foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
+            foreach (AuthenticationBackend::searchUsers($q) as $u) {
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
                 $users[] = array('email' => $u['email'], 'name'=>(string) $name,
                     'info' => "{$u['email']} - $name (remote)",
-                    'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+                    'id' => "auth:".$u['id'], "/bin/true" => $q);
                 $emails[] = $u['email'];
             }
         }
 
         if (!$type || !strcasecmp($type, 'local')) {
-            $remote_emails = ($emails = array_filter($emails))
-                ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
-                : '';
 
-            $q = str_replace(' ', '%', $_REQUEST['q']);
-            $escaped = db_input($q, false);
-            $sql='SELECT DISTINCT user.id, email.address, name '
-                .' FROM '.USER_TABLE.' user '
-                .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-                .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-                   LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-                .' WHERE email.address LIKE \'%'.$escaped.'%\'
-                   OR user.name LIKE \'%'.$escaped.'%\'
-                   OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
-                .' LIMIT '.$limit;
+            $users = User::objects()
+                ->values_flat('id', 'emails__address', 'name')
+                ->limit($limit);
 
-            if(($res=db_query($sql)) && db_num_rows($res)){
-                while(list($id,$email,$name)=db_fetch_row($res)) {
-                    foreach ($users as $i=>$u) {
-                        if ($u['email'] == $email) {
-                            unset($users[$i]);
-                            break;
-                        }
-                    }
-                    $name = Format::htmlchars(new UsersName($name));
-                    $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                        "id" => $id, "/bin/true" => $_REQUEST['q']);
-                }
+            global $ost;
+            $users = $ost->searcher->find($q, $users);
+            $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+                ->distinct('id');
+
+            if (!count($emails) && !count($users) && substr($q, strlen($q)-1) != '*') {
+                // Do wildcard full-text search
+                $_REQUEST['q'] = $q."*";
+                return $this->search($type);
             }
-            usort($users, function($a, $b) { return strcmp($a['name'], $b['name']); });
+
+            if ($emails = array_filter($emails)) {
+                $users->chain(User::objects()->filter(array(
+                    'emails__address__in' => $emails
+                )));
+            }
+
+            $matches = array();
+            foreach ($users as $U) {
+                list($id,$email,$name) = $U;
+                foreach ($matches as $i=>$u) {
+                    if ($u['email'] == $email) {
+                        unset($matches[$i]);
+                        break;
+                    }
+                }
+                $name = Format::htmlchars(new UsersName($name));
+                $matches[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
+                    "id" => $id, "/bin/true" => $_REQUEST['q']);
+            }
+            usort($matches, function($a, $b) { return strcmp($a['name'], $b['name']); });
         }
 
-        return $this->json_encode(array_values($users));
+        return $this->json_encode(array_values($matches));
 
     }
 
