@@ -387,7 +387,10 @@ foreach ($forms as $F) {
    <strong><?php echo __('Add Custom Form'); ?></strong>:
    <select name="form_id" id="newform">
     <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
-    <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $F) { ?>
+    <?php foreach (DynamicForm::objects()
+        ->filter(array('type'=>'G'))
+        ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED))
+    as $F) { ?>
         <option value="<?php echo $F->get('id'); ?>"
            <?php if (in_array($F->id, $current_forms))
                echo 'disabled="disabled"'; ?>
