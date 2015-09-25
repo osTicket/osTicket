@@ -150,14 +150,27 @@ class Mailer {
         $thread = $entry ? $entry->getThread()
             : (isset($options['thread']) && $options['thread'] instanceof Thread
                 ? $options['thread'] : false);
+
+        switch (true) {
+        case $recipient instanceof Staff:
+            $utype = 'S';
+            break;
+        case $recipient instanceof TicketOwner:
+            $utype = 'U';
+            break;
+        case $recipient instanceof Collaborator:
+            $utype = 'C';
+            break;
+        default:
+            $utype = $options['utype'] ?: '?';
+        }
+
+
         $tag = pack('VVVa',
             $recipient instanceof EmailContact ? $recipient->getUserId() : 0,
             $entry ? $entry->getId() : 0,
             $thread ? $thread->getId() : 0,
-            ($recipient instanceof Staff ? 'S'
-                : ($recipient instanceof TicketOwner ? 'U'
-                : ($recipient instanceof Collaborator ? 'C'
-                : '?')))
+            $utype ?: '?'
         );
         // Sign the tag with the system secret salt
         $tag .= substr(hash_hmac('sha1', $tag.$rand.$sysid, SECRET_SALT, true), -5);

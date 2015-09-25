@@ -348,99 +348,100 @@ class Thread extends VerySimpleModel {
             $vars['attachments'] = $mailinfo['attachments'];
 
         $body = $mailinfo['message'];
-        $poster = $mailinfo['email'];
 
-        // Disambiguate if the user happens also to be a staff member of the
-        // system. The current ticket owner should _always_ post messages
-        // instead of notes or responses
-        if ($mailinfo['userId'] || (
-            $object instanceof Ticket
-            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
-        )) {
-            $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ?: $object->getUserId();
-
-            if ($object instanceof Threadable)
-                return $object->postThreadEntry('M', $vars);
-            elseif ($this instanceof ObjectThread)
-                $this->addMessage($vars, $errors);
-            else
-                throw new Exception('Cannot continue discussion with abstract thread');
-        }
-        // Consider collaborator role (disambiguate staff members as
-        // collaborators). Normally, the block above should match based
-        // on the Referenced message-id header
-        elseif ($object instanceof Ticket
-            && ($E = UserEmail::lookup($mailinfo['email']))
-            && ($C = Collaborator::lookup(array(
-                'ticketId' => $object->getId(), 'userId' => $E->user_id
-            )))
-        ) {
-            $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
-            $vars['message'] = $body;
+        // Attempt to determine the user posting the entry and the
+        // corresponding entry type by the information determined by the
+        // mail parser (via the In-Reply-To header)
+        switch ($mailinfo['userClass']) {
+        case 'C': # Thread collaborator
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+        case 'U': # Ticket owner
+            $vars['thread-type'] = 'M';
+            $vars['userId'] = $mailinfo['userId'];
+            break;
+
+        case 'A': # System administrator
+        case 'S': # Staff member (agent)
+            $vars['thread-type'] = 'N';
+            $vars['staffId'] = $mailinfo['staffId'];
+            if ($vars['staffId'])
+                $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+            break;
+
+        // The user type was not identified by the mail parsing system. It
+        // is likely that the In-Reply-To and References headers were not
+        // properly brokered by the user's mail client. Use the old logic to
+        // determine the post type.
+        default:
+            // Disambiguate if the user happens also to be a staff member of
+            // the system. The current ticket owner should _always_ post
+            // messages instead of notes or responses
+            if ($object instanceof Ticket
+                && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
+            ) {
+                $vars['thread-type'] = 'M';
+                $vars['userId'] = $object->getUserId();
+            }
+            // Consider collaborator role (disambiguate staff members as
+            // collaborators). Normally, the block above should match based
+            // on the Referenced message-id header
+            elseif ($C = $this->collaborators->filter(array(
+                'user__emails__address' => $mailinfo['email']
+            ))->first()) {
+                $vars['thread-type'] = 'M';
+                // XXX: There's no way that mailinfo[userId] would be set
+                $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
+                $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+            }
+            // Don't process the email -- it came FROM this system
+            elseif (Email::getIdByEmail($mailinfo['email'])) {
+                return false;
+            }
+        }
+
+        // Ensure we record the name of the person posting
+        $vars['poster'] = $vars['poster']
+            ?: $mailinfo['name'] ?: $mailinfo['email'];
+
+        // TODO: Consider security constraints
+        if (!$vars['thread-type']) {
+            //XXX: Are we potentially leaking the email address to
+            // collaborators?
+            // Try not to destroy the format of the body
+            $header = sprintf(
+                _S('Received From: %1$s <%2$s>') . "\n\n",
+                $mailinfo['name'], $mailinfo['email']);
+            if ($body instanceof HtmlThreadEntryBody)
+                $header = nl2br(Format::htmlchars($header));
+            // Add the banner to the top of the message
+            if ($body instanceof ThreadEntryBody)
+                $body->prepend($header);
+            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
+            $vars['thread-type'] = 'M';
+        }
+
+        switch ($vars['thread-type']) {
+        case 'M':
+            $vars['message'] = $body;
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('M', $vars);
             elseif ($this instanceof ObjectThread)
-                $this->addMessage($vars, $errors);
-            else
-                throw new Exception('Cannot continue discussion with abstract thread');
-        }
-        // Accept internal note from staff members' replies
-        elseif ($mailinfo['staffId']
-                || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
-            $vars['staffId'] = $mailinfo['staffId'];
-            $vars['poster'] = Staff::lookup($mailinfo['staffId']);
+                return $this->addMessage($vars, $errors);
+            break;
+
+        case 'N':
             $vars['note'] = $body;
 
             if ($object instanceof Threadable)
                 return $object->postThreadEntry('N', $vars);
             elseif ($this instanceof ObjectThread)
                 return $this->addNote($vars, $errors);
-            else
-                throw new Exception('Cannot continue discussion with abstract thread');
+            break;
         }
-        elseif (Email::getIdByEmail($mailinfo['email'])) {
-            // Don't process the email -- it came FROM this system
-            return true;
-        }
-        // Support the mail parsing system declaring a thread-type
-        elseif (isset($mailinfo['thread-type'])) {
-            switch ($mailinfo['thread-type']) {
-            case 'N':
-                $vars['note'] = $body;
-                $vars['poster'] = $poster;
-                if ($object instanceof Threadable)
-                    return $object->postThreadEntry('N', $vars);
-                elseif ($this instanceof ObjectThread)
-                    return $this->addNote($vars, $errors);
-                else
-                    throw new Exception('Cannot continue discussion with abstract thread');
-            }
-        }
-        // TODO: Consider security constraints
-        else {
-            //XXX: Are we potentially leaking the email address to
-            // collaborators?
-            // Try not to destroy the format of the body
-            $header = sprintf("Received From: %s <%s>\n\n", $mailinfo['name'],
-                $mailinfo['email']);
-            if ($body instanceof HtmlThreadEntryBody)
-                $header = nl2br(Format::htmlchars($header));
-            // Add the banner to the top of the message
-            if ($body instanceof ThreadEntryBody)
-                $body->prepend($header);
-            $vars['message'] = $body;
-            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
-            $vars['origin'] = 'Email';
-            if ($object instanceof Threadable)
-                return $object->postThreadEntry('M', $vars);
-            elseif ($this instanceof ObjectThread)
-                return $this->addMessage($vars, $errors);
-            else
-                throw new Exception('Cannot continue discussion with abstract thread');
-        }
+
+        throw new Exception('Unable to continue thread via email.');
+
         // Currently impossible, but indicate that this thread object could
         // not append the incoming email.
         return false;
@@ -1178,6 +1179,12 @@ implements TemplateVariable {
                 elseif (@$mid_info['staffId']) {
                     $mailinfo['staffId'] = $mid_info['staffId'];
                 }
+
+                // Capture the user type
+                if (@$mid_info['userClass'])
+                    $mailinfo['userClass'] = $mid_info['userClass'];
+
+
                 // ThreadEntry was positively identified
                 return $t;
             }
