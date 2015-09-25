@@ -138,9 +138,8 @@ class OrgsAjaxAPI extends AjaxController {
         $info['action'] = '#orgs/'.$org->getId().'/add-user';
         $info['onselect'] = 'ajax.php/orgs/'.$org->getId().'/add-user/';
 
-        $info['lookup'] = false;
-        if (AuthenticationBackend::getSearchDirectories())
-            $info['lookup'] = 'remote';
+        if (!AuthenticationBackend::getSearchDirectories())
+            $info['lookup'] = 'local';
 
         if ($_POST) {
             if ($_POST['id']) { //Existing useer

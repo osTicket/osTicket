@@ -835,15 +835,14 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function write($what, $chunk_size=CHUNK_SIZE) {
         $offset=0;
-        $what = bin2hex($what);
         for (;;) {
-            $block = substr($what, $offset, $chunk_size*2);
+            $block = bin2hex(substr($what, $offset, $chunk_size));
             if (!$block) break;
             if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
                     .' SET filedata=0x'.$block.', file_id='
                     .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
                 return false;
-            $offset += strlen($block);
+            $offset += strlen($block)/2;
         }
 
         return $this->_chunk;

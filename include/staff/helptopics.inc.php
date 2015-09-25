@@ -94,10 +94,19 @@ $order_by = 'sort';
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart());
 
+            $T = $topics;
+            $names = $topics = array();
+            foreach ($T as $topic) {
+                $names[$topic->getId()] = $topic->getFullName();
+                $topics[$topic->getId()] = $topic;
+            }
+            $names = Internationalization::sortKeyedList($names);
+
             $defaultDept = $cfg->getDefaultDept();
             $defaultPriority = $cfg->getDefaultPriority();
             $sort = 0;
-            foreach($topics as $topic) {
+            foreach($names as $topic_id=>$name) {
+                $topic = $topics[$topic_id];
                 $id = $topic->getId();
                 $sort++; // Track initial order for transition
                 $sel=false;
