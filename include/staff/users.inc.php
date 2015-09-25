@@ -62,7 +62,7 @@ $users->order_by($order . $order_column);
             <?php csrf_token(); ?>
             <input type="hidden" name="a" value="search">
             <div class="attached input">
-                <input type="search" class="basic-search" id="basic-user-search" name="query"
+                <input type="text" class="basic-search" id="basic-user-search" name="query"
                          size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                         autocomplete="off" autocorrect="off" autocapitalize="off">
             <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->

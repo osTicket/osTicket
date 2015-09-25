@@ -10,7 +10,7 @@ if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
     : __('Search existing users.');
 ?></p></div>
 <div style="margin-bottom:10px;">
-    <input type="search" class="search-input" style="width:100%;"
+    <input type="text" class="search-input" style="width:100%;"
     placeholder="<?php echo __('Search by email, phone or name'); ?>" id="user-search"
     autofocus autocorrect="off" autocomplete="off"/>
 </div>
