@@ -225,7 +225,7 @@ if ($closedTickets) {?>
                 <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
                 <td>&nbsp;<?php echo $status; ?></td>
                 <td>
-                    <a class="truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
+                    <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
                 </td>
                 <td>&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
             </tr>

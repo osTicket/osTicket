@@ -13,15 +13,16 @@ body, html {
     padding:0;
 }
 
-.button.link,
+.link,
 a {
     color:#184E81;
     text-decoration:none;
     display: inline-block;
 }
 
-a:hover, .button.link:hover {
+a:hover, .link:hover {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 #nav a:hover,
