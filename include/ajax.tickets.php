@@ -61,6 +61,7 @@ class TicketsAjaxAPI extends AjaxController {
                     'tickets' => new SqlCode('1'),
                     '__relevance__' => new SqlCode(1)
                 ))
+                ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
                 ->limit($limit)
                 ->union($hits);
