@@ -801,7 +801,6 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
-  table-layout: fixed;
 }
 #ticketTable caption {
   padding: 5px;
