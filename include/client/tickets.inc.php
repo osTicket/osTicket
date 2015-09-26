@@ -32,22 +32,10 @@ else {
     $closedTickets = $thisclient->getNumClosedTickets($org_tickets);
 }
 
-$tickets = TicketModel::objects();
+$tickets = Ticket::objects();
 
 $qs = array();
 $status=null;
-
-if ($settings['status'])
-    $status = strtolower($settings['status']);
-    switch ($status) {
-    default:
-        $status = 'open';
-    case 'open':
-    case 'closed':
-		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
-        $tickets->filter(array('status__state' => $status));
-        break;
-}
 
 $sortOptions=array('id'=>'number', 'subject'=>'cdata__subject',
                     'status'=>'status__name', 'dept'=>'dept__name','date'=>'created');
@@ -65,16 +53,40 @@ if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($_REQUEST['order'] ?: 'desc').'" ';
 
-// Add visibility constraints
-$visibility = Q::any(array(
-    'user_id' => $thisclient->getId(),
-    'thread__collaborators__user_id' => $thisclient->getId(),
-));
+$basic_filter = Ticket::objects();
+if ($settings['topic_id']) {
+    $basic_filter = $basic_filter->filter(array('topic_id' => $settings['topic_id']));
+}
 
-if ($thisclient->canSeeOrgTickets())
-    $visibility->add(array('user__org_id' => $thisclient->getOrgId()));
+if ($settings['status'])
+    $status = strtolower($settings['status']);
+    switch ($status) {
+    default:
+        $status = 'open';
+    case 'open':
+    case 'closed':
+		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
+        $basic_filter->filter(array('status__state' => $status));
+        break;
+}
 
-$tickets->filter($visibility);
+// Add visibility constraints — use a union query to use multiple indexes,
+// use UNION without "ALL" (false as second parameter to union()) to imply
+// unique values
+$visibility = $basic_filter->copy()
+    ->values_flat('ticket_id')
+    ->filter(array('user_id' => $thisclient->getId()))
+    ->union($basic_filter->copy()
+        ->values_flat('ticket_id')
+        ->filter(array('thread__collaborators__user_id' => $thisclient->getId()))
+    , false);
+
+if ($thisclient->canSeeOrgTickets()) {
+    $visibility = $visibility->union(
+        $basic_filter->copy()->values_flat('ticket_id')
+            ->filter(array('user__org_id' => $thisclient->getOrgId()))
+    , false);
+}
 
 // Perform basic search
 if ($settings['keywords']) {
@@ -83,12 +95,8 @@ if ($settings['keywords']) {
         $tickets->filter(array('number__startswith'=>$q));
     } else { //Deep search!
         // Use the search engine to perform the search
-        $tickets = $ost->searcher->find($q, $tickets);
+        $tickets = $ost->searcher->find($q, $tickets)->distinct('ticket_id');
     }
-}
-
-if ($settings['topic_id']) {
-    $tickets = $tickets->filter(array('topic_id' => $settings['topic_id']));
 }
 
 TicketForm::ensureDynamicDataView();
@@ -99,6 +107,7 @@ $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('tickets.php', $qs);
+$tickets->filter(array('ticket_id__in' => $visibility));
 $pageNav->paginate($tickets);
 
 $showing =$total ? $pageNav->showing() : "";
@@ -112,7 +121,6 @@ if($search)
 
 $negorder=$order=='-'?'ASC':'DESC'; //Negate the sorting
 
-$tickets->order_by($order.$order_by);
 $tickets->values(
     'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
