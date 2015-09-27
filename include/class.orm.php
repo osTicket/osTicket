@@ -2897,7 +2897,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 }
 
-class MySqlExecutor {
+class MySqlPreparedExecutor {
 
     var $stmt;
     var $fields = array();
@@ -3074,6 +3074,90 @@ class MySqlExecutor {
             }
             return db_real_escape($p, is_string($p));
         }, $this->sql);
+    }
+}
+
+/**
+ * Simplified executor which uses the mysqli_query() function to process
+ * queries. This method is faster on MySQL as it doesn't require the PREPARE
+ * overhead, nor require two trips to the database per query. All parameters
+ * are escaped and placed directly into the SQL statement. With this style,
+ * it is possible that multiple parameters could compile a statement which
+ * exceeds the MySQL max_allowed_packet setting.
+ */
+class MySqlExecutor
+extends MySqlPreparedExecutor {
+    function execute() {
+        $sql = $this->__toString();
+        if (!($this->stmt = db_query($sql, true, !$this->unbuffered)))
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$sql);
+        // mysqli_query() return TRUE for UPDATE queries and friends
+        if ($this->stmt !== true)
+            $this->_setupCast();
+        return true;
+    }
+
+    function _setupCast() {
+        $fields = $this->stmt->fetch_fields();
+        $this->types = array();
+        foreach ($fields as $F) {
+            $this->types[] = $F->type;
+        }
+    }
+
+    function _cast($record) {
+        $i=0;
+        foreach ($record as &$f) {
+            switch ($this->types[$i++]) {
+            case MYSQLI_TYPE_DECIMAL:
+            case MYSQLI_TYPE_NEWDECIMAL:
+            case MYSQLI_TYPE_LONGLONG:
+            case MYSQLI_TYPE_FLOAT:
+            case MYSQLI_TYPE_DOUBLE:
+                $f = isset($f) ? (double) $f : $f;
+                break;
+
+            case MYSQLI_TYPE_BIT:
+            case MYSQLI_TYPE_TINY:
+            case MYSQLI_TYPE_SHORT:
+            case MYSQLI_TYPE_LONG:
+            case MYSQLI_TYPE_INT24:
+                $f = isset($f) ? (int) $f : $f;
+                break;
+
+            default:
+                // No change (leave as string)
+            }
+        }
+        unset($f);
+        return $record;
+    }
+
+    function getArray() {
+        if (!isset($this->stmt))
+            $this->execute();
+
+        if (null === ($record = $this->stmt->fetch_assoc()))
+            return false;
+        return $this->_cast($record);
+    }
+
+    function getRow() {
+        if (!isset($this->stmt))
+            $this->execute();
+
+        if (null === ($record = $this->stmt->fetch_row()))
+            return false;
+        return $this->_cast($record);
+    }
+
+    function affected_rows() {
+        return db_affected_rows();
+    }
+
+    function insert_id() {
+        return db_insert_id();
     }
 }
 
