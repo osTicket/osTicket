@@ -354,7 +354,7 @@ RedactorPlugins.fullscreen = function()
                                     func: this.table.show,
                                     observe: {
                                         element: 'table',
-                                        in: {
+                                        'in': {
                                             attr: {
                                                 'class': 'redactor-dropdown-link-inactive',
                                                 'aria-disabled': true,
