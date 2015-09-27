@@ -679,6 +679,9 @@ class Mail_mime
         if (!empty($value['headers_charset'])) {
             $params['headers_charset'] = $value['headers_charset'];
         }
+        elseif (isset($this->build_params['head_charset'])) {
+            $params['headers_charset'] = $this->build_params['head_charset'];
+        }
         if (!empty($value['language'])) {
             $params['language'] = $value['language'];
         }
