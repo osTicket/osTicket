@@ -30,9 +30,6 @@ class Deployment extends Unpacker {
         $this->options['force'] = array('-f', '--force',
             'action'=>'store_true',
             'help'=>'Deploy all files, even if they have not changed');
-        $this->options['autoloader'] = array('', '--autoload',
-            'action'=>'store_true', 'default'=>false,
-            'help'=>'Generate autoload script and exit');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -237,12 +234,16 @@ class Deployment extends Unpacker {
         $path = $path ?: ROOT_DIR;
         $verbose = $this->getOption('verbose');
         $findClasses = function($dir, &$classes) use (&$findClasses, $path, $delta, $verbose) {
+            $exclude = array('include/plugins', 'include/upgrader/streams',
+                'setup');
             $files = array_diff(scandir($dir), array('.','..'));
             $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach ($files as $file) {
                 $full = "$dir/$file";
                 $local = ltrim(str_replace($path, '', $full), DIRECTORY_SEPARATOR);
                 if (is_dir($full)) {
+                    if (in_array($local, $exclude))
+                        continue;
                     if (substr($local, -7) != DIRECTORY_SEPARATOR . 'setup')
                         $findClasses($full, $classes);
                 }
@@ -276,8 +277,13 @@ class Deployment extends Unpacker {
 
         $findClasses($path, $classes);
         $classes = var_export($classes, true);
-        file_put_contents($path . 'include/.autoload.php',
-            '<?php return '.$classes.';');
+        file_put_contents($path . 'include/.autoload.php', <<<EOF
+<?php
+# --- AUTO GENERATED -------
+# Use `php manage.php package --autoload --verbose` to regenerate
+return {$classes};
+EOF
+        );
 
         if ($verbose)
             $this->stderr->write("\n");

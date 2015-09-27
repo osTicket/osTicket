@@ -54,6 +54,12 @@ cloned the git repo into)
     git pull
     php manage.php deploy -v /var/www/htdocs/osticket/
 
+If you absolutely must run from the git repo itself, without deploying to a
+production folder (usually for development testing), generate an autoloader
+file.
+
+    php manage.php package --autoload
+
 Upgrading
 ---------
 osTicket supports upgrading from 1.6-rc1 and later versions. As with any

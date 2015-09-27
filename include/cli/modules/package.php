@@ -24,6 +24,10 @@ class Packager extends Deployment {
             'action'=>'store_true', 'default'=>false,
             'help'=>'Print current version tag for DNS'
         ),
+        'autoloader' => array('', '--autoload',
+            'action'=>'store_true', 'default'=>false,
+            'help'=>'Generate autoload script and exit'
+        ),
     );
     var $arguments = array();
 
@@ -37,7 +41,7 @@ class Packager extends Deployment {
         if ($options['dns'])
             return $this->print_dns();
         if ($options['autoload'])
-            return $this->make_autoloader();
+            return $this->makeAutoloader();
 
         // Set some forced args and options
         $temp = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
