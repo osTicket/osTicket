@@ -277,7 +277,7 @@ class Thread extends VerySimpleModel {
      *      - subject - (string) email subject line (decoded)
      *      - body - (string) email message body (decoded)
      */
-    function postEmail($mailinfo) {
+    function postEmail($mailinfo, $entry=null) {
         // +==================+===================+=============+
         // | Orig Thread-Type | Reply Thread-Type | Requires    |
         // +==================+===================+=============+
@@ -308,7 +308,7 @@ class Thread extends VerySimpleModel {
             'origin' => 'Email',
             'source' => 'Email',
             'ip' =>     '',
-            'reply_to' => $this,
+            'reply_to' => $entry,
             'recipients' => $mailinfo['recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
         );
@@ -639,7 +639,7 @@ implements TemplateVariable {
             return $this;
         }
 
-        return $thread->postEmail($mailinfo);
+        return $thread->postEmail($mailinfo, $this);
     }
 
     function getId() {
