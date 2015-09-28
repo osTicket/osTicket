@@ -29,9 +29,10 @@ foreach ($forms as $e) { ?>
     $(this).parent().find('button').trigger('click');">
 <option selected="selected" disabled="disabled"><?php
     echo __('Add a form'); ?></option>
-<?php foreach (DynamicForm::objects()->filter(array(
-    'type'=>'G')) as $f
-) {
+<?php foreach (DynamicForm::objects()
+    ->filter(array('type'=>'G'))
+    ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED))
+    as $f) {
     if (in_array($f->get('id'), $current_list))
         continue;
     ?><option value="<?php echo $f->get('id'); ?>"><?php

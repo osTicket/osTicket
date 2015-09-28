@@ -185,6 +185,22 @@ database engines other than MySQL. The ORM was originally introduced in
 osTicket v1.8.0, but has seen the greatest boost in capability in this release.
 About 47% of the SQL queries are removed between v1.9.7 and v1.10
 
+osTicket v1.9.12
+================
+### Improvements
+  * Fix missing search box adding user to organization (#2431)
+  * Fix incorrect update time on FAQ view in staff portal (194f890)
+  * Fix incorrect parsing of some multi-part MIME messages (fe62226)
+  * Fix auto-claim for new ticket by staff if a filter added a canned response
+    (eca531f)
+  * Fix malformed results on remote user search when adding users (#2335)
+  * Fix search by ticket number on client portal (#2294)
+  * Fix association of user email without a domain to an organization without
+    an email domain setting (#2293)
+
+### Performance and Security
+  * Revert poor performing ticket stats query (#2318)
+
 osTicket v1.9.11
 ================
 *We skipped v1.9.10 to avoid confusion with v1.10 (the major release coming out at the same time)*

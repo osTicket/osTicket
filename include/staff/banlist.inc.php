@@ -53,7 +53,7 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
         <form action="banlist.php" method="GET" name="filter">
             <input type="hidden" name="a" value="filter" >
             <div class="attached input">
-                <input name="q" type="search" class="basic-search" size="30" autofocus
+                <input name="q" type="text" class="basic-search" size="30" autofocus
                        value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
                 <button type="submit" class="attached button"><i class="icon-search"></i></button>
             </div>

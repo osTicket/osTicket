@@ -419,6 +419,8 @@ $('#add_extended_access').find('button').on('click', function() {
 if ($dept) {
     $members = $dept->members->all();
     foreach ($dept->extended as $x) {
+        if (!$x->staff)
+            continue;
         $members[] = new AnnotatedModel($x->staff, array(
             'alerts' => $x->isAlertsEnabled(),
             'role_id' => $x->role_id,

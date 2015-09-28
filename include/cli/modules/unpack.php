@@ -215,6 +215,11 @@ class Unpacker extends Module {
         return $location = rtrim($INCLUDE_DIR, '/').'/';
     }
 
+    function bootstrap() {
+        // Don't load config and frieds as that will likely crash if not yet
+        // installed
+    }
+
     function run($args, $options) {
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))

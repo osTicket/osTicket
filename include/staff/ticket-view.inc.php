@@ -16,6 +16,8 @@ $user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
+if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
+    $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
 
@@ -201,7 +203,8 @@ if($ticket->isOverdue())
 </div>
 <div class="clear tixTitle has_bottom_border">
     <h3>
-    <?php echo Format::htmlchars($ticket->getSubject()); ?>
+    <?php $subject_field = TicketForm::getInstance()->getField('subject');
+        echo $subject_field->display($ticket->getSubject()); ?>
     </h3>
 </div>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">

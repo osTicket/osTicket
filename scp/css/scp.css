@@ -13,15 +13,16 @@ body, html {
     padding:0;
 }
 
-.button.link,
+.link,
 a {
     color:#184E81;
     text-decoration:none;
     display: inline-block;
 }
 
-a:hover, .button.link:hover {
+a:hover, .link:hover {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 #nav a:hover,
@@ -646,10 +647,6 @@ a.print {
     height:25px;
 }
 
-input[type=search] {
-    font-size: 16px;
-}
-.search input[type=search],
 .search input[type=text] {
     height:23px;
     line-height:23px;
@@ -735,6 +732,9 @@ td.multi-line {
 .form_table input[type=text], .form_table input[type=password], .form_table textarea {
     background:#fff;
     border:1px solid #aaa;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 .form_table input[type=radio], .form_table input[type=checkbox] {
@@ -944,7 +944,7 @@ img.avatar {
 }
 .avatar > img.avatar {
     width: 100%;
-    height: 100%;
+    height: auto;
 }
 .thread-entry .header {
     padding: 8px 0.9em;
@@ -1046,6 +1046,9 @@ img.avatar {
   border-top: 1px dotted #ccc;
   border-top-color: rgba(0,0,0,0.2);
   border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments:empty {
+    display: none;
 }
 .thread-body .attachments .filesize {
   margin-left: 0.5em;
@@ -1280,6 +1283,9 @@ ul.tabs.alt li.active {
 #response_options input[type=text], #response_options textarea:not(.richtext) {
     border:1px solid #aaa;
     background:#fff;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 .attachments .uploads div {
@@ -1882,6 +1888,8 @@ select + .button {
   margin-right:0;
   border: 1px solid #999;
   border-right:none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .input.attached .button.attached {
   height: 100%;
@@ -2825,6 +2833,9 @@ input, textarea {
     padding: 3px 5px;
     font-size: 0.95em;
     font-family: inherit;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 small {
@@ -2882,8 +2893,11 @@ select {
     max-width:350px;
     border:1px solid #bbb;
     display:inline-block;
-    padding:4px;
+    padding:0 4px;
     font-size:13px;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
 }
 
 a.attachment {

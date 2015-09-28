@@ -26,46 +26,6 @@ class TicketsAjaxAPI extends AjaxController {
     function lookup() {
         global $thisstaff;
 
-        if(!is_numeric($_REQUEST['q']))
-            return self::lookupByEmail();
-
-
-        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $tickets=array();
-
-        $visibility = Q::any(array(
-            'staff_id' => $thisstaff->getId(),
-            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
-        ));
-        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
-            $visibility->add(array('dept_id__in' => $depts));
-        }
-
-
-        $hits = TicketModel::objects()
-            ->filter(Q::any(array(
-                'number__startswith' => $_REQUEST['q'],
-            )))
-            ->filter($visibility)
-            ->values('number', 'user__emails__address')
-            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
-            ->order_by('-created')
-            ->limit($limit);
-
-        foreach ($hits as $T) {
-            $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
-                'info'=>"{$T['number']} — {$T['user__emails__address']}",
-                'matches'=>$_REQUEST['q']);
-        }
-        if (!$tickets)
-            return self::lookupByEmail();
-
-        return $this->json_encode($tickets);
-    }
-
-    function lookupByEmail() {
-        global $thisstaff;
-
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
@@ -79,22 +39,51 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         $hits = TicketModel::objects()
-            ->filter(Q::any(array(
-                'user__emails__address__contains' => $_REQUEST['q'],
-                'user__name__contains' => $_REQUEST['q'],
-                'user__account__username' => $_REQUEST['q'],
-                'user__org__name__contains' => $_REQUEST['q'],
-            )))
             ->filter($visibility)
-            ->values('user__emails__address')
-            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
+            ->values('user__default_email__address')
+            ->annotate(array(
+                'number' => new SqlCode('null'),
+                'tickets' => SqlAggregate::COUNT('ticket_id', true)))
             ->limit($limit);
 
+        $q = $_REQUEST['q'];
+        // Drop at sign in email addresses
+        $q = str_replace('@', ' ', $q);
+
+        global $ost;
+        $hits = $ost->searcher->find($q, $hits)
+            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+
+        if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
+            $hits = TicketModel::objects()
+                ->values('user__default_email__address', 'number')
+                ->annotate(array(
+                    'tickets' => new SqlCode('1'),
+                    '__relevance__' => new SqlCode(1)
+                ))
+                ->filter($visibility)
+                ->filter(array('number__startswith' => $q))
+                ->limit($limit)
+                ->union($hits);
+        }
+        elseif (!count($hits) && $q[strlen($q)-1] != '*') {
+            // Do wild-card fulltext search
+            $_REQUEST['q'] = $q.'*';
+            return $this->lookup();
+        }
+
         foreach ($hits as $T) {
-            $email = $T['user__emails__address'];
+            $email = $T['user__default_email__address'];
             $count = $T['tickets'];
-            $tickets[] = array('email'=>$email, 'value'=>$email,
-                'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+            if ($T['number']) {
+                $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                    'info'=>"{$T['number']} — {$email}",
+                    'matches'=>$_REQUEST['q']);
+            }
+            else {
+                $tickets[] = array('email'=>$email, 'value'=>$email,
+                    'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+            }
         }
 
         return $this->json_encode($tickets);
@@ -103,7 +92,7 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg, $thisstaff;
 
-        if(!$cfg || !$cfg->getLockTime())
+        if(!$cfg || !$cfg->getLockTime() || $cfg->getTicketLockMode() == Lock::MODE_DISABLED)
             Http::response(418, $this->encode(array('id'=>0, 'retry'=>false)));
 
         if(!$tid || !is_numeric($tid) || !$thisstaff)

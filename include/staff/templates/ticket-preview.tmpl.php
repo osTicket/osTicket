@@ -8,6 +8,7 @@ $staff=$ticket->getStaff();
 $lock=$ticket->getLock();
 $role=$thisstaff->getRole($ticket->getDeptId());
 $error=$msg=$warn=null;
+$thread = $ticket->getThread();
 
 if($lock && $lock->getStaffId()==$thisstaff->getId())
     $warn.='&nbsp;<span class="Icon lockedTicket">'
@@ -34,12 +35,12 @@ echo '<ul class="tabs" id="ticket-preview">';
 echo '
         <li class="active"><a id="preview_tab" href="#preview"
             ><i class="icon-list-alt"></i>&nbsp;'.__('Ticket Summary').'</a></li>';
-if ($ticket->getThread()->getNumCollaborators()) {
+if ($thread && $thread->getNumCollaborators()) {
 echo sprintf('
         <li><a id="collab_tab" href="#collab"
             ><i class="icon-fixed-width icon-group
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
-            $ticket->getThread()->getNumCollaborators());
+            $thread->getNumCollaborators());
 }
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
@@ -121,7 +122,7 @@ echo '</div>'; // ticket preview content.
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
         <?php
-        if (($collabs=$ticket->getThread()->getCollaborators())) {?>
+        if ($thread && ($collabs=$thread->getCollaborators())) {?>
         <?php
             foreach($collabs as $collab) {
                 echo sprintf('<tr><td %s><i class="icon-%s"></i>
@@ -141,7 +142,7 @@ echo '</div>'; // ticket preview content.
     echo sprintf('<span><a class="collaborators"
                             href="#tickets/%d/collaborators">%s</a></span>',
                             $ticket->getId(),
-                            $ticket->getThread()->getNumCollaborators()
+                            $thread && $thread->getNumCollaborators()
                                 ? __('Manage Collaborators') : __('Add Collaborator')
                                 );
     ?>

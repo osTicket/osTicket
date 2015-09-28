@@ -53,13 +53,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
     </thead>
     <tbody style="vertical-align:top">
-        <tr>
-            <td colspan="2">
-    <table class="full-width"><tbody><tr><td style="vertical-align:top">
+      <tr>
+        <td colspan="2">
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if ($form && count($langs) > 1) { ?>
-    <ul class="vertical tabs" id="translations">
+    <ul class="alt tabs clean" id="translations">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$nfo) { ?>
     <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
@@ -71,8 +70,7 @@ if ($form && count($langs) > 1) { ?>
     </ul>
 <?php
 } ?>
-    </td>
-    <td id="translations_container">
+    <div id="translations_container">
         <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>" class="tab_content"
             lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
             <div class="required"><?php echo __('Title'); ?>:</div>
@@ -106,13 +104,13 @@ if ($form && count($langs) > 1) { ?>
             <i class="help-tip icon-question-sign" href="#form_instructions"></i>
             </div>
         <textarea name="trans[<?php echo $tag; ?>][instructions]" cols="21" rows="12"
-            style="width:100%" class="richtext"><?php
+            style="width:100%" class="richtext small"><?php
             echo $info['trans'][$tag]['instructions']; ?></textarea>
         </div>
 <?php }
 } ?>
-    </td></tr></tbody></table>
-        </td></tr>
+        </td>
+      </tr>
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
