@@ -342,7 +342,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
    };
    $(function() {
      $('#dynamic-actions').sortable({helper: fixHelper, opacity: 0.5});
-     var next = <?php echo $maxi; ?>;
+     var next = <?php echo $maxi ?: 0; ?>;
      $('#add-rule').click(function() {
        var clone = $('#new-rule-template tr').clone();
        clone.find('[data-name=rulew]').attr('name', 'rules['+next+'][w]');
@@ -351,5 +351,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
        clone.appendTo('#rules');
        next++;
      });
+<?php if (!$info['rules']) { ?>
+        $('#add-rule').trigger('click').trigger('click');
+<?php } ?>
    });
 </script>

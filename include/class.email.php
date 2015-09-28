@@ -200,8 +200,13 @@ class Email extends VerySimpleModel {
         Dept::objects()
             ->filter(array('email_id' => $this->getId()))
             ->update(array(
-                'autoresp_email_id' => 0,
                 'email_id' => $cfg->getDefaultEmailId()
+            ));
+
+        Dept::objects()
+            ->filter(array('autoresp_email_id' => $this->getId()))
+            ->update(array(
+                'autoresp_email_id' => 0,
             ));
 
         return true;

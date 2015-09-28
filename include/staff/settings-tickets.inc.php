@@ -146,6 +146,23 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td width="180"><?php echo __('Lock Semantics'); ?>:</td>
+            <td>
+                <select name="ticket_lock" <?php if ($cfg->getLockTime() == 0) echo 'disabled="disabled"'; ?>>
+<?php foreach (array(
+    Lock::MODE_DISABLED => __('Disabled'),
+    Lock::MODE_ON_VIEW => __('Lock on view'),
+    Lock::MODE_ON_ACTIVITY => __('Lock on activity'),
+) as $v => $desc) { ?>
+                <option value="<?php echo $v; ?>" <?php
+                    if ($config['ticket_lock'] == $v) echo 'selected="selected"';
+                    ?>><?php echo $desc; ?></option>
+<?php } ?>
+                </select>
+                <div class="error"><?php echo $errors['ticket_lock']; ?></div>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">

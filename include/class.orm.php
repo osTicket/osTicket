@@ -919,6 +919,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $distinct = array();
     var $lock = false;
     var $chain = array();
+    var $options = array();
 
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
@@ -986,6 +987,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
     function order_by($order, $direction=false) {
+        if ($order === false)
+            return $this->options(array('nosort' => true));
+
         $args = func_get_args();
         if (in_array($direction, array(self::ASC, self::DESC))) {
             $args = array($args[0]);
@@ -1184,6 +1188,11 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function options($options) {
+        $this->options = array_merge($this->options, $options);
+        return $this;
+    }
+
     function countSelectFields() {
         $count = count($this->values) + count($this->annotations);
         if (isset($this->extra['select']))
@@ -1259,6 +1268,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
+        $options += $this->options;
         if ($options['nosort'])
             $query->ordering = array();
         elseif (!$query->ordering && $model::getMeta('ordering'))
@@ -2523,7 +2533,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
                 // If there are annotations, add in these fields to the
                 // GROUP BY clause
-                if ($queryset->annotations)
+                if ($queryset->annotations && !$queryset->distinct)
                     $group_by[] = $unaliased;
             }
         }
@@ -2557,7 +2567,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by && !$queryset->aggregated) {
+            if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
                 foreach ($model::getMeta('pk') as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
@@ -2580,29 +2590,31 @@ class MySqlCompiler extends SqlCompiler {
 
         $joins = $this->getJoins($queryset);
 
+        $sql = 'SELECT '.implode(', ', $fields).' FROM '
+            .$table.$joins.$where.$group_by.$having.$sort;
         // UNIONS
-        $unions='';
         if ($queryset->chain) {
+            // If the main query is sorted, it will need parentheses
+            if ($parens = (bool) $sort)
+                $sql = "($sql)";
             foreach ($queryset->chain as $qs) {
                 list($qs, $all) = $qs;
                 $q = $qs->getQuery(array('nosort' => true));
                 // Rewrite the parameter numbers so they fit the parameter numbers
                 // of the current parameters of the $compiler
                 $self = $this;
-                $sql = preg_replace_callback("/:(\d+)/",
+                $S = preg_replace_callback("/:(\d+)/",
                 function($m) use ($self, $q) {
                     $self->params[] = $q->params[$m[1]-1];
                     return ':'.count($self->params);
                 }, $q->sql);
                 // Wrap unions in parentheses if they are windowed or sorted
-                if ($qs->isWindowed() || count($qs->getSortFields()))
-                    $sql = "($sql)";
-                $unions .= ' UNION '.($all ? 'ALL ' : '').$sql;
+                if ($parens || $qs->isWindowed() || count($qs->getSortFields()))
+                    $S = "($S)";
+                $sql .= ' UNION '.($all ? 'ALL ' : '').$S;
             }
         }
 
-        $sql = 'SELECT '.implode(', ', $fields).' FROM '
-            .$table.$joins.$where.$group_by.$having.$unions.$sort;
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)

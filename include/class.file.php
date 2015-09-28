@@ -531,11 +531,16 @@ class AttachmentFile extends VerySimpleModel {
     static function getBackendForFile($file) {
         global $cfg;
 
-        if (!$cfg)
+        $char = null;
+        if ($cfg) {
+            $char = $cfg->getDefaultStorageBackendChar();
+        }
+        try {
+            return FileStorageBackend::lookup($char ?: 'D', $file);
+        }
+        catch (Exception $x) {
             return new AttachmentChunkedData($file);
-
-        $char = $cfg->getDefaultStorageBackendChar();
-        return FileStorageBackend::lookup($char, $file);
+        }
     }
 
     static function lookupByHash($hash) {

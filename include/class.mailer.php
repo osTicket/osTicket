@@ -278,7 +278,7 @@ class Mailer {
 
         // Round-trip detection - the first section is the local
         // system's message-id code
-        $rv['loopback'] = (0 === strcasecmp($rv['code'],
+        $rv['loopback'] = (0 === strcmp($rv['code'],
             static::getSystemMessageIdCode()));
 
         return $rv;
