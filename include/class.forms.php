@@ -3836,9 +3836,11 @@ class VisibilityConstraint {
     }
 
     static function splitFieldAndOp($field) {
-        $op = substr($field, strrpos($field, '__') + 2);
-        if (isset(static::$operators[$op]))
-            $field = substr($field, 0, strrpos($field, '__'));
+        if (false !== ($last = strrpos($field, '__'))) {
+            $op = substr($field, $last + 2);
+            if (isset(static::$operators[$op]))
+                $field = substr($field, 0, strrpos($field, '__'));
+        }
         return array($field, $op);
     }
 
