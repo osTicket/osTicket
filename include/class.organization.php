@@ -450,7 +450,6 @@ implements TemplateVariable {
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
             $org = Organization::create(array(
                 'name' => $vars['name'],
-                'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
             ));
             $org->save(true);
@@ -482,10 +481,17 @@ implements TemplateVariable {
         return $valid ? self::fromVars($form->getClean()) : null;
     }
 
+    static function create($vars=false) {
+        $org = parent::create($vars);
+
+        $org->created = new SqlFunction('NOW');
+        $org->setStatus(self::SHARE_PRIMARY_CONTACT);
+        return $org;
+    }
+
     // Custom create called by installer/upgrader to load initial data
     static function __create($ht, &$error=false) {
 
-        $ht['created'] = new SqlFunction('NOW');
         $org = Organization::create($ht);
         // Add dynamic data (if any)
         if ($ht['fields']) {
