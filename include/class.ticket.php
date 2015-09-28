@@ -358,6 +358,18 @@ implements RestrictedAccess, Threadable {
         if ($user->getId() == $this->getUserId())
             return true;
 
+        // Organization
+        if ($user->canSeeOrgTickets()
+            && ($U = $this->getUser())
+            && ($U->getOrgId() == $user->getOrgId())
+        ) {
+            // The owner of this ticket is in the same organization as the
+            // user in question, and the organization is configured to allow
+            // the user in question to see other tickets in the
+            // organization.
+            return true;
+        }
+
         // Collaborator?
         // 1) If the user was authorized via this ticket.
         if ($user->getTicketId() == $this->getId()

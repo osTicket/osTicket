@@ -1069,6 +1069,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function copy() {
+        return clone $this;
+    }
+
     function all() {
         return $this->getIterator()->asArray();
     }
@@ -2233,10 +2237,13 @@ class MySqlCompiler extends SqlCompiler {
             $vals = array_map(array($this, 'input'), $b);
             $b = '('.implode(', ', $vals).')';
         }
+        // MySQL is almost always faster with a join. Use one if possible
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
         // the query as a JOIN and add the join constraint into the WHERE
         // clause.
-        elseif ($b instanceof QuerySet && ($b->isWindowed() || $b->countSelectFields() > 1)) {
+        elseif ($b instanceof QuerySet
+            && ($b->isWindowed() || $b->countSelectFields() > 1 || $b->chain)
+        ) {
             $f1 = $b->values[0];
             $view = $b->asView();
             $alias = $this->pushJoin($view, $a, $view, array('constraint'=>array()));

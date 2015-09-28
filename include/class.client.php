@@ -312,16 +312,29 @@ class  EndUser extends BaseAuthenticatedUser {
             'user_id' => $this->getId(),
         ));
 
-        // TODO: Implement UNION ALL support in the ORM
+        // Also add collaborator tickets to the list. This may seem ugly;
+        // but the general rule for SQL is that a single query can only use
+        // one index. Therefore, to scan two indexes (by user_id and
+        // thread.collaborators.user_id), we need two queries. A union will
+        // help out with that.
         $mine->union($collab->filter(array(
             'thread__collaborators__user_id' => $this->getId(),
             Q::not(array('user_id' => $this->getId()))
         )));
 
-        if ($this->getOrgId()) {
+        if ($orgid = $this->getOrgId()) {
+            // Also generate a separate query for all the tickets owned by
+            // either my organization or ones that I'm collaborating on
+            // which are not part of the organization.
             $myorg = clone $basic;
-            $myorg->filter(array('user__org_id' => $this->getOrgId()))
-                ->values('user__org_id');
+            $myorg->values('user__org_id');
+            $collab = clone $myorg;
+
+            $myorg->filter(array('user__org_id' => $orgid));
+            $myorg->union($collab->filter(array(
+                'thread__collaborators__user_id' => $this->getId(),
+                Q::not(array('user__org_id' => $orgid))
+            )));
         }
 
         return array('mine' => $mine, 'myorg' => $myorg);
