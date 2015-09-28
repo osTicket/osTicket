@@ -69,12 +69,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <div class="tab_content" id="info">
 
-<table width="100%"><tr>
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if (count($langs) > 1) { ?>
-    <td valign="top">
-    <ul class="vertical tabs left" id="trans" style="margin-top:10px;">
+    <ul class="alt tabs clean" id="trans">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$i) {
     list($lang, $locale) = explode('_', $tag);
@@ -86,12 +84,10 @@ if (count($langs) > 1) { ?>
     </a></li>
 <?php } ?>
     </ul>
-    </td>
 <?php
 } ?>
 
 
-<td id="trans_container">
 <?php foreach ($langs as $tag=>$i) {
     $code = $i['code'];
     $cname = 'name';
@@ -106,7 +102,7 @@ if (count($langs) > 1) { ?>
         $cname = "trans[$code][$cname]";
         $dname = "trans[$code][$dname]";
     } ?>
-    <div class="tab_content left <?php
+    <div class="tab_content <?php
         if ($code != $cfg->getPrimaryLanguage()) echo "hidden";
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
@@ -131,7 +127,6 @@ if (count($langs) > 1) { ?>
         echo $desc; ?></textarea>
     </div>
 <?php } ?>
-    </td></tr></table>
 </div>
 
 
