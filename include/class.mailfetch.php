@@ -205,7 +205,7 @@ class MailFetcher {
                         throw new Exception();
                     stream_filter_remove($s_filter); 
                     fclose($f);
-                    if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp)))
+                    if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp))))
                         throw new Exception();
                     fclose($f);
                     unlink($temp);
