@@ -152,6 +152,7 @@ class SearchAjaxAPI extends AjaxController {
         // User information
         $matches = array(
             __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
+            __('Custom Forms') => array()
         );
         foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
             $form = $F::objects()->one();
