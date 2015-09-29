@@ -1534,9 +1534,11 @@ class ModelInstanceManager extends ResultSet {
                     $tail = array_pop($path);
                     $m = $model;
                     foreach ($path as $field) {
-                        $m = $m->get($field);
+                        if (!($m = $m->get($field)))
+                            break;
                     }
-                    $m->set($tail, $this->getOrBuild($model_class, $record));
+                    if ($m)
+                        $m->set($tail, $this->getOrBuild($model_class, $record));
                 }
                 $offset += count($fields);
             }
