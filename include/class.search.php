@@ -334,8 +334,31 @@ class MysqlSearchBackend extends SearchBackend {
         // will ensure proper placement of operators, whitespace, and quotes
         // in an effort to avoid crashing the query at MySQL
         $query = $this->quote($query);
-        if (preg_match('/(?=(?:^|\s)[()"+<>~-])\s*(?:[(+<>~-]*(\w+[*]?|"[^"]+")[)]?(\s+|$))+$|\w[*]/u', $query, $T = array()))
+
+        // According to the MySQL full text boolean mode, this grammar is
+        // assumed:
+        // see http://dev.mysql.com/doc/refman/5.6/en/fulltext-boolean.html
+        //
+        // PREOP    = [<>~+-]
+        // POSTOP   = [*]
+        // WORD     = [\w][\w-]*
+        // TERM     = PREOP? WORD POSTOP?
+        // QWORD    = " [^"]+ "
+        // PARENS   = \( { { TERM | QWORD } { \s+ { TERM | QWORD } }+ } \)
+        // EXPR     = { PREOP? PARENS | TERM | QWORD }
+        // BOOLEAN  = EXPR { \s+ EXPR }*
+        //
+        // Changing '{' for (?: and '}' for ')', collapsing whitespace, we
+        // have this regular expression
+        $BOOLEAN = '(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))*';
+
+        // Require the use of at least one operator and conform to the
+        // boolean mode grammar
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        ) {
             $mode = ' IN BOOLEAN MODE';
+        }
         #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
         $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
