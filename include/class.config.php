@@ -1136,6 +1136,7 @@ class OsticketConfig extends Config {
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
             'agent_name_format'=>$vars['agent_name_format'],
+            'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
         ));
     }
@@ -1207,7 +1208,6 @@ class OsticketConfig extends Config {
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
-            'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
         ));
