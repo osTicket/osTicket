@@ -33,11 +33,15 @@ class UsersAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
+        $matches = array();
 
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($q) as $u) {
+                if (!trim($u['email']))
+                    // Email is required currently
+                    continue;
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
-                $users[] = array('email' => $u['email'], 'name'=>(string) $name,
+                $matches[] = array('email' => $u['email'], 'name'=>(string) $name,
                     'info' => "{$u['email']} - $name (remote)",
                     'id' => "auth:".$u['id'], "/bin/true" => $q);
                 $emails[] = $u['email'];
@@ -47,7 +51,7 @@ class UsersAjaxAPI extends AjaxController {
         if (!$type || !strcasecmp($type, 'local')) {
 
             $users = User::objects()
-                ->values_flat('id', 'emails__address', 'name')
+                ->values_flat('id', 'name', 'default_email__address')
                 ->limit($limit);
 
             global $ost;
@@ -61,13 +65,16 @@ class UsersAjaxAPI extends AjaxController {
                 return $this->search($type);
             }
 
+            // Omit already-imported remote users
             if ($emails = array_filter($emails)) {
-                $users->chain(User::objects()->filter(array(
-                    'emails__address__in' => $emails
+                $users->union(User::objects()
+                    ->values_flat('id', 'name', 'emails__address')
+                    ->annotate(array('__relevance__' => new SqlCode(1)))
+                    ->filter(array(
+                        'emails__address__in' => $emails
                 )));
             }
 
-            $matches = array();
             foreach ($users as $U) {
                 list($id,$email,$name) = $U;
                 foreach ($matches as $i=>$u) {
