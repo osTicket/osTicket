@@ -306,7 +306,7 @@ class MysqlSearchBackend extends SearchBackend {
     // Quote things like email addresses
     function quote($query) {
         $parts = array();
-        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+        if (!preg_match_all('`(?:([^\s"\']+)|"[^"]*"|\'[^\']*\')(\s*)`', $query, $parts,
                 PREG_SET_ORDER))
             return $query;
 
@@ -319,9 +319,9 @@ class MysqlSearchBackend extends SearchBackend {
                 $char = strpos($m[1], '"') ? "'" : '"';
                 $m[0] = $char . $m[0] . $char;
             }
-            $results[] = $m[0];
+            $results[] = $m[0].$m[2];
         }
-        return implode(' ', $results);
+        return implode('', $results);
     }
 
     function find($query, QuerySet $criteria, $addRelevance=true) {
@@ -330,10 +330,6 @@ class MysqlSearchBackend extends SearchBackend {
         $criteria = clone $criteria;
 
         $mode = ' IN NATURAL LANGUAGE MODE';
-        // If using boolean operators, search in boolean mode. This regex
-        // will ensure proper placement of operators, whitespace, and quotes
-        // in an effort to avoid crashing the query at MySQL
-        $query = $this->quote($query);
 
         // According to the MySQL full text boolean mode, this grammar is
         // assumed:
@@ -357,6 +353,10 @@ class MysqlSearchBackend extends SearchBackend {
         if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
             && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
         ) {
+            // If using boolean operators, search in boolean mode. This regex
+            // will ensure proper placement of operators, whitespace, and quotes
+            // in an effort to avoid crashing the query at MySQL
+            $query = $this->quote($query);
             $mode = ' IN BOOLEAN MODE';
         }
         #elseif (count(explode(' ', $query)) == 1)
