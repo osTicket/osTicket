@@ -1285,6 +1285,10 @@ implements CustomListItem, TemplateVariable, Searchable {
         );
     }
 
+    static function supportsCustomData() {
+        return false;
+    }
+
     function getList() {
         if (!isset($this->_list))
             $this->_list = DynamicList::lookup(array('type' => 'ticket-status'));
