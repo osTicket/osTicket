@@ -106,6 +106,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         );
     }
 
+    static function supportsCustomData() {
+        return false;
+    }
+
     function getHashtable() {
         $base = $this->ht;
         unset($base['teams']);

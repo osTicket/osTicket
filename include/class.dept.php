@@ -107,6 +107,10 @@ implements TemplateVariable, Searchable {
         );
     }
 
+    static function supportsCustomData() {
+        return false;
+    }
+
     function getId() {
         return $this->id;
     }

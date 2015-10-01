@@ -1908,6 +1908,10 @@ implements RestrictedAccess, Threadable, Searchable {
         return $base;
     }
 
+    static function supportsCustomData() {
+        return true;
+    }
+
     //Replace base variables.
     function replaceVars($input, $vars = array()) {
         global $ost;
