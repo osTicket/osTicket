@@ -185,7 +185,7 @@ class CustomQueue extends SavedSearch {
     function getQuickFilterField($value=null) {
         if ($this->filter
             && ($fields = SavedSearch::getSearchableFields($this->getRoot()))
-            && ($f = @$fields[$this->filter])
+            && (list(,$f) = @$fields[$this->filter])
             && $f->supportsQuickFilter()
         ) {
             $f->value = $value;
@@ -407,7 +407,8 @@ extends ChoiceField {
         $root = $config['root'];
         $fields = array();
         foreach (SavedSearch::getSearchableFields($root) as $path=>$f) {
-            $fields[$path] = $f->get('label');
+            list($label,) = $f;
+            $fields[$path] = $label;
         }
         return $fields;
     }
@@ -439,16 +440,20 @@ class QueueColumnCondition {
         ));
     }
 
-    function getField() {
-      // FIXME
-      #$root = $this->getColumn()->getQueue()->getRoot();
-      $root = 'Ticket';
-      $searchable = SavedSearch::getSearchableFields($root);
-      list($name, $method, $value) = $this->config['crit'];
+    function getField($name=null) {
+        // FIXME
+        #$root = $this->getColumn()->getQueue()->getRoot();
+        $root = 'Ticket';
+        $searchable = SavedSearch::getSearchableFields($root);
 
-      // Lookup the field to search this condition
-      if (isset($searchable[$name]))
-          return $searchable[$name];
+        if (!isset($name))
+            list($name) = $this->config['crit'];
+
+        // Lookup the field to search this condition
+        if (isset($searchable[$name])) {
+            list(,$field) = $searchable[$name];
+            return $field;
+        }
     }
 
     function getFieldName() {
@@ -460,7 +465,7 @@ class QueueColumnCondition {
         list($name, $method, $value) = $this->config['crit'];
 
         // Fetch a criteria Q for the query
-        if ($field = $this->getField())
+        if ($field = $this->getField($name))
             return $field->getSearchQ($method, $value, $name);
     }
 
@@ -478,7 +483,7 @@ class QueueColumnCondition {
                     continue;
 
                 // Lookup the field to search this condition
-                $field = $searchable[$name];
+                list($label, $field) = $searchable[$name];
 
                 // Get the search method and value
                 $method = $v;
@@ -709,11 +714,18 @@ extends VerySimpleModel {
 
         // TODO: Consider data filter if configured
 
-        if (($F = $fields[$primary]) && ($T = $F->from_query($row, $primary)))
-            return $F->display($F->to_php($T));
-
-        if (($F = $fields[$secondary]) && ($T = $F->from_query($row, $secondary)))
-            return $F->display($F->to_php($T));
+        if (($F = $fields[$primary])
+            && (list(,$field) = $F)
+            && ($T = $field->from_query($row, $primary))
+        ) {
+            return $field->display($field->to_php($T));
+        }
+        if (($F = $fields[$secondary])
+            && (list(,$field) = $F)
+            && ($T = $F->from_query($row, $secondary))
+        ) {
+            return $field->display($field->to_php($T));
+        }
     }
 
     function getTruncateClass() {
@@ -731,13 +743,16 @@ extends VerySimpleModel {
     function mangleQuery($query) {
         // Basic data
         $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
-        if ($primary = $fields[$this->primary])
-            $query = $primary->addToQuery($query,
+        if ($primary = $fields[$this->primary]) {
+            list(,$field) = $primary;
+            $query = $field->addToQuery($query,
                 $this->getOrmPath($this->primary));
-
-        if ($secondary = $fields[$this->secondary])
-            $query = $secondary->addToQuery($query,
+        }
+        if ($secondary = $fields[$this->secondary]) {
+            list(,$field) = $secondary;
+            $query = $field->addToQuery($query,
                 $this->getOrmPath($this->secondary));
+        }
 
         switch ($this->link) {
         // XXX: Consider the ROOT of the related queue
@@ -824,7 +839,7 @@ extends VerySimpleModel {
                 if (!isset($fields[$name]))
                     // No such field exists for this queue root type
                     continue;
-                $field = $fields[$name];
+                list(,$field) = $fields[$name];
                 $parts = SavedSearch::getSearchField($field, $name);
                 $search_form = new SimpleForm($parts, $vars, array('id' => $id));
                 $search_form->getField("{$name}+search")->value = true;

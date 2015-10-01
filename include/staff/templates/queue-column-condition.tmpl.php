@@ -16,7 +16,7 @@
     <a href="#" onclick="javascript: $(this).closest('.condition').remove();
       "><i class="icon-trash"></i></a>
   </div>
-  <?php echo $field->get('label'); ?>
+  <?php echo $label ?: $field->getLabel(); ?>
   <div class="advanced-search">
 <?php
 $parts = SavedSearch::getSearchField($field, $field_name);
