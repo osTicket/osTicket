@@ -881,31 +881,78 @@ class SavedSearch extends VerySimpleModel {
         );
     }
 
-    static function getSearchableFields($base, $recurse=2, $cache=true) {
-        static $cache;
+    /**
+     * Parameters:
+     * $base - Class, name of a class implementing Searchable
+     * $recurse - int, number of levels to recurse, default is 2
+     * $cache - bool, cache results for future class for the same base
+     * $customData - bool, include all custom data fields for all general
+     *      forms
+     */
+    static function getSearchableFields($base, $recurse=2, $cache=true,
+        $customData=true
+    ) {
+        static $cache, $otherFields;
 
         if (!in_array('Searchable', class_implements($base)))
             return array();
 
-        // FIXME: The fields from dynamicFormFields seem to be cached, and
-        // setting the label is preserved across multiple calls to this
-        // function. The caching helps with this phenomenon, but a better
-        // mechanism should be employed
+        // Early exit if already cached
         if ($cache && isset($cache[$base]))
             return $cache[$base];
 
-        $fields = $base::getSearchableFields();
+        $fields = array();
+        foreach ($base::getSearchableFields() as $path=>$F) {
+            if (is_array($F)) {
+                list($label, $field) = $F;
+            }
+            else {
+                $label = $F->get('label');
+                $field = $F;
+            }
+            $fields[$path] = array($label, $field);
+        }
+
         if ($recurse) {
             foreach ($base::getMeta('joins') as $path=>$j) {
                 $fc = $j['fkey'][0];
                 if ($fc == $base || $j['list'] || $j['reverse'])
                     continue;
-                foreach (static::getSearchableFields($fc, $recurse-1, false) as $path2=>$F) {
-                    $fields["{$path}__{$path2}"] = $F;
-                    $F->set('label', sprintf("%s / %s", $fc, $F->get('label')));
+                foreach (static::getSearchableFields($fc, $recurse-1, false)
+                as $path2=>$F) {
+                    if (is_array($F)) {
+                        list($label, $field) = $F;
+                    }
+                    else {
+                        $label = $F->get('label');
+                        $field = $F;
+                    }
+                    $fields["{$path}__{$path2}"] = array(
+                        sprintf("%s / %s", $fc, $label),
+                        $field);
                 }
             }
         }
+
+        if ($customData && $base::supportsCustomData()) {
+            if (!isset($otherFields)) {
+                $otherFields = array();
+                $forms = DynamicForm::objects()->filter(array('type'=>'G'));
+                foreach ($forms as $F) {
+                    foreach ($F->getFields() as $field) {
+                        $otherFields[$field->getId()] = array($F, $field);
+                    }
+                }
+            }
+            foreach ($otherFields as $id=>$F) {
+                list($form, $field) = $F;
+                $label = sprintf("%s / %s",
+                    $form->getTitle(), $field->get('label'));
+                $fields["entries__answers!{$id}__value"] = array(
+                    $label, $field);
+            }
+        }
+
         if ($cache)
             $cache[$base] = $fields;
         return $fields;
@@ -1355,4 +1402,8 @@ interface Searchable {
     // used when this list is rendered in a dropdown, and the field search
     // mechanisms are use to apply query filtering based on the field.
     static function getSearchableFields();
+
+    // Determine if the object supports abritrary form additions, through
+    // the "Manage Forms" dialog usually
+    static function supportsCustomData();
 }
