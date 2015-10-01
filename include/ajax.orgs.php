@@ -29,6 +29,9 @@ class OrgsAjaxAPI extends AjaxController {
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
 
+        if (strlen($q) < 2)
+            return $this->encode(array());
+
         $orgs = Organization::objects()
             ->values_flat('id', 'name')
             ->limit($limit);

@@ -47,8 +47,9 @@ class TicketsAjaxAPI extends AjaxController {
             ->limit($limit);
 
         $q = $_REQUEST['q'];
-        // Drop at sign in email addresses
-        $q = str_replace('@', ' ', $q);
+
+        if (strlen($q) < 2)
+            return $this->encode(array());
 
         global $ost;
         $hits = $ost->searcher->find($q, $hits)

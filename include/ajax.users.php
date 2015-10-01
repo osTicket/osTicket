@@ -34,6 +34,9 @@ class UsersAjaxAPI extends AjaxController {
         $users=array();
         $emails=array();
 
+        if (strlen($q) < 2)
+            return $this->encode(array());
+
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($q) as $u) {
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));

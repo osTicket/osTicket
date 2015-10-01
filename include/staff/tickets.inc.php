@@ -93,8 +93,10 @@ case 'search':
                 ));
             }
         }
-        elseif ($_REQUEST['query']) {
-            $q = trim($_REQUEST['query']);
+        elseif (isset($_REQUEST['query'])
+            && ($q = trim($_REQUEST['query']))
+            && strlen($q) > 2
+        ) {
             // [Search] click, consider keywords
             $__tickets = $ost->searcher->find($q, $tickets);
             if (!count($__tickets) && preg_match('`\w$`u', $q)) {
