@@ -38,7 +38,7 @@ class OrgsAjaxAPI extends AjaxController {
         $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
             ->distinct('id');
 
-        if (!count($orgs) && substr($q, strlen($q)-1) != '*') {
+        if (!count($orgs) && preg_match('`\w$`u', $q)) {
             // Do wildcard full-text search
             $_REQUEST['q'] = $q."*";
             return $this->search($type);

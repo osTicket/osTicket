@@ -66,7 +66,7 @@ class TicketsAjaxAPI extends AjaxController {
                 ->limit($limit)
                 ->union($hits);
         }
-        elseif (!count($hits) && $q[strlen($q)-1] != '*') {
+        elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
             $_REQUEST['q'] = $q.'*';
             return $this->lookup();
