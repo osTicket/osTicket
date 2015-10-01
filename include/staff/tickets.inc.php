@@ -100,7 +100,7 @@ case 'search':
                 // Do wildcard search if no hits
                 $__tickets = $ost->searcher->find($_REQUEST['query'].'*', $tickets);
             }
-            $tickets = $__tickets->distinct('ticket_id');
+            $tickets = $__tickets;
             $has_relevance = true;
         }
         if (count($tickets) == 1) {
