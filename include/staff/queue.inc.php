@@ -88,12 +88,13 @@ else {
         <select name="filter">
           <option value="::">— <?php echo __('Inherit from parent'); ?> —</option>
 <?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
-        if (!$f->supportsQuickFilter())
+        list($label, $field) = $f;
+        if (!$field->supportsQuickFilter())
           continue;
 ?>
           <option value="<?php echo $path; ?>"
             <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>
-            ><?php echo $f->get('label'); ?></option>
+            ><?php echo $label; ?></option>
 <?php } ?>
         </select>
         <br/>
@@ -140,8 +141,9 @@ else {
         });
       ">
         <option value="">— <?php echo __('Add a column'); ?> —</option>
-<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) { ?>
-        <option value="<?php echo $path; ?>"><?php echo $f->get('label'); ?></option>
+<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
+        list($label,) = $f; ?>
+        <option value="<?php echo $path; ?>"><?php echo $label; ?></option>
 <?php } ?>
       </select>
 

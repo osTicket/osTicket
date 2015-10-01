@@ -125,7 +125,8 @@ if ($column->getConditions()) {
         <option>— <?php echo __("Add a condition"); ?> —</option>
 <?php
       foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
-          echo sprintf('<option value="%s">%s</option>', $path, Format::htmlchars($f->get('label')));
+          list($label) = $f;
+          echo sprintf('<option value="%s">%s</option>', $path, Format::htmlchars($label));
       }
 ?>
       </select>

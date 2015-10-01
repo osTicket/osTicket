@@ -377,6 +377,10 @@ implements TemplateVariable, Searchable {
         return $base;
     }
 
+    static function supportsCustomData() {
+        return true;
+    }
+
     function addDynamicData($data) {
         return $this->addForm(UserForm::objects()->one(), 1, $data);
     }

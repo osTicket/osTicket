@@ -356,6 +356,10 @@ implements TemplateVariable, Searchable {
         return $base;
     }
 
+    static function supportsCustomData() {
+        return true;
+    }
+
     function update($vars, &$errors) {
 
         $valid = true;
