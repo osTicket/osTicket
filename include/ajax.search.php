@@ -256,7 +256,7 @@ class SearchAjaxAPI extends AjaxController {
                 Format::htmlchars($_GET['field']));
         }
       
-        $field = $fields[$_GET['field']];
+        list($label, $field) = $fields[$_GET['field']];
         // Ensure `name` is preserved
         $field_name = $_GET['field'];
         $id = $_GET['id'];
@@ -299,10 +299,10 @@ class SearchAjaxAPI extends AjaxController {
         }
 
         // Get the tabbed column configuration
-        $F = $fields[$field];
+        list($label, $F) = $fields[$field];
         $column = QueueColumn::create(array(
             "id"        => (int) $_GET['id'],
-            "heading"   => _S($F->getLabel()),
+            "heading"   => _S($field->getLabel()),
             "primary"   => $field,
             "width"     => 100,
         ));
