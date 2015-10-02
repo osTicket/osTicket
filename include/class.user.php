@@ -207,7 +207,9 @@ implements TemplateVariable {
         $user = static::lookupByEmail($vars['email']);
         if (!$user && $create) {
             $name = $vars['name'];
-            if (!$name)
+            if (is_array($name))
+                $name = implode(', ', $name);
+            elseif (!$name)
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = User::create(array(
@@ -432,6 +434,12 @@ implements TemplateVariable {
         return (string) $account->getStatus();
     }
 
+    function canSeeOrgTickets() {
+        return $this->org && (
+                $this->org->shareWithEverybody()
+            || ($this->isPrimaryContact() && $this->org->shareWithPrimaryContacts()));
+    }
+
     function register($vars, &$errors) {
 
         // user already registered?
@@ -497,7 +505,10 @@ implements TemplateVariable {
         foreach ($forms as $entry) {
             if (($f=$entry->getDynamicForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
-                    $this->name = $name->getClean();
+                    $name = $name->getClean();
+                    if (is_array($name))
+                        $name = implode(', ', $name);
+                    $this->name = $name;
                 }
 
                 if (($email = $f->getField('email'))) {

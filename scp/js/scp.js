@@ -256,7 +256,7 @@ var scp_prep = function() {
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
             var $el = this.$element;
-            var url = $el.data('url')+'?q='+query;
+            var url = $el.data('url')+'?q='+encodeURIComponent(query);
             last_req = $.ajax({
                 url: url,
                 dataType: 'json',
@@ -746,7 +746,7 @@ $.confirm = function(message, title, options) {
                 .append($('<input type="button" class="close"/>')
                     .attr('value', __('Cancel'))
                     .click(function() { hide(); })
-            )).append($('<span class="buttons pull-right">test</span>')
+            )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
                     .click(function() {  hide(); D.resolve(body.find('input').serializeArray()); })
@@ -1054,6 +1054,14 @@ if ($.support.pjax) {
       $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
   })
 }
+
+$(document).on('click', '.link:not(a):not(.button)', function(event) {
+  var $e = $(event.currentTarget);
+  $('<a>').attr({href: $e.attr('href'), 'class': $e.attr('class')})
+    .hide()
+    .insertBefore($e)
+    .get(0).click(event);
+});
 
 // Quick-Add dialogs
 $(document).on('change', 'select[data-quick-add]', function() {

@@ -358,6 +358,18 @@ implements RestrictedAccess, Threadable {
         if ($user->getId() == $this->getUserId())
             return true;
 
+        // Organization
+        if ($user->canSeeOrgTickets()
+            && ($U = $this->getUser())
+            && ($U->getOrgId() == $user->getOrgId())
+        ) {
+            // The owner of this ticket is in the same organization as the
+            // user in question, and the organization is configured to allow
+            // the user in question to see other tickets in the
+            // organization.
+            return true;
+        }
+
         // Collaborator?
         // 1) If the user was authorized via this ticket.
         if ($user->getTicketId() == $this->getId()
@@ -1275,21 +1287,16 @@ implements RestrictedAccess, Threadable {
             if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
-            // Alert admin??
-            if ($cfg->alertAdminONNewTicket()) {
-                $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
-                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'], $alert['body'], null, $options);
-                $sentlist[]=$cfg->getAdminEmail();
-            }
-
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
                 if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
 
-            if ($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
+            if ($cfg->alertDeptManagerONNewTicket() && $dept &&
+                    ($manager=$dept->getManager())) {
                 $recipients[] = $manager;
+            }
 
             // Account manager
             if ($cfg->alertAcctManagerONNewMessage()
@@ -1313,6 +1320,16 @@ implements RestrictedAccess, Threadable {
                 $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
+
+            // Alert admin ONLY if not already a staff??
+            if ($cfg->alertAdminONNewTicket()
+                    && !in_array($cfg->getAdminEmail(), $sentlist)) {
+                $options += array('utype'=>'A');
+                $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
+                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'],
+                        $alert['body'], null, $options);
+            }
+
         }
         return true;
     }
@@ -1388,7 +1405,7 @@ implements RestrictedAccess, Threadable {
         }
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof Message) {
+        if ($entry instanceof MessageThreadEntry) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
@@ -2478,7 +2495,10 @@ implements RestrictedAccess, Threadable {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
-        $vars['staffId'] = 0;
+        if ($vars['staffId'] && !$poster)
+            $poster = Staff::lookup($vars['staffId']);
+
+        $vars['staffId'] = $vars['staffId'] ?: 0;
         if ($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();

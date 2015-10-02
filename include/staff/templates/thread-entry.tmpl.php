@@ -70,10 +70,11 @@ if ($user)
     // The strangeness here is because .has_attachments is an annotation from
     // Thread::getEntries(); however, this template may be used in other
     // places such as from thread entry editing
-    if (isset($entry->has_attachments) ? $entry->has_attachments
-            : $entry->attachments->filter(array('inline'=>0))->count()) { ?>
+    $atts = isset($thread_attachments) ? $thread_attachments[$entry->id] : $entry->attachments;
+    if (isset($atts) && $atts) {
+?>
     <div class="attachments"><?php
-        foreach ($entry->attachments as $A) {
+        foreach ($atts as $A) {
             if ($A->inline)
                 continue;
             $size = '';
@@ -87,12 +88,13 @@ if ($user)
             target="_blank"><?php echo Format::htmlchars($A->getFilename());
         ?></a><?php echo $size;?>
         </span>
-<?php   }  ?>
-    </div>
-<?php } ?>
+<?php   }
+    echo '</div>';
+    }
+?>
     </div>
 <?php
-    if ($urls = $entry->getAttachmentUrls()) { ?>
+    if (!isset($thread_attachments) && ($urls = $entry->getAttachmentUrls())) { ?>
         <script type="text/javascript">
             $('#thread-entry-<?php echo $entry->getId(); ?>')
                 .data('urls', <?php

@@ -10,12 +10,9 @@
 <form method="post" action="#content/<?php echo $content->getId(); ?>"
         style="clear:none">
 
-<table>
-    <tr>
 <?php
 if (count($langs) > 1) { ?>
-<td valign="top">
-    <ul class="vertical left tabs" id="content-trans">
+    <ul class="tabs alt clean" id="content-trans">
     <li class="empty"><i class="icon-globe" title="<?php echo __('This content is translatable'); ?>"></i></li>
 <?php foreach ($langs as $tag=>$nfo) { ?>
     <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
@@ -25,13 +22,12 @@ if (count($langs) > 1) { ?>
     </a></li>
 <?php } ?>
     </ul>
-</td>
 <?php
 } ?>
 
-<td id="content-trans_container">
+<div id="content-trans_container">
     <div id="translation-<?php echo $cfg->getPrimaryLanguage(); ?>"
-        class="tab_content" style="padding:0" lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
+        class="tab_content" lang="<?php echo $cfg->getPrimaryLanguage(); ?>">
     <div class="error"><?php echo $errors['name']; ?></div>
     <input type="text" style="width: 100%; font-size: 14pt" name="name" value="<?php
     echo Format::htmlchars($info['title']); ?>" spellcheck="true"
@@ -49,8 +45,8 @@ if (count($langs) > 1) { ?>
         if ($tag == $cfg->getPrimaryLanguage())
             continue;
         $trans = $info['trans'][$tag]; ?>
-    <div id="translation-<?php echo $tag; ?>" class="tab_content"
-        style="display:none;padding:0" dir="<?php echo $nfo['direction']; ?>" lang="<?php echo $tag; ?>">
+    <div id="translation-<?php echo $tag; ?>" class="tab_content hidden"
+        dir="<?php echo $nfo['direction']; ?>" lang="<?php echo $tag; ?>">
     <input type="text" style="width: 100%; font-size: 14pt"
         name="trans[<?php echo $tag; ?>][title]" value="<?php
         echo Format::htmlchars($trans['title']); ?>"
@@ -70,9 +66,7 @@ if (count($langs) > 1) { ?>
     <div class="info-banner" style="margin-top:7px"><?php
 echo $content->getNotes(); ?></div>
 
-</td>
-    </tr>
-</table>
+</div>
 
     <hr class="clear"/>
     <p class="full-width">

@@ -35,6 +35,9 @@ class OrganizationModel extends VerySimpleModel {
     const COLLAB_PRIMARY_CONTACT =  0x0002;
     const ASSIGN_AGENT_MANAGER =    0x0004;
 
+    const SHARE_PRIMARY_CONTACT =   0x0008;
+    const SHARE_EVERYBODY =         0x0010;
+
     const PERM_CREATE =     'org.create';
     const PERM_EDIT =       'org.edit';
     const PERM_DELETE =     'org.delete';
@@ -98,6 +101,14 @@ class OrganizationModel extends VerySimpleModel {
 
     function autoAssignAccountManager() {
         return $this->check(self::ASSIGN_AGENT_MANAGER);
+    }
+
+    function shareWithPrimaryContacts() {
+        return $this->check(self::SHARE_PRIMARY_CONTACT);
+    }
+
+    function shareWithEverybody() {
+        return $this->check(self::SHARE_EVERYBODY);
     }
 
     function getUpdateDate() {
@@ -206,6 +217,8 @@ implements TemplateVariable {
                 'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
                 'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,
                 'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
             if ($this->check($flag))
                 $base[$ck] = true;
@@ -244,7 +257,7 @@ implements TemplateVariable {
         }
     }
 
-    function addForm($form, $sort=1, $data) {
+    function addForm($form, $sort=1, $data=null) {
         $entry = $form->instanciate($sort, $data);
         $entry->set('object_type', 'O');
         $entry->set('object_id', $this->getId());
@@ -393,6 +406,16 @@ implements TemplateVariable {
                 $this->clearStatus($flag);
         }
 
+        foreach (array(
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
+        ) as $ck=>$flag) {
+            if ($vars['sharing'] == $ck)
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
         // Set staff and primary contacts
         $this->set('domain', $vars['domain']);
         $this->set('manager', $vars['manager'] ?: '');
@@ -427,7 +450,6 @@ implements TemplateVariable {
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
             $org = Organization::create(array(
                 'name' => $vars['name'],
-                'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
             ));
             $org->save(true);
@@ -459,10 +481,17 @@ implements TemplateVariable {
         return $valid ? self::fromVars($form->getClean()) : null;
     }
 
+    static function create($vars=false) {
+        $org = parent::create($vars);
+
+        $org->created = new SqlFunction('NOW');
+        $org->setStatus(self::SHARE_PRIMARY_CONTACT);
+        return $org;
+    }
+
     // Custom create called by installer/upgrader to load initial data
     static function __create($ht, &$error=false) {
 
-        $ht['created'] = new SqlFunction('NOW');
         $org = Organization::create($ht);
         // Add dynamic data (if any)
         if ($ht['fields']) {

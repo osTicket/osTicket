@@ -692,6 +692,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ->filter(array('staff_id'=>$this->getId()))
             ->delete();
 
+        // Cleanup staff dept access
+        StaffDeptAccess::objects()
+            ->filter(array('staff_id'=>$this->getId()))
+            ->delete();
+
         return true;
     }
 

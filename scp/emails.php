@@ -50,14 +50,8 @@ if($_POST){
             } else {
                 $count=count($_POST['ids']);
 
-                $sql='SELECT count(dept_id) FROM '.DEPT_TABLE.' dept '
-                    .' WHERE email_id IN ('.implode(',', db_input($_POST['ids'])).') '
-                    .' OR autoresp_email_id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                list($depts)=db_fetch_row(db_query($sql));
-                if($depts>0) {
-                    $errors['err'] = __('One or more of the selected emails is being used by a department. Remove association first!');
-                } elseif(!strcasecmp($_POST['a'], 'delete')) {
+                switch (strtolower($_POST['a'])) {
+                case 'delete':
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
                         if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete())
@@ -73,8 +67,9 @@ if($_POST){
                     elseif(!$errors['err'])
                         $errors['err'] = sprintf(__('Unable to delete %s'),
                             _N('selected email', 'selected emails', $count));
+                    break;
 
-                } else {
+                default:
                     $errors['err'] = __('Unknown action - get technical help.');
                 }
             }

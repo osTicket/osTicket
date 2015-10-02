@@ -232,14 +232,22 @@ class Module {
         die();
     }
 
-    function _run($module_name) {
+    function _run($module_name, $bootstrap=true) {
         $this->module_name = $module_name;
+        if ($bootstrap)
+            $this->bootstrap();
         $this->parseOptions();
         return $this->run($this->_args, $this->_options);
     }
 
     /* abstract */
     function run($args, $options) {
+    }
+
+    function bootstrap() {
+        Bootstrap::loadConfig();
+        Bootstrap::defineTables(TABLE_PREFIX);
+        Bootstrap::loadCode();
     }
 
     function fail($message) {
