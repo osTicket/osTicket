@@ -839,6 +839,10 @@ class DynamicFormField extends VerySimpleModel {
             && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
+    function addToQuery($query, $name=false) {
+        return $query->values($name ?: $this->get('name'));
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -929,7 +933,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
             'answers' => array(
-                'reverse' => 'DynamicFormEntryAnswer.entry'
+                'reverse' => 'DynamicFormEntryAnswer.entry',
             ),
         ),
     );
