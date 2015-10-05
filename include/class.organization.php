@@ -29,7 +29,14 @@ class OrganizationModel extends VerySimpleModel {
             'cdata' => array(
                 'constraint' => array('id' => 'OrganizationCdata.org_id'),
             ),
-        )
+            'entries' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'O'" => 'DynamicFormEntry.object_type',
+                ),
+                'list' => true,
+            ),
+        ),
     );
 
     const COLLAB_ALL_MEMBERS =      0x0001;

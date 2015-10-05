@@ -66,12 +66,12 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
-            'cdata_entry' => array(
+            'entries' => array(
                 'constraint' => array(
                     'id' => 'DynamicFormEntry.object_id',
                     "'U'" => 'DynamicFormEntry.object_type',
                 ),
-                'null' => true,
+                'list' => true,
             ),
         )
     );
