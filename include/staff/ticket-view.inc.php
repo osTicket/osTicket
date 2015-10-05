@@ -473,6 +473,12 @@ $tcount = $ticket->getThreadEntries($types)->count();
 
 <div id="ticket_tabs_container">
 <div id="ticket_thread" class="tab_content">
+    
+<div class="ticket-response pull-right">
+    <a class="action-button muted" data-toggle="tooltip" title="Post Reply"><i class="icon-mail-reply"></i></a>
+    <a class="action-button muted" data-toggle="tooltip" title="Internal Note"><i class="icon-file-text"></i></a>
+</div>
+<div class="clear"></div>
 <?php
     // Render ticket thread
     $ticket->getThread()->render(
