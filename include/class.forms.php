@@ -1517,6 +1517,9 @@ class FileUploadField extends FormField {
         if (!($id = AttachmentFile::upload($file)))
             Http::response(500, 'Unable to store file: '. $file['error']);
 
+        // This file is allowed for attachment in this session
+        $_SESSION[':uploadedFiles'][$id] = 1;
+
         return $id;
     }
 
@@ -2206,7 +2209,27 @@ class FileUploadWidget extends Widget {
         elseif ($data && is_array($data) && !isset($data[$this->name]))
             return array();
 
-        return parent::getValue();
+
+        // Files uploaded here MUST have been uploaded by this user and
+        // identified in the session
+        if ($files = parent::getValue()) {
+            $allowed = array();
+            // Files already attached to the field are allowed
+            foreach ($this->field->getFiles() as $F) {
+                // FIXME: This will need special porting in v1.10
+                $allowed[$F['id']] = 1;
+            }
+            // New files uploaded in this session are allowed
+            if (isset($_SESSION[':uploadedFiles'])) {
+                $allowed += $_SESSION[':uploadedFiles'];
+            }
+            foreach ($files as $i=>$F) {
+                if (!isset($allowed[$F])) {
+                    unset($files[$i]);
+                }
+            }
+        }
+        return $files;
     }
 }
 
