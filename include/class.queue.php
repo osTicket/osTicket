@@ -171,6 +171,7 @@ class CustomQueue extends SavedSearch {
         if (isset($quick_filter)
             && ($qf = $this->getQuickFilterField($quick_filter))
         ) {
+            $this->filter = @QueueColumn::getOrmPath($this->filter, $query);
             $query = $qf->applyQuickFilter($query, $quick_filter,
                 $this->filter); 
         }
@@ -740,18 +741,29 @@ extends VerySimpleModel {
         }
     }
 
+    function addToQuery($query, $field, $path) {
+        if (preg_match('/__answers!\d+__/', $path)) {
+            // Ensure that only one record is returned from the join through
+            // the entry and answers joins
+            return $query->annotate(array(
+                $path => SqlAggregate::MAX($path)
+            ));
+        }
+        return $field->addToQuery($query, $path);
+    }
+
     function mangleQuery($query) {
         // Basic data
         $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
-            $query = $field->addToQuery($query,
-                $this->getOrmPath($this->primary));
+            $query = $this->addToQuery($query, $field,
+                $this->getOrmPath($this->primary, $query));
         }
         if ($secondary = $fields[$this->secondary]) {
             list(,$field) = $secondary;
-            $query = $field->addToQuery($query,
-                $this->getOrmPath($this->secondary));
+            $query = $this->addToQuery($query, $field,
+                $this->getOrmPath($this->secondary, $query));
         }
 
         switch ($this->link) {
@@ -785,7 +797,31 @@ extends VerySimpleModel {
             array('id' => $this->id));
     }
 
-    function getOrmPath($name) {
+    function getOrmPath($name, $query=null) {
+        // Special case for custom data `__answers!id__value`. Only add the
+        // join and constraint on the query the first pass, when the query
+        // being mangled is received.
+        $path = array();
+        if ($query && preg_match('/^(.+?)__(answers!(\d+))/', $name, $path)) {
+            // Add a join to the model of the queryset where the custom data
+            // is forked from — duplicate the 'answers' join and add the
+            // constraint to the query based on the field_id
+            // $path[1] - part before the answers (user__org__entries)
+            // $path[2] - answers!xx join part
+            // $path[3] - the `xx` part of the answers!xx join component
+            $root = $query->model;
+            $meta = $root::getMeta()->getByPath($path[1]);
+            $joins = $meta['joins'];
+            if (!isset($joins[$path[2]])) {
+                $meta->addJoin($path[2], $joins['answers']);
+            }
+            // Ensure that the query join through answers!xx is only for the
+            // records which match field_id=xx
+            $query->constrain(array("{$path[1]}__{$path[2]}" =>
+                array("{$path[1]}__{$path[2]}__field_id" => (int) $path[3])
+            ));
+            // Leave $name unchanged
+        }
         return $name;
     }
 

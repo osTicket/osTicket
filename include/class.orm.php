@@ -206,6 +206,21 @@ class ModelMeta implements ArrayAccess {
         $this->processJoin($this->meta['joins'][$name]);
     }
 
+    /**
+     * Fetch ModelMeta instance by following a join path from this model
+     */
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P) {
+            if (!($root = $root['joins'][$P]['fkey'][0]))
+                break;
+            $root = $root::getMeta();
+        }
+        return $root;
+    }
+
     function offsetGet($field) {
         return $this->meta[$field];
     }
@@ -227,17 +242,6 @@ class ModelMeta implements ArrayAccess {
         if (!isset($this->fields))
             $this->fields = self::inspectFields();
         return $this->fields;
-    }
-
-    function getByPath($path) {
-        if (is_string($path))
-            $path = explode('__', $path);
-        $root = $this;
-        foreach ($path as $P) {
-            list($root, ) = $root['joins'][$P]['fkey'];
-            $root = $root::getMeta();
-        }
-        return $root;
     }
 
     /**
