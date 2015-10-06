@@ -227,12 +227,7 @@ class SearchAjaxAPI extends AjaxController {
             $queue = CustomQueue::create();
         }
 
-        // Update queue columns (but without save)
-        foreach ($_POST['columns'] as $colid) {
-            $col = QueueColumn::create(array("id" => $colid, "queue" => $queue));
-            $col->update($_POST);
-            $queue->addColumn($col);
-        }
+        $queue->update($_POST);
 
         $form = $queue->getForm($_POST);
         $tickets = $queue->getQuery($form);
