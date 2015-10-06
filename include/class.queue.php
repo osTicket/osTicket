@@ -670,18 +670,10 @@ extends VerySimpleModel {
         return $this->width ?: 100;
     }
 
-    function getLink($row) {
-        $link = $this->link;
-        switch (strtolower($link)) {
-        case 'root':
-        case 'ticket':
-            return Ticket::getLink($row['ticket_id']);
-        case 'user':
-            return User::getLink($row['user_id']);
-        case 'org':
-            return Organization::getLink($row['user__org_id']);
-        }
-    }
+    function getFilter() {
+         if ($this->filter)
+             return QueueColumnFilter::getInstance($this->filter);
+     }
 
     function render($row) {
         // Basic data
@@ -692,9 +684,9 @@ extends VerySimpleModel {
             $text = sprintf('<span class="%s">%s</span>', $class, $text);
         }
 
-        // Link
-        if ($link = $this->getLink($row)) {
-            $text = sprintf('<a href="%s">%s</a>', $link, $text);
+        // Filter
+        if ($filter = $this->getFilter()) {
+            $text = $filter->filter($text, $row);
         }
 
         // annotations and conditions
@@ -766,18 +758,8 @@ extends VerySimpleModel {
                 $this->getOrmPath($this->secondary, $query));
         }
 
-        switch ($this->link) {
-        // XXX: Consider the ROOT of the related queue
-        case 'ticket':
-            $query = $query->values('ticket_id');
-            break;
-        case 'user':
-            $query = $query->values('user_id');
-            break;
-        case 'org':
-            $query = $query->values('user__org_id');
-            break;
-        }
+        if ($filter = $this->getFilter())
+            $query = $filter->mangleQuery($query, $this);
 
         // annotations
         foreach ($this->_annotations as $D) {
@@ -923,38 +905,135 @@ extends VerySimpleModel {
     }
 }
 
+abstract class QueueColumnFilter {
+    static $registry;
+
+    static $id = null;
+    static $desc = null;
+
+    static function register($filter) {
+        if (!isset($filter::$id))
+            throw new Exception('QueueColumnFilter must define $id');
+        if (isset(static::$registry[$filter::$id]))
+            throw new Exception($filter::$id
+                . ': QueueColumnFilter already registered under that id');
+        if (!is_subclass_of($filter, get_called_class()))
+            throw new Exception('Filter must extend QueueColumnFilter');
+
+        static::$registry[$filter::$id] = $filter;
+    }
+
+    static function getFilters() {
+        $base = static::$registry;
+        foreach ($base as $id=>$class) {
+            $base[$id] = __($class::$desc);
+        }
+        return $base;
+    }
+
+    static function getInstance($id) {
+        if (isset(static::$registry[$id]))
+            return new static::$registry[$id]();
+    }
+
+    function mangleQuery($query, $column) { return $query; }
+
+    abstract function filter($value, $row);
+}
+
+class TicketLinkFilter
+extends QueueColumnFilter {
+    static $id = 'link:ticket';
+    static $desc = /* @trans */ "Ticket Link";
+
+    function filter($text, $row) {
+        $link = $this->getLink($row);
+        return sprintf('<a href="%s">%s</a>', $link, $text);
+    }
+
+    function mangleQuery($query, $column) {
+        static $fields = array(
+            'link:ticket'   => 'ticket_id',
+            'link:ticketP'  => 'ticket_id',
+            'link:user'     => 'user_id',
+            'link:org'      => 'user__org_id',
+        );
+
+        if (isset($fields[static::$id])) {
+            $query = $query->values($fields[static::$id]);
+        }
+        return $query;
+    }
+
+    function getLink($row) {
+        return Ticket::getLink($row['ticket_id']);
+    }
+}
+
+class UserLinkFilter
+extends TicketLinkFilter {
+    static $id = 'link:user';
+    static $desc = /* @trans */ "User Link";
+
+    function getLink($row) {
+        return User::getLink($row['user_id']);
+    }
+}
+
+class OrgLinkFilter
+extends TicketLinkFilter {
+    static $id = 'link:org';
+    static $desc = /* @trans */ "Organization Link";
+
+    function getLink($row) {
+        return Organization::getLink($row['org_id']);
+    }
+}
+QueueColumnFilter::register('TicketLinkFilter');
+QueueColumnFilter::register('UserLinkFilter');
+QueueColumnFilter::register('OrgLinkFilter');
+
+class TicketLinkWithPreviewFilter
+extends TicketLinkFilter {
+    static $id = 'link:ticketP';
+    static $desc = /* @trans */ "Ticket Link with Preview";
+
+    function filter($text, $row) {
+        $link = $this->getLink($row);
+        return sprintf('<a class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
+            $row['ticket_id'], $link, $text);
+    }
+}
+QueueColumnFilter::register('TicketLinkWithPreviewFilter');
+
 class QueueColDataConfigForm
 extends AbstractForm {
-    function buildFields() {
-        return array(
-            'primary' => new DataSourceField(array(
-                'label' => __('Primary Data Source'),
-                'required' => true,
-                'configuration' => array(
-                    'root' => 'Ticket',
-                ),
-                'layout' => new GridFluidCell(6),
-            )),
-            'secondary' => new DataSourceField(array(
-                'label' => __('Secondary Data Source'),
-                'configuration' => array(
-                    'root' => 'Ticket',
-                ),
-                'layout' => new GridFluidCell(6),
-            )),
+function buildFields() {
+    return array(
+        'primary' => new DataSourceField(array(
+            'label' => __('Primary Data Source'),
+            'required' => true,
+            'configuration' => array(
+                'root' => 'Ticket',
+            ),
+            'layout' => new GridFluidCell(6),
+        )),
+        'secondary' => new DataSourceField(array(
+            'label' => __('Secondary Data Source'),
+            'configuration' => array(
+                'root' => 'Ticket',
+            ),
+            'layout' => new GridFluidCell(6),
+        )),
             'heading' => new TextboxField(array(
                 'label' => __('Heading'),
                 'required' => true,
                 'layout' => new GridFluidCell(3),
             )),
-            'link' => new ChoiceField(array(
-                'label' => __('Link'),
+            'filter' => new ChoiceField(array(
+                'label' => __('Filter'),
                 'required' => false,
-                'choices' => array(
-                    'ticket' => __('Ticket'),
-                    'user' => __('User'),
-                    'org' => __('Organization'),
-                ),
+                'choices' => QueueColumnFilter::getFilters(),
                 'layout' => new GridFluidCell(3),
             )),
             'width' => new TextboxField(array(
