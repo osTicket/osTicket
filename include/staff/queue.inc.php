@@ -56,6 +56,9 @@ else {
         <br/>
         <br/>
         <div><strong><?php echo __("Queue Search Criteria"); ?></strong></div>
+        <div><input type="checkbox" class="checkbox" name="inherit" <?php
+            if ($queue->inheritCriteria()) echo 'checked="checked"';
+            ?>/> <?php echo __('Include parent search criteria'); ?></div>
         <hr/>
         <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">

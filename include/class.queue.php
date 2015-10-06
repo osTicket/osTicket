@@ -18,6 +18,7 @@ require_once INCLUDE_DIR . 'class.search.php';
 
 class CustomQueue extends SavedSearch {
     static $meta = array(
+        'select_related' => array('parent'),
         'joins' => array(
             'columns' => array(
                 'reverse' => 'QueueColumn.queue',
@@ -148,9 +149,18 @@ class CustomQueue extends SavedSearch {
         return 'tickets.php?queue='.$this->getId();
     }
 
+    function inheritCriteria() {
+        return $this->flags & self::FLAG_INHERIT_CRITERIA;
+    }
+
     function getBasicQuery($form=false) {
-        $root = $this->getRoot();
-        $query = $root::objects();
+        if ($this->parent && $this->inheritCriteria()) {
+            $query = $this->parent->getBasicQuery();
+        }
+        else {
+            $root = $this->getRoot();
+            $query = $root::objects();
+        }
         $form = $form ?: $this->loadFromState($this->getCriteria());
         return $this->mangleQuerySet($query, $form);
     }
@@ -210,6 +220,7 @@ class CustomQueue extends SavedSearch {
         $this->title = $vars['name'];
         $this->parent_id = $vars['parent_id'];
         $this->filter = $vars['filter'];
+        $this->setFlag(self::FLAG_INHERIT_CRITERIA, isset($vars['inherit']));
 
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {

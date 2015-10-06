@@ -664,9 +664,10 @@ class SavedSearch extends VerySimpleModel {
         'ordering' => array('sort'),
     );
 
-    const FLAG_PUBLIC =     0x0001;   // Shows up in e'eryone's saved searches
-    const FLAG_QUEUE =      0x0002;   // Shows up in queue navigation
-    const FLAG_CONTAINER =  0x0004;   // Container for other queues ('Open')
+    const FLAG_PUBLIC =         0x0001; // Shows up in e'eryone's saved searches
+    const FLAG_QUEUE =          0x0002; // Shows up in queue navigation
+    const FLAG_CONTAINER =      0x0004; // Container for other queues ('Open')
+    const FLAG_INHERIT_CRITERIA = 0x0008; // Include criteria from parent
 
     var $criteria;
 
@@ -1106,15 +1107,17 @@ class SavedSearch extends VerySimpleModel {
     }
 
     protected function hasFlag($flag) {
-        return $this->get('flag') & $flag !== 0;
+        return $this->get('flags') & $flag !== 0;
     }
 
     protected function clearFlag($flag) {
-        return $this->set('flag', $this->get('flag') & ~$flag);
+        return $this->set('flags', $this->get('flag') & ~$flag);
     }
 
-    protected function setFlag($flag) {
-        return $this->set('flag', $this->get('flag') | $flag);
+    protected function setFlag($flag, $value=true) {
+        return $value
+            ? $this->flags |= $flag
+            : $this->clearFlag($flag);
     }
 
     static function create($vars=array()) {
