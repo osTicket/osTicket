@@ -905,9 +905,8 @@ h2 .reload {
     margin:0;
 }
 /***** top page ticket response buttons *****/
-.ticket-response {
+a.ticket-response {
     color:#555;
-    padding-bottom:6px;
 }
 
 .thread-entry {

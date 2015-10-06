@@ -60,39 +60,41 @@ if($ticket->isOverdue())
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-more" data-toggle="tooltip" title="<?php echo __('More');?>">
                 <i class="icon-caret-down pull-right"></i>
-                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                <span ><i class="icon-cog"></i></span>
             </span>
             <?php
             }
-            // Status change options
-            echo TicketStatus::status_options();
 
             if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
-                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
-                    echo __('Edit'); ?></a>
+                <span class="action-button pull-right"><a data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a></span>
             <?php
             } ?>
             <?php
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
-            <a class="ticket-action action-button pull-right" id="ticket-transfer"
+            <span class="action-button pull-right">
+            <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
                 data-redirect="tickets.php"
-                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i> <?php
-                echo __('Transfer'); ?></a>
+                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
+            </span>
             <?php
             } ?>
 
             <?php
             // Assign
             if ($ticket->isOpen() && $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
+            <span class="action-button pull-right"
+                data-dropdown="#action-dropdown-assign"
+                data-placement="bottom"
+                data-toggle="tooltip"
+                title=" <?php echo $ticket->isAssigned() ? _↪_('Assign') : __('Reassign'); ?>"
+                >
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
-                    echo $ticket->isAssigned() ? __('Reassign') :  __('Assign'); ?></a>
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
@@ -117,10 +119,9 @@ if($ticket->isOverdue())
             </div>
             <?php
             } ?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
+            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
                 <i class="icon-caret-down pull-right"></i>
-                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
-                    echo __('Print'); ?></a>
+                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
@@ -196,7 +197,16 @@ if($ticket->isOverdue())
                 ?>
               </ul>
             </div>
-        </div>
+            <?php
+            // Status change options
+            echo TicketStatus::status_options(); ?>
+            <span class="action-button ticket-response pull-right"data-placement="bottom" data-toggle="tooltip" title="Internal Note">
+                <a href="#reply"><i class="icon-file-text"></i></a>
+            </span>
+            <span class="action-button ticket-response pull-right" data-placement="bottom" data-toggle="tooltip" title="Post Reply">
+                <a href="#note"><i class="icon-mail-reply"></i></a>
+            </span>
+           </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
@@ -473,12 +483,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
 
 <div id="ticket_tabs_container">
 <div id="ticket_thread" class="tab_content">
-    
-<div class="ticket-response pull-right">
-    <a class="action-button muted" data-toggle="tooltip" title="Post Reply"><i class="icon-mail-reply"></i></a>
-    <a class="action-button muted" data-toggle="tooltip" title="Internal Note"><i class="icon-file-text"></i></a>
-</div>
-<div class="clear"></div>
+
 <?php
     // Render ticket thread
     $ticket->getThread()->render(

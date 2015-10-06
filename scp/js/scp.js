@@ -464,6 +464,10 @@ var scp_prep = function() {
 
   $('[data-toggle="tooltip"]').tooltip()
 
+  $('[data-toggle="tooltip"]').on('click', function() {
+        $(this).tooltip('hide');
+  });
+
   $('.attached.input input[autofocus]').parent().addClass('focus')
   $('.attached.input input')
     .on('focus', function() { $(this).parent().addClass('focus'); })
