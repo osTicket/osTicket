@@ -850,7 +850,7 @@ CREATE TABLE `%TABLE_PREFIX%queue_column` (
   `primary` varchar(64) NOT NULL DEFAULT '',
   `secondary` varchar(64) DEFAULT NULL,
   `width` int(10) unsigned DEFAULT NULL,
-  `link` varchar(32) DEFAULT NULL,
+  `filter` varchar(32) DEFAULT NULL,
   `truncate` varchar(16) DEFAULT NULL,
   `annotations` text,
   `conditions` text,
