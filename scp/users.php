@@ -159,7 +159,7 @@ if ($_POST) {
             $errors['err'] = __('Unknown action');
             break;
     }
-} elseif($_REQUEST['a'] == 'export') {
+} elseif(!$user && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
     if (!($token=$_REQUEST['qh']))
@@ -170,7 +170,25 @@ if ($_POST) {
         $errors['err'] = __('Internal error: Unable to dump query results');
 }
 
-$page = $user? 'user-view.inc.php' : 'users.inc.php';
+$page = 'users.inc.php';
+if ($user ) {
+    $page = 'user-view.inc.php';
+    switch (strtolower($_REQUEST['t'])) {
+    case 'tickets':
+        if (isset($_SERVER['HTTP_X_PJAX'])) {
+            $page='templates/tickets.tmpl.php';
+            $pjax_container = @$_SERVER['HTTP_X_PJAX_CONTAINER'];
+            require(STAFFINC_DIR.$page);
+            return;
+        } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':U:tickets'])) {
+            $filename = sprintf('%s-tickets-%s.csv',
+                    $user->getName(), strftime('%Y%m%d'));
+            if (!Export::saveTickets($query, $filename, 'csv'))
+                $errors['err'] = __('Internal error: Unable to dump query results');
+        }
+        break;
+    }
+}
 
 $nav->setTabActive('users');
 require(STAFFINC_DIR.'header.inc.php');

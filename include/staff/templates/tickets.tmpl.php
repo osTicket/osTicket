@@ -1,14 +1,29 @@
 <?php
+$args = array();
+parse_str($_SERVER['QUERY_STRING'], $args);
+$args['t'] = 'tickets';
+unset($args['p'], $args['_pjax']);
 
 $tickets = TicketModel::objects();
 
 if ($user) {
-    $tickets->filter(array('user_id' => $user->getId()));
-}
-elseif ($org) {
-    $tickets->filter(array('user__org' => $org));
+    $filter = $tickets->copy()
+        ->values_flat('ticket_id')
+        ->filter(array('user_id' => $user->getId()))
+        ->union($tickets->copy()
+            ->values_flat('ticket_id')
+            ->filter(array('thread__collaborators__user_id' => $user->getId()))
+        , false);
+} elseif ($org) {
+    $filter = $tickets->copy()
+        ->values_flat('ticket_id')
+        ->filter(array('user__org' => $org));
 }
 
+// Apply filter
+$tickets->filter(array('ticket_id__in' => $filter));
+
+// Apply staff visibility
 if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
     // -- Open and assigned to me
     $visibility = array(
@@ -25,10 +40,22 @@ if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
     $tickets->filter(Q::any($visibility));
 }
 
-
 $tickets->constrain(array('lock' => array(
                 'lock__expire__gt' => SqlFunction::NOW())));
 
+// Group by ticket_id.
+$tickets->distinct('ticket_id');
+
+// Save the query to the session for exporting
+$queue = sprintf(':%s:tickets', $user ? 'U' : 'O');
+$_SESSION[$queue] = $tickets;
+
+// Apply pagination
+$total = $tickets->count();
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$pageNav = new Pagenate($total, $page, PAGE_LIMIT);
+$pageNav->setURL(($user ? 'users.php' : 'orgs.php'), $args);
+$tickets = $pageNav->paginate($tickets);
 
 $tickets->annotate(array(
     'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
@@ -48,16 +75,15 @@ $tickets->annotate(array(
 
 $tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
 
-TicketForm::ensureDynamicDataView();
+$tickets->order_by('-created');
 
+TicketForm::ensureDynamicDataView();
 // Fetch the results
-$results = count($tickets);
 ?>
 <div class="pull-left" style="margin-top:5px;">
    <?php
-    if ($results) {
-        echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
-            count($results)), count($results)).'</strong>';
+    if ($total) {
+        echo '<strong>'.$pageNav->showing().'</strong>';
     } else {
         echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
     }
@@ -76,7 +102,7 @@ $results = count($tickets);
 <br/>
 <div>
 <?php
-if ($results) { ?>
+if ($total) { ?>
 <form action="users.php" method="POST" name='tickets' style="padding-top:10px;">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
@@ -107,6 +133,7 @@ if ($results) { ?>
     <tbody>
     <?php
     $subject_field = TicketForm::objects()->one()->getField('subject');
+    $user_id = $user ? $user->getId() : 0;
     foreach($tickets as $T) {
         $flag=null;
         if ($T['lock__lock_id'] && $T['lock__staff_id'] != $thisstaff->getId())
@@ -139,13 +166,19 @@ if ($results) { ?>
             </td>
             <?php
             } ?>
-            <td align="center" nowrap>
+            <td nowrap>
               <a class="Icon <?php
                 echo strtolower($T['source']); ?>Ticket preview"
                 title="<?php echo __('Preview Ticket'); ?>"
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
-                data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php echo $tid; ?></a></td>
-            <td align="center" nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
+                data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php
+                echo $tid; ?></a>
+               <?php
+                if ($user_id && $user_id != $T['user_id'])
+                    echo '<span class="pull-right faded-more" data-toggle="tooltip" title="'
+                            .__('Collaborator').'"><i class="icon-eye-open"></i></span>';
+            ?></td>
+            <td nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
             <td><?php echo $status; ?></td>
             <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
                 style="max-width: 230px;"
@@ -187,6 +220,18 @@ if ($results) { ?>
     ?>
     </tbody>
 </table>
+<?php
+if ($total>0) {
+    echo '<div>';
+    echo __('Page').':'.$pageNav->getPageLinks('tickets', '#tickets').'&nbsp;';
+    echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+            Http::build_query(array(
+                    'id' => $user ? $user->getId(): $org->getId(),
+                    'a' => 'export',
+                    't' => 'tickets')),
+            __('Export'));
+    echo '</div>';
+} ?>
 </form>
 <?php
  } ?>
