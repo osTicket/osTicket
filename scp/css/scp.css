@@ -300,6 +300,15 @@ a time {
     background-color: rgba(0,0,0,0.05);
 
 }
+
+/* Custom queue fields with background color should fill cell */
+table.queue.list > tbody > tr > td > [style*=background] {
+    display: block;
+    padding: 4px !important;
+    margin: -4px;
+    height: 100%;
+}
+
 /***********************************************************************
                  Start Custom Queues Menu System
 /***********************************************************************/
