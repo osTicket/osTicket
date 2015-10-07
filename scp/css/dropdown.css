@@ -5,7 +5,7 @@
 
 .action-dropdown {
   position: absolute;
-  z-index: 9999999;
+  z-index: 9999998;
   display: none;
   margin-top: 8px;
 }

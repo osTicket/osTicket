@@ -166,6 +166,14 @@ var thread = {
         // Open first response option tab if not already active
         if (!document.location.hash)
             $('.actions .tabs li:visible:first:not(.active) a', $container.parent()).trigger('click');
+        
+        //Reply and Internal Note buttons scroll to bottom and changes tabs.
+        $('.ticket-response').click(function () {
+            $('html, body').animate({
+                scrollTop: $(document).height()
+            }, 'slow');
+            return false;
+        });
     }
 };
 
