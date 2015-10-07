@@ -47,9 +47,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                 <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
-                    foreach($topics as $id =>$name) {
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
+                    if(isset($_GET['ht']) && $_GET['ht'] > 0 ){
+                        foreach($topics as $id =>$name) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($_GET['ht']==$id)?'selected="selected"':'', $name);
+                        }
+                    } else {
+                        foreach($topics as $id =>$name) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
+                        }
                     }
                 } else { ?>
                     <option value="0" ><?php echo __('General Inquiry');?></option>
