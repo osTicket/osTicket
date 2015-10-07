@@ -19,6 +19,7 @@ require_once INCLUDE_DIR . 'class.search.php';
 class CustomQueue extends SavedSearch {
     static $meta = array(
         'select_related' => array('parent'),
+        'ordering' => array('title', 'path'),
         'joins' => array(
             'columns' => array(
                 'reverse' => 'QueueColumn.queue',
@@ -143,6 +144,28 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
+    function getPath() {
+        return $this->path ?: $this->buildPath();
+    }
+
+    function buildPath() {
+        if (!$this->id)
+            return;
+
+        $path = $this->id;
+        if ($this->parent) {
+            $path = sprintf('%s/%d', $this->parent->getPath(), $path);
+        }
+        return $path;
+    }
+
+    function getFullName() {
+        $base = $this->getName();
+        if ($this->parent)
+            $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
+        return $base;
+    }
+
     function getHref() {
         // TODO: Get base page from getRoot();
         $root = $this->getRoot();
@@ -225,6 +248,7 @@ class CustomQueue extends SavedSearch {
         $this->title = $vars['name'];
         $this->parent_id = $vars['parent_id'];
         $this->filter = $vars['filter'];
+        $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA, isset($vars['inherit']));
 
         // Update queue columns (but without save)
@@ -246,9 +270,14 @@ class CustomQueue extends SavedSearch {
     }
 
     function save($refetch=false) {
+        $wasnew = !isset($this->id);
         if (!($rv = parent::save($refetch)))
             return $rv;
 
+        if ($wasnew) {
+            $this->path = $this->buildPath();
+            $this->save();
+        }
         return $this->columns->saveAll();
     }
 
