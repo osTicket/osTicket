@@ -14,7 +14,7 @@ $tickets = $pageNav->paginate($tickets);
 $columns = $queue->getColumns();
 
 ?>
-<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+<table class="list queue" border="0" cellspacing="1" cellpadding="2" width="940">
   <thead>
     <tr>
 <?php
