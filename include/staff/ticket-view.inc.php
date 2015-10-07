@@ -200,12 +200,8 @@ if($ticket->isOverdue())
             <?php
             // Status change options
             echo TicketStatus::status_options(); ?>
-            <span class="action-button ticket-response pull-right"data-placement="bottom" data-toggle="tooltip" title="Internal Note">
-                <a href="#reply"><i class="icon-file-text"></i></a>
-            </span>
-            <span class="action-button ticket-response pull-right" data-placement="bottom" data-toggle="tooltip" title="Post Reply">
-                <a href="#note"><i class="icon-mail-reply"></i></a>
-            </span>
+                <a href="#" class="post-note ticket-response action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="Internal Note"><i class="icon-file-text"></i></a>
+                <a href="#" class="post-reply ticket-response action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="Post Reply"><i class="icon-mail-reply"></i></a>
            </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
