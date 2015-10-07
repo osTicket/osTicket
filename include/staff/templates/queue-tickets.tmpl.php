@@ -89,7 +89,7 @@ return false;">
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
 
-<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+<table class="list queue tickets" border="0" cellspacing="1" cellpadding="2" width="940">
   <thead>
     <tr>
 <?php
