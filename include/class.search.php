@@ -1107,11 +1107,11 @@ class SavedSearch extends VerySimpleModel {
     }
 
     protected function hasFlag($flag) {
-        return $this->get('flags') & $flag !== 0;
+        return $this->flags & $flag !== 0;
     }
 
     protected function clearFlag($flag) {
-        return $this->set('flags', $this->get('flag') & ~$flag);
+        return $this->flags &= ~$flag;
     }
 
     protected function setFlag($flag, $value=true) {
