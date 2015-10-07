@@ -194,7 +194,12 @@ class CustomQueue extends SavedSearch {
     }
 
     function getQuickFilterField($value=null) {
-        if ($this->filter
+        if ($this->filter == '::') {
+            if ($this->parent) {
+                return $this->parent->getQuickFilterField($value);
+            }
+        }
+        elseif ($this->filter
             && ($fields = SavedSearch::getSearchableFields($this->getRoot()))
             && (list(,$f) = @$fields[$this->filter])
             && $f->supportsQuickFilter()
