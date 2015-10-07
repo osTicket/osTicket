@@ -53,7 +53,7 @@ require_once INCLUDE_DIR . 'class.queue.php';
     <tr>
       <td><input type="checkbox" class="checkbox" name="ckb[]"></td>
       <td><a href="queues.php?id=<?php echo $q->getId(); ?>"><?php
-        echo Format::htmlchars($q->getName()); ?></a></td>
+        echo Format::htmlchars($q->getFullName()); ?></a></td>
       <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>
       <td><?php echo Format::htmlchars($q->getStatus()); ?></td>
       <td><?php echo Format::date($q->created); ?></td>
