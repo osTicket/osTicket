@@ -725,8 +725,7 @@ extends VerySimpleModel {
         $text = $this->renderBasicValue($row);
 
         // Truncate
-        if ($class = $this->getTruncateClass()) {
-            $text = sprintf('<span class="%s">%s</span>', $class, $text);
+        if ($text = $this->applyTruncate($text)) {
         }
 
         // Filter
@@ -766,15 +765,17 @@ extends VerySimpleModel {
         }
     }
 
-    function getTruncateClass() {
+    function applyTruncate($text) {
         switch ($this->truncate) {
         case 'ellipsis':
-            return 'trucate';
+            return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
+                'truncate', $this->width*1.1, $text);
         case 'clip':
-            return 'truncate clip';
+            return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
+                'truncate clip', $this->width*1.1, $text);
         default:
         case 'wrap':
-            return false;
+            return $text;
         }
     }
 
