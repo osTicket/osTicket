@@ -89,7 +89,13 @@ else {
         <div><strong><?php echo __("Quick Filter"); ?></strong></div>
         <hr/>
         <select name="filter">
-          <option value="::">— <?php echo __('Inherit from parent'); ?> —</option>
+          <option value="" <?php if ($queue->filter == "")
+              echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
+          <option value="::" <?php if ($queue->filter == "::")
+              echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
+            if ($queue->parent 
+                && ($qf = $queue->parent->getQuickFilterField()))
+                echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
 <?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
         list($label, $field) = $f;
         if (!$field->supportsQuickFilter())
