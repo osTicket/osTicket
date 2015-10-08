@@ -1107,6 +1107,15 @@ class SavedSearch extends VerySimpleModel {
             || $this->hasFlag(self::FLAG_PUBLIC);
     }
 
+    function ignoreVisibilityConstraints() {
+        global $thisstaff;
+
+        // For saved searches (not queues), staff can have a permission to
+        // see all records
+        return !$this->hasFlag(self::FLAG_QUEUE)
+            && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
+    }
+
     protected function hasFlag($flag) {
         return $this->flags & $flag !== 0;
     }
