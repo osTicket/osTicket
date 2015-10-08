@@ -302,11 +302,17 @@ a time {
 }
 
 /* Custom queue fields with background color should fill cell */
-table.queue.list > tbody > tr > td > [style*=background] {
+.offset {
+    position: relative;
+}
+.offset .fill {
     display: block;
-    padding: 4px !important;
-    margin: -4px;
-    height: 100%;
+    padding: 4px!important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 /***********************************************************************
@@ -366,12 +372,12 @@ table.queue.list > tbody > tr > td > [style*=background] {
     text-decoration: none;
 }
 
-#sub_nav a.active, #sub_nav li.active,
+#sub_nav a.active, #sub_nav li.active > a,
 #customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
     font-weight:bold;
 }
 
-#sub_nav li.child.active {
+#sub_nav li.child.active > a {
     font-weight: 500;
 }
 
@@ -413,6 +419,9 @@ table.queue.list > tbody > tr > td > [style*=background] {
     display:inline-block;
     text-decoration:none;
     text-transform:capitalize;
+}
+.customQ-dropdown a.truncate {
+    min-width: 140px;
 }
 
 .customQ-dropdown ul li {
