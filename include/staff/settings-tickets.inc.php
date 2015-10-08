@@ -190,24 +190,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Assigned Tickets');?>:</td>
-            <td>
-                <input type="checkbox" name="show_assigned_tickets" <?php
-                echo !$config['show_assigned_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Exclude assigned tickets from open queue.'); ?>
-                <i class="help-tip icon-question-sign" href="#assigned_tickets"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Answered Tickets');?>:</td>
-            <td>
-                <input type="checkbox" name="show_answered_tickets" <?php
-                echo !$config['show_answered_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Exclude answered tickets from open queue.'); ?>
-                <i class="help-tip icon-question-sign" href="#answered_tickets"></i>
-            </td>
-        </tr>
-        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
             </th>
