@@ -22,11 +22,19 @@
 $parts = SavedSearch::getSearchField($field, $field_name);
 // Drop the search checkbox field
 unset($parts["{$field_name}+search"]);
+list(, $crit_method, $crit_value) = $condition->getCriteria();
 foreach ($parts as $name=>$F) {
-    if (substr($name, -7) == '+method')
+    if (substr($name, -7) == '+method') {
         // XXX: Hack — drop visibility connection between the method drop-down
         //      and the enabled checkbox
         unset($F->ht['visibility']);
+        // Set the select method, if any
+        if ($crit_method)
+            $F->value = $crit_method;
+    }
+    if ($crit_value && strpos($name, "+{$crit_method}") > 0) {
+        $F->value = $crit_value;
+    }
 }
 $form = new SimpleForm($parts, false, array('id' => $id));
 foreach ($form->getFields() as $F) { ?>

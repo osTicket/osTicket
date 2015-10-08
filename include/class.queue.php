@@ -513,6 +513,10 @@ class QueueColumnCondition {
         return $name;
     }
 
+    function getCriteria() {
+        return $this->config['crit'];
+    }
+
     function getSearchQ($query) {
         list($name, $method, $value) = $this->config['crit'];
 
