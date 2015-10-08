@@ -2165,13 +2165,17 @@ class SqlCompiler {
             'regex' => function($a, $b) { return preg_match("/$a/iu", $b); },
             'hasbit' => function($a, $b) { return ($a & $b) == $b; },
         ); }
+        // TODO: Support Q expressions
+        if ($check instanceof Q)
+            return $check->evaluate($record, $field);
+
         list($field, $path, $operator) = self::splitCriteria($field);
         if (!isset($ops[$operator]))
             throw new OrmException($operator.': Unsupported operator');
 
         if ($path)
             $record = $record->getByPath($path);
-        // TODO: Support Q expressions
+
         return $ops[$operator]($record->get($field), $check);
     }
 
@@ -3370,6 +3374,26 @@ class Q implements Serializable {
 
     static function all($constraints) {
         return new static($constraints);
+    }
+
+    function evaluate($record, $field) {
+        // Start with FALSE for OR and TRUE for AND
+        $result = !$this->ored;
+        foreach ($this->constraints as $check) {
+            $R = SqlCompiler::evaluate($record, $field, $check);
+            if ($this->ored) {
+                if ($result |= $R)
+                    break;
+            }
+            elseif (!$R) {
+                // Anything AND false
+                $result = false;
+                break;
+            }
+        }
+        if ($this->negated)
+            $result = !$result;
+        return $result;
     }
 
     function serialize() {
