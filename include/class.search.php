@@ -675,7 +675,8 @@ class SavedSearch extends VerySimpleModel {
         return static::objects()->filter(Q::any(array(
             'staff_id' => $agent->getId(),
             'flags__hasbit' => self::FLAG_PUBLIC,
-        )));
+        )))
+        ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
     }
 
     function getName() {

@@ -104,7 +104,7 @@ foreach ($columns as $C) {
 foreach ($tickets as $T) {
     echo '<tr>';
     foreach ($columns as $C) {
-        echo "<td>";
+        echo '<td class="offset">';
         echo $C->render($T);
         echo "</td>";
     }
