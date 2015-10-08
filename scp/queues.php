@@ -44,6 +44,7 @@ if ($_POST) {
 
     case 'create':
         $queue = CustomQueue::create(array(
+            'flags' => CustomQueue::FLAG_PUBLIC,
             'root' => $_POST['root'] ?: 'Ticket'
         ));
 
