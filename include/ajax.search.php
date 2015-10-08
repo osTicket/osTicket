@@ -104,7 +104,7 @@ class SearchAjaxAPI extends AjaxController {
         $_SESSION['advsearch'] = $form->getState();
 
         Http::response(200, $this->encode(array(
-            'redirect' => 'tickets.php?advanced',
+            'redirect' => 'tickets.php?queue=adhoc',
         )));
     }
 
