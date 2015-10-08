@@ -152,11 +152,11 @@ class CustomQueue extends SavedSearch {
         if (!$this->id)
             return;
 
-        $path = $this->id;
+        $path = '';
         if ($this->parent) {
-            $path = sprintf('%s/%d', $this->parent->getPath(), $path);
+            $path = rtrim($this->parent->getPath(), '/');
         }
-        return $path;
+        return $path . "/{$this->id}/";
     }
 
     function getFullName() {
@@ -553,7 +553,7 @@ class QueueColumnCondition {
                     $V = current($V);
                 $style[] = "{$css}:{$V}";
             }
-            $text = sprintf('<span style="%s">%s</span>',
+            $text = sprintf('<span class="fill" style="%s">%s</span>',
                 implode(';', $style), $text);
         }
         return $text;
