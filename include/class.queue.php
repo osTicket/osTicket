@@ -252,15 +252,22 @@ class CustomQueue extends SavedSearch {
 
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {
-            foreach ($vars['columns'] as $sort=>$colid) {
-                // Try and find the column in this queue, if it's a new one,
-                // add it to the columns list
-                if (!($col = $this->columns->findFirst(array('id' => $colid)))) {
-                    $col = QueueColumn::create(array("id" => $colid, "queue" => $this));
-                    $this->addColumn($col);
+            $new = $vars['columns'];
+            foreach ($this->columns as $col) {
+                if (false === ($sort = array_search($col->id, $vars['columns']))) {
+                    $this->columns->remove($col);
+                    continue;
                 }
                 $col->set('sort', $sort+1);
                 $col->update($vars, $errors);
+                unset($new[$sort]);
+            }
+            // Add new columns
+            foreach ($new as $sort=>$colid) {
+                $col = QueueColumn::create(array("id" => $colid, "queue" => $this));
+                $col->set('sort', $sort+1);
+                $col->update($vars, $errors);
+                $this->addColumn($col);
             }
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
@@ -477,7 +484,7 @@ class QueueColumnCondition {
 
     // Add the annotation to a QuerySet
     function annotate($query) {
-        $Q = $this->getSearchQ();
+        $Q = $this->getSearchQ($query);
 
         // Add an annotation to the query
         return $query->annotate(array(
@@ -506,12 +513,24 @@ class QueueColumnCondition {
         return $name;
     }
 
-    function getSearchQ() {
+    function getSearchQ($query) {
         list($name, $method, $value) = $this->config['crit'];
+
+        // XXX: Move getOrmPath to be more of a utility
+        // Ensure the special join is created to support custom data joins
+        $name = @QueueColumn::getOrmPath($name, $query);
+
+        $name2 = null;
+        if (preg_match('/__answers!\d+__/', $name)) {
+            // Ensure that only one record is returned from the join through
+            // the entry and answers joins
+            $name2 = $this->getAnnotationName().'2';
+            $query->annotate(array($name2 => SqlAggregate::MAX($name)));
+        }
 
         // Fetch a criteria Q for the query
         if ($field = $this->getField($name))
-            return $field->getSearchQ($method, $value, $name);
+            return $field->getSearchQ($method, $value, $name2 ?: $name);
     }
 
     /**
