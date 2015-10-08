@@ -2,12 +2,34 @@
 // Calling convention (assumed global scope):
 // $tickets - <QuerySet> with all columns and annotations necessary to
 //      render the full page
-// $count - <int> number of records matching the search / filter part of the
-//      query
+
+// For searches, some staff members may be able to see everything
+$view_all_tickets = $queue->ignoreVisibilityConstraints();
+
+// Impose visibility constraints
+// ------------------------------------------------------------
+if (!$view_all_tickets) {
+    // -- Open and assigned to me
+    $assigned = Q::any(array(
+        'staff_id' => $thisstaff->getId(),
+    ));
+    // -- Open and assigned to a team of mine
+    if ($teams = array_filter($thisstaff->getTeams()))
+        $assigned->add(array('team_id__in' => $teams));
+
+    $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
+
+    // -- Routed to a department of mine
+    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+        $visibility->add(array('dept_id__in' => $depts));
+
+    $tickets->filter($visibility);
+}
 
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
+$count = count($tickets);
 $tickets = $pageNav->paginate($tickets);
 
 // Make sure the cdata materialized view is available
