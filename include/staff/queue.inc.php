@@ -32,10 +32,9 @@ else {
   <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
       // <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
-      — <?php echo $queue->getName(); ?></small>
+      — <?php echo $queue->getFullName(); ?></small>
       <?php } ?>
   </h2>
-
 
   <ul class="clean tabs">
     <li class="active"><a href="#criteria"><i class="icon-filter"></i>
@@ -81,7 +80,7 @@ else {
 ?>
           <option value="<?php echo $cq->id; ?>"
             <?php if ($cq->getId() == $queue->parent_id) echo 'selected="selected"'; ?>
-            ><?php echo $cq->getName(); ?></option>
+            ><?php echo $cq->getFullName(); ?></option>
 <?php } ?>
         </select>
 
@@ -134,7 +133,8 @@ else {
             var div = $('<div></div>')
                 .addClass('column-header ui-resizable')
                 .text(json.heading)
-                .data({id: nextId, colId: 'colconfig-'+nextId, width: json.width})
+                .attr({'data-id': nextId})
+                .data({colId: 'colconfig-'+nextId, width: json.width})
                 .append($('<i>')
                   .addClass('icon-ellipsis-vertical ui-resizable-handle ui-resizable-handle-e')
                 )
