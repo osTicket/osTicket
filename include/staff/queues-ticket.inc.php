@@ -40,8 +40,8 @@ require_once INCLUDE_DIR . 'class.queue.php';
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="4%">&nbsp;</th>
-            <th colspan="5" width="46%"><?php echo __('Name');?></th>
+            <th width="3%">&nbsp;</th>
+            <th colspan="5" width="47%"><?php echo __('Name');?></th>
             <th width="12%"><?php echo __('Creator');?></th>
             <th width="8%"><?php echo __('Status');?></th>
             <th width="10%" nowrap><?php echo __('Created');?></th>
@@ -62,7 +62,7 @@ $emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) {
           <input type="hidden" name="qsort[<?php echo $q->id; ?>]"
             value="<?php echo $q->sort; ?>"/>
         </td>
-        <td colspan="<?php echo max(1, 5-$level); ?>"><a
+        <td width="63%" colspan="<?php echo max(1, 5-$level); ?>"><a
           href="queues.php?id=<?php echo $q->getId(); ?>"><?php
           echo Format::htmlchars($q->getFullName()); ?></a></td>
         <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>

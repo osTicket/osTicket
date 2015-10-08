@@ -297,7 +297,7 @@ class SearchAjaxAPI extends AjaxController {
         list($label, $F) = $fields[$field];
         $column = QueueColumn::create(array(
             "id"        => (int) $_GET['id'],
-            "heading"   => _S($field->getLabel()),
+            "heading"   => _S($F->getLabel()),
             "primary"   => $field,
             "width"     => 100,
         ));
@@ -308,6 +308,7 @@ class SearchAjaxAPI extends AjaxController {
         // Send back the goodies
         Http::response(200, $this->encode(array(
             'config' => $config,
+            'id' => $column->id,
             'heading' => _S($F->getLabel()),
             'width' => $column->getWidth(),
         )), 'application/json');
