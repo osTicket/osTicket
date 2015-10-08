@@ -1875,7 +1875,7 @@ implements Iterator {
      * database.
      */
     function findAll(array $criteria, $limit=false) {
-        $records = array();
+        $records = new ListObject();
         foreach ($this as $record) {
             $matches = true;
             foreach ($criteria as $field => $check) {
