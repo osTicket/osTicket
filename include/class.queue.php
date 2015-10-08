@@ -19,7 +19,6 @@ require_once INCLUDE_DIR . 'class.search.php';
 class CustomQueue extends SavedSearch {
     static $meta = array(
         'select_related' => array('parent'),
-        'ordering' => array('title', 'path'),
         'joins' => array(
             'columns' => array(
                 'reverse' => 'QueueColumn.queue',
