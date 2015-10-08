@@ -679,8 +679,26 @@ class SavedSearch extends VerySimpleModel {
         ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
     }
 
+    function getId() {
+        return $this->id;
+    }
+
     function getName() {
         return $this->title;
+    }
+
+    function getHref() {
+        // TODO: Get base page from getRoot();
+        $root = $this->getRoot();
+        return 'tickets.php?queue='.$this->getId();
+    }
+
+    function getRoot() {
+        return 'Ticket';
+    }
+
+    function getPath() {
+        return $this->path ?: $this->buildPath();
     }
 
     function getCriteria() {
@@ -1112,8 +1130,12 @@ class SavedSearch extends VerySimpleModel {
 
         // For saved searches (not queues), staff can have a permission to
         // see all records
-        return !$this->hasFlag(self::FLAG_QUEUE)
+        return !$this->isAQueue()
             && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
+    }
+
+    function isAQueue() {
+        return $this->hasFlag(self::FLAG_QUEUE);
     }
 
     protected function hasFlag($flag) {

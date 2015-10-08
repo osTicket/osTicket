@@ -40,7 +40,7 @@ class CustomQueue extends SavedSearch {
         ),
     );
 
-    static function objects() {
+    static function queues() {
         return parent::objects()->filter(array(
             'flags__hasbit' => static::FLAG_QUEUE
         ));
@@ -108,14 +108,6 @@ class CustomQueue extends SavedSearch {
         $col->queue = $this;
     }
 
-    function getId() {
-        return $this->id;
-    }
-
-    function getRoot() {
-        return 'Ticket';
-    }
-
     function getStatus() {
         return 'bogus';
     }
@@ -143,10 +135,6 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    function getPath() {
-        return $this->path ?: $this->buildPath();
-    }
-
     function buildPath() {
         if (!$this->id)
             return;
@@ -160,12 +148,6 @@ class CustomQueue extends SavedSearch {
         if ($this->parent)
             $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
         return $base;
-    }
-
-    function getHref() {
-        // TODO: Get base page from getRoot();
-        $root = $this->getRoot();
-        return 'tickets.php?queue='.$this->getId();
     }
 
     function inheritCriteria() {

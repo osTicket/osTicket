@@ -60,7 +60,9 @@ if (!$ticket) {
 
 require_once INCLUDE_DIR . 'class.queue.php';
 $queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
-$queue = CustomQueue::lookup($queue_id);
+if ((int) $queue_id) {
+    $queue = CustomQueue::lookup($queue_id);
+}
 
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
@@ -371,7 +373,7 @@ $nav->setTabActive('tickets');
 $nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
 // Fetch ticket queues organized by root and sub-queues
-$queues = CustomQueue::objects()
+$queues = CustomQueue::queues()
     ->filter(Q::any(array(
         'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
         'staff_id' => $thisstaff->getId(),
@@ -391,19 +393,38 @@ as $q) {
 }
 
 if (isset($_SESSION['advsearch'])) {
-    // XXX: De-duplicate and simplify this code
-    TicketForm::ensureDynamicDataView();
-    $search = SavedSearch::create();
-    $form = $search->getFormFromSession('advsearch');
-    $tickets = TicketModel::objects();
-    $tickets = $search->mangleQuerySet($tickets, $form);
-    $count = $tickets->count();
-    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Ticket Search'),
-                           'href'=>'tickets.php?status=search',
-                           'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
+        // XXX: De-duplicate and simplify this code
+    $adhoc = SavedSearch::create(array('title' => __("Advanced Search")));
+    $form = $adhoc->getFormFromSession('advsearch');
+    $adhoc->config = $form->getState();
+
+    if ($_REQUEST['queue'] == 'adhoc')
+        $queue = $adhoc;
 }
+
+// Add my advanced searches
+$nav->addSubMenu(function() use ($queue, $adhoc) {
+    global $thisstaff;
+    // A queue is selected if it is the one being displayed. It is
+    // "child" selected if its ID is in the path of the one selected
+    $child_selected = $queue && !$queue->isAQueue();
+    $searches = SavedSearch::objects()
+        ->filter(Q::any(array(
+            'flags__hasbit' => SavedSearch::FLAG_PUBLIC,
+            'staff_id' => $thisstaff->getId(),
+        )))
+        ->exclude(array(
+            'flags__hasbit' => SavedSearch::FLAG_QUEUE
+        ))
+        ->all();
+
+    if (isset($adhoc)) {
+        // TODO: Add "Ad Hoc Search" to the personal children
+    }
+
+    include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
+});
+
 
 if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
@@ -457,10 +478,6 @@ if($ticket) {
         $quick_filter = @$_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $quick_filter);
     }
-
-    //Clear active submenu on search with no status
-    if($_REQUEST['a']=='search' && !$_REQUEST['status'])
-        $nav->setActiveSubMenu(-1);
 
     //set refresh rate if the user has it configured
     if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {

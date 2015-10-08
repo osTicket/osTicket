@@ -2,7 +2,7 @@
 // Calling conventions
 // $q - <CustomQueue> object for this navigation entry
 $queue = $q;
-$children = $queue->getPublicChildren();
+$children = $queue instanceof CustomQueue ? $queue->getPublicChildren() : array();
 $hasChildren = count($children) > 0;
 $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;

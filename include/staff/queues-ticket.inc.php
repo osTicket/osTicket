@@ -17,7 +17,7 @@ require_once INCLUDE_DIR . 'class.queue.php';
             </td>
             <td>
                 <select name="default_ticket_queue">
-<?php foreach (CustomQueue::objects() as $cq) {
+<?php foreach (CustomQueue::queues() as $cq) {
 ?>
                   <option value="<?php echo $cq->id; ?>"
             <?php if ($cq->getId() == $config['default_ticket_queue']) echo 'selected="selected"'; ?>
@@ -78,7 +78,7 @@ require_once INCLUDE_DIR . 'class.queue.php';
     </thead>
     <tbody class="sortable-rows" data-sort="qsort">
 <?php
-$all_queues = CustomQueue::objects()->all();
+$all_queues = CustomQueue::queues()->all();
 $emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) { 
     $queues->sort(function($a) { return $a->sort; });
     foreach ($queues as $q) { ?>
