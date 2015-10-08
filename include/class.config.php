@@ -1244,6 +1244,16 @@ class OsticketConfig extends Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
+        // Sort ticket queues
+        require_once INCLUDE_DIR . 'class.queue.php';
+        $queues = CustomQueue::objects()->all();
+        foreach ($vars['qsort'] as $queue_id => $sort) {
+            if ($q = $queues->findFirst(array('id' => $queue_id))) {
+                $q->sort = $sort;
+                $q->save();
+            }
+        }
+
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
             'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,

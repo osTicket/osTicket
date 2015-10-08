@@ -1,7 +1,6 @@
 <?php
 require_once INCLUDE_DIR . 'class.queue.php';
 ?>
-<form action="queues.php?t=tickets" method="POST" name="keys">
     <div>
         <div class="pull-right">
             <a href="queues.php?t=tickets&amp;a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Queue');?></a>
@@ -37,28 +36,48 @@ require_once INCLUDE_DIR . 'class.queue.php';
     <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
-<input type="hidden" id="action" name="a" value="" >
+ <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
-            <th width="46%"><a <?php echo $key_sort; ?> href="queues.php?t=tickets&amp;<?php echo $qstr; ?>&sort=name#queues"><?php echo __('Name');?></a></th>
-            <th width="12%"><a <?php echo $ip_sort; ?> href="queues.php?t=tickets&amp;<?php echo $qstr; ?>&sort=creator#queues"><?php echo __('Creator');?></a></th>
-            <th width="8%"><a  <?php echo $status_sort; ?> href="queues.php?t=tickets&amp;<?php echo $qstr; ?>&sort=status#queues"><?php echo __('Status');?></a></th>
-            <th width="10%" nowrap><a  <?php echo $date_sort; ?>href="queues.php?t=tickets&amp;<?php echo $qstr; ?>&sort=date#queues"><?php echo __('Created');?></a></th>
+            <th colspan="5" width="46%"><?php echo __('Name');?></th>
+            <th width="12%"><?php echo __('Creator');?></th>
+            <th width="8%"><?php echo __('Status');?></th>
+            <th width="10%" nowrap><?php echo __('Created');?></th>
         </tr>
     </thead>
-    <tbody>
-<?php foreach (CustomQueue::objects() as $q) { ?>
-    <tr>
-      <td><input type="checkbox" class="checkbox" name="ckb[]"></td>
-      <td><a href="queues.php?id=<?php echo $q->getId(); ?>"><?php
-        echo Format::htmlchars($q->getFullName()); ?></a></td>
-      <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>
-      <td><?php echo Format::htmlchars($q->getStatus()); ?></td>
-      <td><?php echo Format::date($q->created); ?></td>
-    </tr>
+    <tbody class="sortable-rows" data-sort="qsort">
+<?php
+$all_queues = CustomQueue::objects()->all();
+$emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) { 
+    $queues->sort(function($a) { return $a->sort; });
+    foreach ($queues as $q) { ?>
+      <tr>
+<?php if ($level) { ?>
+        <td colspan="<?php echo max(1, $level); ?>"></td>
 <?php } ?>
+        <td>
+          <input type="checkbox" class="checkbox" name="ckb[]">
+          <input type="hidden" name="qsort[<?php echo $q->id; ?>]"
+            value="<?php echo $q->sort; ?>"/>
+        </td>
+        <td colspan="<?php echo max(1, 5-$level); ?>"><a
+          href="queues.php?id=<?php echo $q->getId(); ?>"><?php
+          echo Format::htmlchars($q->getFullName()); ?></a></td>
+        <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>
+        <td><?php echo Format::htmlchars($q->getStatus()); ?></td>
+        <td><?php echo Format::date($q->created); ?></td>
+      </tr>
+<?php
+        $children = $all_queues->findAll(array('parent_id' => $q->id));
+        if (count($children)) {
+            $emitLevel($children, $level+1);
+        }
+    }
+};
+
+$emitLevel($all_queues->findAll(array('parent_id' => 0)));
+?>
     </tbody>
 </table>
-</form>

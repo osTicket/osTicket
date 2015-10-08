@@ -29,7 +29,8 @@ else {
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
   <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
 
-  <h2><?php echo __('Ticket Queues'); ?> // <?php echo $title; ?>
+  <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
+      // <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
       — <?php echo $queue->getName(); ?></small>
       <?php } ?>
