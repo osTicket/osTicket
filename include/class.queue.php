@@ -151,11 +151,8 @@ class CustomQueue extends SavedSearch {
         if (!$this->id)
             return;
 
-        $path = '';
-        if ($this->parent) {
-            $path = rtrim($this->parent->getPath(), '/');
-        }
-        return $path . "/{$this->id}/";
+        $path = $this->parent ? $this->parent->getPath() : '';
+        return $path . "/{$this->id}";
     }
 
     function getFullName() {
