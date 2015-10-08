@@ -459,7 +459,6 @@ if($ticket) {
         $inc = 'templates/queue-tickets.tmpl.php';
         $quick_filter = @$_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $quick_filter);
-        $count = count($tickets);
     }
 
     //Clear active submenu on search with no status
