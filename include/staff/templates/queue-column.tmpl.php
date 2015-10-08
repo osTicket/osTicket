@@ -11,6 +11,11 @@ $data_form = $column->getDataConfigForm($_POST);
   <li class="active"><a href="#<?php echo $colid; ?>-data"><?php echo __('Data'); ?></a></li>
   <li><a href="#<?php echo $colid; ?>-annotations"><?php echo __('Annotations'); ?></a></li>
   <li><a href="#<?php echo $colid; ?>-conditions"><?php echo __('Conditions'); ?></a></li>
+  <a onclick="javascript:
+  $(this).closest('.column-configuration').hide();
+  $('#resizable-columns').find('div[data-id=<?php echo $colid; ?>]').hide()
+    .find('input[name^=columns]').remove();
+  " class="button red pull-right"><?php echo __("Delete Column"); ?></a>
 </ul>
 
 <div class="tab_content" id="<?php echo $colid; ?>-data">
