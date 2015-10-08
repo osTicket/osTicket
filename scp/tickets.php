@@ -57,9 +57,8 @@ if (!$ticket) {
 }
 
 require_once INCLUDE_DIR . 'class.queue.php';
-if (isset($_REQUEST['queue'])) {
-    $queue = CustomQueue::lookup($_REQUEST['queue']);
-}
+$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
+$queue = CustomQueue::lookup($queue_id);
 
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
@@ -426,7 +425,7 @@ if($ticket) {
     } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
 } else {
-	$inc = 'tickets.inc.php';
+    $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
             $thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
@@ -434,16 +433,14 @@ if($ticket) {
         $ts = strftime('%Y%m%d');
         if (isset($queue) && $queue) {
             // XXX: Check staff access?
-            $inc = 'templates/queue-tickets.tmpl.php';
             if (!($query = $queue->getBasicQuery()))
                 $errors['err'] = __('Query token not found');
             elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
                 $errors['err'] = __('Internal error: Unable to dump query results');
         }
     }
-    elseif (isset($queue) && $queue) {
+    elseif ($queue) {
         // XXX: Check staff access?
-        $inc = 'templates/queue-tickets.tmpl.php';
         $quick_filter = @$_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $quick_filter);
     }
