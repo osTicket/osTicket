@@ -74,7 +74,7 @@ else {
         <div><strong><?php echo __("Parent Queue"); ?>:</strong></div>
         <select name="parent_id">
           <option value="0">— <?php echo __('Top-Level Queue'); ?> —</option>
-<?php foreach (CustomQueue::objects() as $cq) {
+<?php foreach (CustomQueue::queues() as $cq) {
         if ($cq->getId() == $queue->getId())
           continue;
 ?>
