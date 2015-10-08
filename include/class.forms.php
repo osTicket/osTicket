@@ -2311,7 +2311,7 @@ class PriorityField extends ChoiceField {
     function display($prio) {
         if (!$prio instanceof Priority)
             return parent::display($prio);
-        return sprintf('<span style="padding: 2px; background-color: %s">%s</span>',
+        return sprintf('<span class="fill" style="padding: 2px; background-color: %s">%s</span>',
             $prio->getColor(), Format::htmlchars($prio->getDesc()));
     }
 
