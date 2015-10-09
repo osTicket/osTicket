@@ -14,6 +14,7 @@
   <input name="condition_field[]" value="<?php echo $field_name; ?>" type="hidden" />
   <div class="pull-right">
     <a href="#" onclick="javascript: $(this).closest('.condition').remove();
+      return false;
       "><i class="icon-trash"></i></a>
   </div>
   <?php echo $label ?: $field->getLabel(); ?>
@@ -67,7 +68,7 @@ foreach ($condition->getProperties() as $prop=>$v) {
         <select onchange="javascript:
         var $this = $(this),
             selected = $this.find(':selected'),
-            container = $this.closest('.properties');
+            container = $this.closest('div');
         $.ajax({
           url: 'ajax.php/queue/condition/addProperty',
           data: { prop: selected.val(), condition: <?php echo $id; ?> },
