@@ -450,6 +450,8 @@ class QueueColumnCondition {
     var $queue;
     var $properties = array();
 
+    static $uid = 1;
+
     function __construct($config, $queue=null) {
         $this->config = $config;
         $this->queue = $queue;
@@ -482,8 +484,7 @@ class QueueColumnCondition {
 
         // Lookup the field to search this condition
         if (isset($searchable[$name])) {
-            list(,$field) = $searchable[$name];
-            return $field;
+            return $searchable[$name];
         }
     }
 
@@ -512,7 +513,7 @@ class QueueColumnCondition {
         }
 
         // Fetch a criteria Q for the query
-        if ($field = $this->getField($name))
+        if (list(,$field) = $this->getField($name))
             return $field->getSearchQ($method, $value, $name2 ?: $name);
     }
 
@@ -583,7 +584,11 @@ class QueueColumnCondition {
     }
 
     function getShortHash() {
-        return substr($this->getHash(), -10);
+        return substr(base64_encode($this->getHash(true)), -10);
+    }
+
+    static function getUid() {
+        return static::$uid++;
     }
 
     static function fromJson($config, $queue=null) {
