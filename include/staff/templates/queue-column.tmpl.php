@@ -118,8 +118,8 @@ $data_form = $column->getDataConfigForm($_POST);
 if ($column->getConditions()) {
   $fields = SavedSearch::getSearchableFields($column->getQueue()->getRoot());
   foreach ($column->getConditions() as $i=>$condition) {
-     $id = $column->getId() * 40 + $i;
-     $field = $condition->getField();
+     $id = QueueColumnCondition::getUid();
+     list($label, $field) = $condition->getField();
      $field_name = $condition->getFieldName();
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
   }
@@ -137,8 +137,8 @@ if ($column->getConditions()) {
       </select>
       <script>
       $(function() {
-        var colid = <?php echo $colid ?: 0 ?>,
-            nextid = colid * 40;
+        var colid = <?php echo $colid ?: 0; ?>,
+            nextid = <?php echo QueueColumnCondition::getUid(); ?>;
         $('#' + colid + '-conditions select.add-condition').change(function() {
           var $this = $(this),
               container = $this.closest('div'),
