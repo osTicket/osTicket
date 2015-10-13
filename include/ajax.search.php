@@ -19,7 +19,6 @@ if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
-require_once(INCLUDE_DIR.'class.queue.php');
 
 class SearchAjaxAPI extends AjaxController {
 

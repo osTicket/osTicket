@@ -290,6 +290,12 @@ class CustomQueue extends SavedSearch {
 
         return $queue;
     }
+
+    static function __create($vars) {
+        $q = static::create($vars);
+        $q->save();
+        return $q;
+    }
 }
 
 abstract class QueueColumnAnnotation {
