@@ -7,6 +7,7 @@
  */
 
 ALTER TABLE `%TABLE_PREFIX%queue`
+  ADD `columns_id` int(11) unsigned AFTER `parent_id`,
   ADD `filter` varchar(64) AFTER `config`,
   ADD `root` varchar(32) DEFAULT NULL AFTER `filter`,
   ADD `path` varchar(80) NOT NULL DEFAULT '/' AFTER `root`;
