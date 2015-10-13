@@ -17,8 +17,6 @@
 
 require('admin.inc.php');
 
-require_once INCLUDE_DIR . 'class.queue.php';
-
 $nav->setTabActive('settings', 'settings.php?t='.urlencode($_GET['t']));
 $errors = array();
 

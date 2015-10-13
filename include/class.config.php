@@ -1241,7 +1241,6 @@ class OsticketConfig extends Config {
         if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
             $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
 
-        require_once INCLUDE_DIR . 'class.queue.php';
         if (!isset($vars['default_ticket_queue']))
             $errors['default_ticket_queue'] = __("Select a default ticket queue");
         elseif (!CustomQueue::lookup($vars['default_ticket_queue']))

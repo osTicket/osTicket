@@ -80,3 +80,4 @@ core:
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'
+    default_ticket_queue: 1

@@ -58,7 +58,6 @@ if (!$ticket) {
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
 
-require_once INCLUDE_DIR . 'class.queue.php';
 $queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
 if ((int) $queue_id) {
     $queue = CustomQueue::lookup($queue_id);
