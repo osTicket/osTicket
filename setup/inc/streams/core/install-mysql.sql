@@ -827,6 +827,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;
 CREATE TABLE `%TABLE_PREFIX%queue` (
   `id` int(11) unsigned not null auto_increment,
   `parent_id` int(11) unsigned not null default 0,
+  `columns_id` int(11) unsigned,
   `flags` int(11) unsigned not null default 0,
   `staff_id` int(11) unsigned not null default 0,
   `sort` int(11) unsigned not null default 0,
