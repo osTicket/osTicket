@@ -58,12 +58,23 @@ class CustomQueue extends SavedSearch {
 
     function getColumns() {
         if (!count($this->columns)) {
+            if ($this->columns_id
+                && ($q = CustomQueue::lookup($this->columns_id))
+            ) {
+                // Use columns from cited queue
+                return $q->getColumns();
+            }
+
+            // Last resort — use standard columns
             foreach (array(
                 new QueueColumn(array(
                     "id" => 1,
                     "heading" => "Number",
                     "primary" => 'number',
                     "width" => 100,
+                    "filter" => "link:ticket",
+                    "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
+                    "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
                 )),
                 new QueueColumn(array(
                     "id" => 2,
@@ -76,6 +87,9 @@ class CustomQueue extends SavedSearch {
                     "heading" => "Subject",
                     "primary" => 'cdata__subject',
                     "width" => 250,
+                    "filter" => "link:ticket",
+                    "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
+                    "truncate" => 'ellipsis',
                 )),
                 new QueueColumn(array(
                     "id" => 4,
@@ -685,24 +699,10 @@ extends VerySimpleModel {
         ),
     );
 
-    var $_annotations = array();
-    var $_conditions = array();
+    var $_annotations;
+    var $_conditions;
 
     function __onload() {
-        if ($this->annotations
-            && ($anns = JsonDataParser::decode($this->annotations))
-        ) {
-            foreach ($anns as $D)
-                if ($T = QueueColumnAnnotation::fromJson($D))
-                    $this->_annotations[] = $T;
-        }
-        if ($this->conditions
-            && ($conds = JsonDataParser::decode($this->conditions))
-        ) {
-            foreach ($conds as $C)
-                if ($T = QueueColumnCondition::fromJson($C))
-                    $this->_conditions[] = $T;
-        }
     }
 
     function getId() {
@@ -740,10 +740,10 @@ extends VerySimpleModel {
         }
 
         // annotations and conditions
-        foreach ($this->_annotations as $D) {
+        foreach ($this->getAnnotations() as $D) {
             $text = $D->render($row, $text);
         }
-        foreach ($this->_conditions as $C) {
+        foreach ($this->getConditions() as $C) {
             $text = $C->render($row, $text);
         }
         return $text;
@@ -814,12 +814,12 @@ extends VerySimpleModel {
             $query = $filter->mangleQuery($query, $this);
 
         // annotations
-        foreach ($this->_annotations as $D) {
+        foreach ($this->getAnnotations() as $D) {
             $query = $D->annotate($query);
         }
 
         // Conditions
-        foreach ($this->_conditions as $C) {
+        foreach ($this->getConditions() as $C) {
             $query = $C->annotate($query);
         }
 
@@ -860,10 +860,30 @@ extends VerySimpleModel {
     }
 
     function getAnnotations() {
+        if (!isset($this->_annotations)) {
+            $this->_annotations = array();
+            if ($this->annotations
+                && ($anns = JsonDataParser::decode($this->annotations))
+            ) {
+                foreach ($anns as $D)
+                    if ($T = QueueColumnAnnotation::fromJson($D))
+                        $this->_annotations[] = $T;
+            }
+        }
         return $this->_annotations;
     }
 
     function getConditions() {
+        if (!isset($this->_conditions)) {
+            $this->_conditions = array();
+            if ($this->conditions
+                && ($conds = JsonDataParser::decode($this->conditions))
+            ) {
+                foreach ($conds as $C)
+                    if ($T = QueueColumnCondition::fromJson($C))
+                        $this->_conditions[] = $T;
+            }
+        }
         return $this->_conditions;
     }
 
