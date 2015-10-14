@@ -30,7 +30,7 @@ elseif ($thisclient) {
     // Guest registering for an account
     if ($thisclient->isGuest()) {
         foreach ($thisclient->getForms() as $f) {
-            if ($f->get('type') == 'U') {
+            if ($f->get('object_type') == 'U') {
                 $user_form = $f;
                 $user_form->getField('email')->configure('disabled', true);
             }
