@@ -1461,11 +1461,12 @@ implements RestrictedAccess, Threadable {
         // confused with autorespond on new message setting
         if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
-
+            $dept = $this->getDept();
+            $autoclaim = ($cfg->autoClaimTickets() && !$dept->disableAutoClaim());
             // Auto-assign to closing staff or last respondent
             // If the ticket is closed and auto-claim is not enabled then put the
             // ticket back to unassigned pool.
-            if (!$cfg->autoClaimTickets()) {
+            if (!$autoclaim) {
                 $this->setStaffId(0);
             }
             elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
@@ -2400,6 +2401,7 @@ implements RestrictedAccess, Threadable {
         if (!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
+        $dept = $this->getDept();
         $assignee = $this->getStaff();
         // Set status - if checked.
         if ($vars['reply_status_id']
@@ -2408,10 +2410,12 @@ implements RestrictedAccess, Threadable {
             $this->setStatus($vars['reply_status_id']);
         }
 
+
         // Claim on response bypasses the department assignment restrictions
-        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()
-            && $cfg->autoClaimTickets()
-        ) {
+        $claim = ($claim
+                && $cfg->autoClaimTickets()
+                && !$dept->disableAutoClaim());
+        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
 
@@ -2423,11 +2427,12 @@ implements RestrictedAccess, Threadable {
         if (!$alert)
             return $response;
 
-        $dept = $this->getDept();
+        $options = array();
+        $email = $dept->getEmail();
 
         if ($thisstaff && $vars['signature']=='mine')
             $signature=$thisstaff->getSignature();
-        elseif ($vars['signature']=='dept' && $dept && $dept->isPublic())
+        elseif ($vars['signature']=='dept' && $dept->isPublic())
             $signature=$dept->getSignature();
         else
             $signature='';
