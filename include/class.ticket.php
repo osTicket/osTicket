@@ -2231,8 +2231,15 @@ implements RestrictedAccess, Threadable {
             }
         }
 
-        // Find the last message from this user on this thread
-        if ($this->getThread()->getLastMessage(array(
+        // Do not auto-respond to bounces and other auto-replies
+        if ($alerts)
+            $alerts = isset($vars['mailflags'])
+                ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
+                : true;
+        if ($alerts && $message->isBounceOrAutoReply())
+            $alerts = false;
+
+        if ($alerts && $this->getThread()->getLastMessage(array(
             'user_id' => $message->user_id,
             'id__lt' => $message->id,
             'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
@@ -2241,21 +2248,13 @@ implements RestrictedAccess, Threadable {
             $alerts = false;
         }
 
+        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
+
+        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
+            $this->notifyCollaborators($message, array('signature' => ''));
 
         if (!$alerts)
             return $message; //Our work is done...
-
-        // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['mailflags'])
-            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
-            : true;
-        if ($autorespond && $message->isAutoReply())
-            $autorespond = false;
-
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
-
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
-            $this->notifyCollaborators($message, array('signature' => ''));
 
         $dept = $this->getDept();
         $variables = array(
