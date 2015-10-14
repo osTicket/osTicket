@@ -93,18 +93,22 @@ case 'search':
                 ));
             }
         }
-        elseif ($_REQUEST['query']) {
+        elseif (isset($_REQUEST['query'])
+            && ($q = trim($_REQUEST['query']))
+            && strlen($q) > 2
+        ) {
             // [Search] click, consider keywords
-            $__tickets = $ost->searcher->find($_REQUEST['query'], $tickets);
-            if (!count($__tickets)) {
+            $__tickets = $ost->searcher->find($q, $tickets);
+            if (!count($__tickets) && preg_match('`\w$`u', $q)) {
                 // Do wildcard search if no hits
-                $__tickets = $ost->searcher->find($_REQUEST['query'].'*', $tickets);
+                $__tickets = $ost->searcher->find($q.'*', $tickets);
             }
-            $tickets = $__tickets->distinct('ticket_id');
+            $tickets = $__tickets;
             $has_relevance = true;
         }
         if (count($tickets) == 1) {
             // Redirect to ticket page
+            Http::redirect('tickets.php?id='.$tickets[0]->getId());
         }
         // Clear sticky search queue
         unset($_SESSION[$queue_key]);

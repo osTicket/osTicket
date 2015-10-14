@@ -34,6 +34,9 @@ class UsersAjaxAPI extends AjaxController {
         $users=array();
         $emails=array();
 
+        if (strlen($q) < 2)
+            return $this->encode(array());
+
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($q) as $u) {
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
@@ -55,7 +58,7 @@ class UsersAjaxAPI extends AjaxController {
             $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
                 ->distinct('id');
 
-            if (!count($emails) && !count($users) && substr($q, strlen($q)-1) != '*') {
+            if (!count($emails) && !count($users) && preg_match('`\w$`u', $q)) {
                 // Do wildcard full-text search
                 $_REQUEST['q'] = $q."*";
                 return $this->search($type);

@@ -29,6 +29,9 @@ class OrgsAjaxAPI extends AjaxController {
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
 
+        if (strlen($q) < 2)
+            return $this->encode(array());
+
         $orgs = Organization::objects()
             ->values_flat('id', 'name')
             ->limit($limit);
@@ -38,7 +41,7 @@ class OrgsAjaxAPI extends AjaxController {
         $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
             ->distinct('id');
 
-        if (!count($orgs) && substr($q, strlen($q)-1) != '*') {
+        if (!count($orgs) && preg_match('`\w$`u', $q)) {
             // Do wildcard full-text search
             $_REQUEST['q'] = $q."*";
             return $this->search($type);

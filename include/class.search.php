@@ -306,7 +306,7 @@ class MysqlSearchBackend extends SearchBackend {
     // Quote things like email addresses
     function quote($query) {
         $parts = array();
-        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+        if (!preg_match_all('`(?:([^\s"\']+)|"[^"]*"|\'[^\']*\')(\s*)`', $query, $parts,
                 PREG_SET_ORDER))
             return $query;
 
@@ -319,21 +319,22 @@ class MysqlSearchBackend extends SearchBackend {
                 $char = strpos($m[1], '"') ? "'" : '"';
                 $m[0] = $char . $m[0] . $char;
             }
-            $results[] = $m[0];
+            $results[] = $m[0].$m[2];
         }
-        return implode(' ', $results);
+        return implode('', $results);
     }
 
     function find($query, QuerySet $criteria, $addRelevance=true) {
         global $thisstaff;
 
+        // MySQL usually doesn't handle words shorter than three letters
+        // (except with special configuration)
+        if (strlen($query) < 3)
+            return $criteria;
+
         $criteria = clone $criteria;
 
         $mode = ' IN NATURAL LANGUAGE MODE';
-        // If using boolean operators, search in boolean mode. This regex
-        // will ensure proper placement of operators, whitespace, and quotes
-        // in an effort to avoid crashing the query at MySQL
-        $query = $this->quote($query);
 
         // According to the MySQL full text boolean mode, this grammar is
         // assumed:
@@ -357,6 +358,10 @@ class MysqlSearchBackend extends SearchBackend {
         if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
             && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
         ) {
+            // If using boolean operators, search in boolean mode. This regex
+            // will ensure proper placement of operators, whitespace, and quotes
+            // in an effort to avoid crashing the query at MySQL
+            $query = $this->quote($query);
             $mode = ' IN BOOLEAN MODE';
         }
         #elseif (count(explode(' ', $query)) == 1)
@@ -376,7 +381,7 @@ class MysqlSearchBackend extends SearchBackend {
             $criteria->extra(array(
                 'tables' => array(
                     str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
-                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {}) Z1"),
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, SUM({}) AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {} GROUP BY `ticket_id`) Z1"),
                 )
             ));
             $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')));
