@@ -71,6 +71,18 @@ if($ticket->isOverdue())
                 <span class="action-button pull-right"><a data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a></span>
             <?php
             } ?>
+            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
+                <i class="icon-caret-down pull-right"></i>
+                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
+            </span>
+            <div id="action-dropdown-print" class="action-dropdown anchor-right">
+              <ul>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
+              </ul>
+            </div>
             <?php
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
@@ -89,7 +101,7 @@ if($ticket->isOverdue())
                 data-dropdown="#action-dropdown-assign"
                 data-placement="bottom"
                 data-toggle="tooltip"
-                title=" <?php echo $ticket->isAssigned() ? _↪_('Assign') : __('Reassign'); ?>"
+                title=" <?php echo $ticket->isAssigned() ? __('Assign') : __('Reassign'); ?>"
                 >
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
@@ -119,18 +131,6 @@ if($ticket->isOverdue())
             </div>
             <?php
             } ?>
-            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
-                <i class="icon-caret-down pull-right"></i>
-                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
-            </span>
-            <div id="action-dropdown-print" class="action-dropdown anchor-right">
-              <ul>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
-                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
-                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
-              </ul>
-            </div>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
@@ -197,11 +197,19 @@ if($ticket->isOverdue())
                 ?>
               </ul>
             </div>
-            <?php
-            // Status change options
-            echo TicketStatus::status_options(); ?>
-                <a href="#" class="post-note ticket-response action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="Internal Note"><i class="icon-file-text"></i></a>
-                <a href="#" class="post-reply ticket-response action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="Post Reply"><i class="icon-mail-reply"></i></a>
+                <?php
+                if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+                <a href="#post-reply" class="post-response action-button"
+                data-placement="bottom" data-toggle="tooltip"
+                title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
+                <?php
+                } ?>
+                <a href="#post-note" id="post-note" class="post-response action-button"
+                data-placement="bottom" data-toggle="tooltip"
+                title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
+                <?php // Status change options
+                echo TicketStatus::status_options();
+                ?>
            </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
@@ -467,7 +475,8 @@ echo $v;
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
-    <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+    <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
+        echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
     <li><a id="ticket-tasks-tab" href="#tasks"
             data-url="<?php
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
@@ -490,23 +499,31 @@ $tcount = $ticket->getThreadEntries($types)->count();
             );
 ?>
 <div class="clear"></div>
-<?php if($errors['err']) { ?>
-    <div id="msg_error"><?php echo $errors['err']; ?></div>
-<?php }elseif($msg) { ?>
+<?php
+if ($errors['err'] && isset($_POST['a'])) {
+    // Reflect errors back to the tab.
+    $errors[$_POST['a']] = $errors['err'];
+} elseif($msg) { ?>
     <div id="msg_notice"><?php echo $msg; ?></div>
-<?php }elseif($warn) { ?>
+<?php
+} elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
-<?php } ?>
+<?php
+} ?>
 
 <div class="sticky bar stop actions" id="response_options"
 >
-    <ul class="tabs">
+    <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
+        <li class="active <?php
+            echo isset($errors['reply']) ? 'error' : ''; ?>"><a
+            href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-        <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
+        <li><a href="#note" <?php
+            echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
+            id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
@@ -520,8 +537,12 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
-        <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+            <?php
+            if ($errors['reply']) {?>
+            <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['reply']; ?>&nbsp;</td></tr>
+            <?php
+            }?>
            <tbody id="to_sec">
             <tr>
                 <td width="120">
@@ -908,5 +929,30 @@ $(function() {
             }
         });
     });
+
+    // Post Reply or Note action buttons.
+    $('a.post-response').click(function (e) {
+        var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
+        if ($r.length) {
+            // Make sure ticket thread tab is visiable.
+            var $t = $('ul#ticket_tabs > li > a#ticket-thread-tab');
+            if ($t.length && !$t.hasClass('active'))
+                $t.trigger('click');
+            // Make the target response tab active.
+            if (!$r.hasClass('active'))
+                $r.trigger('click');
+
+            // Scroll to the response section.
+            var $stop = $(document).height();
+            var $s = $('div#response_options');
+            if ($s.length)
+                $stop = $s.offset().top-125
+
+            $('html, body').animate({scrollTop: $stop}, 'fast');
+        }
+
+        return false;
+    });
+
 });
 </script>
