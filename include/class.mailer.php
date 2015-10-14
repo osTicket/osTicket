@@ -386,7 +386,7 @@ class Mailer {
                 if ($attachment['file_id']
                         && ($file=AttachmentFile::lookup($attachment['file_id']))) {
                     $mime->addAttachment($file->getData(),
-                        $file->getType(), $file->getName(),false);
+                        $file->getType(), $file->getName(),false, 'base64', 'attachment', '', '', '', null, null, '', 'utf-8');
                 }
             }
         }
