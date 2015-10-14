@@ -47,10 +47,6 @@ div#header a {
     margin-bottom: 15px;
 }
 
-.search-input {
-    height: 20px;
-}
-
 .clear {
     clear:both;
 }
@@ -729,7 +725,10 @@ td.multi-line {
     padding-bottom: 0.4em;
 }
 
-.form_table input[type=text], .form_table input[type=password], .form_table textarea {
+input[type=text], input[type=password], textarea, input {
+    padding: 3px 5px;
+    font-size: 0.95em;
+    font-family: inherit;
     background:#fff;
     border:1px solid #aaa;
     border-radius:4px;
@@ -2827,15 +2826,6 @@ input[type=checkbox] {
 }
 .vertical-pad {
   margin-top: 3px;
-}
-
-input, textarea {
-    padding: 3px 5px;
-    font-size: 0.95em;
-    font-family: inherit;
-    border-radius:4px;
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
 }
 
 small {
