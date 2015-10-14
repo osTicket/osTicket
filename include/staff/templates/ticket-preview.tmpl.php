@@ -160,127 +160,40 @@ echo '</div>'; // ticket preview content.
 
 <!-- First three entries full visibility -->
 
+
             <div id="thread-entry-1">
-                <div class="thread-entry message avatar">
-                    <span class="pull-right avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
+                <div class="thread-preview-entry collapsed message">
+
                     <div class="header">
-                        <b>John Smith</b> posted
-                        <time>about a month ago</time>
-                    </div>
-                    <div class="thread-body no-pjax">
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut interdum, nulla et sagittis egestas, ex tellus rutrum est, ac tincidunt neque tellus non orci. Ut mollis orci ac commodo auctor. Morbi gravida dui sed neque hendrerit commodo. Curabitur malesuada ante in hendrerit gravida. Suspendisse in velit finibus, posuere mi id, mattis diam. Suspendisse nisl eros, vehicula sit amet sollicitudin at, euismod eu dolor. Vestibulum finibus dui urna, sit amet porttitor magna varius eget. Pellentesque maximus felis neque, et imperdiet elit dignissim id. Donec quis ultrices erat, ut consequat arcu. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales tristique nisi at eleifend. Fusce ac est enim.</div>
-                        <div class="clear"></div>
-                        <div class="attachments">
-                            <span class="attachment-info">
-                            <i class="icon-paperclip icon-flip-horizontal"></i>
-                            <a class="no-pjax truncate filename">Code for attachments goes here.</a>
-                            <small class="filesize faded">0 kb</small>
-                           </span>
+                       <div class="thread-info">
+
+                            <div class="thread-name"><span>John Doe</span>&nbsp;<span>Oct 24, 2015 4:35pm</span></div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div id="thread-entry-2">
-                <div class="thread-entry response avatar">
-                    <span class="pull-left avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
-                    <div class="header">
-                        <b>This is the subject</b> posted
-                        <time>about a month ago</time>
-                    </div>
                     <div class="thread-body no-pjax">
-                        <div>Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                        <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
                         <div class="clear"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="thread-entry-3">
-                <div class="thread-entry message avatar">
-                    <span class="pull-right avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
-                    <div class="header">
-                        <b>This is the subject</b> posted
-                        <time>about a month ago</time>
-                    </div>
-                    <div class="thread-body no-pjax">
-                        <div>Hello Client Side nothing to see here, move along.</div>
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
+             <div id="thread-entry-2">
+                <div class="thread-preview-entry collapsed response">
 
-<!-- Start truncated entries -->
-
-            <div id="thread-entry-4">
-                <div class="thread-entry message avatar">
-                    <span class="pull-right avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
                     <div class="header">
-                        <div class="show-more pull-left" style="margin:0 10px 0 0;">
-                            <span class="muted-button pull-left">
-                                <i class="icon-plus"></i>
-                            </span>
+                       <div class="thread-info">
+
+                            <div class="thread-name"><span>John Doe</span>&nbsp;<span>Oct 24, 2015 4:35pm</span></div>
                         </div>
-                        <b>This is the subject</b> posted
-                        <time>about a month ago</time>
                     </div>
+
                     <div class="thread-body no-pjax">
                         <div class="thread-teaser truncate">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
                         <div class="clear"></div>
                     </div>
                 </div>
             </div>
-
-            <div id="thread-entry-5">
-                <div class="thread-entry response avatar">
-                    <span class="pull-left avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
-                    <div class="header">
-                        <div class="show-more pull-right">
-                            <span class="muted-button pull-right">
-                                <i class="icon-plus"></i>
-                            </span>
-                        </div>
-                        <b>This is the subject</b> posted
-                        <time>about a month ago</time>
-                        <span style="max-width:300px;" class="faded title truncated"></span>
-                    </div>
-                    <div class="thread-body no-pjax">
-                        <div class="thread-teaser truncate">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="thread-entry-6">
-                <div class="thread-entry response avatar">
-                    <span class="pull-left avatar">
-                        <img class="avatar" alt="Avatar" src="//www.gravatar.com/avatar/21a589f1ea935d5fc6e79af6a8c717fa?s=80&amp;d=mm">
-                    </span>
-                    <div class="header">
-                        <div class="show-more pull-right">
-                            <span class="muted-button pull-right">
-                                <i class="icon-plus"></i>
-                            </span>
-                        </div>
-                        <b>This is the subject</b> posted
-                        <time>about a month ago</time>
-                    </div>
-                    <div class="thread-body no-pjax">
-                        <div class="thread-teaser truncate">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
@@ -317,15 +230,15 @@ if($options) {
 echo '</div>';
 ?>
 <script type="text/javascript">
+    $('.thread-preview-entry').click(function (){
+        if ($(this).hasClass('collapsed')) {
+            $(this).removeClass('collapsed',500);
+        } else {
+            $('.header').click(function () {
+                $(this).closest('.thread-preview-entry').addClass('collapsed',500);
+            });
+        }
+    })
 
-$(".show-more").click(function () {
-    if($(this).closest('.thread-entry').find('.thread-teaser').hasClass('truncate')) {
-        $(this).find('i').toggleClass('icon-plus icon-minus');
-    } else {
-        $(this).find('i').toggleClass('icon-minus icon-plus');
-    }
-    $(this).closest('.thread-entry').find('.thread-teaser').toggleClass('truncate');
-    return (false);
-});
 
-</script>
+ </script>
