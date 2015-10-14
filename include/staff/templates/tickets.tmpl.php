@@ -25,6 +25,11 @@ if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
     $tickets->filter(Q::any($visibility));
 }
 
+
+$tickets->constrain(array('lock' => array(
+                'lock__expire__gt' => SqlFunction::NOW())));
+
+
 $tickets->annotate(array(
     'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
     'attachment_count' => SqlAggregate::COUNT(SqlCase::N()

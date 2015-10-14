@@ -319,6 +319,11 @@ $tickets->annotate(array(
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
 
+
+// Make sure we're only getting active locks
+$tickets->constrain(array('lock' => array(
+                'lock__expire__gt' => SqlFunction::NOW())));
+
 ?>
 
 <!-- SEARCH FORM START -->
