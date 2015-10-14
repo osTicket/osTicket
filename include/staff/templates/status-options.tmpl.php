@@ -33,7 +33,7 @@ if (!$nextStatuses)
 ?>
 
 <span
-    class="action-button pull-right"
+    class="action-button"
     data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>">
     <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action"

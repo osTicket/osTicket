@@ -905,16 +905,11 @@ h2 .reload {
     margin:0;
 }
 /***** top page ticket response buttons *****/
-a.post-reply {
-    color:#555!IMPORTANT;
-}
-a.post-note {
+a#post-note:hover {
     background-color:#fff9e2;
     color:#555!IMPORTANT;
 }
-a.post-note:hover {
-    color:#555!IMPORTANT;
-}
+
 .thread-entry {
     margin-bottom: 15px;
     z-index: 0;
