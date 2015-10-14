@@ -123,7 +123,7 @@
         <tr>
             <td>
               <input type="checkbox" name="assigned_alert_staff" <?php echo
-              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agent / Team'); ?>
+              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agent'); ?>
             </td>
         </tr>
         <tr>
