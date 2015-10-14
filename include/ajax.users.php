@@ -22,8 +22,8 @@ require_once INCLUDE_DIR.'class.note.php';
 
 class UsersAjaxAPI extends AjaxController {
 
-    /* Assumes search by emal for now */
-    function search($type = null) {
+    /* Assumes search by basic info for now */
+    function search($type = null, $fulltext=false) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, __('Query argument is required'));
@@ -53,15 +53,23 @@ class UsersAjaxAPI extends AjaxController {
                 ->values_flat('id', 'emails__address', 'name')
                 ->limit($limit);
 
-            global $ost;
-            $users = $ost->searcher->find($q, $users);
-            $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
-                ->distinct('id');
+            if ($fulltext) {
+                global $ost;
+                $users = $ost->searcher->find($q, $users);
+                $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+                    ->distinct('id');
 
-            if (!count($emails) && !count($users) && preg_match('`\w$`u', $q)) {
-                // Do wildcard full-text search
-                $_REQUEST['q'] = $q."*";
-                return $this->search($type);
+                if (!count($emails) && !count($users) && preg_match('`\w$`u', $q)) {
+                    // Do wildcard full-text search
+                    $_REQUEST['q'] = $q."*";
+                    return $this->search($type, $fulltext);
+                }
+            } else {
+                $users->filter(Q::any(array(
+                    'emails__address__contains' => $q,
+                    'name__contains' => $q,
+                    'org__name__contains' => $q,
+                )));
             }
 
             if ($emails = array_filter($emails)) {
