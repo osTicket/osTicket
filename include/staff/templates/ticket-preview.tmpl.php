@@ -230,15 +230,17 @@ if($options) {
 echo '</div>';
 ?>
 <script type="text/javascript">
-    $('.thread-preview-entry').click(function (){
-        if ($(this).hasClass('collapsed')) {
-            $(this).removeClass('collapsed',500);
-        } else {
-            $('.header').click(function () {
-                $(this).closest('.thread-preview-entry').addClass('collapsed',500);
-            });
-        }
-    })
+    $('.thread-preview-entry').on('click', function(){
+        if($(this).hasClass('collapsed')) {
+            $(this).removeClass('collapsed', 500);
+        }        
+    });
+    
+    $('.header').on('click', function(){
+        if(!$(this).closest('.thread-preview-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-preview-entry').addClass('collapsed', 500);
+        }        
+    });
 
-
+ 
  </script>
