@@ -48,7 +48,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $q = $_REQUEST['q'];
 
-        if (strlen($q) < 2)
+        if (strlen($q) < 3)
             return $this->encode(array());
 
         global $ost;

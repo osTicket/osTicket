@@ -34,7 +34,7 @@ class UsersAjaxAPI extends AjaxController {
         $users=array();
         $emails=array();
 
-        if (strlen($q) < 2)
+        if (strlen($q) < 3)
             return $this->encode(array());
 
         if (!$type || !strcasecmp($type, 'remote')) {
