@@ -1102,7 +1102,7 @@ implements CustomListItem, TemplateVariable, Searchable {
         'pk' => array('id'),
         'joins' => array(
             'tickets' => array(
-                'reverse' => 'TicketModel.status',
+                'reverse' => 'Ticket.status',
                 )
         )
     );

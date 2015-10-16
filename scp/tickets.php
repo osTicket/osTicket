@@ -85,7 +85,7 @@ if($_POST && !$errors):
         $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if (!$role || !$role->hasPerm(TicketModel::PERM_REPLY)) {
+            if (!$role || !$role->hasPerm(Ticket::PERM_REPLY)) {
                 $errors['err'] = __('Action denied. Contact admin for access');
             }
             else {
@@ -196,7 +196,7 @@ if($_POST && !$errors):
             break;
         case 'edit':
         case 'update':
-            if(!$ticket || !$role->hasPerm(TicketModel::PERM_EDIT))
+            if(!$ticket || !$role->hasPerm(Ticket::PERM_EDIT))
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
@@ -228,7 +228,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'claim':
-                    if(!$role->hasPerm(TicketModel::PERM_EDIT)) {
+                    if(!$role->hasPerm(Ticket::PERM_EDIT)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
                     } elseif(!$ticket->isOpen()) {
                         $errors['err'] = __('Only open tickets can be assigned');
@@ -296,7 +296,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'changeuser':
-                    if (!$role->hasPerm(TicketModel::PERM_EDIT)) {
+                    if (!$role->hasPerm(Ticket::PERM_EDIT)) {
                         $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
@@ -320,7 +320,7 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if (!$thisstaff ||
-                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
+                        !$thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s'),
                                  __('to create tickets')),
@@ -425,7 +425,7 @@ $nav->addSubMenu(function() use ($queue, $adhoc) {
 });
 
 
-if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
+if ($thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
@@ -445,7 +445,7 @@ if($ticket) {
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
     if ($_REQUEST['a']=='edit'
-            && $ticket->checkStaffPerm($thisstaff, TicketModel::PERM_EDIT)) {
+            && $ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT)) {
         $inc = 'ticket-edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
@@ -459,7 +459,7 @@ if($ticket) {
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+            $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
