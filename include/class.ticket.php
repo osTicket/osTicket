@@ -41,6 +41,8 @@ implements RestrictedAccess, Threadable, Searchable {
     static $meta = array(
         'table' => TICKET_TABLE,
         'pk' => array('ticket_id'),
+        'select_related' => array('topic', 'staff', 'user', 'team', 'dept',
+            'sla', 'thread', 'user__default_email', 'status'),
         'joins' => array(
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
@@ -100,7 +102,6 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
-
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -1860,20 +1861,10 @@ implements RestrictedAccess, Threadable, Searchable {
             'number' => new TextboxField(array(
                 'label' => __('Ticket Number')
             )),
-            'ip_address' => new TextboxField(array(
-                'label' => __('IP Address'),
-                'configuration' => array('validator' => 'ip'),
+            'created' => new DatetimeField(array(
+                'label' => __('Create Date'),
             )),
-            'source' => new TicketSourceChoiceField(array(
-                'label' => __('Ticket Source'),
-            )),
-            'isoverdue' => new BooleanField(array(
-                'label' => __('Overdue'),
-            )),
-            'isanswered' => new BooleanField(array(
-                'label' => __('Answered'),
-            )),
-            'duedate' => new DatetimeField(array(
+            'est_duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
             )),
             'reopened' => new DatetimeField(array(
@@ -1885,11 +1876,33 @@ implements RestrictedAccess, Threadable, Searchable {
             'lastupdate' => new DatetimeField(array(
                 'label' => __('Last Update'),
             )),
-            'created' => new DatetimeField(array(
-                'label' => __('Create Date'),
-            )),
             'assignee' => new AssigneeChoiceField(array(
                 'label' => __('Assignee'),
+            )),
+            'staff_id' => new AgentSelectionField(array(
+                'label' => __('Assigned Staff'),
+            )),
+            'team_id' => new TeamSelectionField(array(
+                'label' => __('Assigned Team'),
+            )),
+            'dept_id' => new DepartmentChoiceField(array(
+                'label' => __('Department'),
+            )),
+            'topic_id' => new HelpTopicChoiceField(array(
+                'label' => __('Help Topic'),
+            )),
+            'source' => new TicketSourceChoiceField(array(
+                'label' => __('Ticket Source'),
+            )),
+            'isoverdue' => new BooleanField(array(
+                'label' => __('Overdue'),
+            )),
+            'isanswered' => new BooleanField(array(
+                'label' => __('Answered'),
+            )),
+            'ip_address' => new TextboxField(array(
+                'label' => __('IP Address'),
+                'configuration' => array('validator' => 'ip'),
             )),
         );
         $tform = TicketForm::getInstance();

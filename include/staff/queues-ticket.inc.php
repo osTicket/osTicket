@@ -91,7 +91,8 @@ $emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) {
         <td width="63%" colspan="<?php echo max(1, 5-$level); ?>"><a
           href="queues.php?id=<?php echo $q->getId(); ?>"><?php
           echo Format::htmlchars($q->getFullName()); ?></a></td>
-        <td><?php echo Format::htmlchars($q->staff->getName()); ?></td>
+        <td><?php echo Format::htmlchars($q->staff ? $q->staff->getName() :
+        __('SYSTEM')); ?></td>
         <td><?php echo Format::htmlchars($q->getStatus()); ?></td>
         <td><?php echo Format::date($q->created); ?></td>
       </tr>

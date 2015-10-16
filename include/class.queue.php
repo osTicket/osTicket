@@ -58,61 +58,8 @@ class CustomQueue extends SavedSearch {
 
     function getColumns() {
         if (!count($this->columns)) {
-            if ($this->columns_id
-                && ($q = CustomQueue::lookup($this->columns_id))
-            ) {
-                // Use columns from cited queue
-                return $q->getColumns();
-            }
-
-            // Last resort — use standard columns
-            foreach (array(
-                new QueueColumn(array(
-                    "id" => 1,
-                    "heading" => "Number",
-                    "primary" => 'number',
-                    "width" => 100,
-                    "filter" => "link:ticket",
-                    "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
-                    "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
-                )),
-                new QueueColumn(array(
-                    "id" => 2,
-                    "heading" => "Created",
-                    "primary" => 'created',
-                    "width" => 100,
-                )),
-                new QueueColumn(array(
-                    "id" => 3,
-                    "heading" => "Subject",
-                    "primary" => 'cdata__subject',
-                    "width" => 250,
-                    "filter" => "link:ticket",
-                    "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
-                    "truncate" => 'ellipsis',
-                )),
-                new QueueColumn(array(
-                    "id" => 4,
-                    "heading" => "From",
-                    "primary" => 'user__name',
-                    "width" => 150,
-                )),
-                new QueueColumn(array(
-                    "id" => 5,
-                    "heading" => "Priority",
-                    "primary" => 'cdata__priority',
-                    "width" => 120,
-                )),
-                new QueueColumn(array(
-                    "id" => 6,
-                    "heading" => "Assignee",
-                    "primary" => 'assignee',
-                    "secondary" => 'team__name',
-                    "width" => 100,
-                )),
-            ) as $c) {
+            foreach (parent::getColumns() as $c)
                 $this->addColumn($c);
-            }
         }
         return $this->columns;
     }
@@ -176,8 +123,7 @@ class CustomQueue extends SavedSearch {
             $root = $this->getRoot();
             $query = $root::objects();
         }
-        $form = $form ?: $this->loadFromState($this->getCriteria());
-        return $this->mangleQuerySet($query, $form);
+        return $this->mangleQuerySet($query);
     }
 
     /**
@@ -188,7 +134,7 @@ class CustomQueue extends SavedSearch {
      * Returns:
      * <QuerySet> instance
      */
-    function getQuery($form=false, $quick_filter=false) {
+    function getQuery($form=false, $quick_filter=null) {
         // Start with basic criteria
         $query = $this->getBasicQuery($form);
 
@@ -196,7 +142,7 @@ class CustomQueue extends SavedSearch {
         if (isset($quick_filter)
             && ($qf = $this->getQuickFilterField($quick_filter))
         ) {
-            $this->filter = @QueueColumn::getOrmPath($this->filter, $query);
+            $this->filter = @SavedSearch::getOrmPath($this->filter, $query);
             $query = $qf->applyQuickFilter($query, $quick_filter,
                 $this->filter); 
         }
@@ -224,16 +170,16 @@ class CustomQueue extends SavedSearch {
         }
     }
 
-    function update($vars, &$errors) {
+    function update($vars, &$errors=array()) {
         // TODO: Move this to SavedSearch::update() and adjust
         //       AjaxSearch::_saveSearch()
         $form = $this->getForm($vars);
-        $form->setSource($vars);
         if (!$vars || !$form->isValid()) {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
-            $this->config = JsonDataEncoder::encode($form->getState());
+            $this->config = JsonDataEncoder::encode(
+                $this->isolateCriteria($form->getClean()));
         }
 
         // Set basic queue information
@@ -522,7 +468,7 @@ class QueueColumnCondition {
 
         // XXX: Move getOrmPath to be more of a utility
         // Ensure the special join is created to support custom data joins
-        $name = @QueueColumn::getOrmPath($name, $query);
+        $name = @SavedSearch::getOrmPath($name, $query);
 
         $name2 = null;
         if (preg_match('/__answers!\d+__/', $name)) {
@@ -700,16 +646,13 @@ extends VerySimpleModel {
         'ordering' => array('sort'),
         'joins' => array(
             'queue' => array(
-                'constraint' => array('queue_id' => 'CustomQueue.id'),
+                'constraint' => array('queue_id' => 'SavedSearch.id'),
             ),
         ),
     );
 
     var $_annotations;
     var $_conditions;
-
-    function __onload() {
-    }
 
     function getId() {
         return $this->id;
@@ -756,10 +699,10 @@ extends VerySimpleModel {
     }
 
     function renderBasicValue($row) {
-        $root = $this->getQueue()->getRoot();
+        $root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
         $fields = SavedSearch::getSearchableFields($root);
-        $primary = $this->getOrmPath($this->primary);
-        $secondary = $this->getOrmPath($this->secondary);
+        $primary = SavedSearch::getOrmPath($this->primary);
+        $secondary = SavedSearch::getOrmPath($this->secondary);
 
         // TODO: Consider data filter if configured
 
@@ -808,12 +751,12 @@ extends VerySimpleModel {
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
             $query = $this->addToQuery($query, $field,
-                $this->getOrmPath($this->primary, $query));
+                SavedSearch::getOrmPath($this->primary, $query));
         }
         if ($secondary = $fields[$this->secondary]) {
             list(,$field) = $secondary;
             $query = $this->addToQuery($query, $field,
-                $this->getOrmPath($this->secondary, $query));
+                SavedSearch::getOrmPath($this->secondary, $query));
         }
 
         if ($filter = $this->getFilter())
@@ -835,34 +778,6 @@ extends VerySimpleModel {
     function getDataConfigForm($source=false) {
         return new QueueColDataConfigForm($source ?: $this->ht,
             array('id' => $this->id));
-    }
-
-    function getOrmPath($name, $query=null) {
-        // Special case for custom data `__answers!id__value`. Only add the
-        // join and constraint on the query the first pass, when the query
-        // being mangled is received.
-        $path = array();
-        if ($query && preg_match('/^(.+?)__(answers!(\d+))/', $name, $path)) {
-            // Add a join to the model of the queryset where the custom data
-            // is forked from — duplicate the 'answers' join and add the
-            // constraint to the query based on the field_id
-            // $path[1] - part before the answers (user__org__entries)
-            // $path[2] - answers!xx join part
-            // $path[3] - the `xx` part of the answers!xx join component
-            $root = $query->model;
-            $meta = $root::getMeta()->getByPath($path[1]);
-            $joins = $meta['joins'];
-            if (!isset($joins[$path[2]])) {
-                $meta->addJoin($path[2], $joins['answers']);
-            }
-            // Ensure that the query join through answers!xx is only for the
-            // records which match field_id=xx
-            $query->constrain(array("{$path[1]}__{$path[2]}" =>
-                array("{$path[1]}__{$path[2]}__field_id" => (int) $path[3])
-            ));
-            // Leave $name unchanged
-        }
-        return $name;
     }
 
     function getAnnotations() {
@@ -935,8 +850,7 @@ extends VerySimpleModel {
                 if (!isset($fields[$name]))
                     // No such field exists for this queue root type
                     continue;
-                list(,$field) = $fields[$name];
-                $parts = SavedSearch::getSearchField($field, $name);
+                $parts = SavedSearch::getSearchField($fields[$name], $name);
                 $search_form = new SimpleForm($parts, $vars, array('id' => $id));
                 $search_form->getField("{$name}+search")->value = true;
                 $crit = $search_form->getClean();

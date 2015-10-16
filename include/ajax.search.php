@@ -28,9 +28,12 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create();
-        $form = $search->getFormFromSession('advsearch') ?: $search->getForm();
-        $matches = SavedSearch::getSupportedTicketMatches();
+        $search = SavedSearch::create(array(
+            'root' => 'T',
+        ));
+        $search->config = $_SESSION['advsearch'];
+        $form = $search->getForm();
+        $matches = $search->getSupportedMatches();
 
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
@@ -41,37 +44,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        @list($type, $id) = explode('!', $name, 2);
+        $search = SavedSearch::create(array('root'=>'T'));
+        $searchable = $search->getSupportedMatches();
+        if (!($F = $searchable[$name]))
+            Http::response(404, 'No such field: ', print_r($id, true));
 
-        switch (strtolower($type)) {
-        case ':ticket':
-        case ':user':
-        case ':organization':
-        case ':field':
-            // Support nested field ids for list properties and such
-            if (strpos($id, '.') !== false)
-                list(,$id) = explode('!', $id, 2);
-            if (!($field = DynamicFormField::lookup($id)))
-                Http::response(404, 'No such field: ', print_r($id, true));
-
-            $impl = $field->getImpl();
-            $impl->set('label', sprintf('%s / %s',
-                $field->form->getLocal('title'), $field->getLocal('label')
-            ));
-            break;
-
-        default:
-            $extended = SavedSearch::getExtendedTicketFields();
-
-            if (isset($extended[$name])) {
-                $impl = $extended[$name];
-                break;
-            }
-            Http::response(400, 'No such field type');
-        }
-
-        $fields = SavedSearch::getSearchField($impl, $name);
-        $form = new SimpleForm($fields);
+        $fields = SavedSearch::getSearchField($F, $name);
+        $form = new AdvancedSearchForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
             $F->value = true;
@@ -83,24 +62,21 @@ class SearchAjaxAPI extends AjaxController {
         return $this->encode(array(
             'success' => true,
             'html' => $html,
-            // Send the current formfield UID to be resent with the next
-            // addField request and set above
-            'ff_uid' => FormField::$uid,
         ));
     }
 
     function doSearch() {
         global $thisstaff;
 
-        $search = SavedSearch::create();
+        $search = SavedSearch::create(array('root' => 'T'));
 
         $form = $search->getForm($_POST);
         if (!$form->isValid()) {
-            $matches = SavedSearch::getSupportedTicketMatches();
+            $matches = $search->getSupportedMatches();
             include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
             return;
         }
-        $_SESSION['advsearch'] = $form->getState();
+        $_SESSION['advsearch'] = $search->isolateCriteria($form->getClean());
 
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue=adhoc',

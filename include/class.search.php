@@ -670,6 +670,7 @@ class SavedSearch extends VerySimpleModel {
     const FLAG_INHERIT_CRITERIA = 0x0008; // Include criteria from parent
 
     var $criteria;
+    private $columns;
 
     static function forStaff(Staff $agent) {
         return static::objects()->filter(Q::any(array(
@@ -703,48 +704,23 @@ class SavedSearch extends VerySimpleModel {
 
     function getCriteria() {
         if (!isset($this->criteria)) {
-            $this->criteria = JsonDataParser::decode($this->config);
-        }
-        return $this->criteria;
-    }
-
-    function getSearchForm() {
-        if ($state = JsonDataParser::parse($this->config)) {
-            $form = $this->loadFromState($state);
-            $form->loadState($state);
-            return $form;
-        }
-        return $this->getForm();
-    }
-
-    function loadFromState($source=false) {
-        // Pull out 'other' fields from the state so the fields will be
-        // added to the form. The state will be loaded below
-        $state = $source ?: array();
-        foreach ($state as $k=>$v) {
-            $info = array();
-            if (!preg_match('/^:(\w+)(?:!(\d+))?\+search/', $k, $info)) {
-                continue;
+            $old = @$this->config[0] === '{';
+            $this->criteria = is_string($this->config)
+                ? JsonDataParser::decode($this->config)
+                : $this->config;
+            // Auto-upgrade criteria to new format
+            if ($old) {
+                // TODO: Upgrade old ORM path names
+                $this->criteria = $this->isolateCriteria($this->criteria);
             }
-            list($k,) = explode('+', $k, 2);
-            $state['fields'][] = $k;
         }
-        return $this->getForm($state);
+        return $this->criteria ?: array();
     }
 
-    function getFormFromSession($key) {
-        if (isset($_SESSION[$key])) {
-            return $this->loadFromState($_SESSION[$key]);
-        }
-    }
-
-    function getForm($source=false) {
-        // XXX: Ensure that the UIDs generated for these fields are
-        //      consistent between requests
-
+    function getForm($source=null) {
         $searchable = $this->getCurrentSearchFields($source);
         $fields = array(
-            'keywords' => new TextboxField(array(
+            ':keywords' => new TextboxField(array(
                 'id' => 3001,
                 'configuration' => array(
                     'size' => 40,
@@ -755,8 +731,8 @@ class SavedSearch extends VerySimpleModel {
                 ),
             )),
         );
-        foreach ($searchable as $name=>$field) {
-            $fields = array_merge($fields, self::getSearchField($field, $name));
+        foreach ($searchable as $path=>$field) {
+            $fields = array_merge($fields, self::getSearchField($field, $path));
         }
 
         // Don't send the state as the souce because it is not in the
@@ -769,139 +745,77 @@ class SavedSearch extends VerySimpleModel {
                 if (substr($F->get('name'), -7) == '+search' && $F->getClean())
                     $selected += 1;
                 // Consider keyword searches
-                elseif ($F->get('name') == 'keywords' && $F->getClean())
+                elseif ($F->get('name') == ':keywords' && $F->getClean())
                     $selected += 1;
             }
             if (!$selected)
                 $form->addError(__('No fields selected for searching'));
         });
-        if ($source)
-            $form->loadState($source);
+
+        // Load state from current configuraiton
+        foreach ($this->getCriteria() as $I) {
+            list($path, $method, $value) = $I;
+            if (!($F = $form->getField("{$path}+search")))
+                continue;
+            $F->value = true;
+
+            if (!($F = $form->getField("{$path}+method")))
+                continue;
+            $F->value = $method;
+
+            if ($value && ($F = $form->getField("{$path}+{$method}")))
+                $F->value = $value;
+        }
         return $form;
     }
 
-    function getCurrentSearchFields($source=false) {
-        $core = array(
-            'status_id' =>  new TicketStatusChoiceField(array(
-                'id' => 3101,
-                'label' => __('Status'),
-            )),
-            'dept_id'   =>  new DepartmentChoiceField(array(
-                'id' => 3102,
-                'label' => __('Department'),
-            )),
-            'assignee'  =>  new AssigneeChoiceField(array(
-                'id' => 3103,
-                'label' => __('Assignee'),
-            )),
-            'topic_id'  =>  new HelpTopicChoiceField(array(
-                'id' => 3104,
-                'label' => __('Help Topic'),
-            )),
-            'created'   =>  new DateTimeField(array(
-                'id' => 3105,
-                'label' => __('Created'),
-            )),
-            'est_duedate'   =>  new DateTimeField(array(
-                'id' => 3106,
-                'label' => __('Due Date'),
-            )),
+    function getCurrentSearchFields($source=array()) {
+        static $basic = array(
+            'Ticket' => array(
+                'status__state',
+                'dept_id',
+                'assignee',
+                'topic_id',
+                'created',
+                'est_duedate',
+            )
         );
 
-        // Add 'other' fields added dynamically
-        if (is_array($source) && isset($source['fields'])) {
-            $extended = self::getExtendedTicketFields();
-            foreach ($source['fields'] as $f) {
-                $info = array();
-                if (isset($extended[$f])) {
-                    $core[$f] = $extended[$f];
-                    continue;
-                }
-                if (!preg_match('/^:(\w+)!(\d+)/', $f, $info)) {
-                    continue;
-                }
-                $id = $info[2];
-                if (is_numeric($id) && ($field = DynamicFormField::lookup($id))) {
-                    $impl = $field->getImpl();
-                    $impl->set('label', sprintf('%s / %s',
-                        $field->form->getLocal('title'), $field->getLocal('label')
-                    ));
-                    $core[":{$info[1]}!{$info[2]}"] = $impl;
-                }
-            }
+        $all = $this->getSupportedMatches();
+        $core = array();
+        foreach ($basic[$this->getRoot()] as $path)
+            if (isset($all[$path]))
+                $core[$path] = $all[$path];
+
+        // Add others from current configuration
+        foreach ($this->getCriteria() as $C) {
+            list($path) = $C;
+            if (isset($all[$path]))
+                $core[$path] = $all[$path];
         }
+
+        if (isset($source['fields']))
+            foreach ($source['fields'] as $path)
+                if (isset($all[$path]))
+                    $core[$path] = $all[$path];
+
         return $core;
     }
-    static function getSupportedTicketMatches() {
-        // User information
-        $matches = array(
-            __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
-        );
-        foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
-            $form = $F::objects()->one();
-            $fields = &$matches[$form->getLocal('title')];
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $fields[":$k!".$f->get('id')] = __(ucfirst($k)).' / '.$f->getLocal('label');
-                /* TODO: Support matches on list item properties
-                if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
-                    foreach ($fi->getSubFields() as $p) {
-                        $fields[":$k.".$f->get('id').'.'.$p->get('id')]
-                            = __(ucfirst($k)).' / '.$f->getLocal('label').' / '.$p->getLocal('label');
-                    }
-                }
-                */
-            }
-        }
-        $fields = &$matches[__('Custom Forms')];
-        foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $key = sprintf(':field!%d', $f->get('id'), $f->get('id'));
-                $fields[$key] = $form->getLocal('title').' / '.$f->getLocal('label');
-            }
-        }
-        return $matches;
-    }
 
-    static function getExtendedTicketFields() {
-        return array(
-#            ':user' =>       new UserChoiceField(array(
-#                'label' => __('Ticket Owner'),
-#            )),
-#            ':org' =>        new OrganizationChoiceField(array(
-#                'label' => __('Organization'),
-#            )),
-            ':closed' =>     new DatetimeField(array(
-                'id' => 3204,
-                'label' => __('Closed Date'),
-            )),
-            ':thread__lastresponse' => new DatetimeField(array(
-                'id' => 3205,
-                'label' => __('Last Response'),
-            )),
-            ':thread__lastmessage' => new DatetimeField(array(
-                'id' => 3206,
-                'label' => __('Last Message'),
-            )),
-            ':source' =>     new TicketSourceChoiceField(array(
-                'id' => 3201,
-                'label' => __('Source'),
-            )),
-            ':state' =>      new TicketStateChoiceField(array(
-                'id' => 3202,
-                'label' => __('State'),
-            )),
-            ':flags' =>      new TicketFlagChoiceField(array(
-                'id' => 3203,
-                'label' => __('Flags'),
-            )),
-        );
+    function getSupportedMatches() {
+        return static::getSearchableFields($this->getRoot());
     }
 
     /**
+     * Trace ORM fields from a base object and retrieve a complete list of
+     * fields which can be used in an ORM query based on the base object.
+     * The base object must implement Searchable interface and extend from
+     * VerySimpleModel. Then all joins from the object are also inspected,
+     * and any which implement the Searchable interface are traversed and
+     * automatically added to the list. The resulting list is cached based
+     * on the $base class, so multiple calls for the same $base return
+     * quickly.
+     *
      * Parameters:
      * $base - Class, name of a class implementing Searchable
      * $recurse - int, number of levels to recurse, default is 2
@@ -910,7 +824,7 @@ class SavedSearch extends VerySimpleModel {
      *      forms
      */
     static function getSearchableFields($base, $recurse=2, $cache=true,
-        $customData=true
+        $customData=true, $exclude=array()
     ) {
         static $cache, $otherFields;
 
@@ -934,11 +848,13 @@ class SavedSearch extends VerySimpleModel {
         }
 
         if ($recurse) {
+            $exclude[$base] = 1;
             foreach ($base::getMeta('joins') as $path=>$j) {
                 $fc = $j['fkey'][0];
-                if ($fc == $base || $j['list'] || $j['reverse'])
+                if (isset($exclude[$fc]) || $j['list'])
                     continue;
-                foreach (static::getSearchableFields($fc, $recurse-1, false)
+                foreach (static::getSearchableFields($fc, $recurse-1, false,
+                    true, $exclude)
                 as $path2=>$F) {
                     if (is_array($F)) {
                         list($label, $field) = $F;
@@ -978,19 +894,19 @@ class SavedSearch extends VerySimpleModel {
         return $fields;
     }
 
-    static function getSearchField($field, $name) {
-        $baseId = $field->getId() * 20;
+    static function getSearchField($F, $name) {
+        list($label, $field) = $F;
+
         $pieces = array();
         $pieces["{$name}+search"] = new BooleanField(array(
-            'id' => $baseId + 50000,
+            'id' => sprintf('%u', crc32($name)) >> 1,
             'configuration' => array(
-                'desc' => $field->getLocal('label'),
+                'desc' => $label ?: $field->getLocal('label'),
                 'classes' => 'inline',
             ),
         ));
         $methods = $field->getSearchMethods();
         $pieces["{$name}+method"] = new ChoiceField(array(
-            'id' => $baseId + 50001,
             'choices' => $methods,
             'default' => key($methods),
             'visibility' => new VisibilityConstraint(new Q(array(
@@ -1002,7 +918,6 @@ class SavedSearch extends VerySimpleModel {
             if (!$w)
                 continue;
             list($class, $args) = $w;
-            $args['id'] = $baseId + 50002 + $offs++;
             $args['required'] = true;
             $args['__searchval__'] = true;
             $args['visibility'] = new VisibilityConstraint(new Q(array(
@@ -1013,17 +928,16 @@ class SavedSearch extends VerySimpleModel {
         return $pieces;
     }
 
-    /**
-     * Collect information on the search form.
-     *
-     * Returns:
-     * (<array(name => array('field' => <FormField>, 'method' => <string>,
-     *      'value' => <mixed>, 'active' => <bool>))>), which will help to
-     * explain each field active in the search form.
-     */
+    function getField($path) {
+        $searchable = $this->getSupportedMatches();
+        return $searchable[$path];
+    }
+
+    // Remove this and adjust advanced-search-criteria template to use the
+    // getCriteria() list and getField()
     function getSearchFields($form=false) {
         $form = $form ?: $this->getForm();
-        $searchable = $this->getCurrentSearchFields($form->state);
+        $searchable = $this->getCurrentSearchFields();
         $info = array();
         foreach ($form->getFields() as $f) {
             if (substr($f->get('name'), -7) == '+search') {
@@ -1032,7 +946,7 @@ class SavedSearch extends VerySimpleModel {
                 // Determine the search method and fetch the original field
                 if (($M = $form->getField("{$name}+method"))
                     && ($method = $M->getClean())
-                    && ($field = $searchable[$name])
+                    && (list(,$field) = $searchable[$name])
                 ) {
                     // Request the field to generate a search Q for the
                     // search method and given value
@@ -1051,6 +965,104 @@ class SavedSearch extends VerySimpleModel {
     }
 
     /**
+     * Take the criteria from the SavedSearch fields setup and isolate the
+     * field name being search, the method used for searhing, and the method-
+     * specific data entered in the UI.
+     */
+    function isolateCriteria($criteria, $root=null) {
+        $searchable = static::getSearchableFields($root ?: $this->getRoot());
+        $items = array();
+        if (!$criteria)
+            return null;
+        foreach ($criteria as $k=>$v) {
+            if (substr($k, -7) === '+method') {
+                list($name,) = explode('+', $k, 2);
+                if (!isset($searchable[$name]))
+                    continue;
+
+                // Require checkbox to be checked too
+                if (!$criteria["{$name}+search"])
+                    continue;
+
+                // Lookup the field to search this condition
+                list($label, $field) = $searchable[$name];
+
+                // Get the search method and value
+                $method = $v;
+                // Not all search methods require a value
+                $value = $criteria["{$name}+{$method}"];
+
+                $items[] = array($name, $method, $value);
+            }
+        }
+        return $items;
+    }
+
+    function getColumns() {
+        if ($this->columns_id
+            && ($q = CustomQueue::lookup($this->columns_id))
+        ) {
+            // Use columns from cited queue
+            return $q->getColumns();
+        }
+
+        if (isset($this->columns))
+            return $this->columns;
+
+        // Last resort — use standard columns
+        $this->columns = array(
+            QueueColumn::create(array(
+                "id" => 1,
+                "heading" => "Number",
+                "primary" => 'number',
+                "width" => 100,
+                "filter" => "link:ticketP",
+                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
+                "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
+            )),
+            QueueColumn::create(array(
+                "id" => 2,
+                "heading" => "Created",
+                "primary" => 'created',
+                "width" => 100,
+            )),
+            QueueColumn::create(array(
+                "id" => 3,
+                "heading" => "Subject",
+                "primary" => 'cdata__subject',
+                "width" => 250,
+                "filter" => "link:ticket",
+                "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
+                "truncate" => 'ellipsis',
+            )),
+            QueueColumn::create(array(
+                "id" => 4,
+                "heading" => "From",
+                "primary" => 'user__name',
+                "width" => 150,
+            )),
+            QueueColumn::create(array(
+                "id" => 5,
+                "heading" => "Priority",
+                "primary" => 'cdata__priority',
+                "width" => 120,
+            )),
+            QueueColumn::create(array(
+                "id" => 6,
+                "heading" => "Assignee",
+                "primary" => 'assignee',
+                "secondary" => 'team__name',
+                "width" => 100,
+            )),
+        );
+        
+        foreach ($this->columns as $c)
+            $c->queue = $this;
+
+        return $this->columns;
+    }
+
+    /**
      * Get a description of a field in a search. Expects an entry from the
      * array retrieved in ::getSearchFields()
      */
@@ -1058,67 +1070,81 @@ class SavedSearch extends VerySimpleModel {
         return $info['field']->describeSearch($info['method'], $info['value'], $name);
     }
 
+    function getQuery() {
+        $root = $this->getRoot();
+        $base = $root::objects();
+        $query = $this->mangleQuerySet($base);
+
+        // Apply column, annotations and conditions additions
+        foreach ($this->getColumns() as $C) {
+            $query = $C->mangleQuery($query);
+        }
+        return $query;
+    }
+
     function mangleQuerySet(QuerySet $qs, $form=false) {
-        $form = $form ?: $this->getForm();
-        $searchable = $this->getCurrentSearchFields($form->state);
         $qs = clone $qs;
+        $searchable = $this->getSupportedMatches();
 
         // Figure out fields to search on
-        foreach ($this->getSearchFields($form) as $name=>$info) {
-            if (!$info['active'])
-                continue;
-            $field = $info['field'];
-            $filter = new Q();
-            if ($name[0] == ':') {
-                // This was an 'other' field, fetch a special "name"
-                // for it which will be the ORM join path
-                static $other_paths = array(
-                    ':ticket' => 'cdata__',
-                    ':user' => 'user__cdata__',
-                    ':organization' => 'user__org__cdata__',
-                );
-                $column = $field->get('name') ?: 'field_'.$field->get('id');
-                list($type,$id) = explode('!', $name, 2);
-                // XXX: Last mile — find a better idea
-                switch (array($type, $column)) {
-                case array(':user', 'name'):
-                    $name = 'user__name';
-                    break;
-                case array(':user', 'email'):
-                    $name = 'user__emails__address';
-                    break;
-                case array(':organization', 'name'):
-                    $name = 'user__org__name';
-                    break;
-                default:
-                    if ($type == ':field' && $id) {
-                        $name = 'entries__answers__value';
-                        $filter->add(array('entries__answers__field_id' => $id));
-                        break;
-                    }
-                    if ($OP = $other_paths[$type])
-                        $name = $OP . $column;
-                    else
-                        $name = substr($name, 1);
+        foreach ($this->getCriteria() as $I) {
+            list($name, $method, $value) = $I;
+
+            // Consider keyword searching
+            if ($name === ':keywords') {
+                global $ost;
+                $qs = $ost->searcher->find($keywords, $qs);
+            }
+            else {
+                // XXX: Move getOrmPath to be more of a utility
+                // Ensure the special join is created to support custom data joins
+                $name = @static::getOrmPath($name, $qs);
+
+                $name2 = null;
+                if (preg_match('/__answers!\d+__/', $name)) {
+                    // Ensure that only one record is returned from the join through
+                    // the entry and answers joins
+                    $name2 = $this->getAnnotationName().'2';
+                    $query->annotate(array($name2 => SqlAggregate::MAX($name)));
                 }
-            }
 
-            // Add the criteria to the QuerySet
-            if ($Q = $field->getSearchQ($info['method'], $info['value'], $name)) {
-                $filter->add($Q);
-                $qs = $qs->filter($filter);
+                // Fetch a criteria Q for the query
+                if (list(,$field) = $searchable[$name])
+                    if ($q = $field->getSearchQ($method, $value, $name2 ?: $name))
+                        $qs = $qs->filter($q);
             }
         }
-
-        // Consider keyword searching
-        if ($keywords = $form->getField('keywords')->getClean()) {
-            global $ost;
-
-            $qs = $ost->searcher->find($keywords, $qs);
-        }
-
         return $qs;
     }
+
+    function getOrmPath($name, $query=null) {
+        // Special case for custom data `__answers!id__value`. Only add the
+        // join and constraint on the query the first pass, when the query
+        // being mangled is received.
+        $path = array();
+        if ($query && preg_match('/^(.+?)__(answers!(\d+))/', $name, $path)) {
+            // Add a join to the model of the queryset where the custom data
+            // is forked from — duplicate the 'answers' join and add the
+            // constraint to the query based on the field_id
+            // $path[1] - part before the answers (user__org__entries)
+            // $path[2] - answers!xx join part
+            // $path[3] - the `xx` part of the answers!xx join component
+            $root = $query->model;
+            $meta = $root::getMeta()->getByPath($path[1]);
+            $joins = $meta['joins'];
+            if (!isset($joins[$path[2]])) {
+                $meta->addJoin($path[2], $joins['answers']);
+            }
+            // Ensure that the query join through answers!xx is only for the
+            // records which match field_id=xx
+            $query->constrain(array("{$path[1]}__{$path[2]}" =>
+                array("{$path[1]}__{$path[2]}__field_id" => (int) $path[3])
+            ));
+            // Leave $name unchanged
+        }
+        return $name;
+    }
+
 
     function checkAccess(Staff $agent) {
         return $agent->getId() == $this->staff_id
@@ -1165,13 +1191,19 @@ class SavedSearch extends VerySimpleModel {
     }
 }
 
-class AdvancedSearchForm extends SimpleForm {
-    var $state;
-
-    function __construct($fields, $state) {
-        parent::__construct($fields);
-        $this->state = $state;
+class AdhocSearch
+extends SavedSearch {
+    function getName() {
+        return __('Ad-Hoc Search');
     }
+
+    function getHref() {
+        return 'tickets.php?queue=adhoc';
+    }
+}
+
+class AdvancedSearchForm extends SimpleForm {
+    static $id = 1337;
 }
 
 // Advanced search special fields
@@ -1318,6 +1350,12 @@ class AgentSelectionField extends ChoiceField {
     }
 }
 
+class TeamSelectionField extends ChoiceField {
+    function getChoices() {
+        return Team::getTeams();
+    }
+}
+
 class TicketStateChoiceField extends ChoiceField {
     function getChoices($verbose=false) {
         return array(
@@ -1370,13 +1408,7 @@ class TicketFlagChoiceField extends ChoiceField {
 
 class TicketSourceChoiceField extends ChoiceField {
     function getChoices($verbose=false) {
-        return array(
-            'web' => __('Web'),
-            'email' => __('Email'),
-            'phone' => __('Phone'),
-            'api' => __('API'),
-            'other' => __('Other'),
-        );
+        return Ticket::getSources();
     }
 
     function getSearchMethods() {

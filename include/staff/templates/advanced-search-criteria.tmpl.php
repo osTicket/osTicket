@@ -75,15 +75,11 @@ if (!$first_field)
     <option value="">— <?php echo __('Add Other Field'); ?> —</option>
 <?php
 if (is_array($matches)) {
-foreach ($matches as $name => $fields) { ?>
-    <optgroup label="<?php echo $name; ?>">
-<?php
-    foreach ($fields as $id => $desc) { ?>
-        <option value="<?php echo $id; ?>" <?php
-            if (isset($state[$id])) echo 'disabled="disabled"';
-        ?>><?php echo ($desc instanceof FormField ? $desc->getLocal('label') : $desc); ?></option>
-<?php } ?>
-    </optgroup>
+foreach ($matches as $path => $F) {
+    list($label, $field) = $F; ?>
+    <option value="<?php echo $path; ?>" <?php
+        if (isset($state[$path])) echo 'disabled="disabled"';
+        ?>><?php echo $label; ?></option>
 <?php }
 } ?>
 </select>
@@ -98,7 +94,6 @@ $(function() {
       success: function(json) {
         if (!json.success)
           return false;
-        ff_uid = json.ff_uid;
         $(that).find(':selected').prop('disabled', true);
         $('#extra-fields').append($(json.html));
       }
