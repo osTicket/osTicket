@@ -393,10 +393,11 @@ as $q) {
 
 if (isset($_SESSION['advsearch'])) {
         // XXX: De-duplicate and simplify this code
-    $adhoc = SavedSearch::create(array('title' => __("Advanced Search")));
-    $form = $adhoc->getFormFromSession('advsearch');
-    $adhoc->config = $form->getState();
-
+    $adhoc = SavedSearch::create(array(
+        'title' => __("Advanced Search"),
+        'root' => 'T',
+    ));
+    $adhoc->config = $_SESSION['advsearch'];
     if ($_REQUEST['queue'] == 'adhoc')
         $queue = $adhoc;
 }
