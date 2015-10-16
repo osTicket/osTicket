@@ -2366,9 +2366,6 @@ class SqlCompiler {
      * $Q - (Q) constraint represented in a Q instance
      * $model - (VerySimpleModel) root model for all the field references in
      *      the Q instance
-     * $slot - (int) slot for inputs to be placed. Useful to differenciate
-     *      inputs placed in the joins and where clauses for SQL engines
-     *      which do not support named parameters.
      *
      * Returns:
      * (CompiledExpression) object containing the compiled expression (with
@@ -2376,13 +2373,14 @@ class SqlCompiler {
      * of the CompiledExpression will allow the compiler to place the
      * constraint properly in the WHERE or HAVING clause appropriately.
      */
-    function compileQ(Q $Q, $model, $slot=false) {
+    function compileQ(Q $Q, $model, $parens=true) {
         $filter = array();
         $type = CompiledExpression::TYPE_WHERE;
         foreach ($Q->constraints as $field=>$value) {
             // Handle nested constraints
             if ($value instanceof Q) {
-                $filter[] = $T = $this->compileQ($value, $model, $slot);
+                $filter[] = $T = $this->compileQ($value, $model,
+                    !$Q->isCompatibleWith($value));
                 // Bubble up HAVING constraints
                 if ($T instanceof CompiledExpression
                         && $T->type == CompiledExpression::TYPE_HAVING)
@@ -2408,7 +2406,8 @@ class SqlCompiler {
                         $criteria["{$field}__{$f}"] = $v;
                     }
                 }
-                $filter[] = $this->compileQ(new Q($criteria), $model, $slot);
+                $filter[] = $this->compileQ(new Q($criteria), $model,
+                    $Q->ored || $Q->negated);
             }
             // Handle simple field = <value> constraints
             else {
@@ -2430,19 +2429,24 @@ class SqlCompiler {
                     $filter[] = sprintf($op, $field, $this->input($value));
             }
         }
-        $glue = $Q->isOred() ? ' OR ' : ' AND ';
+        $glue = $Q->ored ? ' OR ' : ' AND ';
         $clause = implode($glue, $filter);
-        if (count($filter) > 1)
+        if (($Q->negated || $parens) && count($filter) > 1)
             $clause = '(' . $clause . ')';
-        if ($Q->isNegated())
+        if ($Q->negated)
             $clause = 'NOT '.$clause;
         return new CompiledExpression($clause, $type);
     }
 
     function compileConstraints($where, $model) {
         $constraints = array();
+        $prev = $parens = false;
         foreach ($where as $Q) {
-            $constraints[] = $this->compileQ($Q, $model);
+            $parens = $parens || !($prev && $prev->isCompatibleWith($Q));
+            $prev = $Q;
+        }
+        foreach ($where as $Q) {
+            $constraints[] = $this->compileQ($Q, $model, $parens);
         }
         return $constraints;
     }
@@ -2786,7 +2790,7 @@ class MySqlCompiler extends SqlCompiler {
                     $field = $sort->toSql($this, $model);
                 }
                 else {
-                    if ($sort[0] == '-') {
+                    if ($sort[0] === '-') {
                         $dir = 'DESC';
                         $sort = substr($sort, 1);
                     }
@@ -3352,6 +3356,15 @@ class Q implements Serializable {
 
     function union() {
         $this->ored = true;
+    }
+
+    /**
+     * Two neighboring Q's are compatible in a where clause if they have
+     * the same boolean AND / OR operator. Negated Q's should always use
+     * parentheses if there is more than one criterion.
+     */
+    function isCompatibleWith(Q $other) {
+        return $this->ored == $other->ored;
     }
 
     function add($constraints) {
