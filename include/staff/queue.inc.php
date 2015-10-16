@@ -63,9 +63,9 @@ else {
         <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">
 <?php
-            $form = $queue->getSearchForm();
+            $form = $queue->getForm();
             $search = $queue;
-            $matches = SavedSearch::getSupportedTicketMatches();
+            $matches = $queue->getSupportedMatches();
             include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php';
 ?>
         </div>
