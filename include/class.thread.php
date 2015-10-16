@@ -27,7 +27,7 @@ class Thread extends VerySimpleModel {
             'ticket' => array(
                 'constraint' => array(
                     'object_type' => "'T'",
-                    'object_id' => 'TicketModel.ticket_id',
+                    'object_id' => 'Ticket.ticket_id',
                 ),
             ),
             'task' => array(

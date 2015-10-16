@@ -4,7 +4,7 @@ parse_str($_SERVER['QUERY_STRING'], $args);
 $args['t'] = 'tickets';
 unset($args['p'], $args['_pjax']);
 
-$tickets = TicketModel::objects();
+$tickets = Ticket::objects();
 
 if ($user) {
     $filter = $tickets->copy()

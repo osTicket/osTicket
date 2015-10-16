@@ -58,7 +58,7 @@ if($ticket->isOverdue())
         <div class="pull-right flush-right">
             <?php
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
-                    || $role->hasPerm(TicketModel::PERM_EDIT)
+                    || $role->hasPerm(Ticket::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
                 <i class="icon-caret-down pull-right"></i>
@@ -69,14 +69,14 @@ if($ticket->isOverdue())
             // Status change options
             echo TicketStatus::status_options();
 
-            if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
+            if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
                 <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
                     echo __('Edit'); ?></a>
             <?php
             } ?>
             <?php
             // Transfer
-            if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
+            if ($role->hasPerm(Ticket::PERM_TRANSFER)) {?>
             <a class="ticket-action action-button pull-right" id="ticket-transfer"
                 data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i> <?php
@@ -86,7 +86,7 @@ if($ticket->isOverdue())
 
             <?php
             // Assign
-            if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
+            if ($role->hasPerm(Ticket::PERM_ASSIGN)) {?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
@@ -128,7 +128,7 @@ if($ticket->isOverdue())
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
-                 if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
+                 if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
                     <li><a class="change-user" href="#tickets/<?php
                     echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
                     echo __('Change Owner'); ?></a></li>
@@ -180,7 +180,7 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
-                  if ($role->hasPerm(TicketModel::PERM_DELETE)) {
+                  if ($role->hasPerm(Ticket::PERM_DELETE)) {
                      ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php
                     echo $ticket->getId(); ?>/status/delete"
@@ -490,14 +490,14 @@ $tcount = $ticket->getThreadEntries($types)->count();
 >
     <ul class="tabs">
         <?php
-        if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
         <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
         <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
-    if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+    if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
     <form id="reply" class="tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
@@ -652,7 +652,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <td>
                     <?php
                     $outstanding = false;
-                    if ($role->hasPerm(TicketModel::PERM_CLOSE)
+                    if ($role->hasPerm(Ticket::PERM_CLOSE)
                             && is_string($warning=$ticket->isCloseable())) {
                         $outstanding =  true;
                         echo sprintf('<div class="warning-banner">%s</div>', $warning);
@@ -661,7 +661,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <?php
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
-                    if ($role->hasPerm(TicketModel::PERM_CLOSE) && !$outstanding)
+                    if ($role->hasPerm(Ticket::PERM_CLOSE) && !$outstanding)
                         $states = array_merge($states, array('closed'));
 
                     foreach (TicketStatusList::getStatuses(
@@ -750,7 +750,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                         $statusId = $info['note_status_id'] ?: $ticket->getStatusId();
                         $states = array('open');
                         if ($ticket->isCloseable() === true
-                                && $role->hasPerm(TicketModel::PERM_CLOSE))
+                                && $role->hasPerm(Ticket::PERM_CLOSE))
                             $states = array_merge($states, array('closed'));
                         foreach (TicketStatusList::getStatuses(
                                     array('states' => $states)) as $s) {
