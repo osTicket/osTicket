@@ -42,7 +42,7 @@ class ThreadAjaxAPI extends AjaxController {
         }
 
 
-        $hits = TicketModel::objects()
+        $hits = Ticket::objects()
             ->filter(Q::any(array(
                 'number__startswith' => $_REQUEST['q'],
             )))
