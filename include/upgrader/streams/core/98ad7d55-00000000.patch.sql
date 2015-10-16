@@ -1,6 +1,7 @@
 /**
  * @version v1.11
  * @signature 00000000000000000000000000000000
+ * @title Custom Queues, Columns
  *
  * Add custom queues, custom columns, and quick filter capabilities to the
  * system.
