@@ -22,6 +22,7 @@ include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
+include_once(INCLUDE_DIR.'class.export.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
@@ -1460,11 +1461,12 @@ implements RestrictedAccess, Threadable {
         // confused with autorespond on new message setting
         if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
-
+            $dept = $this->getDept();
+            $autoclaim = ($cfg->autoClaimTickets() && !$dept->disableAutoClaim());
             // Auto-assign to closing staff or last respondent
             // If the ticket is closed and auto-claim is not enabled then put the
             // ticket back to unassigned pool.
-            if (!$cfg->autoClaimTickets()) {
+            if (!$autoclaim) {
                 $this->setStaffId(0);
             }
             elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
@@ -2229,8 +2231,15 @@ implements RestrictedAccess, Threadable {
             }
         }
 
-        // Find the last message from this user on this thread
-        if ($this->getThread()->getLastMessage(array(
+        // Do not auto-respond to bounces and other auto-replies
+        if ($alerts)
+            $alerts = isset($vars['mailflags'])
+                ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
+                : true;
+        if ($alerts && $message->isBounceOrAutoReply())
+            $alerts = false;
+
+        if ($alerts && $this->getThread()->getLastMessage(array(
             'user_id' => $message->user_id,
             'id__lt' => $message->id,
             'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
@@ -2239,21 +2248,13 @@ implements RestrictedAccess, Threadable {
             $alerts = false;
         }
 
+        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
+
+        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
+            $this->notifyCollaborators($message, array('signature' => ''));
 
         if (!$alerts)
             return $message; //Our work is done...
-
-        // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['mailflags'])
-            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
-            : true;
-        if ($autorespond && $message->isAutoReply())
-            $autorespond = false;
-
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
-
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
-            $this->notifyCollaborators($message, array('signature' => ''));
 
         $dept = $this->getDept();
         $variables = array(
@@ -2399,6 +2400,7 @@ implements RestrictedAccess, Threadable {
         if (!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
+        $dept = $this->getDept();
         $assignee = $this->getStaff();
         // Set status - if checked.
         if ($vars['reply_status_id']
@@ -2407,10 +2409,12 @@ implements RestrictedAccess, Threadable {
             $this->setStatus($vars['reply_status_id']);
         }
 
+
         // Claim on response bypasses the department assignment restrictions
-        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()
-            && $cfg->autoClaimTickets()
-        ) {
+        $claim = ($claim
+                && $cfg->autoClaimTickets()
+                && !$dept->disableAutoClaim());
+        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
 
@@ -2422,11 +2426,12 @@ implements RestrictedAccess, Threadable {
         if (!$alert)
             return $response;
 
-        $dept = $this->getDept();
+        $options = array();
+        $email = $dept->getEmail();
 
         if ($thisstaff && $vars['signature']=='mine')
             $signature=$thisstaff->getSignature();
-        elseif ($vars['signature']=='dept' && $dept && $dept->isPublic())
+        elseif ($vars['signature']=='dept' && $dept->isPublic())
             $signature=$dept->getSignature();
         else
             $signature='';

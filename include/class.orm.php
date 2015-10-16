@@ -1292,6 +1292,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function asView() {
         $unique = spl_object_hash($this);
         $classname = "QueryView{$unique}";
+
+        if (class_exists($classname))
+            return $classname;
+
         $class = <<<EOF
 class {$classname} extends VerySimpleModel {
     static \$meta = array(
@@ -1534,9 +1538,11 @@ class ModelInstanceManager extends ResultSet {
                     $tail = array_pop($path);
                     $m = $model;
                     foreach ($path as $field) {
-                        $m = $m->get($field);
+                        if (!($m = $m->get($field)))
+                            break;
                     }
-                    $m->set($tail, $this->getOrBuild($model_class, $record));
+                    if ($m)
+                        $m->set($tail, $this->getOrBuild($model_class, $record));
                 }
                 $offset += count($fields);
             }

@@ -62,6 +62,7 @@ implements TemplateVariable {
     const ALERTS_DEPT_ONLY = 0;
 
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
+    const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
 
     function asVar() {
         return $this->getName();
@@ -319,6 +320,10 @@ implements TemplateVariable {
         return $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
     }
 
+    function disableAutoClaim() {
+        return $this->flags & self::FLAG_DISABLE_AUTO_CLAIM;
+    }
+
     function isGroupMembershipEnabled() {
         return $this->group_membership;
     }
@@ -329,7 +334,8 @@ implements TemplateVariable {
             foreach (static::$meta['joins'] as $k => $v)
                 unset($ht[$k]);
 
-        $ht['assign_members_only'] = $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
+        $ht['assign_members_only'] = $this->assignMembersOnly();
+        $ht['disable_auto_claim'] =  $this->disableAutoClaim();
         return $ht;
     }
 
@@ -420,6 +426,21 @@ implements TemplateVariable {
             $path .= '/';
         $path .= $this->getId() . '/';
         return $path;
+    }
+
+    /**
+     * setFlag
+     *
+     * Utility method to set/unset flag bits
+     *
+     */
+
+    private function setFlag($flag, $val) {
+
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
     }
 
     /*----Static functions-------*/
@@ -591,7 +612,10 @@ implements TemplateVariable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
-        $this->flags = isset($vars['assign_members_only']) ? self::FLAG_ASSIGN_MEMBERS_ONLY : 0;
+        $this->flags = 0;
+        $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
+        $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+
         $this->path = $this->getFullPath();
 
         $wasnew = $this->__new__;
