@@ -19,7 +19,8 @@ include_once(INCLUDE_DIR.'class.draft.php');
 include_once(INCLUDE_DIR.'class.role.php');
 
 //Ticket thread.
-class Thread extends VerySimpleModel {
+class Thread extends VerySimpleModel
+implements Searchable {
     static $meta = array(
         'table' => THREAD_TABLE,
         'pk' => array('id'),
@@ -507,6 +508,21 @@ class Thread extends VerySimpleModel {
         }
 
         return null;
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'lastmessage' => new DatetimeField(array(
+                'label' => __('Last Message'),
+            )),
+            'lastresponse' => new DatetimeField(array(
+                'label' => __('Last Response'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        false;
     }
 
     function delete() {
