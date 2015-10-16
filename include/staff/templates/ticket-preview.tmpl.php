@@ -159,15 +159,15 @@ if($ticket->getNumNotes())
 if($ticket->isOpen())
     $options[]=array('action'=>__('Reply'),'url'=>"tickets.php?id=$tid#reply");
 
-if ($role->hasPerm(TicketModel::PERM_ASSIGN))
+if ($role->hasPerm(Ticket::PERM_ASSIGN))
     $options[]=array('action'=>($ticket->isAssigned()?__('Reassign'):__('Assign')),'url'=>"tickets.php?id=$tid#assign");
 
-if ($role->hasPerm(TicketModel::PERM_TRANSFER))
+if ($role->hasPerm(Ticket::PERM_TRANSFER))
     $options[]=array('action'=>__('Transfer'),'url'=>"tickets.php?id=$tid#transfer");
 
 $options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
-if ($role->hasPerm(TicketModel::PERM_EDIT))
+if ($role->hasPerm(Ticket::PERM_EDIT))
     $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
