@@ -196,9 +196,35 @@ if ($avatar->isChangeable()) { ?>
                 </select>
             </td>
         </tr>
+
+        <tr>
+            <td><?php echo __('Default From Name');?>:
+              <div class="faded"><?php echo __('From name to use when replying to a thread');?></div>
+            </td>
+            <td>
+                <select name="default_from_name">
+                  <?php
+                   $options=array(
+                           'email' => __("Email Address Name"),
+                           'dept' => sprintf(__("Department Name (%s)"),
+                               __('if public' /* This is used in 'Department's Name (>if public<)' */)),
+                           'mine' => __('My Name'));
+                  if ($cfg->hideStaffName())
+                    unset($options['mine']);
+
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($staff->default_from_name==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['default_from_name']; ?></div>
+            </td>
+        </tr>
+
         <tr>
             <td><?php echo __('Default Signature');?>:
-              <div class="faded"><?php echo __('This can be selected when replying to a ticket');?></div>
+              <div class="faded"><?php echo __('This can be selected when replying to a thread');?></div>
             </td>
             <td>
                 <select name="default_signature_type">

@@ -282,6 +282,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->default_signature_type;
     }
 
+    function getReplyFromNameType() {
+        return $this->default_from_name;
+    }
+
     function getDefaultPaperSize() {
         return $this->default_paper_size;
     }
@@ -621,6 +625,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->max_page_size = $vars['max_page_size'];
         $this->auto_refresh_rate = $vars['auto_refresh_rate'];
         $this->default_signature_type = $vars['default_signature_type'];
+        $this->default_from_name = $vars['default_from_name'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
         $this->onvacation = isset($vars['onvacation'])?1:0;
