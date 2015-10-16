@@ -475,10 +475,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function canManageTickets() {
-        return $this->hasPerm(TicketModel::PERM_DELETE, false)
-                || $this->hasPerm(TicketModel::PERM_TRANSFER, false)
-                || $this->hasPerm(TicketModel::PERM_ASSIGN, false)
-                || $this->hasPerm(TicketModel::PERM_CLOSE, false);
+        return $this->hasPerm(Ticket::PERM_DELETE, false)
+                || $this->hasPerm(Ticket::PERM_TRANSFER, false)
+                || $this->hasPerm(Ticket::PERM_ASSIGN, false)
+                || $this->hasPerm(Ticket::PERM_CLOSE, false);
     }
 
     function isManager() {
