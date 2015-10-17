@@ -1626,7 +1626,7 @@ extends CachedResultSet {
         foreach ($this as $record) {
             $matches = true;
             foreach ($criteria as $field=>$check) {
-                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                if (!SqlCompiler::evaluate($record, $check, $field)) {
                     $matches = false;
                     break;
                 }
@@ -1855,82 +1855,6 @@ implements Iterator {
             $this->eoi = true;
         }
     }
-
-    /**
-     * Find the first item in the current set which matches the given criteria.
-     * This would be used in favor of ::filter() which might trigger another
-     * database query. See ::findAll() for more details.
-     *
-     * Example:
-     * >>> $a = new User();
-     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
-     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
-     * <Role: administrator>
-     */
-    function findFirst(array $criteria) {
-        $records = $this->findAll($criteria, 1);
-        return @$records[0];
-    }
-
-    /**
-     * Find the first item in the current set which matches the given criteria.
-     * This would be used in favor of ::filter() which might trigger another
-     * database query. The criteria is intended to be quite simple and should
-     * not traverse relationships which have not already been fetched.
-     * Otherwise, the ::filter() or ::window() methods would provide better
-     * performance, as they can provide results with one more trip to the
-     * database.
-     */
-    function findAll(array $criteria, $limit=false) {
-        $records = new ListObject();
-        foreach ($this as $record) {
-            $matches = true;
-            foreach ($criteria as $field => $check) {
-                if (!SqlCompiler::evaluate($record, $field, $check)) {
-                    $matches = false;
-                    break;
-                }
-            }
-            if ($matches)
-                $records[] = $record;
-        }
-        return $records;
-    }
-
-    /**
-     * Sort the instrumented list in place. This would be useful to change the
-     * sorting order of the items in the list without fetching the list from
-     * the database again.
-     *
-     * Parameters:
-     * $key - (callable|int) A callable function to produce the sort keys
-     *      or one of the SORT_ constants used by the array_multisort
-     *      function
-     * $reverse - (bool) true if the list should be sorted descending
-     *
-     * Returns:
-     * This instrumented list for chaining and inlining.
-     */
-    function sort($key=false, $reverse=false) {
-        // Fetch all records into the cache
-        $this->asArray();
-        if (is_callable($key)) {
-            array_multisort(
-                array_map($key, $this->cache),
-                $reverse ? SORT_DESC : SORT_ASC,
-                $this->cache);
-        }
-        elseif ($key) {
-            array_multisort($this->cache,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->cache);
-        }
-        else
-            sort($this->cache);
-        return $this;
-    }
 }
 
 // Use a global variable, as constructing exceptions is expensive
@@ -2042,8 +1966,16 @@ extends ModelResultSet {
      * Reduce the list to a subset using a simply key/value constraint. New
      * items added to the subset will have the constraint automatically
      * added to all new items.
+     *
+     * Parameters:
+     * $criteria - (<Traversable>) criteria by which this list will be
+     *    constrained and filtered.
+     * $evaluate - (<bool>) if set to TRUE, the criteria will be evaluated
+     *    without making any more trips to the database. NOTE this may yield
+     *    unexpected results if this list does not contain all the records
+     *    from the database which would be matched by another query.
      */
-    function window($constraint) {
+    function window($constraint, $evaluate=false) {
         $model = $this->model;
         $fields = $model::getMeta()->getFieldNames();
         $key = $this->key;
@@ -2052,7 +1984,25 @@ extends ModelResultSet {
                 throw new OrmException('InstrumentedList windowing must be performed on local fields only');
             $key[$field] = $value;
         }
-        return new static(array($this->model, $key), $this->filter($constraint));
+        $list = new static(array($this->model, $key), $this->filter($constraint));
+        if ($evaluate) {
+            $list->setCache($this->findAll($constraint));
+        }
+        return $list;
+    }
+
+    /**
+     * Disable database fetching on this list by providing a static list of
+     * objects. ::add() and ::remove() are still supported.
+     * XXX: Move this to a parent class?
+     */
+    function setCache(array $cache) {
+        if (count($this->cache) > 0)
+            throw new Exception('Cache must be set before fetching records');
+        // Set cache and disable fetching
+        $this->reset();
+        $this->cache = $cache;
+        $this->resource = false;
     }
 
     // Save all changes made to any list items
@@ -2063,9 +2013,6 @@ extends ModelResultSet {
         return true;
     }
 
-    function count() {
-        return count($this->asArray());
-    }
     // QuerySet delegates
     function exists() {
         return $this->queryset->exists();
@@ -2148,10 +2095,21 @@ class SqlCompiler {
     /**
      * Check if the values match given the operator.
      *
+     * Parameters:
+     * $record - <ModelBase> An model instance representing a row from the
+     *      database
+     * $field - Field path including operator used as the evaluated
+     *      expression base. To check if field `name` startswith something,
+     *      $field would be `name__startswith`.
+     * $check - <mixed> value used as the comparison. This would be the RHS
+     *      of the condition expressed with $field. This can also be a Q
+     *      instance, in which case, $field is not considered, and the Q
+     *      will be used to evaluate the $record directly.
+     *
      * Throws:
      * OrmException - if $operator is not supported
      */
-    static function evaluate($record, $field, $check) {
+    static function evaluate($record, $check, $field) {
         static $ops; if (!isset($ops)) { $ops = array(
             'exact' => function($a, $b) { return is_string($a) ? strcasecmp($a, $b) == 0 : $a == $b; },
             'isnull' => function($a, $b) { return is_null($a) == $b; },
@@ -2167,7 +2125,7 @@ class SqlCompiler {
         ); }
         // TODO: Support Q expressions
         if ($check instanceof Q)
-            return $check->evaluate($record, $field);
+            return $check->evaluate($record);
 
         list($field, $path, $operator) = self::splitCriteria($field);
         if (!isset($ops[$operator]))
@@ -3389,11 +3347,11 @@ class Q implements Serializable {
         return new static($constraints);
     }
 
-    function evaluate($record, $field) {
+    function evaluate($record) {
         // Start with FALSE for OR and TRUE for AND
         $result = !$this->ored;
-        foreach ($this->constraints as $check) {
-            $R = SqlCompiler::evaluate($record, $field, $check);
+        foreach ($this->constraints as $field=>$check) {
+            $R = SqlCompiler::evaluate($record, $check, $field);
             if ($this->ored) {
                 if ($result |= $R)
                     break;
