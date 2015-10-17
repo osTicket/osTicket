@@ -823,19 +823,20 @@ class SavedSearch extends VerySimpleModel {
      * $customData - bool, include all custom data fields for all general
      *      forms
      */
-    static function getSearchableFields($base, $recurse=2, $cache=true,
+    static function getSearchableFields($base, $recurse=2,
         $customData=true, $exclude=array()
     ) {
-        static $cache, $otherFields;
+        static $cache = array(), $otherFields;
 
         if (!in_array('Searchable', class_implements($base)))
             return array();
 
         // Early exit if already cached
-        if ($cache && isset($cache[$base]))
-            return $cache[$base];
+        $fields = &$cache[$base];
+        if ($fields)
+            return $fields;
 
-        $fields = array();
+        $fields = $fields ?: array();
         foreach ($base::getSearchableFields() as $path=>$F) {
             if (is_array($F)) {
                 list($label, $field) = $F;
@@ -847,37 +848,14 @@ class SavedSearch extends VerySimpleModel {
             $fields[$path] = array($label, $field);
         }
 
-        if ($recurse) {
-            $exclude[$base] = 1;
-            foreach ($base::getMeta('joins') as $path=>$j) {
-                $fc = $j['fkey'][0];
-                if (isset($exclude[$fc]) || $j['list'])
-                    continue;
-                foreach (static::getSearchableFields($fc, $recurse-1, false,
-                    true, $exclude)
-                as $path2=>$F) {
-                    if (is_array($F)) {
-                        list($label, $field) = $F;
-                    }
-                    else {
-                        $label = $F->get('label');
-                        $field = $F;
-                    }
-                    $fields["{$path}__{$path2}"] = array(
-                        sprintf("%s / %s", $fc, $label),
-                        $field);
-                }
-            }
-        }
-
         if ($customData && $base::supportsCustomData()) {
             if (!isset($otherFields)) {
                 $otherFields = array();
-                $forms = DynamicForm::objects()->filter(array('type'=>'G'));
-                foreach ($forms as $F) {
-                    foreach ($F->getFields() as $field) {
-                        $otherFields[$field->getId()] = array($F, $field);
-                    }
+                $dfs = DynamicFormField::objects()
+                    ->filter(array('form__type' => 'G'))
+                    ->select_related('form');
+                foreach ($dfs as $field) {
+                    $otherFields[$field->getId()] = array($field->form, $field);
                 }
             }
             foreach ($otherFields as $id=>$F) {
@@ -886,6 +864,29 @@ class SavedSearch extends VerySimpleModel {
                     $form->getTitle(), $field->get('label'));
                 $fields["entries__answers!{$id}__value"] = array(
                     $label, $field);
+            }
+        }
+
+        // Cache the base fields early so that if recursive calls looks for
+        // this base model, the base fields can be returned without
+        // requiring recursion.
+        if ($cache)
+            $cache[$base] = $fields;
+
+        if ($recurse) {
+            $exclude[$base] = 1;
+            foreach ($base::getMeta('joins') as $path=>$j) {
+                $fc = $j['fkey'][0];
+                if (isset($exclude[$fc]) || $j['list'])
+                    continue;
+                foreach (static::getSearchableFields($fc, $recurse-1,
+                    true, $exclude)
+                as $path2=>$F) {
+                    list($label, $field) = $F;
+                    $fields["{$path}__{$path2}"] = array(
+                        sprintf("%s / %s", $fc, $label),
+                        $field);
+                }
             }
         }
 
