@@ -2266,13 +2266,43 @@ fieldset {
 
 .row {
     display: table-row;
+    width: 100%;
 }
 
-.row .span6 {
-    display: table-cell;
-    width: 48%;
+.row > [class~=" span"],
+.row > [class^="span"] {
     padding: 5px 10px;
     vertical-align: top;
+    display: table-cell;
+}
+.row > [class~=" span"] > select,
+.row > [class^="span"] > select,
+.row > [class~=" span"] > input,
+.row > [class^="span"] > input {
+    width: 100%;
+    max-width: 100%;
+}
+.row .span3 {
+    width: 23%;
+    width: calc(25% - 5px);
+}
+.row .span6 {
+    width: 48%;
+    width: calc(50% - 5px);
+}
+.row .span9 {
+    width: 73%;
+    width: calc(75% - 5px);
+}
+.row .span12 {
+    width: 100%;
+}
+.flex.row {
+    display: initial;
+}
+.flex.row > [class~=" span"],
+.flex.row > [class^="span"] {
+    display: inline-block;
 }
 
 .search-dropdown {
