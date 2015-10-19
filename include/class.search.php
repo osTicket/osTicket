@@ -657,11 +657,23 @@ MysqlSearchBackend::register();
  * updated - (date:auto_update) time of last update
  */
 class SavedSearch extends VerySimpleModel {
-
     static $meta = array(
         'table' => QUEUE_TABLE,
         'pk' => array('id'),
         'ordering' => array('sort'),
+        'joins' => array(
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                )
+            ),
+            'parent' => array(
+                'constraint' => array(
+                    'parent_id' => 'CustomQueue.id',
+                ),
+                'null' => true,
+            ),
+        ),
     );
 
     const FLAG_PUBLIC =         0x0001; // Shows up in e'eryone's saved searches
@@ -717,6 +729,14 @@ class SavedSearch extends VerySimpleModel {
         return $this->criteria ?: array();
     }
 
+    /**
+     * Fetch an AdvancedSearchForm instance for use in displaying or
+     * configuring this search in the user interface.
+     *
+     * Parameters:
+     * $search - <array> Request parameters ($_POST) used to update the
+     *      search beyond the current configuration of the search criteria
+     */
     function getForm($source=null) {
         $searchable = $this->getCurrentSearchFields($source);
         $fields = array(
@@ -769,6 +789,19 @@ class SavedSearch extends VerySimpleModel {
         return $form;
     }
 
+    /**
+     * Fetch a bucket of fields for a custom search. The fields should be
+     * added to a form before display. One searchable field may encompass 10
+     * or more actual fields because fields are expanded to support multiple
+     * search methods along with the fields for each search method. This
+     * method returns all the FormField instances for all the searchable
+     * model fields currently in use.
+     *
+     * Parameters:
+     * $source - <array> data from a request. $source['fields'] is expected
+     *      to contain a list extra fields by ORM path, of newly added
+     *      fields not yet saved in this object's getCriteria().
+     */
     function getCurrentSearchFields($source=array()) {
         static $basic = array(
             'Ticket' => array(
@@ -802,6 +835,12 @@ class SavedSearch extends VerySimpleModel {
         return $core;
     }
 
+    /**
+     * Fetch all supported ORM fields searchable by this search object. The
+     * returned list represents searchable fields, keyed by the ORM path.
+     * Use ::getCurrentSearchFields() or ::getSearchField() to retrieve for
+     * use in the user interface.
+     */
     function getSupportedMatches() {
         return static::getSearchableFields($this->getRoot());
     }
@@ -867,12 +906,6 @@ class SavedSearch extends VerySimpleModel {
             }
         }
 
-        // Cache the base fields early so that if recursive calls looks for
-        // this base model, the base fields can be returned without
-        // requiring recursion.
-        if ($cache)
-            $cache[$base] = $fields;
-
         if ($recurse) {
             $exclude[$base] = 1;
             foreach ($base::getMeta('joins') as $path=>$j) {
@@ -890,11 +923,20 @@ class SavedSearch extends VerySimpleModel {
             }
         }
 
-        if ($cache)
-            $cache[$base] = $fields;
         return $fields;
     }
 
+    /**
+     * Fetch the FormField instances used when for configuring a searchable
+     * field in the user interface. This is the glue between a field
+     * representing a searchable model field and the configuration of that
+     * search in the user interface.
+     *
+     * Parameters:
+     * $F - <array<string, FormField>> the label and the FormField instance
+     *      representing the configurable search
+     * $name - <string> ORM path for the search
+     */
     static function getSearchField($F, $name) {
         list($label, $field) = $F;
 
@@ -1161,8 +1203,27 @@ class SavedSearch extends VerySimpleModel {
             && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
     }
 
+    function buildPath() {
+        if (!$this->id)
+            return;
+
+        $path = $this->parent ? $this->parent->getPath() : '';
+        return $path . "/{$this->id}";
+    }
+
+    function getFullName() {
+        $base = $this->getName();
+        if ($this->parent)
+            $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
+        return $base;
+    }
+
     function isAQueue() {
         return $this->hasFlag(self::FLAG_QUEUE);
+    }
+
+    function isPrivate() {
+        return !$this->isAQueue() && !$this->hasFlag(self::FLAG_PUBLIC);
     }
 
     protected function hasFlag($flag) {
@@ -1189,6 +1250,31 @@ class SavedSearch extends VerySimpleModel {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
         return parent::save($refetch || $this->dirty);
+    }
+
+    function update($vars, $form=false, &$errors=array()) {
+        // TODO: Move this to SavedSearch::update() and adjust
+        //       AjaxSearch::_saveSearch()
+        $form = $form ?: $this->getForm($vars);
+        if (!$vars || !$form->isValid()) {
+            $errors['criteria'] = __('Validation errors exist on criteria');
+        }
+        else {
+            $this->config = JsonDataEncoder::encode(
+                $this->isolateCriteria($form->getClean()));
+        }
+
+        // Set basic search information
+        if (!$vars['name'])
+            $errors['name'] = __('A title is required');
+
+        $this->title = $vars['name'];
+        $this->parent_id = @$vars['parent_id'] ?: 0;
+        $this->path = $this->buildPath();
+        // Personal queues _always_ inherit from their parent
+        $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id > 0);
+
+        return count($errors) === 0;
     }
 }
 

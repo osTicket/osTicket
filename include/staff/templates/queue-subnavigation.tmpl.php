@@ -26,7 +26,10 @@ global $thisstaff;
         </li>
         <?php } ?>
         <li>
-          <a href="queues.php?id=<?php echo $q->getId(); ?>">
+          <a href="<?php
+    echo $queue->isPrivate()
+        ? sprintf('#" data-dialog="ajax.php/tickets/search/%d', $queue->getId())
+        : sprintf('queues.php?id=%d', $queue->getId()); ?>">
             <i class="icon-fixed-width icon-pencil"></i>
             <?php echo __('Edit'); ?></a>
         </li>
