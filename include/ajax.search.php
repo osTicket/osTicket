@@ -32,10 +32,19 @@ class SearchAjaxAPI extends AjaxController {
             'root' => 'T',
         ));
         $search->config = $_SESSION['advsearch'];
-        $form = $search->getForm();
-        $matches = $search->getSupportedMatches();
+        $this->_tryAgain($search, $search->getForm());
+    }
 
-        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+    function editSearch($id) {
+        global $thisstaff;
+
+        $search = SavedSearch::lookup($id);
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$search || !$search->checkAccess($thisstaff))
+            Http::response(404, 'No such saved search');
+
+        $this->_tryAgain($search, $search->getForm());
     }
 
     function addField($name) {
@@ -66,62 +75,68 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function doSearch() {
-        global $thisstaff;
-
         $search = SavedSearch::create(array('root' => 'T'));
-
         $form = $search->getForm($_POST);
-        if (!$form->isValid()) {
-            $matches = $search->getSupportedMatches();
-            include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+        if (false === $this->_setupSearch($search, $form)) {
             return;
         }
-        $_SESSION['advsearch'] = $search->isolateCriteria($form->getClean());
 
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue=adhoc',
         )));
     }
 
+    function _hasErrors(SavedSearch $search, $form) {
+        if (!$form->isValid()) {
+            $this->_tryAgain($search, $form);
+            return true;
+        }
+    }
+
+    function _setupSearch(SavedSearch $search, $form, $key='advsearch') {
+        $form = $search->getForm($vars);
+        if ($this->_hasErrors($search, $form))
+            return false;
+
+        $_SESSION[$key] = $search->isolateCriteria($form->getClean());
+    }
+
+    function _tryAgain($search, $form, $errors=array()) {
+        $matches = $search->getSupportedMatches();
+        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+    }
+
     function saveSearch($id) {
         global $thisstaff;
 
         $search = SavedSearch::lookup($id);
-        if (!$search || !$search->checkAccess($thisstaff))
-            Http::response(404, 'No such saved search');
-        elseif (!$thisstaff)
+        if (!$thisstaff)
             Http::response(403, 'Agent login is required');
+        elseif (!$search || !$search->checkAccess($thisstaff))
+            Http::response(404, 'No such saved search');
 
-        return self::_saveSearch($search);
+        if (false === $this->_saveSearch($search))
+            return;
+
+        Http::response(200, $this->encode(array(
+            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
+        )));
     }
 
-    function _saveSearch($search) {
-        $data = array();
-        foreach ($_POST['form'] as $id=>$info) {
-            $name = $info['name'];
-            if (substr($name, -2) == '[]')
-                $data[substr($name, 0, -2)][] = $info['value'];
-            else
-                $data[$name] = $info['value'];
-        }
-        $form = $search->getForm($data);
-        $form->setSource($data);
-        if (!$data || !$form->isValid()) {
-            Http::response(422, 'Validation errors exist on criteria');
+    function _saveSearch(SavedSearch $search) {
+        $form = $search->getForm($_POST);
+        $errors = array();
+        if (!$search->update($_POST, $form, $errors)
+            || !$search->save()
+        ) {
+            return $this->_tryAgain($search, $form, $errors);
         }
 
-        $search->config = JsonDataEncoder::encode($form->getState());
-        if (isset($_POST['name']))
-            $search->title = Format::htmlchars($_POST['name']);
-        elseif ($search->__new__)
-            Http::response(400, 'A name is required');
-        if (!$search->save()) {
-            Http::response(500, 'Unable to update search. Internal error occurred');
+        if (false === $this->_setupSearch($search, $form)) {
+            return false;
         }
-        Http::response(201, $this->encode(array(
-            'id' => $search->id,
-            'title' => $search->title,
-        )));
+
+        return true;
     }
 
     function createSearch() {
@@ -130,28 +145,14 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
 
-        $search = SavedSearch::create();
+        $search = SavedSearch::create(array('root' => 'T'));
         $search->staff_id = $thisstaff->getId();
-        return self::_saveSearch($search);
-    }
+        if (false === $this->_saveSearch($search))
+            return;
 
-    function loadSearch($id) {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            Http::response(403, 'Agent login is required');
-        }
-        elseif (!($search = SavedSearch::lookup($id))) {
-            Http::response(404, 'No such saved search');
-        }
-
-        if ($state = JsonDataParser::parse($search->config)) {
-            $form = $search->loadFromState($state);
-            $form->loadState($state);
-        }
-        $matches = SavedSearch::getSupportedTicketMatches();
-
-        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+        Http::response(200, $this->encode(array(
+            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
+        )));
     }
 
     function deleteSearch($id) {
@@ -225,7 +226,7 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(400, sprintf('%s: No such searchable field'),
                 Format::htmlchars($_GET['field']));
         }
-      
+
         list($label, $field) = $fields[$_GET['field']];
         // Ensure `name` is preserved
         $field_name = $_GET['field'];

@@ -3164,6 +3164,8 @@ class InlineFormField extends FormField {
         $form = $this->get('form');
         if (is_array($form)) {
             $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource());
+            // Ensure unique, but predictable form and field IDs
+            $form->setId(sprintf('%u', crc32($this->get('name')) >> 1));
         }
         return $form;
     }

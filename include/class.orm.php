@@ -114,8 +114,17 @@ class ModelMeta implements ArrayAccess {
         }
     }
 
+    /**
+     * Merge this class's meta-data into the recieved child meta-data.
+     * When a model extends another model, the meta data for the two models
+     * is merged to form the child's meta data. Returns the merged, child
+     * meta-data.
+     */
     function extend(ModelMeta $child, $meta) {
         $this->subclasses[$child->model] = $child;
+        // Merge 'joins' settings (instead of replacing)
+        if (isset($this->meta['joins']))
+            $meta['joins'] += $this->meta['joins'];
         return $meta + $this->meta + self::$base;
     }
 
