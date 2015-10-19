@@ -77,20 +77,31 @@ class ModelMeta implements ArrayAccess {
             elseif (!is_array($meta[$f]))
                 $meta[$f] = array($meta[$f]);
         }
-
-        // Break down foreign-key metadata
-        foreach ($meta['joins'] as $field => &$j) {
-            $this->processJoin($j);
-            if ($j['local'])
-                $meta['foreign_keys'][$j['local']] = $field;
-        }
-        unset($j);
         $this->base = $meta;
     }
 
+    function processJoins() {
+        // Break down foreign-key metadata
+        foreach ($this->base['joins'] as $field => &$j) {
+            $this->processJoin($j);
+            if ($j['local'])
+                $this->base['foreign_keys'][$j['local']] = $field;
+        }
+        unset($j);
+    }
+
+    /**
+     * Merge this class's meta-data into the recieved child meta-data.
+     * When a model extends another model, the meta data for the two models
+     * is merged to form the child's meta data. Returns the merged, child
+     * meta-data.
+     */
     function extend($meta) {
         if ($meta instanceof self)
             $meta = $meta->base;
+        // Merge 'joins' settings (instead of replacing)
+        if (isset($this->base['joins']))
+            $meta['joins'] += $this->base['joins'];
         return $meta + $this->base + self::$base;
     }
 
@@ -420,7 +431,10 @@ class VerySimpleModel {
     static function __oninspect() {}
 
     static function _inspect() {
-        static::$meta = new ModelMeta(get_called_class());
+        static::$meta = $T = new ModelMeta(get_called_class());
+        // Process joins separately to guard against recursion from
+        // inherited models
+        $T->processJoins();
 
         // Let the model participate
         static::__oninspect();
