@@ -23,21 +23,10 @@ class CustomQueue extends SavedSearch {
             'columns' => array(
                 'reverse' => 'QueueColumn.queue',
             ),
-            'staff' => array(
-                'constraint' => array(
-                    'staff_id' => 'Staff.staff_id',
-                )
-            ),
-            'parent' => array(
-                'constraint' => array(
-                    'parent_id' => 'CustomQueue.id',
-                ),
-                'null' => true,
-            ),
             'children' => array(
                 'reverse' => 'CustomQueue.parent',
-            )
-        ),
+            ),
+        )
     );
 
     static function queues() {
@@ -94,21 +83,6 @@ class CustomQueue extends SavedSearch {
                 'flags__hasbit' => self::FLAG_PUBLIC
             ))
         ));
-    }
-
-    function buildPath() {
-        if (!$this->id)
-            return;
-
-        $path = $this->parent ? $this->parent->getPath() : '';
-        return $path . "/{$this->id}";
-    }
-
-    function getFullName() {
-        $base = $this->getName();
-        if ($this->parent)
-            $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
-        return $base;
     }
 
     function inheritCriteria() {
@@ -171,22 +145,11 @@ class CustomQueue extends SavedSearch {
     }
 
     function update($vars, &$errors=array()) {
-        // TODO: Move this to SavedSearch::update() and adjust
-        //       AjaxSearch::_saveSearch()
-        $form = $this->getForm($vars);
-        if (!$vars || !$form->isValid()) {
-            $errors['criteria'] = __('Validation errors exist on criteria');
-        }
-        else {
-            $this->config = JsonDataEncoder::encode(
-                $this->isolateCriteria($form->getClean()));
-        }
+        if (!parent::update($vars, false, $errors))
+            return false;
 
         // Set basic queue information
-        $this->title = $vars['name'];
-        $this->parent_id = $vars['parent_id'];
         $this->filter = $vars['filter'];
-        $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA, isset($vars['inherit']));
 
         // Update queue columns (but without save)

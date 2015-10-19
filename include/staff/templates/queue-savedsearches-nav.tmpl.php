@@ -6,12 +6,13 @@
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
 <li class="item <?php if ($child_selected) echo 'child active'; ?>">
-  <a><i class="icon-sort-down pull-right"></i><?php echo __('Search');
+  <a href="tickets.php?queue=adhoc"><i class="icon-sort-down pull-right"></i><?php echo __('Search');
   ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
       <!-- Start Dropdown and child queues -->
       <?php foreach ($searches->findAll(array(
+            'parent_id' => 0,
             'flags__hasbit' => SavedSearch::FLAG_PUBLIC,
       )) as $q) {
           include 'queue-subnavigation.tmpl.php';
@@ -22,6 +23,7 @@
       </li>
       <?php foreach ($searches->findAll(array(
             'staff_id' => $thisstaff->getId(),
+            'parent_id' => 0,
             Q::not(array(
                 'flags__hasbit' => SavedSearch::FLAG_PUBLIC
             ))
