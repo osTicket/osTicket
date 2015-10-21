@@ -1,32 +1,3 @@
-<div>
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th colspan="2">
-                <em><?php echo __('System-wide default ticket queues settings and options.'); ?></em>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <?php echo __('Default Ticket Queue'); ?>:
-            </td>
-            <td>
-                <select name="default_ticket_queue">
-<?php foreach (CustomQueue::queues() as $cq) {
-?>
-                  <option value="<?php echo $cq->id; ?>"
-            <?php if ($cq->getId() == $config['default_ticket_queue']) echo 'selected="selected"'; ?>
-            ><?php echo $cq->getFullName(); ?></option>
-<?php } ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#default_ticket_queue"></i>
-                <div class="error"><?php echo $errors['default_ticket_queue']; ?></div>
-            </td>
-        </tr>
-</div>
-
     <div>
         <div class="pull-right">
             <a href="queues.php?t=tickets&amp;a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Queue');?></a>
