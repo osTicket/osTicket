@@ -165,6 +165,23 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td>
+                <?php echo __('Default Ticket Queue'); ?>:
+            </td>
+            <td>
+                <select name="default_ticket_queue">
+<?php foreach (CustomQueue::queues() as $cq) {
+?>
+                  <option value="<?php echo $cq->id; ?>"
+            <?php if ($cq->getId() == $config['default_ticket_queue']) echo 'selected="selected"'; ?>
+            ><?php echo $cq->getFullName(); ?></option>
+<?php } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_ticket_queue"></i>
+                <div class="error"><?php echo $errors['default_ticket_queue']; ?></div>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
