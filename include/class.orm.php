@@ -1683,7 +1683,7 @@ class ModelInstanceManager extends ResultSet {
      */
     function findFirst(array $criteria) {
         $records = $this->findAll($criteria, 1);
-        return @$records[0];
+        return count($records) > 0 ? $records[0] : null;
     }
 
     /**
