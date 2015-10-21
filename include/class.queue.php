@@ -35,16 +35,6 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    static function getAnnotations($root) {
-        // Ticket annotations
-        return array(
-            'TicketThreadCount',
-            'ThreadAttachmentCount',
-            'OverdueFlagDecoration',
-            'TicketSourceDecoration'
-        );
-    }
-
     function getColumns() {
         if (!count($this->columns)) {
             foreach (parent::getColumns() as $c)
@@ -276,6 +266,17 @@ abstract class QueueColumnAnnotation {
     function getClassName() {
         return @$this->config['c'] ?: get_class();
     }
+
+    static function getAnnotations($root) {
+        // Ticket annotations
+        static $annotations;
+        if (!isset($annotations[$root])) {
+            foreach (get_declared_classes() as $class)
+                if (is_subclass_of($class, get_called_class()))
+                    $annotations[$root][] = $class;
+        }
+        return $annotations[$root];
+    }
 }
 
 class TicketThreadCount
@@ -357,6 +358,29 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         return sprintf('<span class="Icon %sTicket"></span>',
             strtolower($row['source']));
+    }
+}
+
+class LockDecoration
+extends QueueColumnAnnotation {
+    static $icon = "lock";
+    static $desc = /* @trans */ 'Locked';
+
+    function annotate($query) {
+        global $thisstaff;
+
+        return $query
+            ->annotate(array(
+                '_locked' => new SqlExpr(array(new Q(array(
+                    'lock__expire__gt' => SqlFunction::NOW(),
+                    Q::not(array('lock__staff_id' => $thisstaff->getId())),
+                ))))
+            ));
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['_locked'])
+            return sprintf('<span class="Icon lockedTicket"></span>');
     }
 }
 
