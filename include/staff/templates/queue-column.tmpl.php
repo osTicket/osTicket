@@ -59,7 +59,7 @@ $data_form = $column->getDataConfigForm($_POST);
       <i class="icon-plus-sign"></i>
       <select class="add-annotation">
         <option>— <?php echo __("Add a annotation"); ?> —</option>
-<?php foreach (CustomQueue::getAnnotations('Ticket') as $class) {
+<?php foreach (QueueColumnAnnotation::getAnnotations('Ticket') as $class) {
         echo sprintf('<option data-icon="%s" value="%s">%s</option>',
           $class::$icon, $class, $class::getDescription());
       } ?>
