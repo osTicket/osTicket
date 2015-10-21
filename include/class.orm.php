@@ -1611,7 +1611,7 @@ extends CachedResultSet {
      */
     function findFirst($criteria) {
         $records = $this->findAll($criteria, 1);
-        return @$records[0];
+        return count($records) > 0 ? $records[0] : null;
     }
 
     /**
