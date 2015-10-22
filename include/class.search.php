@@ -769,9 +769,6 @@ class SavedSearch extends VerySimpleModel {
             $fields = array_merge($fields, self::getSearchField($field, $path));
         }
 
-        // Don't send the state as the souce because it is not in the
-        // ::parse format (it's in ::to_php format). Instead, source is set
-        // via ::loadState() below
         $form = new AdvancedSearchForm($fields, $source);
         $form->addValidator(function($form) {
             $selected = 0;
