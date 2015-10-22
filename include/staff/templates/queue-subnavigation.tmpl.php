@@ -13,7 +13,7 @@ global $thisstaff;
   if ($hasChildren) { ?>
     <i class="icon-caret-down"></i>
   <?php }
-  if ($thisstaff->isAdmin()) { ?>
+  if ($thisstaff->isAdmin() || $q->isPrivate()) { ?>
   <!-- Edit Queue -->
   <div class="editQ pull-right">
     <i class="icon-cog"></i>
@@ -28,7 +28,8 @@ global $thisstaff;
         <li>
           <a href="<?php
     echo $queue->isPrivate()
-        ? sprintf('#" data-dialog="ajax.php/tickets/search/%d', $queue->getId())
+        ? sprintf('#" data-dialog="ajax.php/tickets/search/%s',
+            urlencode($queue->getId()))
         : sprintf('queues.php?id=%d', $queue->getId()); ?>">
             <i class="icon-fixed-width icon-pencil"></i>
             <?php echo __('Edit'); ?></a>
@@ -44,7 +45,8 @@ global $thisstaff;
   <span class="pull-right">(?)</span>
   <!-- End Edit Queue -->
   <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
-    ?>"><?php echo $q->getName(); ?></a>
+    ?>" title="<?php echo Format::htmlchars($q->getName()); ?>"><?php
+        echo Format::htmlchars($q->getName()); ?></a>
 <?php if ($hasChildren) {
     echo '<ul>';
     foreach ($children as $q) {

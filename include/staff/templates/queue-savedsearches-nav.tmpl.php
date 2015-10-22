@@ -12,16 +12,6 @@
     <ul class="scroll-height">
       <!-- Start Dropdown and child queues -->
       <?php foreach ($searches->findAll(array(
-            'parent_id' => 0,
-            'flags__hasbit' => SavedSearch::FLAG_PUBLIC,
-      )) as $q) {
-          include 'queue-subnavigation.tmpl.php';
-      } ?>
-      <!-- Dropdown Titles -->
-      <li>
-        <h4><?php echo __('Personal Queues'); ?></h4>
-      </li>
-      <?php foreach ($searches->findAll(array(
             'staff_id' => $thisstaff->getId(),
             'parent_id' => 0,
             Q::not(array(
@@ -30,6 +20,17 @@
       )) as $q) {
         include 'queue-subnavigation.tmpl.php';
       } ?>
+      <li>
+        <h4><?php echo __('Recent Searches'); ?></h4>
+      <?php foreach ($_SESSION['advsearch'] as $token=>$criteria) {
+        $q = new SavedSearch(array('root' => 'T'));
+        $q->id = 'adhoc,'.$token;
+        $q->title = $q->describeCriteria($criteria);
+
+        include 'queue-subnavigation.tmpl.php';
+      } ?>
+      <!-- Dropdown Titles -->
+      </li>
     </ul>
     <!-- Add Queue button sticky at the bottom -->
     <div class="add-queue">

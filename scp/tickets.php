@@ -62,6 +62,25 @@ $queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
 if ((int) $queue_id) {
     $queue = CustomQueue::lookup($queue_id);
 }
+elseif (isset($_SESSION['advsearch'])
+    && strpos($queue_id, 'adhoc') === 0
+) {
+    list(,$key) = explode(',', $queue_id, 2);
+    // XXX: De-duplicate and simplify this code
+    $queue = SavedSearch::create(array(
+        'title' => __("Advanced Search"),
+        'root' => 'T',
+    ));
+    // For queue=queue, use the most recent search
+    if (!$key) {
+        reset($_SESSION['advsearch']);
+        $key = key($_SESSION['advsearch']);
+    }
+    $queue->config = $_SESSION['advsearch'][$key];
+    // Slight hack here to make the `adhoc` queue be selected
+    $_REQUEST['queue'] = 'adhoc,'.$key;
+}
+
 
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
@@ -389,17 +408,6 @@ as $q) {
             && false !== strpos($queue->getPath(), "/{$q->getId()}/");
         include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
     });
-}
-
-if (isset($_SESSION['advsearch'])) {
-        // XXX: De-duplicate and simplify this code
-    $adhoc = SavedSearch::create(array(
-        'title' => __("Advanced Search"),
-        'root' => 'T',
-    ));
-    $adhoc->config = $_SESSION['advsearch'];
-    if ($_REQUEST['queue'] == 'adhoc')
-        $queue = $adhoc;
 }
 
 // Add my advanced searches

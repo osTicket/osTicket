@@ -22,7 +22,7 @@ require_once(INCLUDE_DIR.'class.ajax.php');
 
 class SearchAjaxAPI extends AjaxController {
 
-    function getAdvancedSearchDialog() {
+    function getAdvancedSearchDialog($key=false, $context='advsearch') {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -31,7 +31,14 @@ class SearchAjaxAPI extends AjaxController {
         $search = SavedSearch::create(array(
             'root' => 'T',
         ));
-        $search->config = $_SESSION['advsearch'];
+        if (isset($_SESSION[$context])) {
+            // Use the most recent search
+            if (!$key) {
+                reset($_SESSION[$context]);
+                $key = key($_SESSION[$context]);
+            }
+            $search->config = $_SESSION[$context][$key];
+        }
         $this->_tryAgain($search, $search->getForm());
     }
 
@@ -98,7 +105,39 @@ class SearchAjaxAPI extends AjaxController {
         if ($this->_hasErrors($search, $form))
             return false;
 
-        $_SESSION[$key] = $search->isolateCriteria($form->getClean());
+        if ($key) {
+            $keep = array();
+            // Add in new search to the list of recent searches
+            $criteria = $search->isolateCriteria($form->getClean());
+            $token = $this->_hashCriteria($criteria);
+            $keep[$token] = $criteria;
+            // Keep the last 5 recent searches looking from the beginning of
+            // the recent search list
+            if (isset($_SESSION[$key])) {
+                reset($_SESSION[$key]);
+                while (count($keep) < 5) {
+                    list($k, $v) = each($_SESSION[$key]);
+                    if (!$k)
+                        break;
+                    $keep[$k] = $v;
+                }
+            }
+            $_SESSION[$key] = $keep;
+        }
+    }
+    
+    function _hashCriteria($criteria, $size=10) {
+        $parts = array();
+        foreach ($criteria as $C) {
+            list($name, $method, $value) = $C;
+            if (is_array($value))
+                $value = implode('+', $value);
+            $parts[] = "{$name} {$method} {$value}";
+        }
+        $hash = sha1(implode(' ', $parts), true);
+        return substr(
+            str_replace(array('+','/','='), '', base64_encode($hash)),
+            -$size);
     }
 
     function _tryAgain($search, $form, $errors=array()) {
