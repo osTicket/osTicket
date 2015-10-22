@@ -905,7 +905,8 @@ class SavedSearch extends VerySimpleModel {
                     ->filter(array('form__type' => 'G'))
                     ->select_related('form');
                 foreach ($dfs as $field) {
-                    $otherFields[$field->getId()] = array($field->form, $field);
+                    $otherFields[$field->getId()] = array($field->form,
+                        $field->getImpl());
                 }
             }
             foreach ($otherFields as $id=>$F) {
@@ -1154,24 +1155,20 @@ class SavedSearch extends VerySimpleModel {
                 // Ensure the special join is created to support custom data joins
                 $name = @static::getOrmPath($name, $qs);
 
-                $name2 = null;
                 if (preg_match('/__answers!\d+__/', $name)) {
-                    // Ensure that only one record is returned from the join through
-                    // the entry and answers joins
-                    $name2 = $this->getAnnotationName().'2';
-                    $query->annotate(array($name2 => SqlAggregate::MAX($name)));
+                    $qs->annotate(array($name2 => SqlAggregate::MAX($name)));
                 }
 
                 // Fetch a criteria Q for the query
                 if (list(,$field) = $searchable[$name])
-                    if ($q = $field->getSearchQ($method, $value, $name2 ?: $name))
+                    if ($q = $field->getSearchQ($method, $value, $name))
                         $qs = $qs->filter($q);
             }
         }
         return $qs;
     }
 
-    function getOrmPath($name, $query=null) {
+    static function getOrmPath($name, $query=null) {
         // Special case for custom data `__answers!id__value`. Only add the
         // join and constraint on the query the first pass, when the query
         // being mangled is received.
