@@ -63,7 +63,7 @@ class SearchAjaxAPI extends AjaxController {
         $search = SavedSearch::create(array('root'=>'T'));
         $searchable = $search->getSupportedMatches();
         if (!($F = $searchable[$name]))
-            Http::response(404, 'No such field: ', print_r($id, true));
+            Http::response(404, 'No such field: ', print_r($name, true));
 
         $fields = SavedSearch::getSearchField($F, $name);
         $form = new AdvancedSearchForm($fields);
@@ -101,7 +101,6 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function _setupSearch(SavedSearch $search, $form, $key='advsearch') {
-        $form = $search->getForm($vars);
         if ($this->_hasErrors($search, $form))
             return false;
 
