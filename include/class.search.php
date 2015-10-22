@@ -729,6 +729,20 @@ class SavedSearch extends VerySimpleModel {
         return $this->criteria ?: array();
     }
 
+    function describeCriteria($criteria=false){
+        $all = $this->getSupportedMatches($this->getRoot());
+        $items = array();
+        $criteria = $criteria ?: $this->getCriteria();
+        foreach ($criteria as $C) {
+            list($path, $method, $value) = $C;
+            if (!isset($all[$path]))
+                continue;
+             list($label, $field) = $all[$path];
+             $items[] = $field->describeSearch($method, $value, $label);
+        }
+        return implode(', ', $items);
+    }
+
     /**
      * Fetch an AdvancedSearchForm instance for use in displaying or
      * configuring this search in the user interface.
