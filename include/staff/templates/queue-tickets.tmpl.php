@@ -27,9 +27,9 @@ if (!$view_all_tickets) {
 }
 
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$count = count($tickets);
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
-$count = count($tickets);
 $tickets = $pageNav->paginate($tickets);
 
 // Make sure the cdata materialized view is available
