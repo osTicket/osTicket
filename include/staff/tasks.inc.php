@@ -24,6 +24,7 @@ $sort_options = array(
     'number' =>             __('Task Number'),
     'closed' =>             __('Most Recently Closed'),
     'hot' =>                __('Longest Thread'),
+	'ticketnumber' =>       __('Ticker Number'),
     'relevance' =>          __('Relevance'),
 );
 
@@ -36,25 +37,25 @@ case 'closed':
     $status='closed';
     $results_type=__('Completed Tasks');
     $showassigned=true; //closed by.
-    $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
+    $queue_sort_options = array('closed', 'updated', 'created', 'number','ticketnumber', 'hot');
 
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tasks');
     $tasks->filter(array('isoverdue'=>1));
-    $queue_sort_options = array('updated', 'created', 'number', 'hot');
+    $queue_sort_options = array('updated', 'created', 'number','ticketnumber', 'hot');
     break;
 case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tasks');
     $tasks->filter(array('staff_id'=>$thisstaff->getId()));
-    $queue_sort_options = array('updated', 'created', 'hot', 'number');
+    $queue_sort_options = array('updated', 'created', 'hot', 'number','ticketnumber');
     break;
 default:
 case 'search':
-    $queue_sort_options = array('closed', 'updated', 'created', 'number', 'hot');
+    $queue_sort_options = array('closed', 'updated', 'created', 'number','ticketnumber', 'hot');
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
@@ -77,7 +78,7 @@ case 'search':
 case 'open':
     $status='open';
     $results_type=__('Open Tasks');
-    $queue_sort_options = array('created', 'updated', 'due', 'number', 'hot');
+    $queue_sort_options = array('created', 'updated', 'due', 'number','ticketnumber', 'hot');
     break;
 }
 
@@ -130,7 +131,7 @@ $tasks->annotate(array(
 
 $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
         'staff__firstname', 'staff__lastname', 'team__name',
-        'dept__name', 'cdata__title', 'flags');
+        'dept__name', 'cdata__title', 'flags','ticket','ticket__number','ticket__source');
 // Apply requested quick filter
 
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TASK, $queue_name);
@@ -278,10 +279,12 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 	        <th width="4%">&nbsp;</th>
             <?php } ?>
 	        <th width="8%">
-                <?php echo __('Number'); ?></th>
-	        <th width="20%">
+                <?php echo __('Task'); ?></th>
+			<th width="12%">
+                <?php echo __('Ticket'); ?></th>
+	        <th width="18%">
                 <?php echo $date_header ?: __('Date'); ?></th>
-	        <th width="38%">
+	        <th width="30%%">
                 <?php echo __('Title'); ?></th>
             <th width="15%">
                 <?php echo __('Department');?></th>
@@ -310,7 +313,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             $assinee ='';
             if ($T['staff_id']) {
                 $staff =  new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
-                $assignee = sprintf('<span class="Icon staffAssigned">%s</span>',
+                $assignee = sprintf('<span>%s</span>',
                         Format::truncate((string) $staff, 40));
             } elseif($T['team_id']) {
                 $assignee = sprintf('<span class="Icon teamAssigned">%s</span>',
@@ -319,6 +322,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 
             $threadcount=$T['thread_count'];
             $number = $T['number'];
+						
             if ($T['isopen'])
                 $number = sprintf('<b>%s</b>', $number);
 
@@ -341,7 +345,20 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     href="tasks.php?id=<?php echo $T['id']; ?>"
                     data-preview="#tasks/<?php echo $T['id']; ?>/preview"
                     ><?php echo $number; ?></a></td>
-                <td align="center" nowrap><?php echo
+				
+				<?php if(empty($T['ticket__number'])) {?>				
+				<td></td>
+				<?php }
+				else { ?>
+				<td title="<?php echo $T['user__default_email__address']; ?>" nowrap>
+                  <a class="Icon <?php echo strtolower($T['ticket__source']); ?>Ticket preview"
+                    title="Preview Ticket"
+                    href="tickets.php?id=<?php echo $T['ticket']; ?>"
+                    data-preview="#tickets/<?php echo $T['ticket']; ?>/preview"
+                    ><?php echo $T['ticket__number']; ?></a></td>
+	
+				<?php } ?>
+				<td align="left" nowrap><?php echo
                 Format::datetime($T[$date_col ?: 'created']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tasks.php?id=<?php echo $T['id']; ?>"><?php
@@ -357,7 +374,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     ?>
                 </td>
                 <td nowrap>&nbsp;<?php echo Format::truncate($dept, 40); ?></td>
-                <td nowrap>&nbsp;<?php echo $assignee; ?></td>
+                <td align="left" nowrap>&nbsp;<?php echo $assignee; ?></td>
             </tr>
             <?php
             } //end of foreach
@@ -367,7 +384,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="6">
+        <td colspan="7">
             <?php if($total && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
