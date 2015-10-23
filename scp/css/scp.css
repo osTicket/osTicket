@@ -904,6 +904,12 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
+/***** top page ticket response buttons *****/
+a#post-note:hover {
+    background-color:#fff9e2;
+    color:#555!IMPORTANT;
+}
+
 .thread-entry {
     margin-bottom: 15px;
     z-index: 0;
