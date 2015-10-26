@@ -3717,6 +3717,10 @@ class FileUploadWidget extends Widget {
         if (isset($_SESSION[':uploadedFiles']))
             $allowed += $_SESSION[':uploadedFiles'];
 
+        // Canned attachments initiated by this session
+        if (isset($_SESSION[':cannedFiles']))
+           $allowed += $_SESSION[':cannedFiles'];
+
         // Parse the files and make sure it's allowed.
         foreach ($files as $info) {
             @list($id, $name) = explode(',', $info, 2);
