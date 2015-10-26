@@ -91,13 +91,72 @@ class TicketApiController extends ApiController {
 
         return true;
     }
-
-
-    function create($format) {
-
+    
+    function delete($format) {
+        
         if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
             return $this->exerr(401, __('API key not authorized'));
+        
+        
+        $request = $this->getRequest($format);
+        #See if the necessary information are in the request
+        if (array_key_exists('number', $request) && is_numeric($request['number'])){
+            #Looks if there is a matching ID to the specified number
+            $id = Ticket::getIdByNumber($request['number']); 
+            if ($id > 0){
+                
+                $ticket = new Ticket();
+                $ticket->load($id);
+                
+                $ticket->delete();
+                
+                $this->response(200, __("Ticket deleted"));
+            }
+            else
+                $this->response(404, __("Ticket not found"));
+        }
+        else
+            $this->response(415, __("Number not sent"));
+        
+    }
 
+    function status($format) {
+        
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+        
+        
+        $request = $this->getRequest($format);
+        #See if the necessary information are in the request
+        if (array_key_exists('number', $request) && is_numeric($request['number'])){
+            #Looks if there is a matching ID to the specified number
+            $id = Ticket::getIdByNumber($request['number']); 
+            if ($id > 0){
+                #Load the ticket
+                $ticket = new Ticket();
+                $ticket->load($id);
+
+                #Prepare the response
+                $response = [];
+                foreach($request as $key=>$value){
+                    $response[$key] = $this->recursiveParameterProcessing($ticket, $key, $value);
+                }
+                
+                #Send the response
+                $this->response(200, json_encode($response));
+            }
+            else #No ticket matching to sent number
+                $this->exerr(404, __("Ticket not found"));
+        }
+        else #No number was sent with the Request
+            $this->exerr(415, __("Number not sent"));
+    }
+
+    function create($format) {
+        
+        if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+            return $this->exerr(401, __('API key not authorized'));
+            
         $ticket = null;
         if(!strcasecmp($format, 'email')) {
             # Handle remote piped emails - could be a reply...etc.
@@ -106,7 +165,7 @@ class TicketApiController extends ApiController {
             # Parse request body
             $ticket = $this->createTicket($this->getRequest($format));
         }
-
+        
         if(!$ticket)
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
 
@@ -123,10 +182,32 @@ class TicketApiController extends ApiController {
 
         # Assign default value to source if not defined, or defined as NULL
         $data['source'] = isset($data['source']) ? $data['source'] : 'API';
-
+        
+        $softerrors = "";
+        # Check for Assignment Information
+        if (!isset($data['assignId'])){
+            if (isset($data['assignEmail'])){
+                if ($staff = Staff::getIdByEmail($data['assignEmail']))
+                    $data['assignId'] = $staff;
+                else
+                    return $this->exerr(404, __("No staffmember has specified email address."));
+                unset($data['assignEmail']);
+            }
+        }
+        #Check for Department Information
+        if (!isset($data['deptId'])){
+            if (isset($data['deptName'])){
+                if ($dept = Dept::getIdByName($data['deptName']))
+                    $data['deptId'] = $dept;
+                else
+                    return $this->exerr(404, __("No Department corresponding to sent department Name."));
+                unset($data['deptName']);
+            }
+        }
+        
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
-
+        
         $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
         if (count($errors)) {
@@ -146,7 +227,6 @@ class TicketApiController extends ApiController {
     }
 
     function processEmail($data=false) {
-
         if (!$data)
             $data = $this->getEmailRequest();
 
@@ -159,6 +239,43 @@ class TicketApiController extends ApiController {
             return $thread->getTicket();
         }
         return $this->createTicket($data);
+    }
+    
+    
+    
+    #Extracts data from the ticket for the response.
+    #Example: ['Staff'=>['Email'=>1, 'Id'=>0]] as parameters means that the following happens:
+    #$temp = $ticket->getStaff();
+    #return ['Email'=>$temp->getEmail(), 'Id'=>$temp->Id];
+    #And in the $response array, it is then saved as ['Staff'=>['Email'=>$temp->getEmail(), 'Id'=>$temp->Id]]
+    function recursiveParameterProcessing($object, $key, $value) {
+        if ($value){
+            #A <$value> that is not 0 means that a get<$key>() Function of the object is accessed
+            $command = 'get'.$key;
+            if (method_exists($object, $command)){
+                $nextobject = $object->$command();
+                if ($nextobject === null)
+                    return null;#Returns null if the get-function returns null
+            }
+            else
+                return false;#Returns false if there is no get-function for the key
+            
+            #An array <$value> calls a get<$key>() of the object and then does the same process again
+            #for the result of said get-Function using the $keys and $values of the array used
+            if (is_array($value)){
+                $array = [];
+                foreach($value as $k=>$val){
+                    $array[$k] = $this->recursiveParameterProcessing($nextobject, $k, $val);
+                }
+                return $array;
+            }
+            else{#A numeric <$value> that is not 0 means that the result of the get<$key>-function is returned as string
+                return (string)$nextobject;
+            }
+        }
+        else{#A <$value> of 0 means that the object property is accessed directly via the <$key>
+            return (string)$object->$key;
+        }
     }
 
 }
