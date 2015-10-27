@@ -3810,6 +3810,10 @@ class VisibilityConstraint {
     }
 
     function emitJavascript($field) {
+
+        if (!$this->constraint->constraints)
+            return;
+
         $func = 'recheck';
         $form = $field->getForm();
 ?>
@@ -3851,6 +3855,12 @@ class VisibilityConstraint {
      * Determines if the field was visible when the form was submitted
      */
     function isVisible($field) {
+
+        // Assume initial visibility if constraint is not provided.
+        if (!$this->constraint->constraints)
+            return $this->initial == self::VISIBLE;
+
+
         return $this->compileQPhp($this->constraint, $field);
     }
 
