@@ -96,19 +96,25 @@ if($ticket->isOverdue())
 
             <?php
             // Assign
-            if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
-            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-assign" data-toggle="tooltip" title=" <?php echo $ticket->isAssigned() ? __('Assign') :  __('Reassign'); ?>">
+            if ($ticket->isOpen() && $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
+            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i></a>
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
+                    echo $ticket->isAssigned() ? __('Reassign') :  __('Assign'); ?></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
+                <?php
+                // Agent can claim team assigned ticket
+                if (!$ticket->getStaff()) { ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
+                    href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
+                <?php
+                } ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i

@@ -852,12 +852,61 @@ implements RestrictedAccess, Threadable {
 
     function getAssignmentForm($source=null, $options=array()) {
 
+        $prompt = $assignee = '';
+        // Possible assignees
+        $assignees = array();
+        switch (strtolower($options['target'])) {
+            case 'agents':
+                $dept = $this->getDept();
+                $criteria = array('available' => true);
+                if (($members = $dept->getMembers($criteria))) {
+                    foreach ($members as $member)
+                        $assignees['s'.$member->getId()] = $member;
+                }
+
+                if (!$source && $this->isOpen() && $this->staff)
+                    $assignee = sprintf('s%d', $this->staff->getId());
+                $prompt = __('Select an Agent');
+                break;
+            case 'teams':
+                if (($teams = Team::getTeams()))
+                    foreach ($teams as $id => $name)
+                        $assignees['t'.$id] = $name;
+
+                if (!$source && $this->isOpen() && $this->team)
+                    $assignee = sprintf('s%d', $this->team->getId());
+                $prompt = __('Select a Team');
+                break;
+        }
+
+        // Default to current assignee if source is not set
         if (!$source)
-            $source = array('assignee' => array($this->getAssigneeId()));
+            $source = array('assignee' => array($assignee));
 
-        $options += array('dept' => $this->getDept());
+        $form = AssignmentForm::instantiate($source, $options);
 
-        return AssignmentForm::instantiate($source, $options);
+        if ($assignees)
+            $form->setAssignees($assignees);
+
+        if ($prompt && ($f=$form->getField('assignee')))
+            $f->configure('prompt', $prompt);
+
+
+        return $form;
+    }
+
+    function getClaimForm($source=null, $options=array()) {
+        global $thisstaff;
+
+        $id = sprintf('s%d', $thisstaff->getId());
+        if(!$source)
+            $source = array('assignee' => array($id));
+
+        $form = ClaimForm::instantiate($source, $options);
+        $form->setAssignees(array($id => $thisstaff->getName()));
+
+        return $form;
+
     }
 
     function getTransferForm($source=null) {
@@ -2025,17 +2074,25 @@ implements RestrictedAccess, Threadable {
          return true;
     }
 
-    function claim() {
+    function claim(ClaimForm $form, &$errors) {
         global $thisstaff;
 
-        if (!$thisstaff || !$this->isOpen() || $this->isAssigned())
-            return false;
-
         $dept = $this->getDept();
-        if ($dept->assignMembersOnly() && !$dept->isMember($thisstaff))
+        $assignee = $form->getAssignee();
+        if (!($assignee instanceof Staff)
+                || !$thisstaff
+                || $thisstaff->getId() != $assignee->getId()) {
+            $errors['err'] = __('Unknown assignee');
+        } elseif (!$assignee->isAvailable()) {
+            $errors['err'] = __('Agent is unavailable for assignment');
+        } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+            $errors['err'] = __('Permission denied');
+        }
+
+        if ($errors)
             return false;
 
-        return $this->assignToStaff($thisstaff->getId(), null, false);
+        return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
     function assignToStaff($staff, $note, $alert=true) {
@@ -2118,9 +2175,7 @@ implements RestrictedAccess, Threadable {
 
         $this->logEvent('assigned', $evd);
 
-        $this->onAssign($assignee,
-                $form->getField('comments')->getClean(),
-                $alert);
+        $this->onAssign($assignee, $form->getComments(), $alert);
 
         return true;
     }
