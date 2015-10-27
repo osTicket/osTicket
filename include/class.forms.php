@@ -2233,6 +2233,10 @@ class AssigneeField extends ChoiceField {
         return true;
     }
 
+    function setChoices($choices) {
+        $this->_choices = $choices;
+    }
+
     function getChoices() {
         global $cfg;
 
@@ -3952,14 +3956,8 @@ class AssignmentForm extends Form {
 
     static $id = 'assign';
     var $_assignee = null;
-    var $_dept = null;
+    var $_assignees = array();
 
-    function __construct($source=null, $options=array()) {
-        parent::__construct($source, $options);
-        // Department of the object -- if necessary to limit assinees
-        if (isset($options['dept']))
-            $this->_dept = $options['dept'];
-    }
 
     function getFields() {
 
@@ -3977,7 +3975,6 @@ class AssignmentForm extends Form {
                         'criteria' => array(
                             'available' => true,
                             ),
-                        'dept' => $this->_dept ?: null,
                        ),
                     )
                 ),
@@ -3994,6 +3991,11 @@ class AssignmentForm extends Form {
                     )
                 ),
             );
+
+
+        if ($this->_assignees)
+            $fields['assignee']->setChoices($this->_assignees);
+
 
         $this->setFields($fields);
 
@@ -4035,6 +4037,15 @@ class AssignmentForm extends Form {
         include $inc;
     }
 
+    function setAssignees($assignees) {
+        $this->_assignees = $assignees;
+        $this->_fields = array();
+    }
+
+    function getAssignees() {
+        return $this->_assignees;
+    }
+
     function getAssignee() {
 
         if (!isset($this->_assignee))
@@ -4043,11 +4054,9 @@ class AssignmentForm extends Form {
         return $this->_assignee;
     }
 
-    function assigneeCriteria() {
-        $dept = $this->id;
-        return function () use($dept) {
-            return array('dept_id' =>$dept);
-        };
+    function getComments() {
+        return $this->getField('comments')->getClean();
+
     }
 
 }
