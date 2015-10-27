@@ -462,6 +462,65 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/assign.tmpl.php';
     }
 
+    function claim($tid) {
+
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        // Check for premissions and such
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !$ticket->isOpen() // Claim only open
+                || $ticket->getStaff() // cannot claim assigned ticket
+                || !($form = $ticket->getClaimForm($_POST)))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Claim')),
+                ':action' => sprintf('#tickets/%d/claim',
+                    $ticket->getId()),
+
+                );
+
+        if ($ticket->isAssigned()) {
+            if ($ticket->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigneed = $ticket->getAssigned();
+
+            $info['error'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This ticket'),
+                    $assigned);
+        } else {
+             $info['warn'] = __('Are you sure you want to claim this ticket?');
+        }
+
+        if ($_POST && $form->isValid()) {
+            if ($ticket->claim($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s assigned to %s'),
+                            __('Ticket'),
+                            __('you'))
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to claim ticket');
+        }
+
+        $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
+
+    }
+
     function massProcess($action)  {
         global $thisstaff;
 
