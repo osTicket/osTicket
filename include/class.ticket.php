@@ -852,12 +852,48 @@ implements RestrictedAccess, Threadable {
 
     function getAssignmentForm($source=null, $options=array()) {
 
+        $prompt = $assignee = '';
+        // Possible assignees
+        $assignees = array();
+        switch (strtolower($options['target'])) {
+            case 'agents':
+                $dept = $this->getDept();
+                $criteria = array('available' => true);
+                if (($members = $dept->getMembers($criteria))) {
+                    foreach ($members as $member)
+                        $assignees['s'.$member->getId()] = $member;
+                }
+
+                if (!$source && $this->isOpen() && $this->staff)
+                    $assignee = sprintf('s%d', $this->staff->getId());
+                $prompt = __('Select an Agent');
+                break;
+            case 'teams':
+                if (($teams = Team::getTeams()))
+                    foreach ($teams as $id => $name)
+                        $assignees['t'.$id] = $name;
+
+                if (!$source && $this->isOpen() && $this->team)
+                    $assignee = sprintf('s%d', $this->team->getId());
+                $prompt = __('Select a Team');
+                break;
+        }
+
+        // Default to current assignee if source is not set
         if (!$source)
-            $source = array('assignee' => array($this->getAssigneeId()));
+            $source = array('assignee' => array($assignee));
 
-        $options += array('dept' => $this->getDept());
+        $form = AssignmentForm::instantiate($source, $options);
 
-        return AssignmentForm::instantiate($source, $options);
+        if ($assignees)
+            $form->setAssignees($assignees);
+
+        if ($prompt && ($f=$form->getField('assignee')))
+            $f->configure('prompt', $prompt);
+
+
+        return $form;
+
     }
 
     function getTransferForm($source=null) {
@@ -2118,9 +2154,7 @@ implements RestrictedAccess, Threadable {
 
         $this->logEvent('assigned', $evd);
 
-        $this->onAssign($assignee,
-                $form->getField('comments')->getClean(),
-                $alert);
+        $this->onAssign($assignee, $form->getComments(), $alert);
 
         return true;
     }

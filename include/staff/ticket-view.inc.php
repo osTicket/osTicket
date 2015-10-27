@@ -86,13 +86,13 @@ if($ticket->isOverdue())
 
             <?php
             // Assign
-            if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
+            if ($ticket->isOpen() && $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
-                    echo $ticket->isAssigned() ? __('Assign') :  __('Reassign'); ?></a>
+                    echo $ticket->isAssigned() ? __('Reassign') :  __('Assign'); ?></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
