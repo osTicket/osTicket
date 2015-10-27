@@ -893,6 +893,19 @@ implements RestrictedAccess, Threadable {
 
 
         return $form;
+    }
+
+    function getClaimForm($source=null, $options=array()) {
+        global $thisstaff;
+
+        $id = sprintf('s%d', $thisstaff->getId());
+        if(!$source)
+            $source = array('assignee' => array($id));
+
+        $form = ClaimForm::instantiate($source, $options);
+        $form->setAssignees(array($id => $thisstaff->getName()));
+
+        return $form;
 
     }
 
@@ -2061,17 +2074,25 @@ implements RestrictedAccess, Threadable {
          return true;
     }
 
-    function claim() {
+    function claim(ClaimForm $form, &$errors) {
         global $thisstaff;
 
-        if (!$thisstaff || !$this->isOpen() || $this->isAssigned())
-            return false;
-
         $dept = $this->getDept();
-        if ($dept->assignMembersOnly() && !$dept->isMember($thisstaff))
+        $assignee = $form->getAssignee();
+        if (!($assignee instanceof Staff)
+                || !$thisstaff
+                || $thisstaff->getId() != $assignee->getId()) {
+            $errors['err'] = __('Unknown assignee');
+        } elseif (!$assignee->isAvailable()) {
+            $errors['err'] = __('Agent is unavailable for assignment');
+        } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+            $errors['err'] = __('Permission denied');
+        }
+
+        if ($errors)
             return false;
 
-        return $this->assignToStaff($thisstaff->getId(), null, false);
+        return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
     function assignToStaff($staff, $note, $alert=true) {

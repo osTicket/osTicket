@@ -96,10 +96,15 @@ if($ticket->isOverdue())
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
+                <?php
+                // Agent can claim team assigned ticket
+                if (!$ticket->getStaff()) { ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
+                    href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
+                <?php
+                } ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
