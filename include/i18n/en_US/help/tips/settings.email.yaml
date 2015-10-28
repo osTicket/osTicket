@@ -124,6 +124,18 @@ default_mta:
         <span class="doc-desc-title">Default MTA</span> takes care of
         email delivery process for outgoing emails without SMTP setting.
 
+email_attachments:
+    title: Email Attachments to Users
+    content: >
+        If enabled, any attachments an Agent may attach to a ticket response will
+        be also included in the email to the User.
+
+email_attachments_agents:
+    title: Email Attachments to Agents
+    content: >
+        If enabled, any attachments a User or another Agent may attach in a new ticket,
+        response, or internal note, will be included in the alert email sent to Agents.
+
 verify_email_addrs:
     title: Verify Email Addresses
     content: >

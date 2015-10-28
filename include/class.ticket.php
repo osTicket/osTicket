@@ -1002,6 +1002,9 @@ class Ticket {
 
             $msg = $this->replaceVars($msg->asArray(), array('message' => $message));
 
+            /** @var message $message */
+            $attachments = $cfg->emailAttachmentsToAgents()?$message->getAttachments():array();
+
             $recipients=$sentlist=array();
             //Exclude the auto responding email just incase it's from staff member.
             if ($message->isAutoReply())
@@ -1010,7 +1013,7 @@ class Ticket {
             //Alert admin??
             if($cfg->alertAdminONNewTicket()) {
                 $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
-                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'], $alert['body'], $attachments, $options);
                 $sentlist[]=$cfg->getAdminEmail();
             }
 
@@ -1036,7 +1039,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], $attachments, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1282,6 +1285,10 @@ class Ticket {
                     'activity' => $vars['activity'],
                     'comments' => $vars['comments']));
 
+        /** @var ThreadEntry $threadEntry */
+        $threadEntry = $vars['threadentry'];
+        $attachments = $cfg->emailAttachmentsToAgents()?$threadEntry->getAttachments():array();
+
         $isClosed = $this->isClosed();
         $sentlist=array();
         foreach ($recipients as $k=>$staff) {
@@ -1297,7 +1304,7 @@ class Ticket {
                     )
                 continue;
             $alert = $this->replaceVars($msg, array('recipient' => $staff));
-            $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+            $email->sendAlert($staff, $alert['subj'], $alert['body'], $attachments, $options);
             $sentlist[$staff->getEmail()] = 1;
         }
 
@@ -1842,6 +1849,8 @@ class Ticket {
 
             $msg = $this->replaceVars($msg->asArray(), $variables);
 
+            $attachments = $cfg->emailAttachmentsToAgents()?$message->getAttachments():array();
+
             //Build list of recipients and fire the alerts.
             $recipients=array();
             //Last respondent.
@@ -1874,7 +1883,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], $attachments, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
