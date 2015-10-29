@@ -496,7 +496,8 @@ class TicketsAjaxAPI extends AjaxController {
                     __('This ticket'),
                     $assigned);
         } else {
-             $info['warn'] = __('Are you sure you want to claim this ticket?');
+            $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                    __('this ticket'));
         }
 
         if ($_POST && $form->isValid()) {
@@ -521,7 +522,7 @@ class TicketsAjaxAPI extends AjaxController {
 
     }
 
-    function massProcess($action)  {
+    function massProcess($action, $w=null)  {
         global $thisstaff;
 
         $actions = array(
@@ -529,6 +530,9 @@ class TicketsAjaxAPI extends AjaxController {
                     'verbed' => __('transferred'),
                     ),
                 'assign' => array(
+                    'verbed' => __('assigned'),
+                    ),
+                'claim' => array(
                     'verbed' => __('assigned'),
                     ),
                 'delete' => array(
@@ -558,12 +562,56 @@ class TicketsAjaxAPI extends AjaxController {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'claim':
+            $w = 'me';
         case 'assign':
             $inc = 'assign.tmpl.php';
             $info[':action'] = '#tickets/mass/assign';
             $info[':title'] = sprintf('Assign %s',
                     _N('selected ticket', 'selected tickets', $count));
+
             $form = AssignmentForm::instantiate($_POST);
+
+
+            $assignCB = function($t, $f, $e) {
+                return $t->assign($f, $e);
+            };
+
+            $assignees = array();
+            switch ($w) {
+                case 'agents':
+                    $prompt  = __('Select an Agent');
+                    foreach (Staff::getAvailableStaffMembers() as $id => $name)
+                        $assignees['s'.$id] = $name;
+                    break;
+                case 'teams':
+                    $prompt = __('Select a Team');
+                    foreach (Team::getActiveTeams() as $id => $name)
+                        $assignees['t'.$id] = $name;
+                    break;
+                case 'me':
+                    $info[':action'] = '#tickets/mass/claim';
+                    $info[':title'] = sprintf('Claim %s',
+                            _N('selected ticket', 'selected tickets', $count));
+                    $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                                _N('selected ticket', 'selected tickets', $count));
+                    $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+                    $id = sprintf('s%s', $thisstaff->getId());
+                    $assignees = array($id => $thisstaff->getName());
+                    $vars = $_POST ?: array('assignee' => array($id));
+                    $form = ClaimForm::instantiate($vars);
+                    $assignCB = function($t, $f, $e) {
+                        return $t->claim($f, $e);
+                    };
+                    break;
+            }
+
+            if ($assignees)
+                $form->setAssignees($assignees);
+
+            if ($prompt && ($f=$form->getField('assignee')))
+                $f->configure('prompt', $prompt);
+
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -571,7 +619,7 @@ class TicketsAjaxAPI extends AjaxController {
                             // access and assign the task.
                             && $t->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                             // Do the assignment
-                            && $t->assign($form, $e)
+                            && $assignCB($t, $form, $e)
                             )
                         $i++;
                 }
