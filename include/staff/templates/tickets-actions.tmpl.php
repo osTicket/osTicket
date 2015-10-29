@@ -19,7 +19,7 @@ if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
 <div id="action-dropdown-assign" class="action-dropdown anchor-right">
   <ul>
      <li><a class="no-pjax tickets-action"
-        href="#tickets/mass/assign/<?php echo $agent->getId(); ?>"><i
+        href="#tickets/mass/claim"><i
         class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
      <li><a class="no-pjax tickets-action"
         href="#tickets/mass/assign/agents"><i
