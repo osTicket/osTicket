@@ -405,31 +405,43 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
 
-    function assign($tid, $to=null) {
+    function assign($tid, $target=null) {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
 
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN))
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !($form = $ticket->getAssignmentForm($_POST,
+                        array('target' => $target))))
             Http::response(403, __('Permission Denied'));
 
         $errors = array();
         $info = array(
                 ':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
-                    $ticket->isAssigned() ? __('Reassign') :  __('Assign')),
+                    sprintf('%s %s',
+                        $ticket->isAssigned() ?
+                            __('Reassign') :  __('Assign'),
+                        !strcasecmp($target, 'agents') ?
+                            __('to an Agent') : __('to a Team')
+                    )),
                 ':action' => sprintf('#tickets/%d/assign%s',
                     $ticket->getId(),
-                    ($to  ? "/$to": '')),
+                    ($target  ? "/$target": '')),
                 );
+
         if ($ticket->isAssigned()) {
-            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
-                    __('Ticket'),
-                    $ticket->getAssigned());
+            if ($ticket->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigneed = $ticket->getAssigned();
+
+            $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This ticket'),
+                    $assigned);
         }
 
-        $form = $ticket->getAssignmentForm($_POST);
         if ($_POST && $form->isValid()) {
             if ($ticket->assign($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
@@ -449,7 +461,67 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/assign.tmpl.php';
     }
 
-    function massProcess($action)  {
+    function claim($tid) {
+
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        // Check for premissions and such
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !$ticket->isOpen() // Claim only open
+                || $ticket->getStaff() // cannot claim assigned ticket
+                || !($form = $ticket->getClaimForm($_POST)))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Claim')),
+                ':action' => sprintf('#tickets/%d/claim',
+                    $ticket->getId()),
+
+                );
+
+        if ($ticket->isAssigned()) {
+            if ($ticket->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigneed = $ticket->getAssigned();
+
+            $info['error'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This ticket'),
+                    $assigned);
+        } else {
+            $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                    __('this ticket'));
+        }
+
+        if ($_POST && $form->isValid()) {
+            if ($ticket->claim($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s assigned to %s'),
+                            __('Ticket'),
+                            __('you'))
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to claim ticket');
+        }
+
+        $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
+
+    }
+
+    function massProcess($action, $w=null)  {
         global $thisstaff;
 
         $actions = array(
@@ -457,6 +529,9 @@ class TicketsAjaxAPI extends AjaxController {
                     'verbed' => __('transferred'),
                     ),
                 'assign' => array(
+                    'verbed' => __('assigned'),
+                    ),
+                'claim' => array(
                     'verbed' => __('assigned'),
                     ),
                 'delete' => array(
@@ -486,12 +561,56 @@ class TicketsAjaxAPI extends AjaxController {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'claim':
+            $w = 'me';
         case 'assign':
             $inc = 'assign.tmpl.php';
             $info[':action'] = '#tickets/mass/assign';
             $info[':title'] = sprintf('Assign %s',
                     _N('selected ticket', 'selected tickets', $count));
+
             $form = AssignmentForm::instantiate($_POST);
+
+
+            $assignCB = function($t, $f, $e) {
+                return $t->assign($f, $e);
+            };
+
+            $assignees = array();
+            switch ($w) {
+                case 'agents':
+                    $prompt  = __('Select an Agent');
+                    foreach (Staff::getAvailableStaffMembers() as $id => $name)
+                        $assignees['s'.$id] = $name;
+                    break;
+                case 'teams':
+                    $prompt = __('Select a Team');
+                    foreach (Team::getActiveTeams() as $id => $name)
+                        $assignees['t'.$id] = $name;
+                    break;
+                case 'me':
+                    $info[':action'] = '#tickets/mass/claim';
+                    $info[':title'] = sprintf('Claim %s',
+                            _N('selected ticket', 'selected tickets', $count));
+                    $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                                _N('selected ticket', 'selected tickets', $count));
+                    $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+                    $id = sprintf('s%s', $thisstaff->getId());
+                    $assignees = array($id => $thisstaff->getName());
+                    $vars = $_POST ?: array('assignee' => array($id));
+                    $form = ClaimForm::instantiate($vars);
+                    $assignCB = function($t, $f, $e) {
+                        return $t->claim($f, $e);
+                    };
+                    break;
+            }
+
+            if ($assignees)
+                $form->setAssignees($assignees);
+
+            if ($prompt && ($f=$form->getField('assignee')))
+                $f->configure('prompt', $prompt);
+
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -499,7 +618,7 @@ class TicketsAjaxAPI extends AjaxController {
                             // access and assign the task.
                             && $t->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                             // Do the assignment
-                            && $t->assign($form, $e)
+                            && $assignCB($t, $form, $e)
                             )
                         $i++;
                 }

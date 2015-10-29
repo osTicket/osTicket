@@ -60,46 +60,68 @@ if($ticket->isOverdue())
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
+            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-more" data-toggle="tooltip" title="<?php echo __('More');?>">
                 <i class="icon-caret-down pull-right"></i>
-                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                <span ><i class="icon-cog"></i></span>
             </span>
             <?php
             }
-            // Status change options
-            echo TicketStatus::status_options();
 
             if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
-                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
-                    echo __('Edit'); ?></a>
+                <span class="action-button pull-right"><a data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a></span>
             <?php
             } ?>
+            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
+                <i class="icon-caret-down pull-right"></i>
+                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
+            </span>
+            <div id="action-dropdown-print" class="action-dropdown anchor-right">
+              <ul>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
+              </ul>
+            </div>
             <?php
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
-            <a class="ticket-action action-button pull-right" id="ticket-transfer"
+            <span class="action-button pull-right">
+            <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
                 data-redirect="tickets.php"
-                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i> <?php
-                echo __('Transfer'); ?></a>
+                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
+            </span>
             <?php
             } ?>
 
             <?php
             // Assign
-            if ($role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
+            if ($ticket->isOpen() && $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
+            <span class="action-button pull-right"
+                data-dropdown="#action-dropdown-assign"
+                data-placement="bottom"
+                data-toggle="tooltip"
+                title=" <?php echo $ticket->isAssigned() ? __('Assign') : __('Reassign'); ?>"
+                >
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
-                    echo $ticket->isAssigned() ? __('Assign') :  __('Reassign'); ?></a>
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
+                <?php
+                // Agent can claim team assigned ticket
+                if (!$ticket->getStaff()
+                        && (!$dept->assignMembersOnly()
+                            || $dept->isMember($thisstaff))
+                        ) { ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign/<?php echo $thisstaff->getId(); ?>"><i
+                    href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
+                <?php
+                } ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
@@ -112,19 +134,6 @@ if($ticket->isOverdue())
             </div>
             <?php
             } ?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-print">
-                <i class="icon-caret-down pull-right"></i>
-                <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i> <?php
-                    echo __('Print'); ?></a>
-            </span>
-            <div id="action-dropdown-print" class="action-dropdown anchor-right">
-              <ul>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
-                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
-                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
-              </ul>
-            </div>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
               <ul>
                 <?php
@@ -191,7 +200,20 @@ if($ticket->isOverdue())
                 ?>
               </ul>
             </div>
-        </div>
+                <?php
+                if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+                <a href="#post-reply" class="post-response action-button"
+                data-placement="bottom" data-toggle="tooltip"
+                title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
+                <?php
+                } ?>
+                <a href="#post-note" id="post-note" class="post-response action-button"
+                data-placement="bottom" data-toggle="tooltip"
+                title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
+                <?php // Status change options
+                echo TicketStatus::status_options();
+                ?>
+           </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
@@ -456,7 +478,8 @@ echo $v;
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
-    <li class="active"><a href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+    <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
+        echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
     <li><a id="ticket-tasks-tab" href="#tasks"
             data-url="<?php
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
@@ -468,6 +491,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
 
 <div id="ticket_tabs_container">
 <div id="ticket_thread" class="tab_content">
+
 <?php
     // Render ticket thread
     $ticket->getThread()->render(
@@ -478,23 +502,31 @@ $tcount = $ticket->getThreadEntries($types)->count();
             );
 ?>
 <div class="clear"></div>
-<?php if($errors['err']) { ?>
-    <div id="msg_error"><?php echo $errors['err']; ?></div>
-<?php }elseif($msg) { ?>
+<?php
+if ($errors['err'] && isset($_POST['a'])) {
+    // Reflect errors back to the tab.
+    $errors[$_POST['a']] = $errors['err'];
+} elseif($msg) { ?>
     <div id="msg_notice"><?php echo $msg; ?></div>
-<?php }elseif($warn) { ?>
+<?php
+} elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
-<?php } ?>
+<?php
+} ?>
 
 <div class="sticky bar stop actions" id="response_options"
 >
-    <ul class="tabs">
+    <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
+        <li class="active <?php
+            echo isset($errors['reply']) ? 'error' : ''; ?>"><a
+            href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-        <li><a href="#note"><?php echo __('Post Internal Note');?></a></li>
+        <li><a href="#note" <?php
+            echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
+            id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
@@ -508,8 +540,12 @@ $tcount = $ticket->getThreadEntries($types)->count();
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
-        <span class="error"></span>
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+            <?php
+            if ($errors['reply']) {?>
+            <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['reply']; ?>&nbsp;</td></tr>
+            <?php
+            }?>
            <tbody id="to_sec">
             <tr>
                 <td width="120">
@@ -896,5 +932,30 @@ $(function() {
             }
         });
     });
+
+    // Post Reply or Note action buttons.
+    $('a.post-response').click(function (e) {
+        var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
+        if ($r.length) {
+            // Make sure ticket thread tab is visiable.
+            var $t = $('ul#ticket_tabs > li > a#ticket-thread-tab');
+            if ($t.length && !$t.hasClass('active'))
+                $t.trigger('click');
+            // Make the target response tab active.
+            if (!$r.hasClass('active'))
+                $r.trigger('click');
+
+            // Scroll to the response section.
+            var $stop = $(document).height();
+            var $s = $('div#response_options');
+            if ($s.length)
+                $stop = $s.offset().top-125
+
+            $('html, body').animate({scrollTop: $stop}, 'fast');
+        }
+
+        return false;
+    });
+
 });
 </script>
