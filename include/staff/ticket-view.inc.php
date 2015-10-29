@@ -112,7 +112,10 @@ if($ticket->isOverdue())
               <ul>
                 <?php
                 // Agent can claim team assigned ticket
-                if (!$ticket->getStaff()) { ?>
+                if (!$ticket->getStaff()
+                        && (!$dept->assignMembersOnly()
+                            || $dept->isMember($thisstaff))
+                        ) { ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i

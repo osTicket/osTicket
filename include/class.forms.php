@@ -2240,7 +2240,7 @@ class AssigneeField extends ChoiceField {
     function getChoices() {
         global $cfg;
 
-        if (!$this->_choices) {
+        if (!isset($this->_choices)) {
             $config = $this->getConfiguration();
             $choices = array(
                     __('Agents') => new ArrayObject(),
@@ -2261,7 +2261,7 @@ class AssigneeField extends ChoiceField {
 
             next($choices);
             $T = current($choices);
-            if (($teams = Team::getTeams()))
+            if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
 
@@ -3243,7 +3243,9 @@ class ChoicesWidget extends Widget {
     }
 
     function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
-        foreach ($choices as $label => $group) { ?>
+        foreach ($choices as $label => $group) {
+            if (!count($group)) continue;
+            ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {
                 if (!$have_def && $key == $def_key)
@@ -3956,7 +3958,7 @@ class AssignmentForm extends Form {
 
     static $id = 'assign';
     var $_assignee = null;
-    var $_assignees = array();
+    var $_assignees = null;
 
 
     function getFields() {
@@ -3993,7 +3995,7 @@ class AssignmentForm extends Form {
             );
 
 
-        if ($this->_assignees)
+        if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
 
 
@@ -4002,21 +4004,31 @@ class AssignmentForm extends Form {
         return $this->fields;
     }
 
+    function getField($name) {
+
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
     function isValid() {
 
-        if (!parent::isValid())
+        if (!parent::isValid() || !($f=$this->getField('assignee')))
             return false;
 
         // Do additional assignment validation
         if (!($assignee = $this->getAssignee())) {
-            $this->getField('assignee')->addError(
-                    __('Unknown assignee'));
+            $f->addError(__('Unknown assignee'));
         } elseif ($assignee instanceof Staff) {
             // Make sure the agent is available
             if (!$assignee->isAvailable())
-                $this->getField('assignee')->addError(
-                        __('Agent is unavailable for assignment')
-                        );
+                $f->addError(__('Agent is unavailable for assignment'));
+        } elseif ($assignee instanceof Team) {
+            // Make sure the team is active and has members
+            if (!$assignee->isActive())
+                $f->addError(__('Team is disabled'));
+            elseif (!$assignee->getNumMembers())
+                $f->addError(__('Team does not have members'));
         }
 
         return !$this->errors();

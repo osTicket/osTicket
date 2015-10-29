@@ -572,22 +572,29 @@ class TicketsAjaxAPI extends AjaxController {
 
             $form = AssignmentForm::instantiate($_POST);
 
-
             $assignCB = function($t, $f, $e) {
                 return $t->assign($f, $e);
             };
 
-            $assignees = array();
+            $assignees = null;
             switch ($w) {
                 case 'agents':
                     $prompt  = __('Select an Agent');
+                    $assignees = array();
                     foreach (Staff::getAvailableStaffMembers() as $id => $name)
                         $assignees['s'.$id] = $name;
+
+                    if (!$assignees)
+                        $info['warn'] =  __('No agents available for assignment');
                     break;
                 case 'teams':
+                    $assignees = array();
                     $prompt = __('Select a Team');
                     foreach (Team::getActiveTeams() as $id => $name)
                         $assignees['t'.$id] = $name;
+
+                    if (!$assignees)
+                        $info['warn'] =  __('No teams available for assignment');
                     break;
                 case 'me':
                     $info[':action'] = '#tickets/mass/claim';
@@ -606,7 +613,7 @@ class TicketsAjaxAPI extends AjaxController {
                     break;
             }
 
-            if ($assignees)
+            if ($assignees != null)
                 $form->setAssignees($assignees);
 
             if ($prompt && ($f=$form->getField('assignee')))

@@ -858,18 +858,15 @@ implements RestrictedAccess, Threadable {
         switch (strtolower($options['target'])) {
             case 'agents':
                 $dept = $this->getDept();
-                $criteria = array('available' => true);
-                if (($members = $dept->getMembers($criteria))) {
-                    foreach ($members as $member)
-                        $assignees['s'.$member->getId()] = $member;
-                }
+                foreach ($dept->getAssignees() as $member)
+                    $assignees['s'.$member->getId()] = $member;
 
                 if (!$source && $this->isOpen() && $this->staff)
                     $assignee = sprintf('s%d', $this->staff->getId());
                 $prompt = __('Select an Agent');
                 break;
             case 'teams':
-                if (($teams = Team::getTeams()))
+                if (($teams = Team::getActiveTeams()))
                     foreach ($teams as $id => $name)
                         $assignees['t'.$id] = $name;
 
@@ -2142,6 +2139,7 @@ implements RestrictedAccess, Threadable {
         $evd = array();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
+            $dept = $this->getDept();
             if ($this->getStaffId() == $assignee->getId()) {
                 $errors['assignee'] = sprintf(__('%s already assigned to %s'),
                         __('Ticket'),
@@ -2149,6 +2147,8 @@ implements RestrictedAccess, Threadable {
                         );
             } elseif(!$assignee->isAvailable()) {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
+            } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+                $errors['err'] = __('Permission denied');
             } else {
                 $this->staff_id = $assignee->getId();
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId())
@@ -3358,7 +3358,7 @@ implements RestrictedAccess, Threadable {
 
         // Assign ticket to staff or team (new ticket by staff)
         if ($vars['assignId']) {
-            $asnform = new AssignmentForm(array('assignee' => $vars['assignId']));
+            $asnform = $ticket->AssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
         }
         else {
