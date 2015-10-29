@@ -54,6 +54,16 @@ class Ticket {
 
     var $thread; //Thread obj.
 
+    // Ticket Sources
+    static protected $sources =  array(
+            'Phone' =>
+            /* @trans */ 'Phone',
+            'Email' =>
+            /* @trans */ 'Email',
+            'Other' =>
+            /* @trans */ 'Other',
+            );
+
     function Ticket($id) {
         $this->id = 0;
         $this->load($id);
@@ -215,6 +225,10 @@ class Ticket {
             return true;
 
         return false;
+    }
+
+    static function getSources() {
+        return self::$sources;
     }
 
     //Getters
@@ -2911,8 +2925,11 @@ class Ticket {
 
         if(!$thisstaff || !$thisstaff->canCreateTickets()) return false;
 
-        if($vars['source'] && !in_array(strtolower($vars['source']),array('email','phone','other')))
-            $errors['source']=sprintf(__('Invalid source given - %s'),Format::htmlchars($vars['source']));
+        if (isset($vars['source']) // Check ticket source if provided
+                && !array_key_exists($vars['source'], Ticket::getSources()))
+            $errors['source'] = sprintf( __('Invalid source given - %s'),
+                    Format::htmlchars($vars['source']));
+
 
         if (!$vars['uid']) {
             //Special validation required here
