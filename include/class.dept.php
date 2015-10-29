@@ -205,6 +205,17 @@ implements TemplateVariable {
         return $this->getMembers(array('available'=>1));
     }
 
+    // Get members  eligible members only
+    function getAssignees() {
+
+        $members = clone $this->getAvailableMembers();
+        // If restricted then filter to primary members ONLY!
+        if ($this->assignMembersOnly())
+            $members->filter(array('dept_id' => $this->getId()));
+
+        return $members;
+    }
+
     function getMembersForAlerts() {
         if ($this->isGroupMembershipEnabled() == self::ALERTS_DISABLED) {
             // Disabled for this department

@@ -858,11 +858,8 @@ implements RestrictedAccess, Threadable {
         switch (strtolower($options['target'])) {
             case 'agents':
                 $dept = $this->getDept();
-                $criteria = array('available' => true);
-                if (($members = $dept->getMembers($criteria))) {
-                    foreach ($members as $member)
-                        $assignees['s'.$member->getId()] = $member;
-                }
+                foreach ($dept->getAssignees() as $member)
+                    $assignees['s'.$member->getId()] = $member;
 
                 if (!$source && $this->isOpen() && $this->staff)
                     $assignee = sprintf('s%d', $this->staff->getId());
@@ -2142,6 +2139,7 @@ implements RestrictedAccess, Threadable {
         $evd = array();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
+            $dept = $this->getDept();
             if ($this->getStaffId() == $assignee->getId()) {
                 $errors['assignee'] = sprintf(__('%s already assigned to %s'),
                         __('Ticket'),
@@ -2149,6 +2147,8 @@ implements RestrictedAccess, Threadable {
                         );
             } elseif(!$assignee->isAvailable()) {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
+            } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+                $errors['err'] = __('Permission denied');
             } else {
                 $this->staff_id = $assignee->getId();
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId())
