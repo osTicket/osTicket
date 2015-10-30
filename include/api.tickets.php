@@ -1,10 +1,7 @@
 <?php
-
 include_once INCLUDE_DIR.'class.api.php';
 include_once INCLUDE_DIR.'class.ticket.php';
-
 class TicketApiController extends ApiController {
-
     # Supported arguments -- anything else is an error. These items will be
     # inspected _after_ the fixup() method of the ApiXxxDataParser classes
     # so that all supported input formats should be supported
@@ -24,18 +21,15 @@ class TicketApiController extends ApiController {
             foreach ($form->getDynamicFields() as $field)
                 $supported[] = $field->get('name');
         }
-
         # Ticket form fields
         # TODO: Support userId for existing user
         if(($form = TicketForm::getInstance()))
             foreach ($form->getFields() as $field)
                 $supported[] = $field->get('name');
-
         # User form fields
         if(($form = UserForm::getInstance()))
             foreach ($form->getFields() as $field)
                 $supported[] = $field->get('name');
-
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
                 'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
@@ -43,33 +37,26 @@ class TicketApiController extends ApiController {
                 'flags' => array('bounce', 'auto-reply', 'spam', 'viral'),
                 'recipients' => array('*' => array('name', 'email', 'source'))
                 ));
-
             $supported['attachments']['*'][] = 'cid';
         }
-
         return $supported;
     }
-
     /*
      Validate data - overwrites parent's validator for additional validations.
     */
     function validate(&$data, $format, $strict=true) {
         global $ost;
-
         //Call parent to Validate the structure
         if(!parent::validate($data, $format, $strict) && $strict)
             $this->exerr(400, __('Unexpected or invalid data received'));
-
         // Use the settings on the thread entry on the ticket details
         // form to validate the attachments in the email
         $tform = TicketForm::objects()->one()->getForm();
         $messageField = $tform->getField('message');
         $fileField = $messageField->getWidget()->getAttachments();
-
         // Nuke attachments IF API files are not allowed.
         if (!$messageField->isAttachmentsEnabled())
             $data['attachments'] = array();
-
         //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
         if ($data['attachments'] && is_array($data['attachments'])) {
             foreach($data['attachments'] as &$file) {
@@ -88,7 +75,6 @@ class TicketApiController extends ApiController {
             }
             unset($file);
         }
-
         return true;
     }
     
@@ -119,7 +105,6 @@ class TicketApiController extends ApiController {
             $this->response(415, __("Number not sent"));
         
     }
-
     function status($format) {
         
         if(!($key=$this->requireApiKey()))
@@ -135,9 +120,8 @@ class TicketApiController extends ApiController {
                 #Load the ticket
                 $ticket = new Ticket();
                 $ticket->load($id);
-
                 #Prepare the response
-                $response = [];
+                $response = array();
                 foreach($request as $key=>$value){
                     $response[$key] = $this->recursiveParameterProcessing($ticket, $key, $value);
                 }
@@ -151,7 +135,6 @@ class TicketApiController extends ApiController {
         else #No number was sent with the Request
             $this->exerr(415, __("Number not sent"));
     }
-
     function create($format) {
         
         if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
@@ -168,18 +151,13 @@ class TicketApiController extends ApiController {
         
         if(!$ticket)
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
-
         $this->response(201, $ticket->getNumber());
     }
-
     /* private helper functions */
-
     function createTicket($data) {
-
         # Pull off some meta-data
         $alert       = (bool) (isset($data['alert'])       ? $data['alert']       : true);
         $autorespond = (bool) (isset($data['autorespond']) ? $data['autorespond'] : true);
-
         # Assign default value to source if not defined, or defined as NULL
         $data['source'] = isset($data['source']) ? $data['source'] : 'API';
         
@@ -222,14 +200,11 @@ class TicketApiController extends ApiController {
         } elseif (!$ticket) {
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
         }
-
         return $ticket;
     }
-
     function processEmail($data=false) {
         if (!$data)
             $data = $this->getEmailRequest();
-
         if (($thread = ThreadEntry::lookupByEmailHeaders($data))
                 && ($t=$thread->getTicket())
                 && ($data['staffId']
@@ -263,7 +238,7 @@ class TicketApiController extends ApiController {
             #An array <$value> calls a get<$key>() of the object and then does the same process again
             #for the result of said get-Function using the $keys and $values of the array used
             if (is_array($value)){
-                $array = [];
+                $array = array();
                 foreach($value as $k=>$val){
                     $array[$k] = $this->recursiveParameterProcessing($nextobject, $k, $val);
                 }
@@ -277,15 +252,11 @@ class TicketApiController extends ApiController {
             return (string)$object->$key;
         }
     }
-
 }
-
 //Local email piping controller - no API key required!
 class PipeApiController extends TicketApiController {
-
     //Overwrite grandparent's (ApiController) response method.
     function response($code, $resp) {
-
         //Use postfix exit codes - instead of HTTP
         switch($code) {
             case 201: //Success
@@ -311,19 +282,15 @@ class PipeApiController extends TicketApiController {
             default: //Temp (unknown) failure - retry
                 $exitcode = 75;
         }
-
         //echo "$code ($exitcode):$resp";
         //We're simply exiting - MTA will take care of the rest based on exit code!
         exit($exitcode);
     }
-
     function  process() {
         $pipe = new PipeApiController();
         if(($ticket=$pipe->processEmail()))
            return $pipe->response(201, $ticket->getNumber());
-
         return $pipe->exerr(416, __('Request failed - retry again!'));
     }
 }
-
 ?>
