@@ -386,6 +386,11 @@ $tcount+= $ticket->getNumNotes();
 <div id="ticket_thread">
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
+    $threadTypeNames = array(
+        'M' => __('Client Message'),
+        'R' => __('Agent Reply to Client'),
+        'N' => __('Internal Note')
+    );
     /* -------- Messages & Responses & Notes (if inline)-------------*/
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
@@ -398,7 +403,12 @@ $tcount+= $ticket->getNumNotes();
                     <span style="display:inline-block"><?php
                         echo Format::db_datetime($entry['created']);?></span>
                     <span style="display:inline-block;padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry['title'], 100); ?></span>
+                        if (!empty($entry['title']) && $entry['thread_type'] !== 'M') {
+                            echo Format::truncate($entry['title'], 100);
+                        } else {
+                            echo $threadTypeNames[$entry['thread_type']];
+                        }
+                        ?></span>
                     </span>
                     <span class="pull-right" style="white-space:no-wrap;display:inline-block">
                         <span style="vertical-align:middle;" class="textra"></span>
