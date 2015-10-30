@@ -115,6 +115,11 @@ return false;">
   <thead>
     <tr>
 <?php
+$canManageTickets = $thisstaff->canManageTickets();
+if ($canManageTickets) { ?>
+        <th style="width:12px"></th>
+<?php 
+}
 foreach ($columns as $C) {
     echo sprintf('<th width="%s">%s</th>', $C->getWidth(),
         Format::htmlchars($C->getHeading()));
@@ -125,6 +130,10 @@ foreach ($columns as $C) {
 <?php
 foreach ($tickets as $T) {
     echo '<tr>';
+    if ($canManageTickets) { ?>
+        <td><input type="checkbox" name="ckb[]" /></td>
+<?php 
+    }
     foreach ($columns as $C) {
         echo '<td class="offset">';
         echo $C->render($T);
@@ -137,8 +146,8 @@ foreach ($tickets as $T) {
   <tfoot>
     <tr>
       <td colspan="7">
-        <?php if($total && $thisstaff->canManageTickets()){ ?>
-        <?php echo __('Select');?>:&nbsp;
+        <?php if ($total && $canManageTickets) {
+        echo __('Select');?>:&nbsp;
         <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
         <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
         <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
