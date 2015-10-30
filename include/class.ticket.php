@@ -2645,14 +2645,17 @@ implements RestrictedAccess, Threadable {
             $errors['err'] = __('Missing or invalid data - check the errors and try again');
 
         if ($vars['duedate']) {
+            //Set Due Date/Time and Current Time to DBTimezone
+            $tempduedate = new DateTime($cfg->getDbTimezone().$vars['duedate'].' '.$vars['time']);
+            $currentdate = new DateTime('@'.time());
+            $currentdate->setTimeZone(new DateTimeZone($cfg->getDbTimezone()));
             if ($this->isClosed())
                 $errors['duedate']=__('Due date can NOT be set on a closed ticket');
             elseif (!$vars['time'] || strpos($vars['time'],':') === false)
                 $errors['time']=__('Select a time from the list');
             elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
                 $errors['duedate']=__('Invalid due date');
-            // FIXME: Using time() violates database and user timezone
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) <= time())
+            elseif ($tempduedate <= $currentdate)
                 $errors['duedate']=__('Due date must be in the future');
         }
 
@@ -3000,11 +3003,15 @@ implements RestrictedAccess, Threadable {
 
         //Make sure the due date is valid
         if($vars['duedate']) {
+            //Set Due Date/Time and Current Time to DBTimezone
+            $tempduedate = new DateTime($cfg->getDbTimezone().$vars['duedate'].' '.$vars['time']);
+            $currentdate = new DateTime('@'.time());
+            $currentdate->setTimeZone(new DateTimeZone($cfg->getDbTimezone()));
             if(!$vars['time'] || strpos($vars['time'],':')===false)
                 $errors['time']=__('Select a time from the list');
             elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
                 $errors['duedate']=__('Invalid due date');
-            elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
+            elseif ($tempduedate <= $currentdate)
                 $errors['duedate']=__('Due date must be in the future');
         }
 
