@@ -174,7 +174,11 @@ $dispatcher = patterns('',
             url_post('^/(?P<id>\d+)$', 'saveSearch'),
             url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
             url_post('^/create$', 'createSearch'),
-            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField'),
+            url('^/column/edit/(?P<id>\d+)$', 'editColumn'),
+            url_post('^(?P<id>\d+)/delete$', 'deleteQueues'),
+            url_post('^(?P<id>\d+)/disable$', 'disableQueues'),
+            url_post('^(?P<id>\d+)/enable$', 'undisableQueues')
         ))
     )),
     url('^/tasks/', patterns('ajax.tasks.php:TasksAjaxAPI',
@@ -242,7 +246,8 @@ $dispatcher = patterns('',
             url('^/department$', 'addDepartment'),
             url('^/team$', 'addTeam'),
             url('^/role$', 'addRole'),
-            url('^/staff$', 'addStaff')
+            url('^/staff$', 'addStaff'),
+            url('^/queue-column$', 'addQueueColumn')
         )),
         url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
     )),
