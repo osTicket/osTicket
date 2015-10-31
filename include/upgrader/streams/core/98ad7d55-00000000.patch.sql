@@ -16,13 +16,10 @@ ALTER TABLE `%TABLE_PREFIX%queue`
 DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_column`;
 CREATE TABLE `%TABLE_PREFIX%queue_column` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `queue_id` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `sort` int(10) unsigned NOT NULL DEFAULT '0',
-  `heading` varchar(64) NOT NULL DEFAULT '',
+  `name` varchar(64) NOT NULL DEFAULT '',
   `primary` varchar(64) NOT NULL DEFAULT '',
   `secondary` varchar(64) DEFAULT NULL,
-  `width` int(10) unsigned DEFAULT NULL,
   `filter` varchar(32) DEFAULT NULL,
   `truncate` varchar(16) DEFAULT NULL,
   `annotations` text,
@@ -31,3 +28,12 @@ CREATE TABLE `%TABLE_PREFIX%queue_column` (
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_columns`;
+CREATE TABLE `%TABLE_PREFIX%queue_columns` (
+  `queue_id` int(11) unsigned NOT NULL,
+  `column_id` int(11) unsigned NOT NULL,
+  `sort` int(10) unsigned NOT NULL DEFAULT '1',
+  `heading` varchar(64) DEFAULT NULL,
+  `width` int(10) unsigned NOT NULL DEFAULT '100',
+  PRIMARY KEY (`queue_id`, `column_id`)
+) DEFAULT CHARSET=utf8;

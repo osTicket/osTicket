@@ -190,4 +190,29 @@ class AdminAjaxAPI extends AjaxController {
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
+
+    function addQueueColumn($root='Ticket') {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+
+        $column = QueueColumn::create();
+        if ($_POST) {
+            $data_form = $column->getDataConfigForm($_POST);
+            if ($data_form->isValid()) {
+                $column->update($_POST, $root);
+                if ($column->save())
+                    Http::response(201, $this->encode(array(
+                        'id' => $column->getId(),
+                        'name' => (string) $column->getName(),
+                    ), 'application/json'));
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/queue-column-add.tmpl.php';
+
+    }
 }

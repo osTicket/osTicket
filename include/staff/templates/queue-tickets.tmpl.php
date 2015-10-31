@@ -122,7 +122,7 @@ if ($canManageTickets) { ?>
 }
 foreach ($columns as $C) {
     echo sprintf('<th width="%s">%s</th>', $C->getWidth(),
-        Format::htmlchars($C->getHeading()));
+        Format::htmlchars($C->getLocalHeading()));
 } ?>
     </tr>
   </thead>
@@ -145,8 +145,8 @@ foreach ($tickets as $T) {
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="7">
-        <?php if ($total && $canManageTickets) {
+      <td colspan="<?php echo count($columns)+1; ?>">
+        <?php if ($count && $canManageTickets) {
         echo __('Select');?>:&nbsp;
         <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
         <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;

@@ -115,123 +115,68 @@ else {
   </div>
 
   <div class="hidden tab_content" id="columns">
-    <h2><?php echo __("Manage columns in this queue"); ?></h2>
-    <p><?php echo __("Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?></p>
-
-    <div>
-      <i class="icon-plus-sign"></i>
-      <select id="add-column" data-next-id="0" onchange="javascript:
-        var $this = $(this),
-            selected = $this.find(':selected'),
-            nextId = $this.data('nextId'),
-            columns = $('#resizable-columns');
-        $.ajax({
-          url: 'ajax.php/queue/addColumn',
-          data: { field: selected.val(), id: nextId },
-          dataType: 'json',
-          success: function(json) {
-            var div = $('<div></div>')
-                .addClass('column-header ui-resizable')
-                .text(json.heading)
-                .attr({'data-id': nextId})
-                .data({colId: 'colconfig-'+nextId, width: json.width})
-                .append($('<i>')
-                  .addClass('icon-ellipsis-vertical ui-resizable-handle ui-resizable-handle-e')
-                )
-                .append($('<input />')
-                  .attr({type:'hidden', name:'columns[]'})
-                  .val(nextId)
-                );
-              config = $('<div></div>')
-                .addClass('hidden column-configuration')
-                .attr('id', 'colconfig-' + nextId);
-            config.append($(json.config)).insertAfter(columns.append(div));
-            $this.data('nextId', nextId+1);
-          }
-        });
-      ">
-        <option value="">— <?php echo __('Add a column'); ?> —</option>
-<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
-        list($label,) = $f; ?>
-        <option value="<?php echo $path; ?>"><?php echo $label; ?></option>
+    <table class="table two-column">
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __("Manage columns in this queue"); ?>
+            <div><small><?php echo __(
+            "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?>
+            </small></div>
+          </th>
+        </tr>
+        <tr class="header">
+          <td><small><b><?php echo __('Column Name'); ?></b></small></td>
+          <td><small><b><?php echo __('Heading and Width'); ?></b></small></td>
+        </tr>
+      </tbody>
+      <tbody class="sortable-rows">
+        <tr id="column-template" class="hidden">
+          <td>
+            <i class="faded-more icon-sort"></i>
+            <input type="hidden" data-name="queue_id"
+              value="<?php echo $queue->getId(); ?>"/>
+            <input type="hidden" data-name="column_id" />
+            <span></span>
+          </td>
+          <td>
+            <input type="text" size="25" data-name="heading"
+              data-translate-tag="" />
+            <input type="text" size="5" data-name="width" />
+            <a class="action-button"
+                href="#" onclick="javascript:
+                var colid = $(this).closest('tr').find('[data-name=column_id]').val();
+                $.dialog('ajax.php/tickets/search/column/edit/' + colid, 201);
+                return false;
+                "><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
+            <a href="#" class="pull-right drop-column" title="<?php echo __('Delete');
+              ?>"><i class="icon-trash"></i></a>
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="header">
+          <td colspan="2"></td>
+        </tr>
+        <tr>
+          <td colspan="2" id="append-column">
+            <i class="icon-plus-sign"></i>
+            <select id="add-column" data-quick-add="queue-column">
+              <option value="">— <?php echo __('Add a column'); ?> —</option>
+<?php foreach (QueueColumn::objects() as $C) { ?>
+              <option value="<?php echo $C->id; ?>"><?php echo
+                  Format::htmlchars($C->name); ?></option>
 <?php } ?>
-      </select>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+            </select>
+            <button type="button" class="green button">
+              <?php echo __('Add'); ?>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-      <div id="resizable-columns">
-<?php foreach ($queue->getColumns() as $column) {
-        $colid = $column->getId();
-        $maxcolid = max(@$maxcolid ?: 0, $colid);
-        echo sprintf('<div data-id="%1$s" data-col-id="colconfig-%1$s" class="column-header" '
-          .'data-width="%2$s">%3$s'
-          .'<i class="icon-ellipsis-vertical ui-resizable-handle ui-resizable-handle-e"></i>'
-          .'<input type="hidden" name="columns[]" value="%1$s"/>'
-          .'</div>',
-          $colid, $column->getWidth(), $column->getHeading(),
-          $column->sort ?: 1);
-} ?>
-      </div>
-      <script>
-        $(function() {
-          $('#add-column').data('nextId', <?php echo $maxcolid+1; ?>);
-          var qq = setInterval(function() {
-            var total = 0,
-                container = $('#resizable-columns'),
-                width = container.width(),
-                w2px = 1.25,
-                columns = $('.column-header', container);
-            // Await computation of the <div>'s width
-            if (width)
-              clearInterval(qq);
-            columns.each(function() {
-              total += $(this).data('width') || 100;
-            });
-            container.data('w2px', w2px);
-            columns.each(function() {
-              // FIXME: jQuery will compensate for padding (40px)
-              $(this).width(w2px * ($(this).data('width') || 100) - 42);
-            });
-          }, 20);
-        });
-      </script>
-
-<?php foreach ($queue->getColumns() as $column) {
-        $colid = $column->getId();
-        echo sprintf('<div class="hidden column-configuration" id="colconfig-%s">',
-            $colid);
-        include STAFFINC_DIR . 'templates/queue-column.tmpl.php';
-        echo '</div>';
-} ?>
-    </div>
-
-    <script>
-      var aa = setInterval(function() {
-        var cols = $('#resizable-columns');
-        if (cols.length && cols.sortable)
-          clearInterval(aa);
-        cols.sortable({
-          containment: 'parent'
-        });
-        $('.column-header', cols).resizable({
-          handles: {'e' : '.ui-resizable-handle'},
-          grid: [ 20, 0 ],
-          maxHeight: 16,
-          minHeight: 16,
-          stop: function(event, ui) {
-            var w2px = ui.element.parent().data('w2px'),
-                width = ui.element.width() - 42;
-            ui.element.data('width', width / w2px);
-            // TODO: Update WIDTH text box in the data form
-          }
-        });
-        cols.click('.column-header', function(e) {
-          var $this = $(event.target);
-          $this.parent().children().removeClass('active');
-          $this.addClass('active');
-          $('.column-configuration', $this.closest('.tab_content')).hide();
-          $('#'+$this.data('colId')).fadeIn('fast');
-        });
-      }, 20);
-    </script>
   </div>
 
   <div class="hidden tab_content" id="preview-tab">
@@ -263,3 +208,58 @@ else {
   </p>
 
 </form>
+
+<script>
+var addColumn = function(colid, info) {
+  if (!colid) return;
+  var copy = $('#column-template').clone(),
+      name_prefix = 'columns[' + colid + ']';
+  info['column_id'] = colid;
+  copy.find('input[data-name]').each(function() {
+    var $this = $(this),
+        name = $this.data('name');
+
+    if (info[name] !== undefined)
+      $this.val(info[name]);
+    $this.attr('name', name_prefix + '[' + name + ']');
+  });
+  copy.find('span').text(info['name']);
+  copy.attr('id', '').show().insertBefore($('#column-template'));
+  copy.removeClass('hidden');
+  if (info['trans'] !== undefined) {
+    var input = copy.find('input[data-translate-tag]')
+      .attr('data-translate-tag', info['trans']);
+    if ($.fn.translatable)
+      input.translatable();
+    // Else it will be made translatable when the JS library is loaded
+  }
+  copy.find('a.drop-column').click(function() {
+    $('<option>')
+      .attr('value', copy.find('input[data-name=column_id]').val())
+      .text(info.name)
+      .insertBefore($('#add-column')
+        .find('[data-quick-add]')
+      );
+    copy.fadeOut(function() { $(this).remove(); });
+    return false;
+  });
+  var selected = $('#add-column').find('option[value=' + colid + ']');
+  selected.remove();
+};
+
+$('#append-column').find('button').on('click', function() {
+  var selected = $('#add-column').find(':selected'),
+      id = parseInt(selected.val());
+  if (!id)
+      return;
+  addColumn(id, {name: selected.text(), heading: selected.text(), width: 100});
+  return false;
+});
+
+<?php foreach ($queue->columns as $C) {
+  echo sprintf('addColumn(%d, {name: %s, heading: %s, width: %d, trans: %s});',
+    $C->column_id, JsonDataEncoder::encode($C->name),
+    JsonDataEncoder::encode($C->heading), $C->width,
+    JsonDataEncoder::encode($C->getTranslateTag('heading')));
+} ?>
+</script>

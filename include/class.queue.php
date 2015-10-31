@@ -21,7 +21,8 @@ class CustomQueue extends SavedSearch {
         'select_related' => array('parent'),
         'joins' => array(
             'columns' => array(
-                'reverse' => 'QueueColumn.queue',
+                'reverse' => 'QueueColumnGlue.queue',
+                'broker' => 'QueueColumnListBroker',
             ),
             'children' => array(
                 'reverse' => 'CustomQueue.parent',
@@ -113,7 +114,7 @@ class CustomQueue extends SavedSearch {
 
         // Apply column, annotations and conditions additions
         foreach ($this->getColumns() as $C) {
-            $query = $C->mangleQuery($query);
+            $query = $C->mangleQuery($query, $this->getRoot());
         }
         return $query;
     }
@@ -145,21 +146,30 @@ class CustomQueue extends SavedSearch {
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {
             $new = $vars['columns'];
+            $order = array_keys($new);
             foreach ($this->columns as $col) {
-                if (false === ($sort = array_search($col->id, $vars['columns']))) {
+                $key = $col->column_id;
+                if (!isset($vars['columns'][$key])) {
                     $this->columns->remove($col);
                     continue;
                 }
-                $col->set('sort', $sort+1);
-                $col->update($vars, $errors);
-                unset($new[$sort]);
+                $info = $vars['columns'][$key];
+                $col->set('sort', array_search($key, $order));
+                $col->set('heading', $info['heading']);
+                $col->set('width', $info['width']);
+                unset($new[$key]);
             }
             // Add new columns
-            foreach ($new as $sort=>$colid) {
-                $col = QueueColumn::create(array("id" => $colid, "queue" => $this));
-                $col->set('sort', $sort+1);
-                $col->update($vars, $errors);
-                $this->addColumn($col);
+            foreach ($new as $info) {
+                $glue = QueueColumnGlue::create(array(
+                    'column_id' => $info['column_id'], 
+                    'sort' => array_search($info['column_id'], $order),
+                    'heading' => $info['heading'],
+                    'width' => $info['width'] ?: 100
+                ));
+                $glue->queue = $this;
+                $this->columns->add(
+                    QueueColumn::lookup($info['column_id']), $glue);
             }
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
@@ -193,6 +203,11 @@ class CustomQueue extends SavedSearch {
     static function __create($vars) {
         $q = static::create($vars);
         $q->save();
+        foreach ($vars['columns'] as $info) {
+            $glue = QueueColumnGlue::create($info);
+            $glue->queue_id = $q->getId();
+            $glue->save();
+        }
         return $q;
     }
 }
@@ -628,14 +643,8 @@ extends ChoiceField {
 class QueueColumn
 extends VerySimpleModel {
     static $meta = array(
-        'table' => QUEUE_COLUMN_TABLE,
+        'table' => COLUMN_TABLE,
         'pk' => array('id'),
-        'ordering' => array('sort'),
-        'joins' => array(
-            'queue' => array(
-                'constraint' => array('queue_id' => 'SavedSearch.id'),
-            ),
-        ),
     );
 
     var $_annotations;
@@ -645,22 +654,40 @@ extends VerySimpleModel {
         return $this->id;
     }
 
-    function getQueue() {
-        return $this->queue;
+    function getFilter() {
+         if ($this->filter)
+             return QueueColumnFilter::getInstance($this->filter);
+     }
+
+    function getName() {
+        return $this->name;
     }
 
-    function getHeading() {
-        return $this->heading;
+    // These getters fetch data from the annotated overlay from the
+    // queue_column table
+    function getQueue() {
+        return $this->queue;
     }
 
     function getWidth() {
         return $this->width ?: 100;
     }
 
-    function getFilter() {
-         if ($this->filter)
-             return QueueColumnFilter::getInstance($this->filter);
-     }
+    function getHeading() {
+        return $this->heading;
+    }
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('column.%s.%s.%s', $subtag, $this->queue_id, $this->id));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->get($subtag);
+    }
+    function getLocalHeading() {
+        return $this->getLocal('heading');
+    }
 
     function render($row) {
         // Basic data
@@ -732,9 +759,9 @@ extends VerySimpleModel {
         return $field->addToQuery($query, $path);
     }
 
-    function mangleQuery($query) {
+    function mangleQuery($query, $root=null) {
         // Basic data
-        $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
+        $fields = SavedSearch::getSearchableFields($root ?: $this->getQueue()->getRoot());
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
             $query = $this->addToQuery($query, $field,
@@ -763,7 +790,7 @@ extends VerySimpleModel {
     }
 
     function getDataConfigForm($source=false) {
-        return new QueueColDataConfigForm($source ?: $this->ht,
+        return new QueueColDataConfigForm($source ?: $this->__getDbFields(),
             array('id' => $this->id));
     }
 
@@ -805,7 +832,13 @@ extends VerySimpleModel {
         return $inst;
     }
 
-    function update($vars) {
+    static function __create($vars) {
+        $c = static::create($vars);
+        $c->save();
+        return $c;
+    }
+
+    function update($vars, $root='Ticket') {
         $form = $this->getDataConfigForm($vars);
         foreach ($form->getClean() as $k=>$v)
             $this->set($k, $v);
@@ -833,7 +866,7 @@ extends VerySimpleModel {
                     continue;
                 // Determine the criteria
                 $name = $vars['condition_field'][$i];
-                $fields = SavedSearch::getSearchableFields($this->getQueue()->getRoot());
+                $fields = SavedSearch::getSearchableFields($root);
                 if (!isset($fields[$name]))
                     // No such field exists for this queue root type
                     continue;
@@ -881,6 +914,48 @@ extends VerySimpleModel {
             // number
             unset($this->id);
         return parent::save($refetch);
+    }
+}
+
+class QueueColumnGlue
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_COLUMN_TABLE,
+        'pk' => array('queue_id', 'column_id'),
+        'joins' => array(
+            'column' => array(
+                'constraint' => array('column_id' => 'QueueColumn.id'),
+            ),
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+        'select_related' => array('column', 'queue'),
+        'ordering' => array('sort'),
+    );
+}
+
+class QueueColumnListBroker
+extends InstrumentedList {
+    function __construct($fkey, $queryset=false) {
+        parent::__construct($fkey, $queryset);
+        $this->queryset->select_related('column');
+    }
+
+    function getOrBuild($modelClass, $fields, $cache=true) {
+        $m = parent::getOrBuild($modelClass, $fields, $cache);
+        if ($m && $modelClass === 'QueueColumnGlue') {
+            // Instead, yield the QueueColumn instance with the local fields
+            // inthe association table as annotations
+            $m = AnnotatedModel::wrap($m->column, $m, 'QueueColumn');
+        }
+        return $m;
+    }
+
+    function add($column, $glue=null) {
+        $glue = $glue ?: QueueColumnGlue::create();
+        $glue->column = $column;
+        parent::add(AnnotatedModel::wrap($column, $glue));
     }
 }
 
@@ -987,41 +1062,33 @@ QueueColumnFilter::register('TicketLinkWithPreviewFilter');
 
 class QueueColDataConfigForm
 extends AbstractForm {
-function buildFields() {
-    return array(
-        'primary' => new DataSourceField(array(
-            'label' => __('Primary Data Source'),
-            'required' => true,
-            'configuration' => array(
-                'root' => 'Ticket',
-            ),
-            'layout' => new GridFluidCell(6),
-        )),
-        'secondary' => new DataSourceField(array(
-            'label' => __('Secondary Data Source'),
-            'configuration' => array(
-                'root' => 'Ticket',
-            ),
-            'layout' => new GridFluidCell(6),
-        )),
-            'heading' => new TextboxField(array(
-                'label' => __('Heading'),
+    function buildFields() {
+        return array(
+            'primary' => new DataSourceField(array(
+                'label' => __('Primary Data Source'),
                 'required' => true,
-                'layout' => new GridFluidCell(3),
+                'configuration' => array(
+                    'root' => 'Ticket',
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'secondary' => new DataSourceField(array(
+                'label' => __('Secondary Data Source'),
+                'configuration' => array(
+                    'root' => 'Ticket',
+                ),
+                'layout' => new GridFluidCell(6),
+            )),
+            'name' => new TextboxField(array(
+                'label' => __('Name'),
+                'required' => true,
+                'layout' => new GridFluidCell(4),
             )),
             'filter' => new ChoiceField(array(
                 'label' => __('Filter'),
                 'required' => false,
                 'choices' => QueueColumnFilter::getFilters(),
-                'layout' => new GridFluidCell(3),
-            )),
-            'width' => new TextboxField(array(
-                'label' => __('Width'),
-                'default' => 75,
-                'configuration' => array(
-                    'validator' => 'number',
-                ),
-                'layout' => new GridFluidCell(3),
+                'layout' => new GridFluidCell(4),
             )),
             'truncate' => new ChoiceField(array(
                 'label' => __('Text Overflow'),
@@ -1031,7 +1098,7 @@ function buildFields() {
                     'clip' => __("Clip Text"),
                 ),
                 'default' => 'wrap',
-                'layout' => new GridFluidCell(3),
+                'layout' => new GridFluidCell(4),
             )),
         );
     }

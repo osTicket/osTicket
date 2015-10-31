@@ -212,19 +212,27 @@ class SearchAjaxAPI extends AjaxController {
         )));
     }
 
-
-    function editColumn($queue_id, $column) {
+    function editColumn($column_id) {
         global $thisstaff;
 
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
-        elseif (!($queue = CustomQueue::lookup($queue_id))) {
+        elseif (!($column = QueueColumn::lookup($column_id))) {
             Http::response(404, 'No such queue');
         }
 
-        $data_form = new QueueDataConfigForm($_POST);
-        include STAFFINC_DIR . 'templates/queue-column.tmpl.php';
+        if ($_POST) {
+            $data_form = $column->getDataConfigForm($_POST);
+            if ($data_form->isValid()) {
+                $column->update($_POST, 'Ticket');
+                if ($column->save())
+                    Http::response(201, 'Successfully updated');
+            }
+        }
+
+        $root = 'Ticket';
+        include STAFFINC_DIR . 'templates/queue-column-edit.tmpl.php';
     }
 
     function previewQueue($id=false) {
@@ -287,44 +295,5 @@ class SearchAjaxAPI extends AjaxController {
         $prop = $_GET['prop'];
         $id = $_GET['condition'];
         include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
-    }
-
-    function addColumn() {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            Http::response(403, 'Agent login is required');
-        }
-        elseif (!isset($_GET['field'])) {
-            Http::response(400, '`field` parameter is required');
-        }
-
-        $field = $_GET['field'];
-        // XXX: This method should receive a queue ID or queue root so that
-        //      $field can be properly checked
-        $fields = SavedSearch::getSearchableFields('Ticket');
-        if (!isset($fields[$field])) {
-            Http::response(400, 'Not a supported field for this queue');
-        }
-
-        // Get the tabbed column configuration
-        list($label, $F) = $fields[$field];
-        $column = QueueColumn::create(array(
-            "id"        => (int) $_GET['id'],
-            "heading"   => _S($F->getLabel()),
-            "primary"   => $field,
-            "width"     => 100,
-        ));
-        ob_start();
-        include STAFFINC_DIR .  'templates/queue-column.tmpl.php';
-        $config = ob_get_clean();
-
-        // Send back the goodies
-        Http::response(200, $this->encode(array(
-            'config' => $config,
-            'id' => $column->id,
-            'heading' => _S($F->getLabel()),
-            'width' => $column->getWidth(),
-        )), 'application/json');
     }
 }
