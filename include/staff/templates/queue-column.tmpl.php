@@ -3,29 +3,26 @@
  * Calling conventions
  *
  * $column - <QueueColumn> instance for this column
+ * $root - <Class> name of queue root ('Ticket')
+ * $data_form - <QueueColDataConfigForm> instance, optional
  */
 $colid = $column->getId();
-$data_form = $column->getDataConfigForm($_POST);
+$data_form = $data_form ?: $column->getDataConfigForm($_POST);
 ?>
-<ul class="alt tabs">
-  <li class="active"><a href="#<?php echo $colid; ?>-data"><?php echo __('Data'); ?></a></li>
-  <li><a href="#<?php echo $colid; ?>-annotations"><?php echo __('Annotations'); ?></a></li>
-  <li><a href="#<?php echo $colid; ?>-conditions"><?php echo __('Conditions'); ?></a></li>
-  <a onclick="javascript:
-  $(this).closest('.column-configuration').hide();
-  $('#resizable-columns').find('div[data-id=<?php echo $colid; ?>]').hide()
-    .find('input[name^=columns]').remove();
-  " class="button red pull-right"><?php echo __("Delete Column"); ?></a>
+<ul class="tabs">
+  <li class="active"><a href="#data"><?php echo __('Data'); ?></a></li>
+  <li><a href="#annotations"><?php echo __('Annotations'); ?></a></li>
+  <li><a href="#conditions"><?php echo __('Conditions'); ?></a></li>
 </ul>
 
-<div class="tab_content" id="<?php echo $colid; ?>-data">
+<div class="tab_content" id="data">
 <?php
   print $data_form->asTable();
 ?>
 </div>
 
 <div class="hidden tab_content" data-col-id="<?php echo $colid; ?>"
-  id="<?php echo $colid; ?>-annotations" style="max-width: 400px">
+  id="annotations" style="max-width: 400px">
   <div class="empty placeholder" style="margin-left: 20px">
     <em><?php echo __('No annotations for this field'); ?></em>
   </div>
@@ -69,7 +66,7 @@ $data_form = $column->getDataConfigForm($_POST);
     <script>
       $(function() {
         var addAnnotation = function(type, desc, icon, pos) {
-          var template = $('.annotation.template', '#<?php echo $colid; ?>-annotations'),
+          var template = $('.annotation.template', '#annotations'),
               clone = template.clone().show().removeClass('template').insertBefore(template),
               input = clone.find('[data-field=input]'),
               colid = clone.closest('.tab_content').data('colId'),
@@ -86,14 +83,14 @@ $data_form = $column->getDataConfigForm($_POST);
             position.val(pos);
           template.closest('.tab_content').find('.empty').hide();
         };
-        $('select.add-annotation', '#<?php echo $colid; ?>-annotations').change(function() {
+        $('select.add-annotation', '#annotations').change(function() {
           var selected = $(this).find(':selected');
           addAnnotation(selected.val(), selected.text(), selected.data('icon'));
           selected.prop('disabled', true);
         });
-        $('#<?php echo $colid; ?>-annotations').click('a[data-field=delete]',
+        $('#annotations').click('a[data-field=delete]',
         function() {
-          var tab = $('#<?php echo $colid; ?>-annotations');
+          var tab = $('#annotations');
           if ($('.annotation', tab).length === 0)
             tab.find('.empty').show();
         });
@@ -110,13 +107,13 @@ $data_form = $column->getDataConfigForm($_POST);
   </div>
 </div>
 
-<div class="hidden tab_content" id="<?php echo $colid; ?>-conditions">
+<div class="hidden tab_content" id="conditions">
   <div style="margin: 0 20px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
   ?></div>
   <div class="conditions" style="margin: 20px; max-width: 400px">
 <?php
 if ($column->getConditions()) {
-  $fields = SavedSearch::getSearchableFields($column->getQueue()->getRoot());
+  $fields = SavedSearch::getSearchableFields($root);
   foreach ($column->getConditions() as $i=>$condition) {
      $id = QueueColumnCondition::getUid();
      list($label, $field) = $condition->getField();
