@@ -697,6 +697,10 @@ class VerySimpleModel {
             $pk[$f] = $this->ht[$f];
         return $pk;
     }
+
+    function __getDbFields() {
+        return $this->ht;
+    }
 }
 
 /**
@@ -707,40 +711,100 @@ class VerySimpleModel {
  * will delegate most all of the heavy lifting to the wrapped Model instance.
  */
 class AnnotatedModel {
+    static function wrap(VerySimpleModel $model, $extras=array(), $class=false) {
+        static $classes;
 
-    var $model;
-    var $annotations;
+        $class = $class ?: get_class($model);
 
-    function __construct($model, $annotations) {
-        $this->model = $model;
-        $this->annotations = $annotations;
+        if ($extras instanceof VerySimpleModel) {
+            $extra = "Writeable";
+        }
+        if (!isset($classes[$class])) {
+            $classes[$class] = eval(<<<END_CLASS
+class AnnotatedModel___{$class}_{$extra}
+extends {$class} {
+    var \$__overlay__;
+    use {$extra}AnnotatedModelTrait;
+
+    function __construct(\$ht, \$annotations) {
+        parent::__construct(\$ht);
+        \$this->__overlay__ = \$annotations;
     }
-
-    function __get($what) {
-        return $this->get($what);
+}
+return "AnnotatedModel___{$class}_{$extra}";
+END_CLASS
+            );
+        }
+        return new $classes[$class]($model->ht, $extras);
     }
+}
+
+trait AnnotatedModelTrait {
     function get($what) {
-        if (isset($this->annotations[$what]))
-            return $this->annotations[$what];
-        return $this->model->get($what, null);
+        if (isset($this->__overlay__[$what]))
+            return $this->__overlay__[$what];
+        return parent::get($what);
     }
 
-    function __set($what, $to) {
-        return $this->set($what, $to);
-    }
     function set($what, $to) {
-        if (isset($this->annotations[$what]))
+        if (isset($this->__overlay__[$what]))
             throw new OrmException('Annotated fields are read-only');
-        return $this->model->set($what, $to);
+        return parent::set($what, $to);
     }
 
     function __isset($what) {
-        return isset($this->annotations[$what]) || $this->model->__isset($what);
+        if (isset($this->__overlay__[$what]))
+            return true;
+        return parent::__isset($what);
     }
 
-    // Delegate everything else to the model
-    function __call($what, $how) {
-        return call_user_func_array(array($this->model, $what), $how);
+    function __getDbFields() {
+        return $this->__overlay__ + parent::__getDbFields();
+    }
+}
+
+/**
+ * Slight variant on the AnnotatedModelTrait, except that the overlay is
+ * another model. Its fields are preferred over the wrapped model's fields.
+ * Updates to the overlayed fields are tracked in the overlay model and
+ * therefore kept separate from the annotated model's fields. ::save() will
+ * call save on both models. Delete will only delete the overlay model (that
+ * is, the annotated model will remain).
+ */
+trait WriteableAnnotatedModelTrait {
+    function get($what) {
+        if ($this->__overlay__->__isset($what))
+            return $this->__overlay__->get($what);
+        return parent::get($what);
+    }
+
+    function set($what, $to) {
+        if ($this->__overlay__->__isset($what)) {
+            return $this->__overlay__->set($what, $to);
+        }
+        return parent::set($what, $to);
+    }
+
+    function __isset($what) {
+        if ($this->__overlay__->__isset($what))
+            return true;
+        return parent::__isset($what);
+    }
+
+    function __getDbFields() {
+        return $this->__overlay__->__getDbFields() + parent::__getDbFields();
+    }
+
+    function save() {
+        $this->__overlay__->save();
+        return parent::save();
+    }
+
+    function delete() {
+        if ($rv = $this->__overlay__->delete())
+            // Mark the annotated object as deleted
+            $this->__deleted__ = true;
+        return $rv;
     }
 }
 
@@ -1740,7 +1804,7 @@ implements IteratorAggregate {
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {
-            $m = new AnnotatedModel($m, $extras);
+            $m = AnnotatedModel::wrap($m, $extras, $modelClass);
         }
         // TODO: If the model has deferred fields which are in $fields,
         // those can be resolved here
@@ -1933,12 +1997,14 @@ extends ModelResultSet {
     }
 
     function add($object, $at=false) {
-        if (!$object || !$object instanceof $this->model)
+        // NOTE: Attempting to compare $object to $this->model will likely
+        // be problematic, and limits creative applications of the ORM
+        if (!$object) {
             throw new Exception(sprintf(
-                'Attempting to add invalid object to list. Expected <%s>, but got <%s>',
-                $this->model,
-                get_class($object)
+                'Attempting to add invalid object to list. Expected <%s>, but got <NULL>',
+                $this->model
             ));
+        }
 
         foreach ($this->key as $field=>$value)
             $object->set($field, $value);
