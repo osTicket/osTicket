@@ -56,9 +56,13 @@ $data_form = $data_form ?: $column->getDataConfigForm($_POST);
       <i class="icon-plus-sign"></i>
       <select class="add-annotation">
         <option>— <?php echo __("Add a annotation"); ?> —</option>
-<?php foreach (QueueColumnAnnotation::getAnnotations('Ticket') as $class) {
+<?php
+$annotations = array();
+foreach (QueueColumnAnnotation::getAnnotations('Ticket') as $class)
+    $annotations[$class] = $class::getDescription();
+foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
         echo sprintf('<option data-icon="%s" value="%s">%s</option>',
-          $class::$icon, $class, $class::getDescription());
+          $class::$icon, $class, $desc);
       } ?>
       </select>
     </div>
