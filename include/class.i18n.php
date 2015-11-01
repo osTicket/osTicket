@@ -506,6 +506,7 @@ class Internationalization {
     static function sortKeyedList($list, $case=false) {
         global $cfg;
 
+        // XXX: Use current language
         if ($cfg && function_exists('collator_create')) {
             $coll = Collator::create($cfg->getPrimaryLanguage());
             if (!$case)

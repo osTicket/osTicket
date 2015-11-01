@@ -346,6 +346,30 @@ extends QueueColumnAnnotation {
     }
 }
 
+class ThreadCollaboratorCount
+extends QueueColumnAnnotation {
+    static $icon = 'group';
+    static $qname = '_collabs';
+    static $desc = /* @trans */ 'Collaborator Count';
+
+    function annotate($query) {
+        return $query->annotate(array(
+        static::$qname => TicketThread::objects()
+            ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+            ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id')))
+        ));
+    }
+
+    function getDecoration($row, $text) {
+        $count = $row[static::$qname];
+        if ($count) {
+            return sprintf(
+                '<span class="pull-right faded-more" data-toggle="tooltip" title="%d"><i class="icon-group"></i></span>',
+                $count);
+        }
+    }
+}
+
 class OverdueFlagDecoration
 extends QueueColumnAnnotation {
     static $icon = 'exclamation';
@@ -443,7 +467,7 @@ class QueueColumnCondition {
 
     function getField($name=null) {
         // FIXME
-        #$root = $this->getColumn()->getQueue()->getRoot();
+        #$root = $this->getColumn()->getRoot();
         $root = 'Ticket';
         $searchable = SavedSearch::getSearchableFields($root);
 
@@ -645,6 +669,7 @@ extends VerySimpleModel {
     static $meta = array(
         'table' => COLUMN_TABLE,
         'pk' => array('id'),
+        'ordering' => array('name'),
     );
 
     var $_annotations;
@@ -694,12 +719,11 @@ extends VerySimpleModel {
         $text = $this->renderBasicValue($row);
 
         // Truncate
-        if ($text = $this->applyTruncate($text)) {
-        }
+        $text = $this->applyTruncate($text);
 
         // Filter
         if ($filter = $this->getFilter()) {
-            $text = $filter->filter($text, $row);
+            $text = $filter->filter($text, $row) ?: $text;
         }
 
         // annotations and conditions
@@ -1001,8 +1025,8 @@ extends QueueColumnFilter {
     static $desc = /* @trans */ "Ticket Link";
 
     function filter($text, $row) {
-        $link = $this->getLink($row);
-        return sprintf('<a href="%s">%s</a>', $link, $text);
+        if ($link = $this->getLink($row))
+            return sprintf('<a href="%s">%s</a>', $link, $text);
     }
 
     function mangleQuery($query, $column) {
@@ -1040,7 +1064,7 @@ extends TicketLinkFilter {
     static $desc = /* @trans */ "Organization Link";
 
     function getLink($row) {
-        return Organization::getLink($row['org_id']);
+        return Organization::getLink($row['user__org_id']);
     }
 }
 QueueColumnFilter::register('TicketLinkFilter');
