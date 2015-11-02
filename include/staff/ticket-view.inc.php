@@ -439,7 +439,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         list($label, $v) = $stuff;
 ?>
         <tr>
-            <td width="200"><?php
+            <td width="200"><th><?php
 echo Format::htmlchars($label);
             ?>:</th>
             <td><?php
@@ -465,18 +465,489 @@ $tcount = $ticket->getThreadEntries($types)->count();
             echo sprintf('&nbsp;(%d)', $ticket->getNumTasks());
         ?></a></li>
 </ul>
-
 <div id="ticket_tabs_container">
-<div id="ticket_thread" class="tab_content">
-<?php
+    <div id="ticket_thread" class="tab_content">
+    
+<?php 
     // Render ticket thread
-    $ticket->getThread()->render(
+/*    $ticket->getThread()->render(
             array('M', 'R', 'N'),
             array(
                 'html-id' => 'ticketThread',
                 'mode' => Thread::MODE_STAFF)
             );
-?>
+ */?>
+
+<!-- Thread Preview HTML Start --> 
+        <div id="thread-items">
+<!-- First 2 entries visible --> 
+    
+        <div id="thread-entry-1" class="thread-row">
+            <div class="thread-entry message collapsed avatar">
+                <span class="pull-right avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-1">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-1" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#user-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+        <div id="thread-entry-2" class="thread-row">
+            <div class="thread-entry response collapsed avatar">
+                <span class="pull-left avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-2">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-2" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#agent-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+
+
+<!-- Thread Collapse Start -->
+
+            <div class="thread-messages-group thread-group">
+                <div class="top-bar"></div>
+                <div class="center-bar"><span>4 older messages</span></div>
+                <div class="bottom-bar"></div>
+            </div>
+
+<!-- Grouped entries -->
+
+        <div id="thread-entry-3" class="thread-row thread-collapse">
+            <div class="thread-entry collapsed message avatar">
+                <span class="pull-right avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-3">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-3" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#user-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+
+        <div id="thread-entry-4" class="thread-row thread-collapse">
+            <div class="thread-entry collapsed response avatar">
+                <span class="pull-left avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-4">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-4" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#agent-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+
+            <div class="thread-event action thread-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+
+
+<!-- Grouped System events concept-->
+
+        <div id="thread-entry-5" class="thread-row thread-collapse">
+            <div class="thread-entry collapsed message avatar">
+                <span class="pull-right avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-5">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-5" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#user-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+
+<!-- End Grouped System events-->
+<!-- Start nested Collapsed System events System messages collapse when more than 3 in a row-->
+
+           <div class="sys-messages-group thread-collapse" >
+               <div class="thread-event">
+                <span class="type-icon">
+                    <i class="faded icon-list"></i>
+                </span>
+                <span class="description">
+                    <div class="thread-group">
+                        <div class="top-bar"></div>
+                        <div class="center-bar"><span>6 system messages</span></div>
+                        <div class="bottom-bar"></div>
+                    </div>
+                </span>
+            </div>
+<!-- Collapsed nested system messages -->
+            
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+            <div class="thread-event action sys-collapse">
+                <span class="type-icon">
+                      <i class="faded icon-thumbs-up-alt"></i>
+                </span>
+                <span class="faded description">
+                        Closed by <b><img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam">Febuary, Nathan</b> with status of Closed <time class="relative" datetime="2015-07-27T14:43:30+00:00" title="Monday, July 27, 2015 at 9:43 AM">3 months ago</time>
+                </span>
+            </div>
+
+        </div>
+
+<!-- End nested collapsed System events-->
+
+        <div id="thread-entry-6" class="thread-row thread-collapse">
+            <div class="thread-entry collapsed note avatar">
+                <span class="pull-left avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-6">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-6" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#agent-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+        <div id="thread-entry-6" class="thread-row thread-collapse">
+            <div class="thread-entry collapsed response avatar">
+                <span class="pull-left avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-6">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-6" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#agent-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+
+<!-- Start Last response visible -->
+
+         <div id="thread-entry-7" class="thread-row">
+            <div class="thread-entry message avatar">
+                <span class="pull-right avatar">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0cdfde878c85cace32cd1412ae1189ad&amp;mode=ateam" data-pin-nopin="true">    
+                </span>
+                <div class="header">
+                    <div class="pull-right">
+                        <span class="thread-actions muted-button pull-right" data-dropdown="#entry-action-more-7">
+                            <i class="icon-caret-down"></i>
+                        </span>
+                        <div id="entry-action-more-7" class="action-dropdown anchor-right" style="left: 711.25px; top: 28px; display: none;">
+                            <ul class="title">
+                                <li>
+                                    <a class="no-pjax" href="#" onclick="javascript:
+                                        var url = 'ajax.php/tickets/6/thread/25/edit';
+                                        $.dialog(url, [201], function(xhr, resp) {
+                                          var json = JSON.parse(resp);
+                                          if (!json || !json.thread_id)
+                                            return;
+                                          $('#thread-entry-'+json.thread_id)
+                                            .attr('id', 'thread-entry-' + json.new_id)
+                                            .html(json.entry)
+                                            .find('.thread-body')
+                                            .delay(500)
+                                            .effect('highlight');
+                                        }, {size:'large'});; return false;">
+                                        <i class="icon-pencil"></i> Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <span class="textra light">
+                        </span>
+                    </div>
+                    <b class="thread-header" data-dropdown="#user-dropdown">John Smith</b> <span class="thread-header muted">posted <a name="entry-2" href="#entry-2"><time class="relative" datetime="2015-10-02T21:14:00+00:00" title="Friday, October 2, 2015 at 4:14 PM">18 days ago</time></a></span>        
+                    <span style="max-width:500px" class="faded title truncate"></span>
+                    <div class="thread-button">&nbsp;</div>
+                </div>
+                <div class="thread-body no-pjax">
+                    <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+            
+<!-- End last response -->
+
+        </div>
+    </div>
+</div>
+<!-- End Thread Preview HTML -->
+    
+    
 <div class="clear"></div>
 <?php if($errors['err']) { ?>
     <div id="msg_error"><?php echo $errors['err']; ?></div>
@@ -485,6 +956,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
 <?php }elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php } ?>
+
 
 <div class="sticky bar stop actions" id="response_options"
 >
@@ -776,8 +1248,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
        </p>
    </form>
  </div>
- </div>
-</div>
+
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -875,6 +1346,76 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </form>
     <div class="clear"></div>
 </div>
+
+
+<div id="user-dropdown" class="ticket-profile action-dropdown anchor-left">
+    <ul class="bleed-left">
+        <li class="profile-info">
+            <div class="avatar pull-left">
+                <img class="avatar" alt="Avatar" src="/avatar.php?uid=0ea9072b3cc514337faa291cf8e466c3&amp;mode=ateam" data-pin-nopin="true">
+            </div>
+            <div class="profile-group pull-left">
+                <h3>John Smith</h3>
+                <p>Acme Brick Company</p>
+                <a class="action-button">View Profile</a>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li class="profile-team clear">
+            <p>Email:<a>nathan@acmebrick.com</a></p>
+        </li>
+        <li class="profile-info">
+                <div class="info-item">
+                    <span>Status:</span>Locked (Pending Activiation)
+                </div>
+                <div class="info-item">
+                    <span>Created:</span>7/28/15, 2:59pm
+                </div>
+                <div class="info-item">
+                    <span>Updated:</span>8/7/15, 2:44pm
+                </div>
+        </li>
+        <li class="profile-footer">
+                <p>Last message: <span>Oct 23, 2015</span></p>
+        </li>
+    </ul>
+</div> 
+
+
+<div id="agent-dropdown" class="ticket-profile action-dropdown anchor-left">
+    <ul class="bleed-left">
+        <li class="profile-info">
+            <div class="avatar pull-left">
+                <img class="avatar" alt="Avatar" src="/avatar.php?uid=0ea9072b3cc514337faa291cf8e466c3&amp;mode=ateam" data-pin-nopin="true">
+            </div>
+            <div class="profile-group pull-left">
+                <h3>Nathan Febuary</h3>
+                <p>Marketing</p>
+                <a class="action-button">View Profile</a>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li class="profile-team clear">
+            <p>Team(s):<a>Team Awesome</a></p>
+        </li>
+        <li class="profile-info">
+                <div class="info-item">
+                    <span>942</span>Tickets Assigned
+                </div>
+                <div class="info-item">
+                    <span>20</span>Tickets Answered
+                </div>
+                <div class="info-item">
+                    <span>6</span>Tasks Completed
+                </div>
+        </li>
+        <li class="profile-footer">
+                <p>Last response: <span>Oct 23, 2015</span></p>
+        </li>
+    </ul>
+</div> 
+
+
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'a.change-user', function(e) {
@@ -897,4 +1438,27 @@ $(function() {
         });
     });
 });
+    
+    
+
+    
+    $('.thread-button').on('click', function(){
+        if ($(this).closest('.thread-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-entry').removeClass('collapsed');
+        } else if(!$(this).closest('.thread-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-entry').addClass('collapsed');
+        }
+    });
+                         
+    $('.thread-messages-group').on('click',function(){
+        $(this).addClass('hidden-thread');
+        $('.thread-row, .sys-messages-group').removeClass('thread-collapse');
+        $('.thread-event').removeClass('thread-collapse');
+    }) 
+    $('.thread-event').on('click',function(){
+        $(this).addClass('hidden-thread');
+        $(this).closest('.sys-messages-group').find('.thread-event').removeClass('sys-collapse');
+    })
+
+    
 </script>
