@@ -12,8 +12,9 @@ body, html {
     margin:0;
     padding:0;
 }
-
 .link,
+.button.link,
+¡.link,
 a {
     color:#184E81;
     text-decoration:none;
@@ -906,7 +907,8 @@ h2 .reload {
     margin:0;
 }
 .thread-entry {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
+    margin-top: 5px;
     z-index: 0;
 }
 .thread-entry::after {
@@ -997,13 +999,15 @@ img.avatar {
     border-right: 8px solid #CCC;
 }
 .thread-entry.note:not(.avatar) .header {
-    background-color: #f4f4f4;
+    background-color: #fefdc6;
 }
 .thread-entry.avatar.response .header:before {
-    border-right-color: #ccb3af;
+    border-right-color: #ccb38f;
 }
 .thread-entry.avatar.note .header:before {
-    border-right-color: #ccccb0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #ccccb0;
 }
 .thread-entry.avatar.response .header:after,
 .thread-entry.avatar.note .header:after {
@@ -1014,12 +1018,11 @@ img.avatar {
     border-right: 7px solid #FFE0B3;
     margin-left: 1px;
 }
-
 .thread-entry.note .header {
-    background:#FFE;
+    background:#fefdc6;
 }
 .thread-entry.avatar.note .header:after {
-    border-right-color: #FFE;
+    border-right-color: #fefdc6;
 }
 .thread-entry .header .title {
     max-width: 500px;
@@ -2151,6 +2154,10 @@ div.selected-signature .inner {
     top: 4px;
     right: 5px;
 }
+.muted, .muted a time.relative {
+  color: #666!IMPORTANT;
+  color: rgba(0,0,0,0.5)!IMPORTANT;
+}
 .muted-button:hover {
     border: 1px solid #aaa;
     border: 1px solid rgba(0,0,0,0.3);
@@ -2690,17 +2697,365 @@ td.indented {
     vertical-align: middle;
 }
 
-#thread-items::before {
+
+
+
+
+
+/******** Start Ticket Group Styles ********/
+/***Grouped system entries***/
+
+.sys-messages-group .thread-event .thread-group {
+    position:relative;
+    top:0px;
+}
+.sys-messages-group .thread-event:first-child .description {
+    line-height:0;
+    padding-left:0;
+    margin-left:0;
+    padding-top:0;
+}
+.sys-messages-group .thread-event:first-child > span.type-icon {
+    top:5px;
+}
+
+.thread-event.sys-collapse, .thread-event.thread-collapse, .sys-messages-group.thread-collapse, .thread-row.thread-collapse,
+.thread-messages-group.hidden-thread, .thread-event.hidden-thread {
+    display:none;
+}
+
+/*** Thread Group ***/
+.thread-messages-group {
+    margin-bottom:5px;
+}
+.thread-group {
+    background-color:#f7f7f7;
+    cursor:pointer;
+}
+.thread-group:before  {
+    display:block;
+    content:'';
+    border-top: 2px solid white;
+}
+.thread-group:after {
+    display:block;
+    content:'';
+    border-bottom: 2px solid white;
+}
+
+.thread-group .top-bar {
+    border-top:1px dotted #ccc;
+    height:10px;
+}
+
+.thread-group .center-bar {
+    border-top:1px dotted #ccc;
+    border-bottom:1px dotted #ccc;
+    height:10px;
+    text-align:center;
+}
+.thread-group .center-bar span {
+    background-color:#f7f7f7;
+    padding:2px 10px;
+    color:#666;
+    position:relative;
+    top:-3px;
+}
+.sys-messages-group .thread-event .thread-group .center-bar span {
+    background-color:#f7f7f7;
+    padding:2px 10px;
+    color:#666;
+    position:relative;
+    top:5px;
+    left:-18px;
+}
+.thread-group .bottom-bar {
+    border-bottom:1px dotted #ccc;
+    height:10px;
+}
+
+/******** End Thread Group Styles ********/
+
+/******** Start Thread Ticket collapse Styles ********/
+
+/*
+This will set the collapse/expand button below the name and the actions buttons. 
+*/
+.thread-header {
+    position:relative;
+    z-index:4;
+    color:#555;
+    
+}
+.thread-entry .thread-button {
+    height:30px;
+    width:930px;
+    position:absolute;
+    margin-top:-25px;
+    margin-left:-10px;
+    display:block;
+    cursor:pointer;
+    z-index:3;
+}
+
+.thread-entry .thread-actions {
+    position:relative;
+    z-index:4;
+    opacity:.5;
+    -webkit-transition: opacity .5s;
+    transition: opacity .5s;
+    padding:3px 8px;
+    margin-top:-3px;
+}
+
+.thread-entry .header:hover .thread-actions {
+    opacity:1;
+}
+
+/***Collapsed CSS***/
+
+.thread-entry.collapsed .thread-button {
+    height:60px;
+}
+.thread-entry.collapsed > span.avatar {
+    display:none;
+}
+.thread-entry.avatar.collapsed .header:before, .thread-entry.collapsed.avatar .header:after {
+    display:none;
+}
+
+
+.thread-row:first-child .thread-entry.collapsed {
+    margin:0 0 0px 0!IMPORTANT;
+}
+
+.thread-entry.message.collapsed {
+    border-left:4px solid #7a91b8;
+    border-radius:0;
+}
+
+.thread-entry.response.collapsed {
+    border-left:4px solid #e4a346;
+    border-radius:0;
+}
+.thread-entry.note.collapsed {
+    border-left:4px solid #e2c24c;
+    border-radius:0;
+}
+.thread-entry.collapsed {
+    background-color:#f7f7f7;
+    margin:0px 0!IMPORTANT;
+    cursor:pointer;
+}
+.thread-entry.collapsed.message .header > b {
+    color:#7a91b8!IMPORTANT;
+}
+
+.thread-entry.collapsed.response .header > b {
+    color:#e4a346!IMPORTANT;
+    }
+
+.thread-entry.collapsed.note .header > b {
+    color:#e2c24c!IMPORTANT;
+    }
+
+.thread-entry.collapsed .header {
+    background-color:#f7f7f7;
+    border-bottom:1px solid #f7f7f7;
+    border-left:0;
+    border-radius:0;
+}
+
+.thread-entry.collapsed .thread-body {
+    background-color:#f7f7f7;
+    padding-top:0;
+    border-left:0;
+    border-right:1px solid #ccc;
+    height:20px;
+    overflow:hidden;
+    padding-bottom:10px;
+    border-radius:0;
+}
+.thread-entry.collapsed .thread-body .thread-teaser {
+    width: auto;
+    display: inline-block;
+    max-width: 98%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+
+/***Overrides***/
+.thread-row:first-child .thread-entry {
+    margin-bottom:5px!IMPORTANT;
+}
+
+.thread-entry::before, .thread-entry::after {
+    display:none;
+}
+
+.thread-entry .header {
+    border-radius:0;
+    cursor:pointer;
+}
+
+.thread-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    padding-bottom:10px;
+    height:auto;
+    overflow:visible;
+}
+.thread-entry .thread-body .thread-teaser {
+    width: auto;
+    display: block;
+    max-width: 100%;
+    white-space:normal;
+    overflow: visible;
+    text-overflow:inherit;
+    vertical-align:bottom;
+}
+/******** End Thread Preview Styles ********/
+
+/******** Start User/Agent Profile Popout *********/
+.ticket-profile.action-dropdown {
+    z-index:5!IMPORTANT;
+}
+.ticket-profile.action-dropdown > ul {
+    padding:10px 0 0 0;
+}
+.ticket-profile.action-dropdown > ul > li {
+    padding:0 10px;
+    margin-bottom:10px;
+}
+.ticket-profile.action-dropdown > ul > li:last-child {
+    margin-bottom:0px;
+}
+
+.ticket-profile.action-dropdown li.profile-info .avatar {
+    width:70px;
+}
+    /***/
+
+    .profile-group {
+        padding:0 10px;
+    }
+    .profile-group h3 {
+        padding:0;
+        margin:0;
+    }
+    .profile-group p {
+        padding:0;
+        margin:0;
+        color:#666;
+    }
+    .profile-group a.action-button {
+        margin:5px 0 0 0 !IMPORTANT;
+        width:100%;
+        padding:2px 0!IMPORTANT;
+        text-align:center;
+    }
+
+    /***/
+
+    .profile-team {
+        border-top:1px dotted #999;
+        border-bottom:1px dotted #999;
+        display:block;
+    }
+
+    .profile-team p {
+        margin:0;
+        padding:5px 0;
+    }
+
+    .profile-team a {
+        color:#666;
+        text-decoration:underline;
+        margin:0 4px;
+    }
+
+    .profile-team a:hover {
+        color:#E65524;
+    }
+
+    /***/
+
+    .profile-info .info-item {
+        padding:5px 0;
+        color:#666;
+    }
+
+    #agent-dropdown .profile-info .info-item span {
+        min-width:30px;
+        display:inline-block;
+        color:#666;
+        text-align:right;
+        margin:0 5px;
+        color:#E65524;
+        font-weight:bold;
+    }
+    #user-dropdown .profile-info .info-item span {
+        min-width:30px;
+        display:inline-block;
+        color:#666;
+        text-align:right;
+        margin:0 5px;
+        font-weight:bold;
+    }
+
+    /***/
+
+.profile-footer {
+    border-top:1px dotted #999;
+    background-color:#f4f4f4;
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+    text-align:center;
+}
+
+.profile-footer > p {
+    margin:0;
+    padding:15px;
+}
+
+.profile-footer p > span {
+    color:#E65524;
+    font-weight:bold;
+    margin: 0 2px;
+}
+.profile-footer > a {
+    text-decoration: none;
+    padding:10px!IMPORTANT;
+    display:block;
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+}
+
+/******** End User/Agent Profile Popout *********/
+
+
+
+
+
+
+
+
+#thread-items::after {
   border-left: 2px dotted #ddd;
   border-bottom-color: rgba(0,0,0,0.1);
   position: absolute;
   margin-left: 74px;
   z-index: -1;
   content: "";
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
 }
 #thread-items {
   z-index: 0;
@@ -2710,9 +3065,12 @@ td.indented {
   margin-top: 5px;
 }
 .thread-event {
-    padding: 0 2px 15px;
+    margin-top:10px;
+    margin-bottom:10px;
+    padding:0;
     margin-left: 60px;
 }
+
 .thread-event a {
     color: inherit;
 }
