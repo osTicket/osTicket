@@ -29,12 +29,15 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-    function Config($section=null) {
+    function Config($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
 
         if ($this->section === null)
             return false;
+
+        if ($defaults)
+            $this->defaults = $defaults;
 
         if (isset($_SESSION['cfg:'.$this->section]))
             $this->session = &$_SESSION['cfg:'.$this->section];
