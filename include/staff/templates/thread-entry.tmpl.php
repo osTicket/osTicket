@@ -5,9 +5,9 @@ $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
 if ($user)
     $avatar = $user->getAvatar();
-
 ?>
-<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<div class="thread-entry <?php
+    echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M') ? 'pull-right' : 'pull-left'; ?> avatar">
 <?php echo $avatar; ?>
@@ -51,7 +51,8 @@ if ($user)
         </span>
         </div>
 <?php
-        echo sprintf(__('<b>%s</b> posted %s'), $name,
+        echo sprintf(__('<b>%s</b> posted %s'),
+                $entry->isSystem() ?  __('SYSTEM') : $name,
             sprintf('<a name="entry-%d" href="#entry-%1$s"><time class="relative" datetime="%s" title="%s">%s</time></a>',
                 $entry->id,
                 date(DateTime::W3C, Misc::db2gmtime($entry->created)),
