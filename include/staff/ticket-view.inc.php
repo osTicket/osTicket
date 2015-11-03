@@ -497,8 +497,10 @@ $tcount = $ticket->getThreadEntries($types)->count();
     $ticket->getThread()->render(
             array('M', 'R', 'N'),
             array(
-                'html-id' => 'ticketThread',
-                'mode' => Thread::MODE_STAFF)
+                'html-id'   => 'ticketThread',
+                'mode'      => Thread::MODE_STAFF,
+                'sort'      => $thisstaff->thread_view_order
+                )
             );
 ?>
 <div class="clear"></div>

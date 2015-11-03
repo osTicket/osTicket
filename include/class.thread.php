@@ -244,6 +244,9 @@ class Thread extends VerySimpleModel {
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
+        if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
+            $entries->order_by('-id');
+
         // Precache all the attachments on this thread
         AttachmentFile::objects()->filter(array(
             'attachments__thread_entry__thread__id' => $this->id

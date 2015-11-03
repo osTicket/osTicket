@@ -223,7 +223,29 @@ if ($avatar->isChangeable()) { ?>
                 <div class="error"><?php echo $errors['default_from_name']; ?></div>
             </td>
         </tr>
-
+        <tr>
+            <td><?php echo __('Thread View Order');?>:
+              <div class="faded"><?php echo __('The order of thread entries');?></div>
+            </td>
+            <td>
+                <select name="thread_view_order">
+                  <?php
+                   $options=array(
+                           'desc' => __('Descending'),
+                           'asc' => __('Ascending'),
+                           '' => '— '.__('System Default').' —',
+                           );
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k
+                                ,($staff->thread_view_order == $k) ? 'selected="selected"' : ''
+                                ,$v);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['thread_view_order']; ?></div>
+            </td>
+        </tr>
         <tr>
             <td><?php echo __('Default Signature');?>:
               <div class="faded"><?php echo __('This can be selected when replying to a thread');?></div>

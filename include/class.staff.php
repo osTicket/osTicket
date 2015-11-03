@@ -86,7 +86,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                     // Defaults
                     array(
                         'default_from_name' => '',
-                        'datetime_format' => '',
+                        'datetime_format'   => '',
+                        'thread_view_order' => '',
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -675,6 +676,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $_config->updateAll(array(
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
+                    'thread_view_order' => $vars['thread_view_order'],
                     )
                 );
         $this->_config = $_config->getInfo();
