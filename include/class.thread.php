@@ -594,6 +594,7 @@ implements TemplateVariable {
 
     const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
     const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
+    const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -869,6 +870,10 @@ implements TemplateVariable {
     }
     function setFlag($flag) {
         return $this->set('flags', $this->get('flags') | $flag);
+    }
+
+    function isSystem() {
+        return $this->hasFlag(self::FLAG_SYSTEM);
     }
 
     //Web uploads - caller is expected to format, validate and set any errors.
@@ -1360,6 +1365,10 @@ implements TemplateVariable {
         if ($entry->format == 'html')
             // The current codebase properly balances html
             $entry->flags |= self::FLAG_BALANCED;
+
+        // Flag system messages
+        if (!($vars['staffId'] || $vars['userId']))
+            $entry->flags |= self::FLAG_SYSTEM;
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
