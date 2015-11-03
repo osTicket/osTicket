@@ -42,6 +42,10 @@ echo sprintf('
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
             $thread->getNumCollaborators());
 }
+echo '<li><a id="thread_tab" href="#threadPreview"
+            ><i class="icon-fixed-width icon-list
+            faded"></i>&nbsp;'.__('Thread Preview').'</a></li>';
+
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
@@ -118,6 +122,7 @@ echo '
     </table>';
 echo '</div>'; // ticket preview content.
 ?>
+
 <div class="hidden tab_content" id="collab">
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
@@ -147,7 +152,17 @@ echo '</div>'; // ticket preview content.
                                 );
     ?>
 </div>
+<!-- Thread Preview Start -->
+<div class="hidden tab_content thread-preview" id="threadPreview">
+    <div id="ticketThread">
+        <div id="thread-items">
+        <?php
+        include STAFFINC_DIR.'templates/thread-entries-preview.tmpl.php';
+        ?>
+        </div>
+    </div>
 </div>
+<!-- End Thread Preview -->
 <?php
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
@@ -177,3 +192,18 @@ if($options) {
 
 echo '</div>';
 ?>
+<script type="text/javascript">
+    $('.thread-preview-entry').on('click', function(){
+        if($(this).hasClass('collapsed')) {
+            $(this).removeClass('collapsed', 500);
+        }
+    });
+
+    $('.header').on('click', function(){
+        if(!$(this).closest('.thread-preview-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-preview-entry').addClass('collapsed', 500);
+        }
+    });
+
+
+ </script>
