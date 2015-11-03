@@ -1610,15 +1610,18 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function template($description) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
+
         $self = $this;
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self, $thisstaff) {
+            function ($m) use ($self, $thisstaff, $cfg) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
                     if ($S = $self->staff) {
-                        $avatar = $S->getAvatar();
+                        $avatar = '';
+                        if ($cfg->isAvatarsEnabled())
+                            $avatar = $S->getAvatar();
                         $assignees[] =
                             $avatar.$S->getName();
                     }
@@ -1628,7 +1631,8 @@ class ThreadEvent extends VerySimpleModel {
                     return implode('/', $assignees);
                 case 'somebody':
                     $name = $self->getUserName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
@@ -1651,7 +1655,8 @@ class ThreadEvent extends VerySimpleModel {
                     );
                 case 'agent':
                     $name = $self->agent->getName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'dept':
