@@ -74,7 +74,7 @@ div#header a {
 time[title]:hover {
     text-decoration: underline;
 }
-a time.relative {
+a time {
     color: initial;
 }
 

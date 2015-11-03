@@ -208,7 +208,9 @@ if ($avatar->isChangeable()) { ?>
                            'email' => __("Email Address Name"),
                            'dept' => sprintf(__("Department Name (%s)"),
                                __('if public' /* This is used in 'Department's Name (>if public<)' */)),
-                           'mine' => __('My Name'));
+                           'mine' => __('My Name'),
+                           '' => '— '.__('System Default').' —',
+                           );
                   if ($cfg->hideStaffName())
                     unset($options['mine']);
 
@@ -274,6 +276,23 @@ if ($avatar->isChangeable()) { ?>
                 $TZ_TIMEZONE = $staff->timezone;
                 include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
                 <div class="error"><?php echo $errors['timezone']; ?></div>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Time Format');?>:</td>
+            <td>
+                <select name="datetime_format">
+<?php
+    $datetime_format = $staff->datetime_format;
+    foreach (array(
+    'relative' => __('Relative Time'),
+    '' => '— '.__('System Default').' —',
+) as $v=>$name) { ?>
+                    <option value="<?php echo $v; ?>" <?php
+                    if ($v == $datetime_format)
+                        echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
+                </select>
             </td>
         </tr>
 <?php if ($cfg->getSecondaryLanguages()) { ?>
