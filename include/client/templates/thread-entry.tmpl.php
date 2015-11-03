@@ -1,5 +1,6 @@
 <?php
 global $cfg;
+
 $entryTypes = ThreadEntry::getTypes();
 $user = $entry->getUser() ?: $entry->getStaff();
 if ($entry->staff && $cfg->hideStaffName())
