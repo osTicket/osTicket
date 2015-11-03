@@ -2711,8 +2711,12 @@ td.indented {
 .thread-preview-entry.response .header {
     background-color:#FFE0B3;
 }
-.thread-preview-entry.message .header .thread-name span:first-child,
-.thread-preview-entry.response .header .thread-name span:first-child {
+
+.thread-preview-entry.note .header {
+    background-color: #ffffdd;
+}
+
+.header .thread-name span:first-child {
     color:#000;
 }
 /***Collapsed CSS***/
@@ -2726,8 +2730,7 @@ td.indented {
     margin-bottom:0px;
     margin-top:0px;
 }
-.thread-preview-entry.collapsed.message .header,
-.thread-preview-entry.collapsed.response .header {
+.thread-preview-entry.collapsed .header {
     background-color:#f7f7f7;
     border-bottom:1px solid #f7f7f7;
 }
@@ -2738,6 +2741,7 @@ td.indented {
 .thread-preview-entry.collapsed.response .header .thread-name span:first-child {
     color:#e65524;
 }
+
 .thread-preview-entry.collapsed .thread-body {
     background-color:#f7f7f7;
     padding-top:0;
