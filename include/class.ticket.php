@@ -2840,7 +2840,11 @@ implements RestrictedAccess, Threadable {
                 $stats['overdue'] += $S['count'];
             if ($S['staff_id'] == $id)
                 $stats['assigned'] += $S['count'];
-            elseif ($S['team_id'] && $S['staff_id'] == 0)
+            elseif ($S['team_id']
+                    && $S['staff_id'] == 0
+                    && $teams
+                    && in_array($S['team_id'], $teams))
+                // Assigned to my team but uassigned to an agent
                 $stats['assigned'] += $S['count'];
         }
         return $stats;
