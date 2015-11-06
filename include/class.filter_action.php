@@ -220,10 +220,7 @@ class FA_DisableAutoResponse extends TriggerAction {
     function apply(&$ticket, array $info) {
         # TODO: Disable alerting
         # XXX: Does this imply turning it on as well? (via ->sendAlerts())
-        $config = $this->getConfiguration();
-        if ($config['enable']) {
-            $ticket['autorespond']=false;
-        }
+        $ticket['autorespond']=false;
     }
 
     function getConfigurationOptions() {
