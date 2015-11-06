@@ -292,7 +292,7 @@ implements TemplateVariable {
         return $topic;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $dept=0) {
         global $cfg;
         static $topics, $names = array();
 
@@ -301,7 +301,10 @@ implements TemplateVariable {
             $objects = self::objects()->values_flat(
                 'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
             )
-            ->order_by('sort');
+	      ->order_by('sort');
+	    if($dept!=0) {
+	      $objects = $objects->filter(array('dept_id'=>$dept));
+	    }
 
             // Fetch information for all topics, in declared sort order
             $topics = array();

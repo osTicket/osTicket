@@ -30,6 +30,24 @@ if ($info['error']) {
                 );
 
         $iform = $iform ?: TaskForm::getInternalForm();
+        $iFields = $iform->getFields();
+        if($thisstaff) {
+	  //set department to current staff's department
+	  $iFields['dept_id']->set('default', $thisstaff->getDeptId());
+	  if(!$_POST) {
+	    //set assignee to currently logged in staff
+	    //had to use JS here because of the separate Agents/Teams arrays,
+	    //using the 'default' attribute did not work
+	    $assFID = $iFields['assignee']->getWidget()->id;
+	    ?><script type="application/javascript">
+		 select = <?php echo $assFID ?>;
+	    select.value = 's'+<?php echo $thisstaff->getId() ?>;
+	    </script><?php
+		}
+	}
+      else {
+	echo print_r($_POST);
+      }
         echo $iform->asTable(__("Task Visibility & Assignment"));
 ?>
     <hr>

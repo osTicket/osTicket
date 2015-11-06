@@ -48,13 +48,52 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tbody>
     <tbody>
     <tr><td colspan="2"><hr />
+	<div class="form-header" style="margin-bottom:0.5.m">
+	  <b><?php echo __('Department'); ?></b>
+	</div>
+    </td></tr>
+    <tr>
+      <td colspan="2">
+	<select id="deptId" name="deptId" onchange="javascript:
+						dept = this.options[selectedIndex].value;
+						var url = 'ajax.php/topics/help_topics/'+dept;
+						if(dept.length > 0) {
+						  $.get(url, dept, function(data) {
+						    var options = '<option value selected>&mdash; Select Help Topic &mdash;</options>\n';
+						    $.each(data, function(index, value) {
+						      options += '<option value=\''+index+'\'>'+value+'</option>\n';
+						    });
+						    $('#topicId').html(options);
+						    $('#topicId').prop('disabled', false);
+						  }, 'json');
+						}
+						else {
+						  $('#topicId').prop('disabled', true);
+						}
+						">
+	  <option value="" selected="selected">&mdash; <?php echo __('Select a Department');?> &mdash;</option>
+	  <?php
+	  if($depts=Dept::getPublicDepartments()) {
+	    foreach($depts as $id=>$name) {
+	      echo sprintf('<option value="%d" %s>%s</option>',
+			   $id, ($info['deptId']==$id)?'selected="selected"':'', $name);
+	    }
+	  } else { ?>
+	    <option value="0" ><?php echo __('General Inquiry');?></option>
+	    <?php
+	  }
+	     ?>
+	</select>
+      </td>
+    </tr>
+    <tr><td colspan="2">
         <div class="form-header" style="margin-bottom:0.5em">
         <b><?php echo __('Help Topic'); ?></b>
         </div>
     </td></tr>
     <tr>
         <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
+            <select id="topicId" name="topicId" <?php echo $info['deptId']?'':'disabled'?> onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
                     $.ajax(
                       'ajax.php/form/help-topic/' + this.value,

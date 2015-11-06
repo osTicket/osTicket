@@ -49,6 +49,10 @@ $dispatcher = patterns('',
         url_get('^(?P<id>[\w-]+)/(?:(?P<lang>\w+)/)?manage$', 'manageNamedContent'),
         url_post('^(?P<id>\d+)(?:/(?P<lang>\w+))?$', 'updateContent')
     )),
+		       url('^/topics/', patterns('ajax.topic.php:TopicAjaxAPI',
+						 url_get('^help_topics/(?P<dept>\d+)', 'help_topics'),
+						 url_get('^getAssignment/(?P<topic>\d+)', 'getAssignment')
+						 )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp'),
         url_get('^links', 'templateLinks'),
