@@ -28,9 +28,12 @@ $info = $team->getInfo();
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $team->getId(); ?>">
- <h2><?php echo __('Team');?>&nbsp;
+ <h2><?php echo $title; ?>
+    <?php if (isset($team->name)) { ?><small>
+    — <?php echo $team->getName(); ?></small>
+    <?php } ?>
     <i class="help-tip icon-question-sign" href="#teams"></i>
-    </h2>
+</h2>
 <br>
 <ul class="clean tabs">
     <li class="active"><a href="#team">
@@ -44,7 +47,6 @@ $info = $team->getInfo();
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><strong><?php echo __('Team Information'); ?></strong>:</em>
             </th>
         </tr>

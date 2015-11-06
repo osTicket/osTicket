@@ -59,12 +59,20 @@ class Export {
         // Reset the $sql query
         $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',
-                'team', 'staff', 'cdata')
+                'team', 'staff', 'cdata', 'topic', 'status', 'cdata.priority')
             ->annotate(array(
-            'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
-            'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
-            'thread_count' => SqlAggregate::COUNT('thread__entries'),
-        ));
+                'collab_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
+                'attachment_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->filter(array('entries__attachments__inline' => 0))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+                'thread_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
+            ));
 
         return self::dumpQuery($tickets,
             array(
@@ -73,7 +81,7 @@ class Export {
                 'cdata.subject' =>  __('Subject'),
                 'user.name' =>      __('From'),
                 'user.default_email.address' => __('From Email'),
-                'cdata.:priority.priority_desc' => __('Priority'),
+                'cdata.priority.priority_desc' => __('Priority'),
                 'dept::getLocalName' => __('Department'),
                 'topic::getName' => __('Help Topic'),
                 'source' =>         __('Source'),
@@ -100,14 +108,9 @@ class Export {
     }
 
     static  function saveTickets($sql, $filename, $how='csv') {
-        ob_start();
+        Http::download($filename, "text/$how");
         self::dumpTickets($sql, $how);
-        $stuff = ob_get_contents();
-        ob_end_clean();
-        if ($stuff)
-            Http::download($filename, "text/$how", $stuff);
-
-        return false;
+        exit;
     }
 
 

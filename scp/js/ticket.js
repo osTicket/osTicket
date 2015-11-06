@@ -20,30 +20,29 @@
     if (!this.$element.data('lockObjectId'))
       return;
     this.objectId = this.$element.data('lockObjectId');
-    this.lockId = options.lockId || this.$element.data('lockId') || undefined;
     this.fails = 0;
     this.disabled = false;
     getConfig().then(function(c) {
       if (c.lock_time)
-        this.setup();
+        this.setup(options.lockId || this.$element.data('lockId') || undefined);
     }.bind(this));
   }
 
   Lock.prototype = {
     constructor: Lock,
+    registry: [],
 
-    setup: function() {
+    setup: function(lockId) {
       // When something inside changes or is clicked which requires a lock,
       // attempt to fetch one (lazily)
       $(':input', this.$element).on('keyup, change', this.acquire.bind(this));
       $(':submit', this.$element).click(this.ensureLocked.bind(this));
-      $(document).on('pjax:start', this.shutdown.bind(this));
 
       // If lock already held, assume full time of lock remains, but warn
       // user about pending expiration
-      if (this.lockId) {
+      if (lockId) {
         getConfig().then(function(c) {
-          this.lockTimeout(c.lock_time - 20);
+          this.update({id: lockId, time: c.lock_time - 10});
         }.bind(this));
       }
     },
@@ -126,10 +125,18 @@
         type: 'POST',
         url: 'ajax.php/lock/{0}/release'.replace('{0}', this.lockId),
         data: 'delete',
-        async: false,
         cache: false,
+        success: this.clearAll.bind(this),
         complete: this.destroy.bind(this)
       });
+    },
+
+    clearAll: function() {
+      // Clear all other current locks with the same ID as this
+      $.each(Lock.prototype.registry, function(i, l) {
+        if (l.lockId && l.lockId == this.lockId)
+          l.shutdown();
+      }.bind(this));
     },
 
     shutdown: function() {
@@ -159,6 +166,7 @@
         // Set up release on away navigation
         $(document).off('.exclusive');
         $(document).on('pjax:click.exclusive', $.proxy(this.release, this));
+        Lock.prototype.registry.push(this);
       }
 
       this.lockId = lock.id;
@@ -328,10 +336,13 @@ var ticket_onload = function($) {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $redirect = $(this).data('href');
+        var $redirect = $(this).data('redirect');
         var $options = $(this).data('dialog');
         $.dialog(url, [201], function (xhr) {
-            window.location.href = $redirect ? $redirect : window.location.href;
+            if (!!$redirect)
+                window.location.href = $redirect;
+            else
+                $.pjax.reload('#pjax-container');
         }, $options);
 
         return false;

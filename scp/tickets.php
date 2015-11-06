@@ -25,6 +25,7 @@ require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
 $page='';
 $ticket = $user = null; //clean start.
+$redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
@@ -35,13 +36,26 @@ if($_REQUEST['id']) {
     }
 }
 
-//Lookup user if id is available.
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
 }
-elseif (@!isset($_REQUEST['advanced']) && @$_REQUEST['a'] != 'search' && !isset($_GET['status']) && isset($_SESSION['::Q'])) {
-    $_GET['status'] = $_REQUEST['status'] = $_SESSION['::Q'];
+if (!$ticket) {
+    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
+    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
+    if (!$queue_name && isset($_SESSION[$queue_key]))
+        $queue_name = $_SESSION[$queue_key];
+
+    // Stash current queue view
+    $_SESSION[$queue_key] = $queue_name;
+
+    // Set queue as status
+    if (@!isset($_REQUEST['advanced'])
+            && @$_REQUEST['a'] != 'search'
+            && !isset($_GET['status'])
+            && $queue_name)
+        $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
+
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -118,6 +132,7 @@ if($_POST && !$errors):
 
                 // Go back to the ticket listing page on reply
                 $ticket = null;
+                $redirect = 'tickets.php';
 
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
@@ -160,6 +175,7 @@ if($_POST && !$errors):
                     Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
                         $thisstaff->getId());
 
+                 $redirect = 'tickets.php';
             } else {
 
                 if(!$errors['err'])
@@ -174,6 +190,7 @@ if($_POST && !$errors):
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
+                $redirect = 'tickets.php?id='.$ticket->getId();
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
                 if(!$ticket->checkStaffPerm($thisstaff))
@@ -322,6 +339,12 @@ if($_POST && !$errors):
         $thisstaff ->resetStats(); //We'll need to reflect any changes just made!
 endif;
 
+if ($redirect) {
+    if ($msg)
+        Messages::success($msg);
+    Http::redirect($redirect);
+}
+
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();
 
@@ -380,21 +403,6 @@ if($stats['overdue']) {
         $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
 }
 
-if($thisstaff->showAssignedOnly() && $stats['closed']) {
-    $nav->addSubMenu(array('desc'=>__('My Closed Tickets').' ('.number_format($stats['closed']).')',
-                           'title'=>__('My Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-} else {
-
-    $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
-                           'title'=>__('Closed Tickets'),
-                           'href'=>'tickets.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-}
-
 if (isset($_SESSION['advsearch'])) {
     // XXX: De-duplicate and simplify this code
     $search = SavedSearch::create();
@@ -408,6 +416,12 @@ if (isset($_SESSION['advsearch'])) {
                            'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
 }
+
+$nav->addSubMenu(array('desc' => __('Closed'),
+                       'title'=>__('Closed Tickets'),
+                       'href'=>'tickets.php?status=closed',
+                       'iconclass'=>'closedTickets'),
+                    ($_REQUEST['status']=='closed'));
 
 if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),

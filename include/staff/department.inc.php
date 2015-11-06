@@ -31,7 +31,11 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Department');?></h2>
+<h2><?php echo $title; ?>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+    <?php } ?>
+</h2>
 <ul class="clean tabs">
     <li class="active"><a href="#settings">
         <i class="icon-file"></i> <?php echo __('Settings'); ?></a></li>
@@ -43,7 +47,6 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Department Information');?></em>
             </th>
         </tr>
@@ -147,6 +150,22 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <i class="help-tip icon-question-sign" href="#sandboxing"></i>
             </td>
         </tr>
+
+        <tr>
+            <td><?php echo __('Claim on Response'); ?>:</td>
+            <td>
+                <label>
+                <input type="checkbox" name="disable_auto_claim" <?php echo
+                 $info['disable_auto_claim'] ? 'checked="checked"' : ''; ?>>
+                <?php echo sprintf('<strong>%s</strong> %s',
+                        __('Disable'),
+                        __('auto claim')); ?>
+                </label>
+                <i class="help-tip icon-question-sign"
+                href="#disable_auto_claim"></i>
+            </td>
+        </tr>
+
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Outgoing Email Settings'); ?></strong>:</em>
@@ -416,6 +435,8 @@ $('#add_extended_access').find('button').on('click', function() {
 if ($dept) {
     $members = $dept->members->all();
     foreach ($dept->extended as $x) {
+        if (!$x->staff)
+            continue;
         $members[] = new AnnotatedModel($x->staff, array(
             'alerts' => $x->isAlertsEnabled(),
             'role_id' => $x->role_id,

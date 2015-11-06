@@ -23,39 +23,32 @@ ALTER TABLE `%TABLE_PREFIX%lock`
 -- Drop all the current locks as they do not point to anything now
 TRUNCATE TABLE `%TABLE_PREFIX%lock`;
 
-RENAME TABLE `%TABLE_PREFIX%ticket_collaborator` TO `%TABLE_PREFIX%thread_collaborator`;
-ALTER TABLE `%TABLE_PREFIX%thread_collaborator`
-  CHANGE `ticket_id` `thread_id` int(11) unsigned NOT NULL DEFAULT '0';
-
-UPDATE `%TABLE_PREFIX%thread_collaborator` t1
-    LEFT JOIN  `%TABLE_PREFIX%thread` t2 ON (t2.object_id = t1.thread_id  and t2.object_type = 'T')
-    SET t1.thread_id = t2.id, t1.created = t2.created;
+CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `isactive` tinyint(1) NOT NULL DEFAULT '1',
+  `thread_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0',
+  -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
+  `role` char(1) NOT NULL DEFAULT 'M',
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `collab` (`thread_id`,`user_id`),
+  KEY `user_id` (`user_id`)
+) DEFAULT CHARSET=utf8;
 
 -- Drop zombie collaborators from tickets which were deleted and had
 -- collaborators and the collaborators were not removed
-DELETE A1.*
-    FROM `%TABLE_PREFIX%thread_collaborator` A1
-    LEFT JOIN `%TABLE_PREFIX%thread` A2 ON (A2.id = A1.thread_id)
-    WHERE A2.id IS NULL;
+INSERT INTO `%TABLE_PREFIX%thread_collaborator`
+  (`id`, `isactive`, `thread_id`, `user_id`, `role`, `created`, `updated`)
+  SELECT t1.`id`, t1.`isactive`, t2.`id`, t1.`user_id`, t1.`role`, t2.`created`, t1.`updated`
+  FROM `%TABLE_PREFIX%ticket_collaborator` t1
+  JOIN `%TABLE_PREFIX%thread` t2 ON (t2.`object_id` = t1.`ticket_id`  and t2.`object_type` = 'T');
+
+DROP TABLE `%TABLE_PREFIX%ticket_collaborator`;
 
 ALTER TABLE `%TABLE_PREFIX%task`
   ADD `lock_id` int(11) unsigned NOT NULL DEFAULT '0' AFTER `team_id`;
-
-ALTER TABLE `%TABLE_PREFIX%thread_entry`
-  ADD `flags` int(11) unsigned NOT NULL default '0' AFTER `type`;
-
--- Set the ORIGINAL_MESSAGE flag to all the first messages of each thread
-CREATE TABLE `%TABLE_PREFIX%_orig_msg_ids`
-  (id INT NOT NULL, PRIMARY KEY (id))
-  SELECT min(id) as id FROM `%TABLE_PREFIX%thread_entry`
-  WHERE type = 'M'
-  GROUP BY thread_id;
-
-UPDATE `%TABLE_PREFIX%thread_entry` A1
-  JOIN `%TABLE_PREFIX%_orig_msg_ids` A2 ON (A1.id = A2.id)
-  SET A1.`flags` = 1 ;
-
-DROP TABLE `%TABLE_PREFIX%_orig_msg_ids`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

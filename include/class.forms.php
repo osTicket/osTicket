@@ -597,6 +597,8 @@ class FormField {
     function getClean() {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
+                // XXX: The widget value may be parsed already if this is
+                //      linked to dynamic data via ::getAnswer()
                 ? $this->value : $this->parse($this->getWidget()->value);
 
             if ($vs = $this->get('cleaners')) {
@@ -907,7 +909,8 @@ class FormField {
                 'placeholder' => __('Valid regular expression'),
                 'configuration' => array('size'=>30),
                 'validators' => function($self, $v) {
-                    if (false === @preg_match($v, ' '))
+                    if (false === @preg_match($v, ' ')
+                        && false === @preg_match("/$v/", ' '))
                         $self->addError(__('Cannot compile this regular expression'));
                 })),
         );
@@ -2064,6 +2067,8 @@ class PriorityField extends ChoiceField {
     }
 
     function to_php($value, $id=false) {
+        if ($value instanceof Priority)
+            return $value;
         if (is_array($id)) {
             reset($id);
             $id = key($id);
@@ -2082,8 +2087,19 @@ class PriorityField extends ChoiceField {
             : $prio;
     }
 
+    function display($prio) {
+        if (!$prio instanceof Priority)
+            return parent::display($prio);
+        return sprintf('<span style="padding: 2px; background-color: %s">%s</span>',
+            $prio->getColor(), Format::htmlchars($prio->getDesc()));
+    }
+
     function toString($value) {
         return ($value instanceof Priority) ? $value->getDesc() : $value;
+    }
+
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -2562,7 +2578,12 @@ class FileUploadField extends FormField {
         if (!($F = AttachmentFile::upload($file)))
             Http::response(500, 'Unable to store file: '. $file['error']);
 
-        return $F->getId();
+        $id = $F->getId();
+
+        // This file is allowed for attachment in this session
+        $_SESSION[':uploadedFiles'][$id] = 1;
+
+        return $id;
     }
 
     /**
@@ -3530,7 +3551,7 @@ class ThreadEntryWidget extends Widget {
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
-            $draft ?: Format::htmlchars($this->value); ?></textarea>
+            Format::htmlchars($this->value) ?: $draft; ?></textarea>
     <?php
         $config = $this->field->getConfiguration();
         if (!$config['attachments'])
@@ -3639,20 +3660,34 @@ class FileUploadWidget extends Widget {
         }
 
         // If no value was sent, assume an empty list
-        $base = parent::getValue();
-        if (!$base)
+        if (!($files = parent::getValue()))
             return array();
 
-        if (is_array($base)) {
-            foreach ($base as $info) {
-                @list($id, $name) = explode(',', $info, 2);
-                // Keep the values as the IDs
-                if ($name)
-                    $ids[$name] = $id;
-                else
-                    $ids[] = $id;
-            }
+        // Files uploaded here MUST have been uploaded by this user and
+        // identified in the session
+        $allowed = array();
+        // Files already attached to the field are allowed
+        foreach ($this->field->getFiles() as $f) {
+            $allowed[$f->id] = 1;
         }
+
+        // New files uploaded in this session are allowed
+        if (isset($_SESSION[':uploadedFiles']))
+            $allowed += $_SESSION[':uploadedFiles'];
+
+        // Parse the files and make sure it's allowed.
+        foreach ($files as $info) {
+            @list($id, $name) = explode(',', $info, 2);
+            if (!isset($allowed[$id]))
+                continue;
+
+            // Keep the values as the IDs
+            if ($name)
+                $ids[$name] = $id;
+            else
+                $ids[] = $id;
+        }
+
         return $ids;
     }
 }
@@ -3759,6 +3794,9 @@ class FreeTextWidget extends Widget {
 }
 
 class VisibilityConstraint {
+    static $operators = array(
+        'eq' => 1,
+    );
 
     const HIDDEN =      0x0001;
     const VISIBLE =     0x0002;
@@ -3816,6 +3854,15 @@ class VisibilityConstraint {
         return $this->compileQPhp($this->constraint, $field);
     }
 
+    static function splitFieldAndOp($field) {
+        if (false !== ($last = strrpos($field, '__'))) {
+            $op = substr($field, $last + 2);
+            if (isset(static::$operators[$op]))
+                $field = substr($field, 0, strrpos($field, '__'));
+        }
+        return array($field, $op);
+    }
+
     function compileQPhp(Q $Q, $field) {
         if (!($form = $field->getForm())) {
             return $this->initial == self::VISIBLE;
@@ -3826,7 +3873,7 @@ class VisibilityConstraint {
                 $expr[] = $this->compileQPhp($value, $field);
             }
             else {
-                @list($f, $op) = explode('__', $c, 2);
+                @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
                 $wval = $field->getClean();
                 switch ($op) {
@@ -3852,7 +3899,7 @@ class VisibilityConstraint {
                 $this->getAllFields($c, $fields);
             }
             else {
-                list($f, $op) = explode('__', $c, 2);
+                @list($f) = self::splitFieldAndOp($c);
                 $fields[$f] = true;
             }
         }
@@ -3866,7 +3913,7 @@ class VisibilityConstraint {
                 $expr[] = $this->compileQ($value, $form);
             }
             else {
-                list($f, $op) = explode('__', $c, 2);
+                list($f, $op) = self::splitFieldAndOp($c);
                 $widget = $form->getField($f)->getWidget();
                 $id = $widget->id;
                 switch ($op) {

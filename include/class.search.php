@@ -41,7 +41,7 @@ abstract class SearchBackend {
     );
 
     abstract function update($model, $id, $content, $new=false, $attrs=array());
-    abstract function find($query, QuerySet $criteria);
+    abstract function find($query, QuerySet $criteria, $addRelevance=true);
 
     static function register($backend=false) {
         $backend = $backend ?: get_called_class();
@@ -76,9 +76,9 @@ class SearchInterface {
         $this->bootstrap();
     }
 
-    function find($query, QuerySet $criteria) {
+    function find($query, QuerySet $criteria, $addRelevance=true) {
         $query = Format::searchable($query);
-        return $this->backend->find($query, $criteria);
+        return $this->backend->find($query, $criteria, $addRelevance);
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
@@ -280,7 +280,7 @@ class MysqlSearchBackend extends SearchBackend {
             . ', object_id='.db_input($id)
             . ', content='.db_input($content)
             . ', title='.db_input($title);
-        return db_query($sql);
+        return db_query($sql, false);
     }
 
     function delete($model) {
@@ -306,7 +306,7 @@ class MysqlSearchBackend extends SearchBackend {
     // Quote things like email addresses
     function quote($query) {
         $parts = array();
-        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+        if (!preg_match_all('`(?:([^\s"\']+)|"[^"]*"|\'[^\']*\')(\s*)`', $query, $parts,
                 PREG_SET_ORDER))
             return $query;
 
@@ -319,54 +319,99 @@ class MysqlSearchBackend extends SearchBackend {
                 $char = strpos($m[1], '"') ? "'" : '"';
                 $m[0] = $char . $m[0] . $char;
             }
-            $results[] = $m[0];
+            $results[] = $m[0].$m[2];
         }
-        return implode(' ', $results);
+        return implode('', $results);
     }
 
-    function find($query, QuerySet $criteria) {
+    function find($query, QuerySet $criteria, $addRelevance=true) {
         global $thisstaff;
+
+        // MySQL usually doesn't handle words shorter than three letters
+        // (except with special configuration)
+        if (strlen($query) < 3)
+            return $criteria;
 
         $criteria = clone $criteria;
 
-        $mode = ' IN BOOLEAN MODE';
-        #if (count(explode(' ', $query)) == 1)
+        $mode = ' IN NATURAL LANGUAGE MODE';
+
+        // According to the MySQL full text boolean mode, this grammar is
+        // assumed:
+        // see http://dev.mysql.com/doc/refman/5.6/en/fulltext-boolean.html
+        //
+        // PREOP    = [<>~+-]
+        // POSTOP   = [*]
+        // WORD     = [\w][\w-]*
+        // TERM     = PREOP? WORD POSTOP?
+        // QWORD    = " [^"]+ "
+        // PARENS   = \( { { TERM | QWORD } { \s+ { TERM | QWORD } }+ } \)
+        // EXPR     = { PREOP? PARENS | TERM | QWORD }
+        // BOOLEAN  = EXPR { \s+ EXPR }*
+        //
+        // Changing '{' for (?: and '}' for ')', collapsing whitespace, we
+        // have this regular expression
+        $BOOLEAN = '(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))*';
+
+        // Require the use of at least one operator and conform to the
+        // boolean mode grammar
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        ) {
+            // If using boolean operators, search in boolean mode. This regex
+            // will ensure proper placement of operators, whitespace, and quotes
+            // in an effort to avoid crashing the query at MySQL
+            $query = $this->quote($query);
+            $mode = ' IN BOOLEAN MODE';
+        }
+        #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
-        $query = $this->quote($query);
-        $search = 'MATCH (search.title, search.content) AGAINST ('
-            .db_input($query)
-            .$mode.')';
-        $tables = array();
-        $P = TABLE_PREFIX;
-        $sort = '';
+        $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
 
         switch ($criteria->model) {
         case false:
         case 'TicketModel':
-            if ($query) {
-            $key = 'COALESCE(Z1.ticket_id, Z2.ticket_id)';
+            if ($addRelevance) {
+                $criteria = $criteria->extra(array(
+                    'select' => array(
+                        '__relevance__' => 'Z1.`relevance`',
+                    ),
+                ));
+            }
             $criteria->extra(array(
-                'select' => array(
-                    'ticket_id' => $key,
-                    'relevance'=>'`search`.`relevance`',
-                ),
-                'order_by' => array(new SqlCode('`relevance`')),
                 'tables' => array(
-                    "(SELECT object_type, object_id, $search AS `relevance`
-                        FROM `{$P}_search` `search` WHERE $search) `search`",
-                    "(select ticket_id as ticket_id from {$P}ticket
-                ) Z1 ON (Z1.ticket_id = search.object_id and search.object_type = 'T')",
-                    "(select A3.id as thread_id, A1.ticket_id from {$P}ticket A1
-                    join {$P}thread A2 on (A1.ticket_id = A2.object_id and A2.object_type = 'T')
-                    join {$P}thread_entry A3 on (A2.id = A3.thread_id)
-                ) Z2 ON (Z2.thread_id = search.object_id and search.object_type = 'H')",
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, SUM({}) AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {} GROUP BY `ticket_id`) Z1"),
                 )
             ));
-            // XXX: This is extremely ugly
-            $criteria->filter(array('ticket_id'=>new SqlCode($key)));
-            $criteria->distinct('ticket_id');
-            }
-            // TODO: Consider sorting preferences
+            $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')));
+            break;
+
+        case 'User':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z6.`id` as `user_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`user_id`')));
+            break;
+
+        case 'Organization':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z2.`id` as `org_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:organization` Z2 ON (Z2.`id` = Z1.`object_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`org_id`')));
+            break;
         }
 
         // TODO: Ensure search table exists;
@@ -751,6 +796,18 @@ class SavedSearch extends VerySimpleModel {
 #            ':org' =>        new OrganizationChoiceField(array(
 #                'label' => __('Organization'),
 #            )),
+            ':closed' =>     new DatetimeField(array(
+                'id' => 3204,
+                'label' => __('Closed Date'),
+            )),
+            ':thread__lastresponse' => new DatetimeField(array(
+                'id' => 3205,
+                'label' => __('Last Response'),
+            )),
+            ':thread__lastmessage' => new DatetimeField(array(
+                'id' => 3206,
+                'label' => __('Last Message'),
+            )),
             ':source' =>     new TicketSourceChoiceField(array(
                 'id' => 3201,
                 'label' => __('Source'),
@@ -800,7 +857,7 @@ class SavedSearch extends VerySimpleModel {
         }
         return $pieces;
     }
-    
+
     /**
      * Collect information on the search form.
      *
@@ -837,7 +894,7 @@ class SavedSearch extends VerySimpleModel {
         }
         return $info;
     }
-    
+
     /**
      * Get a description of a field in a search. Expects an entry from the
      * array retrieved in ::getSearchFields()
@@ -850,7 +907,7 @@ class SavedSearch extends VerySimpleModel {
         $form = $form ?: $this->getForm();
         $searchable = $this->getCurrentSearchFields($form->state);
         $qs = clone $qs;
-        
+
         // Figure out fields to search on
         foreach ($this->getSearchFields($form) as $name=>$info) {
             if (!$info['active'])
@@ -884,8 +941,10 @@ class SavedSearch extends VerySimpleModel {
                         $filter->add(array('entries__answers__field_id' => $id));
                         break;
                     }
-                    $OP = $other_paths[$type];
-                    $name = $OP . $column;
+                    if ($OP = $other_paths[$type])
+                        $name = $OP . $column;
+                    else
+                        $name = substr($name, 1);
                 }
             }
 
@@ -1121,11 +1180,11 @@ class TicketFlagChoiceField extends ChoiceField {
 class TicketSourceChoiceField extends ChoiceField {
     function getChoices() {
         return array(
-            'w' => __('Web'),
-            'e' => __('Email'),
-            'p' => __('Phone'),
-            'a' => __('API'),
-            'o' => __('Other'),
+            'web' => __('Web'),
+            'email' => __('Email'),
+            'phone' => __('Phone'),
+            'api' => __('API'),
+            'other' => __('Other'),
         );
     }
 
@@ -1167,5 +1226,17 @@ class TicketStatusChoiceField extends SelectionField {
             'includes' =>   __('is'),
             '!includes' =>  __('is not'),
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case '!includes':
+            return Q::not(array("{$name}__in" => array_keys($value)));
+        case 'includes':
+            return new Q(array("{$name}__in" => array_keys($value)));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }

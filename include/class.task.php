@@ -170,8 +170,7 @@ class TaskModel extends VerySimpleModel {
     }
 
     function getCloseDate() {
-        // TODO: have true close date
-        return $this->isClosed() ? $this->updated : '';
+        return $this->isClosed() ? $this->closed : '';
     }
 
     function isOpen() {
@@ -805,8 +804,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $assignee = $this->getStaff();
 
-        if (isset($vars['task_status']))
-            $this->setStatus($vars['task_status']);
+        if (isset($vars['task:status']))
+            $this->setStatus($vars['task:status']);
 
         $this->onActivity(array(
             'activity' => $note->getActivity(),
@@ -835,12 +834,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return null;
 
         $assignee = $this->getStaff();
-        // Set status - if checked.
-        if ($vars['reply_status_id']
-            && $vars['reply_status_id'] != $this->getStatusId()
-        ) {
-            $this->setStatus($vars['reply_status_id']);
-        }
+
+        if (isset($vars['task:status']))
+            $this->setStatus($vars['task:status']);
 
         /*
         // TODO: add auto claim setting for tasks.
@@ -1082,7 +1078,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof Message) {
+        if ($entry instanceof MessageThreadEntry) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
@@ -1216,14 +1212,18 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Get role for the dept
         $role = $thisstaff->getRole($task->dept_id);
-
         // Assignment
-        if ($vars['internal_formdata']['assignee']
+        $assignee = $vars['internal_formdata']['assignee'];
+        if ($assignee
                 // skip assignment if the user doesn't have perm.
                 && $role->hasPerm(Task::PERM_ASSIGN)) {
             $_errors = array();
-            $form = AssignmentForm::instantiate(array(
-                        'assignee' => $vars['internal_formdata']['assignee']));
+            $assigneeId = sprintf('%s%d',
+                    ($assignee  instanceof Staff) ? 's' : 't',
+                    $assignee->getId());
+
+            $form = AssignmentForm::instantiate(array('assignee' => $assigneeId));
+
             $task->assign($form, $_errors);
         }
 

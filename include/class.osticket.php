@@ -498,7 +498,7 @@ class osTicket {
     }
 
     /* returns true if script is being executed via commandline */
-    function is_cli() {
+    static function is_cli() {
         return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
                 || (!isset($_SERVER['REQUEST_METHOD']) &&
                     !isset($_SERVER['HTTP_HOST']))

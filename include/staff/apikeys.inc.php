@@ -41,44 +41,55 @@ else
 
 ?>
 <form action="apikeys.php" method="POST" name="keys">
-
-<div class="pull-left" style="padding-top:5px;">
- <h2><?php echo __('API Keys');?></h2>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <a href="apikeys.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New API Key');?></a>
-    <span class="action-button" data-dropdown="#action-dropdown-more">
-       <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-     <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul id="actions">
-          <li><a class="confirm" data-name="enable" href="apikeys.php?a=enable">
-            <i class="icon-ok-sign icon-fixed-width"></i>
-            <?php echo __('Enable'); ?></a></li>
-          <li><a class="confirm" data-name="disable" href="apikeys.php?a=disable">
-            <i class="icon-ban-circle icon-fixed-width"></i>
-            <?php echo __('Disable'); ?></a></li>
-          <li class="danger"><a class="confirm" data-name="delete" href="apikeys.php?a=delete">
-            <i class="icon-trash icon-fixed-width"></i>
-            <?php echo __('Delete'); ?></a></li>
-        </ul>
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('API Keys');?></h2>
+            </div>
+            <div class="pull-right">
+                <a href="apikeys.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New API Key');?></a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
+                            <i class="icon-caret-down pull-right"></i>
+                            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-name="enable" href="apikeys.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-name="disable" href="apikeys.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li class="danger">
+                            <a class="confirm" data-name="delete" href="apikeys.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-<div class="clear"></div>
+    <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $key_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=key"><?php echo __('API Key');?></a></th>
-            <th width="120"><a <?php echo $ip_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
-            <th width="100"><a  <?php echo $status_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="150" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Date Added');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="46%"><a <?php echo $key_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=key"><?php echo __('API Key');?></a></th>
+            <th width="12%"><a <?php echo $ip_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
+            <th width="8%"><a  <?php echo $status_sort; ?> href="apikeys.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="10%" nowrap><a  <?php echo $date_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Date Added');?></a></th>
+            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="apikeys.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -92,7 +103,7 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a href="apikeys.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['apikey']); ?></a></td>

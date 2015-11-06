@@ -14,8 +14,13 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if (!$field->isVisibleToUsers() && !$field->isEditableToUsers())
+        if (isset($options['mode']) && $options['mode'] == 'create') {
+            if (!$field->isVisibleToUsers() && !$field->isRequiredForUsers())
+                continue;
+        }
+        elseif (!$field->isVisibleToUsers() && !$field->isEditableToUsers()) {
             continue;
+        }
         ?>
         <tr>
             <td colspan="2" style="padding-top:10px;">

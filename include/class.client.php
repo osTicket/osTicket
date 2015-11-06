@@ -164,6 +164,8 @@ class  EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;
+    protected $_stats;
+    protected $topic_stats;
 
     function __construct($user) {
         $this->user = $user;
@@ -223,43 +225,66 @@ class  EndUser extends BaseAuthenticatedUser {
     }
 
     function getTicketStats() {
+        if (!isset($this->_stats))
+            $this->_stats = $this->getStats();
 
-        if (!isset($this->ht['stats']))
-            $this->ht['stats'] = $this->getStats();
-
-        return $this->ht['stats'];
+        return $this->_stats;
     }
 
-    function getNumTickets() {
-        if (!($stats=$this->getTicketStats()))
-            return 0;
-
-        return $stats['open']+$stats['closed'];
+    function getNumTickets($forMyOrg=false, $state=false) {
+        $stats = $this->getTicketStats();
+        $count = 0;
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        foreach ($stats[$section] as $row) {
+            if ($state && $row['status__state'] != $state)
+                continue;
+            $count += $row['count'];
+        }
+        return $count;
     }
 
-    function getNumOpenTickets() {
-        return ($stats=$this->getTicketStats())?$stats['open']:0;
+    function getNumOpenTickets($forMyOrg=false) {
+        return $this->getNumTickets($forMyOrg, 'open') ?: 0;
     }
 
-    function getNumClosedTickets() {
-        return ($stats=$this->getTicketStats())?$stats['closed']:0;
+    function getNumClosedTickets($forMyOrg=false) {
+        return $this->getNumTickets($forMyOrg, 'closed') ?: 0;
     }
 
-    function getNumTopicTickets($topic_id) {
-        return ($stats=$this->getTicketStats())?$stats['topics'][$topic_id]:0;
+    function getNumTopicTickets($topic_id, $forMyOrg=false) {
+        $stats = $this->getTicketStats();
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        if (!isset($this->topic_stats)) {
+            $this->topic_stats = array();
+            foreach ($stats[$section] as $row) {
+                $this->topic_stats[$row['topic_id']] += $row['count'];
+            }
+        }
+        return $this->topic_stats[$topic_id];
+    }
+
+    function getNumTopicTicketsInState($topic_id, $state=false, $forMyOrg=false) {
+        $stats = $this->getTicketStats();
+        $count = 0;
+        $section = $forMyOrg ? 'myorg' : 'mine';
+        foreach ($stats[$section] as $row) {
+            if ($topic_id != $row['topic_id'])
+                continue;
+            if ($state && $state != $row['status__state'])
+                continue;
+            $count += $row['count'];
+        }
+        return $count;
     }
 
     function getNumOrganizationTickets() {
-        if (!($stats=$this->getTicketStats()))
-            return 0;
-
-        return $stats['org']['open']+$stats['org']['closed'];
+        return $this->getNumTickets(true);
     }
     function getNumOpenOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org']['open']:0;
+        return $this->getNumTickets(true, 'open');
     }
     function getNumClosedOrganizationTickets() {
-        return ($stats=$this->getTicketStats())?$stats['org']['closed']:0;
+        return $this->getNumTickets(true, 'closed');
     }
 
     function getAccount() {
@@ -278,33 +303,42 @@ class  EndUser extends BaseAuthenticatedUser {
     private function getStats() {
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'topic_id', 'user__org_id');
-
-        $q = new Q(); $q->union();
-        if ($this->getOrgId())
-            $q->add(array('user__org_id' => $this->getOrgId()));
+            ->values('status__state', 'topic_id')
+            ->distinct('status_id', 'topic_id');
 
         // Share tickets among the organization for owners only
-        $owners = clone $basic;
-        $q->add(array('user_id' => $this->getId()));
-        $owners->filter($q);
+        $mine = clone $basic;
+        $collab = clone $basic;
+        $mine->filter(array(
+            'user_id' => $this->getId(),
+        ));
 
-        $collabs = clone $basic;
-        $collabs->filter(array('thread__collaborators__user_id' => $this->getId()));
+        // Also add collaborator tickets to the list. This may seem ugly;
+        // but the general rule for SQL is that a single query can only use
+        // one index. Therefore, to scan two indexes (by user_id and
+        // thread.collaborators.user_id), we need two queries. A union will
+        // help out with that.
+        $mine->union($collab->filter(array(
+            'thread__collaborators__user_id' => $this->getId(),
+            Q::not(array('user_id' => $this->getId()))
+        )));
 
-        // TODO: Implement UNION ALL support in the ORM
+        if ($orgid = $this->getOrgId()) {
+            // Also generate a separate query for all the tickets owned by
+            // either my organization or ones that I'm collaborating on
+            // which are not part of the organization.
+            $myorg = clone $basic;
+            $myorg->values('user__org_id');
+            $collab = clone $myorg;
 
-        $stats = array('open' => 0, 'closed' => 0, 'topics' => array());
-        foreach (array($owners, $collabs) as $rs) {
-            foreach ($rs as $row) {
-                $stats[$row['status__state']] += $row['count'];
-                if ($row['topic_id'])
-                    $stats['topics'][$row['topic_id']] += $row['count'];
-                if ($row['user__org_id'])
-                    $stats['org'][$row['status__state']] += $row['count'];
-            }
+            $myorg->filter(array('user__org_id' => $orgid));
+            $myorg->union($collab->filter(array(
+                'thread__collaborators__user_id' => $this->getId(),
+                Q::not(array('user__org_id' => $orgid))
+            )));
         }
-        return $stats;
+
+        return array('mine' => $mine, 'myorg' => $myorg);
     }
 
     function onLogin($bk) {
@@ -358,6 +392,11 @@ class ClientAccount extends UserAccount {
 
     function update($vars, &$errors) {
         global $cfg;
+
+        // FIXME: Updates by agents should go through UserAccount::update()
+        global $thisstaff;
+        if ($thisstaff)
+            return parent::update($vars, $errors);
 
         $rtoken = $_SESSION['_client']['reset-token'];
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {

@@ -673,7 +673,7 @@ class SqlFunction {
         foreach ($this->args as $A) {
             $args[] = $this->input($A, $compiler, $model);
         }
-        return sprintf('%s(%s)%s', $this->func, implode(',', $args),
+        return sprintf('%s(%s)%s', $this->func, implode(', ', $args),
             $alias && $this->alias ? ' AS '.$compiler->quote($this->alias) : '');
     }
 
@@ -688,6 +688,11 @@ class SqlFunction {
         $I = new static($func);
         $I->args = $args;
         return $I;
+    }
+
+    function __call($operator, $other) {
+        array_unshift($other, $this);
+        return SqlExpression::__callStatic($operator, $other);
     }
 }
 
@@ -826,7 +831,7 @@ class SqlCode extends SqlFunction {
     }
 
     function toSql($compiler, $model=false, $alias=false) {
-        return $this->code;
+        return $this->code.($alias ? ' AS '.$alias : '');
     }
 }
 
@@ -860,7 +865,7 @@ class SqlAggregate extends SqlFunction {
         // specification.
         $E = $this->expr;
         if ($E instanceof SqlFunction) {
-            $field = $E->toSql($compiler, $model, $alias);
+            $field = $E->toSql($compiler, $model);
         }
         else {
         list($field, $rmodel) = $compiler->getField($E, $model, $options);
@@ -913,6 +918,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $extra = array();
     var $distinct = array();
     var $lock = false;
+    var $chain = array();
+    var $options = array();
 
     const LOCK_EXCLUSIVE = 1;
     const LOCK_SHARED = 2;
@@ -980,6 +987,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
     function order_by($order, $direction=false) {
+        if ($order === false)
+            return $this->options(array('nosort' => true));
+
         $args = func_get_args();
         if (in_array($direction, array(self::ASC, self::DESC))) {
             $args = array($args[0]);
@@ -1061,6 +1071,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // This disables related models
         $this->related = false;
         return $this;
+    }
+
+    function copy() {
+        return clone $this;
     }
 
     function all() {
@@ -1174,6 +1188,30 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function options($options) {
+        $this->options = array_merge($this->options, $options);
+        return $this;
+    }
+
+    function countSelectFields() {
+        $count = count($this->values) + count($this->annotations);
+        if (isset($this->extra['select']))
+            foreach (@$this->extra['select'] as $S)
+                $count += count($S);
+        return $count;
+    }
+
+    function union(QuerySet $other, $all=true) {
+        // Values and values_list _must_ match for this to work
+        if ($this->countSelectFields() != $other->countSelectFields())
+            throw new OrmException('Union queries must have matching values counts');
+
+        // TODO: Clear OFFSET and LIMIT in the $other query
+
+        $this->chain[] = array($other, $all);
+        return $this;
+    }
+
     function delete() {
         $class = $this->compiler;
         $compiler = new $class();
@@ -1230,7 +1268,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         // Load defaults from model
         $model = $this->model;
         $query = clone $this;
-        if (!$options['nosort'] && !$query->ordering && $model::getMeta('ordering'))
+        $options += $this->options;
+        if ($options['nosort'])
+            $query->ordering = array();
+        elseif (!$query->ordering && $model::getMeta('ordering'))
             $query->ordering = $model::getMeta('ordering');
         if (false !== $query->related && !$query->values && $model::getMeta('select_related'))
             $query->related = $model::getMeta('select_related');
@@ -1251,6 +1292,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function asView() {
         $unique = spl_object_hash($this);
         $classname = "QueryView{$unique}";
+
+        if (class_exists($classname))
+            return $classname;
+
         $class = <<<EOF
 class {$classname} extends VerySimpleModel {
     static \$meta = array(
@@ -1493,9 +1538,11 @@ class ModelInstanceManager extends ResultSet {
                     $tail = array_pop($path);
                     $m = $model;
                     foreach ($path as $field) {
-                        $m = $m->get($field);
+                        if (!($m = $m->get($field)))
+                            break;
                     }
-                    $m->set($tail, $this->getOrBuild($model_class, $record));
+                    if ($m)
+                        $m->set($tail, $this->getOrBuild($model_class, $record));
                 }
                 $offset += count($fields);
             }
@@ -1779,8 +1826,8 @@ class SqlCompiler {
     static function splitCriteria($criteria) {
         static $operators = array(
             'exact' => 1, 'isnull' => 1,
-            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1,
-            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1,
+            'gt' => 1, 'lt' => 1, 'gte' => 1, 'lte' => 1, 'range' => 1,
+            'contains' => 1, 'like' => 1, 'startswith' => 1, 'endswith' => 1, 'regex' => 1,
             'in' => 1, 'intersect' => 1,
             'hasbit' => 1,
         );
@@ -2172,11 +2219,13 @@ class MySqlCompiler extends SqlCompiler {
         'lt' => '%1$s < %2$s',
         'gte' => '%1$s >= %2$s',
         'lte' => '%1$s <= %2$s',
+        'range' => array('self', '__range'),
         'isnull' => array('self', '__isnull'),
         'like' => '%1$s LIKE %2$s',
         'hasbit' => '%1$s & %2$s != 0',
         'in' => array('self', '__in'),
         'intersect' => array('self', '__find_in_set'),
+        'regex' => array('self', '__regex'),
     );
 
     // Thanks, http://stackoverflow.com/a/3683868
@@ -2204,10 +2253,13 @@ class MySqlCompiler extends SqlCompiler {
             $vals = array_map(array($this, 'input'), $b);
             $b = '('.implode(', ', $vals).')';
         }
+        // MySQL is almost always faster with a join. Use one if possible
         // MySQL doesn't support LIMIT or OFFSET in subqueries. Instead, add
         // the query as a JOIN and add the join constraint into the WHERE
         // clause.
-        elseif ($b instanceof QuerySet && $b->isWindowed()) {
+        elseif ($b instanceof QuerySet
+            && ($b->isWindowed() || $b->countSelectFields() > 1 || $b->chain)
+        ) {
             $f1 = $b->values[0];
             $view = $b->asView();
             $alias = $this->pushJoin($view, $a, $view, array('constraint'=>array()));
@@ -2236,6 +2288,18 @@ class MySqlCompiler extends SqlCompiler {
             return $parens ? ('('.$sql.')') : $sql;
         }
         return sprintf('FIND_IN_SET(%s, %s)', $b, $a);
+    }
+
+    function __regex($a, $b) {
+        // Strip slashes and options
+        if ($b[0] == '/')
+            $b = preg_replace('`/[^/]*$`', '', substr($b, 1));
+        return sprintf('%s REGEXP %s', $a, $this->input($b));
+    }
+
+    function __range($a, $b) {
+        // XXX: Crash if $b is not array of two items
+        return sprintf('%s BETWEEN %s AND %s', $a, $b[0], $b[1]);
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
@@ -2302,7 +2366,7 @@ class MySqlCompiler extends SqlCompiler {
      */
     function input($what, $slot=false, $model=false) {
         if ($what instanceof QuerySet) {
-            $q = $what->getQuery(array('nosort'=>true));
+            $q = $what->getQuery(array('nosort'=>!($what->limit || $what->offset)));
             // Rewrite the parameter numbers so they fit the parameter numbers
             // of the current parameters of the $compiler
             $self = $this;
@@ -2359,14 +2423,15 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function compileCount($queryset) {
-        $model = $queryset->model;
-        $table = $model::getMeta('table');
-        list($where, $having) = $this->getWhereHavingClause($queryset);
-        $joins = $this->getJoins($queryset);
-        $sql = 'SELECT COUNT(*) AS count FROM '.$this->quote($table).$joins.$where;
-        $exec = new MysqlExecutor($sql, $this->params);
-        $row = $exec->getArray();
-        return $row['count'];
+        $q = clone $queryset;
+        // Drop extra fields from the queryset
+        $q->related = $q->anotations = false;
+        $model = $q->model;
+        $q->values = $model::getMeta('pk');
+        $exec = $q->getQuery(array('nosort' => true));
+        $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
+        $row = $exec->getRow();
+        return $row ? $row[0] : null;
     }
 
     function compileSelect($queryset) {
@@ -2474,7 +2539,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
                 // If there are annotations, add in these fields to the
                 // GROUP BY clause
-                if ($queryset->annotations)
+                if ($queryset->annotations && !$queryset->distinct)
                     $group_by[] = $unaliased;
             }
         }
@@ -2500,7 +2565,7 @@ class MySqlCompiler extends SqlCompiler {
                 $T = $A->toSql($this, $model, $alias);
                 if ($fieldMap) {
                     array_splice($fields, count($fieldMap[0][0]), 0, array($T));
-                    $fieldMap[0][0][] = $A->getAlias();
+                    $fieldMap[0][0][] = $alias;
                 }
                 else {
                     // No field map — just add to end of field list
@@ -2508,7 +2573,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by && !$queryset->aggregated) {
+            if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
                 foreach ($model::getMeta('pk') as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
@@ -2518,6 +2583,8 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->extra['select'] as $name=>$expr) {
                 if ($expr instanceof SqlFunction)
                     $expr = $expr->toSql($this, false, $name);
+                else
+                    $expr = sprintf('%s AS %s', $expr, $this->quote($name));
                 $fields[] = $expr;
             }
         }
@@ -2531,6 +2598,29 @@ class MySqlCompiler extends SqlCompiler {
 
         $sql = 'SELECT '.implode(', ', $fields).' FROM '
             .$table.$joins.$where.$group_by.$having.$sort;
+        // UNIONS
+        if ($queryset->chain) {
+            // If the main query is sorted, it will need parentheses
+            if ($parens = (bool) $sort)
+                $sql = "($sql)";
+            foreach ($queryset->chain as $qs) {
+                list($qs, $all) = $qs;
+                $q = $qs->getQuery(array('nosort' => true));
+                // Rewrite the parameter numbers so they fit the parameter numbers
+                // of the current parameters of the $compiler
+                $self = $this;
+                $S = preg_replace_callback("/:(\d+)/",
+                function($m) use ($self, $q) {
+                    $self->params[] = $q->params[$m[1]-1];
+                    return ':'.count($self->params);
+                }, $q->sql);
+                // Wrap unions in parentheses if they are windowed or sorted
+                if ($parens || $qs->isWindowed() || count($qs->getSortFields()))
+                    $S = "($S)";
+                $sql .= ' UNION '.($all ? 'ALL ' : '').$S;
+            }
+        }
+
         if ($queryset->limit)
             $sql .= ' LIMIT '.$queryset->limit;
         if ($queryset->offset)

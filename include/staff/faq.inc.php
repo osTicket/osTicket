@@ -128,12 +128,10 @@ if ($topics = Topic::getAllHelpTopics()) {
 <?php echo __('Here you can manage the question and answer for the article. Multiple languages are available if enabled in the admin panel.'); ?>
 <div class="clear"></div>
 
-<table width="100%"><tr>
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if ($faq && count($langs) > 1) { ?>
-<td valign="top">
-    <ul class="vertical tabs left" id="trans" style="margin-top:10px;">
+    <ul class="tabs alt clean" id="trans" style="margin-top:10px;">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$i) {
     list($lang, $locale) = explode('_', $tag);
@@ -145,11 +143,10 @@ if ($faq && count($langs) > 1) { ?>
     </a></li>
 <?php } ?>
     </ul>
-</td>
 <?php
 } ?>
 
-<td id="trans_container">
+<div id="trans_container">
 <?php foreach ($langs as $tag=>$i) {
     $code = $i['code'];
     if ($tag == $cfg->getPrimaryLanguage()) {
@@ -197,7 +194,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     </div>
     </div>
 <?php } ?>
-    </td></tr></table>
+    </div>
 </div>
 
 <div class="tab_content" id="attachments" style="display:none">
@@ -221,7 +218,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     <div class="error"><?php echo $errors['files']; ?></div>
     <div style="margin-top:15px"></div>
 
-    <ul class="vertical tabs left">
+    <ul class="tabs alt clean">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $lang=>$i) { ?>
         <li class="<?php if ($i['code'] == $cfg->getPrimaryLanguage()) echo 'active';
@@ -249,8 +246,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
 
 <div class="tab_content" style="display:none;" id="notes">
     <div>
-        <b><?php echo __('Internal Notes');?></b>:
-        <div class="faded"><?php echo __("Be liberal, they're internal");?></div>
+        <b><?php echo __('Internal Notes');?></b>:<span class="faded"><?php echo __("Be libergsdfgal, they're internal");?></span>
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"

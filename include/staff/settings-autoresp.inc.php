@@ -2,7 +2,6 @@
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Autoresponder Setting'); ?></h4>
                 <em><?php echo __('Global setting - can be disabled at department or email level.'); ?></em>
             </th>
         </tr>

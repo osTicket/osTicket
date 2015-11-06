@@ -84,42 +84,58 @@ else
     $showing=__('No logs found!');
 ?>
 
-<h2><?php echo __('System Logs');?>
-    &nbsp;<i class="help-tip icon-question-sign" href="#system_logs"></i>
-</h2>
-<div id='filter' >
- <form action="logs.php" method="get">
-    <div style="padding-left:2px;">
-        <b><?php echo __('Date Span'); ?></b>&nbsp;<i class="help-tip icon-question-sign" href="#date_span"></i>
-        <?php echo __('Between'); ?>:
-        <input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
-        &nbsp;&nbsp;
-        <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
-        &nbsp;<?php echo __('Log Level'); ?>:&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
-            <select name='type'>
-                <option value="" selected><?php echo __('All');?></option>
-                <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>><?php echo __('Errors');?></option>
-                <option value="Warning" <?php echo ($type=='Warning')?'selected="selected"':''; ?>><?php echo __('Warnings');?></option>
-                <option value="Debug" <?php echo ($type=='Debug')?'selected="selected"':''; ?>><?php echo __('Debug');?></option>
-            </select>
-            &nbsp;&nbsp;
-            <input type="submit" Value="<?php echo __('Go!');?>" />
+<div id="basic_search">
+    <div style="height:25px">
+        <div id='filter' >
+            <form action="logs.php" method="get">
+                <div style="padding-left:2px;">
+                    <i class="help-tip icon-question-sign" href="#date_span"></i>
+                    <?php echo __('Between'); ?>:
+                    <input class="dp" id="sd" size=15 name="startDate" value="<?php echo Format::htmlchars($_REQUEST['startDate']); ?>" autocomplete=OFF>
+                    &nbsp;&nbsp;
+                    <input class="dp" id="ed" size=15 name="endDate" value="<?php echo Format::htmlchars($_REQUEST['endDate']); ?>" autocomplete=OFF>
+                    &nbsp;<?php echo __('Log Level'); ?>:&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                    <select name='type'>
+                        <option value="" selected><?php echo __('All');?></option>
+                        <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>><?php echo __('Errors');?></option>
+                        <option value="Warning" <?php echo ($type=='Warning')?'selected="selected"':''; ?>><?php echo __('Warnings');?></option>                <option value="Debug" <?php echo ($type=='Debug')?'selected="selected"':''; ?>><?php echo __('Debug');?></option>
+                    </select>
+                    &nbsp;&nbsp;
+                    <input type="submit" Value="<?php echo __('Go!');?>" />
+                </div>
+            </form>
+        </div>
     </div>
- </form>
 </div>
+<div class="clear"></div>
 <form action="logs.php" method="POST" name="logs">
+    <div style="margin-bottom:20px; padding-top:5px;">
+        <div class="sticky bar opaque">
+            <div class="content">
+                <div class="pull-left flush-left">
+                    <h2><?php echo __('System Logs');?>
+            <i class="help-tip icon-question-sign" href="#system_logs"></i>
+            </h2>
+                </div>
+                <div id="actions" class="pull-right flush-right">
+                    <button class="red button" type="submit" name="delete"><i class="icon-trash"></i>
+                        <?php echo __( 'Delete Selected Entries');?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="320"><a <?php echo $title_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Log Title');?></a></th>
-            <th width="100"><a  <?php echo $type_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Log Type');?></a></th>
-            <th width="200" nowrap><a  <?php echo $date_sort; ?>href="logs.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Log Date');?></a></th>
-            <th width="120"><a  <?php echo $ip_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="40%"><a <?php echo $title_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Log Title');?></a></th>
+            <th width="11%"><a  <?php echo $type_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Log Type');?></a></th>
+            <th width="30%" nowrap><a  <?php echo $date_sort; ?>href="logs.php?<?php echo $qstr; ?>&sort=date"><?php echo __('Log Date');?></a></th>
+            <th width="15%"><a  <?php echo $ip_sort; ?> href="logs.php?<?php echo $qstr; ?>&sort=ip"><?php echo __('IP Address');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -133,7 +149,7 @@ else
                     $sel=true;
                 ?>
             <tr id="<?php echo $row['log_id']; ?>">
-                <td width=7px>
+                <td align="center" nowrap>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['log_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>> </td>
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
@@ -164,9 +180,7 @@ else
 if($res && $num): //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete Selected Entries');?>">
-</p>
+
 <?php
 endif;
 ?>

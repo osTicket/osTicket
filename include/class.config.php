@@ -124,6 +124,7 @@ class Config {
             return false;
 
         $setting['value'] = $value;
+        $setting['updated'] = Misc::dbtime();
         return true;
     }
 
@@ -175,6 +176,7 @@ class OsticketConfig extends Config {
         'verify_email_addrs' => 1,
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
+        'ticket_lock' => 2, // Lock on activity
     );
 
     function OsticketConfig($section=null) {
@@ -423,6 +425,10 @@ class OsticketConfig extends Config {
         return $this->get('autolock_minutes');
     }
 
+    function getTicketLockMode() {
+        return $this->get('ticket_lock');
+    }
+
     function getAgentNameFormat() {
         return $this->get('agent_name_format');
     }
@@ -530,8 +536,8 @@ class OsticketConfig extends Config {
 
     static function allTopicSortModes() {
         return array(
-            'a' => __('Alphabetically'),
-            'm' => __('Manually'),
+            Topic::SORT_ALPHA   => __('Alphabetically'),
+            Topic::SORT_MANUAL  => __('Manually'),
         );
     }
 
@@ -1203,6 +1209,7 @@ class OsticketConfig extends Config {
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
+            'ticket_lock' => $vars['ticket_lock'],
         ));
     }
 
@@ -1370,7 +1377,7 @@ class OsticketConfig extends Config {
         if (isset($vars['delete-logo']))
             foreach ($vars['delete-logo'] as $id)
                 if (($vars['selected-logo'] != $id)
-                        && ($f = AttachmentFile::lookup($id)))
+                        && ($f = AttachmentFile::lookup((int) $id)))
                     $f->delete();
 
         return $this->updateAll(array(

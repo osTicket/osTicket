@@ -17,7 +17,7 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong><?php echo __('Looking for your other tickets?'); ?></strong></br>
+    <strong><?php echo __('Looking for your other tickets?'); ?></strong><br />
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
     ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a>
@@ -32,7 +32,10 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h1>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
-                <b><?php echo $ticket->getSubject(); ?></b>
+                <b>
+                <?php $subject_field = TicketForm::getInstance()->getField('subject');
+                    echo $subject_field->display($ticket->getSubject()); ?>
+                </b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
     <a class="action-button" href="tickets.php?a=print&id=<?php
@@ -95,32 +98,37 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2">
 <!-- Custom Data -->
 <?php
-foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+$sections = array();
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $i=>$form) {
     // Skip core fields shown earlier in the ticket view
     $answers = $form->getAnswers()->exclude(Q::any(array(
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
         'field__name__in' => array('subject', 'priority'),
         Q::not(array('field__flags__hasbit' => DynamicFormField::FLAG_CLIENT_VIEW)),
     )));
-    if (count($answers) == 0)
-        continue;
+    // Skip display of forms without any answers
+    foreach ($answers as $j=>$a) {
+        if ($v = $a->display())
+            $sections[$i][$j] = array($v, $a);
+    }
+}
+foreach ($sections as $i=>$answers) {
     ?>
         <table class="custom-data" cellspacing="0" cellpadding="4" width="100%" border="0">
         <tr><td colspan="2" class="headline flush-left"><?php echo $form->getTitle(); ?></th></tr>
-        <?php foreach($answers as $a) {
-            if (!($v = $a->display())) continue; ?>
-            <tr>
-                <th><?php
-    echo $a->getField()->get('label');
-                ?>:</th>
-                <td><?php
-    echo $v;
-                ?></td>
-            </tr>
-            <?php } ?>
+<?php foreach ($answers as $A) {
+    list($v, $a) = $A; ?>
+        <tr>
+            <th><?php
+echo $a->getField()->get('label');
+            ?>:</th>
+            <td><?php
+echo $v;
+            ?></td>
+        </tr>
+<?php } ?>
         </table>
     <?php
-    $idx++;
 } ?>
     </td>
 </tr>

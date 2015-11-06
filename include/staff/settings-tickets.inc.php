@@ -16,13 +16,11 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <li><a href="#alerts"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
 </ul>
-
 <div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Global Ticket Settings');?></h4>
                 <em><?php echo __('System-wide default ticket settings and options.'); ?></em>
             </th>
         </tr>
@@ -145,6 +143,23 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     } ?>
                 </select><br/>
                 <span class="error"><?php echo $errors['default_help_topic']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Lock Semantics'); ?>:</td>
+            <td>
+                <select name="ticket_lock" <?php if ($cfg->getLockTime() == 0) echo 'disabled="disabled"'; ?>>
+<?php foreach (array(
+    Lock::MODE_DISABLED => __('Disabled'),
+    Lock::MODE_ON_VIEW => __('Lock on view'),
+    Lock::MODE_ON_ACTIVITY => __('Lock on activity'),
+) as $v => $desc) { ?>
+                <option value="<?php echo $v; ?>" <?php
+                    if ($config['ticket_lock'] == $v) echo 'selected="selected"';
+                    ?>><?php echo $desc; ?></option>
+<?php } ?>
+                </select>
+                <div class="error"><?php echo $errors['ticket_lock']; ?></div>
             </td>
         </tr>
         <tr>

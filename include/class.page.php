@@ -217,8 +217,6 @@ class Page extends VerySimpleModel {
         try {
             $qs = self::objects()->filter(array('name'=>$name))
                 ->values_flat('id');
-            if ($lang)
-                $qs = $qs->filter(array('lang'=>$lang));
             list($id) = $qs->one();
             return $id;
         }
@@ -234,10 +232,7 @@ class Page extends VerySimpleModel {
 
     static function lookupByType($type, $lang=false) {
         try {
-            $qs = self::objects()->filter(array('type'=>$type));
-            if ($lang)
-                $qs = $qs->filter(array('lang'=>$lang));
-            return $qs->one();
+            return self::objects()->filter(array('type'=>$type))->one();
         }
         catch (DoesNotExist $ex) {
             return null;

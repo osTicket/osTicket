@@ -56,74 +56,83 @@ $users->values('id', 'name', 'default_email__address', 'account__id',
     'account__status', 'created', 'updated');
 $users->order_by($order . $order_column);
 ?>
-<h2><?php echo __('User Directory'); ?></h2>
-<div class="pull-left">
-    <form action="users.php" method="get">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="a" value="search">
-        <table>
-            <tr>
-                <td><input type="search" id="basic-user-search" name="query"
-                    autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
-                    autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
-                <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
-            </tr>
-        </table>
-    </form>
+<div id="basic_search">
+    <div style="min-height:25px;">
+        <form action="users.php" method="get">
+            <?php csrf_token(); ?>
+            <input type="hidden" name="a" value="search">
+            <div class="attached input">
+                <input type="text" class="basic-search" id="basic-user-search" name="query"
+                         size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                        autocomplete="off" autocorrect="off" autocapitalize="off">
+            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+                <button type="submit" class="attached button"><i class="icon-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
  </div>
+<form id="users-list" action="users.php" method="POST" name="staff" >
 
-<div class="pull-right">
-<?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
-    <a class="green button action-button popup-dialog"
-        href="#users/add">
-        <i class="icon-plus-sign"></i>
-        <?php echo __('Add User'); ?>
-    </a>
-    <a class="action-button popup-dialog"
-        href="#users/import">
-        <i class="icon-upload"></i>
-        <?php echo __('Import'); ?>
-    </a>
-<?php } ?>
-    <span class="action-button" data-dropdown="#action-dropdown-more"
-        style="/*DELME*/ vertical-align:top; margin-bottom:0">
-        <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-    </span>
-    <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul>
-<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-            <li><a href="#add-to-org" class="users-action">
-                <i class="icon-group icon-fixed-width"></i>
-                <?php echo __('Add to Organization'); ?></a></li>
-<?php
-}
-if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
-            <li><a class="users-action" href="#reset">
-                <i class="icon-envelope icon-fixed-width"></i>
-                <?php echo __('Send Password Reset Email'); ?></a></li>
-<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
-            <li><a class="users-action" href="#register">
-                <i class="icon-smile icon-fixed-width"></i>
-                <?php echo __('Register'); ?></a></li>
-            <li><a class="users-action" href="#lock">
-                <i class="icon-lock icon-fixed-width"></i>
-                <?php echo __('Lock'); ?></a></li>
-            <li><a class="users-action" href="#unlock">
-                <i class="icon-unlock icon-fixed-width"></i>
-                <?php echo __('Unlock'); ?></a></li>
-<?php }
-if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-            <li class="danger"><a class="users-action" href="#delete">
-                <i class="icon-trash icon-fixed-width"></i>
-                <?php echo __('Delete'); ?></a></li>
-<?php }
-} # end of registration-enabled? ?>
-        </ul>
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('User Directory'); ?></h2>
+            </div>
+            <div class="pull-right">
+                <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
+                <a class="green button action-button popup-dialog"
+                   href="#users/add">
+                    <i class="icon-plus-sign"></i>
+                    <?php echo __('Add User'); ?>
+                </a>
+                <a class="action-button popup-dialog"
+                   href="#users/import">
+                    <i class="icon-upload"></i>
+                    <?php echo __('Import'); ?>
+                </a>
+                <?php } ?>
+                <span class="action-button" data-dropdown="#action-dropdown-more"
+                      style="/*DELME*/ vertical-align:top; margin-bottom:0">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul>
+                        <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+                        <li><a href="#add-to-org" class="users-action">
+                            <i class="icon-group icon-fixed-width"></i>
+                            <?php echo __('Add to Organization'); ?></a></li>
+                        <?php
+                            }
+                        if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
+                        <li><a class="users-action" href="#reset">
+                            <i class="icon-envelope icon-fixed-width"></i>
+                            <?php echo __('Send Password Reset Email'); ?></a></li>
+                        <?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
+                        <li><a class="users-action" href="#register">
+                            <i class="icon-smile icon-fixed-width"></i>
+                            <?php echo __('Register'); ?></a></li>
+                        <li><a class="users-action" href="#lock">
+                            <i class="icon-lock icon-fixed-width"></i>
+                            <?php echo __('Lock'); ?></a></li>
+                        <li><a class="users-action" href="#unlock">
+                            <i class="icon-unlock icon-fixed-width"></i>
+                            <?php echo __('Unlock'); ?></a></li>
+                        <?php }
+                        if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
+                        <li class="danger"><a class="users-action" href="#delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __('Delete'); ?></a></li>
+                        <?php }
+                        } # end of registration-enabled? ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -132,24 +141,22 @@ if($users->exists(true))
 else
     $showing .= __('No users found!');
 ?>
-<form id="users-list" action="users.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
  <input type="hidden" id="org_id" name="org_id" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th nowrap width="12"> </th>
-            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
+            <th nowrap width="4%">&nbsp;</th>
+            <th><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
+            <th width="22%"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
-            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php
+            <th width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php
+            <th width="20%"><a <?php echo $update_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
         </tr>
     </thead>
@@ -174,7 +181,7 @@ else
                     $sel=true;
                 ?>
                <tr id="<?php echo $U['id']; ?>">
-                <td nowrap>
+                <td nowrap align="center">
                     <input type="checkbox" value="<?php echo $U['id']; ?>" class="ckb mass nowarn"/>
                 </td>
                 <td>&nbsp;

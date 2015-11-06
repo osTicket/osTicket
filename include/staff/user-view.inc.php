@@ -21,7 +21,7 @@ $org = $user->getOrganization();
             </span>
 <?php }
     if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-            <a id="user-delete" class="action-button pull-right user-action"
+            <a id="user-delete" class="red button action-button pull-right user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i>
             <?php echo __('Delete User'); ?></a>
 <?php } ?>
@@ -95,9 +95,9 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
 <?php }
                     echo Format::htmlchars($user->getName()->getOriginal());
 if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                    </a>
+                        </a></b>
 <?php } ?>
-</td>
+                    </td>
                 </tr>
                 <tr>
                     <th><?php echo __('Email'); ?>:</th>
@@ -148,7 +148,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
 <div class="clear"></div>
 <ul class="clean tabs" id="user-view-tabs">
     <li class="active"><a href="#tickets"><i
-    class="icon-list-alt"></i>&nbsp;<?php echo __('User Tickets'); ?></a></li>
+    class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>

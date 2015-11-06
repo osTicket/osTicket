@@ -6,7 +6,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
 $info=array();
 $qs = array();
 if($category && $_REQUEST['a']!='add'){
-    $title=__('Update Category').': '.$category->getName();
+    $title=__('Update Category');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$category->getHashtable();
@@ -41,10 +41,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('FAQ Category');?></h2>
- <div class="faq-title" style="margin:5px 0 15px">
-    <?php echo $title; ?>
- </div>
+ <h2><?php echo $title; ?>
+     <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
+    </h2>
+
 
     <div style="margin:8px 0"><strong><?php echo __('Category Type');?>:</strong>
         <span class="error">*</span></div>
@@ -67,12 +69,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <div class="tab_content" id="info">
 
-<table width="100%"><tr>
 <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if (count($langs) > 1) { ?>
-    <td valign="top">
-    <ul class="vertical tabs left" id="trans" style="margin-top:10px;">
+    <ul class="alt tabs clean" id="trans">
         <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
 <?php foreach ($langs as $tag=>$i) {
     list($lang, $locale) = explode('_', $tag);
@@ -84,12 +84,10 @@ if (count($langs) > 1) { ?>
     </a></li>
 <?php } ?>
     </ul>
-    </td>
 <?php
 } ?>
 
 
-<td id="trans_container">
 <?php foreach ($langs as $tag=>$i) {
     $code = $i['code'];
     $cname = 'name';
@@ -104,7 +102,7 @@ if (count($langs) > 1) { ?>
         $cname = "trans[$code][$cname]";
         $dname = "trans[$code][$dname]";
     } ?>
-    <div class="tab_content left <?php
+    <div class="tab_content <?php
         if ($code != $cfg->getPrimaryLanguage()) echo "hidden";
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
@@ -129,13 +127,12 @@ if (count($langs) > 1) { ?>
         echo $desc; ?></textarea>
     </div>
 <?php } ?>
-    </td></tr></table>
 </div>
 
 
 <div class="tab_content" id="notes" style="display:none;">
     <b><?php echo __('Internal Notes');?></b>:
-    <div class="faded"><?php echo __("Be liberal, they're internal");?></div>
+    <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     <textarea class="richtext no-bar" name="notes" cols="21"
         rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
 </div>

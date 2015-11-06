@@ -90,12 +90,11 @@ RedactorPlugins.fontcolor = function()
 			{
 				e.preventDefault();
                 var $this = $(e.target);
-				self.fontcolor.set($this.data('rule'), $this.attr('rel'));
+				self.fontcolor.set(rule, $this.attr('rel'));
 			};
             $dropdown.on('click', 'a.redactor.color-swatch', func);
 
-            var template = $('<a class="redactor color-swatch" href="#"></a>')
-                .data('rule', rule);
+            var template = $('<a class="redactor color-swatch" href="#"></a>');
 
 			for (var z = 0; z < len; z++)
 			{
@@ -355,7 +354,7 @@ RedactorPlugins.fullscreen = function()
                                     func: this.table.show,
                                     observe: {
                                         element: 'table',
-                                        in: {
+                                        'in': {
                                             attr: {
                                                 'class': 'redactor-dropdown-link-inactive',
                                                 'aria-disabled': true,

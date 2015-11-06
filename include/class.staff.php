@@ -692,6 +692,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ->filter(array('staff_id'=>$this->getId()))
             ->delete();
 
+        // Cleanup staff dept access
+        StaffDeptAccess::objects()
+            ->filter(array('staff_id'=>$this->getId()))
+            ->delete();
+
         return true;
     }
 
@@ -1082,6 +1087,10 @@ class StaffDeptAccess extends VerySimpleModel {
         'joins' => array(
             'dept' => array(
                 'constraint' => array('dept_id' => 'Dept.id'),
+                // FIXME: The ORM needs a way to support
+                //        staff__dept_access__dept performing a LEFT join b/c
+                //        staff__dept_access is LEFT
+                'null' => true,
             ),
             'staff' => array(
                 'constraint' => array('staff_id' => 'Staff.staff_id'),

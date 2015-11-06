@@ -3,8 +3,30 @@ if(!defined('OSTSTAFFINC') || !$faq || !$thisstaff) die('Access Denied');
 
 $category=$faq->getCategory();
 
-?>
-<h2><?php echo __('Frequently Asked Questions');?></h2>
+?><div class="has_bottom_border" style="padding-top:5px;">
+<div class="pull-left"><h2><?php echo __('Frequently Asked Questions');?></h2></div>
+<div class="pull-right flush-right">
+<?php
+$query = array();
+parse_str($_SERVER['QUERY_STRING'], $query);
+$query['a'] = 'print';
+$query['id'] = $faq->getId();
+$query = http_build_query($query); ?>
+    <a href="faq.php?<?php echo $query; ?>" class="no-pjax action-button">
+    <i class="icon-print"></i>
+        <?php echo __('Print'); ?>
+    </a>
+<?php
+if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
+    <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="action-button">
+    <i class="icon-edit"></i>
+        <?php echo __('Edit FAQ'); ?>
+    </a>
+<?php } ?>
+</div><div class="clear"></div>
+
+</div>
+
 <div id="breadcrumbs">
     <a href="kb.php"><?php echo __('All Categories');?></a>
     &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
@@ -16,13 +38,13 @@ $category=$faq->getCategory();
 <section>
     <header><?php echo __('Attachments');?>:</header>
 <?php foreach ($attachments as $att) { ?>
-    <div>
+<div>
     <i class="icon-paperclip pull-left"></i>
     <a target="_blank" href="<?php echo $att->file->getDownloadUrl(); ?>"
         class="attachment no-pjax">
         <?php echo Format::htmlchars($att->getFilename()); ?>
     </a>
-    </div>
+</div>
 <?php } ?>
 </section>
 <?php } ?>
@@ -67,25 +89,7 @@ if ($otherLangs) { ?>
 </div>
 
 <div class="faq-content">
-<div class="faq-manage pull-right">
-<?php
-$query = array();
-parse_str($_SERVER['QUERY_STRING'], $query);
-$query['a'] = 'print';
-$query['id'] = $faq->getId();
-$query = http_build_query($query); ?>
-    <a href="faq.php?<?php echo $query; ?>" class="no-pjax action-button">
-    <i class="icon-print"></i>
-        <?php echo __('Print'); ?>
-    </a>
-<?php
-if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
-    <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="action-button">
-    <i class="icon-edit"></i>
-        <?php echo __('Edit FAQ'); ?>
-    </a>
-<?php } ?>
-</div>
+
 
 <div class="faq-title flush-left"><?php echo $faq->getLocalQuestion() ?>
 </div>

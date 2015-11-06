@@ -23,19 +23,16 @@ if($topic && $_REQUEST['a']!='add') {
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 
-<h2 style="font-weight: normal"><?php echo $title; ?>
-    &nbsp;<i class="help-tip icon-question-sign" href="#help_topic_information"></i>
-    </h2>
-<?php if ($topic) { ?>
-    <div class="big"><strong><?php echo $topic->getLocal('topic'); ?></strong></div>
+<h2><?php echo $title; ?>
+    <?php if (isset($info['topic'])) { ?><small>
+    — <?php echo $info['topic']; ?></small>
 <?php } ?>
-
-<br/>
+ <i class="help-tip icon-question-sign" href="#help_topic_information"></i></h2>
 
 <ul class="clean tabs" id="topic-tabs">
-    <li class="active"><a href="#info"><i class="icon-info-sign"></i> Help Topic Information</a></li>
-    <li><a href="#routing"><i class="icon-ticket"></i> New ticket options</a></li>
-    <li><a href="#forms"><i class="icon-paste"></i> Forms</a></li>
+    <li class="active"><a href="#info"><i class="icon-info-sign"></i> <?php echo __('Help Topic Information'); ?></a></li>
+    <li><a href="#routing"><i class="icon-ticket"></i> <?php echo __('New ticket options'); ?></a></li>
+    <li><a href="#forms"><i class="icon-paste"></i> <?php echo __('Forms'); ?></a></li>
 </ul>
 
 <form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
@@ -101,7 +98,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </table>
 
         <div style="padding:8px 3px;border-bottom: 2px dotted #ddd;">
-            <strong class="big"><?php echo __('Internal Notes');?></strong><br/>
+            <strong><?php echo __('Internal Notes');?>:</strong>
             <?php echo __("be liberal, they're internal.");?>
         </div>
 
@@ -363,7 +360,7 @@ foreach ($forms as $F) {
                 <div><?php echo Format::display($F->getLocal('instructions')); ?></div>
             </td>
         </tr>
-        <tr>
+        <tr style="text-align:left">
             <th><?php echo __('Enable'); ?></th>
             <th><?php echo __('Label'); ?></th>
             <th><?php echo __('Type'); ?></th>
@@ -390,7 +387,10 @@ foreach ($forms as $F) {
    <strong><?php echo __('Add Custom Form'); ?></strong>:
    <select name="form_id" id="newform">
     <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
-    <?php foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $F) { ?>
+    <?php foreach (DynamicForm::objects()
+        ->filter(array('type'=>'G'))
+        ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED))
+    as $F) { ?>
         <option value="<?php echo $F->get('id'); ?>"
            <?php if (in_array($F->id, $current_forms))
                echo 'disabled="disabled"'; ?>

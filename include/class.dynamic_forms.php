@@ -288,7 +288,7 @@ class DynamicForm extends VerySimpleModel {
     }
 
     static function buildDynamicDataView($cdata) {
-        $sql = 'CREATE TABLE `'.$cdata['table'].'` (PRIMARY KEY
+        $sql = 'CREATE TABLE IF NOT EXISTS `'.$cdata['table'].'` (PRIMARY KEY
                 ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
              .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
         db_query($sql);
@@ -327,7 +327,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql) || !db_affected_rows())
+        if (!db_query($sql))
             return self::dropDynamicDataView($cdata['table']);
     }
 
@@ -489,7 +489,7 @@ class TicketForm extends DynamicForm {
         // ans.entry_id = entry.id LEFT JOIN ost_form_field field ON
         // field.id=ans.field_id
         // where entry.object_type='T' group by entry.object_id;
-        $sql = 'CREATE TABLE `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
+        $sql = 'CREATE TABLE IF NOT EXISTS `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
             (ticket_id)) DEFAULT CHARSET=utf8 AS '
             . static::getCrossTabQuery('T', 'ticket_id');
         db_query($sql);
@@ -523,7 +523,7 @@ class TicketForm extends DynamicForm {
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql) || !db_affected_rows())
+        if (!db_query($sql))
             return self::dropDynamicDataView();
     }
 }
@@ -1238,7 +1238,10 @@ class DynamicFormEntry extends VerySimpleModel {
     function addMissingFields() {
         foreach ($this->getFields() as $field) {
             if ($field->isnew && $field->isEnabled()
-                    && !$field->isPresentationOnly()) {
+                && !$field->isPresentationOnly()
+                && $field->hasData()
+                && $field->isStorable()
+            ) {
                 $a = DynamicFormEntryAnswer::create(
                     array('field_id'=>$field->get('id'), 'entry'=>$this));
 

@@ -39,14 +39,13 @@ csrf_token(); ?>
 <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th><?php echo __('Name'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
-            <th width="200"><?php echo __('Created On') ?></th>
-            <th width="250"><?php echo __('Last Updated'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="53%"><?php echo __('Name'); ?></th>
+            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="15%"><?php echo __('Created On') ?></th>
+            <th width="20%"><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -58,7 +57,7 @@ csrf_token(); ?>
             if ($ids && in_array($id, $ids))
                 $sel = true; ?>
         <tr>
-            <td>
+            <td align="center">
                 <?php
                 if ($role->isDeleteable()) { ?>
                 <input width="7" type="checkbox" class="ckb" name="ids[]"

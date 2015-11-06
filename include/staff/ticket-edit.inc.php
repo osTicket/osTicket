@@ -11,19 +11,23 @@ if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
 <form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data">
- <?php csrf_token(); ?>
- <input type="hidden" name="do" value="update">
- <input type="hidden" name="a" value="edit">
- <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
- <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <tbody>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('User Information'); ?></strong>: <?php echo __('Currently selected user'); ?></em>
-            </th>
-        </tr>
-    <?php
+    <?php csrf_token(); ?>
+    <input type="hidden" name="do" value="update">
+    <input type="hidden" name="a" value="edit">
+    <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
+    <div style="margin-bottom:20px; padding-top:5px;">
+        <div class="pull-left flush-left">
+            <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
+        </div>
+    </div>
+    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <tbody>
+            <tr>
+                <th colspan="2">
+                    <em><strong><?php echo __('User Information'); ?></strong>: <?php echo __('Currently selected user'); ?></em>
+                </th>
+            </tr>
+        <?php
     if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
         $user = $ticket->getUser();
     ?>
@@ -156,7 +160,7 @@ if ($_POST)
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo __('Save');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>"'>

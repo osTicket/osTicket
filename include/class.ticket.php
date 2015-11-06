@@ -22,6 +22,7 @@ include_once(INCLUDE_DIR.'class.dept.php');
 include_once(INCLUDE_DIR.'class.topic.php');
 include_once(INCLUDE_DIR.'class.lock.php');
 include_once(INCLUDE_DIR.'class.file.php');
+include_once(INCLUDE_DIR.'class.export.php');
 include_once(INCLUDE_DIR.'class.attachment.php');
 include_once(INCLUDE_DIR.'class.banlist.php');
 include_once(INCLUDE_DIR.'class.template.php');
@@ -209,7 +210,7 @@ class TicketCData extends VerySimpleModel {
             'ticket' => array(
                 'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
             ),
-            ':priority' => array(
+            'priority' => array(
                 'constraint' => array('priority' => 'Priority.priority_id'),
                 'null' => true,
             ),
@@ -357,6 +358,18 @@ implements RestrictedAccess, Threadable {
         // Ticket Owner
         if ($user->getId() == $this->getUserId())
             return true;
+
+        // Organization
+        if ($user->canSeeOrgTickets()
+            && ($U = $this->getUser())
+            && ($U->getOrgId() == $user->getOrgId())
+        ) {
+            // The owner of this ticket is in the same organization as the
+            // user in question, and the organization is configured to allow
+            // the user in question to see other tickets in the
+            // organization.
+            return true;
+        }
 
         // Collaborator?
         // 1) If the user was authorized via this ticket.
@@ -708,15 +721,17 @@ implements RestrictedAccess, Threadable {
 
     function getLastRespondent() {
         if (!isset($this->lastrespondent)) {
+            if (!$this->thread || !$this->thread->entries)
+                return $this->lastrespondent = false;
             $this->lastrespondent = Staff::objects()
                 ->filter(array(
-                'staff_id' => static::objects()
+                'staff_id' => $this->thread->entries
                     ->filter(array(
-                        'thread__entries__type' => 'R',
-                        'thread__entries__staff_id__gt' => 0
+                        'type' => 'R',
+                        'staff_id__gt' => 0,
                     ))
-                    ->values_flat('thread__entries__staff_id')
-                    ->order_by('-thread__entries__id')
+                    ->values_flat('staff_id')
+                    ->order_by('-id')
                     ->limit(1)
                 ))
                 ->first()
@@ -1273,21 +1288,16 @@ implements RestrictedAccess, Threadable {
             if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
 
-            // Alert admin??
-            if ($cfg->alertAdminONNewTicket()) {
-                $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
-                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'], $alert['body'], null, $options);
-                $sentlist[]=$cfg->getAdminEmail();
-            }
-
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
                 if ($members = $dept->getMembersForAlerts()->all())
                     $recipients = array_merge($recipients, $members);
             }
 
-            if ($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
+            if ($cfg->alertDeptManagerONNewTicket() && $dept &&
+                    ($manager=$dept->getManager())) {
                 $recipients[] = $manager;
+            }
 
             // Account manager
             if ($cfg->alertAcctManagerONNewMessage()
@@ -1311,6 +1321,16 @@ implements RestrictedAccess, Threadable {
                 $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
+
+            // Alert admin ONLY if not already a staff??
+            if ($cfg->alertAdminONNewTicket()
+                    && !in_array($cfg->getAdminEmail(), $sentlist)) {
+                $options += array('utype'=>'A');
+                $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
+                $email->sendAlert($cfg->getAdminEmail(), $alert['subj'],
+                        $alert['body'], null, $options);
+            }
+
         }
         return true;
     }
@@ -1386,7 +1406,7 @@ implements RestrictedAccess, Threadable {
         }
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof Message) {
+        if ($entry instanceof MessageThreadEntry) {
             $poster = $entry->getUser();
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
@@ -1441,11 +1461,12 @@ implements RestrictedAccess, Threadable {
         // confused with autorespond on new message setting
         if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
-
+            $dept = $this->getDept();
+            $autoclaim = ($cfg->autoClaimTickets() && !$dept->disableAutoClaim());
             // Auto-assign to closing staff or last respondent
             // If the ticket is closed and auto-claim is not enabled then put the
             // ticket back to unassigned pool.
-            if (!$cfg->autoClaimTickets()) {
+            if (!$autoclaim) {
                 $this->setStaffId(0);
             }
             elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
@@ -1931,8 +1952,9 @@ implements RestrictedAccess, Threadable {
         $this->logEvent('transferred');
 
         // Post internal note if any
-        $note = $form->getField('comments')->getClean();
-        if ($note) {
+        $note = null;
+        $comments = $form->getField('comments')->getClean();
+        if ($comments) {
             $title = sprintf(__('%1$s transferred from %2$s to %3$s'),
                     __('Ticket'),
                    $cdept->getName(),
@@ -1940,7 +1962,7 @@ implements RestrictedAccess, Threadable {
 
             $_errors = array();
             $note = $this->postNote(
-                    array('note' => $note, 'title' => $title),
+                    array('note' => $comments, 'title' => $title),
                     $_errors, $thisstaff, false);
         }
 
@@ -1980,7 +2002,7 @@ implements RestrictedAccess, Threadable {
             ) {
                 $recipients[] = $manager;
             }
-            $sentlist = array();
+            $sentlist = $options = array();
             if ($note) {
                 $options += array(
                     'inreplyto'=>$note->getEmailMessageId(),
@@ -2075,7 +2097,7 @@ implements RestrictedAccess, Threadable {
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId())
                     $evd['claim'] = true;
                 else
-                    $evd['staff'] = array($assignee->getId(), $assignee->getName());
+                    $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -2209,20 +2231,30 @@ implements RestrictedAccess, Threadable {
             }
         }
 
+        // Do not auto-respond to bounces and other auto-replies
+        if ($alerts)
+            $alerts = isset($vars['mailflags'])
+                ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
+                : true;
+        if ($alerts && $message->isBounceOrAutoReply())
+            $alerts = false;
+
+        if ($alerts && $this->getThread()->getLastMessage(array(
+            'user_id' => $message->user_id,
+            'id__lt' => $message->id,
+            'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
+        ))) {
+            // One message already from this user in the last five minutes
+            $alerts = false;
+        }
+
+        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
+
+        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
+            $this->notifyCollaborators($message, array('signature' => ''));
+
         if (!$alerts)
             return $message; //Our work is done...
-
-        // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['mailflags'])
-            ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
-            : true;
-        if ($autorespond && $message->isAutoReply())
-            $autorespond = false;
-
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
-
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
-            $this->notifyCollaborators($message, array('signature' => ''));
 
         $dept = $this->getDept();
         $variables = array(
@@ -2244,8 +2276,8 @@ implements RestrictedAccess, Threadable {
             // Build list of recipients and fire the alerts.
             $recipients = array();
             //Last respondent.
-            if ($cfg->alertLastRespondentONNewMessage() || $cfg->alertAssignedONNewMessage())
-                $recipients[] = $this->getLastRespondent();
+            if ($cfg->alertLastRespondentONNewMessage() && ($lr = $this->getLastRespondent()))
+                $recipients[] = $lr;
 
             //Assigned staff if any...could be the last respondent
             if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
@@ -2314,7 +2346,7 @@ implements RestrictedAccess, Threadable {
                       'cannedattachments' => $files
         );
         $errors = array();
-        if (!($response=$this->postReply($info, $errors, false)))
+        if (!($response=$this->postReply($info, $errors, false, false)))
             return null;
 
         $this->markUnAnswered();
@@ -2353,9 +2385,8 @@ implements RestrictedAccess, Threadable {
     }
 
     /* public */
-    function postReply($vars, &$errors, $alert = true) {
+    function postReply($vars, &$errors, $alert=true, $claim=true) {
         global $thisstaff, $cfg;
-
 
         if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
@@ -2369,6 +2400,7 @@ implements RestrictedAccess, Threadable {
         if (!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
+        $dept = $this->getDept();
         $assignee = $this->getStaff();
         // Set status - if checked.
         if ($vars['reply_status_id']
@@ -2377,10 +2409,12 @@ implements RestrictedAccess, Threadable {
             $this->setStatus($vars['reply_status_id']);
         }
 
+
         // Claim on response bypasses the department assignment restrictions
-        if ($thisstaff && $this->isOpen() && !$this->getStaffId()
-            && $cfg->autoClaimTickets()
-        ) {
+        $claim = ($claim
+                && $cfg->autoClaimTickets()
+                && !$dept->disableAutoClaim());
+        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
 
@@ -2392,11 +2426,12 @@ implements RestrictedAccess, Threadable {
         if (!$alert)
             return $response;
 
-        $dept = $this->getDept();
+        $options = array();
+        $email = $dept->getEmail();
 
         if ($thisstaff && $vars['signature']=='mine')
             $signature=$thisstaff->getSignature();
-        elseif ($vars['signature']=='dept' && $dept && $dept->isPublic())
+        elseif ($vars['signature']=='dept' && $dept->isPublic())
             $signature=$dept->getSignature();
         else
             $signature='';
@@ -2465,7 +2500,10 @@ implements RestrictedAccess, Threadable {
         global $cfg, $thisstaff;
 
         //Who is posting the note - staff or system?
-        $vars['staffId'] = 0;
+        if ($vars['staffId'] && !$poster)
+            $poster = Staff::lookup($vars['staffId']);
+
+        $vars['staffId'] = $vars['staffId'] ?: 0;
         if ($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
@@ -2624,6 +2662,7 @@ implements RestrictedAccess, Threadable {
             // Don't validate deleted forms
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
+            $form->filterFields(function($f) { return !$f->isStorable(); });
             $form->setSource($_POST);
             if (!$form->isValid(function($f) {
                 return $f->isVisibleToStaff() && $f->isEditableToStaff();
@@ -2634,6 +2673,9 @@ implements RestrictedAccess, Threadable {
 
         if ($errors)
             return false;
+
+        // Decide if we need to keep the just selected SLA
+        $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         $this->topic_id = $vars['topicId'];
         $this->sla_id = $vars['slaId'];
@@ -2665,9 +2707,6 @@ implements RestrictedAccess, Threadable {
 
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
-
-        // Decide if we need to keep the just selected SLA
-        $keepSLA = ($this->getSLAId() != $vars['slaId']);
 
         // Update dynamic meta-data
         foreach ($forms as $f) {
@@ -2751,66 +2790,44 @@ implements RestrictedAccess, Threadable {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        $where = array('(ticket.staff_id='.db_input($staff->getId()) .' AND
-                    status.state="open")');
-        $where2 = '';
+        // -- Open and assigned to me
+        $assigned = Q::any(array(
+            'staff_id' => $staff->getId(),
+        ));
+        // -- Open and assigned to a team of mine
+        if ($teams = array_filter($staff->getTeams()))
+            $assigned->add(array('team_id__in' => $teams));
 
-        if(($teams=$staff->getTeams()))
-            $where[] = ' ( ticket.team_id IN('.implode(',', db_input(array_filter($teams)))
-                        .') AND status.state="open")';
+        $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
-        if(!$staff->showAssignedOnly() && ($depts=$staff->getDepts())) //Staff with limited access just see Assigned tickets.
-            $where[] = 'ticket.dept_id IN('.implode(',', db_input($depts)).') ';
+        // -- Routed to a department of mine
+        if (!$staff->showAssignedOnly() && ($depts = $staff->getDepts()))
+            $visibility->add(array('dept_id__in' => $depts));
 
-        if (($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets())
-            $where2 =' AND (ticket.staff_id=0 OR ticket.team_id=0)';
-        $where = implode(' OR ', $where);
-        if ($where) $where = 'AND ( '.$where.' ) ';
+        $blocks = Ticket::objects()
+            ->filter(Q::any($visibility))
+            ->filter(array('status__state' => 'open'))
+            ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
+            ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
 
-        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isanswered = 0 '
-                . $where . $where2
-
-                .'UNION SELECT \'answered\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isanswered = 1 '
-                . $where . ($cfg->showAnsweredTickets() ? $where2 : '')
-
-                .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.isoverdue =1 '
-                . $where
-
-                .'UNION SELECT \'assigned\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                .'WHERE ticket.staff_id = ' . db_input($staff->getId()) . ' '
-                . $where
-
-                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                .'WHERE 1 '
-                . $where;
-
-        $res = db_query($sql);
         $stats = array();
-        while($row = db_fetch_row($res)) {
-            $stats[$row[0]] = $row[1];
+        $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets();
+        $showanswered = $cfg->showAnsweredTickets();
+        $id = $staff->getId();
+        foreach ($blocks as $S) {
+            if ($showanswered || !$S['isanswered']) {
+                if (!($hideassigned && ($S['staff_id'] || $S['team_id'])))
+                    $stats['open'] += $S['count'];
+            }
+            else {
+                $stats['answered'] += $S['count'];
+            }
+            if ($S['isoverdue'])
+                $stats['overdue'] += $S['count'];
+            if ($S['staff_id'] == $id)
+                $stats['assigned'] += $S['count'];
+            elseif ($S['team_id'] && $S['staff_id'] == 0)
+                $stats['assigned'] += $S['count'];
         }
         return $stats;
     }
@@ -3394,10 +3411,11 @@ implements RestrictedAccess, Threadable {
 
         // Ensure agent has rights to make assignment in the cited
         // department
-        if ($role
-            ? !$role->hasPerm(TicketModel::PERM_ASSIGN)
-            : !$thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
-        ) {
+        if ($vars['assignId'] && !(
+            $role
+            ? $role->hasPerm(TicketModel::PERM_ASSIGN)
+            : $thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
+        )) {
             $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
         }
 

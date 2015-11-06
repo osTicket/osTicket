@@ -207,7 +207,9 @@ implements TemplateVariable {
         $user = static::lookupByEmail($vars['email']);
         if (!$user && $create) {
             $name = $vars['name'];
-            if (!$name)
+            if (is_array($name))
+                $name = implode(', ', $name);
+            elseif (!$name)
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = User::create(array(
@@ -432,6 +434,12 @@ implements TemplateVariable {
         return (string) $account->getStatus();
     }
 
+    function canSeeOrgTickets() {
+        return $this->org && (
+                $this->org->shareWithEverybody()
+            || ($this->isPrimaryContact() && $this->org->shareWithPrimaryContacts()));
+    }
+
     function register($vars, &$errors) {
 
         // user already registered?
@@ -497,7 +505,10 @@ implements TemplateVariable {
         foreach ($forms as $entry) {
             if (($f=$entry->getDynamicForm()) && $f->get('type') == 'U') {
                 if (($name = $f->getField('name'))) {
-                    $this->name = $name->getClean();
+                    $name = $name->getClean();
+                    if (is_array($name))
+                        $name = implode(', ', $name);
+                    $this->name = $name;
                 }
 
                 if (($email = $f->getField('email'))) {
@@ -882,12 +893,14 @@ class UserAccount extends VerySimpleModel {
     var $_status;
     var $_extra;
 
-    function __onload() {
-        $this->_status = new UserAccountStatus($this->get('status'));
+    function getStatus() {
+        if (!isset($this->_status))
+            $this->_status = new UserAccountStatus($this->get('status'));
+        return $this->_status;
     }
 
     protected function hasStatus($flag) {
-        return $this->_status->check($flag);
+        return $this->getStatus()->check($flag);
     }
 
     protected function clearStatus($flag) {
@@ -904,7 +917,7 @@ class UserAccount extends VerySimpleModel {
     }
 
     function isConfirmed() {
-        return $this->_status->isConfirmed();
+        return $this->getStatus()->isConfirmed();
     }
 
     function lock() {
@@ -918,7 +931,7 @@ class UserAccount extends VerySimpleModel {
     }
 
     function isLocked() {
-        return $this->_status->isLocked();
+        return $this->getStatus()->isLocked();
     }
 
     function forcePasswdReset() {
@@ -932,10 +945,6 @@ class UserAccount extends VerySimpleModel {
 
     function isPasswdResetEnabled() {
         return !$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET);
-    }
-
-    function getStatus() {
-        return $this->_status;
     }
 
     function getInfo() {
