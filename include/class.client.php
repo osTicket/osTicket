@@ -41,12 +41,14 @@ implements EmailContact, ITicketUser, TemplateVariable {
         $tag =  substr($name, 3);
         switch (strtolower($tag)) {
             case 'ticket_link':
+                $qstr = array();
+                if ($cfg && $cfg->isAuthTokenEnabled()
+                        && ($ticket=$this->getTicket()))
+                    $qstr['auth'] = $ticket->getAuthToken($this);
+
                 return sprintf('%s/view.php?%s',
                         $cfg->getBaseUrl(),
-                        Http::build_query(
-                            array('auth' => $this->getTicket()->getAuthToken($this)),
-                            false
-                            )
+                        Http::build_query($qstr, false)
                         );
                 break;
         }
@@ -64,7 +66,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return array(
             'email' => __('Email address'),
             'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
-            'ticket_link' => __('Auth. token used for auto-login'),
+            'ticket_link' => __('Link to view the ticket'),
         );
     }
 
