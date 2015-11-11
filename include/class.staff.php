@@ -983,7 +983,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->onvacation = isset($vars['onvacation'])?1:0;
         $this->assigned_only = isset($vars['assigned_only'])?1:0;
         $this->role_id = $vars['role_id'];
-        $this->timezone = $vars['timezone'];
         $this->username = $vars['username'];
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
@@ -992,7 +991,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->phone = Format::phone($vars['phone']);
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
-        $this->signature = Format::sanitize($vars['signature']);
         $this->notes = Format::sanitize($vars['notes']);
 
         if ($errors)
