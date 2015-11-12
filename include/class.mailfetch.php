@@ -840,7 +840,7 @@ class MailFetcher {
         $nummsgs=imap_num_msg($this->mbox);
         //echo "New Emails:  $nummsgs\n";
         $msgs=$errors=0;
-        for($i=$nummsgs; $i>0; $i--) { //process messages in reverse.
+        for($i=1; $i<=$nummsgs; $i++) { //process messages oldest to newest.
             if($this->createTicket($i)) {
 
                 imap_setflag_full($this->mbox, imap_uid($this->mbox, $i), "\\Seen", ST_UID); //IMAP only??
