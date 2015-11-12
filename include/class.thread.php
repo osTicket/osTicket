@@ -1398,7 +1398,6 @@ implements TemplateVariable {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
-		
         $entry = parent::create(array(
             'created' => SqlFunction::NOW(),
             'type' => $vars['type'],
