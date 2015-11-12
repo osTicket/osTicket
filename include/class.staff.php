@@ -761,7 +761,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $row ? $row[0] : 0;
     }
 	
-		    static function getLastNameById($id) {
+		static function getLastNameById($id) {
         $row = static::objects()->filter(array('staff_id' => $id))
             ->values_flat('lastname')->first();
         return $row ? $row[0] : 0;
@@ -770,10 +770,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     static function getIdByEmail($email) {
 		$row = static::objects()->filter(array('email' => $email))
             ->values_flat('staff_id')->first();
-			
 		return $row ? $row[0] : 0;
     }
-
 
     static function create($vars=false) {
         $staff = parent::create($vars);

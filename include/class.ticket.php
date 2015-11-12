@@ -1622,9 +1622,7 @@ implements RestrictedAccess, Threadable {
         // Dept manager
         if ($cfg->alertDeptManagerONNewActivity() && $dept && $dept->getManagerId())
             $recipients[] = $dept->getManager();
-
         $options = array();
-	
         $staffId = $thisstaff ? $thisstaff->getId() : 0;
 		
         if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
@@ -2443,8 +2441,7 @@ implements RestrictedAccess, Threadable {
     /* public */
     function postReply($vars, &$errors, $alert=true, $claim=true) {
 		global $thisstaff, $cfg;
-		
-	    if (!$vars['poster'] && $thisstaff)
+		if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
 
         if (!$vars['staffId'] && $thisstaff)
@@ -2464,8 +2461,7 @@ implements RestrictedAccess, Threadable {
         ) {
             $this->setStatus($vars['reply_status_id']);
         }
-
-         // Claim on response bypasses the department assignment restrictions
+        // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
                 && $cfg->autoClaimTickets()
                 && !$dept->disableAutoClaim());
