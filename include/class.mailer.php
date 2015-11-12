@@ -290,25 +290,27 @@ class Mailer {
             0, 6);
     }
 
-    function send($to, $subject, $message, $options=null) {
+    function send($recipient, $subject, $message, $options=null) {
         global $ost, $cfg;
 
         //Get the goodies
         require_once (PEAR_DIR.'Mail.php'); // PEAR Mail package
         require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
 
-        $messageId = $this->getMessageId($to, $options);
+        $messageId = $this->getMessageId($recipient, $options);
 
-        if (is_object($to) && is_callable(array($to, 'getEmail'))) {
+        if (is_object($recipient) && is_callable(array($recipient, 'getEmail'))) {
             // Add personal name if available
-            if (is_callable(array($to, 'getName'))) {
+            if (is_callable(array($recipient, 'getName'))) {
                 $to = sprintf('"%s" <%s>',
-                    $to->getName()->getOriginal(), $to->getEmail()
+                    $recipient->getName()->getOriginal(), $recipient->getEmail()
                 );
             }
             else {
-                $to = $to->getEmail();
+                $to = $recipient->getEmail();
             }
+        } else {
+            $to = $recipient;
         }
 
         //do some cleanup
@@ -327,16 +329,58 @@ class Mailer {
         // Add in the options passed to the constructor
         $options = ($options ?: array()) + $this->options;
 
+        // Message Id Token
+        $mid_token = '';
+        // Check if the email is threadable
+        if (isset($options['thread'])
+            && $options['thread'] instanceof ThreadEntry
+            && ($thread = $options['thread']->getThread())) {
+
+            // Add email in-reply-to references if not set
+            if (!isset($options['inreplyto'])) {
+
+                $entry = null;
+                switch (true) {
+                case $recipient instanceof TicketOwner:
+                case $recipient instanceof Collaborator:
+                    $entry = $thread->getLastEmailMessage(array(
+                                'user_id' => $recipient->getUserId()));
+                    break;
+                case $recipient instanceof Staff:
+                    //XXX: is it necessary ??
+                    break;
+                }
+
+                if ($entry && ($mid=$entry->getEmailMessageId())) {
+                    $options['inreplyto'] = $mid;
+                    $options['references'] = $entry->getEmailReferences();
+                }
+            }
+
+            // Embedded message id token
+            $mid_token = $messageId;
+            // Set Reply-Tag
+            if (!isset($options['reply-tag'])) {
+                if ($cfg && $cfg->stripQuotedReply())
+                    $options['reply-tag'] = $cfg->getReplySeparator() . '<br/><br/>';
+                else
+                    $options['reply-tag'] = '';
+            } elseif ($options['reply-tag'] === false) {
+                $options['reply-tag'] = '';
+            }
+        }
+
+        // Return-Path
         if (isset($options['nobounce']) && $options['nobounce'])
             $headers['Return-Path'] = '<>';
         elseif ($this->getEmail() instanceof Email)
             $headers['Return-Path'] = $this->getEmail()->getEmail();
 
-        //Bulk.
+        // Bulk.
         if (isset($options['bulk']) && $options['bulk'])
             $headers+= array('Precedence' => 'bulk');
 
-        //Auto-reply - mark as autoreply and supress all auto-replies
+        // Auto-reply - mark as autoreply and supress all auto-replies
         if (isset($options['autoreply']) && $options['autoreply']) {
             $headers+= array(
                     'Precedence' => 'auto_reply',
@@ -345,51 +389,22 @@ class Mailer {
                     'Auto-Submitted' => 'auto-replied');
         }
 
-        //Notice (sort of automated - but we don't want auto-replies back
+        // Notice (sort of automated - but we don't want auto-replies back
         if (isset($options['notice']) && $options['notice'])
             $headers+= array(
                     'X-Auto-Response-Suppress' => 'OOF, AutoReply',
                     'Auto-Submitted' => 'auto-generated');
+        // In-Reply-To
+        if (isset($options['inreplyto']) && $options['inreplyto'])
+            $headers += array('In-Reply-To' => $options['inreplyto']);
 
-        if ($options) {
-            if (isset($options['inreplyto']) && $options['inreplyto'])
-                $headers += array('In-Reply-To' => $options['inreplyto']);
-            if (isset($options['references']) && $options['references']) {
-                if (is_array($options['references']))
-                    $headers += array('References' =>
-                        implode(' ', $options['references']));
-                else
-                    $headers += array('References' => $options['references']);
-            }
-        }
-
-        // Make the best effort to add In-Reply-To and References headers
-        $reply_tag = $mid_token = '';
-        if (isset($options['thread'])
-            && $options['thread'] instanceof ThreadEntry
-        ) {
-            if ($irt = $options['thread']->getEmailMessageId()) {
-                // This is an response from an email, like and autoresponse.
-                // Web posts will not have a email message-id
-                $headers += array(
-                    'In-Reply-To' => $irt,
-                    'References' => $options['thread']->getEmailReferences()
-                );
-            }
-            elseif ($original = $options['thread']->findOriginalEmailMessage()) {
-                // Use the parent item as the email information source. This
-                // will apply for staff replies
-                $headers += array(
-                    'In-Reply-To' => $original->getEmailMessageId(),
-                    'References' => $original->getEmailReferences(),
-                );
-            }
-
-            // Configure the reply tag and embedded message id token
-            $mid_token = $messageId;
-            if ($cfg && $cfg->stripQuotedReply()
-                    && (!isset($options['reply-tag']) || $options['reply-tag']))
-                $reply_tag = $cfg->getReplySeparator() . '<br/><br/>';
+        // References
+        if (isset($options['references']) && $options['references']) {
+            if (is_array($options['references']))
+                $headers += array('References' =>
+                    implode(' ', $options['references']));
+            else
+                $headers += array('References' => $options['references']);
         }
 
         // Use general failsafe default initially
@@ -419,10 +434,14 @@ class Mailer {
         if (!(isset($options['text']) && $options['text'])) {
             // Embed the data-mid in such a way that it should be included
             // in a response
-            if ($reply_tag || $mid_token) {
-                $message = "<div style=\"display:none\"
-                    class=\"mid-$mid_token\">$reply_tag</div>$message";
+            if ($options['reply-tag'] || $mid_token) {
+                $message = sprintf('<div style="display:none"
+                        class="mid-%s">%s</div>%s',
+                        $mid_token,
+                        $options['reply-tag'],
+                        $message);
             }
+
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($messageId ? "\nRef-Mid: $messageId\n" : '');
             $mime->setTXTBody($txtbody);
