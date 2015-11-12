@@ -339,7 +339,6 @@ class MailFetcher {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
-
                     $header['recipients'][] = array(
                             'source' => sprintf(_S("Email (%s)"),$source),
                             'name' => $this->mime_decode(@$addr->personal),
@@ -679,10 +678,13 @@ class MailFetcher {
             }
         }
 
+
         $vars = $mailinfo;
         $vars['name'] = $mailinfo['name'];
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
+		$vars['staffid'] = staff::getIdByEmail($mailinfo['email']);
+		$vars['userid'] = useremail::getIdByEmail($mailinfo['email']);
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
         $vars['mailflags'] = new ArrayObject();
 
@@ -771,9 +773,10 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
+		
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
             && ($message = $entry->postEmail($vars))
-        ) {
+        ) { 
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
@@ -838,9 +841,9 @@ class MailFetcher {
         $max = $this->getMaxFetch();
 
         $nummsgs=imap_num_msg($this->mbox);
-        //echo "New Emails:  $nummsgs\n";
         $msgs=$errors=0;
-        for($i=$nummsgs; $i>0; $i--) { //process messages in reverse.
+        //for($i=$nummsgs; $i>0; $i--) { //process messages in reverse.
+		for($i=1; $i<=$nummsgs; $i++) { //process messages older to newest.
             if($this->createTicket($i)) {
 
                 imap_setflag_full($this->mbox, imap_uid($this->mbox, $i), "\\Seen", ST_UID); //IMAP only??

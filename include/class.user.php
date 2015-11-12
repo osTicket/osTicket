@@ -33,6 +33,7 @@ class UserEmailModel extends VerySimpleModel {
     function __toString() {
         return $this->address;
     }
+
 }
 
 class UserModel extends VerySimpleModel {
@@ -873,6 +874,13 @@ class UserEmail extends UserEmailModel {
         }
         return $email;
     }
+	
+	static function getIdByEmail($email) {
+        $row = static::objects()->filter(array('address' => $email))
+            ->values_flat('user_id')->first();
+        return $row ? $row[0] : 0;
+    }
+	
 }
 
 

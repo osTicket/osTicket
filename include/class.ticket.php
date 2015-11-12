@@ -1620,7 +1620,9 @@ implements RestrictedAccess, Threadable {
             $recipients[] = $dept->getManager();
 
         $options = array();
+	
         $staffId = $thisstaff ? $thisstaff->getId() : 0;
+		
         if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
             $options = array(
                 'inreplyto' => $vars['threadentry']->getEmailMessageId(),
@@ -2100,7 +2102,7 @@ implements RestrictedAccess, Threadable {
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
 
-        if (!$staff->isAvailable() || !$this->setStaffId($staff->getId()))
+        if (!$this->setStaffId($staff->getId()))
             return false;
 
         $this->onAssign($staff, $note, $alert);
@@ -2441,9 +2443,9 @@ implements RestrictedAccess, Threadable {
 
     /* public */
     function postReply($vars, &$errors, $alert=true, $claim=true) {
-        global $thisstaff, $cfg;
-
-        if (!$vars['poster'] && $thisstaff)
+		global $thisstaff, $cfg;
+		
+	    if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
 
         if (!$vars['staffId'] && $thisstaff)
@@ -2464,17 +2466,14 @@ implements RestrictedAccess, Threadable {
             $this->setStatus($vars['reply_status_id']);
         }
 
-
-        // Claim on response bypasses the department assignment restrictions
+         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
                 && $cfg->autoClaimTickets()
                 && !$dept->disableAutoClaim());
         if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
-
         $this->lastrespondent = $response->staff;
-
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
         /* email the user??  - if disabled - then bail out */
@@ -2495,8 +2494,8 @@ implements RestrictedAccess, Threadable {
             'response' => $response,
             'signature' => $signature,
             'staff' => $thisstaff,
-            'poster' => $thisstaff
-        );
+            'poster' => $thisstaff,
+			);
         $options = array(
             'inreplyto' => $response->getEmailMessageId(),
             'references' => $response->getEmailReferences(),
@@ -2514,8 +2513,8 @@ implements RestrictedAccess, Threadable {
             $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
-
-        if ($vars['emailcollab']) {
+		
+	    if ($vars['emailcollab']) {
             $this->notifyCollaborators($response,
                 array('signature' => $signature)
             );
@@ -2553,7 +2552,6 @@ implements RestrictedAccess, Threadable {
 
     function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
-
         //Who is posting the note - staff or system?
         if ($vars['staffId'] && !$poster)
             $poster = Staff::lookup($vars['staffId']);
@@ -2603,7 +2601,7 @@ implements RestrictedAccess, Threadable {
 
     // Threadable interface
     function postThreadEntry($type, $vars, $options=array()) {
-        $errors = array();
+	    $errors = array();
         switch ($type) {
         case 'M':
             return $this->postMessage($vars, $vars['origin']);

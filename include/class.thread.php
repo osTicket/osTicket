@@ -141,7 +141,6 @@ class Thread extends VerySimpleModel {
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
-
         if (!$user)
             return null;
 
@@ -152,7 +151,6 @@ class Thread extends VerySimpleModel {
             return null;
 
         $this->_collaborators = null;
-
         if ($event)
             $this->getEvents()->log($this->getObject(),
                 'collab',
@@ -305,14 +303,30 @@ class Thread extends VerySimpleModel {
             'mid' =>    $mailinfo['mid'],
             'header' => $mailinfo['header'],
             'poster' => $mailinfo['name'],
+			'staffid' =>  staff::getIdByEmail($mailinfo['email']),
+			'userid' => useremail::getIdByEmail($mailinfo['email']),
+			'subject' => $mailinfo['subject'],
             'origin' => 'Email',
             'source' => 'Email',
             'ip' =>     '',
             'reply_to' => $entry,
             'recipients' => $mailinfo['recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
-        );
+			'emailcollab' => '1',
+			);
 
+		//If this is a staff member and no one is assigned, do the assignment
+		if ($vars['staffid']){
+			$object instanceof Ticket;
+			if(0 == $object->getStaffId()) {
+			//	$object->setStaffId($vars['staffid']);
+				$object->assignToStaff($vars['staffid'],'Assigned via email reponse',$alert=true);
+				$vars['thread-type'] = 'R';
+			}
+			
+		}
+		//Who is the ticket assigned to?
+		$assignToStaffId = $object->getStaffId();
         // XXX: Is this necessary?
         if ($object instanceof Ticket)
             $vars['ticketId'] = $object->getId();
@@ -325,32 +339,37 @@ class Thread extends VerySimpleModel {
             $vars['attachments'] = $mailinfo['attachments'];
 
         $body = $mailinfo['message'];
+		
+		//#close #note #assign:username
+		
+		if($vars['subject'] && preg_match ('/#close/i', $vars['subject'])) {
+          
+		}
+		 
+		//Assignment based on email command #assign 
+		if($vars['subject'] && preg_match ('/#assign:/i', $vars['subject'])) {
 
-        // Attempt to determine the user posting the entry and the
-        // corresponding entry type by the information determined by the
-        // mail parser (via the In-Reply-To header)
-        switch ($mailinfo['userClass']) {
-        case 'C': # Thread collaborator
-            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
-        case 'U': # Ticket owner
-            $vars['thread-type'] = 'M';
-            $vars['userId'] = $mailinfo['userId'];
-            break;
+			$match = preg_split("/#assign:/", $vars['subject']);
+			$assignee =  strtok($match['1'],' ');
+			$stafftoassign = staff::getIdByUsername($assignee);
+			$staffname = staff::getFirstNameById($stafftoassign);
+		
+			//Check to make sure the assigneee is a staff member
+			if ($stafftoassign !== 0){
+				$object instanceof Ticket;
+				$object->assignToStaff($stafftoassign,"Assigned to {$staffname} via email.",$alert=true);
+			}
+         }
 
-        case 'A': # System administrator
-        case 'S': # Staff member (agent)
-            $vars['thread-type'] = 'N';
-            $vars['staffId'] = $mailinfo['staffId'];
-            if ($vars['staffId'])
-                $vars['poster'] = Staff::lookup($mailinfo['staffId']);
-            break;
-
-        // The user type was not identified by the mail parsing system. It
-        // is likely that the In-Reply-To and References headers were not
-        // properly brokered by the user's mail client. Use the old logic to
-        // determine the post type.
-        default:
-            // Disambiguate if the user happens also to be a staff member of
+		//Post an internal note to the ticket
+		if($vars['subject'] && preg_match ('/#note/i', $vars['subject'])) {
+           
+			$vars['thread-type'] = 'N';
+		 
+         }
+		 
+    		
+		     // Disambiguate if the user happens also to be a staff member of
             // the system. The current ticket owner should _always_ post
             // messages instead of notes or responses
             if ($object instanceof Ticket
@@ -359,6 +378,24 @@ class Thread extends VerySimpleModel {
                 $vars['thread-type'] = 'M';
                 $vars['userId'] = $object->getUserId();
             }
+
+			if ($assignToStaffId == $vars['staffid'] && $vars['thread-type'] !== 'N'){
+				// global $thisstaff;
+				//$thisstaff = $vars['staffid'];
+			$vars['thread-type'] = 'R';
+			}
+			elseif ($assignToStaffId !== $vars['staffid']  && $vars['staffid'] !== 0){
+				
+			   $vars['thread-type'] = 'N';
+                
+             
+                $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+				$info['threadId'] = $vars['ticketId'];
+				$info['userId'] = $vars['userid'];
+				//add as a collaborator
+				Collaborator::add($info, $errors);			
+
+			}
             // Consider collaborator role (disambiguate staff members as
             // collaborators). Normally, the block above should match based
             // on the Referenced message-id header
@@ -374,7 +411,7 @@ class Thread extends VerySimpleModel {
             elseif (Email::getIdByEmail($mailinfo['email'])) {
                 return false;
             }
-        }
+        
 
         // Ensure we record the name of the person posting
         $vars['poster'] = $vars['poster']
@@ -388,17 +425,29 @@ class Thread extends VerySimpleModel {
             $header = sprintf(
                 _S('Received From: %1$s <%2$s>') . "\n\n",
                 $mailinfo['name'], $mailinfo['email']);
+
             if ($body instanceof HtmlThreadEntryBody)
                 $header = nl2br(Format::htmlchars($header));
             // Add the banner to the top of the message
             if ($body instanceof ThreadEntryBody)
                 $body->prepend($header);
+			
+
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             $vars['thread-type'] = 'M';
         }
-
+	
         switch ($vars['thread-type']) {
-        case 'M':
+			case 'R':
+           	$vars['response'] = $body;
+	
+			if ($object instanceof Threadable)
+					return $object->postThreadEntry('R', $vars);
+			if ($this instanceof ObjectThread)
+					return $this->addResponse($vars, $errors);
+            break;
+			
+		case 'M':
             $vars['message'] = $body;
 
             if ($object instanceof Threadable)
@@ -410,10 +459,10 @@ class Thread extends VerySimpleModel {
         case 'N':
             $vars['note'] = $body;
 
-            if ($object instanceof Threadable)
-                return $object->postThreadEntry('N', $vars);
-            elseif ($this instanceof ObjectThread)
-                return $this->addNote($vars, $errors);
+            if ($object instanceof Threadable) {
+                return $object->postThreadEntry('N', $vars);}
+            elseif ($this instanceof ObjectThread){
+			return $this->addNote($vars, $errors);}
             break;
         }
 
@@ -616,6 +665,7 @@ implements TemplateVariable {
     );
 
     function postEmail($mailinfo) {
+		
         global $ost;
 
         if (!($thread = $this->getThread()))
@@ -1249,12 +1299,11 @@ implements TemplateVariable {
                 && ($ticket = Ticket::lookupByNumber($match[1]))
                 //Lookup the user using the email address
                 && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
-            //We have a valid ticket and user
-					
+           
            return $ticket->getLastMessage();
         }
 
-        return null;
+        return null; 
     }
 
     /**
@@ -1344,20 +1393,19 @@ implements TemplateVariable {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
-
         $entry = parent::create(array(
             'created' => SqlFunction::NOW(),
             'type' => $vars['type'],
             'thread_id' => $vars['threadId'],
             'title' => Format::sanitize($vars['title'], true),
             'format' => $vars['body']->getType(),
-            'staff_id' => $vars['staffId'],
+            'staff_id' => $vars['staffid'],
             'user_id' => $vars['userId'],
             'poster' => $poster,
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
         ));
-
+		
         if ($entry->format == 'html')
             // The current codebase properly balances html
             $entry->flags |= self::FLAG_BALANCED;
@@ -2298,7 +2346,6 @@ class ResponseThreadEntry extends ThreadEntry {
             $errors['response'] = __('Response content is required');
 
         if ($errors) return false;
-
         $vars['type'] = self::ENTRY_TYPE;
         $vars['body'] = $vars['response'];
         if (!$vars['pid'] && $vars['msgId'])
@@ -2308,7 +2355,6 @@ class ResponseThreadEntry extends ThreadEntry {
                 && $vars['staffId']
                 && ($staff = Staff::lookup($vars['staffId'])))
             $vars['poster'] = (string) $staff->getName();
-
         return parent::add($vars);
     }
 
@@ -2467,7 +2513,6 @@ implements TemplateVariable {
     }
 
     function addResponse($vars, &$errors) {
-
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
 
