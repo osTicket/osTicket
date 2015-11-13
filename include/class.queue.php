@@ -748,7 +748,7 @@ extends VerySimpleModel {
         }
         if (($F = $fields[$secondary])
             && (list(,$field) = $F)
-            && ($T = $F->from_query($row, $secondary))
+            && ($T = $field->from_query($row, $secondary))
         ) {
             return $field->display($field->to_php($T));
         }
