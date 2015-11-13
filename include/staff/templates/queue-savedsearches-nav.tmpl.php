@@ -6,7 +6,12 @@
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
 <li class="item <?php if ($child_selected) echo 'child active'; ?>">
-  <a href="tickets.php?queue=adhoc"><i class="icon-sort-down pull-right"></i><?php echo __('Search');
+<?php
+  $href = 'href="tickets.php?queue=adhoc"';
+  if (!isset($_SESSION['advsearch']))
+      $href = 'href="#" data-dialog="ajax.php/tickets/search"';
+?>
+  <a <?php echo $href; ?>><i class="icon-sort-down pull-right"></i><?php echo __('Search');
   ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
@@ -22,12 +27,14 @@
       } ?>
       <li>
         <h4><?php echo __('Recent Searches'); ?></h4>
-      <?php foreach ($_SESSION['advsearch'] as $token=>$criteria) {
-        $q = new SavedSearch(array('root' => 'T'));
-        $q->id = 'adhoc,'.$token;
-        $q->title = $q->describeCriteria($criteria);
+<?php if (isset($_SESSION['advsearch'])) {
+          foreach ($_SESSION['advsearch'] as $token=>$criteria) {
+              $q = new SavedSearch(array('root' => 'T'));
+              $q->id = 'adhoc,'.$token;
+              $q->title = $q->describeCriteria($criteria);
 
-        include 'queue-subnavigation.tmpl.php';
+              include 'queue-subnavigation.tmpl.php';
+          }
       } ?>
       <!-- Dropdown Titles -->
       </li>
