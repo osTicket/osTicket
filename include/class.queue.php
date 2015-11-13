@@ -153,6 +153,7 @@ class CustomQueue extends SavedSearch {
                 $col->set('sort', array_search($key, $order));
                 $col->set('heading', $info['heading']);
                 $col->set('width', $info['width']);
+                $col->setSortable($info['sortable']);
                 unset($new[$key]);
             }
             // Add new columns
@@ -164,6 +165,7 @@ class CustomQueue extends SavedSearch {
                     'width' => $info['width'] ?: 100
                 ));
                 $glue->queue = $this;
+                $glue->setSortable($info['sortable']);
                 $this->columns->add(
                     QueueColumn::lookup($info['column_id']), $glue);
             }
@@ -668,6 +670,8 @@ extends VerySimpleModel {
         'ordering' => array('name'),
     );
 
+    const FLAG_SORTABLE = 0x0001;
+
     var $_annotations;
     var $_conditions;
 
@@ -708,6 +712,24 @@ extends VerySimpleModel {
     }
     function getLocalHeading() {
         return $this->getLocal('heading');
+    }
+
+    protected function setFlag($flag, $value=true, $field='flags') {
+        return $value
+            ? $this->{$field} |= $flag
+            : $this->clearFlag($flag, $field);
+    }
+
+    protected function clearFlag($flag, $field='flags') {
+        return $this->{$field} &= ~$flag;
+    }
+
+    function isSortable() {
+        return $this->bits & self::FLAG_SORTABLE;
+    }
+
+    function setSortable($sortable) {
+        $this->setFlag(self::FLAG_SORTABLE, $sortable, 'bits');
     }
 
     function render($row) {
@@ -810,7 +832,7 @@ extends VerySimpleModel {
     }
 
     function getDataConfigForm($source=false) {
-        return new QueueColDataConfigForm($source ?: $this->__getDbFields(),
+        return new QueueColDataConfigForm($source ?: $this->getDbFields(),
             array('id' => $this->id));
     }
 
