@@ -1211,6 +1211,10 @@ class SavedSearch extends VerySimpleModel {
             && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
     }
 
+    function inheritCriteria() {
+        return $this->flags & self::FLAG_INHERIT_CRITERIA;
+    }
+
     function buildPath() {
         if (!$this->id)
             return;
