@@ -523,7 +523,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function massProcess($action, $w=null)  {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         $actions = array(
                 'transfer' => array(
@@ -566,7 +566,7 @@ class TicketsAjaxAPI extends AjaxController {
             $w = 'me';
         case 'assign':
             $inc = 'assign.tmpl.php';
-            $info[':action'] = '#tickets/mass/assign';
+            $info[':action'] = "#tickets/mass/assign/$w";
             $info[':title'] = sprintf('Assign %s',
                     _N('selected ticket', 'selected tickets', $count));
 
@@ -579,10 +579,49 @@ class TicketsAjaxAPI extends AjaxController {
             $assignees = null;
             switch ($w) {
                 case 'agents':
+                    $depts = array();
+                    $tids = $_POST['tids'] ?: array_filter(explode(',', $_REQUEST['tids']));
+                    if ($tids) {
+                        $tickets = TicketModel::objects()
+                            ->distinct('dept_id')
+                            ->filter(array('ticket_id__in' => $tids));
+
+                        $depts = $tickets->values_flat('dept_id');
+                    }
+                    $members = Staff::objects()
+                        ->distinct('staff_id')
+                        ->filter(array(
+                                    'onvacation' => 0,
+                                    'isactive' => 1,
+                                    )
+                                );
+
+                    if ($depts) {
+                        $members->filter(Q::any( array(
+                                        'dept_id__in' => $depts,
+                                        Q::all(array(
+                                            'dept_access__dept__id__in' => $depts,
+                                            Q::not(array('dept_access__dept__flags__hasbit'
+                                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                            ))
+                                        )));
+                    }
+
+                    switch ($cfg->getAgentNameFormat()) {
+                    case 'last':
+                    case 'lastfirst':
+                    case 'legal':
+                        $members->order_by('lastname', 'firstname');
+                        break;
+
+                    default:
+                        $members->order_by('firstname', 'lastname');
+                    }
+
                     $prompt  = __('Select an Agent');
                     $assignees = array();
-                    foreach (Staff::getAvailableStaffMembers() as $id => $name)
-                        $assignees['s'.$id] = $name;
+                    foreach ($members as $member)
+                         $assignees['s'.$member->getId()] = $member->getName();
 
                     if (!$assignees)
                         $info['warn'] =  __('No agents available for assignment');

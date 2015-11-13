@@ -56,15 +56,22 @@ if ($agent->hasPerm(Ticket::PERM_DELETE, false)) {?>
 ?>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tickets-actions');
-    $(document).on('click.tickets-actions', 'a.tickets-action', function(e) {
+
+    $(document).off('.tickets');
+    $(document).on('click.tickets', 'a.tickets-action', function(e) {
         e.preventDefault();
-        var count = checkbox_checker($('form#tickets'), 1);
+        var $form = $('form#tickets');
+        var count = checkbox_checker($form, 1);
         if (count) {
+            var tids = $('.ckb:checked', $form).map(function() {
+                    return this.value;
+                }).get();
             var url = 'ajax.php/'
             +$(this).attr('href').substr(1)
             +'?count='+count
+            +'&tids='+tids.join(',')
             +'&_uid='+new Date().getTime();
+            console.log(tids);
             $.dialog(url, [201], function (xhr) {
                 $.pjax.reload('#pjax-container');
              });
