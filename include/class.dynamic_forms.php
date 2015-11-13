@@ -121,8 +121,9 @@ class DynamicForm extends VerySimpleModel {
         $fields = $this->getFields();
         $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
-            'instructions' => $this->getLocal('instructions'))
-        );
+            'instructions' => $this->getLocal('instructions'),
+            'id' => $this->getId(),
+        ));
         return $form;
     }
 
@@ -947,6 +948,9 @@ class DynamicFormEntry extends VerySimpleModel {
     function getId() {
         return $this->get('id');
     }
+    function getFormId() {
+        return $this->form_id;
+    }
 
     function getAnswers() {
         return $this->answers;
@@ -998,7 +1002,8 @@ class DynamicFormEntry extends VerySimpleModel {
             $source = $source ?: $this->getSource();
             $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions()
+                'instructions' => $this->getInstructions(),
+                'id' => $this->form_id,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }
