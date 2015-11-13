@@ -94,7 +94,7 @@ implements TemplateVariable, Searchable {
 
     static function getSearchableFields() {
         return array(
-            'name' => new TextboxField(array(
+            'topic' => new TextboxField(array(
                 'label' => __('Name'),
             )),
         );
