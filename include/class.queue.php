@@ -76,10 +76,6 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    function inheritCriteria() {
-        return $this->flags & self::FLAG_INHERIT_CRITERIA;
-    }
-
     function getBasicQuery($form=false) {
         if ($this->parent && $this->inheritCriteria()) {
             $query = $this->parent->getBasicQuery();

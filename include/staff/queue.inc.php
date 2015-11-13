@@ -56,9 +56,19 @@ else {
         <br/>
         <br/>
         <div><strong><?php echo __("Queue Search Criteria"); ?></strong></div>
-        <div><input type="checkbox" class="checkbox" name="inherit" <?php
+        <label class="checkbox" style="line-height:1.3em">
+          <input type="checkbox" class="checkbox" name="inherit" <?php
             if ($queue->inheritCriteria()) echo 'checked="checked"';
-            ?>/> <?php echo __('Include parent search criteria'); ?></div>
+            ?>/>
+          <?php echo __('Include parent search criteria');
+          if ($queue->parent) { ?>
+            <span id="parent_q_crit" class="faded">
+            <i class="icon-caret-right"></i>
+            <br/><?php
+              echo $queue->parent->describeCriteria();
+            ?></span>
+<?php     } ?>
+        </label>
         <hr/>
         <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">
@@ -72,7 +82,9 @@ else {
       </td>
       <td style="width:35%; padding-left:40px; vertical-align:top">
         <div><strong><?php echo __("Parent Queue"); ?>:</strong></div>
-        <select name="parent_id">
+        <select name="parent_id" onchange="javascript:
+        $('#parent_q_crit').toggle($(this).find(':selected').val()
+          == <?php echo $queue->parent_id ?: 0; ?>);">
           <option value="0">— <?php echo __('Top-Level Queue'); ?> —</option>
 <?php foreach (CustomQueue::queues() as $cq) {
         if ($cq->getId() == $queue->getId())

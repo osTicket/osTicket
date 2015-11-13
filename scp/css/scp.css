@@ -3366,6 +3366,10 @@ label.inline.checkbox {
 label.checkbox + label.checkbox {
     margin-top: 0.3em;
 }
+[class^="icon-"], [class*=" icon-"] {
+    /* Fix icons inside label.checkbox */
+    text-indent: initial;
+}
 input[type=checkbox] {
   width: 1em;
   height: 1em;
