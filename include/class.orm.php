@@ -698,7 +698,7 @@ class VerySimpleModel {
         return $pk;
     }
 
-    function __getDbFields() {
+    function getDbFields() {
         return $this->ht;
     }
 }
@@ -721,7 +721,7 @@ class AnnotatedModel {
         }
         if (!isset($classes[$class])) {
             $classes[$class] = eval(<<<END_CLASS
-class AnnotatedModel___{$class}_{$extra}
+class {$extra}AnnotatedModel___{$class}
 extends {$class} {
     var \$__overlay__;
     use {$extra}AnnotatedModelTrait;
@@ -731,7 +731,7 @@ extends {$class} {
         \$this->__overlay__ = \$annotations;
     }
 }
-return "AnnotatedModel___{$class}_{$extra}";
+return "{$extra}AnnotatedModel___{$class}";
 END_CLASS
             );
         }
@@ -758,8 +758,8 @@ trait AnnotatedModelTrait {
         return parent::__isset($what);
     }
 
-    function __getDbFields() {
-        return $this->__overlay__ + parent::__getDbFields();
+    function getDbFields() {
+        return $this->__overlay__ + parent::getDbFields();
     }
 }
 
@@ -791,12 +791,12 @@ trait WriteableAnnotatedModelTrait {
         return parent::__isset($what);
     }
 
-    function __getDbFields() {
-        return $this->__overlay__->__getDbFields() + parent::__getDbFields();
+    function getDbFields() {
+        return $this->__overlay__->getDbFields() + parent::getDbFields();
     }
 
-    function save() {
-        $this->__overlay__->save();
+    function save($refetch=false) {
+        $this->__overlay__->save($refetch);
         return parent::save();
     }
 

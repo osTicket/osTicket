@@ -32,8 +32,14 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_columns`;
 CREATE TABLE `%TABLE_PREFIX%queue_columns` (
   `queue_id` int(11) unsigned NOT NULL,
   `column_id` int(11) unsigned NOT NULL,
+  `bits` int(10) unsigned NOT NULL DEFAULT '0',
   `sort` int(10) unsigned NOT NULL DEFAULT '1',
   `heading` varchar(64) DEFAULT NULL,
   `width` int(10) unsigned NOT NULL DEFAULT '100',
   PRIMARY KEY (`queue_id`, `column_id`)
 ) DEFAULT CHARSET=utf8;
+
+-- Finished with patch
+UPDATE `%TABLE_PREFIX%config`
+    SET `value` = '00000000000000000000000000000000'
+    WHERE `key` = 'schema_signature' AND `namespace` = 'core';

@@ -130,7 +130,7 @@ else {
     <table class="table two-column">
       <tbody>
         <tr class="header">
-          <th colspan="2">
+          <th colspan="3">
             <?php echo __("Manage columns in this queue"); ?>
             <div><small><?php echo __(
             "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?>
@@ -138,40 +138,46 @@ else {
           </th>
         </tr>
         <tr class="header">
-          <td><small><b><?php echo __('Column Name'); ?></b></small></td>
-          <td><small><b><?php echo __('Heading and Width'); ?></b></small></td>
+          <td style="width:36%"><small><b><?php echo __('Heading and Width'); ?></b></small></td>
+          <td><small><b><?php echo __('Column Details'); ?></b></small></td>
+          <td><small><b><?php echo __('Sortable'); ?></b></small></td>
         </tr>
       </tbody>
       <tbody class="sortable-rows">
         <tr id="column-template" class="hidden">
           <td>
             <i class="faded-more icon-sort"></i>
-            <input type="hidden" data-name="queue_id"
-              value="<?php echo $queue->getId(); ?>"/>
-            <input type="hidden" data-name="column_id" />
-            <span></span>
-          </td>
-          <td>
             <input type="text" size="25" data-name="heading"
               data-translate-tag="" />
             <input type="text" size="5" data-name="width" />
-            <a class="action-button"
+          </td>
+          <td>
+            <input type="hidden" data-name="queue_id"
+              value="<?php echo $queue->getId(); ?>"/>
+            <input type="hidden" data-name="column_id" />
+            <div>
+            <a class="inline action-button"
                 href="#" onclick="javascript:
                 var colid = $(this).closest('tr').find('[data-name=column_id]').val();
                 $.dialog('ajax.php/tickets/search/column/edit/' + colid, 201);
                 return false;
-                "><i class="icon-edit"></i> <?php echo __('Edit'); ?></a>
+                "><i class="icon-cog"></i> <?php echo __('Config'); ?></a>
+            <span></span>
+          </td>
+          <td>
+            <input type="checkbox" data-name="sortable">
             <a href="#" class="pull-right drop-column" title="<?php echo __('Delete');
               ?>"><i class="icon-trash"></i></a>
+            </div>
           </td>
         </tr>
       </tbody>
       <tbody>
         <tr class="header">
-          <td colspan="2"></td>
+          <td colspan="3"></td>
         </tr>
         <tr>
-          <td colspan="2" id="append-column">
+          <td colspan="3" id="append-column">
             <i class="icon-plus-sign"></i>
             <select id="add-column" data-quick-add="queue-column">
               <option value="">— <?php echo __('Add a column'); ?> —</option>
@@ -231,8 +237,12 @@ var addColumn = function(colid, info) {
     var $this = $(this),
         name = $this.data('name');
 
-    if (info[name] !== undefined)
-      $this.val(info[name]);
+    if (info[name] !== undefined) {
+      if ($this.is(':checkbox'))
+        $this.prop('checked', info[name]);
+      else
+        $this.val(info[name]);
+    }
     $this.attr('name', name_prefix + '[' + name + ']');
   });
   copy.find('span').text(info['name']);
@@ -264,14 +274,16 @@ $('#append-column').find('button').on('click', function() {
       id = parseInt(selected.val());
   if (!id)
       return;
-  addColumn(id, {name: selected.text(), heading: selected.text(), width: 100});
+  addColumn(id, {name: selected.text(), heading: selected.text(), width: 100, sortable: 1});
   return false;
 });
 
 <?php foreach ($queue->columns as $C) {
-  echo sprintf('addColumn(%d, {name: %s, heading: %s, width: %d, trans: %s});',
+  echo sprintf('addColumn(%d, {name: %s, heading: %s, width: %d, trans: %s,
+  sortable: %s});',
     $C->column_id, JsonDataEncoder::encode($C->name),
     JsonDataEncoder::encode($C->heading), $C->width,
-    JsonDataEncoder::encode($C->getTranslateTag('heading')));
+    JsonDataEncoder::encode($C->getTranslateTag('heading')),
+    $C->isSortable() ? 1 : 0);
 } ?>
 </script>
