@@ -46,7 +46,7 @@ class Form {
         $this->_source = ($source) ? $source : $_POST;
     }
 
-    function getId() {
+    function getFormId() {
         return @$this->id ?: static::$id;
     }
     function setId($id) {
@@ -1096,7 +1096,7 @@ class FormField {
      */
     function getFormName() {
         $default = $this->get('name') ?: $this->get('id');
-        if ($this->_form && is_numeric($fid = $this->_form->getId()))
+        if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
             return substr(md5(
                 session_id() . '-form-field-id-' . $fid . $default), -14);
         elseif (is_numeric($this->get('id')))
