@@ -21,23 +21,24 @@ $data_form = $data_form ?: $column->getDataConfigForm($_POST);
 ?>
 </div>
 
-<div class="hidden tab_content" data-col-id="<?php echo $colid; ?>"
+<div class="hidden tab_content" style="margin: 0 20px"
+  data-col-id="<?php echo $colid; ?>"
   id="annotations" style="max-width: 400px">
   <div class="empty placeholder" style="margin-left: 20px">
     <em><?php echo __('No annotations for this field'); ?></em>
   </div>
-  <div style="margin: 0 20px;">
-    <div class="annotation clear template hidden">
+  <div>
+    <div class="annotation clear template hidden" style="padding:3px 0">
       <input data-field="input" data-name="annotations[]" value="" type="hidden" />
       <input data-field="column" data-name="deco_column[]" value="" type="hidden" />
       <i data-field="icon"></i>
-      <span data-field="name"></span>
-      <div class="pull-right">
-        <select data-field="position" data-name="deco_pos[]">
+      <div data-field="name" style="display: inline-block; width: 150px"></div>
+      <select data-field="position" data-name="deco_pos[]">
 <?php foreach (QueueColumnAnnotation::getPositions() as $key=>$desc) {
-          echo sprintf('<option value="%s">%s</option>', $key, Format::htmlchars($desc));
+        echo sprintf('<option value="%s">%s</option>', $key, Format::htmlchars($desc));
 } ?>
-        </select>
+      </select>
+      <div class="pull-right">
         <a href="#" data-field="delete" title="<?php echo __('Delete'); ?>"
             onclick="javascript:
             var tab = $(this).closest('.tab_content'),
@@ -52,7 +53,7 @@ $data_form = $data_form ?: $column->getDataConfigForm($_POST);
       </div>
     </div>
 
-    <div style="margin-top: 20px">
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #bbb">
       <i class="icon-plus-sign"></i>
       <select class="add-annotation">
         <option>— <?php echo __("Add a annotation"); ?> —</option>
@@ -111,10 +112,10 @@ foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
   </div>
 </div>
 
-<div class="hidden tab_content" id="conditions">
-  <div style="margin: 0 20px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
+<div class="hidden tab_content" id="conditions" style="margin: 0 20px">
+  <div style="margin-bottom: 15px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
   ?></div>
-  <div class="conditions" style="margin: 20px; max-width: 400px">
+  <div class="conditions">
 <?php
 if ($column->getConditions()) {
   $fields = SavedSearch::getSearchableFields($root);
@@ -125,7 +126,7 @@ if ($column->getConditions()) {
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
   }
 } ?>
-    <div style="margin-top: 20px">
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #bbb">
       <i class="icon-plus-sign"></i>
       <select class="add-condition">
         <option>— <?php echo __("Add a condition"); ?> —</option>
