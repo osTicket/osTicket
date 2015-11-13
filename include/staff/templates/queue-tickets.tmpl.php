@@ -120,9 +120,35 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php 
 }
+if (isset($_GET['sort'])) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'col' => (int) $_GET['sort'],
+        'dir' => (int) $_GET['dir'],
+    );
+}
+else {
+    $sort = $_SESSION['sort'][$queue->getId()];
+}
 foreach ($columns as $C) {
-    echo sprintf('<th width="%s">%s</th>', $C->getWidth(),
-        Format::htmlchars($C->getLocalHeading()));
+    $heading = Format::htmlchars($C->getLocalHeading());
+    if ($C->isSortable()) {
+        $args = $_GET;
+        $dir = $sort['col'] != $C->id ?: ($sort['dir'] ? 'desc' : 'asc');
+        $args['dir'] = $sort['col'] != $C->id ?: (int) !$sort['dir'];
+        $args['sort'] = $C->id;
+        $heading = sprintf('<a href="?%s" class="%s">%s</a>',
+            Http::build_query($args), $dir, $heading);
+    }
+    echo sprintf('<th width="%s" data-id="%d">%s</th>',
+        $C->getWidth(), $C->id, $heading);
+
+    // Sort by this column ?
+    if ($sort['col'] == $C->id) {
+        $col = SavedSearch::getOrmPath($C->primary, $query);
+        if ($sort['dir'])
+            $col = '-' . $col;
+        $tickets = $tickets->order_by($col);
+    }
 } ?>
     </tr>
   </thead>
