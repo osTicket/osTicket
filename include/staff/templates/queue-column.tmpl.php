@@ -141,7 +141,7 @@ if ($column->getConditions()) {
       $(function() {
         var colid = <?php echo $colid ?: 0; ?>,
             nextid = <?php echo QueueColumnCondition::getUid(); ?>;
-        $('#' + colid + '-conditions select.add-condition').change(function() {
+        $('#conditions select.add-condition').change(function() {
           var $this = $(this),
               container = $this.closest('div'),
               selected = $this.find(':selected');
