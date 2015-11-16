@@ -2233,10 +2233,14 @@ class AssigneeField extends ChoiceField {
         return true;
     }
 
+    function setChoices($choices) {
+        $this->_choices = $choices;
+    }
+
     function getChoices() {
         global $cfg;
 
-        if (!$this->_choices) {
+        if (!isset($this->_choices)) {
             $config = $this->getConfiguration();
             $choices = array(
                     __('Agents') => new ArrayObject(),
@@ -2257,7 +2261,7 @@ class AssigneeField extends ChoiceField {
 
             next($choices);
             $T = current($choices);
-            if (($teams = Team::getTeams()))
+            if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
 
@@ -3239,7 +3243,9 @@ class ChoicesWidget extends Widget {
     }
 
     function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
-        foreach ($choices as $label => $group) { ?>
+        foreach ($choices as $label => $group) {
+            if (!count($group)) continue;
+            ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {
                 if (!$have_def && $key == $def_key)
@@ -3810,6 +3816,10 @@ class VisibilityConstraint {
     }
 
     function emitJavascript($field) {
+
+        if (!$this->constraint->constraints)
+            return;
+
         $func = 'recheck';
         $form = $field->getForm();
 ?>
@@ -3851,6 +3861,12 @@ class VisibilityConstraint {
      * Determines if the field was visible when the form was submitted
      */
     function isVisible($field) {
+
+        // Assume initial visibility if constraint is not provided.
+        if (!$this->constraint->constraints)
+            return $this->initial == self::VISIBLE;
+
+
         return $this->compileQPhp($this->constraint, $field);
     }
 
@@ -3942,14 +3958,8 @@ class AssignmentForm extends Form {
 
     static $id = 'assign';
     var $_assignee = null;
-    var $_dept = null;
+    var $_assignees = null;
 
-    function __construct($source=null, $options=array()) {
-        parent::__construct($source, $options);
-        // Department of the object -- if necessary to limit assinees
-        if (isset($options['dept']))
-            $this->_dept = $options['dept'];
-    }
 
     function getFields() {
 
@@ -3967,7 +3977,6 @@ class AssignmentForm extends Form {
                         'criteria' => array(
                             'available' => true,
                             ),
-                        'dept' => $this->_dept ?: null,
                        ),
                     )
                 ),
@@ -3985,26 +3994,41 @@ class AssignmentForm extends Form {
                 ),
             );
 
+
+        if (isset($this->_assignees))
+            $fields['assignee']->setChoices($this->_assignees);
+
+
         $this->setFields($fields);
 
         return $this->fields;
     }
 
+    function getField($name) {
+
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
     function isValid() {
 
-        if (!parent::isValid())
+        if (!parent::isValid() || !($f=$this->getField('assignee')))
             return false;
 
         // Do additional assignment validation
         if (!($assignee = $this->getAssignee())) {
-            $this->getField('assignee')->addError(
-                    __('Unknown assignee'));
+            $f->addError(__('Unknown assignee'));
         } elseif ($assignee instanceof Staff) {
             // Make sure the agent is available
             if (!$assignee->isAvailable())
-                $this->getField('assignee')->addError(
-                        __('Agent is unavailable for assignment')
-                        );
+                $f->addError(__('Agent is unavailable for assignment'));
+        } elseif ($assignee instanceof Team) {
+            // Make sure the team is active and has members
+            if (!$assignee->isActive())
+                $f->addError(__('Team is disabled'));
+            elseif (!$assignee->getNumMembers())
+                $f->addError(__('Team does not have members'));
         }
 
         return !$this->errors();
@@ -4025,6 +4049,15 @@ class AssignmentForm extends Form {
         include $inc;
     }
 
+    function setAssignees($assignees) {
+        $this->_assignees = $assignees;
+        $this->_fields = array();
+    }
+
+    function getAssignees() {
+        return $this->_assignees;
+    }
+
     function getAssignee() {
 
         if (!isset($this->_assignee))
@@ -4033,11 +4066,45 @@ class AssignmentForm extends Form {
         return $this->_assignee;
     }
 
-    function assigneeCriteria() {
-        $dept = $this->id;
-        return function () use($dept) {
-            return array('dept_id' =>$dept);
-        };
+    function getComments() {
+        return $this->getField('comments')->getClean();
+    }
+}
+
+class ClaimForm extends AssignmentForm {
+
+    var $_fields;
+
+    function setFields($fields) {
+        $this->_fields = $fields;
+        parent::setFields($fields);
+    }
+
+    function getFields() {
+
+        if ($this->_fields)
+            return $this->_fields;
+
+        $fields = parent::getFields();
+
+        // Disable && hide assignee field selection
+        if (isset($fields['assignee'])) {
+            $visibility = new VisibilityConstraint(
+                    new Q(array()), VisibilityConstraint::HIDDEN);
+
+            $fields['assignee']->set('visibility', $visibility);
+        }
+
+        // Change coments placeholder to reflect claim
+        if (isset($fields['comments'])) {
+            $fields['comments']->configure('placeholder',
+                    __('Optional reason for the claim'));
+        }
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
     }
 
 }
