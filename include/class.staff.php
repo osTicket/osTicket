@@ -51,6 +51,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     var $passwd_change;
     var $_roles = null;
     var $_teams = null;
+    var $_config = null;
     var $_perm;
 
     function __onload() {
@@ -64,6 +65,34 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if ($time)
             $this->passwd_change = time()-$time; //XXX: check timezone issues.
+    }
+
+    function get($field, $default=false) {
+
+        // Autoload config if not loaded already
+        if (!isset($this->_config))
+            $this->getConfig();
+
+        if (isset($this->_config[$field]))
+            return $this->_config[$field];
+
+        return parent::get($field, $default);
+    }
+
+    function getConfig() {
+
+        if (!isset($this->_config) && $this->getId()) {
+            $_config = new Config('staff.'.$this->getId(),
+                    // Defaults
+                    array(
+                        'default_from_name' => '',
+                        'datetime_format'   => '',
+                        'thread_view_order' => '',
+                        ));
+            $this->_config = $_config->getInfo();
+        }
+
+        return $this->_config;
     }
 
     function __toString() {
@@ -102,6 +131,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $base = $this->ht;
         unset($base['teams']);
         unset($base['dept_access']);
+
+        if ($this->getConfig())
+            $base += $this->getConfig();
+
         return $base;
     }
 
@@ -280,6 +313,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getDefaultSignatureType() {
         return $this->default_signature_type;
+    }
+
+    function getReplyFromNameType() {
+        return $this->default_from_name;
     }
 
     function getDefaultPaperSize() {
@@ -623,7 +660,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
-        $this->onvacation = isset($vars['onvacation'])?1:0;
+        $this->onvacation = isset($vars['onvacation']) ? 1 : 0;
 
         if (isset($vars['avatar_code']))
           $this->setExtraAttr('avatar', $vars['avatar_code']);
@@ -633,6 +670,16 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         $_SESSION['::lang'] = null;
         TextDomain::configureForUser($this);
+
+        // Update the config information
+        $_config = new Config('staff.'.$this->getId());
+        $_config->updateAll(array(
+                    'datetime_format' => $vars['datetime_format'],
+                    'default_from_name' => $vars['default_from_name'],
+                    'thread_view_order' => $vars['thread_view_order'],
+                    )
+                );
+        $this->_config = $_config->getInfo();
 
         return $this->save();
     }

@@ -244,6 +244,9 @@ class Thread extends VerySimpleModel {
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
+        if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
+            $entries->order_by('-id');
+
         // Precache all the attachments on this thread
         AttachmentFile::objects()->filter(array(
             'attachments__thread_entry__thread__id' => $this->id
@@ -1607,9 +1610,10 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function template($description) {
+        global $thisstaff;
         $self = $this;
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self) {
+            function ($m) use ($self, $thisstaff) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
@@ -1628,10 +1632,22 @@ class ThreadEvent extends VerySimpleModel {
                         $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
-                    return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                    $timeFormat = null;
+                    if ($thisstaff
+                            && !strcasecmp($thisstaff->datetime_format,
+                                'relative')) {
+                        $timeFormat = function ($timestamp) {
+                            return Format::relativeTime(Misc::db2gmtime($timestamp));
+                        };
+                    }
+
+                    return sprintf('<time %s datetime="%s"
+                            data-toggle="tooltip" title="%s">%s</time>',
+                        $timeFormat ? 'class="relative"' : '',
                         date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
                         Format::daydatetime($self->timestamp),
-                        Format::relativeTime(Misc::db2gmtime($self->timestamp))
+                        $timeFormat ? $timeFormat($self->timestamp) :
+                        Format::datetime($self->timestamp)
                     );
                 case 'agent':
                     $name = $self->agent->getName();
