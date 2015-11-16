@@ -3420,7 +3420,8 @@ implements RestrictedAccess, Threadable {
         }
 
         // TODO: Deny action based on selected department.
-
+        $vars['response'] = ThreadEntryBody::clean($vars['response']);
+        $vars['note'] = ThreadEntryBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
         $create_vars['cannedattachments']

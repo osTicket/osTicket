@@ -2132,6 +2132,22 @@ class ThreadEntryBody /* extends SplString */ {
             return new ThreadEntryBody($text);
         }
     }
+
+    static function clean($text, $format=null) {
+        global $cfg;
+
+        if (!$format && $cfg)
+            $format = $cfg->isRichTextEnabled() ? 'html' : 'text';
+
+        switch ($format) {
+        case 'html':
+            return trim($text, " <>br/\t\n\r") ? $text : '';
+        case 'text':
+            return trim($text) ? $text : '';
+        default:
+            return $text;
+        }
+    }
 }
 
 class TextThreadEntryBody extends ThreadEntryBody {
@@ -2140,7 +2156,8 @@ class TextThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return Format::stripEmptyLines($this->body);
+        return  Format::stripEmptyLines(
+                self::clean($this->body, $this->format));
     }
 
     function prepend($what) {
@@ -2187,7 +2204,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
+        return Format::sanitize(self::clean($this->body, $this->format));
     }
 
     function getSearchable() {

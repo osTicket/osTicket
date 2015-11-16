@@ -82,8 +82,10 @@ if($_POST && !$errors):
                 $errors['err'] = __('Action denied. Contact admin for access');
             }
             else {
-
-                if(!$_POST['response'])
+                $vars = $_POST;
+                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                $vars['response'] = ThreadEntryBody::clean($vars['response']);
+                if(!$vars['response'])
                     $errors['response']=__('Response required');
 
                 if ($cfg->getLockTime()) {
@@ -106,10 +108,6 @@ if($_POST && !$errors):
                 if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
-
-            //If no error...do the do.
-            $vars = $_POST;
-            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -143,6 +141,7 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->getLockTime()) {
                 if (!$lock) {
