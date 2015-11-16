@@ -675,10 +675,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             // Send the alerts.
             $sentlist = array();
             $options = $note instanceof ThreadEntry
-                ? array(
-                    'inreplyto' => $note->getEmailMessageId(),
-                    'references' => $note->getEmailReferences(),
-                    'thread' => $note)
+                ? array('thread' => $note)
                 : array();
 
             foreach ($recipients as $k => $staff) {
@@ -765,10 +762,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $sentlist = $options = array();
             if ($note instanceof ThreadEntry) {
-                $options += array(
-                    'inreplyto'=>$note->getEmailMessageId(),
-                    'references'=>$note->getEmailReferences(),
-                    'thread'=>$note);
+                $options += array('thread'=>$note);
             }
 
             foreach ($recipients as $k=>$staff) {
@@ -1018,10 +1012,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $options = array();
         $staffId = $thisstaff ? $thisstaff->getId() : 0;
         if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
-            $options = array(
-                'inreplyto' => $vars['threadentry']->getEmailMessageId(),
-                'references' => $vars['threadentry']->getEmailReferences(),
-                'thread' => $vars['threadentry']);
+            $options = array('thread' => $vars['threadentry']);
 
             // Activity details
             if (!$vars['message'])
@@ -1104,8 +1095,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
-        $options = array('inreplyto' => $entry->getEmailMessageId(),
-                         'thread' => $entry);
+        $options = array('thread' => $entry);
 
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of

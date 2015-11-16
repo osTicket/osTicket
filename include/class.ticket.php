@@ -1306,7 +1306,8 @@ implements RestrictedAccess, Threadable {
         }
 
         $options = array();
-        if ($message instanceof ThreadEntry) {
+        if (($message instanceof ThreadEntry)
+                && $message->getEmailMessageId()) {
             $options += array(
                 'inreplyto'=>$message->getEmailMessageId(),
                 'references'=>$message->getEmailReferences(),
@@ -1494,8 +1495,7 @@ implements RestrictedAccess, Threadable {
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
-        $options = array('inreplyto' => $entry->getEmailMessageId(),
-                         'thread' => $entry);
+        $options = array('thread' => $entry);
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of
             // the conversation
@@ -1583,10 +1583,14 @@ implements RestrictedAccess, Threadable {
                     'signature' => ($dept && $dept->isPublic())?$dept->getSignature():''
                 )
             );
-            $options = array(
-                'inreplyto' => $message->getEmailMessageId(),
-                'thread' => $message
-            );
+            $options = array('thread' => $message);
+            if ($message->getEmailMessageId()) {
+                $options += array(
+                        'inreplyto' => $message->getEmailMessageId(),
+                        'references' => $message->getEmailReferences()
+                        );
+            }
+
             $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
@@ -1633,10 +1637,7 @@ implements RestrictedAccess, Threadable {
         $options = array();
         $staffId = $thisstaff ? $thisstaff->getId() : 0;
         if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
-            $options = array(
-                'inreplyto' => $vars['threadentry']->getEmailMessageId(),
-                'references' => $vars['threadentry']->getEmailReferences(),
-                'thread' => $vars['threadentry']);
+            $options = array('thread' => $vars['threadentry']);
 
             // Activity details
             if (!$vars['comments'])
@@ -1731,10 +1732,7 @@ implements RestrictedAccess, Threadable {
             // Send the alerts.
             $sentlist = array();
             $options = $note instanceof ThreadEntry
-                ? array(
-                    'inreplyto'=>$note->getEmailMessageId(),
-                    'references'=>$note->getEmailReferences(),
-                    'thread'=>$note)
+                ? array('thread'=>$note)
                 : array();
             foreach ($recipients as $k=>$staff) {
                 if (!is_object($staff)
@@ -2064,10 +2062,7 @@ implements RestrictedAccess, Threadable {
             }
             $sentlist = $options = array();
             if ($note) {
-                $options += array(
-                    'inreplyto'=>$note->getEmailMessageId(),
-                    'references'=>$note->getEmailReferences(),
-                    'thread'=>$note);
+                $options += array('thread'=>$note);
             }
             foreach ($recipients as $k=>$staff) {
                 if (!is_object($staff)
@@ -2308,7 +2303,7 @@ implements RestrictedAccess, Threadable {
         if ($alerts && $message->isBounceOrAutoReply())
             $alerts = false;
 
-        if ($alerts && $this->getThread()->getLastMessage(array(
+        if ($alerts && $this->getThread()->getLastEmailMessage(array(
             'user_id' => $message->user_id,
             'id__lt' => $message->id,
             'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
@@ -2330,11 +2325,8 @@ implements RestrictedAccess, Threadable {
             'message' => $message,
             'poster' => ($vars['poster'] ? $vars['poster'] : $this->getName())
         );
-        $options = array(
-            'inreplyto' => $message->getEmailMessageId(),
-            'references' => $message->getEmailReferences(),
-            'thread'=>$message
-        );
+
+        $options = array('thread'=>$message);
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
             && ($email = $dept->getAlertEmail())
@@ -2443,11 +2435,18 @@ implements RestrictedAccess, Threadable {
             );
             $attachments = ($cfg->emailAttachments() && $files)
                 ? $response->getAttachments() : array();
-            $options = array(
-                'inreplyto'=>$response->getEmailMessageId(),
-                'references'=>$response->getEmailReferences(),
-                'thread'=>$response);
-            $email->sendAutoReply($this, $msg['subj'], $msg['body'], $attachments,
+
+            $options = array('thread' => $response);
+            if (($message instanceof ThreadEntry)
+                    && $message->getUserId() == $this->getUserId()
+                    && ($mid=$message->getEmailMessageId())) {
+                $options += array(
+                        'inreplyto' => $mid,
+                        'references' => $message->getEmailReferences()
+                        );
+            }
+
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
         return $response;
@@ -2511,21 +2510,19 @@ implements RestrictedAccess, Threadable {
             'staff' => $thisstaff,
             'poster' => $thisstaff
         );
-        $options = array(
-            'inreplyto' => $response->getEmailMessageId(),
-            'references' => $response->getEmailReferences(),
-            'thread'=>$response
-        );
 
+
+        $user = $this->getOwner();
+        $options = array('thread' => $response);
         if (($email=$dept->getEmail())
             && ($tpl = $dept->getTemplate())
             && ($msg=$tpl->getReplyMsgTemplate())
         ) {
             $msg = $this->replaceVars($msg->asArray(),
-                $variables + array('recipient' => $this->getOwner())
+                $variables + array('recipient' => $user)
             );
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($user, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -3558,14 +3555,8 @@ implements RestrictedAccess, Threadable {
                     'staff'     => $thisstaff,
                 )
             );
-            $references = array();
             $message = $ticket->getLastMessage();
-            if (isset($message))
-                $references[] = $message->getEmailMessageId();
-            if (isset($response))
-                $references[] = $response->getEmailMessageId();
             $options = array(
-                'references' => $references,
                 'thread' => $message ?: $ticket->getThread(),
             );
             $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,

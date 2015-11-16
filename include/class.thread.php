@@ -53,6 +53,7 @@ class Thread extends VerySimpleModel {
     const MODE_CLIENT = 2;
 
     var $_object;
+    var $_entries;
     var $_collaborators; // Cache for collabs
     var $_participants;
 
@@ -87,7 +88,6 @@ class Thread extends VerySimpleModel {
         return $this->entries->count();
     }
 
-    var $_entries;
     function getEntries($criteria=false) {
         if (!isset($this->_entries)) {
             $this->_entries = $this->entries->annotate(array(
@@ -2399,44 +2399,68 @@ implements TemplateVariable {
         return $this->counts[NoteThreadEntry::ENTRY_TYPE];
     }
 
-    function getMessages() {
-        return $this->entries->filter(array(
-            'type' => MessageThreadEntry::ENTRY_TYPE
-        ));
-    }
 
     function getLastMessage($criteria=false) {
-        $entries = $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        $entries->filter(array(
             'type' => MessageThreadEntry::ENTRY_TYPE
         ));
+
         if ($criteria)
             $entries->filter($criteria);
 
-        return $entries->order_by('-id')->first();
+        $entries->order_by('-id');
+
+        return $entries->first();
     }
 
-    function getEntry($var) {
-        // XXX: PUNT
-        if (is_numeric($var))
-            $id = $var;
-        else {
-            $criteria = array_merge($var, array('limit' => 1));
-            $entries = $this->getEntries($criteria);
-            if ($entries && $entries[0])
-                $id = $entries[0]['id'];
-        }
+    function getLastEmailMessage($criteria=array()) {
 
-        return $id ? parent::getEntry($id) : null;
+        $criteria += array(
+                'source' => 'Email',
+                'email_info__headers__isnull' => false);
+
+        return $this->getLastMessage($criteria);
+    }
+
+    function getLastEmailMessageByUser($user) {
+
+        $uid = is_numeric($user) ? $user : 0;
+        if (!$uid && ($user instanceof EmailContact))
+            $uid = $user->getUserId();
+
+        return $uid
+                ? $this->getLastEmailMessage(array('user_id' => $uid))
+                : null;
+    }
+
+    function getEntry($criteria) {
+        // XXX: PUNT
+        if (is_numeric($criteria))
+            return parent::getEntry($criteria);
+
+        $entries = clone $this->getEntries();
+        $entries->filter($criteria);
+        return $entries->first();
+    }
+
+    function getMessages() {
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
+            'type' => MessageThreadEntry::ENTRY_TYPE
+        ));
     }
 
     function getResponses() {
-        return $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
             'type' => ResponseThreadEntry::ENTRY_TYPE
         ));
     }
 
     function getNotes() {
-        return $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
             'type' => NoteThreadEntry::ENTRY_TYPE
         ));
     }
