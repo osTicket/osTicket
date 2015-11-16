@@ -1,5 +1,5 @@
 <?php
-global $thisstaff;
+global $thisstaff, $cfg;
 $timeFormat = null;
 if ($thisstaff && !strcasecmp($thisstaff->datetime_format, 'relative')) {
     $timeFormat = function($datetime) {
@@ -11,7 +11,7 @@ $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
-if ($user)
+if ($user && $cfg->isAvatarsEnabled())
     $avatar = $user->getAvatar();
 ?>
 <div class="thread-entry <?php

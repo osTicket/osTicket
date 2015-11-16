@@ -162,6 +162,7 @@ class OsticketConfig extends Config {
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
         'enable_richtext' =>    true,
+        'enable_avatars' =>     true,
         'allow_attachments' =>  true,
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
@@ -378,6 +379,10 @@ class OsticketConfig extends Config {
 
     function isRichTextEnabled() {
         return $this->get('enable_richtext');
+    }
+
+    function isAvatarsEnabled() {
+        return $this->get('enable_avatars');
     }
 
     function getClientTimeout() {
@@ -1112,6 +1117,7 @@ class OsticketConfig extends Config {
             'secondary_langs'=>$secondary_langs,
             'max_file_size' => $vars['max_file_size'],
             'autolock_minutes' => $vars['autolock_minutes'],
+            'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
         ));
     }
