@@ -117,6 +117,10 @@ class Canned {
                     $resp['response'] = Format::html2text($resp['response'], 90);
                     $resp['files'] += $this->attachments->getInlines();
                 }
+
+                foreach ($resp['files'] as $f)
+                    $_SESSION[':cannedFiles'][$f['file_id']] = 1;
+
                 return Format::json_encode($resp);
                 break;
             case 'html':
