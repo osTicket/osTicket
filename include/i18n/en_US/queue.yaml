@@ -36,7 +36,7 @@
   columns:
     - column_id: 1
       sort: 1
-      width: 75
+      width: 100
       heading: Ticket
     - column_id: 10
       sort: 2
@@ -96,7 +96,7 @@
   flags: 0x0b
   root: T
   sort: 1
-  config: '[["status__state","includes",{"open":"Open"}],["answered","nset",null]]'
+  config: '[["isanswered","nset",null]]'
   columns:
     - column_id: 1
       sort: 1
@@ -128,7 +128,7 @@
   flags: 0x0b
   root: T
   sort: 2
-  config: '[["assignee","unassigned",null]]'
+  config: '[["assignee","!assigned",null]]'
   columns:
     - column_id: 1
       sort: 1
