@@ -3395,7 +3395,7 @@ implements RestrictedAccess, Threadable {
 
         // Assign ticket to staff or team (new ticket by staff)
         if ($vars['assignId']) {
-            $asnform = $ticket->AssignmentForm(array('assignee' => $vars['assignId']));
+            $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
         }
         else {
