@@ -1,6 +1,6 @@
 /**
  * @version v1.11
- * @signature 00000000000000000000000000000000
+ * @signature 934b8db8f97d6859d013b6219957724f
  * @title Custom Queues, Columns
  *
  * Add custom queues, custom columns, and quick filter capabilities to the
@@ -41,5 +41,5 @@ CREATE TABLE `%TABLE_PREFIX%queue_columns` (
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = '934b8db8f97d6859d013b6219957724f'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
