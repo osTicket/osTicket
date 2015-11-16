@@ -784,18 +784,20 @@ class SavedSearch extends VerySimpleModel {
         });
 
         // Load state from current configuraiton
-        foreach ($this->getCriteria() as $I) {
-            list($path, $method, $value) = $I;
-            if (!($F = $form->getField("{$path}+search")))
-                continue;
-            $F->value = true;
+        if (!$source) {
+            foreach ($this->getCriteria() as $I) {
+                list($path, $method, $value) = $I;
+                if (!($F = $form->getField("{$path}+search")))
+                    continue;
+                $F->value = true;
 
-            if (!($F = $form->getField("{$path}+method")))
-                continue;
-            $F->value = $method;
+                if (!($F = $form->getField("{$path}+method")))
+                    continue;
+                $F->value = $method;
 
-            if ($value && ($F = $form->getField("{$path}+{$method}")))
-                $F->value = $value;
+                if ($value && ($F = $form->getField("{$path}+{$method}")))
+                    $F->value = $value;
+            }
         }
         return $form;
     }
