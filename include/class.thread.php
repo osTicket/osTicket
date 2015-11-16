@@ -2566,10 +2566,6 @@ abstract class ThreadEntryAction {
 
     abstract function trigger();
 
-    function getTicket() {
-        return $this->entry->getObject();
-    }
-
     function isEnabled() {
         return $this->isVisible();
     }

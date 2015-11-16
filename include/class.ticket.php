@@ -139,6 +139,16 @@ class TicketModel extends VerySimpleModel {
                 /* @trans */ 'Ability to delete tickets'),
             );
 
+    // Ticket Sources
+    static protected $sources =  array(
+            'Phone' =>
+            /* @trans */ 'Phone',
+            'Email' =>
+            /* @trans */ 'Email',
+            'Other' =>
+            /* @trans */ 'Other',
+            );
+
     function getId() {
         return $this->ticket_id;
     }
@@ -198,6 +208,10 @@ EOF;
 
     static function getPermissions() {
         return self::$perms;
+    }
+
+    static function getSources() {
+        return self::$sources;
     }
 }
 
@@ -2881,7 +2895,11 @@ implements RestrictedAccess, Threadable {
                 $stats['overdue'] += $S['count'];
             if ($S['staff_id'] == $id)
                 $stats['assigned'] += $S['count'];
-            elseif ($S['team_id'] && $S['staff_id'] == 0)
+            elseif ($S['team_id']
+                    && $S['staff_id'] == 0
+                    && $teams
+                    && in_array($S['team_id'], $teams))
+                // Assigned to my team but uassigned to an agent
                 $stats['assigned'] += $S['count'];
         }
         return $stats;
@@ -3447,13 +3465,11 @@ implements RestrictedAccess, Threadable {
             return false;
         }
 
-        if ($vars['source'] && !in_array(
-            strtolower($vars['source']), array('email','phone','other'))
-        ) {
-            $errors['source'] = sprintf(
-                __('Invalid source given - %s'),Format::htmlchars($vars['source'])
-            );
-        }
+        if (isset($vars['source']) // Check ticket source if provided
+                && !array_key_exists($vars['source'], Ticket::getSources()))
+            $errors['source'] = sprintf( __('Invalid source given - %s'),
+                    Format::htmlchars($vars['source']));
+
 
         if (!$vars['uid']) {
             // Special validation required here
