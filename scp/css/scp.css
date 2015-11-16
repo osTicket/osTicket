@@ -1001,9 +1001,10 @@ img.avatar {
     border-left: none;
     border-right: 8px solid #CCC;
 }
-.thread-entry.note:not(.avatar) .header {
+.thread-entry.system .header {
     background-color: #f4f4f4;
 }
+
 .thread-entry.avatar.response .header:before {
     border-right-color: #ccb3af;
 }
