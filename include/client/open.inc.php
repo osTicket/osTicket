@@ -9,6 +9,9 @@ if($thisclient && $thisclient->isValid()) {
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 
+if(array_key_exists('topicId',$_GET) && preg_match('/^\d+$/',$_GET['topicId']))
+    $info['topicId'] = intval($_GET['topicId']);
+
 $form = null;
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
