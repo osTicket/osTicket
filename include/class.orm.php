@@ -2795,6 +2795,7 @@ class MySqlCompiler extends SqlCompiler {
         $q->related = $q->anotations = false;
         $model = $q->model;
         $q->values = $model::getMeta('pk');
+        $q->annotations = false;
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
         $row = $exec->getRow();
