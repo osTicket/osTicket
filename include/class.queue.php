@@ -162,10 +162,10 @@ class CustomQueue extends SavedSearch {
                     'column_id' => $info['column_id'], 
                     'sort' => array_search($info['column_id'], $order),
                     'heading' => $info['heading'],
-                    'width' => $info['width'] ?: 100
+                    'width' => $info['width'] ?: 100,
+                    'bits' => $info['sortable'] ?  QueueColumn::FLAG_SORTABLE : 0,
                 ));
                 $glue->queue = $this;
-                $glue->setSortable($info['sortable']);
                 $this->columns->add(
                     QueueColumn::lookup($info['column_id']), $glue);
             }
@@ -988,7 +988,7 @@ extends InstrumentedList {
         $m = parent::getOrBuild($modelClass, $fields, $cache);
         if ($m && $modelClass === 'QueueColumnGlue') {
             // Instead, yield the QueueColumn instance with the local fields
-            // inthe association table as annotations
+            // in the association table as annotations
             $m = AnnotatedModel::wrap($m->column, $m, 'QueueColumn');
         }
         return $m;
@@ -997,7 +997,9 @@ extends InstrumentedList {
     function add($column, $glue=null) {
         $glue = $glue ?: QueueColumnGlue::create();
         $glue->column = $column;
-        parent::add(AnnotatedModel::wrap($column, $glue));
+        $anno = AnnotatedModel::wrap($column, $glue);
+        parent::add($anno);
+        return $anno;
     }
 }
 
