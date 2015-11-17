@@ -880,7 +880,7 @@ class CustomQueue extends VerySimpleModel {
             // Add new columns
             foreach ($new as $info) {
                 $glue = new QueueColumnGlue(array(
-                    'column_id' => $info['column_id'], 
+                    'column_id' => $info['column_id'],
                     'sort' => array_search($info['column_id'], $order),
                     'heading' => $info['heading'],
                     'width' => $info['width'] ?: 100,

@@ -1,14 +1,14 @@
 #
 # Basic queues for the initial ticket system. Queues installed for
 # - Open / All
-# - Open / Answered
-# - Open / Unanswered
 # - Open / Unassigned
-# - Open / Mine
+# - Open / Overdue
+# - Answered / All
+# - My Tickets / All
 # - Closed / All
 #
 # Fields:
-# id:       
+# id:
 # parent_id:
 # flags:
 #   0x01:   FLAG_PUBLIC
@@ -31,30 +31,36 @@
   title: Open
   flags: 0x03
   sort: 1
-  root: T 
+  root: T
   config: '[["status__state","includes",{"open":"Open"}]]'
   columns:
     - column_id: 1
+      bits: 1
       sort: 1
       width: 100
       heading: Ticket
     - column_id: 10
+      bits: 1
       sort: 2
       width: 150
       heading: Last Updated
     - column_id: 3
+      bits: 1
       sort: 3
       width: 300
       heading: Subject
     - column_id: 4
+      bits: 1
       sort: 4
       width: 185
       heading: From
     - column_id: 5
+      bits: 1
       sort: 5
       width: 85
       heading: Priority
     - column_id: 8
+      bits: 1
       sort: 6
       width: 160
       heading: Assigned To
@@ -65,129 +71,277 @@
     - sort_id: 4
 
 - id: 2
-  title: Closed
-  flags: 0x03
-  sort: 2
-  root: T
-  config: '[["status__state","includes",{"closed":"Closed"}]]'
-  columns:
-    - column_id: 1
-      sort: 1
-      width: 100
-      heading: Ticket
-    - column_id: 7
-      sort: 2
-      width: 150
-      heading: Date Closed
-    - column_id: 3
-      sort: 3
-      width: 300
-      heading: Subject
-    - column_id: 4
-      sort: 4
-      width: 185
-      heading: From
-    - column_id: 5
-      sort: 5
-      width: 85
-      heading: Priority
-    - column_id: 8
-      sort: 6
-      width: 160
-      heading: Closed By
-
-- title: Unanswered
+  title: Answered
   parent_id: 1
-  flags: 0x2b
+  flags: 0x03
   root: T
-  sort: 1
-  config: '[["isanswered","nset",null]]'
+  sort: 4
+  config: '[["isanswered","set",null]]'
   columns:
     - column_id: 1
+      bits: 1
       sort: 1
       width: 100
       heading: Ticket
     - column_id: 10
+      bits: 1
       sort: 2
       width: 150
       heading: Last Update
     - column_id: 3
+      bits: 1
       sort: 3
       width: 300
       heading: Subject
     - column_id: 4
+      bits: 1
       sort: 4
       width: 185
       heading: From
     - column_id: 5
+      bits: 1
       sort: 5
       width: 85
       heading: Priority
     - column_id: 8
+      bits: 1
       sort: 6
       width: 160
       heading: Assigned To
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+
+
+
+- id: 3
+  title: My Tickets
+  parent_id: 0
+  flags: 0x03
+  root: T
+  sort: 3
+  config: '{"criteria":[["assignee","includes",{"M":"Me","T":"One of my teams"}],["status__state","includes",{"open":"Open"}]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 11
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Department
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+
+- id: 4
+  title: Closed
+  flags: 0x03
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '[["status__state","includes",{"closed":"Closed"}]]'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
 
 - title: Unassigned
   parent_id: 1
   flags: 0x2b
   root: T
-  sort: 2
+  sort: 1
   config: '[["assignee","!assigned",null]]'
   columns:
     - column_id: 1
+      bits: 1
+      sort: 1
       sort: 1
       width: 100
       heading: Ticket
     - column_id: 10
+      bits: 1
+      sort: 1
       sort: 2
       width: 150
       heading: Last Update
     - column_id: 3
+      bits: 1
+      sort: 1
       sort: 3
       width: 300
       heading: Subject
     - column_id: 4
+      bits: 1
+      sort: 1
       sort: 4
       width: 185
       heading: From
     - column_id: 5
+      bits: 1
+      sort: 1
       sort: 5
       width: 85
       heading: Priority
     - column_id: 11
+      bits: 1
+      sort: 1
       sort: 6
       width: 160
       heading: Department
 
-- title: My Tickets
+- title: Assigned
   parent_id: 1
-  flags: 0x2b
+  flags: 0x03
   root: T
-  sort: 4
-  config: '[["assignee","includes",{"M":"Me", "T":"One of my teams"}]]'
+  sort: 2
+  config: '[["assignee","assigned",null]]'
   columns:
     - column_id: 1
+      bits: 1
       sort: 1
       width: 100
       heading: Ticket
     - column_id: 10
+      bits: 1
       sort: 2
       width: 150
       heading: Last Update
     - column_id: 3
+      bits: 1
       sort: 3
       width: 300
       heading: Subject
     - column_id: 4
+      bits: 1
       sort: 4
       width: 185
       heading: From
     - column_id: 5
+      bits: 1
       sort: 5
       width: 85
       heading: Priority
-    - column_id: 11
+    - column_id: 8
+      bits: 1
       sort: 6
       width: 160
-      heading: Department
+      heading: Assigned To
+
+- title: Overdue
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 3
+  sort_id: 4
+  config: '[["isoverdue","set",null]]'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 1
+      sort: 9
+      width: 150
+      heading: Due Date
+    - column_id: 3
+      bits: 1
+      sort: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+- title: Personal Tickets
+  parent_id: 3
+  flags: 0x2b
+  root: T
+  sort: 1
+  config: '{"criteria":[["assignee","includes",{"M":"Me"}]]}'
+
+- title: Teams Tickets
+  parent_id: 3
+  flags: 0x2b
+  root: T
+  sort: 2
+  config: '{"criteria":[["team_id","set",null]],"conditions":[]}'
+  filter: team_id

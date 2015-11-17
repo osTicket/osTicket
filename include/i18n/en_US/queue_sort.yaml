@@ -1,7 +1,7 @@
 # Columns are not necessary and a default list is used if no columns are
 # specified.
 #
-# Fields: 
+# Fields:
 #   id:
 ---
 - id: 1
@@ -19,3 +19,11 @@
 - id: 4
   name: Due Date
   columns: '["-est_duedate"]'
+
+- id: 5
+  name: Closed Date
+  columns: '["-closed"]'
+
+- id: 6
+  name: Create Date
+  columns: '["-created"]'

@@ -914,13 +914,6 @@ class OsticketConfig extends Config {
         return $this->get('auto_claim_tickets');
     }
 
-    // XXX: Drop these!!
-    function showAssignedTickets() {
-        return ($this->get('show_assigned_tickets'));
-    }
-    function showAnsweredTickets() {
-        return ($this->get('show_answered_tickets'));
-    }
     function getDefaultTicketQueueId() {
         return $this->get('default_ticket_queue');
     }

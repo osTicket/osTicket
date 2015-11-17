@@ -3,8 +3,14 @@ $parent_id = $_REQUEST['parent_id'] ?: $search->parent_id;
 if ($parent_id
     && (!($parent = CustomQueue::lookup($parent_id)))
 ) {
-    $parent_id = null;
+    $parent_id = 0;
 }
+
+$queues = array();
+foreach (CustomQueue::queues() as  $q)
+    $queues[$q->id] = $q->getFullName();
+asort($queues);
+$queues = array(0 => ('—'.__("My Searches").'—')) + $queues;
 ?>
 <div id="advanced-search" class="advanced-search">
 <h3 class="drag-handle"><?php echo __('Advanced Ticket Search');?></h3>
@@ -14,27 +20,27 @@ if ($parent_id
 <form action="#tickets/search" method="post" name="search">
 
   <div class="flex row">
-    <div class="span6">
+    <div class="span12">
       <select name="parent_id">
-          <option value="0" <?php
-              if (!$parent_id) echo 'selected="selected"';
-              ?>><?php echo '—'.__("My Searches").'—'; ?></option>
           <?php
-foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
-          <option value="<?php echo $q->id; ?>"
-              <?php if ($parent_id == $q->id) echo 'selected="selected"'; ?>
-              ><?php echo $q->getFullName(); ?></option>
+foreach ($queues as $id => $name) {
+    ?>
+          <option value="<?php echo $id; ?>"
+              <?php if ($parent_id == $id) echo 'selected="selected"'; ?>
+              ><?php echo $name; ?></option>
 <?php       } ?>
       </select>
-    </div><div class="span6">
-      <input name="name" type="text" size="30" 
+    </div>
+   </div>
+   <div class="flex row">
+    <div class="span12">
+      <input name="name" type="text" size="30"
         value="<?php echo Format::htmlchars($search->getName()); ?>"
         placeholder="<?php
         echo __('Enter a title for the search queue'); ?>"/>
       <div class="error"><?php echo Format::htmlchars($errors['name']); ?></div>
     </div>
   </div>
-
 <ul class="tabs">
     <li class="active"><a href="#criteria"><?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><?php echo __('Columns'); ?></a></li>
@@ -61,7 +67,7 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
 </div>
 
 <div class="tab_content hidden" id="columns">
-    <?php 
+    <?php
     $queue = $search;
     include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
 </div>

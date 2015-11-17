@@ -11,7 +11,7 @@
   if (!isset($_SESSION['advsearch']))
       $href = 'href="#" data-dialog="ajax.php/tickets/search"';
 ?>
-  <a <?php echo $href; ?>><i class="icon-sort-down pull-right"></i><?php echo __('Search');
+  <a class="Ticket" <?php echo $href; ?>><i class="icon-sort-down pull-right"></i><?php echo __('Search');
   ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
@@ -25,25 +25,24 @@
       )) as $q) {
         include 'queue-subnavigation.tmpl.php';
       } ?>
-    <?php if (isset($_SESSION['advsearch'])
-        && count($_SESSION['advsearch'])) { ?>
+     <?php
+     if (isset($_SESSION['advsearch'])) { ?>
       <li>
         <h4><?php echo __('Recent Searches'); ?></h4>
-      </li>
-    <?php
+        <?php
           foreach ($_SESSION['advsearch'] as $token=>$criteria) {
               $q = new SavedSearch(array('root' => 'T'));
               $q->id = 'adhoc,'.$token;
               $q->title = $q->describeCriteria($criteria);
 
               include 'queue-subnavigation.tmpl.php';
-          }
-      } ?>
-      <!-- Dropdown Titles -->      
-      
+          } ?>
+      </li>
+     <?php
+     } ?>
     </ul>
     <!-- Add Queue button sticky at the bottom -->
-      
+
      <div class="add-queue">
       <a class="full-width" onclick="javascript:
         $.dialog('ajax.php/tickets/search', 201);">

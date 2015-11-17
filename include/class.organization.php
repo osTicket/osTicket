@@ -350,6 +350,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function getSearchableFields() {
+        $base = array();
         $uform = OrganizationForm::objects()->one();
         $base = array();
         foreach ($uform->getFields() as $F) {

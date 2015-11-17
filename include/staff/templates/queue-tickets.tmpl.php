@@ -104,7 +104,7 @@ $pageNav->setURL('tickets.php', $args);
     <span class="valign-helper"></span>
     <?php
     require 'queue-quickfilter.tmpl.php';
-    if (count($queue->sorts))
+    if ($queue->getSortOptions())
         require 'queue-sort.tmpl.php';
     ?>
   </div>
@@ -233,6 +233,7 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php
 }
+
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
     if ($C->isSortable()) {
