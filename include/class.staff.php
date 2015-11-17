@@ -88,6 +88,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                         'default_from_name' => '',
                         'datetime_format'   => '',
                         'thread_view_order' => '',
+                        'default_ticket_queue_id' => 0,
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -323,6 +324,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->signature;
     }
 
+    function getDefaultTicketQueueId() {
+        return $this->default_ticket_queue_id;
+    }
+
     function getDefaultSignatureType() {
         return $this->default_signature_type;
     }
@@ -525,10 +530,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
     }
 
-    function showAssignedTickets() {
-        return $this->show_assigned_tickets;
-    }
-
     function getTeams() {
 
         if (!isset($this->_teams)) {
@@ -673,9 +674,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->timezone = $vars['timezone'];
         $this->locale = $vars['locale'];
-        if (!$cfg->showAssignedTickets())
-            // Allow local unsetting if unset globally
-            $this->show_assigned_tickets = isset($vars['show_assigned_tickets']) ? 1 : 0;
         $this->max_page_size = $vars['max_page_size'];
         $this->auto_refresh_rate = $vars['auto_refresh_rate'];
         $this->default_signature_type = $vars['default_signature_type'];
@@ -698,6 +696,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
                     'thread_view_order' => $vars['thread_view_order'],
+                    'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
                     )
                 );
         $this->_config = $_config->getInfo();

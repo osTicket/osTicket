@@ -11,7 +11,10 @@ elseif (strpos($_GET['sort'], 'qs-') === 0) {
     $sort_id = substr($_GET['sort'], 3);
     $queuesort = QueueSort::lookup($sort_id);
     $sort_dir = $_GET['dir'];
+} elseif ($queuesort = $queue->getDefaultSort()) {
+    $sort_id = $queuesort->id;
 }
+
 ?>
 
 <span class="action-button muted" data-dropdown="#sort-dropdown"

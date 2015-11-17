@@ -372,8 +372,8 @@ a time {
     text-decoration: none;
 }
 
-#sub_nav a.active, #sub_nav li.active > a,
-#customQ_nav .jb-overflowmenu-menu li.active.item > a {
+#sub_nav a.active, #sub_nav li.active > a, #sub_nav li.child.active > a
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
     font-weight:bold;
 }
 
@@ -904,8 +904,8 @@ a time {
 /**********************End Custom Queues Dropdown******************/
 
 /*************Qeueue Title Config dropdown options****************/
-.configureQ { 
-    display:block; 
+.configureQ {
+    display:block;
     float:left;
     color:rgba(0,0,0,.2);
     margin:4px 0 0 4px;
@@ -922,7 +922,7 @@ a time {
 }
 .configureQ:hover > .noclick-dropdown {
     display:block;
-    
+
 }
 .configureQ > .noclick-dropdown:before {
     top: 19px;

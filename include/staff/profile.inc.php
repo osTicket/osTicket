@@ -132,13 +132,6 @@ if ($avatar->isChangeable()) { ?>
         <tr>
           <td colspan="2">
             <label class="checkbox">
-            <input type="checkbox" name="show_assigned_tickets"
-              <?php echo $cfg->showAssignedTickets() ? 'disabled="disabled" ' : ''; ?>
-              <?php echo $staff->show_assigned_tickets ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Show assigned tickets on open queue.'); ?>
-            <i class="help-tip icon-question-sign" href="#show_assigned_tickets"></i>
-            </label>
-            <label class="checkbox">
             <input type="checkbox" name="onvacation"
               <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
               <?php echo __('Vacation Mode'); ?>
@@ -223,6 +216,30 @@ if ($avatar->isChangeable()) { ?>
                 <div class="error"><?php echo $errors['default_from_name']; ?></div>
             </td>
         </tr>
+        <tr>
+            <td>
+                <?php echo __('Default Ticket Queue'); ?>:
+            </td>
+            <td>
+                <select name="default_ticket_queue_id">
+                 <option value="0">&mdash; <?php echo __('system default');?> &mdash;</option>
+                 <?php
+                 $queues = CustomQueue::queues()
+                    ->filter(Q::any(array(
+                        'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                        'staff_id' => $thisstaff->getId(),
+                    )))
+                    ->all();
+                 foreach ($queues as $q) { ?>
+                  <option value="<?php echo $q->id; ?>" <?php
+                    if ($q->getId() == $staff->default_ticket_queue_id) echo 'selected="selected"'; ?> >
+                   <?php echo $q->getFullName(); ?></option>
+                 <?php
+                 } ?>
+                </select>
+            </td>
+        </tr>
+
         <tr>
             <td><?php echo __('Thread View Order');?>:
               <div class="faded"><?php echo __('The order of thread entries');?></div>

@@ -46,7 +46,7 @@
     <tbody class="sortable-rows" data-sort="qsort">
 <?php
 $all_queues = CustomQueue::queues()->getIterator();
-$emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) { 
+$emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) {
     $queues->sort(function($a) { return $a->sort; });
     foreach ($queues as $q) { ?>
       <tr>
@@ -54,7 +54,7 @@ $emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) {
         <td colspan="<?php echo max(1, $level); ?>"></td>
 <?php } ?>
         <td>
-          <input type="checkbox" class="mass checkbox" value="<?php echo $q->id; ?>" />
+          <input type="checkbox" class="mass checkbox"  name="qids[]" value="<?php echo $q->id; ?>" />
           <input type="hidden" name="qsort[<?php echo $q->id; ?>]"
             value="<?php echo $q->sort; ?>"/>
         </td>

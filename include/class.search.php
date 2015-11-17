@@ -680,7 +680,7 @@ class SavedSearch extends CustomQueue {
 class AdhocSearch
 extends SavedSearch {
     function getName() {
-        return $this->describeCriteria();
+        return $this->title ?: $this->describeCriteria();
     }
 }
 

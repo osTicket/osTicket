@@ -2920,8 +2920,6 @@ implements RestrictedAccess, Threadable, Searchable {
             ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
 
         $stats = array();
-        $hideassigned = ($cfg && !$cfg->showAssignedTickets()) && !$staff->showAssignedTickets();
-        $showanswered = $cfg->showAnsweredTickets();
         $id = $staff->getId();
         foreach ($blocks as $S) {
             if ($showanswered || !$S['isanswered']) {

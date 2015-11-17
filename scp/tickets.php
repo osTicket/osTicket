@@ -103,6 +103,7 @@ if (!$ticket) {
         $queue = new AdhocSearch(array(
             'id' => "adhoc,$key",
             'root' => 'T',
+            'title' => __('Advanced Search'),
         ));
         $queue->config = $_SESSION['advsearch'][$key];
     }
@@ -447,8 +448,11 @@ as $q) {
         // A queue is selected if it is the one being displayed. It is
         // "child" selected if its ID is in the path of the one selected
         $child_selected = $queue
-            && false !== strpos($queue->getPath(), "/{$q->getId()}/");
+            && ($queue->parent_id == $q->getId()
+                || false !== strpos($queue->getPath(), "/{$q->getId()}/"));
         include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
+
+        return ($child_selected || $selected);
     });
 }
 
@@ -461,6 +465,8 @@ $nav->addSubMenu(function() use ($queue) {
     $searches = SavedSearch::forStaff($thisstaff)->getIterator();
 
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
+
+    return ($child_selected || $selected);
 });
 
 
