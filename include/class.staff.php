@@ -755,13 +755,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $row ? $row[0] : 0;
     }
 	
-	    static function getFirstNameById($id) {
+	static function getUsernameById($id) {
+        $row = static::objects()->filter(array('staff_id' => $id))
+            ->values_flat('username')->first();
+        return $row ? $row[0] : 0;
+    }
+	static function getFirstNameById($id) {
         $row = static::objects()->filter(array('staff_id' => $id))
             ->values_flat('firstname')->first();
         return $row ? $row[0] : 0;
     }
 	
-		static function getLastNameById($id) {
+	static function getLastNameById($id) {
         $row = static::objects()->filter(array('staff_id' => $id))
             ->values_flat('lastname')->first();
         return $row ? $row[0] : 0;

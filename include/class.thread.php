@@ -303,7 +303,7 @@ class Thread extends VerySimpleModel {
             'mid' =>    $mailinfo['mid'],
             'header' => $mailinfo['header'],
             'poster' => $mailinfo['name'],
-			'staffid' =>  staff::getIdByEmail($mailinfo['email']),
+			'staffId' =>  staff::getIdByEmail($mailinfo['email']),
 			'userid' => useremail::getIdByEmail($mailinfo['email']),
 			'subject' => $mailinfo['subject'],
             'origin' => 'Email',
@@ -313,20 +313,10 @@ class Thread extends VerySimpleModel {
             'recipients' => $mailinfo['recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
 			'emailcollab' => '1',
+			'uid'=> '',
 			);
 
-		//If this is a staff member and no one is assigned, do the assignment
-		if ($vars['staffid']){
-			$object instanceof Ticket;
-			if(0 == $object->getStaffId()) {
-			//	$object->setStaffId($vars['staffid']);
-				$object->assignToStaff($vars['staffid'],'Assigned via email reponse',$alert=true);
-				$vars['thread-type'] = 'R';
-			}
-			
-		}
-		//Who is the ticket assigned to?
-		$assignToStaffId = $object->getStaffId();
+
         // XXX: Is this necessary?
         if ($object instanceof Ticket)
             $vars['ticketId'] = $object->getId();
@@ -340,10 +330,15 @@ class Thread extends VerySimpleModel {
 
         $body = $mailinfo['message'];
 		
-		//#close #note #assign:username
-		
+		// Email commands #claim #close #note #assign:username
 		if($vars['subject'] && preg_match ('/#close/i', $vars['subject'])) {
-          
+			$status = 'closed';
+			$comments = "Closed by {$staffname} via email.";
+			$object instanceof Ticket;
+			$object->setStatus($status,$comments);
+			$vars['uid'] = $vars['staffId'];
+			$vars['reply_status_id'] = 3;
+			$vars['thread-type'] = 'R';
 		}
 		 
 		//Assignment based on email command #assign 
@@ -353,66 +348,89 @@ class Thread extends VerySimpleModel {
 			$assignee =  strtok($match['1'],' ');
 			$stafftoassign = staff::getIdByUsername($assignee);
 			$staffname = staff::getFirstNameById($stafftoassign);
-		
+					
 			//Check to make sure the assigneee is a staff member
 			if ($stafftoassign !== 0){
+				$vars['thread-type'] = 'N';
 				$object instanceof Ticket;
 				$object->assignToStaff($stafftoassign,"Assigned to {$staffname} via email.",$alert=true);
 			}
          }
-
+		
+		//Assignment based on email command #claim  (todo change to just a log and not a note)
+		if($vars['subject'] && preg_match ('/#claim/i', $vars['subject'])) {
+			$vars['thread-type'] = 'N';
+			$stafftoassign = $vars['staffId'];
+			$staffname = staff::getFirstNameById($stafftoassign);
+			//Check to make sure the assigneee is a staff member
+			if ($stafftoassign !== 0){
+				$object instanceof Ticket;
+				$object->assignToStaff($stafftoassign,"Claimed by {$staffname} via email.",$alert=true);
+				
+			}
+		}
+		
+		//If this is a staff member and no one is assigned, do the assignment as this is a reply to the end user.
+		if ($vars['staffId'] && $vars['thread-type'] !== 'N'){
+			$object instanceof Ticket;
+			if(0 == $object->getStaffId()) {
+			//	$object->setStaffId($vars['staffId']);
+				$object->assignToStaff($vars['staffId'],'Assigned via email reponse',$alert=true);
+				$vars['thread-type'] = 'R';
+			}
+			
+		}
+		
 		//Post an internal note to the ticket
 		if($vars['subject'] && preg_match ('/#note/i', $vars['subject'])) {
            
 			$vars['thread-type'] = 'N';
-		 
-         }
-		 
-    		
-		     // Disambiguate if the user happens also to be a staff member of
-            // the system. The current ticket owner should _always_ post
-            // messages instead of notes or responses
-            if ($object instanceof Ticket
-                && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
-            ) {
-                $vars['thread-type'] = 'M';
-                $vars['userId'] = $object->getUserId();
-            }
+		}
+		     		
+		 // Disambiguate if the user happens also to be a staff member of
+         // the system. The current ticket owner should _always_ post
+         // messages instead of notes or responses
+        if ($object instanceof Ticket
+            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
+        ) {
+            $vars['thread-type'] = 'M';
+            $vars['userId'] = $object->getUserId();
+        }
+		
+		//Who is the ticket assigned to?
+	
+		$assignToStaffId = $object->getStaffId();
+		if ($assignToStaffId == $vars['staffId'] && $vars['thread-type'] !== 'N'){
+			// global $thisstaff;
+			//$thisstaff = $vars['staffId'];
+		$vars['thread-type'] = 'R';
+		}
+		elseif ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0){
+			
+			$vars['thread-type'] = 'N';
+            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+			$info['threadId'] = $vars['ticketId'];
+			$info['userId'] = $vars['userid'];
+			//add as a collaborator
+			Collaborator::add($info, $errors);			
 
-			if ($assignToStaffId == $vars['staffid'] && $vars['thread-type'] !== 'N'){
-				// global $thisstaff;
-				//$thisstaff = $vars['staffid'];
-			$vars['thread-type'] = 'R';
-			}
-			elseif ($assignToStaffId !== $vars['staffid']  && $vars['staffid'] !== 0){
-				
-			   $vars['thread-type'] = 'N';
-                
-             
-                $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
-				$info['threadId'] = $vars['ticketId'];
-				$info['userId'] = $vars['userid'];
-				//add as a collaborator
-				Collaborator::add($info, $errors);			
-
-			}
-            // Consider collaborator role (disambiguate staff members as
-            // collaborators). Normally, the block above should match based
-            // on the Referenced message-id header
-            elseif ($C = $this->collaborators->filter(array(
-                'user__emails__address' => $mailinfo['email']
-            ))->first()) {
-                $vars['thread-type'] = 'M';
-                // XXX: There's no way that mailinfo[userId] would be set
-                $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
-                $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
-            }
-            // Don't process the email -- it came FROM this system
-            elseif (Email::getIdByEmail($mailinfo['email'])) {
-                return false;
-            }
+		}
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators). Normally, the block above should match based
+        // on the Referenced message-id header
+        elseif ($C = $this->collaborators->filter(array(
+            'user__emails__address' => $mailinfo['email']
+        ))->first()) {
+            $vars['thread-type'] = 'M';
+            // XXX: There's no way that mailinfo[userId] would be set
+            $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
+            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+        }
+        // Don't process the email -- it came FROM this system
+        elseif (Email::getIdByEmail($mailinfo['email'])) {
+            return false;
+        }
         
-
         // Ensure we record the name of the person posting
         $vars['poster'] = $vars['poster']
             ?: $mailinfo['name'] ?: $mailinfo['email'];
@@ -431,10 +449,8 @@ class Thread extends VerySimpleModel {
             // Add the banner to the top of the message
             if ($body instanceof ThreadEntryBody)
                 $body->prepend($header);
-			
-
-            $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
-            $vars['thread-type'] = 'M';
+				$vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
+				$vars['thread-type'] = 'M';
         }
 	
         switch ($vars['thread-type']) {
@@ -1400,7 +1416,7 @@ implements TemplateVariable {
             'thread_id' => $vars['threadId'],
             'title' => Format::sanitize($vars['title'], true),
             'format' => $vars['body']->getType(),
-            'staff_id' => $vars['staffid'],
+            'staff_id' => $vars['staffId'],
             'user_id' => $vars['userId'],
             'poster' => $poster,
             'source' => $vars['source'],
@@ -1799,7 +1815,7 @@ class ThreadEvents extends InstrumentedList {
         if ($annul) {
             $this->annul($annul);
         }
-
+	
         $username = $user;
         $user = is_object($user) ? $user : $thisclient ?: $thisstaff;
         if (!is_string($username)) {
@@ -1814,13 +1830,25 @@ class ThreadEvents extends InstrumentedList {
                     $username = $thisclient->getEmail();
             }
             else {
-                # XXX: Security Violation ?
-                $username = 'SYSTEM';
-            }
-        }
+                
+				
+				//closed via email we need to capture the staffid from the ticket
+				if ($state == 'closed' && !$user){
+					$object instanceof Ticket;
+					$staffid = $object->getStaffId();
+					$event->uid = $staffid;	
+				    $username = staff::getUsernameById($staffid);
+				}
+				else
+				{	# XXX: Security Violation ?
+					$username = 'SYSTEM';
+				}
+			}
+		}
+
         $event->username = $username;
         $event->state = $state;
-
+		
         if ($data) {
             if (is_array($data))
                 $data = JsonDataEncoder::encode($data);

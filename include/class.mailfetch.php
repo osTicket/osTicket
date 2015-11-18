@@ -683,7 +683,7 @@ class MailFetcher {
         $vars['name'] = $mailinfo['name'];
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
-		$vars['staffid'] = staff::getIdByEmail($mailinfo['email']);
+		$vars['staffId'] = staff::getIdByEmail($mailinfo['email']);
 		$vars['userid'] = useremail::getIdByEmail($mailinfo['email']);
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
         $vars['mailflags'] = new ArrayObject();
