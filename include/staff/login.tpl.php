@@ -3,9 +3,7 @@ include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 <div id="brickwall"></div>
-<div id="background-compat"></div>
 <div id="loginBox">
-    <div class="tape"></div>
     <div id="blur">
         <div id="background"></div>
     </div>
@@ -60,7 +58,6 @@ if (count($ext_bks)) { ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (undefined === window.getComputedStyle(document.documentElement).backgroundBlendMode) {
-            document.getElementById('background-compat').style.display = 'block';
             document.getElementById('loginBox').style.backgroundColor = 'white';
         }
     });

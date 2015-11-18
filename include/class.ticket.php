@@ -881,6 +881,7 @@ implements RestrictedAccess, Threadable {
                 break;
             case 'teams':
                 if (($teams = Team::getActiveTeams()))
+
                     foreach ($teams as $id => $name)
                         $assignees['t'.$id] = $name;
 
