@@ -29,12 +29,15 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-    function Config($section=null) {
+    function Config($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
 
         if ($this->section === null)
             return false;
+
+        if ($defaults)
+            $this->defaults = $defaults;
 
         if (isset($_SESSION['cfg:'.$this->section]))
             $this->session = &$_SESSION['cfg:'.$this->section];
@@ -159,6 +162,7 @@ class OsticketConfig extends Config {
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
         'enable_richtext' =>    true,
+        'enable_avatars' =>     true,
         'allow_attachments' =>  true,
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
@@ -375,6 +379,10 @@ class OsticketConfig extends Config {
 
     function isRichTextEnabled() {
         return $this->get('enable_richtext');
+    }
+
+    function isAvatarsEnabled() {
+        return $this->get('enable_avatars');
     }
 
     function getClientTimeout() {
@@ -1109,6 +1117,7 @@ class OsticketConfig extends Config {
             'secondary_langs'=>$secondary_langs,
             'max_file_size' => $vars['max_file_size'],
             'autolock_minutes' => $vars['autolock_minutes'],
+            'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
         ));
     }
@@ -1136,6 +1145,7 @@ class OsticketConfig extends Config {
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
             'agent_name_format'=>$vars['agent_name_format'],
+            'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
         ));
     }
@@ -1207,7 +1217,6 @@ class OsticketConfig extends Config {
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
-            'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
         ));

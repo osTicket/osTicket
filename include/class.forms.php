@@ -1995,6 +1995,13 @@ class ThreadEntryField extends FormField {
         return $media;
     }
 
+    function getConfiguration() {
+        global $cfg;
+        $config = parent::getConfiguration();
+        $config['html'] = (bool) $cfg->isRichTextEnabled();
+        return $config;
+    }
+
     function getConfigurationOptions() {
         global $cfg;
 
@@ -2233,10 +2240,14 @@ class AssigneeField extends ChoiceField {
         return true;
     }
 
+    function setChoices($choices) {
+        $this->_choices = $choices;
+    }
+
     function getChoices() {
         global $cfg;
 
-        if (!$this->_choices) {
+        if (!isset($this->_choices)) {
             $config = $this->getConfiguration();
             $choices = array(
                     __('Agents') => new ArrayObject(),
@@ -2257,7 +2268,7 @@ class AssigneeField extends ChoiceField {
 
             next($choices);
             $T = current($choices);
-            if (($teams = Team::getTeams()))
+            if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
 
@@ -3112,6 +3123,21 @@ class TextareaWidget extends Widget {
         </span>
         <?php
     }
+
+    function parseValue() {
+        parent::parseValue();
+        if (isset($this->value)) {
+            $value = $this->value;
+            $config = $this->field->getConfiguration();
+            // Trim empty spaces based on text input type.
+            // Preserve original input if not empty.
+            if ($config['html'])
+                $this->value = trim($value, " <>br/\t\n\r") ? $value : '';
+            else
+                $this->value = trim($value) ? $value : '';
+        }
+    }
+
 }
 
 class PhoneNumberWidget extends Widget {
@@ -3239,7 +3265,9 @@ class ChoicesWidget extends Widget {
     }
 
     function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
-        foreach ($choices as $label => $group) { ?>
+        foreach ($choices as $label => $group) {
+            if (!count($group)) continue;
+            ?>
             <optgroup label="<?php echo $label; ?>"><?php
             foreach ($group as $key => $name) {
                 if (!$have_def && $key == $def_key)
@@ -3533,8 +3561,8 @@ class SectionBreakWidget extends Widget {
 
 class ThreadEntryWidget extends Widget {
     function render($options=array()) {
-        global $cfg;
 
+        $config = $this->field->getConfiguration();
         $object_id = false;
         if ($options['client']) {
             $namespace = $options['draft-namespace']
@@ -3548,12 +3576,11 @@ class ThreadEntryWidget extends Widget {
         ?>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
-            class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
+            class="<?php if ($config['html']) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
             Format::htmlchars($this->value) ?: $draft; ?></textarea>
     <?php
-        $config = $this->field->getConfiguration();
         if (!$config['attachments'])
             return;
 
@@ -3577,6 +3604,21 @@ class ThreadEntryWidget extends Widget {
         $field->setForm($this->field->getForm());
         return $field;
     }
+
+    function parseValue() {
+        parent::parseValue();
+        if (isset($this->value)) {
+            $value = $this->value;
+            $config = $this->field->getConfiguration();
+            // Trim spaces based on text input type.
+            // Preserve original input if not empty.
+            if ($config['html'])
+                $this->value = trim($value, " <>br/\t\n\r") ? $value : '';
+            else
+                $this->value = trim($value) ? $value : '';
+        }
+    }
+
 }
 
 class FileUploadWidget extends Widget {
@@ -3674,6 +3716,10 @@ class FileUploadWidget extends Widget {
         // New files uploaded in this session are allowed
         if (isset($_SESSION[':uploadedFiles']))
             $allowed += $_SESSION[':uploadedFiles'];
+
+        // Canned attachments initiated by this session
+        if (isset($_SESSION[':cannedFiles']))
+           $allowed += $_SESSION[':cannedFiles'];
 
         // Parse the files and make sure it's allowed.
         foreach ($files as $info) {
@@ -3810,6 +3856,10 @@ class VisibilityConstraint {
     }
 
     function emitJavascript($field) {
+
+        if (!$this->constraint->constraints)
+            return;
+
         $func = 'recheck';
         $form = $field->getForm();
 ?>
@@ -3851,6 +3901,12 @@ class VisibilityConstraint {
      * Determines if the field was visible when the form was submitted
      */
     function isVisible($field) {
+
+        // Assume initial visibility if constraint is not provided.
+        if (!$this->constraint->constraints)
+            return $this->initial == self::VISIBLE;
+
+
         return $this->compileQPhp($this->constraint, $field);
     }
 
@@ -3942,14 +3998,8 @@ class AssignmentForm extends Form {
 
     static $id = 'assign';
     var $_assignee = null;
-    var $_dept = null;
+    var $_assignees = null;
 
-    function __construct($source=null, $options=array()) {
-        parent::__construct($source, $options);
-        // Department of the object -- if necessary to limit assinees
-        if (isset($options['dept']))
-            $this->_dept = $options['dept'];
-    }
 
     function getFields() {
 
@@ -3967,7 +4017,6 @@ class AssignmentForm extends Form {
                         'criteria' => array(
                             'available' => true,
                             ),
-                        'dept' => $this->_dept ?: null,
                        ),
                     )
                 ),
@@ -3985,26 +4034,41 @@ class AssignmentForm extends Form {
                 ),
             );
 
+
+        if (isset($this->_assignees))
+            $fields['assignee']->setChoices($this->_assignees);
+
+
         $this->setFields($fields);
 
         return $this->fields;
     }
 
+    function getField($name) {
+
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
     function isValid() {
 
-        if (!parent::isValid())
+        if (!parent::isValid() || !($f=$this->getField('assignee')))
             return false;
 
         // Do additional assignment validation
         if (!($assignee = $this->getAssignee())) {
-            $this->getField('assignee')->addError(
-                    __('Unknown assignee'));
+            $f->addError(__('Unknown assignee'));
         } elseif ($assignee instanceof Staff) {
             // Make sure the agent is available
             if (!$assignee->isAvailable())
-                $this->getField('assignee')->addError(
-                        __('Agent is unavailable for assignment')
-                        );
+                $f->addError(__('Agent is unavailable for assignment'));
+        } elseif ($assignee instanceof Team) {
+            // Make sure the team is active and has members
+            if (!$assignee->isActive())
+                $f->addError(__('Team is disabled'));
+            elseif (!$assignee->getNumMembers())
+                $f->addError(__('Team does not have members'));
         }
 
         return !$this->errors();
@@ -4025,6 +4089,15 @@ class AssignmentForm extends Form {
         include $inc;
     }
 
+    function setAssignees($assignees) {
+        $this->_assignees = $assignees;
+        $this->_fields = array();
+    }
+
+    function getAssignees() {
+        return $this->_assignees;
+    }
+
     function getAssignee() {
 
         if (!isset($this->_assignee))
@@ -4033,11 +4106,45 @@ class AssignmentForm extends Form {
         return $this->_assignee;
     }
 
-    function assigneeCriteria() {
-        $dept = $this->id;
-        return function () use($dept) {
-            return array('dept_id' =>$dept);
-        };
+    function getComments() {
+        return $this->getField('comments')->getClean();
+    }
+}
+
+class ClaimForm extends AssignmentForm {
+
+    var $_fields;
+
+    function setFields($fields) {
+        $this->_fields = $fields;
+        parent::setFields($fields);
+    }
+
+    function getFields() {
+
+        if ($this->_fields)
+            return $this->_fields;
+
+        $fields = parent::getFields();
+
+        // Disable && hide assignee field selection
+        if (isset($fields['assignee'])) {
+            $visibility = new VisibilityConstraint(
+                    new Q(array()), VisibilityConstraint::HIDDEN);
+
+            $fields['assignee']->set('visibility', $visibility);
+        }
+
+        // Change coments placeholder to reflect claim
+        if (isset($fields['comments'])) {
+            $fields['comments']->configure('placeholder',
+                    __('Optional reason for the claim'));
+        }
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
     }
 
 }

@@ -21,6 +21,12 @@ agent_name_format:
         Choose a format for Agents names throughout the system. Email templates
         will use it for names if no other format is specified.
 
+staff_identity_masking:
+    title: Staff Identity Masking
+    content: >
+        If enabled, this will hide the Agent’s name from the Client during any
+        communication.
+
 # Authentication settings
 password_reset:
     title: Password Expiration Policy

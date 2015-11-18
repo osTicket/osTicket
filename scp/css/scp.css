@@ -74,7 +74,7 @@ div#header a {
 time[title]:hover {
     text-decoration: underline;
 }
-a time.relative {
+a time {
     color: initial;
 }
 
@@ -904,6 +904,12 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
+/***** top page ticket response buttons *****/
+a#post-note:hover {
+    background-color:#fff9e2;
+    color:#555!IMPORTANT;
+}
+
 .thread-entry {
     margin-bottom: 15px;
     z-index: 0;
@@ -995,9 +1001,10 @@ img.avatar {
     border-left: none;
     border-right: 8px solid #CCC;
 }
-.thread-entry.note:not(.avatar) .header {
+.thread-entry.system .header {
     background-color: #f4f4f4;
 }
+
 .thread-entry.avatar.response .header:before {
     border-right-color: #ccb3af;
 }

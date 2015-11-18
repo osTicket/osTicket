@@ -586,21 +586,6 @@ return false;">
 </div>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tickets');
-    $(document).on('click.tickets', 'a.tickets-action', function(e) {
-        e.preventDefault();
-        var count = checkbox_checker($('form#tickets'), 1);
-        if (count) {
-            var url = 'ajax.php/'
-            +$(this).attr('href').substr(1)
-            +'?count='+count
-            +'&_uid='+new Date().getTime();
-            $.dialog(url, [201], function (xhr) {
-                $.pjax({url: 'tickets.php', container: '#pjax-container'});
-             });
-        }
-        return false;
-    });
     $('[data-toggle=tooltip]').tooltip();
 });
 </script>

@@ -36,6 +36,14 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                         </td>
                     </tr>
                     <tr>
+                        <td><?php echo __('Agent Identity Masking'); ?>:</td>
+                        <td>
+                            <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
+                            <?php echo __("Hide agent's name on responses."); ?>
+                            <i class="help-tip icon-question-sign" href="#staff_identity_masking"></i>
+                        </td>
+                    </tr>
+                    <tr>
                         <td width="180"><?php echo __('Avatar Source'); ?>:</td>
                         <td>
                             <select name="agent_avatar">
