@@ -1,12 +1,21 @@
 <?php
+global $thisstaff, $cfg;
+$timeFormat = null;
+if ($thisstaff && !strcasecmp($thisstaff->datetime_format, 'relative')) {
+    $timeFormat = function($datetime) {
+        return Format::relativeTime(Misc::db2gmtime($datetime));
+    };
+}
+
 $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
-if ($user)
+if ($user && $cfg->isAvatarsEnabled())
     $avatar = $user->getAvatar();
 ?>
-<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<div class="thread-entry <?php
+    echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M') ? 'pull-right' : 'pull-left'; ?> avatar">
 <?php echo $avatar; ?>
@@ -65,14 +74,16 @@ if ($user)
         </div>
 <?php
         echo sprintf(__('<b>%s</b> posted %s'), $name,
-            sprintf('<a name="entry-%d" href="#entry-%1$s"><time class="relative" datetime="%s" title="%s">%s</time></a>',
+            sprintf('<a name="entry-%d" href="#entry-%1$s"><time %s
+                datetime="%s" data-toggle="tooltip" title="%s">%s</time></a>',
                 $entry->id,
+                $timeFormat ? 'class="relative"' : '',
                 date(DateTime::W3C, Misc::db2gmtime($entry->created)),
                 Format::daydatetime($entry->created),
-                Format::relativeTime(Misc::db2gmtime($entry->created))
+                $timeFormat ? $timeFormat($entry->created) : Format::datetime($entry->created)
             )
         ); ?>
-        <span style="max-width:500px" class="faded title truncate"><?php
+        <span style="max-width:400px" class="faded title truncate"><?php
             echo $entry->title; ?></span>
         </span>
     </div>

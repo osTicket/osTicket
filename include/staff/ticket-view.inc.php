@@ -97,18 +97,25 @@ if($ticket->isOverdue())
             <?php
             // Assign
             if ($ticket->isOpen() && $role->hasPerm(TicketModel::PERM_ASSIGN)) {?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
+            <span class="action-button pull-right"
+                data-dropdown="#action-dropdown-assign"
+                data-placement="bottom"
+                data-toggle="tooltip"
+                title=" <?php echo $ticket->isAssigned() ? __('Assign') : __('Reassign'); ?>"
+                >
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
-                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i> <?php
-                    echo $ticket->isAssigned() ? __('Reassign') :  __('Assign'); ?></a>
+                    href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
                 <?php
                 // Agent can claim team assigned ticket
-                if (!$ticket->getStaff()) { ?>
+                if (!$ticket->getStaff()
+                        && (!$dept->assignMembersOnly()
+                            || $dept->isMember($thisstaff))
+                        ) { ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
@@ -343,7 +350,7 @@ if($ticket->isOverdue())
                     <td><?php
                         echo Format::htmlchars($ticket->getSource());
 
-                        if($ticket->getIP())
+                        if (!strcasecmp($ticket->getSource(), 'Web') && $ticket->getIP())
                             echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
                         ?>
                     </td>
@@ -490,8 +497,10 @@ $tcount = $ticket->getThreadEntries($types)->count();
     $ticket->getThread()->render(
             array('M', 'R', 'N'),
             array(
-                'html-id' => 'ticketThread',
-                'mode' => Thread::MODE_STAFF)
+                'html-id'   => 'ticketThread',
+                'mode'      => Thread::MODE_STAFF,
+                'sort'      => $thisstaff->thread_view_order
+                )
             );
 ?>
 <div class="clear"></div>

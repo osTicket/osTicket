@@ -66,10 +66,14 @@ class Mailer {
         $this->ht['from'] = $from;
     }
 
-    function getFromAddress() {
+    function getFromAddress($options=array()) {
 
-        if(!$this->ht['from'] && ($email=$this->getEmail()))
-            $this->ht['from'] =sprintf('"%s" <%s>', ($email->getName()?$email->getName():$email->getEmail()), $email->getEmail());
+        if (!$this->ht['from'] && ($email=$this->getEmail())) {
+            if (($name = $options['from_name'] ?: $email->getName()))
+                $this->ht['from'] =sprintf('"%s" <%s>', $name, $email->getEmail());
+            else
+                $this->ht['from'] =sprintf('<%s>', $email->getEmail());
+        }
 
         return $this->ht['from'];
     }
@@ -318,7 +322,7 @@ class Mailer {
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
 
         $headers = array (
-            'From' => $this->getFromAddress(),
+            'From' => $this->getFromAddress($options),
             'To' => $to,
             'Subject' => $subject,
             'Date'=> date('D, d M Y H:i:s O'),

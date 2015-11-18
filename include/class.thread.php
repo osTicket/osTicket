@@ -242,6 +242,9 @@ class Thread extends VerySimpleModel {
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
 
+        if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
+            $entries->order_by('-id');
+
         // Precache all the attachments on this thread
         AttachmentFile::objects()->filter(array(
             'attachments__thread_entry__thread__id' => $this->id
@@ -659,6 +662,7 @@ implements TemplateVariable {
 
     const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
     const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
+    const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -942,6 +946,10 @@ implements TemplateVariable {
     }
     function setFlag($flag) {
         return $this->set('flags', $this->get('flags') | $flag);
+    }
+
+    function isSystem() {
+        return $this->hasFlag(self::FLAG_SYSTEM);
     }
 
     //Web uploads - caller is expected to format, validate and set any errors.
@@ -1427,6 +1435,10 @@ implements TemplateVariable {
             // The current codebase properly balances html
             $entry->flags |= self::FLAG_BALANCED;
 
+        // Flag system messages
+        if (!($vars['staffId'] || $vars['userId']))
+            $entry->flags |= self::FLAG_SYSTEM;
+
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
             // inline attachments are saved and updated in the database)
@@ -1668,14 +1680,18 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function template($description) {
+        global $thisstaff, $cfg;
+
         $self = $this;
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self) {
+            function ($m) use ($self, $thisstaff, $cfg) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
                     if ($S = $self->staff) {
-                        $avatar = $S->getAvatar();
+                        $avatar = '';
+                        if ($cfg->isAvatarsEnabled())
+                            $avatar = $S->getAvatar();
                         $assignees[] =
                             $avatar.$S->getName();
                     }
@@ -1685,18 +1701,32 @@ class ThreadEvent extends VerySimpleModel {
                     return implode('/', $assignees);
                 case 'somebody':
                     $name = $self->getUserName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
-                    return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                    $timeFormat = null;
+                    if ($thisstaff
+                            && !strcasecmp($thisstaff->datetime_format,
+                                'relative')) {
+                        $timeFormat = function ($timestamp) {
+                            return Format::relativeTime(Misc::db2gmtime($timestamp));
+                        };
+                    }
+
+                    return sprintf('<time %s datetime="%s"
+                            data-toggle="tooltip" title="%s">%s</time>',
+                        $timeFormat ? 'class="relative"' : '',
                         date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
                         Format::daydatetime($self->timestamp),
-                        Format::relativeTime(Misc::db2gmtime($self->timestamp))
+                        $timeFormat ? $timeFormat($self->timestamp) :
+                        Format::datetime($self->timestamp)
                     );
                 case 'agent':
                     $name = $self->agent->getName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'dept':
@@ -2214,6 +2244,22 @@ class ThreadEntryBody /* extends SplString */ {
             return new ThreadEntryBody($text);
         }
     }
+
+    static function clean($text, $format=null) {
+        global $cfg;
+
+        if (!$format && $cfg)
+            $format = $cfg->isRichTextEnabled() ? 'html' : 'text';
+
+        switch ($format) {
+        case 'html':
+            return trim($text, " <>br/\t\n\r") ? $text : '';
+        case 'text':
+            return trim($text) ? $text : '';
+        default:
+            return $text;
+        }
+    }
 }
 
 class TextThreadEntryBody extends ThreadEntryBody {
@@ -2222,7 +2268,8 @@ class TextThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return Format::stripEmptyLines($this->body);
+        return  Format::stripEmptyLines(
+                self::clean($this->body, $this->format));
     }
 
     function prepend($what) {
@@ -2269,7 +2316,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
+        return Format::sanitize(self::clean($this->body, $this->format));
     }
 
     function getSearchable() {
@@ -2668,10 +2715,6 @@ abstract class ThreadEntryAction {
     }
 
     abstract function trigger();
-
-    function getTicket() {
-        return $this->entry->getObject();
-    }
 
     function isEnabled() {
         return $this->isVisible();

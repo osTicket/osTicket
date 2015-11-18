@@ -311,7 +311,8 @@ if (!$ticket) { ?>
      $task->getThread()->render(array('M', 'R', 'N'),
              array(
                  'mode' => Thread::MODE_STAFF,
-                 'container' => 'taskThread'
+                 'container' => 'taskThread',
+                 'sort' => $thisstaff->thread_view_order
                  )
              );
      ?>
