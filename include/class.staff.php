@@ -801,13 +801,29 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ->values_flat('staff_id')->first();
         return $row ? $row[0] : 0;
     }
-
-    static function getIdByEmail($email) {
-        $row = static::objects()->filter(array('email' => $email))
-            ->values_flat('staff_id')->first();
+	
+	static function getUsernameById($id) {
+        $row = static::objects()->filter(array('staff_id' => $id))
+            ->values_flat('username')->first();
+        return $row ? $row[0] : 0;
+    }
+	static function getFirstNameById($id) {
+        $row = static::objects()->filter(array('staff_id' => $id))
+            ->values_flat('firstname')->first();
+        return $row ? $row[0] : 0;
+    }
+	
+	static function getLastNameById($id) {
+        $row = static::objects()->filter(array('staff_id' => $id))
+            ->values_flat('lastname')->first();
         return $row ? $row[0] : 0;
     }
 
+    static function getIdByEmail($email) {
+		$row = static::objects()->filter(array('email' => $email))
+            ->values_flat('staff_id')->first();
+		return $row ? $row[0] : 0;
+    }
 
     static function create($vars=false) {
         $staff = parent::create($vars);
