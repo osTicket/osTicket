@@ -2340,6 +2340,7 @@ tr.disabled th {
   border: 1px solid #999999;
   color: #999999;
   text-shadow: none;
+  margin: -1px 0 -1px 5px;
 }
 .label-info {
   background-color: #3a87ad;
