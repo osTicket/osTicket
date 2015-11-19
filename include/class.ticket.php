@@ -2266,7 +2266,7 @@ implements RestrictedAccess, Threadable {
         $errors = array();
         if (!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
-
+	
         $this->setLastMessage($message);
 
         // Add email recipients as collaborators...
@@ -2332,6 +2332,7 @@ implements RestrictedAccess, Threadable {
         );
 
         $options = array('thread'=>$message);
+		
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
             && ($email = $dept->getAlertEmail())
@@ -2380,6 +2381,8 @@ implements RestrictedAccess, Threadable {
                     continue;
                 }
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
+				// Add the poster name to the outbound mail
+				$options += array('from_name' =>  $vars['poster']);
                 $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
@@ -2521,6 +2524,9 @@ implements RestrictedAccess, Threadable {
                 $options += array('from_name' => $from_name);
 
         }
+
+		//Override.... Use the poster name.
+		$options += array('from_name' =>  $vars['poster']);
 
         $variables = array(
             'response' => $response,
