@@ -43,7 +43,7 @@ if ($_POST)
         <tr><td style="padding:0;"></td><td style="padding:0;"></td></tr>
     </thead>
     <tbody>
-        <tr>
+        <tr id="open_ticket_userinformation">
             <th colspan="2">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
                 <div class="error"><?php echo $errors['user']; ?></div>
@@ -118,7 +118,7 @@ if ($_POST)
         } ?>
     </tbody>
     <tbody>
-        <tr>
+        <tr id="open_ticket_informationoptions">
             <th colspan="2">
                 <em><strong><?php echo __('Ticket Information and Options');?></strong>:</em>
             </th>
@@ -290,7 +290,7 @@ if ($_POST)
         <?php
         //is the user allowed to post replies??
         if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <tr>
+        <tr  id="open_ticket_response">
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
             </th>
@@ -382,7 +382,7 @@ print $response_form->getField('attachments')->render();
         <?php
         } //end canPostReply
         ?>
-        <tr>
+        <tr id="open_ticket_note">
             <th colspan="2">
                 <em><strong><?php echo __('Internal Note');?></strong>
                 <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
