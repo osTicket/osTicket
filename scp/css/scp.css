@@ -1504,6 +1504,25 @@ h2 > i.help-tip {
 .form_table th h4 i.help-tip {
     color: white;
 }
+tr#open_ticket_userinformation th{
+	background-color:#F4FAFF;
+}
+tr#open_ticket_informationoptions th{
+	background-color:#F4FAFF;
+}
+
+tbody#dynamic-form tr th {
+	background-color:#C3D9FF;
+}
+
+tr#open_ticket_response th {
+	background-color: #FFE0B3;
+}
+
+tr#open_ticket_note th{
+	background-color: #FFE;	
+	
+}
 
 /* Knowledgebase */
 /* Knowledgebase */
