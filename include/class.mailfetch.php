@@ -776,14 +776,15 @@ class MailFetcher {
 		
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
             && ($message = $entry->postEmail($vars))
-        ) { 
+        ) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
             // NOTE: This might not be a "ticket"
             $ticket = $message->getThread()->getObject();
         }
-        elseif ($seen) {
+		
+	    elseif ($seen) { 
             // Already processed, but for some reason (like rejection), no
             // thread item was created. Ignore the email
             return true;

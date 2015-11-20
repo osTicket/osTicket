@@ -3082,6 +3082,7 @@ implements RestrictedAccess, Threadable {
                 break;
             case 'email':
                 $fields['emailId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Unknown system email'));
+				$vars['staffId'] = null;
                 break;
             default:
                 # TODO: Return error message
@@ -3272,10 +3273,9 @@ implements RestrictedAccess, Threadable {
                 $form->setAnswer('priority', null, $topic->getPriorityId());
             if ($autorespond)
                 $autorespond = $topic->autoRespond();
-
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
-                $vars['staffId'] = $topic->getStaffId();
+			     $vars['staffId'] = $topic->getStaffId();
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
 

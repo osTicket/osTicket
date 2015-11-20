@@ -323,6 +323,7 @@ class Thread extends VerySimpleModel {
         // XXX: Is this necessary?
         if ($object instanceof Ticket)
             $vars['ticketId'] = $object->getId();
+
         if ($object instanceof Task)
             $vars['taskId'] = $object->getId();
 
@@ -373,11 +374,22 @@ class Thread extends VerySimpleModel {
 			}
 		}
 		
+		// Disambiguate if the user happens also to be a staff member of
+         // the system. The current ticket owner should _always_ post
+         // messages instead of notes or responses
+        if ($object instanceof Ticket
+            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
+        ) {
+			$vars['thread-type'] = 'M';
+            $vars['userId'] = $object->getUserId();
+        }
+
 		//If this is a staff member and no one is assigned, do the assignment as this is a reply to the end user.
-		if ($vars['staffId'] && $vars['thread-type'] !== 'N'){
-			$object instanceof Ticket;
+		if ($vars['staffId'] && $vars['thread-type'] !== 'N'  && $vars['thread-type'] !== 'M'){
+
+		$object instanceof Ticket;
 			if(0 == $object->getStaffId()) {
-			//	$object->setStaffId($vars['staffId']);
+			
 				$object->assignToStaff($vars['staffId'],'Assigned via email reponse',$alert=true);
 				$vars['thread-type'] = 'R';
 			}
@@ -390,15 +402,7 @@ class Thread extends VerySimpleModel {
 			$vars['thread-type'] = 'N';
 		}
 		     		
-		 // Disambiguate if the user happens also to be a staff member of
-         // the system. The current ticket owner should _always_ post
-         // messages instead of notes or responses
-        if ($object instanceof Ticket
-            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
-        ) {
-            $vars['thread-type'] = 'M';
-            $vars['userId'] = $object->getUserId();
-        }
+		 
 		
 		//Who is the ticket assigned to?
 	
@@ -408,7 +412,7 @@ class Thread extends VerySimpleModel {
 			//$thisstaff = $vars['staffId'];
 		$vars['thread-type'] = 'R';
 		}
-		elseif ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0){
+		elseif ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0 && $vars['thread-type'] !== 'M'){
 			
 			$vars['thread-type'] = 'N';
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
@@ -455,7 +459,7 @@ class Thread extends VerySimpleModel {
 				$vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
 				$vars['thread-type'] = 'M';
         }
-	
+
         switch ($vars['thread-type']) {
 			case 'R':
            	$vars['response'] = $body;
@@ -571,8 +575,8 @@ class Thread extends VerySimpleModel {
                 return $t;
             }
         }
-
-        return null;
+		
+		return null;
     }
 
     function delete() {
