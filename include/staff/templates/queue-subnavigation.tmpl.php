@@ -8,23 +8,16 @@ $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;
 ?>
 <!-- SubQ class: only if top level Q has subQ -->
-<li class="<?php if ($hasChildren)  echo 'subQ'; ?>">
-  <?php
-  if ($hasChildren) { ?>
-    <i class="icon-caret-down"></i>
-  <?php }
-  if ($thisstaff->isAdmin() || $q->isPrivate()) { ?>
+<li <?php if ($hasChildren)  echo 'class="subQ"'; ?>>
+
+<?php      
+    if ($q->isPrivate()) { ?>
   <!-- Edit Queue -->
+  <div class="controlQ">
   <div class="editQ pull-right">
     <i class="icon-cog"></i>
     <div class="manageQ">
       <ul>
-        <?php if ($hasChildren) { ?>
-        <li class="positive">
-          <a href="<?php echo $queue->getHref(); ?>">
-            <i class="icon-fixed-width icon-plus-sign"></i><?php echo __('Add Queue'); ?></a>
-        </li>
-        <?php } ?>
         <li>
           <a href="<?php
     echo $queue->isPrivate()
@@ -40,15 +33,24 @@ global $thisstaff;
       </ul>
     </div>
   </div>
+    </div>
   <?php } ?>
-  <!-- Display Latest Ticket count -->
-  <span class="pull-right">(?)</span>
+  <!-- Display Latest Ticket count -->      
+      <span class="<?php if ($q->isPrivate())  echo 'personalQmenu'; ?> pull-right newItemQ">(90)</span>
+
   <!-- End Edit Queue -->
   <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
-    ?>" title="<?php echo Format::htmlchars($q->getName()); ?>"><?php
-        echo Format::htmlchars($q->getName()); ?></a>
-<?php if ($hasChildren) {
-    echo '<ul>';
+    ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
+      <?php
+        echo Format::htmlchars($q->getName()); ?>
+      <?php
+        if ($hasChildren) { ?>
+            <i class="icon-caret-down"></i>
+      <?php } ?>
+    </a>
+
+    <?php if ($hasChildren) {
+    echo '<ul class="subMenuQ">';
     foreach ($children as $q) {
         include __FILE__;
     }

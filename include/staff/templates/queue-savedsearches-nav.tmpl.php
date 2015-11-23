@@ -5,7 +5,7 @@
 // $child_selected - <bool> true if the selected queue is a descendent
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
-<li class="item <?php if ($child_selected) echo 'child active'; ?>">
+<li class="item <?php if ($child_selected) echo ''; ?>">
 <?php
   $href = 'href="tickets.php?queue=adhoc"';
   if (!isset($_SESSION['advsearch']))
@@ -27,7 +27,8 @@
       } ?>
       <li>
         <h4><?php echo __('Recent Searches'); ?></h4>
-<?php if (isset($_SESSION['advsearch'])) {
+      </li>
+    <?php if (isset($_SESSION['advsearch'])) {
           foreach ($_SESSION['advsearch'] as $token=>$criteria) {
               $q = new SavedSearch(array('root' => 'T'));
               $q->id = 'adhoc,'.$token;
@@ -36,15 +37,16 @@
               include 'queue-subnavigation.tmpl.php';
           }
       } ?>
-      <!-- Dropdown Titles -->
-      </li>
+      <!-- Dropdown Titles -->      
+      
     </ul>
     <!-- Add Queue button sticky at the bottom -->
-    <div class="add-queue">
-      <a class="flush-right full-width" onclick="javascript:
+      
+     <div class="add-queue">
+      <a class="full-width" onclick="javascript:
         $.dialog('ajax.php/tickets/search', 201);">
-        <div class="add pull-right"><i class="green icon-plus-sign"></i></div>
-          <span><?php echo __('Add personal queue'); ?></span>
+        <span><i class="green icon-plus-sign"></i>
+          <?php echo __('Add personal search'); ?></span>
       </a>
     </div>
   </div>

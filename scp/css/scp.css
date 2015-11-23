@@ -358,7 +358,7 @@ a time {
 }
 
 #customQ_nav .jb-overflowmenu-menu-primary li.item:hover {
-    padding:2px 5px 4px;
+    padding:2px 5px 3px;
     color:#E65524;
     background-color: #fff;
     border-left:1px solid #bebebe;
@@ -432,14 +432,29 @@ a time {
 .customQ-dropdown li h4 {
     padding:2px 8px;
     margin:0;
-    background-color:#ddd;
-    color:#666;
+    background-color:#eee;
+    color:#bbb;
     text-align:left;
 }
+.customQ-dropdown li.personalQ {
+    font-size:1px;
+    border-bottom:2px dashed #eee;
+    background-color:#fff;
+    margin:4px 0;
+}
 
+.customQ-dropdown li:not(.personalQ) > span {
+    color:#E65524;
+    font-weight:bold;
+    margin-right:0;
+}
 .customQ-dropdown li > span {
     color:#E65524;
     font-weight:bold;
+    margin-right:18px;
+}
+.customQ-dropdown li:hover > span {
+    color:#fff;
 }
 .customQ-dropdown li > span.disabled {
     color:#ccc;
@@ -449,7 +464,6 @@ a time {
 /*** custom queue dropdown container ***/
 
 .jb-overflowmenu-menu-primary div.customQ-dropdown {
-    border-top-right-radius:6px;
     border-bottom-right-radius:6px;
     border-bottom-left-radius:6px;
     border: solid 1px #ddd;
@@ -459,19 +473,21 @@ a time {
     background:#fff;
     text-align: left;
     font-size: 0.95em;
-    min-width: 245px;
+    min-width: 100%;
     list-style: none;
     left:-1px;
-    top:32px;
+    top:31px;
     position:absolute;
-    z-index:10;
+    z-index:8;
 }
+
 
 .customQ-dropdown ul.scroll-height {
     max-height:400px;
     border-bottom:1px solid #ddd;
     overflow-y:auto;
     overflow-x:hidden;
+    padding:4px 0;
 }
 
 /*** set max width for truncating long links ***/
@@ -492,10 +508,10 @@ a time {
 
 }
 .customQ-dropdown ul li > a {
-    margin-right:0px;
+    margin-right:60px;
 }
 
-.customQ-dropdown ul li:hover {
+.customQ-dropdown ul li:not(.personalQ):hover {
     color:#fff;
     background-color:#08C;
     cursor:pointer;
@@ -504,47 +520,78 @@ a time {
     color:#fff;
     cursor:pointer;
 }
+.customQ-dropdown ul li:not(.personalQ) .controlQ {
+    position:absolute;
+    right:0;
+    z-index:20;
+}
 /************ Custom Queue Button with Sub Queues *************/
 
-.customQ-dropdown ul li.subQ > i, .customQ-dropdown ul li div.editQ > i {
-    padding:0px 8px;
+.customQ-dropdown ul li.subQ > a i {
+    padding:2px 6px 0;
+    display:inline-block;
+    color:#000;
+    opacity:0.5
 }
 
+.customQ-dropdown ul li.subQ:hover > a i {
+    color:#fff;
+    opacity:0.5
+}
+
+.customQ-dropdown ul li div.editQ {
+    padding:0px 8px 0 0;
+
+}
 /************ Custom Queue Button without Sub Queues *************/
 
 .customQ-dropdown ul li.subQ > ul li > a:before  {
     content:"";
-    padding:0px 8px;
+    padding:0px 4px;
+
+}
+.customQ-dropdown ul li.subQ > a:before  {
+    content:"";
+    padding:0px 4px;
 
 }
 
 .customQ-dropdown ul li:not(.subQ) > a:before  {
     content:"";
     padding:0px 4px;
-
 }
+
 .customQ-dropdown ul li:not(.subQ) > a {
     max-width:190px;
 }
 
 /************ Custom Queue Nested Queue Container *************/
 
-.customQ-dropdown ul li > ul {
-    background-color:#eee;
-    border-top:1px dotted #ddd;
-    border-bottom:1px dotted #ddd;
+.customQ-dropdown ul li.subQ > ul {
+    display:none;
+    position:absolute;
+    top:0;
+    left:0px;
+    background-color:#fff;
+    border:1px solid #ddd;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-.customQ-dropdown ul li.subQ > ul li > a {
-    padding-left:10px;
-    padding-right:10px;
+.customQ-dropdown ul li.subQ:hover > ul {
+    display:block;
 }
 
+.customQ-dropdown ul li > span.newItemQ {
+    padding:1px 8px 0 0;
+}
+.customQ-dropdown ul li > span.personalQmenu.newItemQ {
+    margin-right:20px;
+}
 /************ Custom Queue Add/Save a Queue Button *************/
 
 .customQ-dropdown .add-queue a {
     display:block;
-    padding:10px;
+    padding:2px 0;
     color:#666!IMPORTANT;
     cursor:pointer;
     white-space: nowrap;
@@ -586,76 +633,74 @@ a time {
 
 /*** icon cog styles ***/
 
-.jb-overflowmenu-menu-primary .customQ-dropdown ul li > div.editQ {
+.jb-overflowmenu-menu-primary .customQ-dropdown ul li > .controlQ div.editQ {
     margin-top:2px;
 }
 
-.customQ-dropdown ul li > div.editQ i {
+.customQ-dropdown ul li > .controlQ div.editQ i {
     color:rgba(255, 255, 255, 0.6);
 }
 
-.customQ-dropdown ul li:hover > div.editQ i {
+.customQ-dropdown ul li:hover > .controlQ div.editQ i {
     color:rgba(255, 255, 255, 0.2);
 }
 
-.customQ-dropdown ul li > div.editQ:hover i {
+.customQ-dropdown ul li > .controlQ div.editQ:hover i {
     color:rgba(255, 255, 255, 1);
 }
 
 /*** edit nav popout ***/
 
-.customQ-dropdown ul li > div.editQ .manageQ a:before  {
+.customQ-dropdown ul li > .controlQ div.editQ .manageQ a:before  {
     content:none;
     padding:0;
 }
 
-.customQ-dropdown div.editQ .manageQ a {
+.customQ-dropdown .controlQ div.editQ .manageQ a {
     padding-left:0px;
     padding-right:10px;
     white-space: nowrap;
-    margin-right:0px;
+    margin-right:0px!IMPORTANT;
 
 }
 
-.customQ-dropdown div.editQ .manageQ a > i {
+.customQ-dropdown .controlQ div.editQ .manageQ a > i {
     margin-left:5px;
     margin-right:5px;
 }
 
-.jb-overflowmenu-menu-primary .customQ-dropdown div.editQ .manageQ {
+.jb-overflowmenu-menu-primary .customQ-dropdown .controlQ div.editQ .manageQ {
     display:none;
     position:absolute;
-    top:0;
+    top:-1px;
     left:0px;
-    padding:34px 28px;
+    margin-left:19px;
 }
 
-.jb-overflowmenu-menu-primary .customQ-dropdown div.editQ .manageQ ul {
+.jb-overflowmenu-menu-primary .customQ-dropdown .controlQ div.editQ .manageQ ul {
     border:1px solid #ddd;
     min-width:75px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-    padding:6px 0;
+    padding:0px 0;
     background-color:#fff;
 }
 
 /*** edit nav link styles ***/
 
-.customQ-dropdown div.editQ:hover .manageQ {
+.customQ-dropdown .controlQ div.editQ:hover .manageQ {
     display:block;
 }
 
-.customQ-dropdown div.editQ:hover .manageQ i {
+.customQ-dropdown .controlQ div.editQ:hover .manageQ i {
     color:#555;
 }
 
-.customQ-dropdown div.editQ:hover .manageQ a {
+.customQ-dropdown .controlQ div.editQ:hover .manageQ a {
     min-width:100px;
 
 }
 
-.customQ-dropdown div.editQ:hover .manageQ a:hover i {
+.customQ-dropdown .controlQ div.editQ:hover .manageQ a:hover i {
     color:#fff;
 }
 
@@ -698,8 +743,7 @@ a time {
 
 .jb-overflowmenu .jb-overflowmenu-menu-primary li.item > a {
      padding:4px 10px;
-
-}
+ }
 
 /******** Overflow menu and Dropdown *********/
 
@@ -810,11 +854,11 @@ a time {
     position:absolute;
     z-index:10;
 }
-.jb-overflowmenu-menu-secondary .customQ-dropdown ul li > div.editQ {
+.jb-overflowmenu-menu-secondary .customQ-dropdown ul li > .controlQ div.editQ {
     margin-top:2px;
     float:left;
 }
-.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ .manageQ {
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ .manageQ {
     display:none;
     position:absolute;
     z-index:20;
@@ -822,11 +866,11 @@ a time {
     left:0px;
     padding:34px 28px;
 }
-.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ:hover .manageQ {
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ:hover .manageQ {
     display:block;
 }
 
-.jb-overflowmenu-menu-secondary .customQ-dropdown div.editQ .manageQ ul {
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ .manageQ ul {
     border:1px solid #ddd;
     min-width:75px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
