@@ -17,20 +17,20 @@ $selected = $_REQUEST['queue'] == $this_queue->getId();
           include 'queue-subnavigation.tmpl.php';
       } ?>
       <!-- Dropdown Titles -->
-      <li>
-        <h4><?php echo __('Personal Queues'); ?></h4>
-      </li>
+        <li class="personalQ">
+        </li>      
+
       <?php foreach ($this_queue->getMyChildren() as $q) {
         include 'queue-subnavigation.tmpl.php';
       } ?>
     </ul>
     <!-- Add Queue button sticky at the bottom -->
     <div class="add-queue">
-      <a class="flush-right full-width" onclick="javascript:
+      <a class="full-width" onclick="javascript:
         var pid = <?php echo $this_queue->getId() ?: 0; ?>;
         $.dialog('ajax.php/tickets/search?parent_id='+pid, 201);">
-        <div class="add pull-right"><i class="green icon-plus-sign"></i></div>
-          <span><?php echo __('Add personal queue'); ?></span>
+        <span><i class="green icon-plus-sign"></i> 
+          <?php echo __('Add personal queue'); ?></span>
       </a>
     </div>
   </div>
