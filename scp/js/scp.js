@@ -492,8 +492,27 @@ var scp_prep = function() {
     }
   });
 
-  /* Custom Queues Dropdown */
+
   $(function() {
+    // whenever we hover over a menu item that has a submenu
+    $('.subQ').on('mouseover', function() {
+      var $menuItem = $(this),
+          $submenuWrapper = $('.subMenuQ', $menuItem);
+
+      // grab the menu item's position relative to its positioned parent
+      var menuItemPos = $menuItem.position();
+
+      // place the submenu in the correct position relevant to the menu item
+      $submenuWrapper.css({
+        top: menuItemPos.top - 1,
+        left: menuItemPos.left + Math.round($menuItem.outerWidth())
+      });
+    });
+  });
+};
+
+/* Custom Queues Dropdown */
+/*  $(function() {
     // whenever we hover over a menu item that has a submenu
     $('.editQ').on('mouseover', function() {
       var $menuItem = $(this),
@@ -509,7 +528,7 @@ var scp_prep = function() {
       });
     });
   });
-};
+};*/
 
 $(document).ready(scp_prep);
 $(document).on('pjax:end', scp_prep);
