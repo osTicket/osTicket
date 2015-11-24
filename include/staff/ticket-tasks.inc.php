@@ -41,7 +41,11 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     <?php
     }
     if ($count)
-        Task::getAgentActions($thisstaff, array('morelabel' => __('Options')));
+        Task::getAgentActions($thisstaff, array(
+                    'container' => '#tasks_content',
+                    'callback_url' => sprintf('ajax.php/tickets/%d/tasks',
+                        $ticket->getId()),
+                    'morelabel' => __('Options')));
     ?>
 </div>
 <div class="clear"></div>
@@ -177,11 +181,12 @@ $(function() {
             var tid = parseInt(xhr.responseText);
             if (tid) {
                 var url = 'ajax.php/tickets/'+<?php echo $ticket->getId();
-                ?>+'/tasks/'+tid+'/view';
+                ?>+'/tasks';
                 var $container = $('div#task_content');
-                $container.load(url, function () {
+                $container.load(url+'/'+tid+'/view', function () {
                     $('.tip_box').remove();
                     $('div#tasks_content').hide();
+                    $.pjax({url: url, container: '#tasks_content', push: false});
                 }).show();
             } else {
                 window.location.href = $redirect ? $redirect : window.location.href;
@@ -189,5 +194,7 @@ $(function() {
         }, $options);
         return false;
     });
+
+    $('#ticket-tasks-count').html(<?php echo $count; ?>);
 });
 </script>

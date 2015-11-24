@@ -2215,7 +2215,7 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 
 
 class AssigneeField extends ChoiceField {
-    var $_choices = array();
+    var $_choices = null;
     var $_criteria = null;
 
     function getWidget() {

@@ -195,7 +195,7 @@ if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
                            'href'=>'#tasks/add',
-                           'iconclass'=>'newTicket task-action',
+                           'iconclass'=>'newTicket new-task',
                            'id' => 'new-task',
                            'attr' => array(
                                'data-dialog-config' => '{"size":"large"}'
