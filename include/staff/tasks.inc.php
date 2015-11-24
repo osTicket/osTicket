@@ -383,7 +383,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     </tfoot>
     </table>
     <?php
-    if ($total>0) { //if we actually had any tickets returned.
+    if ($total>0) { //if we actually had any tasks returned.
         echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
@@ -400,7 +400,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
-        <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
+        <?php echo __('Are you sure want to flag the selected tasks as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
@@ -416,38 +416,21 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 </div>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tasks');
-    $(document).on('click.tasks', 'a.tasks-action', function(e) {
-        e.preventDefault();
-        var count = checkbox_checker($('form#tasks'), 1);
-        if (count) {
-            var url = 'ajax.php/'
-            +$(this).attr('href').substr(1)
-            +'?count='+count
-            +'&_uid='+new Date().getTime();
-            var $redirect = $(this).data('redirect');
-            $.dialog(url, [201], function (xhr) {
-                if (!!$redirect)
-                    $.pjax({url: $redirect, container:'#pjax-container'});
-                else
-                    $.pjax.reload('#pjax-container');
-             });
-        }
-        return false;
-    });
-    $(document).off('.task-action');
-    $(document).on('click.task-action', 'a.task-action', function(e) {
+
+    $(document).off('.new-task');
+    $(document).on('click.new-task', 'a.new-task', function(e) {
         e.preventDefault();
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
         var $options = $(this).data('dialogConfig');
-        var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if (!!$redirect)
-                window.location.href = $redirect;
-            else
+            var tid = parseInt(xhr.responseText);
+            if (tid) {
+                 window.location.href = 'tasks.php?id='+tid;
+            } else {
                 $.pjax.reload('#pjax-container');
+            }
         }, $options);
 
         return false;

@@ -885,7 +885,7 @@ implements RestrictedAccess, Threadable {
                         $assignees['t'.$id] = $name;
 
                 if (!$source && $this->isOpen() && $this->team)
-                    $assignee = sprintf('s%d', $this->team->getId());
+                    $assignee = sprintf('t%d', $this->team->getId());
                 $prompt = __('Select a Team');
                 break;
         }

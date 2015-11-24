@@ -496,7 +496,7 @@ class TicketsAjaxAPI extends AjaxController {
                     __('This ticket'),
                     $assigned);
         } else {
-            $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+            $info['warn'] = sprintf(__('Are you sure you want to CLAIM %s?'),
                     __('this ticket'));
         }
 
@@ -639,8 +639,9 @@ class TicketsAjaxAPI extends AjaxController {
                     $info[':action'] = '#tickets/mass/claim';
                     $info[':title'] = sprintf('Claim %s',
                             _N('selected ticket', 'selected tickets', $count));
-                    $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
-                                _N('selected ticket', 'selected tickets', $count));
+                    $info['warn'] = sprintf(
+                            __('Are you sure you want to CLAIM %s?'),
+                            _N('selected ticket', 'selected tickets', $count));
                     $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
                     $id = sprintf('s%s', $thisstaff->getId());
                     $assignees = array($id => $thisstaff->getName());
@@ -1084,9 +1085,10 @@ class TicketsAjaxAPI extends AjaxController {
         $count = $_REQUEST['count'] ?:
             ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
 
-        $info['title'] = sprintf(__('%1$s Tickets &mdash; %2$d selected'),
-                TicketStateField::getVerb($state),
-                 $count);
+        $info['title'] = sprintf(__('Change Status &mdash; %1$d %2$s selected'),
+                 $count,
+                 _N('ticket', 'tickets', $count)
+                 );
 
         if (!strcasecmp($state, 'deleted')) {
 
