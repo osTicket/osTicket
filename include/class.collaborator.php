@@ -143,6 +143,7 @@ implements EmailContact, ITicketUser {
             'isactive' => isset($info['isactive']) ? $info['isactive'] : 0,
             'thread_id' => $info['threadId'],
             'user_id' => $info['userId'],
+			'role' => $info['role'],
         ));
         if ($collab->save(true))
             return $collab;

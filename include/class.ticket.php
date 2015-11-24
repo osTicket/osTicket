@@ -851,11 +851,11 @@ implements RestrictedAccess, Threadable {
     }
 
     //UserList of recipients  (owner + collaborators)
-    function getRecipients() {
+    function getRecipients($role=null) {
         if (!isset($this->recipients)) {
             $list = new UserList();
             $list->add($this->getOwner());
-            if ($collabs = $this->getThread()->getActiveCollaborators()) {
+            if ($collabs = $this->getThread()->getActiveCollaborators($role)) {
                 foreach ($collabs as $c)
                     $list->add($c);
             }
@@ -1454,22 +1454,24 @@ implements RestrictedAccess, Threadable {
      *
      */
 
-    function  notifyCollaborators($entry, $vars = array()) {
+    function  notifyCollaborators($entry, $vars = array()) {  
         global $cfg;
-
+	
         if (!$entry instanceof ThreadEntry
-            || !($recipients=$this->getRecipients())
+            || !($recipients=$this->getRecipients($vars['role']))
             || !($dept=$this->getDept())
             || !($tpl=$dept->getTemplate())
             || !($msg=$tpl->getActivityNoticeMsgTemplate())
             || !($email=$dept->getEmail())
-        ) {
+        ) { echo ' I0 ';
             return;
         }
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof MessageThreadEntry) {
+        if ($entry instanceof MessageThreadEntry) { echo ' I1 ';
             $poster = $entry->getUser();
+			
+
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
             // Skip all the other recipients of the message
@@ -1482,11 +1484,20 @@ implements RestrictedAccess, Threadable {
                 }
             }
         } else {
-            $poster = $entry->getStaff();
-            // Skip the ticket owner
-            $skip[$this->getUserId()] = 1;
-        }
 
+		// Note collaborator
+		if ($vars['poster'])		
+				$poster = 	$vars['poster'];
+		// Skip the poster of the note
+		if ($poster)
+				$skip[$vars['userId']] = 1;
+		// Note via the GUI
+		if (!$poster)
+				$poster = $entry->getStaff();
+					// Skip the ticket owner
+					$skip[$this->getUserId()] = 1;
+		}
+		
         $vars = array_merge($vars, array(
             'message' => (string) $entry,
             'poster' => $poster ?: _S('A collaborator'),
@@ -1504,7 +1515,7 @@ implements RestrictedAccess, Threadable {
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of
             // the conversation
-            if (isset($skip[$recipient->getUserId()]))
+	        if (isset($skip[$recipient->getUserId()]))
                 continue;
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
@@ -2588,6 +2599,7 @@ implements RestrictedAccess, Threadable {
 
     function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
+		
         //Who is posting the note - staff or system?
         if ($vars['staffId'] && !$poster)
             $poster = Staff::lookup($vars['staffId']);
@@ -2631,6 +2643,16 @@ implements RestrictedAccess, Threadable {
             'threadentry' => $note,
             'assignee' => $assignee
         ), $alert);
+		
+		 $this->notifyCollaborators($note,
+                array(
+                    'signature' => $signature,
+                    'from_name' => $from_name,
+					'role' => 'N',
+					'userId' => $vars['userId'],
+					'poster' => $vars['poster'],
+					)
+            );
 
         return $note;
     }

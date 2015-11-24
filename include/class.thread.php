@@ -116,8 +116,8 @@ class Thread extends VerySimpleModel {
         return $this->ht['active_collaborators'];
     }
 
-    function getActiveCollaborators() {
-        return $this->getCollaborators(array('isactive'=>1));
+    function getActiveCollaborators($role=null) {
+	return $this->getCollaborators(array('isactive'=>1,'role'=>$role));
     }
 
     function getCollaborators($criteria=array()) {
@@ -130,7 +130,11 @@ class Thread extends VerySimpleModel {
 
         if (isset($criteria['isactive']))
             $collaborators->filter(array('isactive' => $criteria['isactive']));
-
+	
+		// Only agents if this is a note.
+		if ($criteria['role'] == 'N')
+		$collaborators->filter(array('role' => 'N'));
+		
         // TODO: sort by name of the user
         $collaborators->order_by('user__name');
 
@@ -307,7 +311,7 @@ class Thread extends VerySimpleModel {
             'header' => $mailinfo['header'],
             'poster' => $mailinfo['name'],
 			'staffId' =>  staff::getIdByEmail($mailinfo['email']),
-			'userid' => useremail::getIdByEmail($mailinfo['email']),
+			'userId' => useremail::getIdByEmail($mailinfo['email']),
 			'subject' => $mailinfo['subject'],
             'origin' => 'Email',
             'source' => 'Email',
@@ -418,6 +422,7 @@ class Thread extends VerySimpleModel {
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 			$info['threadId'] = $vars['ticketId'];
 			$info['userId'] = $vars['userid'];
+			$info['role'] = 'N';
 			//add as a collaborator
 			Collaborator::add($info, $errors);			
 
