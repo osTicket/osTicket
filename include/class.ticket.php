@@ -1463,12 +1463,12 @@ implements RestrictedAccess, Threadable {
             || !($tpl=$dept->getTemplate())
             || !($msg=$tpl->getActivityNoticeMsgTemplate())
             || !($email=$dept->getEmail())
-        ) { echo ' I0 ';
+        ) { 
             return;
         }
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof MessageThreadEntry) { echo ' I1 ';
+        if ($entry instanceof MessageThreadEntry) { 
             $poster = $entry->getUser();
 			
 
@@ -2599,7 +2599,7 @@ implements RestrictedAccess, Threadable {
 
     function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
-		
+	
         //Who is posting the note - staff or system?
         if ($vars['staffId'] && !$poster)
             $poster = Staff::lookup($vars['staffId']);
@@ -2643,6 +2643,9 @@ implements RestrictedAccess, Threadable {
             'threadentry' => $note,
             'assignee' => $assignee
         ), $alert);
+	
+		if (!$vars['userId'])
+			$vars['userId'] = Staff::getStaffUserId($vars['staffId']);
 		
 		 $this->notifyCollaborators($note,
                 array(

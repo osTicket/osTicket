@@ -321,6 +321,7 @@ class Thread extends VerySimpleModel {
             'to-email-id' => $mailinfo['to-email-id'],
 			'emailcollab' => '1',
 			'uid'=> '',
+			'assignToStaffId' => '',
 			);
 
 
@@ -411,6 +412,8 @@ class Thread extends VerySimpleModel {
 		//Who is the ticket assigned to?
 	
 		$assignToStaffId = $object->getStaffId();
+		$vars['assignToStaffId'] = $assignToStaffId;
+		
 		if ($assignToStaffId == $vars['staffId'] && $vars['thread-type'] !== 'N'){
 			// global $thisstaff;
 			//$thisstaff = $vars['staffId'];
@@ -421,7 +424,7 @@ class Thread extends VerySimpleModel {
 			$vars['thread-type'] = 'N';
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 			$info['threadId'] = $vars['ticketId'];
-			$info['userId'] = $vars['userid'];
+			$info['userId'] = $vars['userId'];
 			$info['role'] = 'N';
 			//add as a collaborator
 			Collaborator::add($info, $errors);			
@@ -2475,7 +2478,7 @@ class NoteThreadEntry extends ThreadEntry {
             $errors['err'] = __('Missing or invalid data');
         elseif (!$vars['note'])
             $errors['note'] = __('Note content is required');
-
+      
         if ($errors) return false;
 
         //TODO: use array_intersect_key  when we move to php 5 to extract just what we need.
@@ -2605,6 +2608,17 @@ implements TemplateVariable {
 
         //Add ticket Id.
         $vars['threadId'] = $this->getId();
+
+		// add agent as collaborator
+		if ($vars['staffId'] !== 0 && $vars['staffId'] !== $vars['assignToStaffId']){
+			$vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+			$info['threadId'] = $vars['threadId'];
+			$info['userId'] = Staff::getStaffUserId($vars['staffId']);
+			$info['role'] = 'N';
+			$info['noerrors'] = 'N';
+			Collaborator::add($info, $errors);	
+		}		
+		
         return NoteThreadEntry::create($vars, $errors);
     }
 

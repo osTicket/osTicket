@@ -824,6 +824,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ->values_flat('staff_id')->first();
 		return $row ? $row[0] : 0;
     }
+	
+	static function getEmailById($email) {
+		$row = static::objects()->filter(array('staff_id' => $email))
+            ->values_flat('email')->first();
+		return $row ? $row[0] : 0;
+    }
+	
+	static function getStaffUserId($userid){
+		
+		$staffemail = staff::getEmailById($userid);
+		return UserEmail::getIdByEmail($staffemail);
+	}
 
     static function create($vars=false) {
         $staff = parent::create($vars);

@@ -136,7 +136,11 @@ implements EmailContact, ITicketUser {
         )))
             $errors['err'] = sprintf(__('%s is already a collaborator'),
                     $c->getName());
-
+ 
+		if ($info['noerrors'] == 'N' && $errors['err']){
+			 $errors = null;
+			return $collab; 
+		} 
         if ($errors) return false;
 
         $collab = static::create(array(
