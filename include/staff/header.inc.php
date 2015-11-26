@@ -1,5 +1,11 @@
 <?php
 header("Content-Type: text/html; charset=UTF-8");
+/*
+ * Quick and Dirty fix for #2667:
+ * if we buffer the output, we can send headers after HTML is outputted
+ * see http://stackoverflow.com/questions/8028957/how-to-fix-headers-already-sent-error-in-php
+ */
+ob_start();
 if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html<?php
