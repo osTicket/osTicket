@@ -1463,3 +1463,68 @@ extends AbstractForm {
         return $clean;
     }
 }
+
+class StaffAccess {
+
+    static function __load($vars, &$errors) {
+
+        if (!$vars['username']
+                || !($staff = Staff::lookup(array(
+                            'username' => $vars['username']))))
+            return false;
+
+        $staff->isactive = $vars['isactive'] ? 1 : 0;
+        $staff->updatePerms(array_keys($vars['permissions']), $errors);
+
+        if (isset($vars['depts'])) {
+            $dept = Dept::lookup(array('name' => $vars['depts'][0]['dept']));
+            $role = Role::lookup(array('name' => $vars['depts'][0]['role']));
+            if ($dept && $role) {
+                $staff->dept_id = $dept->getId();
+                $staff->role_id = $role->getId();
+            } else {
+                 echo sprintf("%s: %s\n", $vars['username'],
+                         $vars['depts'][0]['dept']);
+                 return false;
+            }
+
+            $num = count($vars['depts']);
+            $depts = array();
+            for ($i=1; $i < $num; $i++) {
+                if (!($info=$vars['depts'][$i])) break;
+
+                if (!($dept = Dept::lookup(array('name' => $info['dept']))))
+                    echo sprintf("%s: %s - unknown department\n", $vars['username'],
+                            $info['dept']);
+
+                if (!($role = Role::lookup(array('name' => $info['role']))))
+                    echo sprintf("%s: %s - unknown role\n", $vars['username'],
+                             $info['role']);
+
+                if (!$dept || !$role) continue;
+
+                $da = $staff->dept_access->findFirst(array('dept_id' =>
+                            $dept->getId()));
+                if (!isset($da)) {
+                    $da = StaffDeptAccess::create(array(
+                                'dept_id' => $dept->getId(),
+                                'role_id' => $role->getId()));
+                    $staff->dept_access->add($da);
+                } else {
+                    $da->role_id = $role->getId();
+                }
+                $da->save();
+                $depts[] = $dept->getId();
+            }
+
+            $staff->dept_access
+                ->filter(Q::not(array('dept_id__in' => $depts)))
+                ->delete();
+            $staff->dept_access->reset();
+        }
+
+        $staff->save();
+
+        return true;
+    }
+}
