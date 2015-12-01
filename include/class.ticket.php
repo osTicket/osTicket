@@ -1517,6 +1517,10 @@ implements RestrictedAccess, Threadable {
             // the conversation
 	        if (isset($skip[$recipient->getUserId()]))
                 continue;
+		// If this is a reply to a note then add #note to subject
+		if ($vars['role'] == 'N')
+		$msg['subj'] = "{$msg['subj']} #note";
+
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
