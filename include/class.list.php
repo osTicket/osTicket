@@ -1352,6 +1352,7 @@ implements CustomListItem, TemplateVariable {
             if ($this->isInternal()
                     && ($f=$this->_form->getField('state'))) {
                 $f->ht['required'] = $f->ht['editable'] = false;
+                $f->options['render_mode'] = 'view';
             }
 
         }

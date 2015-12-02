@@ -3175,7 +3175,11 @@ class PhoneNumberWidget extends Widget {
 class ChoicesWidget extends Widget {
     function render($options=array()) {
 
-        $mode = isset($options['mode']) ? $options['mode'] : null;
+        $mode = null;
+        if (isset($options['mode']))
+            $mode = $options['mode'];
+        elseif (isset($this->field->options['render_mode']))
+            $mode = $this->field->options['render_mode'];
 
         if ($mode == 'view') {
             if (!($val = (string) $this->field))
