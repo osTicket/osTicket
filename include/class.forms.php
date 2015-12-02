@@ -702,6 +702,10 @@ class FormField {
 
     function isEditable($user=null) {
 
+        // Internal editable flag used by internal forms e.g internal lists
+        if (!$user && isset($this->ht['editable']))
+            return $this->ht['editable'];
+
         if ($user instanceof Staff)
             $flag = DynamicFormField::FLAG_AGENT_EDIT;
         else
