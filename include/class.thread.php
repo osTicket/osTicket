@@ -340,6 +340,7 @@ class Thread extends VerySimpleModel {
         $body = $mailinfo['message'];
 		
 		// Email commands #claim #close #note #assign:username
+		// Close if #close in subject
 		if($vars['subject'] && preg_match ('/#close/i', $vars['subject'])) {
 			$status = 'closed';
 			$comments = "Closed by {$staffname} via email.";
@@ -350,7 +351,7 @@ class Thread extends VerySimpleModel {
 			$vars['thread-type'] = 'R';
 		}
 		 
-		//Assignment based on email command #assign 
+		// Assignment based on email command #assign 
 		if($vars['subject'] && preg_match ('/#assign:/i', $vars['subject'])) {
 
 			$match = preg_split("/#assign:/", $vars['subject']);
@@ -366,7 +367,7 @@ class Thread extends VerySimpleModel {
 			}
          }
 		
-		//Assignment based on email command #claim  (todo change to just a log and not a note)
+		// Assignment based on email command #claim  (todo change to just a log and not a note)
 		if($vars['subject'] && preg_match ('/#claim/i', $vars['subject'])) {
 			$vars['thread-type'] = 'N';
 			$stafftoassign = $vars['staffId'];
@@ -380,8 +381,8 @@ class Thread extends VerySimpleModel {
 		}
 		
 		// Disambiguate if the user happens also to be a staff member of
-         // the system. The current ticket owner should _always_ post
-         // messages instead of notes or responses
+        // the system. The current ticket owner should _always_ post
+        // messages instead of notes or responses
         if ($object instanceof Ticket
             && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
         ) {
@@ -389,7 +390,8 @@ class Thread extends VerySimpleModel {
             $vars['userId'] = $object->getUserId();
         }
 
-		//If this is a staff member and no one is assigned, do the assignment as this is a reply to the end user.
+		// If this is a staff member and no one is assigned, do the assignment 
+		// as this is a reply to the end user.
 		if ($vars['staffId'] && $vars['thread-type'] !== 'N'  && $vars['thread-type'] !== 'M'){
 
 		$object instanceof Ticket;
@@ -419,7 +421,17 @@ class Thread extends VerySimpleModel {
 			//$thisstaff = $vars['staffId'];
 		$vars['thread-type'] = 'R';
 		}
-		elseif ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0 && $vars['thread-type'] !== 'M'){
+		
+		if ($assignToStaffId !== $vars['staffId'] && $C = $this->collaborators->filter(array(
+            'user__emails__address' => $mailinfo['email']
+        ))->first() && !preg_match ('/#note/i', $vars['subject'])){
+			
+			$vars['thread-type'] = 'R';
+		}
+		
+		
+		if ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0 
+		&& $vars['thread-type'] !== 'M' && $vars['thread-type'] !== 'R' ){ 
 			
 			$vars['thread-type'] = 'N';
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
@@ -430,12 +442,13 @@ class Thread extends VerySimpleModel {
 			Collaborator::add($info, $errors);			
 
 		}
+		
         // Consider collaborator role (disambiguate staff members as
         // collaborators). Normally, the block above should match based
         // on the Referenced message-id header
         elseif ($C = $this->collaborators->filter(array(
             'user__emails__address' => $mailinfo['email']
-        ))->first()) {
+        ))->first() && $vars['thread-type'] !== 'R' ) {
             $vars['thread-type'] = 'M';
             // XXX: There's no way that mailinfo[userId] would be set
             $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
