@@ -1042,6 +1042,7 @@ class TicketStatusList extends CustomListHandler {
         return array(
             'allowreopen' => new BooleanField(array(
                 'label' =>__('Allow Reopen'),
+                'editable' => true,
                 'default' => isset($source['allowreopen'])
                     ?  $source['allowreopen']: true,
                 'id' => 'allowreopen',
@@ -1056,6 +1057,7 @@ class TicketStatusList extends CustomListHandler {
             )),
             'reopenstatus' => new ChoiceField(array(
                 'label' => __('Reopen Status'),
+                'editable' => true,
                 'required' => false,
                 'default' => isset($source['reopenstatus'])
                     ? $source['reopenstatus'] : 0,
@@ -1087,8 +1089,10 @@ class TicketStatusList extends CustomListHandler {
                     $extra->setForm($form);
                     $fields->insert(++$k, $extra);
                 }
-                break;
             }
+
+            if (!isset($f->ht['editable']))
+                $f->ht['editable'] = true;
         }
 
         // Enable selection and display of private states
@@ -1330,6 +1334,9 @@ implements CustomListItem, TemplateVariable {
     function getConfigurationForm($source=null) {
         if (!$this->_form) {
             $config = $this->getConfiguration();
+            // Forcefully retain state for internal statuses
+            if ($source && $this->isInternal())
+                $source['state'] = $this->getState();
             $this->_form = $this->getList()->getConfigurationForm($source);
             if (!$source && $config) {
                 $fields = $this->_form->getFields();
@@ -1341,6 +1348,12 @@ implements CustomListItem, TemplateVariable {
                         $f->value = $f->get('default');
                 }
             }
+
+            if ($this->isInternal()
+                    && ($f=$this->_form->getField('state'))) {
+                $f->ht['required'] = $f->ht['editable'] = false;
+            }
+
         }
 
         return $this->_form;
@@ -1379,10 +1392,10 @@ implements CustomListItem, TemplateVariable {
 
     function setConfiguration($vars, &$errors=array()) {
         $properties = array();
-        foreach ($this->getList()->getConfigurationForm($vars)->getFields() as $f) {
-            if ($this->isInternal() //Item is internal.
-                    && !$f->isEditable())
-                continue;
+        foreach ($this->getConfigurationForm($vars)->getFields() as $f) {
+            // Only bother with editable fields
+            if (!$f->isEditable()) continue;
+
             $val = $f->getClean();
             $errors = array_merge($errors, $f->errors());
             if ($f->errors()) continue;
@@ -1403,6 +1416,10 @@ implements CustomListItem, TemplateVariable {
                     }
                     break;
                 case 'state':
+                    // Internal statuses cannot change state
+                    if ($this->isInternal())
+                        break;
+
                     if ($val)
                         $this->set('state', $val);
                     else
