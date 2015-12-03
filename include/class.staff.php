@@ -428,14 +428,20 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return isset($this->locale) ? $this->locale : 0;
     }
 
-    function getRole($dept=null) {
+    function getRole($dept=null, $default=true) {
         $deptId = is_object($dept) ? $dept->getId() : $dept;
         if ($deptId && $deptId != $this->dept_id) {
             if (isset($this->_roles[$deptId]))
                 return $this->_roles[$deptId];
 
+            // Check extended access.
             if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
                 return $this->_roles[$deptId] = $access->role;
+
+            // Agent doesn't have access to the department
+            // return default role - assume assignment
+            if ($default && ($a = $this->dept_access->findFirst(array('dept_id' => 0))))
+                return $this->_roles[$deptId] = $a->role;
 
             // View only access
             return new Role(array());
@@ -1069,38 +1075,47 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
      */
     function updateAccess($access, &$errors) {
         reset($access);
-        $dropped = array();
-        foreach ($this->dept_access as $DA)
-            $dropped[$DA->dept_id] = 1;
+        $depts = array();
         while (list(, list($dept_id, $role_id, $alerts)) = each($access)) {
-            unset($dropped[$dept_id]);
+
+            if (!$dept_id  && !$role_id) continue;
+
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');
-            if (!$dept_id || !Dept::lookup($dept_id))
-                $errors['dept_access'][$dept_id] = __('Select a valid departent');
-            if ($dept_id == $this->getDeptId())
+            elseif ($dept_id && !Dept::lookup($dept_id))
+                $errors['dept_access'][$dept_id] = __('Select a valid department');
+            elseif ($dept_id == $this->getDeptId())
                 $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
+
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
             if (!isset($da)) {
                 $da = StaffDeptAccess::create(array(
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
-            }
-            else {
+            } else {
                 $da->role_id = $role_id;
             }
             $da->setAlerts($alerts);
-            if (!$errors)
-                $da->save();
+
+            if ($errors) continue;
+
+            $da->save();
+            $depts[$dept_id] = $role_id;
         }
-        if (!$errors && $dropped) {
-            $this->dept_access
-                ->filter(array('dept_id__in' => array_keys($dropped)))
-                ->delete();
-            $this->dept_access->reset();
-        }
-        return !$errors;
+
+        if ($errors)
+            return false;
+
+        $this->dept_access
+            ->filter(Q::not(array( 'dept_id__in' => $depts
+                            ? array_keys($depts)
+                            : array(-1))
+                        ))
+            ->delete();
+        $this->dept_access->reset();
+
+        return true;
     }
 
     function updatePerms($vars, &$errors=array()) {

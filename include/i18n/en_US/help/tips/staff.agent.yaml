@@ -73,11 +73,20 @@ assigned_group:
 primary_department:
     title: Primary Department
     content: >
-        Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs.
-
+        Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs and an affective <span class="doc-desc-title">Role</span>.
     links:
       - title: Manage Departments
         href: /scp/departments.php
+      - title: Manage Roles
+        href: /scp/roles.php
+
+assignment_role:
+    title: Assignment Role
+    content: >
+        Choose an applicable <span class="doc-desc-title">Role</span> for assigned tickets outside the agent's access control, otherwise the agent will have view only access.
+    links:
+      - title: Manage Roles
+        href: /scp/roles.php
 
 daylight_saving:
     title: Daylight Saving
