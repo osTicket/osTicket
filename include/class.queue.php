@@ -290,6 +290,13 @@ abstract class QueueColumnAnnotation {
         }
         return $annotations[$root];
     }
+
+    /**
+     * Estimate the width of the rendered annotation in pixels
+     */
+    function getWidth() {
+        return 15;
+    }
 }
 
 class TicketThreadCount
@@ -777,13 +784,18 @@ extends VerySimpleModel {
     }
 
     function applyTruncate($text) {
+        $offset = 0;
+        foreach ($this->getAnnotations() as $a)
+            $offset += $a->getWidth();
+
+        $width = $this->width - $offset;
         switch ($this->truncate) {
         case 'ellipsis':
             return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                'truncate', $this->width*1.1, $text);
+                'truncate', $width, $text);
         case 'clip':
             return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                'truncate clip', $this->width*1.1, $text);
+                'truncate clip', $width, $text);
         default:
         case 'wrap':
             return $text;
