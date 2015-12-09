@@ -30,7 +30,7 @@ else {
   <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
 
   <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
-      // <?php echo $title; ?>
+      <i class="icon-caret-right" style="color:rgba(0,0,0,.3);"></i> <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
       — <?php echo $queue->getFullName(); ?></small>
       <?php } ?>
@@ -41,6 +41,8 @@ else {
       <?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><i class="icon-columns"></i>
       <?php echo __('Columns'); ?></a></li>
+    <li><a href="#sorting-tab"><i class="icon-sort-by-attributes"></i>
+      <?php echo __('Sort'); ?></a></li>
     <li><a href="#preview-tab"><i class="icon-eye-open"></i>
       <?php echo __('Preview'); ?></a></li>
   </ul>
@@ -127,16 +129,14 @@ else {
   </div>
 
   <div class="hidden tab_content" id="columns">
+
+    <div class="tab-desc">
+        <p><b><?php echo __("Manage columns in this queue"); ?></b>
+        <br><?php echo __(
+        "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?></p>
+    </div>
     <table class="table two-column">
       <tbody>
-        <tr class="header">
-          <th colspan="3">
-            <?php echo __("Manage columns in this queue"); ?>
-            <div><small><?php echo __(
-            "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?>
-            </small></div>
-          </th>
-        </tr>
         <tr class="header">
           <td style="width:36%"><small><b><?php echo __('Heading and Width'); ?></b></small></td>
           <td><small><b><?php echo __('Column Details'); ?></b></small></td>
@@ -162,13 +162,12 @@ else {
                 $.dialog('ajax.php/tickets/search/column/edit/' + colid, 201);
                 return false;
                 "><i class="icon-cog"></i> <?php echo __('Config'); ?></a>
-            <span></span>
+            </div>
           </td>
           <td>
             <input type="checkbox" data-name="sortable">
             <a href="#" class="pull-right drop-column" title="<?php echo __('Delete');
               ?>"><i class="icon-trash"></i></a>
-            </div>
           </td>
         </tr>
       </tbody>
@@ -194,11 +193,65 @@ else {
         </tr>
       </tbody>
     </table>
-
   </div>
-
-  <div class="hidden tab_content" id="preview-tab">
-
+    
+    
+    <div class="hidden tab_content" id="sorting-tab">
+        <div class="tab-desc">
+            <p><b><?php echo __("Manage Queue Sorting"); ?></b>
+            <br><?php echo __("Add, edit or remove the sorting criteria for this custom queue using the options below. Sorting is priortized in ascending order."); ?></p>
+        </div>
+        <table class="queue-sort table">
+            <tbody class="sortable-rows ui-sortable">
+                <tr style="display: table-row;">
+                    <td>
+                        <i class="faded-more icon-sort"></i>
+                         <a class="inline"
+                href="#" onclick="javascript:
+                var colid = $(this).closest('tr').find('[data-name=sorting_id]').val();
+                $.dialog('ajax.php/tickets/search/sorting/edit/' + colid, 201);
+                return false;"><?php echo __('This is sort criteria title 1'); ?></a>
+                    </td>
+                    <td>
+                        <a href="#" class="pull-right drop-column" title="Delete"><i class="icon-trash"></i></a>
+                    </td>
+                </tr>
+                <tr style="display: table-row;">
+                    <td>
+                        <i class="faded-more icon-sort"></i>
+                        <a class="inline"
+                href="#" onclick="javascript:
+                var colid = $(this).closest('tr').find('[data-name=sorting_id]').val();
+                $.dialog('ajax.php/tickets/search/sorting/edit/' + colid, 201);
+                return false;
+                "><?php echo __('This is sort criteria title 2'); ?></a>
+                    </td>
+                    <td>
+                        <a href="#" class="pull-right drop-column" title="Delete"><i class="icon-trash"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr class="header">
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" id="append-sort">
+                        <i class="icon-plus-sign"></i>
+                        <select id="add-sort" data-quick-add="queue-column">
+                            <option value="">— Add Sort Criteria —</option>
+                            <option value="">Sort Option 1</option>
+                            <option value="">Sort Option 2</option>
+                            <option value="0" data-quick-add>&mdash; <?php echo __('Add New Sort Criteria');?> &mdash;</option>
+                        </select>
+                        <button type="button" class="green button">Add</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+    
+    <div class="hidden tab_content" id="preview-tab">
     <div id="preview">
     </div>
 
