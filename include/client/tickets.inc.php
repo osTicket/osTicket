@@ -103,8 +103,8 @@ $tickets->distinct('ticket_id');
 
 TicketForm::ensureDynamicDataView();
 
-$total=$tickets->count();
 $tickets->filter(array('ticket_id__in' => $visibility));
+$total=$tickets->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
