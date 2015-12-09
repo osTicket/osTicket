@@ -684,7 +684,7 @@ class MailFetcher {
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
 		$vars['staffId'] = staff::getIdByEmail($mailinfo['email']);
-		$vars['userid'] = useremail::getIdByEmail($mailinfo['email']);
+		$vars['userId'] = useremail::getIdByEmail($mailinfo['email']);
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
         $vars['mailflags'] = new ArrayObject();
 
@@ -773,8 +773,8 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
-		
-        if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+	
+		if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
             && ($message = $entry->postEmail($vars))
         ) {
             if (!$message instanceof ThreadEntry)

@@ -140,7 +140,6 @@ class Thread extends VerySimpleModel {
 
         if (!$criteria)
             $this->_collaborators = $collaborators;
-
         return $collaborators;
     }
 
@@ -322,12 +321,13 @@ class Thread extends VerySimpleModel {
 			'emailcollab' => '1',
 			'uid'=> '',
 			'assignToStaffId' => '',
+			'role' => 'M',
 			);
-
 
         // XXX: Is this necessary?
         if ($object instanceof Ticket)
             $vars['ticketId'] = $object->getId();
+			$vars['ownerId'] = $object->getUserId();
 
         if ($object instanceof Task)
             $vars['taskId'] = $object->getId();
@@ -363,44 +363,21 @@ class Thread extends VerySimpleModel {
 			if ($stafftoassign !== 0){
 				$vars['thread-type'] = 'N';
 				$object instanceof Ticket;
-				$object->assignToStaff($stafftoassign,"Assigned to {$staffname} via email.",$alert=true);
+				$object->assignToStaff($stafftoassign,null,$alert=true);
 			}
          }
 		
 		// Assignment based on email command #claim  (todo change to just a log and not a note)
-		if($vars['subject'] && preg_match ('/#claim/i', $vars['subject'])) {
+		if($vars['subject'] && preg_match ('/#claim1/i', $vars['subject'])) {
 			$vars['thread-type'] = 'N';
 			$stafftoassign = $vars['staffId'];
 			$staffname = staff::getFirstNameById($stafftoassign);
 			//Check to make sure the assigneee is a staff member
 			if ($stafftoassign !== 0){
 				$object instanceof Ticket;
-				$object->assignToStaff($stafftoassign,"Claimed by {$staffname} via email.",$alert=true);
+				$object->assignToStaff($stafftoassign,null,$alert=true); 
 				
 			}
-		}
-		
-		// Disambiguate if the user happens also to be a staff member of
-        // the system. The current ticket owner should _always_ post
-        // messages instead of notes or responses
-        if ($object instanceof Ticket
-            && strcasecmp($mailinfo['email'], $object->getEmail()) == 0
-        ) {
-			$vars['thread-type'] = 'M';
-            $vars['userId'] = $object->getUserId();
-        }
-
-		// If this is a staff member and no one is assigned, do the assignment 
-		// as this is a reply to the end user.
-		if ($vars['staffId'] && $vars['thread-type'] !== 'N'  && $vars['thread-type'] !== 'M'){
-
-		$object instanceof Ticket;
-			if(0 == $object->getStaffId()) {
-			
-				$object->assignToStaff($vars['staffId'],'Assigned via email reponse',$alert=true);
-				$vars['thread-type'] = 'R';
-			}
-			
 		}
 		
 		//Post an internal note to the ticket
@@ -408,53 +385,67 @@ class Thread extends VerySimpleModel {
            
 			$vars['thread-type'] = 'N';
 		}
-		     		
-		 
 		
+		// If this is a staff member and no one is assigned, do the assignment 
+		// as this is a reply to the end user.
+		if ($vars['staffId'] && $vars['thread-type'] !== 'N'  && $vars['thread-type'] !== 'M'){
+		$object instanceof Ticket;
+			if(0 == $object->getStaffId()) {
+				$object->assignToStaff($vars['staffId'],null,$alert=true);
+			}
+		}
+			
 		//Who is the ticket assigned to?
-	
 		$assignToStaffId = $object->getStaffId();
 		$vars['assignToStaffId'] = $assignToStaffId;
-		
-		if ($assignToStaffId == $vars['staffId'] && $vars['thread-type'] !== 'N'){
+
+		if ($assignToStaffId == $vars['staffId'] && $vars['thread-type'] !== 'N' && $vars['staffId'] !== 0){
 			// global $thisstaff;
 			//$thisstaff = $vars['staffId'];
 		$vars['thread-type'] = 'R';
+		$vars['role'] = 'M';
 		}
-		
+
 		if ($assignToStaffId !== $vars['staffId'] && $C = $this->collaborators->filter(array(
             'user__emails__address' => $mailinfo['email']
         ))->first() && !preg_match ('/#note/i', $vars['subject'])){
 			
-			$vars['thread-type'] = 'R';
+			$vars['thread-type'] = 'M';
+			$vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 		}
 		
 		
 		if ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0 
-		&& $vars['thread-type'] !== 'M' && $vars['thread-type'] !== 'R' ){ 
+		&& !$vars['thread-type']  ){ 
 			
 			$vars['thread-type'] = 'N';
             $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
-			$info['threadId'] = $vars['ticketId'];
+			$info['threadId'] = $this->getId();
 			$info['userId'] = $vars['userId'];
 			$info['role'] = 'N';
 			//add as a collaborator
-			Collaborator::add($info, $errors);			
+			Collaborator::add($info, $errors);	
+        }
 
+		// A user but not the ticket owner or a staffmember
+		if (!$vars['thread-type'] && $vars['ownerId'] !== $vars['userId']){ 
+			$vars['thread-type'] = 'M';
+            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+			
+			 $vars['recipients'][] = array(
+                            'source' => sprintf(_S("Email"),$source),
+                            'name' => $mailinfo['name'],
+                            'email' => $mailinfo['email'],
+							);
+			$vars['system'] = 1;
 		}
 		
-        // Consider collaborator role (disambiguate staff members as
-        // collaborators). Normally, the block above should match based
-        // on the Referenced message-id header
-        elseif ($C = $this->collaborators->filter(array(
-            'user__emails__address' => $mailinfo['email']
-        ))->first() && $vars['thread-type'] !== 'R' ) {
-            $vars['thread-type'] = 'M';
-            // XXX: There's no way that mailinfo[userId] would be set
-            $vars['userId'] = $mailinfo['userId'] ?: $C->getUserId();
-            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+		// Owner of the ticket
+		if ($vars['ownerId'] == $vars['userId']){ 
+			$vars['thread-type'] = 'M';
         }
-        // Don't process the email -- it came FROM this system
+	
+		// Don't process the email -- it came FROM this system
         elseif (Email::getIdByEmail($mailinfo['email'])) {
             return false;
         }
@@ -471,7 +462,6 @@ class Thread extends VerySimpleModel {
             $header = sprintf(
                 _S('Received From: %1$s <%2$s>') . "\n\n",
                 $mailinfo['name'], $mailinfo['email']);
-
             if ($body instanceof HtmlThreadEntryBody)
                 $header = nl2br(Format::htmlchars($header));
             // Add the banner to the top of the message
@@ -480,7 +470,7 @@ class Thread extends VerySimpleModel {
 				$vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
 				$vars['thread-type'] = 'M';
         }
-
+		
         switch ($vars['thread-type']) {
 			case 'R':
            	$vars['response'] = $body;
@@ -1328,6 +1318,32 @@ implements TemplateVariable {
                 }
             }
         }
+		
+		// Attempt to match on in-reply-to
+		If ($mailinfo['in-reply-to']){
+			$mid = $mailinfo['in-reply-to'];
+		$entries = ThreadEntry::objects()
+                ->filter(array('email_info__mid' => $mid))
+                ->order_by(false);
+            foreach ($entries as $t) {
+                // Capture the first match thread item
+                if (!$thread)
+                    $thread = $t;
+                // We found a match  - see if we can ID the user.
+                // XXX: Check access of ref is enough?
+                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                    if ($ref[0] =='s') //staff
+                        $mailinfo['staffId'] = $uid;
+                    else // user or collaborator.
+                        $mailinfo['userId'] = $uid;
+
+                    // Best possible case — found the thread and the
+                    // user
+                    return $t;
+                }		
+			} 
+		}
+		
         // Second best case — found a thread but couldn't identify the
         // user from the header. Return the first thread entry matched
         if ($thread)
@@ -1346,9 +1362,9 @@ implements TemplateVariable {
                 && preg_match("/#((\p{P}*[^\p{C}\p{Z}\p{P}]+)+)/u", $subject, $match)
                 //Lookup by ticket number
                 && ($ticket = Ticket::lookupByNumber($match[1]))
-                //Lookup the user using the email address
-                && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
-           
+                //Lookup the user using the email address 
+               && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
+     
            return $ticket->getLastMessage();
         }
 

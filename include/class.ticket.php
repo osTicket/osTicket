@@ -1456,7 +1456,7 @@ implements RestrictedAccess, Threadable {
 
     function  notifyCollaborators($entry, $vars = array()) {  
         global $cfg;
-	
+
         if (!$entry instanceof ThreadEntry
             || !($recipients=$this->getRecipients($vars['role']))
             || !($dept=$this->getDept())
@@ -1466,6 +1466,7 @@ implements RestrictedAccess, Threadable {
         ) { 
             return;
         }
+		
         // Who posted the entry?
         $skip = array();
         if ($entry instanceof MessageThreadEntry) { 
@@ -1497,7 +1498,7 @@ implements RestrictedAccess, Threadable {
 					// Skip the ticket owner
 					$skip[$this->getUserId()] = 1;
 		}
-		
+
         $vars = array_merge($vars, array(
             'message' => (string) $entry,
             'poster' => $poster ?: _S('A collaborator'),
@@ -1509,8 +1510,12 @@ implements RestrictedAccess, Threadable {
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
         $options = array('thread' => $entry);
 
+		//Override.... Use the poster name.
+		$options += array('from_name' =>  $poster);
+		
         if ($vars['from_name'])
             $options += array('from_name' => $vars['from_name']);
+		
 
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of
@@ -2285,11 +2290,17 @@ implements RestrictedAccess, Threadable {
         $this->setLastMessage($message);
 
         // Add email recipients as collaborators...
+		
         if ($vars['recipients']
             && (strtolower($origin) != 'email' || ($cfg && $cfg->addCollabsViaEmail()))
             //Only add if we have a matched local address
             && $vars['to-email-id']
         ) {
+			if ($vars['system']){
+				$eventuser = null;	
+			}else{
+			$eventuser = $message->user;	
+			}			
             //New collaborators added by other collaborators are disable --
             // requires staff approval.
             $info = array(
@@ -2307,11 +2318,12 @@ implements RestrictedAccess, Threadable {
                         $collabs[$c->user_id] = array(
                             'name' => $c->getName()->getOriginal(),
                             'src' => $recipient['source'],
+
                         );
             }
             // TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logEvent('collab', array('add' => $collabs), $message->user);
+                $this->logEvent('collab', array('add' => $collabs), $eventuser);
             }
         }
 
@@ -2332,6 +2344,8 @@ implements RestrictedAccess, Threadable {
             $alerts = false;
         }
 
+		//Override.... Use the poster name.
+		
         $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
 
         if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
@@ -2562,7 +2576,7 @@ implements RestrictedAccess, Threadable {
             $email->send($user, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
-		
+
 	    if ($vars['emailcollab']) {
             $this->notifyCollaborators($response,
                 array(
@@ -2669,7 +2683,7 @@ implements RestrictedAccess, Threadable {
 	    $errors = array();
         switch ($type) {
         case 'M':
-            return $this->postMessage($vars, $vars['origin']);
+		    return $this->postMessage($vars, $vars['origin']);
         case 'N':
             return $this->postNote($vars, $errors);
         case 'R':
