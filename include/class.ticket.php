@@ -851,11 +851,11 @@ implements RestrictedAccess, Threadable {
     }
 
     //UserList of recipients  (owner + collaborators)
-    function getRecipients() {
+    function getRecipients($role=null) {
         if (!isset($this->recipients)) {
             $list = new UserList();
             $list->add($this->getOwner());
-            if ($collabs = $this->getThread()->getActiveCollaborators()) {
+            if ($collabs = $this->getThread()->getActiveCollaborators($role)) {
                 foreach ($collabs as $c)
                     $list->add($c);
             }
@@ -881,6 +881,7 @@ implements RestrictedAccess, Threadable {
                 break;
             case 'teams':
                 if (($teams = Team::getActiveTeams()))
+
                     foreach ($teams as $id => $name)
                         $assignees['t'.$id] = $name;
 
@@ -1453,22 +1454,25 @@ implements RestrictedAccess, Threadable {
      *
      */
 
-    function  notifyCollaborators($entry, $vars = array()) {
+    function  notifyCollaborators($entry, $vars = array()) {  
         global $cfg;
 
         if (!$entry instanceof ThreadEntry
-            || !($recipients=$this->getRecipients())
+            || !($recipients=$this->getRecipients($vars['role']))
             || !($dept=$this->getDept())
             || !($tpl=$dept->getTemplate())
             || !($msg=$tpl->getActivityNoticeMsgTemplate())
             || !($email=$dept->getEmail())
-        ) {
+        ) { 
             return;
         }
+		
         // Who posted the entry?
         $skip = array();
-        if ($entry instanceof MessageThreadEntry) {
+        if ($entry instanceof MessageThreadEntry) { 
             $poster = $entry->getUser();
+			
+
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
             // Skip all the other recipients of the message
@@ -1481,10 +1485,19 @@ implements RestrictedAccess, Threadable {
                 }
             }
         } else {
-            $poster = $entry->getStaff();
-            // Skip the ticket owner
-            $skip[$this->getUserId()] = 1;
-        }
+
+		// Note collaborator
+		if ($vars['poster'])		
+				$poster = 	$vars['poster'];
+		// Skip the poster of the note
+		if ($poster)
+				$skip[$vars['userId']] = 1;
+		// Note via the GUI
+		if (!$poster)
+				$poster = $entry->getStaff();
+					// Skip the ticket owner
+					$skip[$this->getUserId()] = 1;
+		}
 
         $vars = array_merge($vars, array(
             'message' => (string) $entry,
@@ -1497,14 +1510,22 @@ implements RestrictedAccess, Threadable {
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
         $options = array('thread' => $entry);
 
+		//Override.... Use the poster name.
+		$options += array('from_name' =>  $poster);
+		
         if ($vars['from_name'])
             $options += array('from_name' => $vars['from_name']);
+		
 
         foreach ($recipients as $recipient) {
             // Skip folks who have already been included on this part of
             // the conversation
-            if (isset($skip[$recipient->getUserId()]))
+	        if (isset($skip[$recipient->getUserId()]))
                 continue;
+		// If this is a reply to a note then add #note to subject
+		if ($vars['role'] == 'N')
+		$msg['subj'] = "{$msg['subj']} #note";
+
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
@@ -1637,9 +1658,9 @@ implements RestrictedAccess, Threadable {
         // Dept manager
         if ($cfg->alertDeptManagerONNewActivity() && $dept && $dept->getManagerId())
             $recipients[] = $dept->getManager();
-
         $options = array();
         $staffId = $thisstaff ? $thisstaff->getId() : 0;
+		
         if ($vars['threadentry'] && $vars['threadentry'] instanceof ThreadEntry) {
             $options = array('thread' => $vars['threadentry']);
 
@@ -2110,7 +2131,7 @@ implements RestrictedAccess, Threadable {
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
 
-        if (!$staff->isAvailable() || !$this->setStaffId($staff->getId()))
+        if (!$this->setStaffId($staff->getId()))
             return false;
 
         $this->onAssign($staff, $note, $alert);
@@ -2265,15 +2286,21 @@ implements RestrictedAccess, Threadable {
         $errors = array();
         if (!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
-
+	
         $this->setLastMessage($message);
 
         // Add email recipients as collaborators...
+		
         if ($vars['recipients']
             && (strtolower($origin) != 'email' || ($cfg && $cfg->addCollabsViaEmail()))
             //Only add if we have a matched local address
             && $vars['to-email-id']
         ) {
+			if ($vars['system']){
+				$eventuser = null;	
+			}else{
+			$eventuser = $message->user;	
+			}			
             //New collaborators added by other collaborators are disable --
             // requires staff approval.
             $info = array(
@@ -2291,11 +2318,12 @@ implements RestrictedAccess, Threadable {
                         $collabs[$c->user_id] = array(
                             'name' => $c->getName()->getOriginal(),
                             'src' => $recipient['source'],
+
                         );
             }
             // TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logEvent('collab', array('add' => $collabs), $message->user);
+                $this->logEvent('collab', array('add' => $collabs), $eventuser);
             }
         }
 
@@ -2316,6 +2344,8 @@ implements RestrictedAccess, Threadable {
             $alerts = false;
         }
 
+		//Override.... Use the poster name.
+		
         $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
 
         if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
@@ -2331,6 +2361,7 @@ implements RestrictedAccess, Threadable {
         );
 
         $options = array('thread'=>$message);
+		
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
             && ($email = $dept->getAlertEmail())
@@ -2379,6 +2410,8 @@ implements RestrictedAccess, Threadable {
                     continue;
                 }
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
+				// Add the poster name to the outbound mail
+				$options += array('from_name' =>  $vars['poster']);
                 $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
@@ -2458,9 +2491,8 @@ implements RestrictedAccess, Threadable {
 
     /* public */
     function postReply($vars, &$errors, $alert=true, $claim=true) {
-        global $thisstaff, $cfg;
-
-        if (!$vars['poster'] && $thisstaff)
+		global $thisstaff, $cfg;
+		if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
 
         if (!$vars['staffId'] && $thisstaff)
@@ -2480,8 +2512,6 @@ implements RestrictedAccess, Threadable {
         ) {
             $this->setStatus($vars['reply_status_id']);
         }
-
-
         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
                 && $cfg->autoClaimTickets()
@@ -2489,9 +2519,7 @@ implements RestrictedAccess, Threadable {
         if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
-
         $this->lastrespondent = $response->staff;
-
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
         /* email the user??  - if disabled - then bail out */
@@ -2526,6 +2554,9 @@ implements RestrictedAccess, Threadable {
 
         }
 
+		//Override.... Use the poster name.
+		$options += array('from_name' =>  $vars['poster']);
+
         $variables = array(
             'response' => $response,
             'signature' => $signature,
@@ -2546,7 +2577,7 @@ implements RestrictedAccess, Threadable {
                 $options);
         }
 
-        if ($vars['emailcollab']) {
+	    if ($vars['emailcollab']) {
             $this->notifyCollaborators($response,
                 array(
                     'signature' => $signature,
@@ -2586,7 +2617,7 @@ implements RestrictedAccess, Threadable {
 
     function postNote($vars, &$errors, $poster=false, $alert=true) {
         global $cfg, $thisstaff;
-
+	
         //Who is posting the note - staff or system?
         if ($vars['staffId'] && !$poster)
             $poster = Staff::lookup($vars['staffId']);
@@ -2630,16 +2661,29 @@ implements RestrictedAccess, Threadable {
             'threadentry' => $note,
             'assignee' => $assignee
         ), $alert);
+	
+		if (!$vars['userId'])
+			$vars['userId'] = Staff::getStaffUserId($vars['staffId']);
+		
+		 $this->notifyCollaborators($note,
+                array(
+                    'signature' => $signature,
+                    'from_name' => $from_name,
+					'role' => 'N',
+					'userId' => $vars['userId'],
+					'poster' => $vars['poster'],
+					)
+            );
 
         return $note;
     }
 
     // Threadable interface
     function postThreadEntry($type, $vars, $options=array()) {
-        $errors = array();
+	    $errors = array();
         switch ($type) {
         case 'M':
-            return $this->postMessage($vars, $vars['origin']);
+		    return $this->postMessage($vars, $vars['origin']);
         case 'N':
             return $this->postNote($vars, $errors);
         case 'R':
@@ -3081,6 +3125,7 @@ implements RestrictedAccess, Threadable {
                 break;
             case 'email':
                 $fields['emailId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Unknown system email'));
+				$vars['staffId'] = null;
                 break;
             default:
                 # TODO: Return error message
@@ -3271,10 +3316,9 @@ implements RestrictedAccess, Threadable {
                 $form->setAnswer('priority', null, $topic->getPriorityId());
             if ($autorespond)
                 $autorespond = $topic->autoRespond();
-
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
-                $vars['staffId'] = $topic->getStaffId();
+			     $vars['staffId'] = $topic->getStaffId();
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
 

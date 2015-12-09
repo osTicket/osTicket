@@ -1504,6 +1504,25 @@ h2 > i.help-tip {
 .form_table th h4 i.help-tip {
     color: white;
 }
+tr#open_ticket_userinformation th{
+	background-color:#F4FAFF;
+}
+tr#open_ticket_informationoptions th{
+	background-color:#F4FAFF;
+}
+
+tbody#dynamic-form tr th {
+	background-color:#C3D9FF;
+}
+
+tr#open_ticket_response th {
+	background-color: #FFE0B3;
+}
+
+tr#open_ticket_note th{
+	background-color: #FFE;	
+	
+}
 
 /* Knowledgebase */
 /* Knowledgebase */
@@ -2340,6 +2359,7 @@ tr.disabled th {
   border: 1px solid #999999;
   color: #999999;
   text-shadow: none;
+  margin: -1px 0 -1px 5px;
 }
 .label-info {
   background-color: #3a87ad;
@@ -2501,6 +2521,7 @@ tr i.help-tip.warning {
 .truncate.bleed {
     text-overflow: hidden;
 }
+
 td.indented {
     padding-left: 20px;
 }
@@ -2695,6 +2716,118 @@ td.indented {
     margin: -4px 0.3em 0;
     vertical-align: middle;
 }
+
+/******** Start Thread Preview Styles ********/
+.thread-preview {
+    max-height:350px;
+    overflow-x:auto;
+    margin:5px 0px;
+}
+.thread-preview-entry {
+    margin-bottom:5px;
+}
+.thread-preview-entry:first-child {
+    margin-bottom:5px;
+    margin-top:5px;
+}
+/***Types of headers***/
+.thread-preview-entry.message .header {
+    background-color:#C3D9FF;
+}
+
+.thread-preview-entry.response .header {
+    background-color:#FFE0B3;
+}
+
+.thread-preview-entry.note .header {
+    background-color: #ffffdd;
+}
+
+.header .thread-name span:first-child {
+    color:#000;
+}
+/***Collapsed CSS***/
+
+.thread-preview-entry.collapsed {
+    background-color:#f7f7f7;
+    margin-bottom:0;
+    cursor:pointer;
+}
+.thread-preview-entry.collapsed:first-child {
+    margin-bottom:0px;
+    margin-top:0px;
+}
+.thread-preview-entry.collapsed .header {
+    background-color:#f7f7f7;
+    border-bottom:1px solid #f7f7f7;
+}
+.thread-preview-entry.collapsed.message .header .thread-name span:first-child {
+    color:#0088cc;
+}
+
+.thread-preview-entry.collapsed.response .header .thread-name span:first-child {
+    color:#e65524;
+}
+
+.thread-preview-entry.collapsed .thread-body {
+    background-color:#f7f7f7;
+    padding-top:0;
+    border-left:1px solid #ccc;
+    border-right:1px solid #ccc;
+    height:20px;
+    overflow:hidden;
+    padding-bottom:10px;
+}
+.thread-preview-entry.collapsed .thread-body .thread-teaser {
+    width: auto;
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+/***Thread information styles***/
+.thread-info {
+    width:60%;
+}
+.thread-preview .thread-name span:first-child {
+    font-weight:bold;
+}
+
+
+/***Overrides***/
+
+.thread-preview #thread-items::before {
+    display:none;
+}
+.thread-preview-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: none;
+    cursor:pointer;
+}
+.thread-preview-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: none;
+    padding-bottom:10px;
+    height:auto;
+    overflow:visible;
+}
+.thread-preview-entry .thread-body .thread-teaser {
+    width: auto;
+    display: block;
+    max-width: 100%;
+    white-space:normal;
+    overflow: visible;
+    text-overflow:inherit;
+    vertical-align:bottom;
+}
+/******** End Thread Preview Styles ********/
 
 #thread-items::before {
   border-left: 2px dotted #ddd;
