@@ -353,7 +353,7 @@ class UserNav {
                                            'title'=>__('View ticket status'));
                 }
             } else {
-                 $navs['status']=array('desc'=>__('Check Ticket Status'),'href'=>'view.php','title'=>'');
+                 $navs['status']=array('desc'=>__('<span class="glyphicon glyphicon-ok"></span> Check Ticket Status'),'href'=>'view.php','title'=>'');
             }
             $this->navs=$navs;
         }
