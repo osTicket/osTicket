@@ -27,12 +27,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 ?>
-<h1><?php echo __('Open a New Ticket');?></h1>
-<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+<div class="row">
+<div class="page-title">
+	<h1><?php echo __('Open a New Ticket');?></h1>
+	<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+</div>
+</div>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
-  <table width="800" cellpadding="1" cellspacing="0" border="0">
+  <table width="100%"" cellpadding="1" cellspacing="0" border="0">
     <tbody>
 <?php
         if (!$thisclient) {
@@ -42,19 +46,15 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
-        <tr><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <tr class="form-group"><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
+        <tr class="form-group"><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
         <?php } ?>
     </tbody>
-    <tbody>
-    <tr><td colspan="2"><hr />
-        <div class="form-header" style="margin-bottom:0.5em">
-        <b><?php echo __('Help Topic'); ?></b>
-        </div>
-    </td></tr>
-    <tr>
-        <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
+
+        <div class="form-group">
+		<label class="required" for="topicId"><?php echo __('Help Topic'); ?></label> <font class="error">*</font>
+        
+            <select class="form-control" id="topicId" name="topicId" onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
                     $.ajax(
                       'ajax.php/form/help-topic/' + this.value,
@@ -78,15 +78,13 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                 <?php
                 } ?>
             </select>
-            <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
-        </td>
-    </tr>
-    </tbody>
-    <tbody id="dynamic-form">
+            <?php echo $errors['topicId']; ?></font>
+	</div>
+    <table id="dynamic-form">
         <?php foreach ($forms as $form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
-    </tbody>
+    </table>
     <tbody>
     <?php
     if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
@@ -105,14 +103,13 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tr>
     <?php
     } ?>
-    <tr><td colspan=2>&nbsp;</td></tr>
+   
     </tbody>
   </table>
-<hr/>
-  <p class="buttons" style="text-align:center;">
-        <input type="submit" value="<?php echo __('Create Ticket');?>">
-        <input type="reset" name="reset" value="<?php echo __('Reset');?>">
-        <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
+  <p class="buttons" >
+        <input class="btn btn-success" type="submit" value="<?php echo __('Create Ticket');?>">
+        <input class="btn btn-warning" type="reset" name="reset" value="<?php echo __('Reset');?>">
+        <input class="btn btn-default" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
@@ -121,3 +118,4 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+<div class="clearfix"></div>
