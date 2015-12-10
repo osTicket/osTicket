@@ -370,7 +370,7 @@ class MysqlSearchBackend extends SearchBackend {
 
         switch ($criteria->model) {
         case false:
-		case 'Ticket': // For Client search
+	case 'Ticket': // For Client search
             if ($addRelevance) {
                 $criteria = $criteria->extra(array(
                     'select' => array(
