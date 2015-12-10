@@ -95,7 +95,7 @@ $qstr .= '&amp;order='.urlencode($order=='DESC' ? 'ASC' : 'DESC');
         if ($count) {
             $teams = Team::objects()
                 ->annotate(array(
-                        'members_count'=>SqlAggregate::COUNT('members', true),
+                        'members_count'=>SqlAggregate::COUNT('members__staff', true),
                 ))
                 ->order_by(sprintf('%s%s',
                             strcasecmp($order, 'DESC') ? '' : '-',

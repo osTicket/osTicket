@@ -71,16 +71,17 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
 
-        if(!$_POST['message'])
-
-            $errors['message']=__('Message required');
+        $_POST['message'] = ThreadEntryBody::clean($_POST['message']);
+        if (!$_POST['message'])
+            $errors['message'] = __('Message required');
 
         if(!$errors) {
             //Everything checked out...do the magic.
             $vars = array(
                     'userId' => $thisclient->getId(),
                     'poster' => (string) $thisclient->getName(),
-                    'message' => $_POST['message']);
+                    'message' => $_POST['message']
+                    );
             $vars['cannedattachments'] = $attachments->getClean();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
@@ -128,7 +129,7 @@ if($ticket) {
     }
     else
         $inc='view.inc.php';
-} elseif($thisclient->getNumTickets()) {
+} elseif($thisclient->getNumTickets($thisclient->canSeeOrgTickets())) {
     $inc='tickets.inc.php';
 } else {
     //$nav->setActiveNav('new');

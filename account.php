@@ -29,10 +29,12 @@ if (!$cfg || !$cfg->isClientRegistrationEnabled()) {
 elseif ($thisclient) {
     // Guest registering for an account
     if ($thisclient->isGuest()) {
-        foreach ($thisclient->getForms() as $f)
-            if ($f->get('type') == 'U')
+        foreach ($thisclient->getForms() as $f) {
+            if ($f->get('object_type') == 'U') {
                 $user_form = $f;
-        $user_form->getField('email')->configure('disabled', true);
+                $user_form->getField('email')->configure('disabled', true);
+            }
+        }    
     }
     // Existing client (with an account) updating profile
     else {

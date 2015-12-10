@@ -25,6 +25,7 @@ require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
 $page='';
 $ticket = $user = null; //clean start.
+$redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
     if(!($ticket=Ticket::lookup($_REQUEST['id'])))
@@ -37,9 +38,10 @@ if($_REQUEST['id']) {
 
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-} elseif (!$ticket) {
+}
+if (!$ticket) {
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
-    $queue_name = strtolower($_GET['status'] ?: $_GET['a']); //Status is overloaded
+    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
     if (!$queue_name && isset($_SESSION[$queue_key]))
         $queue_name = $_SESSION[$queue_key];
 
@@ -80,8 +82,10 @@ if($_POST && !$errors):
                 $errors['err'] = __('Action denied. Contact admin for access');
             }
             else {
-
-                if(!$_POST['response'])
+                $vars = $_POST;
+                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                $vars['response'] = ThreadEntryBody::clean($vars['response']);
+                if(!$vars['response'])
                     $errors['response']=__('Response required');
 
                 if ($cfg->getLockTime()) {
@@ -105,10 +109,6 @@ if($_POST && !$errors):
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
 
-            //If no error...do the do.
-            $vars = $_POST;
-            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
-
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
                         sprintf(__('Ticket #%s'),
@@ -130,6 +130,7 @@ if($_POST && !$errors):
 
                 // Go back to the ticket listing page on reply
                 $ticket = null;
+                $redirect = 'tickets.php';
 
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
@@ -140,6 +141,7 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->getLockTime()) {
                 if (!$lock) {
@@ -172,6 +174,7 @@ if($_POST && !$errors):
                     Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
                         $thisstaff->getId());
 
+                 $redirect = 'tickets.php';
             } else {
 
                 if(!$errors['err'])
@@ -186,6 +189,7 @@ if($_POST && !$errors):
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
+                $redirect = 'tickets.php?id='.$ticket->getId();
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
                 if(!$ticket->checkStaffPerm($thisstaff))
@@ -333,6 +337,12 @@ if($_POST && !$errors):
     if(!$errors)
         $thisstaff ->resetStats(); //We'll need to reflect any changes just made!
 endif;
+
+if ($redirect) {
+    if ($msg)
+        Messages::success($msg);
+    Http::redirect($redirect);
+}
 
 /*... Quick stats ...*/
 $stats= $thisstaff->getTicketsStats();

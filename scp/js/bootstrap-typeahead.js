@@ -158,9 +158,8 @@
   , highlighter: function (item) {
       if (!this.query)
           return item;
-      return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      })
+      var exp = this.query.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&").replace(' ', '|')
+      return item.replace(new RegExp(exp, 'ig'), '<strong>$&</strong>')
     }
 
   , render: function (items) {

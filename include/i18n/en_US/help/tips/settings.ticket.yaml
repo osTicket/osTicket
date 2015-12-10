@@ -108,12 +108,6 @@ answered_tickets:
         will be included in the <span class="doc-desc-title">Open Tickets
         Queue</span>.
 
-staff_identity_masking:
-    title: Staff Identity Masking
-    content: >
-        If enabled, this will hide the Agent’s name from the Client during any
-        communication.
-
 ticket_attachment_settings:
     title: Ticket Thread Attachments
     content: >

@@ -26,46 +26,6 @@ class TicketsAjaxAPI extends AjaxController {
     function lookup() {
         global $thisstaff;
 
-        if(!is_numeric($_REQUEST['q']))
-            return self::lookupByEmail();
-
-
-        $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $tickets=array();
-
-        $visibility = Q::any(array(
-            'staff_id' => $thisstaff->getId(),
-            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
-        ));
-        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
-            $visibility->add(array('dept_id__in' => $depts));
-        }
-
-
-        $hits = TicketModel::objects()
-            ->filter(Q::any(array(
-                'number__startswith' => $_REQUEST['q'],
-            )))
-            ->filter($visibility)
-            ->values('number', 'user__emails__address')
-            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
-            ->order_by('-created')
-            ->limit($limit);
-
-        foreach ($hits as $T) {
-            $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
-                'info'=>"{$T['number']} — {$T['user__emails__address']}",
-                'matches'=>$_REQUEST['q']);
-        }
-        if (!$tickets)
-            return self::lookupByEmail();
-
-        return $this->json_encode($tickets);
-    }
-
-    function lookupByEmail() {
-        global $thisstaff;
-
 
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
@@ -79,22 +39,52 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         $hits = TicketModel::objects()
-            ->filter(Q::any(array(
-                'user__emails__address__contains' => $_REQUEST['q'],
-                'user__name__contains' => $_REQUEST['q'],
-                'user__account__username' => $_REQUEST['q'],
-                'user__org__name__contains' => $_REQUEST['q'],
-            )))
             ->filter($visibility)
-            ->values('user__emails__address')
-            ->annotate(array('tickets' => SqlAggregate::COUNT('ticket_id')))
+            ->values('user__default_email__address')
+            ->annotate(array(
+                'number' => new SqlCode('null'),
+                'tickets' => SqlAggregate::COUNT('ticket_id', true)))
             ->limit($limit);
 
+        $q = $_REQUEST['q'];
+
+        if (strlen($q) < 3)
+            return $this->encode(array());
+
+        global $ost;
+        $hits = $ost->searcher->find($q, $hits)
+            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+
+        if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
+            $hits = TicketModel::objects()
+                ->values('user__default_email__address', 'number')
+                ->annotate(array(
+                    'tickets' => new SqlCode('1'),
+                    '__relevance__' => new SqlCode(1)
+                ))
+                ->filter($visibility)
+                ->filter(array('number__startswith' => $q))
+                ->limit($limit)
+                ->union($hits);
+        }
+        elseif (!count($hits) && preg_match('`\w$`u', $q)) {
+            // Do wild-card fulltext search
+            $_REQUEST['q'] = $q.'*';
+            return $this->lookup();
+        }
+
         foreach ($hits as $T) {
-            $email = $T['user__emails__address'];
+            $email = $T['user__default_email__address'];
             $count = $T['tickets'];
-            $tickets[] = array('email'=>$email, 'value'=>$email,
-                'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+            if ($T['number']) {
+                $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                    'info'=>"{$T['number']} — {$email}",
+                    'matches'=>$_REQUEST['q']);
+            }
+            else {
+                $tickets[] = array('email'=>$email, 'value'=>$email,
+                    'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+            }
         }
 
         return $this->json_encode($tickets);
@@ -103,7 +93,7 @@ class TicketsAjaxAPI extends AjaxController {
     function acquireLock($tid) {
         global $cfg, $thisstaff;
 
-        if(!$cfg || !$cfg->getLockTime())
+        if(!$cfg || !$cfg->getLockTime() || $cfg->getTicketLockMode() == Lock::MODE_DISABLED)
             Http::response(418, $this->encode(array('id'=>0, 'retry'=>false)));
 
         if(!$tid || !is_numeric($tid) || !$thisstaff)
@@ -415,31 +405,44 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
 
-    function assign($tid, $to=null) {
+    function assign($tid, $target=null) {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
 
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN))
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !($form = $ticket->getAssignmentForm($_POST,
+                        array('target' => $target))))
             Http::response(403, __('Permission Denied'));
 
         $errors = array();
         $info = array(
                 ':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
-                    $ticket->isAssigned() ? __('Reassign') :  __('Assign')),
+                    sprintf('%s %s',
+                        $ticket->isAssigned() ?
+                            __('Reassign') :  __('Assign'),
+                        !strcasecmp($target, 'agents') ?
+                            __('to an Agent') : __('to a Team')
+                    )),
                 ':action' => sprintf('#tickets/%d/assign%s',
                     $ticket->getId(),
-                    ($to  ? "/$to": '')),
+                    ($target  ? "/$target": '')),
                 );
+
         if ($ticket->isAssigned()) {
-            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
-                    __('Ticket'),
-                    $ticket->getAssigned());
+            if ($ticket->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigned = $ticket->getAssigned();
+
+            $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This ticket'),
+                    Format::htmlchars($assigned)
+                    );
         }
 
-        $form = $ticket->getAssignmentForm($_POST);
         if ($_POST && $form->isValid()) {
             if ($ticket->assign($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
@@ -459,14 +462,77 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/assign.tmpl.php';
     }
 
-    function massProcess($action)  {
+    function claim($tid) {
+
         global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        // Check for premissions and such
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !$ticket->isOpen() // Claim only open
+                || $ticket->getStaff() // cannot claim assigned ticket
+                || !($form = $ticket->getClaimForm($_POST)))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Claim')),
+                ':action' => sprintf('#tickets/%d/claim',
+                    $ticket->getId()),
+
+                );
+
+        if ($ticket->isAssigned()) {
+            if ($ticket->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigneed = $ticket->getAssigned();
+
+            $info['error'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This ticket'),
+                    $assigned);
+        } else {
+            $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                    __('this ticket'));
+        }
+
+        if ($_POST && $form->isValid()) {
+            if ($ticket->claim($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s assigned to %s'),
+                            __('Ticket'),
+                            __('you'))
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to claim ticket');
+        }
+
+        $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
+
+    }
+
+    function massProcess($action, $w=null)  {
+        global $thisstaff, $cfg;
 
         $actions = array(
                 'transfer' => array(
                     'verbed' => __('transferred'),
                     ),
                 'assign' => array(
+                    'verbed' => __('assigned'),
+                    ),
+                'claim' => array(
                     'verbed' => __('assigned'),
                     ),
                 'delete' => array(
@@ -496,12 +562,102 @@ class TicketsAjaxAPI extends AjaxController {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'claim':
+            $w = 'me';
         case 'assign':
             $inc = 'assign.tmpl.php';
-            $info[':action'] = '#tickets/mass/assign';
+            $info[':action'] = "#tickets/mass/assign/$w";
             $info[':title'] = sprintf('Assign %s',
                     _N('selected ticket', 'selected tickets', $count));
+
             $form = AssignmentForm::instantiate($_POST);
+
+            $assignCB = function($t, $f, $e) {
+                return $t->assign($f, $e);
+            };
+
+            $assignees = null;
+            switch ($w) {
+                case 'agents':
+                    $depts = array();
+                    $tids = $_POST['tids'] ?: array_filter(explode(',', $_REQUEST['tids']));
+                    if ($tids) {
+                        $tickets = TicketModel::objects()
+                            ->distinct('dept_id')
+                            ->filter(array('ticket_id__in' => $tids));
+
+                        $depts = $tickets->values_flat('dept_id');
+                    }
+                    $members = Staff::objects()
+                        ->distinct('staff_id')
+                        ->filter(array(
+                                    'onvacation' => 0,
+                                    'isactive' => 1,
+                                    )
+                                );
+
+                    if ($depts) {
+                        $members->filter(Q::any( array(
+                                        'dept_id__in' => $depts,
+                                        Q::all(array(
+                                            'dept_access__dept__id__in' => $depts,
+                                            Q::not(array('dept_access__dept__flags__hasbit'
+                                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                            ))
+                                        )));
+                    }
+
+                    switch ($cfg->getAgentNameFormat()) {
+                    case 'last':
+                    case 'lastfirst':
+                    case 'legal':
+                        $members->order_by('lastname', 'firstname');
+                        break;
+
+                    default:
+                        $members->order_by('firstname', 'lastname');
+                    }
+
+                    $prompt  = __('Select an Agent');
+                    $assignees = array();
+                    foreach ($members as $member)
+                         $assignees['s'.$member->getId()] = $member->getName();
+
+                    if (!$assignees)
+                        $info['warn'] =  __('No agents available for assignment');
+                    break;
+                case 'teams':
+                    $assignees = array();
+                    $prompt = __('Select a Team');
+                    foreach (Team::getActiveTeams() as $id => $name)
+                        $assignees['t'.$id] = $name;
+
+                    if (!$assignees)
+                        $info['warn'] =  __('No teams available for assignment');
+                    break;
+                case 'me':
+                    $info[':action'] = '#tickets/mass/claim';
+                    $info[':title'] = sprintf('Claim %s',
+                            _N('selected ticket', 'selected tickets', $count));
+                    $info['warn'] = sprintf(__('Are you sure you want to claim %s?'),
+                                _N('selected ticket', 'selected tickets', $count));
+                    $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+                    $id = sprintf('s%s', $thisstaff->getId());
+                    $assignees = array($id => $thisstaff->getName());
+                    $vars = $_POST ?: array('assignee' => array($id));
+                    $form = ClaimForm::instantiate($vars);
+                    $assignCB = function($t, $f, $e) {
+                        return $t->claim($f, $e);
+                    };
+                    break;
+            }
+
+            if ($assignees != null)
+                $form->setAssignees($assignees);
+
+            if ($prompt && ($f=$form->getField('assignee')))
+                $f->configure('prompt', $prompt);
+
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -509,7 +665,7 @@ class TicketsAjaxAPI extends AjaxController {
                             // access and assign the task.
                             && $t->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                             // Do the assignment
-                            && $t->assign($form, $e)
+                            && $assignCB($t, $form, $e)
                             )
                         $i++;
                 }

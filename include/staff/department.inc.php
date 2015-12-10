@@ -150,6 +150,22 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <i class="help-tip icon-question-sign" href="#sandboxing"></i>
             </td>
         </tr>
+
+        <tr>
+            <td><?php echo __('Claim on Response'); ?>:</td>
+            <td>
+                <label>
+                <input type="checkbox" name="disable_auto_claim" <?php echo
+                 $info['disable_auto_claim'] ? 'checked="checked"' : ''; ?>>
+                <?php echo sprintf('<strong>%s</strong> %s',
+                        __('Disable'),
+                        __('auto claim')); ?>
+                </label>
+                <i class="help-tip icon-question-sign"
+                href="#disable_auto_claim"></i>
+            </td>
+        </tr>
+
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Outgoing Email Settings'); ?></strong>:</em>
@@ -419,6 +435,8 @@ $('#add_extended_access').find('button').on('click', function() {
 if ($dept) {
     $members = $dept->members->all();
     foreach ($dept->extended as $x) {
+        if (!$x->staff)
+            continue;
         $members[] = new AnnotatedModel($x->staff, array(
             'alerts' => $x->isAlertsEnabled(),
             'role_id' => $x->role_id,

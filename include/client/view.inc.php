@@ -32,7 +32,10 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2" width="100%">
             <h2>
                 <a href="tickets.php?id=<?php echo $ticket->getId(); ?>" title="<?php echo __('Reload'); ?>"><i class="refresh icon-refresh"></i></a>
-                <b><?php echo Format::htmlchars($ticket->getSubject()); ?></b>
+                <b>
+                <?php $subject_field = TicketForm::getInstance()->getField('subject');
+                    echo $subject_field->display($ticket->getSubject()); ?>
+                </b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
     <a class="action-button btn-lg" href="tickets.php?a=print&id=<?php
@@ -87,15 +90,21 @@ if ($thisclient && $thisclient->isGuest()
 <div class="col-md-12">
 <!-- Custom Data -->
 <?php
-foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+$sections = array();
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $i=>$form) {
     // Skip core fields shown earlier in the ticket view
     $answers = $form->getAnswers()->exclude(Q::any(array(
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
         'field__name__in' => array('subject', 'priority'),
         Q::not(array('field__flags__hasbit' => DynamicFormField::FLAG_CLIENT_VIEW)),
     )));
-    if (count($answers) == 0)
-        continue;
+    // Skip display of forms without any answers
+    foreach ($answers as $j=>$a) {
+        if ($v = $a->display())
+            $sections[$i][$j] = array($v, $a);
+    }
+}
+foreach ($sections as $i=>$answers) {
     ?>
         <div class="col-md-4 row">
         <div><h3><?php echo $form->getTitle(); ?></h3></div>
@@ -119,7 +128,6 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 </div>
 
 <div class="col-md-12">
-
 
 <?php
     $ticket->getThread()->render(array('M', 'R'), array(

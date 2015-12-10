@@ -94,11 +94,11 @@ require(CLIENTINC_DIR.'header.inc.php');
             <?php } 
             if ($BUTTONS) { ?>
                 <a href="open.php" style="display:block" class="btn btn-success btn-lg btn-block">
-                    <?php echo __('Open a New Suggestion');?>
+                    <?php echo __('Open a New Ticket');?>
                 </a>
                 <?php if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
                     <a href="view.php" style="display:block" class="btn btn-success btn-lg btn-block">
-                        <?php echo __('Check Suggestion Status');?>
+                        <?php echo __('Check Ticket Status');?>
                     </a>
                 <?php } 
             } ?>

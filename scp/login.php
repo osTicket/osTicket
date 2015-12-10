@@ -67,7 +67,7 @@ elseif ($_GET['do']) {
 elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
     if (($user = StaffAuthenticationBackend::processSignOn($errors, false))
             && ($user instanceof StaffSession))
-       @header("Location: $dest");
+       Http::redirect($dest);
 }
 
 // Browsers shouldn't suggest saving that username/password

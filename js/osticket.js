@@ -220,3 +220,11 @@ $(document).on('submit', 'form', function() {
         $e.val(year+'-'+month+'-'+day);
     });
 });
+
+$(document).on('click', '.link:not(a):not(.button)', function(event) {
+  var $e = $(event.currentTarget);
+  $('<a>').prop({href: $e.attr('href'), 'class': $e.attr('class')})
+    .hide()
+    .insertBefore($e)
+    .get(0).click(event);
+});

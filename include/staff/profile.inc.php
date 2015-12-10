@@ -196,9 +196,59 @@ if ($avatar->isChangeable()) { ?>
                 </select>
             </td>
         </tr>
+
+        <tr>
+            <td><?php echo __('Default From Name');?>:
+              <div class="faded"><?php echo __('From name to use when replying to a thread');?></div>
+            </td>
+            <td>
+                <select name="default_from_name">
+                  <?php
+                   $options=array(
+                           'email' => __("Email Address Name"),
+                           'dept' => sprintf(__("Department Name (%s)"),
+                               __('if public' /* This is used in 'Department's Name (>if public<)' */)),
+                           'mine' => __('My Name'),
+                           '' => '— '.__('System Default').' —',
+                           );
+                  if ($cfg->hideStaffName())
+                    unset($options['mine']);
+
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($staff->default_from_name==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['default_from_name']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Thread View Order');?>:
+              <div class="faded"><?php echo __('The order of thread entries');?></div>
+            </td>
+            <td>
+                <select name="thread_view_order">
+                  <?php
+                   $options=array(
+                           'desc' => __('Descending'),
+                           'asc' => __('Ascending'),
+                           '' => '— '.__('System Default').' —',
+                           );
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k
+                                ,($staff->thread_view_order == $k) ? 'selected="selected"' : ''
+                                ,$v);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['thread_view_order']; ?></div>
+            </td>
+        </tr>
         <tr>
             <td><?php echo __('Default Signature');?>:
-              <div class="faded"><?php echo __('This can be selected when replying to a ticket');?></div>
+              <div class="faded"><?php echo __('This can be selected when replying to a thread');?></div>
             </td>
             <td>
                 <select name="default_signature_type">
@@ -248,6 +298,23 @@ if ($avatar->isChangeable()) { ?>
                 $TZ_TIMEZONE = $staff->timezone;
                 include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
                 <div class="error"><?php echo $errors['timezone']; ?></div>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Time Format');?>:</td>
+            <td>
+                <select name="datetime_format">
+<?php
+    $datetime_format = $staff->datetime_format;
+    foreach (array(
+    'relative' => __('Relative Time'),
+    '' => '— '.__('System Default').' —',
+) as $v=>$name) { ?>
+                    <option value="<?php echo $v; ?>" <?php
+                    if ($v == $datetime_format)
+                        echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
+                </select>
             </td>
         </tr>
 <?php if ($cfg->getSecondaryLanguages()) { ?>

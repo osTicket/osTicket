@@ -81,34 +81,56 @@ case 'search':
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
         // Use an index if possible
-        if ($_REQUEST['search-type'] == 'typeahead' && Validator::is_email($_REQUEST['query'])) {
-            $tickets = $tickets->filter(array(
-                'user__emails__address' => $_REQUEST['query'],
-            ));
-        }
-        else {
-            $basic_search = Q::any(array(
-                'number__startswith' => $_REQUEST['query'],
-                'user__name__contains' => $_REQUEST['query'],
-                'user__emails__address__contains' => $_REQUEST['query'],
-                'user__org__name__contains' => $_REQUEST['query'],
-            ));
-            $tickets->filter($basic_search);
-            if (!$_REQUEST['search-type']) {
-                // [Search] click, consider keywords too. This is a
-                // relatively ugly hack. SearchBackend::find() add in a
-                // constraint for the search. We need to pop that off and
-                // include it as an OR with the above constraints
-                $keywords = TicketModel::objects();
-                $keywords->extra(array('select' => array('ticket_id' => 'Z1.ticket_id')));
-                $keywords = $ost->searcher->find($_REQUEST['query'], $keywords);
-                $tickets->values('ticket_id')->annotate(array('__relevance__' => new SqlCode(0.5)));
-                $keywords->aggregated = true; // Hack to prevent select ticket.*
-                $tickets->union($keywords)->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+        if ($_REQUEST['search-type'] == 'typeahead') {
+            if (Validator::is_email($_REQUEST['query'])) {
+                $tickets = $tickets->filter(array(
+                    'user__emails__address' => $_REQUEST['query'],
+                ));
             }
+            elseif ($_REQUEST['query']) {
+                $tickets = $tickets->filter(array(
+                    'number' => $_REQUEST['query'],
+                ));
+            }
+        }
+        elseif (isset($_REQUEST['query'])
+            && ($q = trim($_REQUEST['query']))
+            && strlen($q) > 2
+        ) {
+            // [Search] click, consider keywords
+            $__tickets = $ost->searcher->find($q, $tickets);
+            if (!count($__tickets) && preg_match('`\w$`u', $q)) {
+                // Do wildcard search if no hits
+                $__tickets = $ost->searcher->find($q.'*', $tickets);
+            }
+            $tickets = $__tickets;
+            $has_relevance = true;
+        }
+        if (count($tickets) == 1) {
+            // Redirect to ticket page
+            Http::redirect('tickets.php?id='.$tickets[0]->getId());
         }
         // Clear sticky search queue
         unset($_SESSION[$queue_key]);
+        break;
+    }
+    // Apply user filter
+    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
+        $tickets->filter(array('user__id'=>$_GET['uid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $user->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
+        break;
+    }
+    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
+        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
+        $results_type = sprintf('%s — %s', __('Search Results'),
+            $org->getName());
+        if (isset($_GET['status']))
+            $status = $_GET['status'];
+        // Don't apply normal open ticket
         break;
     } elseif (isset($_SESSION['advsearch'])) {
         $form = $search->getFormFromSession('advsearch');
@@ -122,21 +144,6 @@ case 'search':
                 break;
             }
         }
-        break;
-    }
-    // Apply user filter
-    elseif (isset($_GET['uid']) && ($user = User::lookup($_GET['uid']))) {
-        $tickets->filter(array('user__id'=>$_GET['uid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $user->getName());
-        // Don't apply normal open ticket
-        break;
-    }
-    elseif (isset($_GET['orgid']) && ($org = Organization::lookup($_GET['orgid']))) {
-        $tickets->filter(array('user__org_id'=>$_GET['orgid']));
-        $results_type = sprintf('%s — %s', __('Search Results'),
-            $org->getName());
-        // Don't apply normal open ticket
         break;
     }
     // Fall-through and show open tickets
@@ -192,21 +199,6 @@ $count = $tickets->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
-
-// Rewrite $tickets to use a nested query, which will include the LIMIT part
-// in order to speed the result
-//
-// ATM, advanced search with keywords doesn't support the subquery approach
-if ($use_subquery) {
-    $orig_tickets = clone $tickets;
-    $tickets2 = TicketModel::objects();
-    $tickets2->values = $tickets->values;
-    $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
-
-    // Transfer the order_by from the original tickets
-    $tickets2->order_by($orig_tickets->getSortFields());
-    $tickets = $tickets2;
-}
 
 // Apply requested sorting
 $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
@@ -296,6 +288,17 @@ case 'updated':
     break;
 }
 
+// Rewrite $tickets to use a nested query, which will include the LIMIT part
+// in order to speed the result
+$orig_tickets = clone $tickets;
+$tickets2 = TicketModel::objects();
+$tickets2->values = $tickets->values;
+$tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
+
+// Transfer the order_by from the original tickets
+$tickets2->order_by($orig_tickets->getSortFields());
+$tickets = $tickets2;
+
 // Save the query to the session for exporting
 $_SESSION[':Q:tickets'] = $tickets;
 
@@ -304,6 +307,7 @@ TicketForm::ensureDynamicDataView();
 // Select pertinent columns
 // ------------------------------------------------------------
 $tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__priority__priority_color', 'cdata__priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
+
 // Add in annotations
 $tickets->annotate(array(
     'collab_count' => TicketThread::objects()
@@ -318,6 +322,11 @@ $tickets->annotate(array(
         ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
         ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
 ));
+
+
+// Make sure we're only getting active locks
+$tickets->constrain(array('lock' => array(
+                'lock__expire__gt' => SqlFunction::NOW())));
 
 ?>
 
@@ -472,8 +481,7 @@ return false;">
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
-                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    style="max-width: <?php
+                <td><div style="max-width: <?php
                     $base = 280;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
@@ -481,9 +489,10 @@ return false;">
                     if ($threadcount > 1) $base -= 20 + ((int) log($threadcount, 10) + 1) * 8;
                     // Make room for overdue flag and friends
                     if ($flag) $base -= 20;
-                    echo $base; ?>px;"
-                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><span
-                    class="truncate"><?php echo $subject; ?></span></a>
+                    echo $base; ?>px; max-height: 1.2em"
+                    class="<?php if ($flag) { ?>Icon <?php echo $flag; ?>Ticket <?php } ?>link truncate"
+                    <?php if ($flag) { ?> title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
 <?php               if ($T['attachment_count'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
                             .$T['attachment_count'].'"></i>';
@@ -577,21 +586,6 @@ return false;">
 </div>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tickets');
-    $(document).on('click.tickets', 'a.tickets-action', function(e) {
-        e.preventDefault();
-        var count = checkbox_checker($('form#tickets'), 1);
-        if (count) {
-            var url = 'ajax.php/'
-            +$(this).attr('href').substr(1)
-            +'?count='+count
-            +'&_uid='+new Date().getTime();
-            $.dialog(url, [201], function (xhr) {
-                $.pjax.reload('#pjax-container');
-             });
-        }
-        return false;
-    });
     $('[data-toggle=tooltip]').tooltip();
 });
 </script>

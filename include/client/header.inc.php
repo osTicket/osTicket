@@ -6,18 +6,20 @@ $signin_url = ROOT_PATH . "login.php"
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
+if (($lang = Internationalization::getCurrentLanguage())) {
+    $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
+    $langs = Internationalization::rfc1766($langs);
+    header("Content-Language: ".implode(', ', $langs));
+}
 ?>
 <!DOCTYPE html>
 <html<?php
-if (($lang = Internationalization::getCurrentLanguage())
+if ($lang
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
     echo ' dir="rtl" class="rtl"';
 if ($lang) {
-    $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
-    $langs = Internationalization::rfc1766($langs);
     echo ' lang="' . $lang . '"';
-    header("Content-Language: ".implode(', ', $langs));
 }
 ?>>
 <head>
