@@ -1471,8 +1471,7 @@ implements RestrictedAccess, Threadable {
         $skip = array();
         if ($entry instanceof MessageThreadEntry) { 
             $poster = $entry->getUser();
-			
-
+	
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
             // Skip all the other recipients of the message
@@ -1513,8 +1512,8 @@ implements RestrictedAccess, Threadable {
 		//Override.... Use the poster name.
 		$options += array('from_name' =>  $poster);
 		
-        if ($vars['from_name'])
-            $options += array('from_name' => $vars['from_name']);
+       // if ($vars['from_name'])
+       //     $options += array('from_name' => $vars['from_name']);
 		
 
         foreach ($recipients as $recipient) {
@@ -2581,7 +2580,9 @@ implements RestrictedAccess, Threadable {
             $this->notifyCollaborators($response,
                 array(
                     'signature' => $signature,
-                    'from_name' => $from_name)
+                    'from_name' => $from_name,
+					'userId' => $vars['userId'],
+					'poster' => $vars['poster'])
             );
         }
         return $response;
