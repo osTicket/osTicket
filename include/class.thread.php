@@ -612,6 +612,13 @@ implements TemplateVariable {
         ),
     );
 
+    // Thread entry types
+    static protected $types = array(
+            'M'=>'message',
+            'R'=>'response',
+            'N'=>'note',
+    );
+
     function postEmail($mailinfo) {
         global $ost;
 
@@ -1251,14 +1258,8 @@ implements TemplateVariable {
                 //Lookup the user using the email address
                 && ($user = User::lookup(array('emails__address' => $mailinfo['email'])))) {
             //We have a valid ticket and user
-            if ($ticket->getUserId() == $user->getId() //owner
-                    ||  ($c = Collaborator::lookup( // check if collaborator
-                            array('user_id' => $user->getId(),
-                                  'thread_id' => $ticket->getThreadId())))) {
-
-                $mailinfo['userId'] = $user->getId();
-                return $ticket->getLastMessage();
-            }
+					
+           return $ticket->getLastMessage();
         }
 
         return null;
@@ -1505,6 +1506,10 @@ implements TemplateVariable {
 
     static function getPermissions() {
         return self::$perms;
+    }
+
+    static function getTypes() {
+        return self::$types;
     }
 }
 

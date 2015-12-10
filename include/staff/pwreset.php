@@ -4,8 +4,8 @@ defined('OSTSCPINC') or die('Invalid path');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
 ?>
 
+<div id="brickwall"></div>
 <div id="loginBox">
-    <div class="tape"></div>
     <div id="blur">
         <div id="background"></div>
     </div>
@@ -39,7 +39,6 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (undefined === window.getComputedStyle(document.documentElement).backgroundBlendMode) {
-            document.getElementById('background-compat').style.display = 'block';
             document.getElementById('loginBox').style.backgroundColor = 'white';
         }
     });
