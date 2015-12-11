@@ -25,10 +25,10 @@ require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
-       $errors['err']=__('Unknown or invalid ticket ID.');
-    //} elseif(!$ticket->checkUserAccess($thisclient)) {
-    //    $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
-    //    $ticket=null;
+        $errors['err']=__('Unknown or invalid ticket ID.');
+    } elseif(!$ticket->checkUserAccess($thisclient)) {
+        $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
+        $ticket=null;
     }
 }
 
@@ -45,13 +45,13 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
     switch(strtolower($_POST['a'])){
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
-                || $thisclient->getId() <> $ticket->getUserId())
+                || $thisclient->getId() != $ticket->getUserId())
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             $changes = array();
             foreach ($forms as $form) {
-				$form->filterFields(function($f) { return !$f->isStorable(); });
+                $form->filterFields(function($f) { return !$f->isStorable(); });
                 $form->setSource($_POST);
                 if (!$form->isValid())
                     $errors = array_merge($errors, $form->errors());
@@ -71,7 +71,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
 
-        $_POST['message'] = ThreadEntryBody::clean($_POST['message']);
+        $_POST['message'] = ThredEntryBody::clean($_POST['message']);
         if (!$_POST['message'])
             $errors['message'] = __('Message required');
 
@@ -115,8 +115,8 @@ elseif (is_object($ticket) && $ticket->getId()) {
     }
 }
 
-$nav->setActiveNav('tickets');  // && $ticket->checkUserAccess($thisclient) 
-if($ticket) {
+$nav->setActiveNav('tickets');
+if($ticket && $ticket->checkUserAccess($thisclient)) {
     if (isset($_REQUEST['a']) && $_REQUEST['a'] == 'edit'
             && $ticket->hasClientEditableFields()) {
         $inc = 'edit.inc.php';
@@ -125,16 +125,15 @@ if($ticket) {
         foreach ($forms as $f) {
             $f->filterFields(function($f) { return !$f->isStorable(); });
             $f->addMissingFields();
-        }       
+        }
     }
     else
         $inc='view.inc.php';
 } elseif($thisclient->getNumTickets($thisclient->canSeeOrgTickets())) {
     $inc='tickets.inc.php';
 } else {
-    //$nav->setActiveNav('new');
-    //$inc='open.inc.php';
-	$inc='tickets.inc.php';
+    $nav->setActiveNav('new');
+    $inc='open.inc.php';
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);

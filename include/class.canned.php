@@ -134,7 +134,6 @@ extends VerySimpleModel {
 
                 $resp['files'] = array();
                 foreach ($this->getAttachedFiles(!$html) as $file) {
-                    $_SESSION[':cannedFiles'][$file->id] = 1;
                     $resp['files'][] = array(
                         'id' => $file->id,
                         'name' => $file->name,
@@ -146,6 +145,9 @@ extends VerySimpleModel {
                 if (!$html) {
                     $resp['response'] = Format::html2text($resp['response'], 90);
                 }
+
+                foreach ($resp['files'] as $f)
+                    $_SESSION[':cannedFiles'][$f['file_id']] = 1;
 
                 return Format::json_encode($resp);
                 break;
