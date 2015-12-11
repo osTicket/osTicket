@@ -58,21 +58,37 @@ if ($lang) {
         echo sprintf('<div id="notice_bar">%s</div>', $ost->getNotice());
     ?>
     <div id="header">
-        <p id="info" class="pull-right no-pjax"><?php echo sprintf(__('Welcome, %s.'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?>
+        
+        
+        
+        <ul id="info" class="pull-right no-pjax">
+            <li>
+                Welcome, <a class="no-pjax" data-dropdown="#profile-dropdown"><strong>John</strong> <i class="icon-sort-down"></i></a>
+            </li>
+            <li><a class="no-pjax" data-dropdown="#utility-dropdown"><i class="icon-th"></i></a></li>
+            <li><a class="no-pjax"><i class="icon-signout"></i></a></li>
+        </ul>       
+        
+        
+        <!--
+        <p id="info" class="pull-right no-pjax"><?php //echo sprintf(__('Welcome, %s.'), '<strong>'.$thisstaff->getFirstName().'</strong>'); ?>
            <?php
-            if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
-            | <a href="admin.php" class="no-pjax"><?php echo __('Admin Panel'); ?></a>
-            <?php }else{ ?>
-            | <a href="index.php" class="no-pjax"><?php echo __('Agent Panel'); ?></a>
-            <?php } ?>
-            | <a href="profile.php"><?php echo __('Profile'); ?></a>
-            | <a href="logout.php?auth=<?php echo $ost->getLinkToken(); ?>" class="no-pjax"><?php echo __('Log Out'); ?></a>
-        </p>
+            //if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
+            | <a href="admin.php" class="no-pjax"><?php //echo __('Admin Panel'); ?></a>
+            <?php //}else{ ?>
+            | <a href="index.php" class="no-pjax"><?php //echo __('Agent Panel'); ?></a>
+            <?php //} ?>
+            | <a href="profile.php"><?php //echo __('Profile'); ?></a>
+            | <a href="logout.php?auth=<?php //echo $ost->getLinkToken(); ?>" class="no-pjax"><?php //echo __('Log Out'); ?></a>
+        </p>-->
         <a href="index.php" class="no-pjax" id="logo">
             <span class="valign-helper"></span>
             <img src="logo.php?<?php echo strtotime($cfg->lastModified('staff_logo_id')); ?>" alt="osTicket &mdash; <?php echo __('Customer Support System'); ?>"/>
         </a>
     </div>
+    
+    
+    
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">
 <?php } else {
     header('X-PJAX-Version: ' . GIT_VERSION);
@@ -105,3 +121,56 @@ if ($lang) {
             <div class="<?php echo strtolower($M->getLevel()); ?>-banner"><?php
                 echo (string) $M; ?></div>
 <?php   } ?>
+
+    <div id="profile-dropdown" class="utility-profile action-dropdown anchor-right">
+        <ul class="bleed-left">
+            <li class="profile-info">
+                <div class="avatar pull-left">
+                    <img class="avatar" alt="Avatar" src="/avatar.php?uid=0ea9072b3cc514337faa291cf8e466c3&amp;mode=ateam" data-pin-nopin="true">
+                </div>
+                <div class="profile-group pull-left">
+                    <h3>John Smith</h3>
+                    <p>Marketing</p>
+                    <a class="action-button">View Profile</a>
+                </div>
+                <div class="clear"></div>
+            </li>
+            <li class="profile-team clear">
+                <p>Team(s):<a>Team Awesome</a></p>
+            </li>
+            <li class="profile-activity">
+                    <div class="activity-item">
+                        <span>942</span>Tickets Assigned
+                    </div>
+                    <div class="activity-item">
+                        <span>20</span>Tickets Answered
+                    </div>
+                    <div class="activity-item">
+                        <span>6</span>Tasks Completed
+                    </div>
+            </li>
+            <li class="utility-footer">
+                    <p>Last Login: <span>2 days ago</span></p>
+            </li>
+        </ul>
+    </div> 
+
+    <div id="utility-dropdown" class="utility-nav action-dropdown anchor-right">
+        <ul class="bleed-left">
+            <li class="active">
+                <a href="#"><i class="icon-fixed-width icon-user"></i> Agent Panel</a>
+            </li>
+            <li>
+                <a href="#"><i class="icon-fixed-width icon-gears"></i> Admin Panel</a>
+            </li>
+            <li>
+                <a href="#"><i class="icon-fixed-width icon-folder-open"></i> Account Panel</a>
+            </li>
+            <li>
+                <a href="#"><i class="icon-fixed-width icon-question-sign"></i> Need Help?</a>
+            </li>
+            <li class="utility-footer">
+                <a href="#"><i class="icon-fixed-width icon-bug"></i> Report a problem</a>
+            </li>
+        </ul>    
+    </div>    

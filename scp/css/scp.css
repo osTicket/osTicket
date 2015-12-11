@@ -159,8 +159,10 @@ a time {
     display: inline-block;
     vertical-align: middle;
 }
-
-#header p {
+/**************************
+    Utility Navigation
+***************************/
+#header ul {
     display:block;
     width:auto;
     max-width:630px;
@@ -169,7 +171,144 @@ a time {
     border:1px solid #ccc;
     padding:8px;
     text-align:center;
+    color:#555;
 }
+
+#header ul li {
+    display:inline-block;
+    margin:0 2px;
+}
+
+#header ul li:first-child, #header ul li:last-child {
+    margin:0;
+}
+
+#header ul li > a {
+    padding:0 6px;
+    margin:0;
+    color:#555;
+    text-decoration:none;
+}
+#header ul li > a:hover {
+    color:#E65524;
+}
+#header ul li:first-child > a {
+    padding:0 9px 0 0;
+}
+#header ul li:last-child > a {
+    padding:0;
+}
+#header ul li:first-child:after {
+    content:"";
+    border-right:1px solid #666;
+    display:inline-block;
+    padding:10px 0;
+    margin-bottom:-5px;
+}
+.utility-profile.action-dropdown > ul, .utility-nav.action-dropdown > ul {
+    padding:10px 0 0 0;
+}
+.utility-profile.action-dropdown > ul > li {
+    padding:0 10px;
+    margin-bottom:10px;
+}
+.utility-profile.action-dropdown > ul > li:last-child {
+    margin-bottom:0px;
+}
+
+.utility-profile.action-dropdown li.profile-info .avatar {
+    width:70px;
+}
+    /***/
+
+    .profile-group {
+        padding:0 10px;
+    }
+    .profile-group h3 {
+        padding:0;
+        margin:0;
+    }
+    .profile-group p {
+        padding:0;
+        margin:0;
+        color:#666;
+    }
+    .profile-group a.action-button {
+        margin:5px 0 0 0 !IMPORTANT;
+        width:100%;
+        padding:2px 0!IMPORTANT;
+        text-align:center;
+    }
+
+    /***/
+
+    .profile-team {
+        border-top:1px dotted #999;
+        border-bottom:1px dotted #999;
+        display:block;
+    }
+
+    .profile-team p {
+        margin:0;
+        padding:5px 0;
+    }
+
+    .profile-team a {
+        color:#666;
+        text-decoration:underline;
+        margin:0 4px;
+    }
+
+    .profile-team a:hover {
+        color:#E65524;
+    }
+
+    /***/
+
+    .profile-activity .activity-item {
+        padding:5px 0;
+        color:#666;
+    }
+
+    .profile-activity .activity-item span {
+        min-width:30px;
+        display:inline-block;
+        color:#666;
+        text-align:right;
+        margin:0 5px;
+        color:#E65524;
+        font-weight:bold;
+    }
+
+    /***/
+
+.utility-footer {
+    border-top:1px dotted #999;
+    background-color:#f4f4f4;
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+    text-align:center;
+}
+
+.utility-footer > p {
+    margin:0;
+    padding:15px;
+}
+
+.utility-footer p > span {
+    color:#E65524;
+    font-weight:bold;
+    margin: 0 2px;
+}
+.utility-footer > a {
+    text-decoration: none;
+    padding:10px!IMPORTANT;
+    display:block;
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+}
+
+/**************************/
 
 #nav, #sub_nav {
     clear:both;
