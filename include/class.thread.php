@@ -368,7 +368,7 @@ class Thread extends VerySimpleModel {
          }
 	
 		// Assignment based on email command #claim  (todo change to just a log and not a note)
-		if($vars['subject'] && preg_match ('/#claim/i', $vars['subject'])) { echo "371 \r\n";
+		if($vars['subject'] && preg_match ('/#claim/i', $vars['subject'])) {
 			$vars['thread-type'] = 'N';
 			$stafftoassign = $vars['staffId'];
 			$staffname = staff::getFirstNameById($stafftoassign);
