@@ -1,12 +1,31 @@
 .htaccess
 php53.cgi
 include/ost-config.php
+include/plugins
+include/plugins/updates.pem
 setup/cli/modules/importer
+include/plugins
+phpinfo.php
 *.sw[a-z]
+*.log
 .DS_Store
 .vagrant
 ._.DS_Store
 Vagrantfile
+access.log
+error.log
+include/plugins/.gitignore
+include/plugins/LICENSE
+include/plugins/README.md
+include/plugins/auth-cas/
+include/plugins/auth-ldap/
+include/plugins/auth-oauth/
+include/plugins/auth-passthru/
+include/plugins/doc/
+include/plugins/make.php
+include/plugins/storage-fs/
+include/plugins/storage-s3/
+
 
 # Staging directory used for packaging script
 stage
