@@ -17,6 +17,14 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__))) die('Kwahe
 if(!file_exists('client.inc.php')) die('Fatal Error.');
 require_once('client.inc.php');
 
+/******* CSRF Protectin *************/
+// Enforce CSRF protection for POSTS
+if ($_POST  && !$ost->checkCSRFToken()) {
+    Http::redirect('index.php');
+    //just incase redirect fails
+    die('Action denied (400)!');
+}
+
 //Client Login page: Ajax interface can pre-declare the function to trap logins.
 if(!function_exists('clientLoginPage')) {
     function clientLoginPage($msg ='') {
