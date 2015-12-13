@@ -210,7 +210,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
                 value="<?php echo $info["name-new-$i"]; ?>"/>
                 <font class="error"><?php
-                    if ($errors["new-$i"]['name']) echo '<br/>'; echo $errors["new-$i"]['name'];
+                    if ($errors["new-$i"]) echo '<br/>'; echo $errors["new-$i"];
                 ?></font>
             <td></td>
         </tr>

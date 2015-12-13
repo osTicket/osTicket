@@ -2399,6 +2399,15 @@ class TicketStateField extends ChoiceField {
         return $state;
     }
 
+
+    function render($options) {
+
+        if (!isset($options['mode']) && isset($this->options['render_mode']))
+            $options['mode'] = $this->options['render_mode'];
+
+        parent::render($options);
+    }
+
     function getConfigurationOptions() {
         return array(
             'prompt' => new TextboxField(array(
@@ -3220,6 +3229,9 @@ class ChoicesWidget extends Widget {
             $classes = 'class="'.$config['classes'].'"';
         ?>
         <select name="<?php echo $this->name; ?>[]"
+            <?php if ($options['mode'] == 'disabled')
+                echo ' disabled="disabled" ';
+            ?>
             <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
             <?php if (isset($config['data']))

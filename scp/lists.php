@@ -167,12 +167,14 @@ if($_POST) {
                     | DynamicFormField::FLAG_AGENT_VIEW
                     | DynamicFormField::FLAG_AGENT_EDIT,
             ));
-            if ($field->isValid()) {
+            if ($names && in_array($field->get('name'), $names))
+                $errors["new-$i"] = __('Field variable name is not unique');
+            elseif (!$field->isValid())
+                $errors["new-$i"] = $field->errors();
+            else {
                 $form->fields->add($field);
                 $field->save();
             }
-            else
-                $errors["new-$i"] = $field->errors();
         }
     }
 }
