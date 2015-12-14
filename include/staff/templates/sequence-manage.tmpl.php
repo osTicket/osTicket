@@ -66,18 +66,26 @@ foreach ($sequences as $e) {
 </div>
 
 <hr/>
-<button onclick="javascript:
-  var id = ++$.uid, base = 'seq[new-'+id+']';
-  var clone = $('.row-item#template').clone()
-    .appendTo($('#sequences'))
-    .removeClass('hidden')
-    .append($('<input>').attr({type:'hidden',class:'fname',name:base+'[name]',value:'<?php echo __('New Sequence'); ?>'}))
-    .append($('<input>').attr({type:'hidden',class:'fcurrent',name:base+'[current]',value:'1'}))
-    .append($('<input>').attr({type:'hidden',class:'fincrement',name:base+'[increment]',value:'1'}))
-    .append($('<input>').attr({type:'hidden',class:'fpadding',name:base+'[padding]',value:'0'})) ;
-  clone.find('.manage a').trigger('click');
-  return false;
-  "><i class="icon-plus"></i> <?php echo __('Add New Sequence'); ?></button>
+
+
+<button type="button" onclick="btnPlus();"><i class="icon-plus"></i> <?php echo __('Add New Sequence'); ?></button>
+
+<script type="text/javascript">
+	function btnPlus(){
+		var id = ++$.uid, base = 'seq[new-'+id+']';
+		  var clone = $('.row-item#template').clone()
+		    .appendTo($('#sequences'))
+		    .removeClass('hidden')
+		    .append($('<input>').attr({type:'hidden',class:'fname',name:base+'[name]',value:'<?php echo __('New Sequence'); ?>'}))
+		    .append($('<input>').attr({type:'hidden',class:'fcurrent',name:base+'[current]',value:'1'}))
+		    .append($('<input>').attr({type:'hidden',class:'fincrement',name:base+'[increment]',value:'1'}))
+		    .append($('<input>').attr({type:'hidden',class:'fpadding',name:base+'[padding]',value:'0'})) ;
+		  clone.find('.manage a').trigger('click');
+		  return false;
+	};		
+</script>
+
+
 <div id="delete-warning" style="display:none">
 <hr>
     <div id="msg_warning"><?php echo __(

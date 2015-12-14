@@ -53,6 +53,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 if($cfg && $cfg->isKnowledgebaseEnabled()){
     //FIXME: provide ability to feature or select random FAQs ??
 ?>
+<div>
 <p><?php echo sprintf(
     __('Be sure to browse our %s before opening a ticket'),
     sprintf('<a href="kb/index.php">%s</a>',
