@@ -62,14 +62,6 @@ if($thisclient && $thisclient->getId() && $thisclient->isValid()){
     $thisclient = null;
 }
 
-/******* CSRF Protectin *************/
-// Enforce CSRF protection for POSTS
-if ($_POST  && !$ost->checkCSRFToken()) {
-    Http::redirect('index.php');
-    //just incase redirect fails
-    die('Action denied (400)!');
-}
-
 //Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
 $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
 
