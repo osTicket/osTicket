@@ -2562,19 +2562,37 @@ implements RestrictedAccess, Threadable {
             'staff' => $thisstaff,
             'poster' => $thisstaff
         );
-
+		
         $user = $this->getOwner();
-        if (($email=$dept->getEmail())
-            && ($tpl = $dept->getTemplate())
-            && ($msg=$tpl->getReplyMsgTemplate())
-        ) {
-            $msg = $this->replaceVars($msg->asArray(),
-                $variables + array('recipient' => $user)
-            );
-            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($user, $msg['subj'], $msg['body'], $attachments,
-                $options);
-        }
+		$currentstatus = ticket::getStatusId();
+		// Use a different template for closed tickets. todo: create closed template.
+		if ($currentstatus == 3){
+		    if (($email=$dept->getEmail())
+				&& ($tpl = $dept->getTemplate())
+				&& ($msg=$tpl->getNewMessageAutorepMsgTemplate())
+				
+			) {
+				$msg = $this->replaceVars($msg->asArray(),
+					$variables + array('recipient' => $user)
+				);
+				$attachments = $cfg->emailAttachments()?$response->getAttachments():array();
+				$email->send($user, $msg['subj'], $msg['body'], $attachments,
+					$options);
+			}
+		
+		}else{
+			if (($email=$dept->getEmail())
+				&& ($tpl = $dept->getTemplate())
+				&& ($msg=$tpl->getReplyMsgTemplate())
+			) {
+				$msg = $this->replaceVars($msg->asArray(),
+					$variables + array('recipient' => $user)
+				);
+				$attachments = $cfg->emailAttachments()?$response->getAttachments():array();
+				$email->send($user, $msg['subj'], $msg['body'], $attachments,
+					$options);
+			}
+		}
 
 	    if ($vars['emailcollab']) {
             $this->notifyCollaborators($response,
