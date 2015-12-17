@@ -157,13 +157,13 @@ foreach ($columns as $C) {
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" name="ckb[]" /></td>
+        <td><input type="checkbox" class="ckb" name="ckb[]" /></td>
 <?php 
     }
     foreach ($columns as $C) {
-        echo '<td class="offset">';
-        echo $C->render($T);
-        echo "</td>";
+        list($contents, $styles) = $C->render($T);
+        $style = $styles ? 'style="'.$styles.'"' : '';
+        echo "<td $style><div $style>$contents</div></td>";
     }
     echo '</tr>';
 }
