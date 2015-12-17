@@ -41,6 +41,7 @@
   name: "Date Created"
   primary: "created"
   secondary: null
+  filter: "date:full"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -77,6 +78,7 @@
 - id: 7
   name: "Close Date"
   primary: "closed"
+  filter: "date:full"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -91,6 +93,7 @@
 - id: 9
   name: "Due Date"
   primary: "est_duedate"
+  filter: "date:human"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -98,6 +101,7 @@
 - id: 10
   name: "Last Updated"
   primary: "lastupdate"
+  filter: "date:full"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -112,6 +116,7 @@
 - id: 12
   name: "Last Message"
   primary: "thread__lastmessage"
+  filter: "date:human"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -119,6 +124,7 @@
 - id: 12
   name: "Last Response"
   primary: "thread__lastresponse"
+  filter: "date:human"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
