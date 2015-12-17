@@ -153,6 +153,7 @@ body .redactor-box-fullscreen {
   background: #fff;
   border: none;
   box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.4);
+  z-index: 1 !important;
 }
 .redactor-toolbar:after {
   content: "";

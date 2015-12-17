@@ -433,14 +433,61 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->form;
     }
 
-    function getAssignmentForm($source=null) {
+    function getAssignmentForm($source=null, $options=array()) {
+        $prompt = $assignee = '';
+        // Possible assignees
+        $assignees = array();
+        switch (strtolower($options['target'])) {
+            case 'agents':
+                $dept = $this->getDept();
+                foreach ($dept->getAssignees() as $member)
+                    $assignees['s'.$member->getId()] = $member;
 
+                if (!$source && $this->isOpen() && $this->staff)
+                    $assignee = sprintf('s%d', $this->staff->getId());
+                $prompt = __('Select an Agent');
+                break;
+            case 'teams':
+                if (($teams = Team::getActiveTeams()))
+                    foreach ($teams as $id => $name)
+                        $assignees['t'.$id] = $name;
+
+                if (!$source && $this->isOpen() && $this->team)
+                    $assignee = sprintf('t%d', $this->team->getId());
+                $prompt = __('Select a Team');
+                break;
+        }
+
+        // Default to current assignee if source is not set
         if (!$source)
-            $source = array('assignee' => array($this->getAssigneeId()));
+            $source = array('assignee' => array($assignee));
 
-        return AssignmentForm::instantiate($source,
-                array('dept' => $this->getDept()));
+        $form = AssignmentForm::instantiate($source, $options);
+
+        if ($assignees)
+            $form->setAssignees($assignees);
+
+        if ($prompt && ($f=$form->getField('assignee')))
+            $f->configure('prompt', $prompt);
+
+
+        return $form;
     }
+
+    function getClaimForm($source=null, $options=array()) {
+        global $thisstaff;
+
+        $id = sprintf('s%d', $thisstaff->getId());
+        if(!$source)
+            $source = array('assignee' => array($id));
+
+        $form = ClaimForm::instantiate($source, $options);
+        $form->setAssignees(array($id => $thisstaff->getName()));
+
+        return $form;
+
+    }
+
 
     function getTransferForm($source=null) {
 
@@ -570,6 +617,55 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     function logEvent($state, $data=null, $user=null, $annul=null) {
         $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
+
+    function claim(ClaimForm $form, &$errors) {
+        global $thisstaff;
+
+        $dept = $this->getDept();
+        $assignee = $form->getAssignee();
+        if (!($assignee instanceof Staff)
+                || !$thisstaff
+                || $thisstaff->getId() != $assignee->getId()) {
+            $errors['err'] = __('Unknown assignee');
+        } elseif (!$assignee->isAvailable()) {
+            $errors['err'] = __('Agent is unavailable for assignment');
+        } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+            $errors['err'] = __('Permission denied');
+        }
+
+        if ($errors)
+            return false;
+
+        return $this->assignToStaff($assignee, $form->getComments(), false);
+    }
+
+    function assignToStaff($staff, $note, $alert=true) {
+
+        if(!is_object($staff) && !($staff = Staff::lookup($staff)))
+            return false;
+
+        if (!$staff->isAvailable())
+            return false;
+
+        $this->staff_id = $staff->getId();
+
+        if (!$this->save())
+            return false;
+
+        $this->onAssignment($staff, $note, $alert);
+
+        global $thisstaff;
+        $data = array();
+        if ($thisstaff && $staff->getId() == $thisstaff->getId())
+            $data['claim'] = true;
+        else
+            $data['staff'] = $staff->getId();
+
+        $this->logEvent('assigned', $data);
+
+        return true;
+    }
+
 
     function assign(AssignmentForm $form, &$errors, $alert=true) {
         global $thisstaff;
@@ -706,7 +802,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         else
             $this->dept_id = $dept->getId();
 
-        if ($errors || !$this->save())
+        if ($errors || !$this->save(true))
             return false;
 
         // Log transfer event
@@ -1430,7 +1526,7 @@ extends AbstractForm {
         $mode = @$this->options['mode'];
         if ($mode && $mode == 'edit') {
             unset($fields['dept_id']);
-            unset($fields['staff_id']);
+            unset($fields['assignee']);
         }
 
         return $fields;
