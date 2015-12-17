@@ -1853,12 +1853,14 @@ class DatetimeField extends FormField {
         $config = $this->getConfiguration();
         // If GMT is set, convert to local time zone. Otherwise, leave
         // unchanged (default TZ is UTC)
+        $fromDb = @$config['fromdb'] ?: false;
+
         if (!$value)
             return '';
         if ($config['time'])
-            return Format::datetime($value, false, !$config['gmt'] ? 'UTC' : false);
+            return Format::datetime($value, $fromdb, !$config['gmt'] ? 'UTC' : false);
         else
-            return Format::date($value, false, false, !$config['gmt'] ? 'UTC' : false);
+            return Format::date($value, $fromdb, false, !$config['gmt'] ? 'UTC' : false);
     }
 
     function getConfigurationOptions() {
@@ -2179,11 +2181,14 @@ class PriorityField extends ChoiceField {
             : $prio;
     }
 
-    function display($prio) {
+    function display($prio, &$styles=null) {
         if (!$prio instanceof Priority)
             return parent::display($prio);
-        return sprintf('<span class="fill" style="padding: 2px; background-color: %s">%s</span>',
-            $prio->getColor(), Format::htmlchars($prio->getDesc()));
+        if (is_array($styles))
+            $styles += array(
+                'background-color' => $prio->getColor()
+            );
+        return Format::htmlchars($prio->getDesc());
     }
 
     function toString($value) {
