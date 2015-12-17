@@ -157,7 +157,8 @@ foreach ($columns as $C) {
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" class="ckb" name="ckb[]" /></td>
+        <td><input type="checkbox" class="ckb" name="tids[]" 
+            value="<?php echo $T['ticket_id']; ?>" /></td>
 <?php 
     }
     foreach ($columns as $C) {

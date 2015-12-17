@@ -213,7 +213,7 @@ class Form {
     function emitJavascript($options=array()) {
 
         // Check if we need to emit javascript
-        if (!($fid=$this->getId()))
+        if (!($fid=$this->getFormId()))
             return;
         ?>
         <script type="text/javascript">
