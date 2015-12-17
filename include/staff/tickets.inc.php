@@ -1,6 +1,6 @@
 <?php
 $search = SavedSearch::create();
-$tickets = TicketModel::objects();
+$tickets = Ticket::objects();
 $clear_button = false;
 $view_all_tickets = $date_header = $date_col = false;
 
@@ -291,7 +291,7 @@ case 'updated':
 // Rewrite $tickets to use a nested query, which will include the LIMIT part
 // in order to speed the result
 $orig_tickets = clone $tickets;
-$tickets2 = TicketModel::objects();
+$tickets2 = Ticket::objects();
 $tickets2->values = $tickets->values;
 $tickets2->filter(array('ticket_id__in' => $tickets->values_flat('ticket_id')));
 
