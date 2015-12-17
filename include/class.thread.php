@@ -404,6 +404,8 @@ class Thread extends VerySimpleModel {
 			//$thisstaff = $vars['staffId'];
 		$vars['thread-type'] = 'R';
 		$vars['role'] = 'M';
+		$object instanceof Ticket;
+		$object->setStatusId(6);
 		}
 
 		if ($assignToStaffId !== $vars['staffId'] && $C = $this->collaborators->filter(array(
@@ -412,6 +414,8 @@ class Thread extends VerySimpleModel {
 			
 			$vars['thread-type'] = 'M';
 			$vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+			$object instanceof Ticket;
+			if ($assignToStaffId !== null)  $object->setStatusId(7);
 		}
 		
 		
@@ -438,11 +442,15 @@ class Thread extends VerySimpleModel {
                             'email' => $mailinfo['email'],
 							);
 			$vars['system'] = 1;
+			$object instanceof Ticket;
+			if ($assignToStaffId !== null)  $object->setStatusId(7);
 		}
 		
 		// Owner of the ticket
 		if ($vars['ownerId'] == $vars['userId']){ 
 			$vars['thread-type'] = 'M';
+			$object instanceof Ticket;
+			if ($assignToStaffId !== null) $object->setStatusId(7);
         }
 	
 		// Don't process the email -- it came FROM this system
@@ -473,6 +481,7 @@ class Thread extends VerySimpleModel {
 		
         switch ($vars['thread-type']) {
 			case 'R':
+	
            	$vars['response'] = $body;
 	
 			if ($object instanceof Threadable)
@@ -2218,6 +2227,88 @@ class ThreadEntryBody /* extends SplString */ {
 
         // Strip the quoted part of the body
         if ((list($msg) = explode($tag, $this->body, 2)) && trim($msg)) {
+            $this->body = $msg;
+
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
+                $this->stripped_images = array_diff($images_before[2],
+                    $images_after[2]);
+            }
+        }
+
+		// Strip reply from samsung message
+		$samsung = '-------- Original message --------';
+		           
+		// Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($samsung, $this->body, 2)) && trim($msg)) {
+            $this->body = $msg;
+
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
+                $this->stripped_images = array_diff($images_before[2],
+                    $images_after[2]);
+            }
+        }		
+		
+		// Strip reply from plaintext message
+		$plaintext = ' -----Original Message-----';
+		// Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($samsung, $this->body, 2)) && trim($msg)) {
+            $this->body = $msg;
+
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
+                $this->stripped_images = array_diff($images_before[2],
+                    $images_after[2]);
+            }
+        }		
+		
+		// Strip reply from OWA
+		$OWA = '<div style="color: rgb(33, 33, 33);">';		
+		// Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($OWA, $this->body, 2)) && trim($msg)) {
+            $this->body = $msg;
+
+            // Capture a list of dropped inline images
+            if ($images_before) {
+                preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body,
+                    $images_after, PREG_PATTERN_ORDER);
+                $this->stripped_images = array_diff($images_before[2],
+                    $images_after[2]);
+            }
+        }
+		
+		// Strip reply from Outlook
+		$OutlookClient = '<span style="font-size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif">From:</span></b>';
+				
+		// Capture a list of inline images
+        $images_before = $images_after = array();
+        preg_match_all('/src=("|\'|\b)cid:(\S+)\1/', $this->body, $images_before,
+            PREG_PATTERN_ORDER);
+
+        // Strip the quoted part of the body
+        if ((list($msg) = explode($OutlookClient, $this->body, 2)) && trim($msg)) {
             $this->body = $msg;
 
             // Capture a list of dropped inline images
