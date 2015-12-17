@@ -294,8 +294,12 @@ abstract class QueueColumnAnnotation {
     /**
      * Estimate the width of the rendered annotation in pixels
      */
-    function getWidth() {
-        return 15;
+    function getWidth($row) {
+        return $this->isVisible($row) ? 25 : 0;
+    }
+
+    function isVisible($row) {
+        return true;
     }
 }
 
@@ -323,6 +327,10 @@ extends QueueColumnAnnotation {
             );
         }
     }
+
+    function isVisible($row) {
+        return $row[static::$qname] > 1;
+    }
 }
 
 class ThreadAttachmentCount
@@ -349,6 +357,10 @@ extends QueueColumnAnnotation {
                 $count);
         }
     }
+
+    function isVisible($row) {
+        return $row[static::$qname] > 0;
+    }
 }
 
 class ThreadCollaboratorCount
@@ -373,6 +385,10 @@ extends QueueColumnAnnotation {
                 $count);
         }
     }
+
+    function isVisible($row) {
+        return $row[static::$qname] > 0;
+    }
 }
 
 class OverdueFlagDecoration
@@ -387,6 +403,10 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         if ($row['isoverdue'])
             return '<span class="Icon overdueTicket"></span>';
+    }
+
+    function isVisible($row) {
+        return $row['isoverdue'];
     }
 }
 
@@ -425,6 +445,10 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         if ($row['_locked'])
             return sprintf('<span class="Icon lockedTicket"></span>');
+    }
+
+    function isVisible($row) {
+        return $row['_locked'];
     }
 }
 
@@ -540,20 +564,17 @@ class QueueColumnCondition {
         }
     }
 
-    function render($row, $text) {
+    function render($row, $text, &$styles=array()) {
         $annotation = $this->getAnnotationName();
         if ($V = $row[$annotation]) {
-            $style = array();
             foreach ($this->getProperties() as $css=>$value) {
                 $field = QueueColumnConditionProperty::getField($css);
                 $field->value = $value;
                 $V = $field->getClean();
                 if (is_array($V))
                     $V = current($V);
-                $style[] = "{$css}:{$V}";
+                $styles[$css] = $V;
             }
-            $text = sprintf('<span class="fill" style="%s">%s</span>',
-                implode(';', $style), $text);
         }
         return $text;
     }
@@ -653,6 +674,36 @@ extends ChoiceField {
     }
 }
 
+class LazyDisplayWrapper {
+    function __construct($field, $value) {
+        $this->field = $field;
+        $this->value = $value;
+        $this->safe = false;
+    }
+
+    /**
+     * Allow a filter to change the value of this to a "safe" value which
+     * will not be automatically encoded with htmlchars()
+     */
+    function changeTo($what, $safe=false) {
+        $this->field = null;
+        $this->value = $what;
+        $this->safe = $safe;
+    }
+
+    function __toString() {
+        return $this->display();
+    }
+
+    function display(&$styles=array()) {
+        if (isset($this->field))
+            return $this->field->display(
+                $this->field->to_php($this->value), $styles);
+        if ($this->safe)
+            return $this->value;
+        return Format::htmlchars($this->value);
+    }
+}
 
 /**
  * A column of a custom queue. Columns have many customizable features
@@ -743,22 +794,28 @@ extends VerySimpleModel {
         // Basic data
         $text = $this->renderBasicValue($row);
 
-        // Truncate
-        $text = $this->applyTruncate($text);
-
         // Filter
         if ($filter = $this->getFilter()) {
             $text = $filter->filter($text, $row) ?: $text;
         }
+
+        $styles = array();
+        if ($text instanceof LazyDisplayWrapper) {
+            $text = $text->display($styles);
+        }
+
+        // Truncate
+        $text = $this->applyTruncate($text, $row);
 
         // annotations and conditions
         foreach ($this->getAnnotations() as $D) {
             $text = $D->render($row, $text);
         }
         foreach ($this->getConditions() as $C) {
-            $text = $C->render($row, $text);
+            $text = $C->render($row, $text, $styles);
         }
-        return $text;
+        $style = Format::array_implode(':', ';', $styles);
+        return array($text, $style);
     }
 
     function renderBasicValue($row) {
@@ -767,26 +824,28 @@ extends VerySimpleModel {
         $primary = SavedSearch::getOrmPath($this->primary);
         $secondary = SavedSearch::getOrmPath($this->secondary);
 
-        // TODO: Consider data filter if configured
+        // Return a lazily ::display()ed value so that the value to be
+        // rendered by the field could be changed or display()ed when
+        // converted to a string.
 
         if (($F = $fields[$primary])
             && (list(,$field) = $F)
             && ($T = $field->from_query($row, $primary))
         ) {
-            return $field->display($field->to_php($T));
+            return new LazyDisplayWrapper($field, $T);
         }
         if (($F = $fields[$secondary])
             && (list(,$field) = $F)
             && ($T = $field->from_query($row, $secondary))
         ) {
-            return $field->display($field->to_php($T));
+            return new LazyDisplayWrapper($field, $T);
         }
     }
 
-    function applyTruncate($text) {
+    function applyTruncate($text, $row) {
         $offset = 0;
         foreach ($this->getAnnotations() as $a)
-            $offset += $a->getWidth();
+            $offset += $a->getWidth($row);
 
         $width = $this->width - $offset;
         switch ($this->truncate) {
@@ -795,7 +854,7 @@ extends VerySimpleModel {
                 'truncate', $width, $text);
         case 'clip':
             return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                'truncate clip', $width, $text);
+                'truncate bleed', $width, $text);
         default:
         case 'wrap':
             return $text;
@@ -1021,7 +1080,7 @@ abstract class QueueColumnFilter {
     static $id = null;
     static $desc = null;
 
-    static function register($filter) {
+    static function register($filter, $group) {
         if (!isset($filter::$id))
             throw new Exception('QueueColumnFilter must define $id');
         if (isset(static::$registry[$filter::$id]))
@@ -1030,20 +1089,24 @@ abstract class QueueColumnFilter {
         if (!is_subclass_of($filter, get_called_class()))
             throw new Exception('Filter must extend QueueColumnFilter');
 
-        static::$registry[$filter::$id] = $filter;
+        static::$registry[$filter::$id] = array($group, $filter);
     }
 
     static function getFilters() {
-        $base = static::$registry;
-        foreach ($base as $id=>$class) {
-            $base[$id] = __($class::$desc);
+        $list = static::$registry;
+        $base = array();
+        foreach ($list as $id=>$stuff) {
+            list($group, $class) = $stuff;
+            $base[$group][$id] = __($class::$desc);
         }
         return $base;
     }
 
     static function getInstance($id) {
-        if (isset(static::$registry[$id]))
-            return new static::$registry[$id]();
+        if (isset(static::$registry[$id])) {
+            list(, $class) = static::$registry[$id];
+            return new $class();
+        }
     }
 
     function mangleQuery($query, $column) { return $query; }
@@ -1058,7 +1121,7 @@ extends QueueColumnFilter {
 
     function filter($text, $row) {
         if ($link = $this->getLink($row))
-            return sprintf('<a href="%s">%s</a>', $link, $text);
+            return sprintf('<a style="display:inline" href="%s">%s</a>', $link, $text);
     }
 
     function mangleQuery($query, $column) {
@@ -1099,9 +1162,9 @@ extends TicketLinkFilter {
         return Organization::getLink($row['user__org_id']);
     }
 }
-QueueColumnFilter::register('TicketLinkFilter');
-QueueColumnFilter::register('UserLinkFilter');
-QueueColumnFilter::register('OrgLinkFilter');
+QueueColumnFilter::register('TicketLinkFilter', __('Link'));
+QueueColumnFilter::register('UserLinkFilter', __('Link'));
+QueueColumnFilter::register('OrgLinkFilter', __('Link'));
 
 class TicketLinkWithPreviewFilter
 extends TicketLinkFilter {
@@ -1110,11 +1173,38 @@ extends TicketLinkFilter {
 
     function filter($text, $row) {
         $link = $this->getLink($row);
-        return sprintf('<a class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
+        return sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
             $row['ticket_id'], $link, $text);
     }
 }
-QueueColumnFilter::register('TicketLinkWithPreviewFilter');
+QueueColumnFilter::register('TicketLinkWithPreviewFilter', __('Link'));
+
+class DateTimeFilter
+extends QueueColumnFilter {
+    static $id = 'date:full';
+    static $desc = /* @trans */ "Date and Time";
+
+    function filter($text, $row) {
+        return $text->changeTo(Format::datetime($text->value));
+    }
+}
+
+class HumanizedDateFilter
+extends QueueColumnFilter {
+    static $id = 'date:human';
+    static $desc = /* @trans */ "Relative Date and Time";
+
+    function filter($text, $row) {
+        return sprintf(
+            '<time class="relative" datetime="%s" title="%s">%s</time>',
+            date(DateTime::W3C, Misc::db2gmtime($text->value)),
+            Format::daydatetime($text->value),
+            Format::relativeTime(Misc::db2gmtime($text->value))
+        );
+    }
+}
+QueueColumnFilter::register('DateTimeFilter', __('Date Format'));
+QueueColumnFilter::register('HumanizedDateFilter', __('Date Format'));
 
 class QueueColDataConfigForm
 extends AbstractForm {

@@ -17,6 +17,7 @@ $columns = $queue->getColumns();
 <table class="list queue" border="0" cellspacing="1" cellpadding="2" width="940">
   <thead>
     <tr>
+      <th width="12px"></th>
 <?php
 foreach ($columns as $C) {
     echo sprintf('<th width="%s">%s</th>', $C->getWidth(),
@@ -28,9 +29,12 @@ foreach ($columns as $C) {
 <?php
 foreach ($tickets as $T) {
     echo '<tr>';
+    echo '<td><input type="checkbox" disabled="disabled" /></td>';
     foreach ($columns as $C) {
-        echo '<td class="offset">';
-        echo $C->render($T);
+        list($content, $styles) = $C->render($T);
+        $style = $styles ? 'style="'.$styles.'"' : '';
+        echo "<td $style>";
+        echo "<div $style>$content</div>";
         echo "</td>";
     }
     echo '</tr>';

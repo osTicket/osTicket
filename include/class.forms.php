@@ -2308,11 +2308,14 @@ class PriorityField extends ChoiceField {
             : $prio;
     }
 
-    function display($prio) {
+    function display($prio, &$styles=null) {
         if (!$prio instanceof Priority)
             return parent::display($prio);
-        return sprintf('<span class="fill" style="padding: 2px; background-color: %s">%s</span>',
-            $prio->getColor(), Format::htmlchars($prio->getDesc()));
+        if (is_array($styles))
+            $styles += array(
+                'background-color' => $prio->getColor()
+            );
+        return Format::htmlchars($prio->getDesc());
     }
 
     function toString($value) {

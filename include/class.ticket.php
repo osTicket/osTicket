@@ -1863,18 +1863,23 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'created' => new DatetimeField(array(
                 'label' => __('Create Date'),
+                'configuration' => array('fromdb' => true),
             )),
             'est_duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
+                'configuration' => array('fromdb' => true),
             )),
             'reopened' => new DatetimeField(array(
                 'label' => __('Reopen Date'),
+                'configuration' => array('fromdb' => true),
             )),
             'closed' => new DatetimeField(array(
                 'label' => __('Close Date'),
+                'configuration' => array('fromdb' => true),
             )),
             'lastupdate' => new DatetimeField(array(
                 'label' => __('Last Update'),
+                'configuration' => array('fromdb' => true),
             )),
             'assignee' => new AssigneeChoiceField(array(
                 'label' => __('Assignee'),
