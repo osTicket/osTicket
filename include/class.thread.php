@@ -329,7 +329,7 @@ class Thread extends VerySimpleModel {
             $vars['ticketId'] = $object->getId();
 			$vars['ownerId'] = $object->getUserId();
 
-        if ($object instanceof Task)
+			if ($object instanceof Task)
             $vars['taskId'] = $object->getId();
 
         $errors = array();
@@ -398,6 +398,9 @@ class Thread extends VerySimpleModel {
 		//Who is the ticket assigned to?
 		$assignToStaffId = $object->getStaffId();
 		$vars['assignToStaffId'] = $assignToStaffId;
+		
+		// What's the current status
+		$currentstatus = $object->getStatusId();
 
 		if ($assignToStaffId == $vars['staffId'] && $vars['thread-type'] !== 'N' && $vars['staffId'] !== 0){
 			// global $thisstaff;
@@ -405,7 +408,8 @@ class Thread extends VerySimpleModel {
 		$vars['thread-type'] = 'R';
 		$vars['role'] = 'M';
 		$object instanceof Ticket;
-		$object->setStatusId(6);
+		if ($currentstatus !== 9 && $currentstatus !== 10)
+			$object->setStatusId(6);
 		}
 
 		if ($assignToStaffId !== $vars['staffId'] && $C = $this->collaborators->filter(array(
@@ -415,7 +419,8 @@ class Thread extends VerySimpleModel {
 			$vars['thread-type'] = 'M';
 			$vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 			$object instanceof Ticket;
-			if ($assignToStaffId !== null)  $object->setStatusId(7);
+			if ($assignToStaffId !== null && $currentstatus !== 9 && $currentstatus !== 10)  
+				$object->setStatusId(7);
 		}
 		
 		
@@ -443,14 +448,16 @@ class Thread extends VerySimpleModel {
 							);
 			$vars['system'] = 1;
 			$object instanceof Ticket;
-			if ($assignToStaffId !== null)  $object->setStatusId(7);
+			if ($assignToStaffId !== null && $currentstatus !== 9 && $currentstatus !== 10)  
+				$object->setStatusId(7);
 		}
 		
 		// Owner of the ticket
 		if ($vars['ownerId'] == $vars['userId']){ 
 			$vars['thread-type'] = 'M';
 			$object instanceof Ticket;
-			if ($assignToStaffId !== null) $object->setStatusId(7);
+			if ($assignToStaffId !== null && $currentstatus !== 9 && $currentstatus !== 10) 
+				$object->setStatusId(7);
         }
 	
 		// Don't process the email -- it came FROM this system
