@@ -263,7 +263,8 @@ $dispatcher = patterns('',
         url('^(?P<id>\d+/)?preview$', 'previewQueue'),
         url_get('^addColumn$', 'addColumn'),
         url_get('^condition/add$', 'addCondition'),
-        url_get('^condition/addProperty$', 'addConditionProperty')
+        url_get('^condition/addProperty$', 'addConditionProperty'),
+        url_get('^counts$', 'collectQueueCounts')
     ))
 );
 

@@ -509,6 +509,26 @@ var scp_prep = function() {
       });
     });
   });
+
+  // Auto fetch queue counts
+  $(function() {
+    var fired = false;
+    $('li.top-queue.item').hover(function() {
+      if (fired) return;
+      fired = true;
+      $.ajax({
+        url: 'ajax.php/queue/counts',
+        dataType: 'json',
+        success: function(json) {
+          $('li > span.queue-count').each(function(i, e) {
+            var $e = $(e);
+            console.log(json['q' + $e.data('queueId')]);
+            $e.text(json['q' + $e.data('queueId')]);
+          });
+        }
+      });
+    });
+  });
 };
 
 /* Custom Queues Dropdown */

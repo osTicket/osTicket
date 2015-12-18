@@ -296,4 +296,34 @@ class SearchAjaxAPI extends AjaxController {
         $id = $_GET['condition'];
         include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
     }
+
+    function collectQueueCounts($ids=null) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+
+        $queues = CustomQueue::objects()
+            ->filter(Q::any(array(
+                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                'staff_id' => $thisstaff->getId(),
+            )));
+
+        if ($ids && is_array($ids))
+            $queues->filter(array('id__in' => $ids));
+
+        $query = Ticket::objects();
+        foreach ($queues as $queue) {
+            $Q = $queue->getBasicQuery();
+            $query->aggregate(array(
+                'q'.$queue->id => SqlAggregate::COUNT(
+                    SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1)
+                ),
+            ));
+        }
+
+        Http::response(200, false, 'application/json');
+        return $this->encode($query->values()->one());
+    }
 }

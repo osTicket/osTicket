@@ -11,7 +11,7 @@ global $thisstaff;
 <li <?php if ($hasChildren)  echo 'class="subQ"'; ?>>
 
 <?php      
-    if ($q->isPrivate()) { ?>
+    if ($thisstaff->isAdmin() || $q->isPrivate()) { ?>
   <!-- Edit Queue -->
   <div class="controlQ">
   <div class="editQ pull-right">
@@ -35,8 +35,10 @@ global $thisstaff;
   </div>
     </div>
   <?php } ?>
-  <!-- Display Latest Ticket count -->      
-      <span class="<?php if ($q->isPrivate())  echo 'personalQmenu'; ?> pull-right newItemQ">(90)</span>
+      <span class="<?php if ($thisstaff->isAdmin() || $q->isPrivate())  echo 'personalQmenu'; ?>
+        pull-right newItemQ queue-count"
+        data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
+      </span>
 
   <!-- End Edit Queue -->
   <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();

@@ -892,7 +892,9 @@ class SqlCase extends SqlFunction {
 
 class SqlExpr extends SqlFunction {
     function __construct($args) {
-        $this->args = (array) $args;
+        $this->args = func_get_args();
+        if (count($this->args) == 1 && is_array($this->args[0]))
+            $this->args = $this->args[0];
     }
 
     function toSql($compiler, $model=false, $alias=false) {
