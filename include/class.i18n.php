@@ -382,6 +382,10 @@ class Internationalization {
         return self::getDefaultLanguage();
     }
 
+    static function getCurrentLanguageInfo($user=false) {
+        return static::getLanguageInfo(static::getCurrentLanguage($user));
+    }
+
     static function getCurrentLocale($user=false) {
         global $thisstaff, $cfg;
 
