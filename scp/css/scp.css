@@ -1130,26 +1130,6 @@ table.list tfoot td {
     padding: 2px;
 }
 
-table.list tbody td.webticket, table.list tbody tr.row1 td.webticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_web.gif) 0 50% no-repeat #fff;
-}
-
-table.list tbody td.emailticket, table.list tbody tr.row1 td.emailticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_email.gif) 0 50% no-repeat;
-}
-
-table.list tbody td.phoneticket, table.list tbody tr.row1 td.phoneticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_phone.gif) 0 50% no-repeat;
-}
-
-table.list tbody td.otherticket, table.list tbody tr.row1 td.otherticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_other.gif) 0 50% no-repeat;
-}
-
 a.refresh {
     display:block;
     float:right;
@@ -1720,6 +1700,7 @@ li.error a:before {
 }
 ul.tabs li:not(.active) {
     box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.2);
+    bottom: 2px;
 }
 ul.tabs.clean li.active {
     background-color: white;
@@ -3090,7 +3071,7 @@ tr i.help-tip.warning {
     vertical-align: bottom;
 }
 .truncate.bleed {
-    text-overflow: hidden;
+    text-overflow: clip;
 }
 td.indented {
     padding-left: 20px;
