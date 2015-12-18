@@ -848,13 +848,17 @@ extends VerySimpleModel {
             $offset += $a->getWidth($row);
 
         $width = $this->width - $offset;
+        $class = array();
         switch ($this->truncate) {
-        case 'ellipsis':
-            return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                'truncate', $width, $text);
+        case 'lclip':
+            $linfo = Internationalization::getCurrentLanguageInfo();
+            $class[] = $linfo['direction'] == 'rtl' ? 'ltr' : 'rtl';
         case 'clip':
+            $class[] = 'bleed';
+        case 'ellipsis':
+            $class[] = 'truncate';
             return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                'truncate bleed', $width, $text);
+                implode(' ', $class), $width, $text);
         default:
         case 'wrap':
             return $text;
@@ -1018,15 +1022,6 @@ extends VerySimpleModel {
         // Store as JSON array
         $this->annotations = JsonDataEncoder::encode($annotations);
         $this->conditions = JsonDataEncoder::encode($conditions);
-    }
-
-    function save($refetch=false) {
-        if ($this->__new__ && isset($this->id))
-            // The ID is used to synchrize the POST data with the forms API.
-            // It should not be assumed to be a valid or unique database ID
-            // number
-            unset($this->id);
-        return parent::save($refetch);
     }
 }
 
@@ -1242,6 +1237,7 @@ extends AbstractForm {
                     'wrap' => __("Wrap Lines"),
                     'ellipsis' => __("Add Ellipsis"),
                     'clip' => __("Clip Text"),
+                    'lclip' => __("Clip Beginning Text"),
                 ),
                 'default' => 'wrap',
                 'layout' => new GridFluidCell(4),
