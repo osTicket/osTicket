@@ -891,6 +891,17 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
 
+            /** ugly but ORM looks to complex to me **/
+            if (isset($_POST["snooze"]) && isset($_POST["reopentime"]))
+            {
+                $autoreopen = filter_input(INPUT_POST, "reopentime")." ".filter_input(INPUT_POST, "reopentime:time");
+                db_query("UPDATE ".TICKET_TABLE." SET autoreopen = '$autoreopen' WHERE ticket_id = ".$ticket->getId());
+            }
+            else
+            {
+                db_query("UPDATE ".TICKET_TABLE." SET autoreopen = NULL WHERE ticket_id = ".$ticket->getId());
+            }
+            
             if ($state == 'deleted') {
                 $msg = sprintf('%s %s',
                         sprintf(__('Ticket #%s'), $ticket->getNumber()),

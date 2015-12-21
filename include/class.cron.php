@@ -28,10 +28,16 @@ class Cron {
     function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
+        Ticket::checkAutoreopen();
         // Cleanup any expired locks
         require_once(INCLUDE_DIR.'class.lock.php');
         Lock::cleanup();
 
+    }
+    
+    function TaskMonitor() {
+        require_once(INCLUDE_DIR.'class.task.php');
+        Task::checkAutoreopen();
     }
 
     function PurgeLogs() {
@@ -99,6 +105,7 @@ class Cron {
 
         self::MailFetcher();
         self::TicketMonitor();
+        self::TaskMonitor();
         self::PurgeLogs();
         // Run file purging about every 10 cron runs
         if (mt_rand(1, 9) == 4)

@@ -487,6 +487,81 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/delete.tmpl.php';
     }
 
+   function changeStatus($tid, $status) {
+        global $thisstaff;
+        $statuses = array(
+                'open' => __('Reopen'),
+                'closed' => __('Close'),
+                );
+
+        if(!($task=Task::lookup($tid)) || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, __('No such task'));
+
+        $perm = null;
+        $info = $errors = array();
+        switch ($status) {
+        case 'open':
+            $perm = Task::PERM_CREATE;
+            $info = array(
+                    ':title' => sprintf(__('Reopen Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/reopen',
+                        $task->getId())
+                    );
+            break;
+        case 'closed':
+            $perm = Task::PERM_CLOSE;
+            $info = array(
+                    ':title' => sprintf(__('Close Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/close',
+                        $task->getId())
+                    );
+
+            if (($m=$task->isCloseable()) !== true)
+                $errors['err'] = $info['error'] = $m;
+            else
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('change status of %s'), __('this task')));
+            break;
+        default:
+            Http::response(404, __('Unknown status'));
+        }
+
+        if (!$errors && (!$perm || !$task->checkStaffPerm($thisstaff, $perm)))
+            $errors['err'] = sprintf(
+                        __('You do not have permission to %s %s'),
+                        $statuses[$status], __('tasks'));
+
+        if ($_POST && !$errors) {
+            if ($task->setStatus($status, $_POST['comments'], $errors))
+                Http::response(201, 0);
+
+            /** ugly but ORM looks to complex to me **/
+            if (isset($_POST["snooze"]) && isset($_POST["reopentime"]))
+            {
+                $autoreopen = filter_input(INPUT_POST, "reopentime")." ".filter_input(INPUT_POST, "reopentime:time");
+                db_query("UPDATE ".TASK_TABLE." SET autoreopen = '$autoreopen' WHERE id = ".$task->getId());
+            }
+            else
+            {
+                db_query("UPDATE ".TASK_TABLE." SET autoreopen = NULL WHERE id = ".$task->getId());
+            }
+            $info['error'] = $errors['err'] ?: __('Unable to change status of the task');
+        }
+
+        $info['status'] = $status;
+
+        include STAFFINC_DIR . 'templates/task-status.tmpl.php';
+   }
+
+   function reopen($tid) {
+       return $this->changeStatus($tid, 'open');
+   }
+
+   function close($tid) {
+       return $this->changeStatus($tid, 'closed');
+   }
 
     function task($tid) {
         global $thisstaff;
