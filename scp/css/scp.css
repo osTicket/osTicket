@@ -883,8 +883,42 @@ a time {
 .jb-overflowmenu-menu-secondary .customQ-dropdown li > span {
     padding:0 5px;
 }
-
 /**********************End Custom Queues Dropdown******************/
+
+/*************Qeueue Title Config dropdown options****************/
+.configureQ { 
+    display:block; 
+    float:left;
+    color:rgba(0,0,0,.2);
+    margin:4px 0 0 4px;
+    cursor:pointer;
+}
+.configureQ:hover {
+     color:rgba(0,0,0,.6);
+}
+
+.configureQ > .noclick-dropdown {
+    padding:25px 0 0 0;
+    margin-top:-20px;
+    margin-left:-11px;
+}
+.configureQ:hover > .noclick-dropdown {
+    display:block;
+    
+}
+.configureQ > .noclick-dropdown:before {
+    top: 19px;
+    left: 9px;
+}
+.configureQ > .noclick-dropdown:after {
+    top: 20px;
+    left: 10px;
+}
+
+
+/*********************/
+
+
 
 a.test  { background-image:url(../images/icons/open.gif) }
 

@@ -94,7 +94,24 @@ return false;">
                     title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
                     $queue->getName(); ?></a></h2>
             </div>
-            <div class="pull-right flush-right">
+            <div class="configureQ">
+                <i class="icon-cog"></i>
+                <div class="noclick-dropdown anchor-left">
+                    <ul>
+                        <li>
+                            <a class="no-pjax tickets-action" href="#" ><i class="icon-fixed-width icon-save"></i> Save Queue</a>
+                        </li>
+                        <li>
+                            <a class="no-pjax tickets-action" href="#"><i class="icon-fixed-width icon-pencil"></i> Edit</a>
+                        </li>
+                        <li class="danger">
+                            <a class="no-pjax tickets-action" href="#"><i class="icon-fixed-width icon-trash"></i> Delete</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+          <div class="pull-right flush-right">
             <?php
             // TODO: Respect queue root and corresponding actions
             if ($count) {
