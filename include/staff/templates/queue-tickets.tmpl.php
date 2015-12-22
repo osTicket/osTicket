@@ -98,15 +98,46 @@ return false;">
                 <i class="icon-cog"></i>
                 <div class="noclick-dropdown anchor-left">
                     <ul>
+<?php
+if ($queue->isPrivate()) { ?>
                         <li>
-                            <a class="no-pjax tickets-action" href="#" ><i class="icon-fixed-width icon-save"></i> Save Queue</a>
+                            <a class="no-pjax" href="#"
+                              data-dialog="ajax.php/tickets/search/<?php echo
+                              $queue->id; ?>"><i
+                            class="icon-fixed-width icon-save"></i>
+                            <?php echo __('Edit'); ?></a>
                         </li>
+<?php }
+else {
+    if ($thisstaff->isAdmin()) { ?>
                         <li>
-                            <a class="no-pjax tickets-action" href="#"><i class="icon-fixed-width icon-pencil"></i> Edit</a>
+                            <a class="no-pjax"
+                            href="queues.php?id=<?php echo $queue->id; ?>"><i
+                            class="icon-fixed-width icon-pencil"></i>
+                            <?php echo __('Edit'); ?></a>
                         </li>
+<?php }
+# Anyone has permission to create personal sub-queues
+?>
+                        <li>
+                            <a class="no-pjax" href="#"
+                              data-dialog="ajax.php/tickets/search?parent_id=<?php
+                              echo $queue->id; ?>"><i
+                            class="icon-fixed-width icon-plus-sign"></i>
+                            <?php echo __('Add Personal Queue'); ?></a>
+                        </li>
+<?php
+}
+if (
+    ($thisstaff->isAdmin() && $queue->parent_id)
+    || $queue->isPrivate()
+) { ?>
                         <li class="danger">
-                            <a class="no-pjax tickets-action" href="#"><i class="icon-fixed-width icon-trash"></i> Delete</a>
+                            <a class="no-pjax" href="#"><i
+                            class="icon-fixed-width icon-trash"></i>
+                            <?php echo __('Delete'); ?></a>
                         </li>
+<?php } ?>
                     </ul>
                 </div>
             </div>

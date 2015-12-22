@@ -476,28 +476,11 @@ var scp_prep = function() {
     .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
 
-  $('#customQ_nav').overflowmenu({
-    guessHeight: false,
-    change: function( e, ui ) {
-      var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
-      if ( ui.secondary.children().length > 0 ) {
-        // necessary?
-        ui.primary.css('right', ui.secondary.width());
-        handle.css('display', 'inline-block')
-      }
-      else {
-        ui.primary.css('right', 0);
-        handle.css('display', 'none')
-      }
-    }
-  });
-
-
   $(function() {
     // whenever we hover over a menu item that has a submenu
     $('.subQ').on('mouseover', function() {
       var $menuItem = $(this),
-          $submenuWrapper = $('.subMenuQ', $menuItem);
+          $submenuWrapper = $('> .subMenuQ', $menuItem);
 
       // grab the menu item's position relative to its positioned parent
       var menuItemPos = $menuItem.position();
@@ -507,6 +490,16 @@ var scp_prep = function() {
         top: menuItemPos.top - 1,
         left: menuItemPos.left + Math.round($menuItem.outerWidth())
       });
+    });
+    // Ensure the "new ticket" link is never in the drop-down menu
+    $('#new-ticket').parent('li').addClass('primary-only');
+    $('#customQ_nav').overflowmenu({
+      guessHeight: false,
+      // items: 'li.top-queue',
+      change: function( e, ui ) {
+        var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
+        handle.toggle( ui.secondary.children().length > 0 );
+      }
     });
   });
 
@@ -522,7 +515,6 @@ var scp_prep = function() {
         success: function(json) {
           $('li > span.queue-count').each(function(i, e) {
             var $e = $(e);
-            console.log(json['q' + $e.data('queueId')]);
             $e.text(json['q' + $e.data('queueId')]);
           });
         }
@@ -530,25 +522,6 @@ var scp_prep = function() {
     });
   });
 };
-
-/* Custom Queues Dropdown */
-/*  $(function() {
-    // whenever we hover over a menu item that has a submenu
-    $('.editQ').on('mouseover', function() {
-      var $menuItem = $(this),
-          $submenuWrapper = $('.manageQ', $menuItem);
-
-      // grab the menu item's position relative to its positioned parent
-      var menuItemPos = $menuItem.position();
-
-      // place the submenu in the correct position relevant to the menu item
-      $submenuWrapper.css({
-        top: menuItemPos.top - 41,
-        left: menuItemPos.left + Math.round($menuItem.outerWidth() * 0)
-      });
-    });
-  });
-};*/
 
 $(document).ready(scp_prep);
 $(document).on('pjax:end', scp_prep);

@@ -147,6 +147,7 @@ class CustomQueue extends SavedSearch {
 
         // Set basic queue information
         $this->filter = $vars['filter'];
+        $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA,
             $this->parent_id > 0 && isset($vars['inherit']));
 

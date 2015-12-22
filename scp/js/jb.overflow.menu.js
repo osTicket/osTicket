@@ -51,7 +51,7 @@ $.widget( "jb.overflowmenu", {
 
         this.primaryMenu = this.element
                         .children( this.options.itemsParentTag )
-                        .addClass( 'jb-overflowmenu-menu-primary jb-overflowmenu-helper-postion' );
+                        .addClass( 'jb-overflowmenu-menu jb-overflowmenu-menu-primary jb-overflowmenu-helper-postion' );
 
         this._setHeight();
 
@@ -60,7 +60,7 @@ $.widget( "jb.overflowmenu", {
                             [
                                 '<div class="jb-overflowmenu-container jb-overflowmenu-helper-postion">',
                                     '<a href="javascript://" class="jb-overflowmenu-menu-secondary-handle"></a>',
-                                    '<' + this.options.itemsParentTag + ' class="jb-overflowmenu-menu-secondary jb-overflowmenu-helper-postion"></' + this.options.itemsParentTag + '>',
+                                    '<' + this.options.itemsParentTag + ' class="jb-overflowmenu-menu jb-overflowmenu-menu-secondary jb-overflowmenu-helper-postion"></' + this.options.itemsParentTag + '>',
                                 '</div>'
                             ].join('')
                         )
@@ -109,13 +109,36 @@ $.widget( "jb.overflowmenu", {
 
 
         var vHeight = this.primaryMenuHeight,
-            //get the items, filter out the the visible ones
-            itemsToHide = this._getItems()
-                                .filter(function(){
-                                    return this.offsetTop + $(this).height() > vHeight;
-                                })
+            hWidth = this.secondaryMenuContainer.find('.jb-overflowmenu-menu-secondary-handle')
+                .outerWidth(),
+            vWidth = this.primaryMenuWidth - hWidth,
+            previousRight = this.primaryMenu.offset().left;
 
-        itemsToHide.appendTo( this.secondaryMenu );
+            // Items classed 'primary-only' should always be primary
+            this._getItems()
+                .each(function() {
+                    var $this = $(this);
+                    if ($this.hasClass('primary-only'))
+                      vWidth -= $this.outerWidth(true);
+                });
+
+            //get the items, filter out the visible ones
+            itemsToHide = this._getItems()
+                .filter(function() {
+                    var $this = $(this),
+                        left = $this.offset().left,
+                        dLeft = Math.max(0, left - previousRight);
+                    previousRight = left + $this.width();
+
+                    if ($this.hasClass('primary-only'))
+                        return false;
+
+                    vWidth -= dLeft + $this.outerWidth(true);
+                    return vWidth < 1;
+                });
+
+        itemsToHide.appendTo( this.secondaryMenu )
+            .find('i.icon-sort-down').remove('i.icon-sort-down');
 
 
         if( itemsToHide.length == 0 ){
@@ -162,6 +185,8 @@ $.widget( "jb.overflowmenu", {
         }else{
             this.primaryMenuHeight = this.element.innerHeight();
         }
+        this.primaryMenuWidth = this.options.width ||
+            this.element.innerWidth();
 
     },
     _setOption: function( key, value ) {

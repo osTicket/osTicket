@@ -373,7 +373,7 @@ a time {
 }
 
 #sub_nav a.active, #sub_nav li.active > a,
-#customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
+#customQ_nav .jb-overflowmenu-menu li.active.item > a {
     font-weight:bold;
 }
 
@@ -429,12 +429,15 @@ a time {
     list-style-image: none;
 }
 
-.customQ-dropdown li h4 {
-    padding:2px 8px;
+.customQ-dropdown li h4,
+.customQ-dropdown li.top-level {
     margin:0;
     background-color:#eee;
     color:#bbb;
     text-align:left;
+}
+.customQ-dropdown li h4 {
+    padding:2px 8px;
 }
 .customQ-dropdown li.personalQ {
     font-size:1px;
@@ -527,6 +530,21 @@ a time {
 }
 /************ Custom Queue Button with Sub Queues *************/
 
+.subMenuQ:before, .subMenuQ:after {
+    content: "";
+    position: absolute;
+    display: block;
+    height: 10px;
+    width: 100%;
+    background: transparent;
+}
+.subMenuQ:before {
+    bottom: 100%;
+}
+.subMenuQ:after {
+    top: 100%;
+}
+
 .customQ-dropdown ul li.subQ > a i {
     padding:2px 6px 0;
     display:inline-block;
@@ -583,9 +601,6 @@ a time {
 
 .customQ-dropdown ul li > span.newItemQ {
     padding:1px 8px 0 0;
-}
-.customQ-dropdown ul li > span.personalQmenu.newItemQ {
-    margin-right:20px;
 }
 /************ Custom Queue Add/Save a Queue Button *************/
 
@@ -711,6 +726,7 @@ a time {
 .jb-overflowmenu {
     position: relative;
     height:35px;
+    width: 960px;
 }
 
 
@@ -748,9 +764,14 @@ a time {
 /******** Overflow menu and Dropdown *********/
 
 .jb-overflowmenu .jb-overflowmenu-container {
-    display: inline;
     left: auto;
-    bottom: 0px;
+    bottom: 0;
+    right:  0;
+    top: 0;
+    border-bottom: 1px solid #bebebe;
+    border-left:1px solid #bebebe;
+    border-right: 1px solid #aaa;
+    background-color: #eee;
 }
 
 .jb-overflowmenu .jb-overflowmenu-menu-secondary-handle {
@@ -763,9 +784,8 @@ a time {
 
 .jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle {
     color:#666;
-    padding:10px;
+    padding:9px;
     background-color:#eee;
-    border-left:1px solid #bebebe;
 }
 .jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle:hover {
     color:#000;
@@ -791,17 +811,17 @@ a time {
 }
 
 /*** Overflow Dropdown ***/
-#sub_nav .jb-overflowmenu-menu-secondary li.item:before {
+.jb-overflowmenu-menu-secondary li.item:before {
     font-family: "FontAwesome";
     content:"\F0D9";
     padding:5px;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item a > i {
+.jb-overflowmenu-menu-secondary li.item a > i {
     margin-top:5px;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item {
+.jb-overflowmenu-menu-secondary li.item {
     position:relative;
     padding:0px 10px;
     display: inline-block;
@@ -809,9 +829,10 @@ a time {
     border-top-left-radius: 0;
     border-bottom:1px solid #bebebe;
     white-space:nowrap;
+    list-style:none;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item > a {
+.jb-overflowmenu-menu-secondary li.item > a {
     display:inline-block;
     padding:5px 10px 5px 21px;
     background-position:0 50%;
@@ -819,7 +840,7 @@ a time {
     color:#000;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item:hover {
+.jb-overflowmenu-menu-secondary li.item:hover {
     padding:0 10px;
     color:#E65524;
     background-color: #fff;
@@ -828,14 +849,11 @@ a time {
     border-right:none;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item:hover > a {
+.jb-overflowmenu-menu-secondary li.item:hover > a {
     color:#E65524;
     text-decoration: none;
 }
 
-#sub_nav .jb-overflowmenu-menu-secondary li.item > a.active {
-    font-weight:bold;
-}
 .jb-overflowmenu-menu-secondary div.customQ-dropdown {
     border-top-left-radius:6px;
     border-top-right-radius:0px;

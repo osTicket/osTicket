@@ -708,14 +708,18 @@ class SavedSearch extends VerySimpleModel {
     }
 
     function getRoot() {
-        return 'Ticket';
+        switch ($this->root) {
+        case 'T':
+        default:
+            return 'Ticket';
+        }
     }
 
     function getPath() {
         return $this->path ?: $this->buildPath();
     }
 
-    function getCriteria() {
+    function getCriteria($include_parent=false) {
         if (!isset($this->criteria)) {
             $old = @$this->config[0] === '{';
             $this->criteria = is_string($this->config)
@@ -727,13 +731,18 @@ class SavedSearch extends VerySimpleModel {
                 $this->criteria = $this->isolateCriteria($this->criteria);
             }
         }
-        return $this->criteria ?: array();
+        $criteria = $this->criteria ?: array();
+        if ($include_parent && $this->parent_id && $this->parent) {
+            $criteria = array_merge($this->parent->getCriteria(true),
+                $criteria);
+        }
+        return $criteria;
     }
 
     function describeCriteria($criteria=false){
         $all = $this->getSupportedMatches($this->getRoot());
         $items = array();
-        $criteria = $criteria ?: $this->getCriteria();
+        $criteria = $criteria ?: $this->getCriteria(true);
         foreach ($criteria as $C) {
             list($path, $method, $value) = $C;
             if (!isset($all[$path]))
@@ -741,7 +750,7 @@ class SavedSearch extends VerySimpleModel {
              list($label, $field) = $all[$path];
              $items[] = $field->describeSearch($method, $value, $label);
         }
-        return implode(', ', $items);
+        return implode("\nAND ", $items);
     }
 
     /**
@@ -788,6 +797,12 @@ class SavedSearch extends VerySimpleModel {
         if (!$source) {
             foreach ($this->getCriteria() as $I) {
                 list($path, $method, $value) = $I;
+                if ($path == ':keywords' && $method === null) {
+                    if ($F = $form->getField($path))
+                        $F->value = $value;
+                    continue;
+                }
+
                 if (!($F = $form->getField("{$path}+search")))
                     continue;
                 $F->value = true;
@@ -830,9 +845,12 @@ class SavedSearch extends VerySimpleModel {
 
         $all = $this->getSupportedMatches();
         $core = array();
-        foreach ($basic[$this->getRoot()] as $path)
-            if (isset($all[$path]))
-                $core[$path] = $all[$path];
+
+        // Include basic fields for new searches
+        if (!isset($this->id))
+            foreach ($basic[$this->getRoot()] as $path)
+                if (isset($all[$path]))
+                    $core[$path] = $all[$path];
 
         // Add others from current configuration
         foreach ($this->getCriteria() as $C) {
@@ -1053,6 +1071,9 @@ class SavedSearch extends VerySimpleModel {
                 $items[] = array($name, $method, $value);
             }
         }
+        if (isset($criteria[':keywords'])) {
+            $items[] = array(':keywords', null, $criteria[':keywords']);
+        }
         return $items;
     }
 
@@ -1126,7 +1147,7 @@ class SavedSearch extends VerySimpleModel {
 
         // Apply column, annotations and conditions additions
         foreach ($this->getColumns() as $C) {
-            $query = $C->mangleQuery($query);
+            $query = $C->mangleQuery($query, $this->getRoot());
         }
         return $query;
     }
@@ -1142,7 +1163,7 @@ class SavedSearch extends VerySimpleModel {
             // Consider keyword searching
             if ($name === ':keywords') {
                 global $ost;
-                $qs = $ost->searcher->find($keywords, $qs);
+                $qs = $ost->searcher->find($value, $qs);
             }
             else {
                 // XXX: Move getOrmPath to be more of a utility
@@ -1259,6 +1280,16 @@ class SavedSearch extends VerySimpleModel {
     }
 
     function update($vars, $form=false, &$errors=array()) {
+        // Set basic search information
+        if (!$vars['name'])
+            $errors['name'] = __('A title is required');
+
+        $this->title = $vars['name'];
+        $this->parent_id = @$vars['parent_id'] ?: 0;
+        $this->path = $this->buildPath();
+        // Personal queues _always_ inherit from their parent
+        $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id > 0);
+
         // TODO: Move this to SavedSearch::update() and adjust
         //       AjaxSearch::_saveSearch()
         $form = $form ?: $this->getForm($vars);
@@ -1270,15 +1301,6 @@ class SavedSearch extends VerySimpleModel {
                 $this->isolateCriteria($form->getClean()));
         }
 
-        // Set basic search information
-        if (!$vars['name'])
-            $errors['name'] = __('A title is required');
-
-        $this->title = $vars['name'];
-        $this->parent_id = @$vars['parent_id'] ?: 0;
-        $this->path = $this->buildPath();
-        // Personal queues _always_ inherit from their parent
-        $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id > 0);
 
         return count($errors) === 0;
     }
