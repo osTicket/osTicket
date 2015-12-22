@@ -37,6 +37,13 @@ class CustomQueue extends SavedSearch {
     }
 
     function getColumns() {
+        if ($this->parent_id
+            && $this->hasFlag(self::FLAG_INHERIT_COLUMNS)
+            && $this->parent
+        ) {
+            return $this->parent->getColumns();
+        }
+
         if (!count($this->columns)) {
             foreach (parent::getColumns() as $c)
                 $this->addColumn($c);
@@ -76,7 +83,12 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    function getBasicQuery($form=false) {
+    /**
+     * Add critiera to a query based on the constraints configured for this
+     * queue. The criteria of the parent queue is also automatically added
+     * if the queue is configured to inherit the criteria.
+     */
+    function getBasicQuery() {
         if ($this->parent && $this->inheritCriteria()) {
             $query = $this->parent->getBasicQuery();
         }
@@ -137,7 +149,8 @@ class CustomQueue extends SavedSearch {
 
         // Set basic queue information
         $this->filter = $vars['filter'];
-        $this->setFlag(self::FLAG_INHERIT_CRITERIA, isset($vars['inherit']));
+        $this->setFlag(self::FLAG_INHERIT_CRITERIA,
+            $this->parent_id > 0 && isset($vars['inherit']));
 
         // Update queue columns (but without save)
         if (isset($vars['columns'])) {
@@ -171,6 +184,10 @@ class CustomQueue extends SavedSearch {
             }
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
+        }
+        else {
+            // No columns -- imply column inheritance
+            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
         }
         return 0 === count($errors);
     }
@@ -245,8 +262,8 @@ abstract class QueueColumnAnnotation {
         static $positions = array(
             '<' => '<span class="pull-left">%2$s</span>%1$s',
             '>' => '<span class="pull-right">%2$s</span>%1$s',
-            'a' => '%1$s %2$s',
-            'b' => '%2$s %1$s',
+            'a' => '%1$s%2$s',
+            'b' => '%2$s%1$s',
         );
 
         $pos = $this->getPosition();
