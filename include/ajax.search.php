@@ -336,11 +336,22 @@ class SearchAjaxAPI extends AjaxController {
 
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
-            $query->aggregate(array(
-                'q'.$queue->id => SqlAggregate::COUNT(
-                    SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1)
-                ),
-            ));
+            if (count($Q->extra) || $Q->isWindowed()) {
+                // Nothing extra in the select clause, or this will break
+                unset($Q->extra['select']);
+                // XXX: This doesn't work
+                $query->annotate(array(
+                    'q'.$queue->id => $Q->values_flat()
+                        ->filter(array('ticket_id' => new SqlField('ticket_id', 1)))
+                        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
+                ));
+            }
+            else {
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+                $query->aggregate(array(
+                    'q'.$queue->id => SqlAggregate::COUNT($expr)
+                ));
+            }
         }
 
         Http::response(200, false, 'application/json');
