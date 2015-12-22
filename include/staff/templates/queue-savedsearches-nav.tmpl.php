@@ -5,7 +5,7 @@
 // $child_selected - <bool> true if the selected queue is a descendent
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
-<li class="item <?php if ($child_selected) echo ''; ?>">
+<li class="primary-only item <?php if ($child_selected) echo ''; ?>">
 <?php
   $href = 'href="tickets.php?queue=adhoc"';
   if (!isset($_SESSION['advsearch']))
@@ -25,10 +25,12 @@
       )) as $q) {
         include 'queue-subnavigation.tmpl.php';
       } ?>
+    <?php if (isset($_SESSION['advsearch'])
+        && count($_SESSION['advsearch'])) { ?>
       <li>
         <h4><?php echo __('Recent Searches'); ?></h4>
       </li>
-    <?php if (isset($_SESSION['advsearch'])) {
+    <?php
           foreach ($_SESSION['advsearch'] as $token=>$criteria) {
               $q = new SavedSearch(array('root' => 'T'));
               $q->id = 'adhoc,'.$token;
