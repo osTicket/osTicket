@@ -2902,8 +2902,13 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->values as $alias=>$v) {
                 list($f) = $this->getField($v, $model);
                 $unaliased = $f;
-                if ($f instanceof SqlFunction)
+                if ($f instanceof SqlFunction) {
                     $fields[$f->toSql($this, $model, $alias)] = true;
+                    if ($f instanceof SqlAggregate) {
+                        // Don't group_by aggregate expressions
+                        continue;
+                    }
+                }
                 else {
                     if (!is_int($alias))
                         $f .= ' AS '.$this->quote($alias);

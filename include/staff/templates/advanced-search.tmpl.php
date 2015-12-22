@@ -17,9 +17,8 @@ if ($parent_id
           <option value="0" <?php
               if (!$parent_id) echo 'selected="selected"';
               ?>><?php echo '—'.__("My Searches").'—'; ?></option>
-          <?php foreach (CustomQueue::queues()
-              ->filter(array('parent_id' => 0))
-              as $q) { ?>
+          <?php
+foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
           <option value="<?php echo $q->id; ?>"
               <?php if ($parent_id == $q->id) echo 'selected="selected"'; ?>
               ><?php echo $q->getFullName(); ?></option>
@@ -36,6 +35,16 @@ if ($parent_id
   <hr/>
   <div class="flex row">
     <div class="span12">
+<?php if ($queue && $queue->parent) { ?>
+      <div class="faded" style="margin-bottom: 1em">
+      <div>
+        <strong><?php echo __('Inherited Criteria'); ?></strong>
+      </div>
+      <div>
+        <?php echo nl2br(Format::htmlchars($queue->describeCriteria())); ?>
+      </div>
+      </div>
+<?php } ?>
       <input type="hidden" name="a" value="search">
       <?php include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php'; ?>
     </div>
