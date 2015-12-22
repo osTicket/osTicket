@@ -680,6 +680,7 @@ class SavedSearch extends VerySimpleModel {
     const FLAG_QUEUE =          0x0002; // Shows up in queue navigation
     const FLAG_CONTAINER =      0x0004; // Container for other queues ('Open')
     const FLAG_INHERIT_CRITERIA = 0x0008; // Include criteria from parent
+    const FLAG_INHERIT_COLUMNS = 0x0010; // Inherit column layout from parent
 
     var $criteria;
     private $columns;
@@ -1061,6 +1062,12 @@ class SavedSearch extends VerySimpleModel {
         ) {
             // Use columns from cited queue
             return $q->getColumns();
+        }
+        elseif ($this->parent_id
+            && $this->hasFlag(self::FLAG_INHERIT_COLUMNS)
+            && $this->parent
+        ) {
+            return $this->parent->getColumns();
         }
 
         if (isset($this->columns))
