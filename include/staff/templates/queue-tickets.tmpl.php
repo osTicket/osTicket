@@ -160,7 +160,7 @@ foreach ($columns as $C) {
         $C->getWidth(), $C->id, $heading);
 
     // Sort by this column ?
-    if ($sort['col'] == $C->id) {
+    if (isset($sort['col']) && $sort['col'] == $C->id) {
         $col = SavedSearch::getOrmPath($C->primary, $query);
         if ($sort['dir'])
             $col = '-' . $col;

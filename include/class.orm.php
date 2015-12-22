@@ -901,7 +901,7 @@ class SqlExpr extends SqlFunction {
         $O = array();
         foreach ($this->args as $field=>$value) {
             if ($value instanceof Q) {
-                $ex = $compiler->compileQ($value, $model);
+                $ex = $compiler->compileQ($value, $model, false);
                 $O[] = $ex->text;
             }
             else {
@@ -923,13 +923,11 @@ class SqlExpression extends SqlFunction {
     function toSql($compiler, $model=false, $alias=false) {
         $O = array();
         foreach ($this->args as $operand) {
-            if ($operand instanceof SqlFunction)
-                $O[] = $operand->toSql($compiler, $model);
-            else
-                $O[] = $compiler->input($operand);
+            $O[] = $this->input($operand, $compiler, $model);
         }
-        return implode(' '.$this->func.' ', $O)
-            . ($alias ? ' AS '.$compiler->quote($alias) : '');
+        return '('.implode(' '.$this->func.' ', $O)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '')
+            . ')';
     }
 
     static function __callStatic($operator, $operands) {
@@ -952,7 +950,7 @@ class SqlExpression extends SqlFunction {
 
     function __call($operator, $operands) {
         array_unshift($operands, $this);
-        return static::__callStatic($operator, $operands);
+        return SqlExpression::__callStatic($operator, $operands);
     }
 }
 
@@ -979,7 +977,7 @@ class SqlInterval extends SqlFunction {
     }
 }
 
-class SqlField extends SqlFunction {
+class SqlField extends SqlExpression {
     var $level;
 
     function __construct($field, $level=0) {
@@ -2477,7 +2475,10 @@ class SqlCompiler {
         $constraints = array();
         $prev = $parens = false;
         foreach ($where as $Q) {
-            $parens = $parens || !($prev && $prev->isCompatibleWith($Q));
+            if ($prev && !$prev->isCompatibleWith($Q)) {
+                $parens = true;
+                break;
+            }
             $prev = $Q;
         }
         foreach ($where as $Q) {
