@@ -12,6 +12,20 @@ $selected = $_REQUEST['queue'] == $this_queue->getId();
   <a href="<?php echo $this_queue->getHref(); ?>"><i class="icon-sort-down pull-right"></i><?php echo $this_queue->getName(); ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
+      <!-- Add top-level queue (with count) --> 
+      <li class="top-level">
+        <span class="pull-right newItemQ queue-count"
+          data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
+        </span>
+
+        <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $q->getHref();
+          ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
+        <?php
+          echo Format::htmlchars($q->getName()); ?>
+        </a>
+        </h4>
+      </li>
+
       <!-- Start Dropdown and child queues -->
       <?php foreach ($this_queue->getPublicChildren() as $q) {
           include 'queue-subnavigation.tmpl.php';

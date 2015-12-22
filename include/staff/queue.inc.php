@@ -65,7 +65,7 @@ else {
             <span id="parent_q_crit" class="faded">
             <i class="icon-caret-right"></i>
             <br/><?php
-              echo $queue->parent->describeCriteria();
+              echo nl2br(Format::htmlchars($queue->parent->describeCriteria()));
             ?></span>
 <?php     } ?>
         </label>
