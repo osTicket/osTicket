@@ -3,44 +3,19 @@
 // $q - <CustomQueue> object for this navigation entry
 $queue = $q;
 $children = $queue instanceof CustomQueue ? $queue->getPublicChildren() : array();
-$hasChildren = count($children) > 0;
+$subq_searches = $queue instanceof CustomQueue ? $queue->getMyChildren() : array();
+$hasChildren = count($children) + count($subq_searches) > 0;
 $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;
 ?>
 <!-- SubQ class: only if top level Q has subQ -->
 <li <?php if ($hasChildren)  echo 'class="subQ"'; ?>>
 
-<?php      
-    if ($thisstaff->isAdmin() || $q->isPrivate()) { ?>
-  <!-- Edit Queue -->
-  <div class="controlQ">
-  <div class="editQ pull-right">
-    <i class="icon-cog"></i>
-    <div class="manageQ">
-      <ul>
-        <li>
-          <a href="<?php
-    echo $queue->isPrivate()
-        ? sprintf('#" data-dialog="ajax.php/tickets/search/%s',
-            urlencode($queue->getId()))
-        : sprintf('queues.php?id=%d', $queue->getId()); ?>">
-            <i class="icon-fixed-width icon-pencil"></i>
-            <?php echo __('Edit'); ?></a>
-        </li>
-        <li class="danger">
-          <a href="#"><i class="icon-fixed-width icon-trash"></i><?php echo __('Delete'); ?></a>
-        </li>
-      </ul>
-    </div>
-  </div>
-    </div>
-  <?php } ?>
-      <span class="<?php if ($thisstaff->isAdmin() || $q->isPrivate())  echo 'personalQmenu'; ?>
-        pull-right newItemQ queue-count"
-        data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
-      </span>
+  <span class="<?php if ($thisstaff->isAdmin() || $q->isPrivate())  echo 'personalQmenu'; ?>
+    pull-right newItemQ queue-count"
+    data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
+  </span>
 
-  <!-- End Edit Queue -->
   <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
     ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
       <?php
@@ -51,11 +26,27 @@ global $thisstaff;
       <?php } ?>
     </a>
 
-    <?php if ($hasChildren) {
-    echo '<ul class="subMenuQ">';
-    foreach ($children as $q) {
+    <?php
+    $closure_include = function($q) use ($thisstaff, $ost, $cfg) {
+        global $thisstaff, $ost, $cfg;
         include __FILE__;
-    }
-    echo '</ul>';
+    };
+    if ($hasChildren) { ?>
+    <ul class="subMenuQ">
+    <?php
+    foreach ($children as $q)
+        $closure_include($q);
+
+    // Include personal sub-queues
+    $first_child = true;
+    foreach ($subq_searches as $q) {
+      if ($first_child) {
+          $first_child = false;
+          echo '<li class="personalQ"></li>';
+      }
+      $closure_include($q);
+    } ?>
+    </ul>
+<?php
 } ?>
 </li>
