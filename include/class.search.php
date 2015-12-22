@@ -1070,28 +1070,22 @@ class SavedSearch extends VerySimpleModel {
             return $this->parent->getColumns();
         }
 
-        if (isset($this->columns))
-            return $this->columns;
-
         // Last resort — use standard columns
-        $this->columns = array(
+        return array(
             QueueColumn::create(array(
-                "id" => 1,
                 "heading" => "Number",
                 "primary" => 'number',
-                "width" => 100,
+                "width" => 85,
                 "filter" => "link:ticketP",
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
             )),
             QueueColumn::create(array(
-                "id" => 2,
                 "heading" => "Created",
                 "primary" => 'created',
                 "width" => 100,
             )),
             QueueColumn::create(array(
-                "id" => 3,
                 "heading" => "Subject",
                 "primary" => 'cdata__subject',
                 "width" => 250,
@@ -1100,30 +1094,21 @@ class SavedSearch extends VerySimpleModel {
                 "truncate" => 'ellipsis',
             )),
             QueueColumn::create(array(
-                "id" => 4,
                 "heading" => "From",
                 "primary" => 'user__name',
                 "width" => 150,
             )),
             QueueColumn::create(array(
-                "id" => 5,
                 "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
             )),
             QueueColumn::create(array(
-                "id" => 6,
                 "heading" => "Assignee",
                 "primary" => 'assignee',
-                "secondary" => 'team__name',
                 "width" => 100,
             )),
         );
-        
-        foreach ($this->columns as $c)
-            $c->queue = $this;
-
-        return $this->columns;
     }
 
     /**

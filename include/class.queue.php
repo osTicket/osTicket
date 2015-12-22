@@ -43,12 +43,10 @@ class CustomQueue extends SavedSearch {
         ) {
             return $this->parent->getColumns();
         }
-
-        if (!count($this->columns)) {
-            foreach (parent::getColumns() as $c)
-                $this->addColumn($c);
+        elseif (count($this->columns)) {
+            return $this->columns;
         }
-        return $this->columns;
+        return parent::getColumns();
     }
 
     function addColumn(QueueColumn $col) {
@@ -954,16 +952,6 @@ extends VerySimpleModel {
             }
         }
         return $this->_conditions;
-    }
-
-    /**
-     * Create a CustomQueueColumn from vars (_POST) received from an
-     * update request.
-     */
-    static function create($vars=array()) {
-        $inst = parent::create($vars);
-        // TODO: Convert annotations and conditions
-        return $inst;
     }
 
     static function __create($vars) {
