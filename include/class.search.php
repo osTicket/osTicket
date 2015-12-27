@@ -1163,7 +1163,7 @@ class SavedSearch extends VerySimpleModel {
             // Consider keyword searching
             if ($name === ':keywords') {
                 global $ost;
-                $qs = $ost->searcher->find($value, $qs);
+                $qs = $ost->searcher->find($value, $qs, false);
             }
             else {
                 // XXX: Move getOrmPath to be more of a utility
