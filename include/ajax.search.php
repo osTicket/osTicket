@@ -337,12 +337,9 @@ class SearchAjaxAPI extends AjaxController {
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
             if (count($Q->extra) || $Q->isWindowed()) {
-                // Nothing extra in the select clause, or this will break
-                unset($Q->extra['select']);
                 // XXX: This doesn't work
                 $query->annotate(array(
                     'q'.$queue->id => $Q->values_flat()
-                        ->filter(array('ticket_id' => new SqlField('ticket_id', 1)))
                         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
                 ));
             }
