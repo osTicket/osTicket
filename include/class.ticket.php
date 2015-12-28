@@ -1260,8 +1260,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $this->getEmail();
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
-                if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members->asArray());
+                if (($members = $dept->getMembersForAlerts()))
+                    $recipients = array_merge($recipients, $members->all());
             }
 
             if ($cfg->alertDeptManagerONNewTicket() && $dept &&
