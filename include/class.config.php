@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.orm.php';
 
 class Config {
     var $config = array();
@@ -41,17 +42,13 @@ class Config {
 
         if (isset($_SESSION['cfg:'.$this->section]))
             $this->session = &$_SESSION['cfg:'.$this->section];
+
         $this->load();
     }
 
     function load() {
-
-        $sql='SELECT id, `key`, value, `updated` FROM '.$this->table
-            .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
-
-        if(($res=db_query($sql)) && db_num_rows($res))
-            while ($row = db_fetch_array($res))
-                $this->config[$row['key']] = $row;
+        foreach ($this->items() as $I)
+            $this->config[$I->key] = $I;
     }
 
     function getNamespace() {
@@ -60,8 +57,8 @@ class Config {
 
     function getInfo() {
         $info = $this->defaults;
-        foreach ($this->config as $key=>$setting)
-            $info[$key] = $setting['value'];
+        foreach ($this->config as $key=>$item)
+            $info[$key] = $item->value;
         return $info;
     }
 
@@ -69,7 +66,7 @@ class Config {
         if (isset($this->session) && isset($this->session[$key]))
             return $this->session[$key];
         elseif (isset($this->config[$key]))
-            return $this->config[$key]['value'];
+            return $this->config[$key]->value;
         elseif (isset($this->defaults[$key]))
             return $this->defaults[$key];
 
@@ -95,20 +92,20 @@ class Config {
 
     function lastModified($key) {
         if (isset($this->config[$key]))
-            return $this->config[$key]['updated'];
-        else
-            return false;
+            return $this->config[$key]->updated;
+
+        return false;
     }
 
     function create($key, $value) {
-        $sql = 'INSERT INTO '.$this->table
-            .' SET `'.$this->section_column.'`='.db_input($this->section)
-            .', `key`='.db_input($key)
-            .', value='.db_input($value);
-        if (!db_query($sql) || !($id=db_insert_id()))
+        $item = ConfigItem::create([
+            $this->section_column => $this->section,
+            'key' => $key,
+            'value' => $value,
+        ]);
+        if (!$item->save())
             return false;
 
-        $this->config[$key] = array('key'=>$key, 'value'=>$value, 'id'=>$id);
         return true;
     }
 
@@ -118,17 +115,9 @@ class Config {
         elseif (!isset($this->config[$key]))
             return $this->create($key, $value);
 
-        $setting = &$this->config[$key];
-        if ($setting['value'] == $value)
-            return true;
-
-        if (!db_query('UPDATE '.$this->table.' SET updated=NOW(), value='
-                .db_input($value).' WHERE id='.db_input($setting['id'])))
-            return false;
-
-        $setting['value'] = $value;
-        $setting['updated'] = Misc::dbtime();
-        return true;
+        $item = $this->config[$key];
+        $item->value = $value;
+        return $item->save();
     }
 
     function updateAll($updates) {
@@ -139,12 +128,36 @@ class Config {
     }
 
     function destroy() {
-
-        $sql='DELETE FROM '.$this->table
-            .' WHERE `'.$this->section_column.'` = '.db_input($this->section);
-
-        db_query($sql);
         unset($this->session);
+        return $this->items()->delete();
+    }
+
+    function items() {
+        static $items;
+
+        if (!isset($items))
+            $items = ConfigItem::items($this->section, $this->section_column);
+
+        return $items;
+    }
+}
+
+class ConfigItem
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => CONFIG_TABLE,
+        'pk' => array('id'),
+    );
+
+    static function items($namespace, $column='namespace') {
+        return static::objects()
+            ->filter([$column => $namespace]);
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($this->dirty || $refetch);
     }
 }
 
@@ -191,7 +204,7 @@ class OsticketConfig extends Config {
             $sql='SELECT * FROM '.$this->table.' WHERE id = 1';
             if (($res=db_query($sql)) && db_num_rows($res))
                 foreach (db_fetch_array($res) as $key=>$value)
-                    $this->config[$key] = array('value'=>$value);
+                    $this->config[$key] = new ConfigItem(array('value'=>$value));
         }
 
         return true;
