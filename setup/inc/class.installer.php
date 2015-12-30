@@ -21,7 +21,7 @@ class Installer extends SetupWizard {
 
     var $config;
 
-    function Installer($configfile) {
+    function __construct($configfile) {
         $this->config =$configfile;
         $this->errors=array();
     }
@@ -288,7 +288,7 @@ class Installer extends SetupWizard {
         $errors = array();
         $ticket_vars = $i18n->getTemplate('templates/ticket/installed.yaml')
             ->getData();
-        $ticket = Ticket::create($ticket_vars, $errors, 'api', false, false);
+        $ticket = Ticket::create2($ticket_vars, $errors, 'api', false, false);
 
         if ($ticket
             && ($org = Organization::objects()->order_by('id')->one())

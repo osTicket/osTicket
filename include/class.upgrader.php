@@ -18,7 +18,7 @@ require_once INCLUDE_DIR.'class.setup.php';
 require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader {
-    function Upgrader($prefix, $basedir) {
+    function __construct($prefix, $basedir) {
         global $ost;
 
         $this->streams = array();
@@ -87,7 +87,7 @@ class Upgrader {
 
         //Create a ticket to make the system warm and happy.
         $errors = array();
-        Ticket::create($vars, $errors, 'api', false, false);
+        Ticket::create2($vars, $errors, 'api', false, false);
     }
 
     function getMode() {
@@ -113,44 +113,6 @@ class Upgrader {
                     . $what);
             return call_user_func_array($callable, $args);
         }
-    }
-
-    function getTask() {
-        if($this->getCurrentStream())
-            return $this->getCurrentStream()->getTask();
-    }
-
-    function doTask() {
-        return $this->getCurrentStream()->doTask();
-    }
-
-    function getErrors() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getErrors();
-    }
-
-    function getUpgradeSummary() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getUpgradeSummary();
-    }
-
-    function getNextAction() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getNextAction();
-    }
-
-    function getNextVersion() {
-        return $this->getCurrentStream()->getNextVersion();
-    }
-
-    function getSchemaSignature() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSchemaSignature();
-    }
-
-    function getSHash() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSHash();
     }
 }
 
@@ -185,7 +147,7 @@ class StreamUpgrader extends SetupWizard {
      * sqldir - (string<path>) Path of sql patches
      * upgrader - (Upgrader) Parent coordinator of parallel stream updates
      */
-    function StreamUpgrader($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
+    function __construct($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
 
         $this->signature = $schema_signature;
         $this->target = $target;

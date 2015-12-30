@@ -182,7 +182,7 @@ class EmailTemplateGroup {
         ),
     );
 
-    function EmailTemplateGroup($id){
+    function __construct($id){
         $this->id=0;
         $this->load($id);
     }
@@ -508,7 +508,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function EmailTemplate($id, $group=null){
+    function __construct($id, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;

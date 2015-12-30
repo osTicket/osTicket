@@ -30,7 +30,7 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-    function Config($section=null, $defaults=array()) {
+    function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
 
@@ -209,8 +209,8 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
     );
 
-    function OsticketConfig($section=null) {
-        parent::Config($section);
+    function __construct($section=null) {
+        parent::__construct($section);
 
         if (count($this->config) == 0) {
             // Fallback for osticket < 1.7@852ca89e

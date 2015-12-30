@@ -1545,7 +1545,9 @@ class TaskThread extends ObjectThread {
         return MessageThreadEntry::create($vars, $errors);
     }
 
-    static function create($task) {
+    static function create($task=false) {
+        assert($task !== false);
+
         $id = is_object($task) ? $task->getId() : $task;
         $thread = parent::create(array(
                     'object_id' => $id,

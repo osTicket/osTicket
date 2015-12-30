@@ -7,7 +7,7 @@ class FileImport extends MigrationTask {
         $i18n = new Internationalization('en_US');
         $files = $i18n->getTemplate('file.yaml')->getData();
         foreach ($files as $f) {
-            if (!($file = AttachmentFile::create($f)))
+            if (!($file = AttachmentFile::createFile($f)))
                 continue;
 
             // Ensure the new files are never deleted (attached to Disk)

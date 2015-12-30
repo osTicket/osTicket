@@ -27,7 +27,7 @@ class VariableReplacer {
 
     var $errors;
 
-    function VariableReplacer($start_delim='(?:%{|%%7B)', $end_delim='(?:}|%7D)') {
+    function __construct($start_delim='(?:%{|%%7B)', $end_delim='(?:}|%7D)') {
 
         $this->start_delim = $start_delim;
         $this->end_delim = $end_delim;

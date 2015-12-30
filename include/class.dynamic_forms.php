@@ -487,58 +487,6 @@ class TicketForm extends DynamicForm {
         return static::$instance;
     }
 
-    static function ensureDynamicDataView() {
-        $sql = 'SHOW TABLES LIKE \''.TABLE_PREFIX.'ticket__cdata\'';
-        if (!db_num_rows(db_query($sql)))
-            return static::buildDynamicDataView();
-    }
-
-    static function buildDynamicDataView() {
-        // create  table __cdata (primary key (ticket_id)) as select
-        // entry.object_id as ticket_id, MAX(IF(field.name = 'subject',
-        // ans.value, NULL)) as `subject`,MAX(IF(field.name = 'priority',
-        // ans.value, NULL)) as `priority_desc`,MAX(IF(field.name =
-        // 'priority', ans.value_id, NULL)) as `priority_id`
-        // FROM ost_form_entry entry LEFT JOIN ost_form_entry_values ans ON
-        // ans.entry_id = entry.id LEFT JOIN ost_form_field field ON
-        // field.id=ans.field_id
-        // where entry.object_type='T' group by entry.object_id;
-        $sql = 'CREATE TABLE IF NOT EXISTS `'.TABLE_PREFIX.'ticket__cdata` (PRIMARY KEY
-            (ticket_id)) DEFAULT CHARSET=utf8 AS '
-            . static::getCrossTabQuery('T', 'ticket_id');
-        db_query($sql);
-    }
-
-    static function dropDynamicDataView() {
-        db_query('DROP TABLE IF EXISTS `'.TABLE_PREFIX.'ticket__cdata`');
-    }
-
-    static function updateDynamicDataView($answer, $data) {
-        // TODO: Detect $data['dirty'] for value and value_id
-        // We're chiefly concerned with Ticket form answers
-        if (!($e = $answer->getEntry()) || $e->form->get('type') != 'T')
-            return;
-
-        // $record = array();
-        // $record[$f] = $answer->value'
-        // TicketFormData::objects()->filter(array('ticket_id'=>$a))
-        //      ->merge($record);
-        $sql = 'SHOW TABLES LIKE \''.TABLE_PREFIX.'ticket__cdata\'';
-        if (!db_num_rows(db_query($sql)))
-            return;
-
-        $f = $answer->getField();
-        if (!$f->getFormId())
-            return;
-
-        $name = $f->get('name') ?: ('field_'.$f->get('id'));
-        $fields = sprintf('`%s`=', $name) . db_input($answer->getSearchKeys());
-        $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
-            .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
-            .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
-            return self::dropDynamicDataView();
-    }
 }
 // Add fields from the standard ticket form to the ticket filterable fields
 Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
@@ -1485,9 +1433,8 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
-    function getWidget() {
+    function getWidget($widgetClass=false) {
         $config = $this->getConfiguration();
-        $widgetClass = false;
         if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
         elseif ($config['widget'] == 'textbox')

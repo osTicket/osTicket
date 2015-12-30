@@ -14,10 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-Class SetupWizard {
+class SetupWizard {
 
     //Mimimum requirements
-    var $prereq = array('php'   => '5.3',
+    var $prereq = array('php'   => '5.4',
                         'mysql' => '5.0');
 
     //Version info - same as the latest version.
@@ -28,7 +28,7 @@ Class SetupWizard {
     //Errors
     var $errors=array();
 
-    function SetupWizard(){
+    function __construct(){
         $this->errors=array();
         $this->version_verbose = sprintf(__('osTicket %s' /* <%s> is for the version */),
             THIS_VERSION);

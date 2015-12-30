@@ -458,10 +458,11 @@ class VerySimpleModel {
      */
     static function lookup($criteria) {
         // Model::lookup(1), where >1< is the pk value
+        $args = func_get_args();
         if (!is_array($criteria)) {
             $criteria = array();
             $pk = static::getMeta('pk');
-            foreach (func_get_args() as $i=>$f)
+            foreach ($args as $i=>$f)
                 $criteria[$pk[$i]] = $f;
 
             // Only consult cache for PK lookup, which is assumed if the
@@ -653,7 +654,7 @@ class AnnotatedModel {
 class SqlFunction {
     var $alias;
 
-    function SqlFunction($name) {
+    function __construct($name) {
         $this->func = $name;
         $this->args = array_slice(func_get_args(), 1);
     }

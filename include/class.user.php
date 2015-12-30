@@ -1051,7 +1051,7 @@ class UserAccount extends VerySimpleModel {
         $content = Page::lookupByType($template);
 
         if (!$email ||  !$content)
-            return new Error(sprintf(_S('%s: Unable to retrieve template'),
+            return new BaseError(sprintf(_S('%s: Unable to retrieve template'),
                 $template));
 
         $vars = array(

@@ -533,7 +533,10 @@ class Thread extends VerySimpleModel {
         return true;
     }
 
-    static function create($vars) {
+    static function create($vars=false) {
+        // $vars is expected to be an array
+        assert(is_array($vars));
+
         $inst = parent::create($vars);
         $inst->created = SqlFunction::NOW();
         return $inst;
@@ -961,7 +964,7 @@ implements TemplateVariable {
             $fileId = $file;
         elseif ($file instanceof AttachmentFile)
             $fileId = $file->getId();
-        elseif ($F = AttachmentFile::create($file))
+        elseif ($F = AttachmentFile::createFile($file))
             $fileId = $F->getId();
         elseif (is_array($file) && isset($file['id']))
             $fileId = $file['id'];
@@ -1309,8 +1312,10 @@ implements TemplateVariable {
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
-    static function create($vars, &$errors=array()) {
+    static function create($vars=false) {
         global $cfg;
+
+        assert(is_array($vars));
 
         //Must have...
         if (!$vars['threadId'] || !$vars['type'])
@@ -2280,10 +2285,6 @@ class MessageThreadEntry extends ThreadEntry {
         return $this->getTitle();
     }
 
-    static function create($vars, &$errors=array()) {
-        return static::add($vars, $errors);
-    }
-
     static function add($vars, &$errors=array()) {
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
@@ -2330,10 +2331,6 @@ class ResponseThreadEntry extends ThreadEntry {
         return $this->getStaff();
     }
 
-    static function create($vars, &$errors=array()) {
-        return static::add($vars, $errors);
-    }
-
     static function add($vars, &$errors=array()) {
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
@@ -2375,10 +2372,6 @@ class NoteThreadEntry extends ThreadEntry {
         return new ThreadActivity(
                 _S('New Internal Note'),
                 _S('New internal note posted'));
-    }
-
-    static function create($vars, &$errors) {
-        return self::add($vars, $errors);
     }
 
     static function add($vars, &$errors=array()) {
@@ -2518,7 +2511,7 @@ implements TemplateVariable {
 
         //Add ticket Id.
         $vars['threadId'] = $this->getId();
-        return NoteThreadEntry::create($vars, $errors);
+        return NoteThreadEntry::add($vars, $errors);
     }
 
     function addMessage($vars, &$errors) {
@@ -2526,7 +2519,7 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['staffId'] = 0;
 
-        if (!($message = MessageThreadEntry::create($vars, $errors)))
+        if (!($message = MessageThreadEntry::add($vars, $errors)))
             return $message;
 
         $this->lastmessage = SqlFunction::NOW();
@@ -2539,7 +2532,7 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
 
-        if (!($resp = ResponseThreadEntry::create($vars, $errors)))
+        if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;
 
         $this->lastresponse = SqlFunction::NOW();
@@ -2594,7 +2587,9 @@ implements TemplateVariable {
 // Ticket thread class
 class TicketThread extends ObjectThread {
 
-    static function create($ticket) {
+    static function create($ticket=false) {
+        assert($ticket !== false);
+
         $id = is_object($ticket) ? $ticket->getId() : $ticket;
         $thread = parent::create(array(
                     'object_id' => $id,

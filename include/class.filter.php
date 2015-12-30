@@ -37,7 +37,7 @@ class Filter {
         ),
     );
 
-    function Filter($id) {
+    function __construct($id) {
         $this->id=0;
         $this->load($id);
     }
@@ -561,7 +561,7 @@ class FilterRule {
 
     var $filter;
 
-    function FilterRule($id,$filterId=0) {
+    function __construct($id,$filterId=0) {
         $this->id=0;
         $this->load($id,$filterId);
     }
@@ -697,7 +697,7 @@ class TicketFilter {
      *  ---------------
      *  @see Filter::matches() for a complete list of supported keys
      */
-    function TicketFilter($origin, $vars=array()) {
+    function __construct($origin, $vars=array()) {
 
         //Normalize the target based on ticket's origin.
         $this->target = self::origin2target($origin);

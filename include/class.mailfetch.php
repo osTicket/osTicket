@@ -33,7 +33,7 @@ class MailFetcher {
 
     var $tnef = false;
 
-    function MailFetcher($email, $charset='UTF-8') {
+    function __construct($email, $charset='UTF-8') {
 
 
         if($email && is_numeric($email)) //email_id
@@ -792,7 +792,7 @@ class MailFetcher {
             // NOTE: This might not be a "ticket"
             $ticket = $thread->getObject();
         }
-        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
+        elseif (($ticket=Ticket::create2($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         }
         else {

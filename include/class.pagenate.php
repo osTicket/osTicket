@@ -24,7 +24,7 @@ class PageNate {
     var $pages;
 
 
-    function PageNate($total,$page,$limit=20,$url='') {
+    function __construct($total,$page,$limit=20,$url='') {
         $this->total = intval($total);
         $this->limit = max($limit, 1 );
         $this->page  = max($page, 1 );

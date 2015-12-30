@@ -128,11 +128,6 @@ class Lock extends VerySimpleModel {
             return $lock;
     }
 
-    static function create($staffId, $lockTime) {
-        if ($lock = self::acquire($staffId, $lockTime))
-            return $lock;
-    }
-
     // Simply remove ALL locks a user (staff) holds on a ticket(s).
     static function removeStaffLocks($staffId, $object=false) {
         $locks = static::objects()->filter(array(

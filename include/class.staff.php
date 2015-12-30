@@ -840,7 +840,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
+            return new BaseError(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -1315,8 +1315,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 
@@ -1366,8 +1366,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 

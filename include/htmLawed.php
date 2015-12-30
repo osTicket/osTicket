@@ -379,7 +379,8 @@ return $r;
 function hl_spec($t){
 // final $spec
 $s = array();
-$t = str_replace(array("\t", "\r", "\n", ' '), '', preg_replace('/"(?>(`.|[^"])*)"/sme', 'substr(str_replace(array(";", "|", "~", " ", ",", "/", "(", ")", \'`"\'), array("\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\""), "$0"), 1, -1)', trim($t)));
+$t = str_replace(array("\t", "\r", "\n", ' '), '',
+preg_replace_callback('/"(?>(`.|[^"])*)"/sm', function($m) {return substr(str_replace(array(";", "|", "~", " ", ",", "/", "(", ")", '`"'), array("\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\""), $m[0]), 1, -1);}, trim($t)));
 for($i = count(($t = explode(';', $t))); --$i>=0;){
  $w = $t[$i];
  if(empty($w) or ($e = strpos($w, '=')) === false or !strlen(($a =  substr($w, $e+1)))){continue;}

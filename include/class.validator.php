@@ -20,7 +20,7 @@ class Validator {
     var $fields=array();
     var $errors=array();
 
-    function Validator($fields=null) {
+    function __construct($fields=null) {
         $this->setFields($fields);
     }
     function setFields(&$fields){
@@ -99,15 +99,15 @@ class Validator {
                 break;
             case 'phone':
             case 'fax':
-                if(!$this->is_phone($this->input[$k]))
+                if(!self::is_phone($this->input[$k]))
                     $this->errors[$k]=$field['error'];
                 break;
             case 'email':
-                if(!$this->is_email($this->input[$k]))
+                if(!self::is_email($this->input[$k]))
                     $this->errors[$k]=$field['error'];
                 break;
             case 'url':
-                if(!$this->is_url($this->input[$k]))
+                if(!self::is_url($this->input[$k]))
                     $this->errors[$k]=$field['error'];
                 break;
             case 'password':
@@ -116,7 +116,7 @@ class Validator {
                 break;
             case 'username':
                 $error = '';
-                if (!$this->is_username($this->input[$k], $error))
+                if (!self::is_username($this->input[$k], $error))
                     $this->errors[$k]=$field['error'].": $error";
                 break;
             case 'zipcode':
@@ -140,10 +140,11 @@ class Validator {
 
     /*** Functions below can be called directly without class instance.
          Validator::func(var..);  (nolint) ***/
-    function is_email($email, $list=false, $verify=false) {
+    static function is_email($email, $list=false, $verify=false) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        if (!($mails = Mail_RFC822::parseAddressList($email)) || PEAR::isError($mails))
+        $rfc822 = new Mail_RFC822();
+        if (!($mails = $rfc822->parseAddressList($email)) || PEAR::isError($mails))
             return false;
 
         if (!$list && count($mails) > 1)
@@ -166,24 +167,24 @@ class Validator {
         return true;
     }
 
-    function is_valid_email($email) {
+    static function is_valid_email($email) {
         global $cfg;
         // Default to FALSE for installation
         return self::is_email($email, false, $cfg && $cfg->verifyEmailAddrs());
     }
 
-    function is_phone($phone) {
+    static function is_phone($phone) {
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);
         return (!is_numeric($stripped) || ((strlen($stripped)<7) || (strlen($stripped)>16)))?false:true;
     }
 
-    function is_url($url) {
+    static function is_url($url) {
         //XXX: parse_url is not ideal for validating urls but it's ideal for basic checks.
         return ($url && ($info=parse_url($url)) && $info['host']);
     }
 
-    function is_ip($ip) {
+    static function is_ip($ip) {
 
         if(!$ip or empty($ip))
             return false;
@@ -203,7 +204,7 @@ class Validator {
         return false;
     }
 
-    function is_username($username, &$error='') {
+    static function is_username($username, &$error='') {
         if (strlen($username)<2)
             $error = __('Username must have at least two (2) characters');
         elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))

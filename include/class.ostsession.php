@@ -27,7 +27,7 @@ class osTicketSession {
     var $id = '';
     var $backend;
 
-    function osTicketSession($ttl=0){
+    function __construct($ttl=0){
         $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
 
         // Set osTicket specific session name.

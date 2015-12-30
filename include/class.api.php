@@ -19,7 +19,7 @@ class API {
 
     var $ht;
 
-    function API($id) {
+    function __construct($id) {
         $this->id = 0;
         $this->load($id);
     }
