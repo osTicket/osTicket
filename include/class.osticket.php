@@ -56,7 +56,8 @@ class osTicket {
         require_once(INCLUDE_DIR.'class.config.php'); //Config helper
         require_once(INCLUDE_DIR.'class.company.php');
 
-        $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
+        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
+            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
         $this->config = new OsticketConfig();
 
