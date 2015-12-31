@@ -1525,28 +1525,21 @@ implements RestrictedAccess, Threadable {
         // confused with autorespond on new message setting
         if ($autorespond && $this->isClosed() && $this->isReopenable()) {
             $this->reopen();
+            // Auto-assign to closing staff or the last respondent if the
+            // agent is available and has access. Otherwise, put the ticket back
+            // to unassigned pool.
             $dept = $this->getDept();
+            $staff = $this->getStaff() ?: $this->getLastRespondent();
             $autoclaim = ($cfg->autoClaimTickets() && !$dept->disableAutoClaim());
-            // Auto-assign to closing staff or last respondent
-            // If the ticket is closed and auto-claim is not enabled then put the
-            // ticket back to unassigned pool.
-            if (!$autoclaim) {
-                $this->setStaffId(0);
-            }
-            elseif (!($staff = $this->getStaff()) || !$staff->isAvailable()) {
-                // Ticket has no assigned staff -  if auto-claim is enabled then
-                // try assigning it to the last respondent (if available)
-                // otherwise leave the ticket unassigned.
-                if (($lastrep = $this->getLastRespondent())
-                    && $lastrep->isAvailable()
-                ) {
-                    $this->setStaffId($lastrep->getId()); //direct assignment;
-                }
-                else {
-                    // unassign - last respondent is not available.
-                    $this->setStaffId(0);
-                }
-            }
+            if ($autoclaim
+                    && $staff
+                    // Is agent on vacation ?
+                    && $staff->isAvailable()
+                    // Does the agent have access to dept?
+                    && $staff->canAccessDept($dept->getId()))
+                $this->setStaffId($staff->getId());
+            else
+                $this->setStaffId(0); // Clear assignment
         }
 
         // Figure out the user
