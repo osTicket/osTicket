@@ -5,7 +5,6 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getI
 //Make sure the staff is allowed to access the page.
 if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access Denied');
 
-//Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
 //Get the goodies.
@@ -168,11 +167,15 @@ if($ticket->isOverdue())
                     <?php
                     }
                 } ?>
+                <?php
+                if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
                 <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
+                <?php
+                } ?>
 
 <?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>

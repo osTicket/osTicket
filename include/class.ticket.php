@@ -336,6 +336,13 @@ implements RestrictedAccess, Threadable {
         return null !== $this->getLock();
     }
 
+    function isAssignee($staff) {
+        if (!$staff instanceof Staff)
+            return false;
+
+        return ($this->isOpen() && $staff->getId() == $this->getStaffId());
+    }
+
     function checkStaffPerm($staff, $perm=null) {
         // Must be a valid staff
         if (!$staff instanceof Staff && !($staff=Staff::lookup($staff)))
@@ -346,7 +353,7 @@ implements RestrictedAccess, Threadable {
             || !$staff->canAccessDept($this->getDeptId()))
             // only open tickets can be considered assigned
             && $this->isOpen()
-            && $staff->getId() != $this->getStaffId()
+            && !$this->isAssignee($staff)
             && !$staff->isTeamMember($this->getTeamId())
         ) {
             return false;

@@ -215,9 +215,11 @@ if (count($bks) > 1) {
         <tr class="header">
           <th colspan="2">
             <?php echo __('Primary Department and Role'); ?>
+            <small><i class="offset help-tip icon-question-sign" href="#primary_department"></i></small>
+            &nbsp;&nbsp;
             <span class="error">*</span>
             <div><small><?php echo __(
-            "Select the departments the agent is allowed to access and optionally select an effective role."
+            "Select the primary department the agent is allowed to access and the effective role."
           ); ?>
             </small></div>
           </th>
@@ -234,7 +236,6 @@ if (count($bks) > 1) {
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
-            <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
             <div class="error"><?php echo $errors['dept_id']; ?></div>
           </td>
           <td style="vertical-align:top">
@@ -256,7 +257,7 @@ if (count($bks) > 1) {
       <tbody>
         <tr id="extended_access_template" class="hidden">
           <td>
-            <input type="hidden" data-name="dept_access[]" value="" />
+            <input type="hidden" data-name="dept_access[]" value="0" />
           </td>
           <td>
             <select data-name="dept_access_role" data-quick-add="role">
@@ -282,7 +283,36 @@ if (count($bks) > 1) {
         <tr class="header">
           <th colspan="2">
             <?php echo __('Extended Access'); ?>
+            <div><small><?php echo __(
+            "Select the departments the agent is allowed to access and the effective roles."
+          ); ?>
+            </small></div>
           </th>
+        </tr>
+        <tr>
+          <td>
+            <span class="faded">Assignment Access</span>
+            <input type="hidden" name="dept_access[0]" value="0" />
+            <i class="offset help-tip icon-question-sign" href="#assignment_role"></i>
+          </td>
+          <td>
+            <select data-name="dept_access_role" data-quick-add="role"
+                name="dept_access_role[0]">
+              <option value="0">&mdash; <?php echo __('None - View Only');?> &mdash;</option>
+              <?php
+              $da = $staff->dept_access->findFirst(array('dept_id' => 0));
+              $roleId = $da ? $da->role_id : 0;
+              foreach (Role::getRoles() as $id => $name) {
+                  $sel = ($roleId == $id)
+                      ?  'selected="selected"': '';
+                  echo sprintf('<option value="%d" %s>%s</option>',
+                        $id, $sel, $name);
+              }
+              ?>
+            </select>
+            <div class="error"><?php echo $errors['dept_access'][0]; ?></div>
+            <span style="display:inline-block;width:20px"> </span>
+          </td>
         </tr>
 <?php
 $depts = Dept::getDepartments();
@@ -501,9 +531,10 @@ $('#join_team').find('button').on('click', function() {
   return false;
 });
 
-
 <?php
 foreach ($staff->dept_access as $dept_access) {
+    if (!$dept_access->dept_id) continue;
+
   echo sprintf('addAccess(%d, %s, %d, %d, %s);', $dept_access->dept_id,
     JsonDataEncoder::encode($dept_access->dept->getName()),
     $dept_access->role_id,
