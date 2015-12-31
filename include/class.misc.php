@@ -80,6 +80,28 @@ class Misc {
         return $dbtime - $dbtz->getOffset($D);
     }
 
+    // Take user's time and return GMT time.
+    function user2gmtime($timestamp=null, $user=null) {
+        global $cfg;
+
+        $tz = new DateTimeZone($cfg->getTimezone($user));
+
+        if (!$timestamp)
+            $timestamp = 'now';
+
+        if (is_int($timestamp)) {
+            $time = $timestamp;
+        } else {
+            $date = new DateTime($timestamp, $tz);
+            $time = $date->format('U');
+        }
+
+        if (!($D = DateTime::createFromFormat('U', $time)))
+            return $time;
+
+        return $time - $tz->getOffset($D);
+    }
+
     //Take user time or gmtime and return db (mysql) time.
     function dbtime($var=null){
         static $dbtz;
@@ -88,13 +110,11 @@ class Misc {
         if (is_null($var) || !$var) {
             // Default timezone is set to UTC
             $time = time();
+        } else {
+            // User time to UTC
+            $time = self::user2gmtime($var);
         }
-        else { //user time to UTC
-            $tz = new DateTimeZone($cfg->getTimezone());
-            $time = is_int($var) ? $var : strtotime($var);
-            $D = DateTime::createFromFormat('U', $time);
-            $time -= $tz->getOffset($D);
-        }
+
         if (!isset($dbtz)) {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
         }

@@ -2732,8 +2732,7 @@ implements RestrictedAccess, Threadable {
                 $errors['time']=__('Select a time from the list');
             elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
                 $errors['duedate']=__('Invalid due date');
-            // FIXME: Using time() violates database and user timezone
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) <= time())
+            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
 
@@ -3083,13 +3082,13 @@ implements RestrictedAccess, Threadable {
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] =__('Missing or invalid data - check the errors and try again');
 
-        //Make sure the due date is valid
-        if($vars['duedate']) {
-            if(!$vars['time'] || strpos($vars['time'],':')===false)
+        // Make sure the due date is valid
+        if ($vars['duedate']) {
+            if (!$vars['time'] || strpos($vars['time'],':') === false)
                 $errors['time']=__('Select a time from the list');
-            elseif(strtotime($vars['duedate'].' '.$vars['time'])===false)
+            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
                 $errors['duedate']=__('Invalid due date');
-            elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
+            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
 
