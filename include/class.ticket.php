@@ -3621,6 +3621,26 @@ implements RestrictedAccess, Threadable {
 
         }
    }
+   
+   static function checkAutoreopen() {
+
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id=T1.status_id AND status.state="closed") '
+            .' WHERE autoreopen <= NOW() ';
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if ($ticket=Ticket::lookup($id))
+                {
+                    $errors = array();
+                    $status = TicketStatus::lookup(1);
+                    $ticket->setStatus($status, "Automatische Wiederöffnung.", $errors);
+                    db_query("UPDATE ".TICKET_TABLE." SET autoreopen = NULL WHERE ticket_id = $id");
+                }
+            }
+        }
+   }
 
     static function agentActions($agent, $options=array()) {
         if (!$agent)

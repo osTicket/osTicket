@@ -1165,6 +1165,22 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return !self::lookupIdByNumber($number);
     }
 
+    static function checkAutoreopen() {
+
+        $sql='SELECT id FROM '.TASK_TABLE.' WHERE autoreopen <= NOW() ';
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if ($task=Task::lookup($id))
+                {
+                    $errors = array();
+                    $task->setStatus("open", "Automatische Wiederöffnung.", $errors);
+                    db_query("UPDATE ".TASK_TABLE." SET autoreopen = NULL WHERE id = $id");
+                }
+            }
+        }
+   }
+    
     static function create($vars=false) {
         global $thisstaff, $cfg;
 

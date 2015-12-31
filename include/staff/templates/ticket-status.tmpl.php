@@ -93,6 +93,31 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             </tbody>
         </table>
         <hr>
+        <?php if ($state == "closed"):?>
+        <table>
+            <tr>
+                <td>
+                    <input type="checkbox" name="snooze"/> <?php echo __('Wieder öffnen am:'); ?> 
+                    <input name="reopentime" type="text" class="dp" size=12 placeholder="dd.mm.yyyy"/>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('input[name="reopentime"]').datepicker({
+                                minDate: new Date().getTime(),
+                                numberOfMonths: 2,
+                                showButtonPanel: true,
+                                buttonImage: './images/cal.png',
+                                showOn:'both',
+                                dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
+                            }).change(function(){
+                                $('input[name="snooze"]').val(true).attr("checked", "checked");
+                            });
+                        });
+                    </script>
+                    <?php echo '&nbsp;' . Misc::timeDropdown($hr, $min, 'reopentime:time');?>
+                </td>
+            </tr>
+        </table>
+        <?php endif;?>
         <p class="full-width">
             <span class="buttons pull-left">
                 <input type="reset" value="<?php echo __('Reset'); ?>">
