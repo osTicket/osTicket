@@ -106,10 +106,6 @@ case 'search':
             $tickets = $__tickets;
             $has_relevance = true;
         }
-        if (count($tickets) == 1) {
-            // Redirect to ticket page
-            Http::redirect('tickets.php?id='.$tickets[0]->getId());
-        }
         // Clear sticky search queue
         unset($_SESSION[$queue_key]);
         break;
