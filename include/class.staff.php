@@ -413,6 +413,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
     }
 
+    function usePrimaryRoleOnAssignment() {
+        return $this->getExtraAttr('def_assn_role', true);
+    }
+
     function getLanguage() {
         return (isset($this->lang)) ? $this->lang : false;
     }
@@ -437,8 +441,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
                 return $this->_roles[$deptId] = $access->role;
 
-            // View only access
-            return new Role(array());
+            if (!$this->usePrimaryRoleOnAssignment())
+                // View only access
+                return new Role(array());
+
+            // Fall through to primary role
         }
         // For the primary department, use the primary role
         return $this->role;
@@ -563,15 +570,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if (!isset($this->_extra) && isset($this->extra))
             $this->_extra = JsonDataParser::decode($this->extra);
 
-        return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
+        return $attr
+            ? (isset($this->_extra[$attr]) ? $this->_extra[$attr] : $default)
+            : $this->_extra;
     }
 
     function setExtraAttr($attr, $value, $commit=true) {
         $this->getExtraAttr();
         $this->_extra[$attr] = $value;
+        $this->extra = JsonDataEncoder::encode($this->_extra);
 
         if ($commit) {
-            $this->extra = JsonDataEncoder::encode($this->_extra);
             $this->save();
         }
     }
@@ -1011,6 +1020,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
         $this->updateAccess($access, $errors);
+        $this->setExtraAttr('def_assn_role',
+            isset($vars['assign_use_pri_role']), false);
 
         // Format team membership as [array(team_id, alerts?)]
         $teams = array();
