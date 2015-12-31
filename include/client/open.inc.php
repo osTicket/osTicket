@@ -11,7 +11,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 
 $form = null;
 if (!$info['topicId'])
-    $info['topicId'] = $cfg->getDefaultTopicId();
+    $info['topicId'] = isset($_GET['ht']) ? $_GET['ht'] : $cfg->getDefaultTopicId();
 
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     $form = $topic->getForm();
