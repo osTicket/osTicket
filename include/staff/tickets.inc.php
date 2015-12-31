@@ -31,6 +31,50 @@ $sort_options = array(
     'hot' =>                __('Longest Thread'),
     'relevance' =>          __('Relevance'),
 );
+
+// Queues columns
+
+$queue_columns = array(
+        'number' => array(
+            'width' => '7.4%',
+            'heading' => __('Number'),
+            ),
+        'date' => array(
+            'width' => '14.6%',
+            'heading' => __('Date Created'),
+            'sort_col' => 'created',
+            ),
+        'subject' => array(
+            'width' => '29.8%',
+            'heading' => __('Subject'),
+            'sort_col' => 'cdata__subject',
+            ),
+        'name' => array(
+            'width' => '18.1%',
+            'heading' => __('From'),
+            'sort_col' =>  'user__name',
+            ),
+        'status' => array(
+            'width' => '8.4%',
+            'heading' => __('Status'),
+            'sort_col' => 'status_id',
+            ),
+        'priority' => array(
+            'width' => '8.4%',
+            'heading' => __('Priority'),
+            'sort_col' => 'cdata__priority__priority_urgency',
+            ),
+        'assignee' => array(
+            'width' => '16%',
+            'heading' => __('Agent'),
+            ),
+        'dept' => array(
+            'width' => '16%',
+            'heading' => __('Department'),
+            'sort_col'  => 'dept__name',
+            ),
+        );
+
 $use_subquery = true;
 
 // Figure out the queue we're viewing
@@ -220,6 +264,7 @@ $orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
 
 switch ($sort_cols) {
 case 'number':
+    $queue_columns['number']['sort_dir'] = $sort_dir;
     $tickets->extra(array(
         'order_by'=>array(
             array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
@@ -231,8 +276,8 @@ case 'priority,created':
     $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__priority__priority_urgency');
     // Fall through to columns for `created`
 case 'created':
-    $date_header = __('Date Created');
-    $date_col = 'created';
+    $queue_columns['date']['heading'] = __('Date Created');
+    $queue_columns['date']['sort_col'] = $date_col = 'created';
     $tickets->values('created');
     $tickets->order_by($sort_dir ? 'created' : '-created');
     break;
@@ -241,22 +286,27 @@ case 'priority,due':
     $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
 case 'due':
-    $date_header = __('Due Date');
-    $date_col = 'est_duedate';
+    $queue_columns['date']['heading'] = __('Due Date');
+    $queue_columns['date']['sort'] = 'due';
+    $queue_columns['date']['sort_col'] = $date_col = 'est_duedate';
     $tickets->values('est_duedate');
     $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
     break;
 
 case 'closed':
-    $date_header = __('Date Closed');
-    $date_col = 'closed';
+    $queue_columns['date']['heading'] = __('Date Closed');
+    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort_col'] = $date_col = 'closed';
+    $queue_columns['date']['sort_dir'] = $sort_dir;
     $tickets->values('closed');
     $tickets->order_by('closed', $orm_dir);
     break;
 
 case 'answered':
-    $date_header = __('Last Response');
-    $date_col = 'thread__lastresponse';
+    $queue_columns['date']['heading'] = __('Last Response');
+    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort_col'] = $date_col = 'thread__lastresponse';
+    $queue_columns['date']['sort_dir'] = $sort_dir;
     $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
     $tickets->order_by('thread__lastresponse', $orm_dir);
     $tickets->values('thread__lastresponse');
@@ -273,16 +323,35 @@ case 'relevance':
     $tickets->order_by(new SqlCode('__relevance__'), $orm_dir);
     break;
 
+case 'assignee':
+    $tickets->order_by('staff__lastname', $orm_dir);
+    $tickets->order_by('staff__firstname', $orm_dir);
+    $tickets->order_by('team__name', $orm_dir);
+    $queue_columns['assignee']['sort_dir'] = $sort_dir;
+    break;
+
 default:
+    if ($sort_cols && isset($queue_columns[$sort_cols])) {
+        $queue_columns[$sort_cols]['sort_dir'] = $sort_dir;
+        if (isset($queue_columns[$sort_cols]['sort_col']))
+            $sort_cols = $queue_columns[$sort_cols]['sort_col'];
+        $tickets->order_by($sort_cols, $orm_dir);
+        break;
+    }
+
 case 'priority,updated':
     $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
     // Fall through for columns defined for `updated`
 case 'updated':
-    $date_header = __('Last Updated');
-    $date_col = 'lastupdate';
+    $queue_columns['date']['heading'] = __('Last Updated');
+    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort_col'] = $date_col = 'lastupdate';
     $tickets->order_by('lastupdate', $orm_dir);
     break;
 }
+
+if (in_array($sort_cols, array('created', 'due', 'updated')))
+    $queue_columns['date']['sort_dir'] = $sort_dir;
 
 // Rewrite $tickets to use a nested query, which will include the LIMIT part
 // in order to speed the result
@@ -385,44 +454,43 @@ return false;">
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
-            <?php if ($thisstaff->canManageTickets()) { ?>
+            <?php
+            if ($thisstaff->canManageTickets()) { ?>
 	        <th width="2%">&nbsp;</th>
             <?php } ?>
-	        <th width="7.4%">
-                <?php echo __('Ticket'); ?></th>
-	        <th width="14.6%">
-                <?php echo $date_header ?: __('Date Created'); ?></th>
-	        <th width="29.8%">
-                <?php echo __('Subject'); ?></th>
-            <th width="18.1%">
-                <?php echo __('From');?></th>
-            <?php
-            if($search && !$status) { ?>
-                <th width="8.4%">
-                    <?php echo __('Status');?></th>
-            <?php
-            } else { ?>
-                <th width="8.4%" <?php echo $pri_sort;?>>
-                    <?php echo __('Priority');?></th>
-            <?php
-            }
 
-            if($showassigned ) {
-                //Closed by
-                if(!strcasecmp($status,'closed')) { ?>
-                    <th width="16%">
-                        <?php echo __('Closed By'); ?></th>
-                <?php
-                } else { //assigned to ?>
-                    <th width="16%">
-                        <?php echo __('Assigned To'); ?></th>
-                <?php
-                }
-            } else { ?>
-                <th width="16%">
-                    <?php echo __('Department');?></th>
             <?php
-            } ?>
+            // Swap some columns based on the queue.
+            if ($showassigned ) {
+                unset($queue_columns['dept']);
+                if (!strcasecmp($status,'closed'))
+                    $queue_columns['assignee']['heading'] =  __('Closed By');
+                else
+                    $queue_columns['assignee']['heading'] =  __('Assigned To');
+            } else {
+                unset($queue_columns['assignee']);
+            }
+            if ($search && !$status)
+                unset($queue_columns['priority']);
+            else
+                unset($queue_columns['status']);
+
+            // Query string
+            unset($args['sort'], $args['dir'], $args['_pjax']);
+            $qstr = Http::build_query($args);
+            // Show headers
+            foreach ($queue_columns as $k => $column) {
+                echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
+                        class="%s">%s</a></th>',
+                        $column['width'],
+                        $column['sort'] ?: $k,
+                        $column['sort_dir'] ? 0 : 1,
+                        $qstr,
+                        isset($column['sort_dir'])
+                        ? ($column['sort_dir'] ? 'asc': 'desc') : '',
+                        $column['heading']);
+            }
+            ?>
         </tr>
      </thead>
      <tbody>
