@@ -270,6 +270,9 @@ var scp_prep = function() {
             var form = $el.closest('form');
             form.find('input[name=search-type]').val('typeahead');
             $el.val(obj.value);
+            if (obj.id) {
+                form.append($('<input type="hidden" name="number">').val(obj.id))
+            }
             form.submit();
         },
         property: "matches"
