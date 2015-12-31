@@ -168,11 +168,15 @@ if($ticket->isOverdue())
                     <?php
                     }
                 } ?>
+                <?php
+                if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
                 <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
                     ><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></a></li>
+                <?php
+                } ?>
 
 <?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
