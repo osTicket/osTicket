@@ -84,7 +84,8 @@ class CsvImporter {
                     break;
                 }
                 else {
-                    throw new ImportError(sprintf(__('%s: Unable to map header to a user field'), $h));
+                    throw new ImportError(sprintf(
+                                __('%s: Unable to map header to the object field'), $h));
                 }
             }
         }

@@ -523,11 +523,11 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $selections;
     }
 
-    function importCsv($stream, $defaults=array()) {
-        //Read the header (if any)
-        $headers = array('value' => __('Value'), 'abbrev' => __('Abbreviation'));
+   function importCsv($stream, $defaults=array()) {
+        require_once INCLUDE_DIR . 'class.import.php';
+
         $form = $this->getConfigurationForm();
-        $named_fields = $fields = array(
+        $fields = array(
             'value' => new TextboxField(array(
                 'label' => __('Value'),
                 'name' => 'value',
@@ -536,119 +536,42 @@ class DynamicList extends VerySimpleModel implements CustomList {
                 ),
             )),
             'abbrev' => new TextboxField(array(
-                'name' => 'abbrev',
+                'name' => 'extra',
                 'label' => __('Abbreviation'),
                 'configuration' => array(
                     'length' => 0,
                 ),
             )),
         );
-        $all_fields = $form->getFields();
-        $has_header = false;
-        foreach ($all_fields as $f)
-            if ($f->get('name'))
-                $named_fields[] = $f;
 
-        if (!($data = fgetcsv($stream, 1000, ",")))
-            return __('Whoops. Perhaps you meant to send some CSV records');
-
-        foreach ($data as $D) {
-            if (strcasecmp($D, 'value') === 0)
-                $has_header = true;
+        $form = $this->getConfigurationForm();
+        if ($form && ($custom_fields = $form->getFields())
+                && count($custom_fields)) {
+            foreach ($custom_fields as $f)
+                if ($f->get('name'))
+                    $fields[$f->get('name')] = $f;
         }
-        if ($has_header) {
-            foreach ($data as $h) {
-                $found = false;
-                foreach ($all_fields as $f) {
-                    if (in_array(mb_strtolower($h), array(
-                            mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
-                        $found = true;
-                        if (!$f->get('name'))
-                            return sprintf(__(
-                                '%s: Field must have `variable` set to be imported'), $h);
-                        $headers[$f->get('name')] = $f->get('label');
-                        break;
-                    }
-                }
-                if (!$found) {
-                    $has_header = false;
-                    if (count($data) == count($named_fields)) {
-                        // Number of fields in the user form matches the number
-                        // of fields in the data. Assume things line up
-                        $headers = array();
-                        foreach ($named_fields as $f)
-                            $headers[$f->get('name')] = $f->get('label');
-                        break;
-                    }
-                    else {
-                        return sprintf(__('%s: Unable to map header to a property'), $h);
-                    }
-                }
+
+        $importer = new CsvImporter($stream);
+        $imported = 0;
+        try {
+            db_autocommit(false);
+            $records = $importer->importCsv($fields, $defaults);
+            foreach ($records as $data) {
+                $errors = array();
+                $item = $this->addItem($data, $errors);
+                if ($item && $item->setConfiguration($data, $errors))
+                    $imported++;
+                else
+                    echo sprintf(__('Unable to import item: %s'), print_r($data, true));
             }
+            db_autocommit(true);
         }
-
-        // 'value' MUST be in the headers
-        if (!isset($headers['value']))
-            return __('CSV file must include `value` column');
-
-        if (!$has_header)
-            fseek($stream, 0);
-
-        $items = array();
-        $keys = array('value', 'abbrev');
-        foreach ($headers as $h => $label) {
-            if (!($f = $form->getField($h)))
-                continue;
-
-            $name = $keys[] = $f->get('name');
-            $fields[$name] = $f->getImpl();
+        catch (Exception $ex) {
+            db_rollback();
+            return $ex->getMessage();
         }
-
-        // Add default fields (org_id, etc).
-        foreach ($defaults as $key => $val) {
-            // Don't apply defaults which are also being imported
-            if (isset($header[$key]))
-                unset($defaults[$key]);
-            $keys[] = $key;
-        }
-
-        while (($data = fgetcsv($stream, 1000, ",")) !== false) {
-            if (count($data) == 1 && $data[0] == null)
-                // Skip empty rows
-                continue;
-            elseif (count($data) != count($headers))
-                return sprintf(__('Bad data. Expected: %s'), implode(', ', $headers));
-            // Validate according to field configuration
-            $i = 0;
-            foreach ($headers as $h => $label) {
-                $f = $fields[$h];
-                $T = $f->parse($data[$i]);
-                if ($f->validateEntry($T) && $f->errors())
-                    return sprintf(__(
-                        /* 1 will be a field label, and 2 will be error messages */
-                        '%1$s: Invalid data: %2$s'),
-                        $label, implode(', ', $f->errors()));
-                // Convert to database format
-                $data[$i] = $f->to_database($T);
-                $i++;
-            }
-            // Add default fields
-            foreach ($defaults as $key => $val)
-                $data[] = $val;
-
-            $items[] = $data;
-        }
-
-        foreach ($items as $u) {
-            $vars = array_combine($keys, $u);
-            $errors = array();
-            $item = $this->addItem($vars, $errors);
-            if (!$item || !$item->setConfiguration($vars, $errors))
-                return sprintf(__('Unable to import item: %s'),
-                    print_r($vars, true));
-        }
-
-        return count($items);
+        return $imported;
     }
 
     function importFromPost($stuff, $extra=array()) {
