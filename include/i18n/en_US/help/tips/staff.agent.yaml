@@ -79,6 +79,11 @@ primary_department:
       - title: Manage Departments
         href: /scp/departments.php
 
+primary_role:
+    title: Primary Role
+    content: >
+        Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+
 daylight_saving:
     title: Daylight Saving
     content: >
