@@ -95,12 +95,19 @@ class Misc {
             $D = DateTime::createFromFormat('U', $time);
             $time -= $tz->getOffset($D);
         }
-        if (!isset($dbtz)) {
+        if (!isset($dbtz) && is_object($cfg)) {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            // UTC to db time
+            $D = DateTime::createFromFormat('U', $time);
+            return $time + $dbtz->getOffset($D);
         }
-        // UTC to db time
-        $D = DateTime::createFromFormat('U', $time);
-        return $time + $dbtz->getOffset($D);
+        elseif (!isset($dbtz) && !is_object($cfg)) {
+            return $time;
+        }
+        else {
+            $D = DateTime::createFromFormat('U', $time);
+            return $time + $dbtz->getOffset($D);
+        }
     }
 
     /*Helper get GM time based on timezone offset*/
