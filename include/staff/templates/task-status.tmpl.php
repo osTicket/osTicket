@@ -27,6 +27,7 @@ $action = $info[':action'] ?: ('#tasks/mass/'. $action);
     <form method="post" name="status" id="status"
         action="<?php echo $action; ?>"
         class="mass-action">
+        <input type="hidden" name="status" value="<?php echo $info['status']; ?>" >
         <table width="100%">
             <?php
             if ($info[':extra']) {
@@ -38,36 +39,6 @@ $action = $info[':action'] ?: ('#tasks/mass/'. $action);
             <?php
             }
             ?>
-            <tbody>
-                <tr>
-                    <td colspan=2>
-                        <span>
-                            <strong><?php echo __('Status') ?>:&nbsp;</strong>
-                            <select name="status">
-                            <?php
-                            $statuses = array(
-                                    'open' => __('Open'),
-                                    'closed' => __('Closed'));
-
-                            if (!$info['status'])
-                                echo '<option value=""> '. __('Select One')
-                                .' </option>';
-                            foreach ($statuses as $k => $status) {
-                                echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k,
-                                        ($info['status'] == $k)
-                                         ? 'selected="selected"' : '',
-                                        $status
-                                        );
-                            }
-                            ?>
-                            </select>
-                            <font class="error">*&nbsp;<?php echo
-                            $errors['status']; ?></font>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
             <tbody>
                 <tr>
                     <td colspan="2">

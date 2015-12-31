@@ -485,7 +485,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
         echo sprintf('#tickets/%d/tasks', $ticket->getId()); ?>"><?php
         echo __('Tasks');
         if ($ticket->getNumTasks())
-            echo sprintf('&nbsp;(%d)', $ticket->getNumTasks());
+            echo sprintf('&nbsp;(<span id="ticket-tasks-count">%d</span>)', $ticket->getNumTasks());
         ?></a></li>
 </ul>
 
