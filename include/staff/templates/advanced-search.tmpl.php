@@ -35,7 +35,7 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
   <hr/>
   <div class="flex row">
     <div class="span12">
-<?php if ($queue && $queue->parent) { ?>
+<?php if ($queue) { ?>
       <div class="faded" style="margin-bottom: 1em">
       <div>
         <strong><?php echo __('Inherited Criteria'); ?></strong>
