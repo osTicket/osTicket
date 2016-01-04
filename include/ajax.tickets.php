@@ -213,8 +213,17 @@ class TicketsAjaxAPI extends AjaxController {
         return $resp;
     }
     function manageForms($ticket_id) {
-        $forms = DynamicFormEntry::forTicket($ticket_id);
-        $info = array('action' => '#tickets/'.Format::htmlchars($ticket_id).'/forms/manage');
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, "Access Denied");
+
+        $forms = DynamicFormEntry::forTicket($ticket->getId());
+        $info = array('action' => '#tickets/'.$ticket->getId().'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
     function updateForms($ticket_id) {
@@ -223,7 +232,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, "Login required");
         elseif (!($ticket = Ticket::lookup($ticket_id)))
             Http::response(404, "No such ticket");
-        elseif (!$ticket->checkStaffPerm($thisstaff))
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, "Access Denied");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
@@ -902,12 +911,13 @@ class TicketsAjaxAPI extends AjaxController {
     private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
         $count = $_REQUEST['count'] ?:
             ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
-		$info['title'] = sprintf(__('Change Status &mdash; %1$d %2$s selected'),
-				$count,
-				_N('ticket', 'tickets', $count)
-				);
 
-        if (!strcasecmp($state, 'deleted')) {
+        $info['title'] = sprintf(__('Change Status &mdash; %1$d %2$s selected'),
+                 $count,
+                 _N('ticket', 'tickets', $count)
+                 );
+
+				 if (!strcasecmp($state, 'deleted')) {
             $info['warn'] = sprintf(__(
                         'Are you sure you want to DELETE %s?'),
                     _N('selected ticket', 'selected tickets', $count)

@@ -36,23 +36,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
                 ? call_user_func_array(array($this->user, $name), $args)
                 : call_user_func(array($this->user, $name));
 
-        if ($rv) return $rv;
-
-        $tag =  substr($name, 3);
-        switch (strtolower($tag)) {
-            case 'ticket_link':
-                return sprintf('%s/view.php?%s',
-                        $cfg->getBaseUrl(),
-                        Http::build_query(
-                            array('auth' => $this->getTicket()->getAuthToken($this)),
-                            false
-                            )
-                        );
-                break;
-        }
-
-        return false;
-
+        return $rv ?: false;
     }
 
     // Required for Internationalization::getCurrentLanguage() in templates
@@ -64,8 +48,24 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return array(
             'email' => __('Email address'),
             'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
-            'ticket_link' => __('Auth. token used for auto-login'),
+            'ticket_link' => __('Link to view the ticket'),
         );
+    }
+
+    function getVar($tag) {
+        switch (strtolower($tag)) {
+        case 'ticket_link':
+            $qstr = array();
+            if ($cfg && $cfg->isAuthTokenEnabled()
+                    && ($ticket=$this->getTicket()))
+                $qstr['auth'] = $ticket->getAuthToken($this);
+
+            return sprintf('%s/view.php?%s',
+                    $cfg->getBaseUrl(),
+                    Http::build_query($qstr, false)
+                    );
+            break;
+        }
     }
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }

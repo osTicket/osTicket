@@ -177,6 +177,7 @@ class OsticketConfig extends Config {
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
+        'allow_auth_tokens' => 1,
         'verify_email_addrs' => 1,
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
@@ -665,6 +666,10 @@ class OsticketConfig extends Config {
 
     function isClientEmailVerificationRequired() {
         return $this->get('client_verify_email');
+    }
+
+    function isAuthTokenEnabled() {
+        return $this->get('allow_auth_tokens');
     }
 
     function isCaptchaEnabled() {
@@ -1169,6 +1174,7 @@ class OsticketConfig extends Config {
             'clients_only'=>isset($vars['clients_only'])?1:0,
             'client_registration'=>$vars['client_registration'],
             'client_verify_email'=>isset($vars['client_verify_email'])?1:0,
+            'allow_auth_tokens' => isset($vars['allow_auth_tokens']) ? 1 : 0,
             'client_name_format'=>$vars['client_name_format'],
             'client_avatar'=>$vars['client_avatar'],
         ));

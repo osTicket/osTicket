@@ -116,6 +116,14 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
               <i class="help-tip icon-question-sign" href="#client_session_timeout"></i>
             </td>
         </tr>
+        <tr><td><?php echo __('Authentication Token'); ?>:</td>
+            <td><input type="checkbox" name="allow_auth_tokens" <?php
+                if ($config['allow_auth_tokens'])
+                    echo 'checked="checked"'; ?>/> <?php
+                    echo __('Enable use of authentication tokens to auto-login users'); ?>
+            <i class="help-tip icon-question-sign" href="#allow_auth_tokens"></i>
+            </td>
+        </tr>
         <tr><td><?php echo __('Client Quick Access'); ?>:</td>
             <td><input type="checkbox" name="client_verify_email" <?php
                 if ($config['client_verify_email'])

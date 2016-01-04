@@ -8,7 +8,7 @@
 if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <div>
         <!-- Do not remove <img src="autocron.php" alt="" width="1" height="1" border="0" /> or your auto cron will cease to function -->
-        <img src="autocron.php" alt="" width="1" height="1" border="0" />
+        <img src="<?php echo ROOT_PATH; ?>scp/autocron.php" alt="" width="1" height="1" border="0" />
         <!-- Do not remove <img src="autocron.php" alt="" width="1" height="1" border="0" /> or your auto cron will cease to function -->
     </div>
 <?php
@@ -41,20 +41,20 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 </div>
 
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.pjax.js"></script>
-<script type="text/javascript" src="./js/bootstrap-typeahead.js"></script>
-<script type="text/javascript" src="./js/scp.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/scp.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
-<script type="text/javascript" src="./js/tips.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/tips.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
-<script type="text/javascript" src="./js/jquery.translatable.js"></script>
-<script type="text/javascript" src="./js/jquery.dropdown.js"></script>
-<script type="text/javascript" src="./js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jquery.translatable.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jquery.dropdown.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
-<link type="text/css" rel="stylesheet" href="./css/tooltip.css">
+<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/tooltip.css">
 <script type="text/javascript">
     getConfig().resolve(<?php
         include INCLUDE_DIR . 'ajax.config.php';

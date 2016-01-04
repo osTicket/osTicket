@@ -208,7 +208,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
                 'value' => $I->getValue(),
                 'display' => $display,
                 'id' => $I->id,
-                'list_id' => $I->getList()->getId(),
+                'list_id' => $list->getId(),
             );
         }
         return $this->encode($results);
@@ -260,15 +260,16 @@ class DynamicFormsAjaxAPI extends AjaxController {
             'title' => sprintf('%s &mdash; %s',
                 $list->getName(), __('Import Items')),
             'action' => "#list/{$list_id}/import",
-            'upload_url' => "lists.php?id={$list_id}&amp;do=import-users",
+            'upload_url' => "lists.php?id={$list_id}&amp;do=import-items",
         );
 
         if ($_POST) {
-            $status = $list->importFromPost($_POST['pasted']);
-            if (is_string($status))
-                $info['error'] = $status;
-            else
-                Http::response(201, $this->encode(array('success' => true, 'count' => $status)));
+            $status = $list->importFromPost($_FILES['import'] ?: $_POST['pasted']);
+            if ($status && is_numeric($status))
+                Http::response(201, $this->encode( array('success' => true, 'count' => $status)));
+
+            $info['error'] = $status;
+            $info['pasted'] = Format::htmlchars($_POST['pasted']);
         }
 
         include(STAFFINC_DIR . 'templates/list-import.tmpl.php');

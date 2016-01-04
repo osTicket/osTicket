@@ -806,31 +806,52 @@ class FileStorageBackend {
  * LOB fields in the MySQL database
  */
 define('CHUNK_SIZE', 500*1024); # Beware if you change this...
+class AttachmentFileChunk extends VerySimpleModel {
+    static $meta = array(
+        'table' => FILE_CHUNK_TABLE,
+        'pk' => array('file_id', 'chunk_id'),
+        'joins' => array(
+            'file' => array(
+                'constraint' => array('file_id' => 'AttachmentFile.id'),
+            ),
+        ),
+    );
+}
 class AttachmentChunkedData extends FileStorageBackend {
-    static $desc = "In the database";
+    static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
 
     function __construct($file) {
         $this->file = $file;
         $this->_chunk = 0;
         $this->_buffer = false;
+        $this->eof = false;
     }
 
     function getSize() {
-        list($length) = db_fetch_row(db_query(
-             'SELECT SUM(LENGTH(filedata)) FROM '.FILE_CHUNK_TABLE
-            .' WHERE file_id='.db_input($this->file->getId())));
-        return $length;
+        $row = AttachmentFileChunk::objects()
+            ->filter(array('file' => $this->file))
+            ->aggregate(array('length' => SqlAggregate::SUM(SqlFunction::LENGTH(new SqlField('filedata')))))
+            ->one();
+        return $row['length'];
     }
 
     function read($amount=CHUNK_SIZE, $offset=0) {
         # Read requested length of data from attachment chunks
+        if ($this->eof)
+            return false;
+
         while (strlen($this->_buffer) < $amount + $offset) {
-            list($buf) = @db_fetch_row(db_query(
-                'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
-                .db_input($this->file->getId()).' AND chunk_id='.$this->_chunk++));
-            if (!$buf)
+            try {
+                list($buf) = AttachmentFileChunk::objects()
+                    ->filter(array('file' => $this->file, 'chunk_id' => $this->_chunk++))
+                    ->values_flat('filedata')
+                    ->one();
+            }
+            catch (DoesNotExist $e) {
+                $this->eof = true;
                 break;
+            }
             $this->_buffer .= $buf;
         }
         $chunk = substr($this->_buffer, $offset, $amount);
@@ -840,23 +861,27 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function write($what, $chunk_size=CHUNK_SIZE) {
         $offset=0;
-        for (;;) {
-            $block = bin2hex(substr($what, $offset, $chunk_size));
-            if (!$block) break;
-            if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
-                    .' SET filedata=0x'.$block.', file_id='
-                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
+        while ($block = substr($what, $offset, $chunk_size)) {
+            // Chunks are considered immutable. Importing chunks should
+            // forceable remove the contents of a file before write()ing new
+            // chunks. Therefore, inserts should be safe.
+            $chunk = AttachmentFileChunk::create(array(
+                'file' => $this->file,
+                'chunk_id' => $this->_chunk++,
+                'filedata' => $block
+            ));
+            if (!$chunk->save())
                 return false;
-            $offset += strlen($block)/2;
+            $offset += strlen($block);
         }
 
         return $this->_chunk;
     }
 
     function unlink() {
-        db_query('DELETE FROM '.FILE_CHUNK_TABLE
-            .' WHERE file_id='.db_input($this->file->getId()));
-        return db_affected_rows() > 0;
+        return AttachmentFileChunk::objects()
+            ->filter(array('file' => $this->file))
+            ->delete();
     }
 }
 FileStorageBackend::register('D', 'AttachmentChunkedData');
