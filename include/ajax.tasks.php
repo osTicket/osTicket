@@ -193,80 +193,80 @@ class TasksAjaxAPI extends AjaxController {
 
             $assignees = null;
             switch ($w) {
-                case 'agents':
-                    $depts = array();
-                    $tids = $_POST['tids'] ?: array_filter(
-                            explode(',', @$_REQUEST['tids'] ?: ''));
-                    if ($tids) {
-                        $tasks = Task::objects()
-                            ->distinct('dept_id')
-                            ->filter(array('id__in' => $tids));
-                        $depts = $tasks->values_flat('dept_id');
-                    }
+            case 'agents':
+                $depts = array();
+                $tids = $_POST['tids'] ?: array_filter(
+                        explode(',', @$_REQUEST['tids'] ?: ''));
+                if ($tids) {
+                    $tasks = Task::objects()
+                        ->distinct('dept_id')
+                        ->filter(array('id__in' => $tids));
+                    $depts = $tasks->values_flat('dept_id');
+                }
 
-                    $members = Staff::objects()
-                        ->distinct('staff_id')
-                        ->filter(array(
-                                    'onvacation' => 0,
-                                    'isactive' => 1,
-                                    )
-                                );
+                $members = Staff::objects()
+                    ->distinct('staff_id')
+                    ->filter(array(
+                                'onvacation' => 0,
+                                'isactive' => 1,
+                                )
+                            );
 
-                    if ($depts) {
-                        $members->filter(Q::any( array(
-                                        'dept_id__in' => $depts,
-                                        Q::all(array(
-                                            'dept_access__dept__id__in' => $depts,
-                                            Q::not(array('dept_access__dept__flags__hasbit'
-                                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
-                                            ))
-                                        )));
-                    }
+                if ($depts) {
+                    $members->filter(Q::any( array(
+                                    'dept_id__in' => $depts,
+                                    Q::all(array(
+                                        'dept_access__dept__id__in' => $depts,
+                                        Q::not(array('dept_access__dept__flags__hasbit'
+                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                        ))
+                                    )));
+                }
 
-                    switch ($cfg->getAgentNameFormat()) {
-                    case 'last':
-                    case 'lastfirst':
-                    case 'legal':
-                        $members->order_by('lastname', 'firstname');
-                        break;
-
-                    default:
-                        $members->order_by('firstname', 'lastname');
-                    }
-
-                    $prompt  = __('Select an Agent');
-                    $assignees = array();
-                    foreach ($members as $member)
-                         $assignees['s'.$member->getId()] = $member->getName();
-
-                    if (!$assignees)
-                        $info['warn'] =  __('No agents available for assignment');
+                switch ($cfg->getAgentNameFormat()) {
+                case 'last':
+                case 'lastfirst':
+                case 'legal':
+                    $members->order_by('lastname', 'firstname');
                     break;
-                case 'teams':
-                    $assignees = array();
-                    $prompt = __('Select a Team');
-                    foreach (Team::getActiveTeams() as $id => $name)
-                        $assignees['t'.$id] = $name;
 
-                    if (!$assignees)
-                        $info['warn'] =  __('No teams available for assignment');
-                    break;
-                case 'me':
-                    $info[':action'] = '#tasks/mass/claim';
-                    $info[':title'] = sprintf('Claim %s',
-                            _N('selected task', 'selected tasks', $count));
-                    $info['warn'] = sprintf(
-                            __('Are you sure you want to CLAIM %s?'),
-                            _N('selected task', 'selected tasks', $count));
-                    $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
-                    $id = sprintf('s%s', $thisstaff->getId());
-                    $assignees = array($id => $thisstaff->getName());
-                    $vars = $_POST ?: array('assignee' => array($id));
-                    $form = ClaimForm::instantiate($vars);
-                    $assignCB = function($t, $f, $e) {
-                        return $t->claim($f, $e);
-                    };
-                    break;
+                default:
+                    $members->order_by('firstname', 'lastname');
+                }
+
+                $prompt  = __('Select an Agent');
+                $assignees = array();
+                foreach ($members as $member)
+                     $assignees['s'.$member->getId()] = $member->getName();
+
+                if (!$assignees)
+                    $info['warn'] =  __('No agents available for assignment');
+                break;
+            case 'teams':
+                $assignees = array();
+                $prompt = __('Select a Team');
+                foreach (Team::getActiveTeams() as $id => $name)
+                    $assignees['t'.$id] = $name;
+
+                if (!$assignees)
+                    $info['warn'] =  __('No teams available for assignment');
+                break;
+            case 'me':
+                $info[':action'] = '#tasks/mass/claim';
+                $info[':title'] = sprintf('Claim %s',
+                        _N('selected task', 'selected tasks', $count));
+                $info['warn'] = sprintf(
+                        __('Are you sure you want to CLAIM %s?'),
+                        _N('selected task', 'selected tasks', $count));
+                $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+                $id = sprintf('s%s', $thisstaff->getId());
+                $assignees = array($id => $thisstaff->getName());
+                $vars = $_POST ?: array('assignee' => array($id));
+                $form = ClaimForm::instantiate($vars);
+                $assignCB = function($t, $f, $e) {
+                    return $t->claim($f, $e);
+                };
+                break;
             }
 
             if ($assignees != null)

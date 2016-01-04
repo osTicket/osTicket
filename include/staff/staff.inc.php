@@ -213,7 +213,7 @@ if (count($bks) > 1) {
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr class="header">
-          <th colspan="2">
+          <th colspan="3">
             <?php echo __('Primary Department and Role'); ?>
             <span class="error">*</span>
             <div><small><?php echo __(
@@ -249,6 +249,18 @@ if (count($bks) > 1) {
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
+          </td>
+          <td>
+            <label class="inline checkbox">
+            <input type="checkbox" name="assign_use_pri_role" <?php
+                if ($staff->usePrimaryRoleOnAssignment())
+                    echo 'checked="checked"';
+                ?> />
+                <?php echo __('Fall back to primary role on assigned tickets'); ?>
+                <i class="icon-question-sign help-tip"
+                    href="#primary_role_on_assign"></i>
+            </label>
+
             <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
         </tr>
@@ -268,7 +280,8 @@ if (count($bks) > 1) {
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
-            <span style="display:inline-block;width:20px"> </span>
+          </td>
+          <td>
             <label class="inline checkbox">
               <input type="checkbox" data-name="dept_access_alerts" value="1" />
               <?php echo __('Alerts'); ?>
@@ -280,7 +293,7 @@ if (count($bks) > 1) {
       </tbody>
       <tbody>
         <tr class="header">
-          <th colspan="2">
+          <th colspan="3">
             <?php echo __('Extended Access'); ?>
           </th>
         </tr>

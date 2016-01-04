@@ -25,7 +25,7 @@ if ($criteria) {
 $errors = array();
 
 if($_POST) {
-    switch(strtolower($_POST['do'])) {
+    switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$list)
                 $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),

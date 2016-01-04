@@ -1044,6 +1044,11 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 
     function signOn() {
+        global $cfg;
+
+
+        if (!$cfg || !$cfg->isAuthTokenEnabled())
+            return null;
 
         $user = null;
         if ($_GET['auth']) {
@@ -1119,7 +1124,9 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
     }
 
 }
-UserAuthenticationBackend::register('AuthTokenAuthentication');
+
+if ($cfg && $cfg->isAuthTokenEnabled())
+    UserAuthenticationBackend::register('AuthTokenAuthentication');
 
 //Simple ticket lookup backend used to recover ticket access link.
 // We're using authentication backend so we can guard aganist brute force
