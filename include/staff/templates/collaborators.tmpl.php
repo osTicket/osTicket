@@ -15,8 +15,10 @@ if(($users=$thread->getCollaborators())) {?>
         $checked = $user->isActive() ? 'checked="checked"' : '';
         echo sprintf('<tr>
                         <td>
+                            <label class="inline checkbox">
                             <input type="checkbox" name="cid[]" id="c%d" value="%d" %s>
-                            <a class="collaborator" href="#thread/%d/collaborators/%d/view">%s</a>
+                            </label>
+                            <a class="collaborator" href="#thread/%d/collaborators/%d/view">%s%s</a>
                             <span class="faded"><em>%s</em></span></td>
                         <td width="10">
                             <input type="hidden" name="del[]" id="d%d" value="">
@@ -28,6 +30,8 @@ if(($users=$thread->getCollaborators())) {?>
                     $checked,
                     $thread->getId(),
                     $user->getId(),
+                    (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                        ? $U->getAvatar()->getImageTag(24) : '',
                     Format::htmlchars($user->getName()),
                     $user->getEmail(),
                     $user->getId(),
