@@ -2280,6 +2280,9 @@ implements RestrictedAccess, Threadable {
             return null;
 	
         $this->setLastMessage($message);
+		
+		// Set Status to Responded
+		$this->setStatusId(7);	
 
         // Add email recipients as collaborators...
 		
@@ -2498,12 +2501,19 @@ implements RestrictedAccess, Threadable {
 
         $dept = $this->getDept();
         $assignee = $this->getStaff();
+	
         // Set status - if checked.
+		
+		// change to "Awaiting response"
+		
         if ($vars['reply_status_id']
             && $vars['reply_status_id'] != $this->getStatusId()
         ) {
             $this->setStatus($vars['reply_status_id']);
-        }
+        } else {
+			$this->setStatusId(6);			
+		}
+		
         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
                 && $cfg->autoClaimTickets()
@@ -2512,6 +2522,8 @@ implements RestrictedAccess, Threadable {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
         $this->lastrespondent = $response->staff;
+		
+			
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
         /* email the user??  - if disabled - then bail out */
