@@ -1,9 +1,9 @@
 <?php
-
-$info=array();
+$info = array();
+$page = null;
 if($plugin && $_REQUEST['a']!='add') {
     $config = $plugin->getConfig();
-    if (!($page = $config->hasCustomConfig())) {
+    if ($config && !($page = $config->hasCustomConfig())) {
         if ($config)
             $form = $config->getForm();
         if ($form && $_POST)
