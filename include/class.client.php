@@ -53,6 +53,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getVar($tag) {
+		global $cfg;
         switch (strtolower($tag)) {
         case 'ticket_link':
             $qstr = array();
