@@ -2111,7 +2111,7 @@ implements RestrictedAccess, Threadable {
         } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
             $errors['err'] = __('Permission denied');
         }
-
+		$this->setStatusId(11);	
         if ($errors)
             return false;
 
@@ -2282,6 +2282,7 @@ implements RestrictedAccess, Threadable {
         $this->setLastMessage($message);
 		
 		// Set Status to Responded
+		if ($this->getStatusId() != 10 && $this->getStatusId() != 9)
 		$this->setStatusId(7);	
 
         // Add email recipients as collaborators...
@@ -2511,6 +2512,8 @@ implements RestrictedAccess, Threadable {
         ) {
             $this->setStatus($vars['reply_status_id']);
         } else {
+			
+			if ($this->getStatusId() != 10 && $this->getStatusId() != 9)
 			$this->setStatusId(6);			
 		}
 		
