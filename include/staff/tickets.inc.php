@@ -189,6 +189,7 @@ case 'search':
     // Fall-through and show open tickets
 case 'open':
     $status='open';
+    $queue_name = $queue_name ?: 'open';
     $results_type=__('Open Tickets');
     if (!$cfg->showAnsweredTickets())
         $tickets->filter(array('isanswered'=>0));
