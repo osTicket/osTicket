@@ -1845,19 +1845,18 @@ class Ticket {
         }
 
         // Do not auto-respond to bounces and other auto-replies
-        if ($alerts)
-            $alerts = isset($vars['flags'])
+        $autorespond = isset($vars['flags'])
                 ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
                 : true;
-        if ($alerts && $message->isBounceOrAutoReply())
-            $alerts = false;
+        if ($autorespond && $message->isBounceOrAutoReply())
+            $autorespond = false;
 
-        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
+        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
 
-        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
 
-        if (!$alerts)
+        if (!($alerts && $autorespond))
             return $message; //Our work is done...
 
         $dept = $this->getDept();
