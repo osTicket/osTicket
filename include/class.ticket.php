@@ -224,7 +224,7 @@ class TicketCData extends VerySimpleModel {
             'ticket' => array(
                 'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
             ),
-            'priority' => array(
+            ':priority' => array(
                 'constraint' => array('priority' => 'Priority.priority_id'),
                 'null' => true,
             ),

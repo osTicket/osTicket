@@ -273,7 +273,7 @@ case 'number':
     break;
 
 case 'priority,created':
-    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__priority__priority_urgency');
+    $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
     // Fall through to columns for `created`
 case 'created':
     $queue_columns['date']['heading'] = __('Date Created');
@@ -283,7 +283,7 @@ case 'created':
     break;
 
 case 'priority,due':
-    $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through to add in due date filter
 case 'due':
     $queue_columns['date']['heading'] = __('Due Date');
@@ -340,7 +340,7 @@ default:
     }
 
 case 'priority,updated':
-    $tickets->order_by('cdata__priority__priority_urgency', $orm_dir_r);
+    $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
     // Fall through for columns defined for `updated`
 case 'updated':
     $queue_columns['date']['heading'] = __('Last Updated');
@@ -371,7 +371,9 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id', 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address', 'source', 'cdata__priority__priority_color', 'cdata__priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
+$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id',
+'ticket_id', 'number', 'cdata__subject', 'user__default_email__address',
+'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
 
 // Add in annotations
 $tickets->annotate(array(
@@ -546,7 +548,7 @@ return false;">
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td><div style="max-width: <?php
-                    $base = 280;
+                    $base = 279;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
                     // Assume about 8px per digit character
@@ -582,8 +584,9 @@ return false;">
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $T['cdata__priority__priority_color']; ?>;">
-                    <?php echo $T['cdata__priority__priority_desc']; ?></td>
+                <td class="nohover" align="center"
+                    style="background-color:<?php echo $T['cdata__:priority__priority_color']; ?>;">
+                    <?php echo $T['cdata__:priority__priority_desc']; ?></td>
                 <?php
                 }
                 ?>
