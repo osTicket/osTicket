@@ -194,6 +194,9 @@ class Format {
 
     function html2text($html, $width=74, $tidy=true) {
 
+        if (!$html)
+            return $html;
+
 
         # Tidy html: decode, balance, sanitize tags
         if($tidy)
@@ -201,8 +204,9 @@ class Format {
 
         # See if advanced html2text is available (requires xml extension)
         if (function_exists('convert_html_to_text')
-                && extension_loaded('dom'))
-            return convert_html_to_text($html, $width);
+                && extension_loaded('dom')
+                && ($text = convert_html_to_text($html, $width)))
+                return $text;
 
         # Try simple html2text  - insert line breaks after new line tags.
         $html = preg_replace(
