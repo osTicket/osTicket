@@ -541,12 +541,14 @@ class FA_SendEmail extends TriggerAction {
                 }
             )),
             'subject' => new TextboxField(array(
+                'required' => true,
                 'configuration' => array(
                     'size' => 80,
                     'placeholder' => __('Subject')
                 ),
             )),
             'message' => new TextareaField(array(
+                'required' => true,
                 'configuration' => array(
                     'placeholder' => __('Message'),
                     'html' => true,
