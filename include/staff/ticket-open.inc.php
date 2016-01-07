@@ -130,7 +130,7 @@ if ($_POST)
             <td>
                 <select name="source">
                     <?php
-                    $source = $info['source'] ?: 'Phone';
+                    $source = $info['source'] ?: 'Other';
                     foreach (Ticket::getSources() as $k => $v)
                         echo sprintf('<option value="%s" %s>%s</option>',
                                 $k,
