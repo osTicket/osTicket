@@ -17,11 +17,13 @@ include_once INCLUDE_DIR . 'class.thread_actions.php';
 class TicketsAjaxAPI extends AjaxController {
     function lookup() {
         global $thisstaff;
+
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
         // Bail out of query is empty
         if (!$_REQUEST['q'])
             return $this->json_encode($tickets);
+
         $visibility = Q::any(array(
             'staff_id' => $thisstaff->getId(),
             'team_id__in' => $thisstaff->teams->values_flat('team_id'),
