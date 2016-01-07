@@ -2388,8 +2388,10 @@ implements RestrictedAccess, Threadable {
             return false;
         }
         $files = array();
-        foreach ($canned->attachments->getAll() as $file)
+        foreach ($canned->attachments->getAll() as $file) {
             $files[] = $file->file_id;
+            $_SESSION[':cannedFiles'][$file->file_id] = 1;
+        }
 
         if ($cfg->isRichTextEnabled())
             $response = new HtmlThreadEntryBody(
