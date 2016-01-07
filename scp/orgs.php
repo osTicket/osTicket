@@ -98,9 +98,7 @@ if ($_POST) {
 } elseif (!$org && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
-    if (!($token=$_REQUEST['qh']))
-        $errors['err'] = __('Query token required');
-    elseif (!($query=$_SESSION['orgs_qs_'.$token]))
+    if (!($query=$_SESSION[':Q:orgs']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveOrganizations($query, __('organizations')."-$ts.csv", 'csv'))
         $errors['err'] = __('Internal error: Unable to export results');
