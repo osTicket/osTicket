@@ -31,7 +31,7 @@ class UserEmailModel extends VerySimpleModel {
     );
 
     function __toString() {
-        return $this->address;
+        return (string) $this->address;
     }
 }
 
@@ -616,7 +616,7 @@ implements TemplateVariable {
     }
 
     function __toString() {
-        return $this->address;
+        return (string) $this->address;
     }
 
     function getVar($what) {
