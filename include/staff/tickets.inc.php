@@ -473,7 +473,8 @@ return false;">
             if ($search && !$status)
                 unset($queue_columns['priority']);
             else
-                unset($queue_columns['status']);
+                //unset($queue_columns['status']);
+			unset($queue_columns['priority']);
 
             // Query string
             unset($args['sort'], $args['dir'], $args['_pjax']);
@@ -576,11 +577,11 @@ return false;">
                         echo Format::htmlchars($un);
                     ?></span></div></td>
                 <?php
-                if($search && !$status){
+                if($status){
                     $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
                     if(!strcasecmp($T['status__state'],'open'))
-                        $displaystatus="<b>$displaystatus</b>";
-                    echo "<td>$displaystatus</td>";
+                        $displaystatus="$displaystatus";
+                    echo "<td nowrap><span class=\"truncate\" style=\"max-width: 169px\">$displaystatus</span></td>";
                 } else { ?>
                 <td class="nohover" align="center" style="background-color:<?php echo $T['cdata__priority__priority_color']; ?>;">
                     <?php echo $T['cdata__priority__priority_desc']; ?></td>
