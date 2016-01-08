@@ -237,9 +237,7 @@ class VerySimpleModel {
     }
 
     function get($field, $default=false) {
-        if (array_key_exists($field, $this->ht))
-            return $this->ht[$field];
-        elseif (($joins = static::getMeta('joins')) && isset($joins[$field])) {
+        if (($joins = static::getMeta('joins')) && isset($joins[$field])) {
             $j = $joins[$field];
             // Support instrumented lists and such
             if (isset($j['list']) && $j['list']) {
@@ -283,6 +281,9 @@ class VerySimpleModel {
                 }
                 return $v;
             }
+        }
+        elseif (array_key_exists($field, $this->ht)) {
+            return $this->ht[$field];
         }
         elseif (isset($this->__deferred__[$field])) {
             // Fetch deferred field
