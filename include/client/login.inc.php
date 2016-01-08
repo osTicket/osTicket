@@ -27,7 +27,7 @@ if ($content) {
 		</div>
 		
 		<div>
-			<label for="username"><?php echo __('Email or Username'); ?>:
+			<label for="username"><?php echo __('Username'); ?>:
 				<input class="form-control"  id="username" placeholder="<?php echo __('Email or Username'); ?>" type="text" name="luser" size="30" value="<?php echo $email; ?>">
 			</label>	
 		</div>

@@ -146,10 +146,21 @@ class Thread extends VerySimpleModel {
     function addCollaborator($user, $vars, &$errors, $event=true) {
         if (!$user)
             return null;
-
-        $vars = array_merge(array(
-                'threadId' => $this->getId(),
+		
+		// If this is a staff member allow note collaborator.
+		if (Staff::getIdByEmail($user->getEmail()) !=0){
+				$vars['role'] = 'N';
+				$vars = array_merge(array(
+			    'threadId' => $this->getId(),
                 'userId' => $user->getId()), $vars);
+		}else{
+			
+				$vars['role'] = 'M';
+				$vars = array_merge(array(
+			    'threadId' => $this->getId(),
+                'userId' => $user->getId()), $vars);
+		}
+
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
 
