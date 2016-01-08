@@ -219,19 +219,19 @@ RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions(), 
 
 class TicketCData extends VerySimpleModel {
     static $meta = array(
+        'table' => TICKET_CDATA_TABLE,
         'pk' => array('ticket_id'),
         'joins' => array(
             'ticket' => array(
                 'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
             ),
-            'priority' => array(
+            ':priority' => array(
                 'constraint' => array('priority' => 'Priority.priority_id'),
                 'null' => true,
             ),
         ),
     );
 }
-TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
 
 class Ticket extends TicketModel
 implements RestrictedAccess, Threadable {

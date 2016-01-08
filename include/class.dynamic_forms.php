@@ -198,7 +198,7 @@ class DynamicForm extends VerySimpleModel {
         return $this->save();
     }
 
-    function getExportableFields($exclude=array()) {
+    function getExportableFields($exclude=array(), $prefix='__') {
         $fields = array();
         foreach ($this->getFields() as $f) {
             // Ignore core fields
@@ -209,7 +209,8 @@ class DynamicForm extends VerySimpleModel {
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
 
-            $fields['__field_'.$f->get('id')] = $f;
+            $name = $f->get('name') ?: ('field_'.$f->get('id'));
+            $fields[$prefix.$name] = $f;
         }
         return $fields;
     }
@@ -338,10 +339,15 @@ class DynamicForm extends VerySimpleModel {
             return;
 
         switch ($e->form->get('type')) {
-        case 'T':
+        case OBJECT_TYPE_TICKET:
             return TicketForm::updateDynamicDataView($answer, $data);
-        case 'A':
+        case OBJECT_TYPE_TASK:
             return TaskForm::updateDynamicDataView($answer, $data);
+        case OBJECT_TYPE_USER:
+            return UserForm::updateDynamicDataView($answer, $data);
+        case OBJECT_TYPE_ORG:
+            return OrganizationForm::updateDynamicDataView($answer, $data);
+
         }
 
     }
@@ -351,10 +357,14 @@ class DynamicForm extends VerySimpleModel {
             return;
 
         switch ($field->form->get('type')) {
-        case 'T':
+        case OBJECT_TYPE_TICKET:
             return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
-        case 'A':
+        case OBJECT_TYPE_TASK:
             return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
+        case OBJECT_TYPE_USER:
+            return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+        case OBJECT_TYPE_ORG:
+            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
         }
 
     }
@@ -406,6 +416,12 @@ class DynamicForm extends VerySimpleModel {
 class UserForm extends DynamicForm {
     static $instance;
     static $form;
+
+    static $cdata = array(
+            'table' => USER_CDATA_TABLE,
+            'object_id' => 'user_id',
+            'object_type' => ObjectModel::OBJECT_TYPE_USER,
+        );
 
     static function objects() {
         $os = parent::objects();

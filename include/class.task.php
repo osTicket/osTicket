@@ -1453,7 +1453,7 @@ class TaskForm extends DynamicForm {
     static $cdata = array(
             'table' => TASK_CDATA_TABLE,
             'object_id' => 'task_id',
-            'object_type' => 'A',
+            'object_type' => ObjectModel::OBJECT_TYPE_TASK,
         );
 
     static function objects() {
