@@ -3151,7 +3151,7 @@ implements RestrictedAccess, Threadable {
                 break;
             case 'email':
                 $fields['emailId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Unknown system email'));
-				$vars['staffId'] = null;
+                $vars['staffId'] = null;
                 break;
             default:
                 # TODO: Return error message
@@ -3345,6 +3345,7 @@ implements RestrictedAccess, Threadable {
             //Auto assignment.
             if (!isset($vars['staffId']) && $topic->getStaffId())
 			     $vars['staffId'] = $topic->getStaffId();
+
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
 
@@ -3467,15 +3468,18 @@ implements RestrictedAccess, Threadable {
         if ($vars['assignId']) {
             $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
+			$statusId = 11;
         }
         else {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
                  $ticket->assignToStaff($vars['staffId'], false);
+				 $ticket->setStatusId(11);	
             if ($vars['teamId'])
                 // No team alert if also assigned to an individual agent
                 $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
+				$ticket->setStatusId(11);
         }
 
         // Update the estimated due date in the database
@@ -3602,6 +3606,7 @@ implements RestrictedAccess, Threadable {
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
             $response = $ticket->postReply($vars, $errors, false);
+			$ticket->setStatusId(6);	
         }
 
         // Not assigned...save optional note if any
