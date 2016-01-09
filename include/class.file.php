@@ -26,6 +26,7 @@ class AttachmentFile extends VerySimpleModel {
         ),
     );
     static $keyCache = array();
+    var $_attrs;
 
     function __onload() {
         // Cache for lookup in the ::lookupByHash method below
@@ -90,8 +91,45 @@ class AttachmentFile extends VerySimpleModel {
         return $this->created;
     }
 
-    function open() {
-        return FileStorageBackend::getInstance($this);
+    function getAttribute($attr=false, $default=null) {
+        if (!isset($this->_attrs) && isset($this->attrs))
+            $this->_attrs = JsonDataParser::decode($this->attrs);
+
+        return $attr
+            ? (isset($this->_attrs[$attr]) ? $this->_attrs[$attr] : $default)
+            : $this->_attrs;
+    }
+
+    function setAttribute($attr, $value, $commit=true) {
+        $this->getAttribute();
+        $this->_attrs[$attr] = $value;
+        $this->attrs = JsonDataEncoder::encode($this->_attrs);
+
+        if ($commit) {
+            $this->save();
+        }
+    }
+
+    function open($raw=false) {
+        $bk = FileStorageBackend::getInstance($this);
+        if (!$raw && ($adapters = $this->getAttribute('stack'))) {
+            $bk = $this->pushAdapters($bk, $adapters);
+        }
+        return $bk;
+    }
+
+    function pushAdapters($bk, array $adapters, $update=false) {
+        foreach ($adapters as $code=>$info) {
+            if ($class = FileStorageBackendAdapter::lookup($code)) {
+                $bk = new $class($bk, $info);
+                if ($update) {
+                    $A = $this->getAttribute('stack');
+                    $A[$code] = $info;
+                    $this->setAttribute('stack', $A);
+                }
+            }
+        }
+        return $bk;
     }
 
     function sendData($redirect=true, $disposition='inline') {
@@ -463,7 +501,7 @@ class AttachmentFile extends VerySimpleModel {
 
         // Copy the file to the new backend and hash the contents
         $target = FileStorageBackend::lookup($bk, $this);
-        $source = $this->open();
+        $source = $this->open(true);
 
         // Initialize hashing algorithm to verify uploaded contents
         $algos = $target->getNativeHashAlgos();
@@ -528,7 +566,7 @@ class AttachmentFile extends VerySimpleModel {
      * Instance<FileStorageBackend> backend selected based on the file
      * received.
      */
-    static function getBackendForFile($file) {
+    static function getBackendForFile(AttachmentFile $file) {
         global $cfg;
 
         $char = null;
@@ -536,11 +574,15 @@ class AttachmentFile extends VerySimpleModel {
             $char = $cfg->getDefaultStorageBackendChar();
         }
         try {
-            return FileStorageBackend::lookup($char ?: 'D', $file);
+            $bk = FileStorageBackend::lookup($char ?: 'D', $file);
         }
         catch (Exception $x) {
-            return new AttachmentChunkedData($file);
+            $bk = new AttachmentChunkedData($file);
         }
+
+        // TODO: Consider configuration for default adapters
+        $bk = $file->pushAdapters($bk, ['Z'=>[]], true); 
+        return $bk;
     }
 
     static function lookupByHash($hash) {
@@ -798,6 +840,141 @@ class FileStorageBackend {
         return false;
     }
 }
+
+/**
+ * Simple class to facilitate processing in file backend data, such as
+ * inline compression. It mimicks the FileStorageBackend by wrapping one
+ * received in the constructor. All calls to the adapter not implemented are
+ * automatically invoked on the upstream backend.
+ */
+abstract class FileStorageBackendAdapter {
+    // Should be at the bottom of the stack
+    static $priority = 10;
+    static $registry = array();
+
+    protected $bk;
+
+    function __construct($upstream, $config=null) {
+        $this->bk = $upstream;
+        $this->configure($config);
+    }
+
+    function getPriority() {
+        return static::$priority;
+    }
+
+    function __call($what, $how) {
+        // Delegate anything unimplemented to the next item in the storage
+        // stack
+        return call_user_func_array(array($this->bk, $what), $how);
+    }
+
+    static function register($typechar, $class) {
+        self::$registry[$typechar] = $class;
+    }
+
+    static function lookup($typechar) {
+        if (!isset(self::$registry[$typechar]))
+            throw new InvalidArgumentException($typechar
+                . ': No such adapter registered');
+
+        return self::$registry[$typechar];
+    }
+}
+
+class CompressionFileAdapter
+extends FileStorageBackendAdapter {
+    protected $stream;
+    protected $mode;
+
+    // Should be at the bottom of the stack, that is, it should be the
+    // closest to the actual data. Things like encryption should be the
+    // furthest away from the data (after all other operations have been
+    // applied).
+    static $priority = 1;
+
+    function configure($mode=null) {
+        switch ($mode) {
+        default:
+        case 'zlib':
+            $this->mode = ['zlib.deflate', 'zlib.inflate'];
+        }
+    }
+
+    function __destruct() {
+        if (isset($this->stream))
+            fclose($this->stream);
+    }
+
+    function passthru() {
+        if (!isset($this->stream))
+            $this->inflate();
+        
+        fpassthru($this->stream);
+    }
+
+    function read($bytes=8192, $offset=0) {
+        print 'hu';
+        if (!isset($this->stream))
+            $this->inflate();
+
+        if ($offset)
+            fseek($this->stream, $offset, SEEK_CUR);
+
+        $data = '';
+        while ($bytes) {
+            $start = ftell($this->stream);
+            if (!($block = fread($this->stream, $bytes)))
+                break;
+            $next = ftell($this->stream);
+            $bytes -= $start - $next;
+            $start = $next;
+            $data .= $block;
+        }
+        return $data;
+    }
+
+    function write($block) {
+        if (!isset($this->stream))
+            $this->deflate();
+        fwrite($this->stream, $block);
+    }
+
+    function flush() {
+        rewind($this->stream);
+        while ($block = fread($this->stream, $this->bk->getBlockSize()))
+            $this->bk->write($block);
+        return $this->bk->flush();
+    }
+
+    function sendRedirectUrl() {
+        return false;
+    }
+
+    protected function inflate() {
+        $this->stream = fopen('php://temp', 'w+');
+        while ($block = $this->bk->read())
+            fwrite($this->stream, $block);
+        rewind($this->stream);
+        stream_filter_append($this->stream, $this->mode[1],
+            STREAM_FILTER_READ);
+    }
+    
+    protected function deflate() {
+        $this->stream = fopen('php://temp', 'w+');
+        stream_filter_append($this->stream, $this->mode[0],
+            STREAM_FILTER_WRITE);
+    }
+
+    // Similar to deflate, but don't use a temporary file
+    function upload($file) {
+        $this->stream = fopen($file, 'rb');
+        stream_filter_append($this->stream, $this->mode[0],
+            STREAM_FILTER_READ);
+        return $this->flush();
+    }
+}
+FileStorageBackendAdapter::register('Z', 'CompressionFileAdapter');
 
 
 /**
