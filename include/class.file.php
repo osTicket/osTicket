@@ -581,7 +581,7 @@ class AttachmentFile extends VerySimpleModel {
         }
 
         // TODO: Consider configuration for default adapters
-        $bk = $file->pushAdapters($bk, ['Z'=>[]], true); 
+        $bk = $file->pushAdapters($bk, ['E'=>[]], true); 
         return $bk;
     }
 
@@ -739,6 +739,10 @@ class FileStorageBackend {
         $this->meta = $meta;
     }
 
+    function getMeta() {
+        return $this->meta;
+    }
+
     /**
      * Commit file to the storage backend. This method is used if the
      * backend cannot support writing a file directly. Otherwise, the
@@ -853,10 +857,16 @@ abstract class FileStorageBackendAdapter {
     static $registry = array();
 
     protected $bk;
+    protected $is_setup = false;
 
     function __construct($upstream, $config=null) {
         $this->bk = $upstream;
         $this->configure($config);
+    }
+
+    function __destruct() {
+        if (isset($this->stream))
+            fclose($this->stream);
     }
 
     function getPriority() {
@@ -880,12 +890,95 @@ abstract class FileStorageBackendAdapter {
 
         return self::$registry[$typechar];
     }
+
+    protected $stream;
+    function getStream($copy=false) {
+        if (!isset($this->stream)) {
+            $this->stream = fopen('php://temp', 'w+');
+            if ($copy) {
+                $this->copyStream();
+            }
+        }
+        return $this->stream;
+    }
+
+    function copyStream() {
+        $stream = $this->getStream();
+        while ($block = $this->bk->read())
+            fwrite($stream, $block);
+        rewind($stream);
+    }
+
+    function setStream($stream) {
+        $this->stream = $stream;
+    }
+
+    function read($bytes=8192, $offset=0) {
+        if (!$this->is_setup) {
+            $this->setupRead();
+            $this->copyStream();
+            $this->is_setup = true;
+        }
+        $stream = $this->getStream();
+
+        if ($offset)
+            fseek($stream, $offset, SEEK_CUR);
+
+        $data = '';
+        while ($bytes) {
+            $start = ftell($stream);
+            if (!($block = fread($stream, $bytes)))
+                break;
+            $next = ftell($stream);
+            $bytes -= $start - $next;
+            $start = $next;
+            $data .= $block;
+        }
+        return $data;
+    }
+
+    function passthru() {
+        $stream = $this->getStream(true);
+        $this->setupRead();
+        fpassthru($stream);
+    }
+
+    function write($block) {
+        if (!$this->is_setup) {
+            $this->setupWrite();
+            $this->is_setup = true;
+        }
+        fwrite($this->getStream(), $block);
+    }
+
+    function flush() {
+        $stream = $this->getStream();
+        rewind($stream);
+        while ($block = fread($stream, $this->bk->getBlockSize()))
+            $this->bk->write($block);
+        return $this->bk->flush();
+    }
+
+    function sendRedirectUrl() {
+        return false;
+    }
+
+    // Similar to deflate, but don't use a temporary file
+    function upload($file) {
+        $this->setStream(fopen($file, 'rb'));
+        $this->setupUpload();
+        return $this->flush();
+    }
+
+    function setupRead() {}
+    function setupWrite() {}
+    function setupUpload() {}
 }
 
 class CompressionFileAdapter
 extends FileStorageBackendAdapter {
-    protected $stream;
     protected $mode;
+    protected $send_compressed;
 
     // Should be at the bottom of the stack, that is, it should be the
     // closest to the actual data. Things like encryption should be the
@@ -897,85 +990,92 @@ extends FileStorageBackendAdapter {
         switch ($mode) {
         default:
         case 'zlib':
+            $this->send_compressed = 'deflate';
             $this->mode = ['zlib.deflate', 'zlib.inflate'];
         }
     }
 
-    function __destruct() {
-        if (isset($this->stream))
-            fclose($this->stream);
-    }
-
     function passthru() {
-        if (!isset($this->stream))
-            $this->inflate();
-        
-        fpassthru($this->stream);
-    }
-
-    function read($bytes=8192, $offset=0) {
-        print 'hu';
-        if (!isset($this->stream))
-            $this->inflate();
-
-        if ($offset)
-            fseek($this->stream, $offset, SEEK_CUR);
-
-        $data = '';
-        while ($bytes) {
-            $start = ftell($this->stream);
-            if (!($block = fread($this->stream, $bytes)))
-                break;
-            $next = ftell($this->stream);
-            $bytes -= $start - $next;
-            $start = $next;
-            $data .= $block;
+        $stream = $this->getStream(true);
+        if ($this->send_compressed
+            && (false !== strpos($_SERVER['HTTP_ACCEPT_ENCODING'],
+                    $this->send_compressed)
+                || false !== strpos($_SERVER['HTTP_ACCEPT_ENCODING'], '*'))
+        ) {
+            // Send compressed data without decompressing
+            header('Content-Encoding: '.$this->send_compressed);
         }
-        return $data;
+        else {
+            $this->setupRead();
+        }
+        fpassthru($stream);
     }
 
-    function write($block) {
-        if (!isset($this->stream))
-            $this->deflate();
-        fwrite($this->stream, $block);
-    }
-
-    function flush() {
-        rewind($this->stream);
-        while ($block = fread($this->stream, $this->bk->getBlockSize()))
-            $this->bk->write($block);
-        return $this->bk->flush();
-    }
-
-    function sendRedirectUrl() {
-        return false;
-    }
-
-    protected function inflate() {
-        $this->stream = fopen('php://temp', 'w+');
-        while ($block = $this->bk->read())
-            fwrite($this->stream, $block);
-        rewind($this->stream);
-        stream_filter_append($this->stream, $this->mode[1],
+    function setupRead() {
+        stream_filter_append($this->getStream(), $this->mode[1],
             STREAM_FILTER_READ);
     }
-    
-    protected function deflate() {
-        $this->stream = fopen('php://temp', 'w+');
-        stream_filter_append($this->stream, $this->mode[0],
+    function setupWrite() {
+        stream_filter_append($this->getStream(), $this->mode[0],
             STREAM_FILTER_WRITE);
     }
-
-    // Similar to deflate, but don't use a temporary file
-    function upload($file) {
-        $this->stream = fopen($file, 'rb');
-        stream_filter_append($this->stream, $this->mode[0],
+    function setupUpload() {
+        stream_filter_append($this->getStream(), $this->mode[0],
             STREAM_FILTER_READ);
-        return $this->flush();
     }
 }
 FileStorageBackendAdapter::register('Z', 'CompressionFileAdapter');
 
+class EncryptionFileAdapter
+extends FileStorageBackendAdapter {
+    // Should be at the top of the stack, that is, it should be the
+    // farthest from the actual data. Other things like compression should
+    // be done before encryption.
+    static $priority = 99;
+
+    var $iv_size = 32;
+    var $key_size = 32;
+
+    function configure($mode=null) {
+        switch ($mode) {
+        default:
+        case 'aes256':
+        case 'rijndael-256':
+            $this->algo = 'rijndael-256';
+            $this->iv_size = $this->key_size = 32;
+        }
+    }
+
+    function getKeyAndIv() {
+        $meta = $this->bk->getMeta();
+        return array(
+            'iv' => substr(
+                hash('sha256', $meta->getKey(), true),
+                -$this->iv_size
+            ),
+            'key' => substr(
+               hash_hmac('sha256',
+                    $meta->getName() . $meta->getKey(),
+                    $meta->getSignature(), true
+               ), -$this->key_size
+           ),
+        );
+    }
+
+    function setupRead() {
+        stream_filter_append($this->getStream(), 'mdecrypt.'.$this->algo,
+            STREAM_FILTER_READ, $this->getKeyAndIv());
+    }
+    function setupWrite() {
+        stream_filter_append($this->getStream(), 'mcrypt.'.$this->algo,
+            STREAM_FILTER_WRITE, $this->getKeyAndIv());
+    }
+    function setupUpload() {
+        stream_filter_append($this->getStream(), 'mcrypt.'.$this->algo,
+            STREAM_FILTER_READ, $this->getKeyAndIv());
+    }
+}
+FileStorageBackendAdapter::register('E', 'EncryptionFileAdapter');
 
 /**
  * Attachments stored in the database are cut into 500kB chunks and stored
@@ -999,7 +1099,7 @@ class AttachmentChunkedData extends FileStorageBackend {
     static $blocksize = CHUNK_SIZE;
 
     function __construct($file) {
-        $this->file = $file;
+        parent::__construct($file);
         $this->_chunk = 0;
         $this->_buffer = false;
         $this->eof = false;
@@ -1007,7 +1107,7 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function getSize() {
         $row = AttachmentFileChunk::objects()
-            ->filter(array('file' => $this->file))
+            ->filter(array('file' => $this->meta))
             ->aggregate(array('length' => SqlAggregate::SUM(SqlFunction::LENGTH(new SqlField('filedata')))))
             ->one();
         return $row['length'];
@@ -1021,7 +1121,7 @@ class AttachmentChunkedData extends FileStorageBackend {
         while (strlen($this->_buffer) < $amount + $offset) {
             try {
                 list($buf) = AttachmentFileChunk::objects()
-                    ->filter(array('file' => $this->file, 'chunk_id' => $this->_chunk++))
+                    ->filter(array('file' => $this->meta, 'chunk_id' => $this->_chunk++))
                     ->values_flat('filedata')
                     ->one();
             }
@@ -1043,7 +1143,7 @@ class AttachmentChunkedData extends FileStorageBackend {
             // forceable remove the contents of a file before write()ing new
             // chunks. Therefore, inserts should be safe.
             $chunk = AttachmentFileChunk::create(array(
-                'file' => $this->file,
+                'file' => $this->meta,
                 'chunk_id' => $this->_chunk++,
                 'filedata' => $block
             ));
@@ -1057,7 +1157,7 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function unlink() {
         return AttachmentFileChunk::objects()
-            ->filter(array('file' => $this->file))
+            ->filter(array('file' => $this->meta))
             ->delete();
     }
 }
