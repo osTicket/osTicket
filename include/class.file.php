@@ -113,7 +113,10 @@ class AttachmentFile extends VerySimpleModel {
     function open($raw=false) {
         $bk = FileStorageBackend::getInstance($this);
         if (!$raw && ($adapters = $this->getAttribute('stack'))) {
-            $bk = $this->pushAdapters($bk, $adapters);
+            // Reverse the order of adapters used when creating the file's
+            // storage data. If it was compressed, then encrypted, we want
+            // to decrypt, then decompress (ie. reverse).
+            $bk = $this->pushAdapters($bk, array_reverse($adapters, true));
         }
         return $bk;
     }
@@ -580,8 +583,18 @@ class AttachmentFile extends VerySimpleModel {
             $bk = new AttachmentChunkedData($file);
         }
 
-        // TODO: Consider configuration for default adapters
-        $bk = $file->pushAdapters($bk, ['E'=>[]], true); 
+        // Consider configuration for default adapters
+        $adapters = array();
+        foreach (FileStorageBackendAdapter::allRegistered() as $code => $class) {
+            if ($adapter_config = $class::isEnabledForFile($file)) {
+                $adapters[$code] = $adapter_config;
+            }
+        }
+        // Push the configured adapters on a backend stack with the file
+        // storage backend
+        if ($adapters) {
+            $bk = $file->pushAdapters($bk, $adapters, true); 
+        }
         return $bk;
     }
 
@@ -857,6 +870,7 @@ abstract class FileStorageBackendAdapter {
     static $registry = array();
 
     protected $parent;
+    protected $stream;
     protected $is_setup = false;
 
     function __construct($upstream, $config=null) {
@@ -869,7 +883,7 @@ abstract class FileStorageBackendAdapter {
             fclose($this->stream);
     }
 
-    function getPriority() {
+    static function getPriority() {
         return static::$priority;
     }
 
@@ -881,6 +895,13 @@ abstract class FileStorageBackendAdapter {
 
     static function register($typechar, $class) {
         self::$registry[$typechar] = $class;
+        // Sort by priority
+        uasort(self::$registry,
+            function($a, $b) { return $a::getPriority() - $b::getPriority(); });
+    }
+
+    static function allRegistered() {
+        return self::$registry;
     }
 
     static function lookup($typechar) {
@@ -891,7 +912,6 @@ abstract class FileStorageBackendAdapter {
         return self::$registry[$typechar];
     }
 
-    protected $stream;
     function getStream($copy=false) {
         if (!isset($this->stream)) {
             $this->stream = fopen('php://temp', 'w+');
@@ -902,9 +922,18 @@ abstract class FileStorageBackendAdapter {
         return $this->stream;
     }
 
+    function getActualBackend() {
+        $bk = $this->parent;
+        while ($bk instanceof self)
+            $bk = $bk->parent;
+        return $bk;
+    }
+
     function copyStream() {
         $stream = $this->getStream();
-        while ($block = $this->parent->read())
+        // Read RAW data from the backend
+        $bk = $this->getActualBackend();
+        while ($block = $bk->read($bk->getBlockSize()))
             fwrite($stream, $block);
         rewind($stream);
     }
@@ -917,7 +946,6 @@ abstract class FileStorageBackendAdapter {
         if (!$this->is_setup) {
             $this->setupRead();
             $this->copyStream();
-            $this->is_setup = true;
         }
         $stream = $this->getStream();
 
@@ -938,7 +966,8 @@ abstract class FileStorageBackendAdapter {
     }
 
     function passthru() {
-        $stream = $this->getStream(true);
+        $stream = $this->getStream();
+        $this->copyStream();
         $this->setupRead();
         fpassthru($stream);
     }
@@ -946,7 +975,6 @@ abstract class FileStorageBackendAdapter {
     function write($block) {
         if (!$this->is_setup) {
             $this->setupWrite();
-            $this->is_setup = true;
         }
         fwrite($this->getStream(), $block);
     }
@@ -954,9 +982,10 @@ abstract class FileStorageBackendAdapter {
     function flush() {
         $stream = $this->getStream();
         rewind($stream);
-        while ($block = fread($stream, $this->parent->getBlockSize()))
-            $this->parent->write($block);
-        return $this->parent->flush();
+        $bk = $this->getActualBackend();
+        while ($block = fread($stream, $bk->getBlockSize()))
+            $bk->write($block);
+        return $bk->flush();
     }
 
     function sendRedirectUrl() {
@@ -971,6 +1000,7 @@ abstract class FileStorageBackendAdapter {
     }
 
     final function setupRead() {
+        $this->is_setup = true;
         $stream = $this->getStream();
         $bk = $this;
         while ($bk instanceof self) {
@@ -979,6 +1009,7 @@ abstract class FileStorageBackendAdapter {
         }
     }
     final function setupWrite() {
+        $this->is_setup = true;
         $stream = $this->getStream();
         $bk = $this;
         while ($bk instanceof self) {
@@ -987,6 +1018,7 @@ abstract class FileStorageBackendAdapter {
         }
     }
     final function setupUpload() {
+        $this->is_setup = true;
         $stream = $this->getStream();
         $bk = $this;
         while ($bk instanceof self) {
@@ -1009,7 +1041,7 @@ extends FileStorageBackendAdapter {
     // closest to the actual data. Things like encryption should be the
     // furthest away from the data (after all other operations have been
     // applied).
-    static $priority = 1;
+    static $priority = 99;
 
     function configure($mode=null) {
         switch ($mode) {
@@ -1029,6 +1061,8 @@ extends FileStorageBackendAdapter {
         ) {
             // Send compressed data without decompressing
             header('Content-Encoding: '.$this->send_compressed);
+            if ($this->parent instanceof FileStorageBackendAdapter)
+                $this->parent->setupRead();
         }
         else {
             $this->setupRead();
@@ -1048,6 +1082,41 @@ extends FileStorageBackendAdapter {
         stream_filter_append($stream, $this->mode[0],
             STREAM_FILTER_READ);
     }
+
+    static function allModes() {
+        return array(
+            '' => __('Disabled'),
+            'some' => __('Uncomressed Files'),
+            'all' => __('All Files'),
+        );
+    }
+
+    static function isEnabledForFile($file) {
+        global $cfg;
+
+        static $types = array(
+            'image/bmp' => 1,
+            'image/svg+xml' => 1,
+            'application/postscript' => 1,
+            'audio/wav' => 1,
+            'application/pdf' => 1,
+            'application/x-latex' => 1,
+            'application/json' => 1,
+            'application/javascript' => 1,
+        );
+
+        $mode = $cfg->get('compress_files', false);
+        switch ($mode) {
+        case 'all':
+            return 'zlib';
+        case 'some':
+            if (strpos($file->getType(), 'text/') === 0
+                || isset($types[$file->getType()])
+            ) {
+                return 'zlib';
+            }
+        }
+    }
 }
 FileStorageBackendAdapter::register('Z', 'CompressionFileAdapter');
 
@@ -1056,7 +1125,7 @@ extends FileStorageBackendAdapter {
     // Should be at the top of the stack, that is, it should be the
     // farthest from the actual data. Other things like compression should
     // be done before encryption.
-    static $priority = 99;
+    static $priority = 1;
 
     var $iv_size = 32;
     var $key_size = 32;
@@ -1072,7 +1141,11 @@ extends FileStorageBackendAdapter {
     }
 
     function getKeyAndIv() {
+        global $cfg;
+
         $meta = $this->parent->getMeta();
+        $pwd = Crypto::decrypt($cfg->get('file_encrypt_pwd'), SECRET_SALT,
+            'attachments');
         return array(
             'iv' => substr(
                 hash('sha256', $meta->getKey(), true),
@@ -1080,8 +1153,8 @@ extends FileStorageBackendAdapter {
             ),
             'key' => substr(
                hash_hmac('sha256',
-                    $meta->getName() . $meta->getKey(),
-                    $meta->getSignature(), true
+                    $meta->getName() . $meta->getKey() . $meta->getSignature(),
+                    $pwd, true
                ), -$this->key_size
            ),
         );
@@ -1098,6 +1171,14 @@ extends FileStorageBackendAdapter {
     function setupUploadStream($stream) {
         stream_filter_append($stream, 'mcrypt.'.$this->algo,
             STREAM_FILTER_READ, $this->getKeyAndIv());
+    }
+
+    static function isEnabledForFile($file) {
+        global $cfg;
+
+        if ($cfg->get('encrypt_files') && $cfg->get('file_encrypt_pwd'))
+            // TODO: Add option for encryption algorithm and mode
+            return 'aes256';
     }
 }
 FileStorageBackendAdapter::register('E', 'EncryptionFileAdapter');
