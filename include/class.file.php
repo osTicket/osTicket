@@ -856,11 +856,11 @@ abstract class FileStorageBackendAdapter {
     static $priority = 10;
     static $registry = array();
 
-    protected $bk;
+    protected $parent;
     protected $is_setup = false;
 
     function __construct($upstream, $config=null) {
-        $this->bk = $upstream;
+        $this->parent = $upstream;
         $this->configure($config);
     }
 
@@ -876,7 +876,7 @@ abstract class FileStorageBackendAdapter {
     function __call($what, $how) {
         // Delegate anything unimplemented to the next item in the storage
         // stack
-        return call_user_func_array(array($this->bk, $what), $how);
+        return call_user_func_array(array($this->parent, $what), $how);
     }
 
     static function register($typechar, $class) {
@@ -904,7 +904,7 @@ abstract class FileStorageBackendAdapter {
 
     function copyStream() {
         $stream = $this->getStream();
-        while ($block = $this->bk->read())
+        while ($block = $this->parent->read())
             fwrite($stream, $block);
         rewind($stream);
     }
@@ -954,9 +954,9 @@ abstract class FileStorageBackendAdapter {
     function flush() {
         $stream = $this->getStream();
         rewind($stream);
-        while ($block = fread($stream, $this->bk->getBlockSize()))
-            $this->bk->write($block);
-        return $this->bk->flush();
+        while ($block = fread($stream, $this->parent->getBlockSize()))
+            $this->parent->write($block);
+        return $this->parent->flush();
     }
 
     function sendRedirectUrl() {
@@ -970,9 +970,34 @@ abstract class FileStorageBackendAdapter {
         return $this->flush();
     }
 
-    function setupRead() {}
-    function setupWrite() {}
-    function setupUpload() {}
+    final function setupRead() {
+        $stream = $this->getStream();
+        $bk = $this;
+        while ($bk instanceof self) {
+            $bk->setupReadStream($stream);
+            $bk = $bk->parent;
+        }
+    }
+    final function setupWrite() {
+        $stream = $this->getStream();
+        $bk = $this;
+        while ($bk instanceof self) {
+            $bk->setupWriteStream($stream);
+            $bk = $bk->parent;
+        }
+    }
+    final function setupUpload() {
+        $stream = $this->getStream();
+        $bk = $this;
+        while ($bk instanceof self) {
+            $bk->setupUploadStream($stream);
+            $bk = $bk->parent;
+        }
+    }
+
+    abstract function setupReadStream($stream);
+    abstract function setupWriteStream($stream);
+    abstract function setupUploadStream($stream);
 }
 
 class CompressionFileAdapter
@@ -1011,16 +1036,16 @@ extends FileStorageBackendAdapter {
         fpassthru($stream);
     }
 
-    function setupRead() {
-        stream_filter_append($this->getStream(), $this->mode[1],
+    function setupReadStream($stream) {
+        stream_filter_append($stream, $this->mode[1],
             STREAM_FILTER_READ);
     }
-    function setupWrite() {
-        stream_filter_append($this->getStream(), $this->mode[0],
+    function setupWriteStream($stream) {
+        stream_filter_append($stream, $this->mode[0],
             STREAM_FILTER_WRITE);
     }
-    function setupUpload() {
-        stream_filter_append($this->getStream(), $this->mode[0],
+    function setupUploadStream($stream) {
+        stream_filter_append($stream, $this->mode[0],
             STREAM_FILTER_READ);
     }
 }
@@ -1047,7 +1072,7 @@ extends FileStorageBackendAdapter {
     }
 
     function getKeyAndIv() {
-        $meta = $this->bk->getMeta();
+        $meta = $this->parent->getMeta();
         return array(
             'iv' => substr(
                 hash('sha256', $meta->getKey(), true),
@@ -1062,16 +1087,16 @@ extends FileStorageBackendAdapter {
         );
     }
 
-    function setupRead() {
-        stream_filter_append($this->getStream(), 'mdecrypt.'.$this->algo,
+    function setupReadStream($stream) {
+        stream_filter_append($stream, 'mdecrypt.'.$this->algo,
             STREAM_FILTER_READ, $this->getKeyAndIv());
     }
-    function setupWrite() {
-        stream_filter_append($this->getStream(), 'mcrypt.'.$this->algo,
+    function setupWriteStream($stream) {
+        stream_filter_append($stream, 'mcrypt.'.$this->algo,
             STREAM_FILTER_WRITE, $this->getKeyAndIv());
     }
-    function setupUpload() {
-        stream_filter_append($this->getStream(), 'mcrypt.'.$this->algo,
+    function setupUploadStream($stream) {
+        stream_filter_append($stream, 'mcrypt.'.$this->algo,
             STREAM_FILTER_READ, $this->getKeyAndIv());
     }
 }
