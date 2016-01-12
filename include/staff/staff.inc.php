@@ -65,10 +65,10 @@ else {
         <tr>
           <td class="required"><?php echo __('Name'); ?>:</td>
           <td>
-            <input type="text" size="20" maxlength="64" style="width: 145px" name="firstname"
+            <input type="text" size="20" maxlength="64" style="width: 145px" name="firstname" class="auto first"
               autofocus value="<?php echo Format::htmlchars($staff->firstname); ?>"
               placeholder="<?php echo __("First Name"); ?>" />
-            <input type="text" size="20" maxlength="64" style="width: 145px" name="lastname"
+            <input type="text" size="20" maxlength="64" style="width: 145px" name="lastname" class="auto last"
               value="<?php echo Format::htmlchars($staff->lastname); ?>"
               placeholder="<?php echo __("Last Name"); ?>" />
             <div class="error"><?php echo $errors['firstname']; ?></div>
@@ -78,7 +78,7 @@ else {
         <tr>
           <td class="required"><?php echo __('Email Address'); ?>:</td>
           <td>
-            <input type="email" size="40" maxlength="64" style="width: 300px" name="email"
+            <input type="email" size="40" maxlength="64" style="width: 300px" name="email" class="auto email"
               value="<?php echo Format::htmlchars($staff->email); ?>"
               placeholder="<?php echo __('e.g. me@mycompany.com'); ?>" />
             <div class="error"><?php echo $errors['email']; ?></div>
