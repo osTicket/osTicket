@@ -54,7 +54,7 @@ class UsersAjaxAPI extends AjaxController {
         if (!$type || !strcasecmp($type, 'local')) {
 
             $users = User::objects()
-                ->values_flat('id', 'name', 'default_email__address')
+                ->values_flat('id', 'default_email__address', 'name')
                 ->limit($limit);
 
             if ($fulltext) {
@@ -79,7 +79,7 @@ class UsersAjaxAPI extends AjaxController {
             // Omit already-imported remote users
             if ($emails = array_filter($emails)) {
                 $users->union(User::objects()
-                    ->values_flat('id', 'name', 'emails__address')
+                    ->values_flat('id', 'emails__address', 'name' )
                     ->annotate(array('__relevance__' => new SqlCode(1)))
                     ->filter(array(
                         'emails__address__in' => $emails
