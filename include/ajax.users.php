@@ -23,7 +23,7 @@ require_once INCLUDE_DIR.'class.note.php';
 class UsersAjaxAPI extends AjaxController {
 
     /* Assumes search by basic info for now */
-    function search($type = null, $fulltext=false) {
+    function search($type = null, $fulltext=true) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, __('Query argument is required'));
