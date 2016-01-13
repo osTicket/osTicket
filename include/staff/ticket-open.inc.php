@@ -1,6 +1,6 @@
 <?php
 if (!defined('OSTSCPINC') || !$thisstaff
-        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+        || !$thisstaff->hasPerm(Ticket::PERM_CREATE, false))
         die('Access Denied');
 
 $info=array();
@@ -129,14 +129,9 @@ if ($_POST)
             </td>
             <td>
                 <select name="source">
-                    <?php
-                    $source = $info['source'] ?: 'Other';
-                    foreach (Ticket::getSources() as $k => $v)
-                        echo sprintf('<option value="%s" %s>%s</option>',
-                                $k,
-                                ($source == $k ) ? 'selected="selected"' : '',
-                                $v);
-                    ?>
+                    <option value="Phone" ><?php echo __('Phone'); ?></option>
+                    <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>><?php echo __('Email'); ?></option>
+                    <option value="Other" selected="selected"><?php echo __('Other'); ?></option>
                 </select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
@@ -246,7 +241,7 @@ if ($_POST)
         </tr>
 
         <?php
-        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)) { ?>
+        if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
         <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -289,8 +284,8 @@ if ($_POST)
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <tr  id="open_ticket_response">
+        if ($thisstaff->getRole()->hasPerm(Ticket::PERM_REPLY)) { ?>
+        <tr id="open_ticket_response">
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
             </th>
@@ -343,7 +338,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                    if ($thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {

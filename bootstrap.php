@@ -132,8 +132,11 @@ class Bootstrap {
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
-		
-		define('QUEUE_TABLE', $prefix.'queue');
+
+        define('QUEUE_TABLE', $prefix.'queue');
+        define('COLUMN_TABLE', $prefix.'queue_column');
+        define('QUEUE_COLUMN_TABLE', $prefix.'queue_columns');
+
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
     }
@@ -206,7 +209,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
-        require_once INCLUDE_DIR.'class.search.php';
+        require_once INCLUDE_DIR.'class.queue.php';
     }
 
     function i18n_prep() {

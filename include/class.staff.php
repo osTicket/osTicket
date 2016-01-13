@@ -23,7 +23,7 @@ include_once(INCLUDE_DIR.'class.user.php');
 include_once(INCLUDE_DIR.'class.auth.php');
 
 class Staff extends VerySimpleModel
-implements AuthenticatedUser, EmailContact, TemplateVariable {
+implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => STAFF_TABLE,
@@ -125,6 +125,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         case 'phone':
             return Format::phone($this->ht['phone']);
         }
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'email' => new TextboxField(array(
+                'label' => __('Email Address'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
     }
 
     function getHashtable() {
@@ -463,10 +475,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     }
 
     function canManageTickets() {
-        return $this->hasPerm(TicketModel::PERM_DELETE, false)
-                || $this->hasPerm(TicketModel::PERM_TRANSFER, false)
-                || $this->hasPerm(TicketModel::PERM_ASSIGN, false)
-                || $this->hasPerm(TicketModel::PERM_CLOSE, false);
+        return $this->hasPerm(Ticket::PERM_DELETE, false)
+                || $this->hasPerm(Ticket::PERM_TRANSFER, false)
+                || $this->hasPerm(Ticket::PERM_ASSIGN, false)
+                || $this->hasPerm(Ticket::PERM_CLOSE, false);
     }
 
     function isManager() {

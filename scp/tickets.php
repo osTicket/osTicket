@@ -58,6 +58,30 @@ if (!$ticket) {
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
 }
 
+$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
+if ((int) $queue_id) {
+    $queue = CustomQueue::lookup($queue_id);
+}
+elseif (isset($_SESSION['advsearch'])
+    && strpos($queue_id, 'adhoc') === 0
+) {
+    list(,$key) = explode(',', $queue_id, 2);
+    // XXX: De-duplicate and simplify this code
+    $queue = SavedSearch::create(array(
+        'title' => __("Advanced Search"),
+        'root' => 'T',
+    ));
+    // For queue=queue, use the most recent search
+    if (!$key) {
+        reset($_SESSION['advsearch']);
+        $key = key($_SESSION['advsearch']);
+    }
+    $queue->config = $_SESSION['advsearch'][$key];
+    // Slight hack here to make the `adhoc` queue be selected
+    $_REQUEST['queue'] = 'adhoc,'.$key;
+}
+
+
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -80,7 +104,7 @@ if($_POST && !$errors):
         $role = $thisstaff->getRole($ticket->getDeptId());
         switch(strtolower($_POST['a'])):
         case 'reply':
-            if (!$role || !$role->hasPerm(TicketModel::PERM_REPLY)) {
+            if (!$role || !$role->hasPerm(Ticket::PERM_REPLY)) {
                 $errors['err'] = __('Action denied. Contact admin for access');
             }
             else {
@@ -187,7 +211,7 @@ if($_POST && !$errors):
             break;
         case 'edit':
         case 'update':
-            if(!$ticket || !$role->hasPerm(TicketModel::PERM_EDIT))
+            if(!$ticket || !$role->hasPerm(Ticket::PERM_EDIT))
                 $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
             elseif($ticket->update($_POST,$errors)) {
                 $msg=__('Ticket updated successfully');
@@ -216,7 +240,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'claim':
-                    if(!$role->hasPerm(TicketModel::PERM_EDIT)) {
+                    if(!$role->hasPerm(Ticket::PERM_EDIT)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
                     } elseif(!$ticket->isOpen()) {
                         $errors['err'] = __('Only open tickets can be assigned');
@@ -284,7 +308,7 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'changeuser':
-                    if (!$role->hasPerm(TicketModel::PERM_EDIT)) {
+                    if (!$role->hasPerm(Ticket::PERM_EDIT)) {
                         $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
@@ -308,7 +332,7 @@ if($_POST && !$errors):
             case 'open':
                 $ticket=null;
                 if (!$thisstaff ||
-                        !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
+                        !$thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s.'),
                                  __('to create tickets')),
@@ -347,7 +371,7 @@ if ($redirect) {
 }
 
 /*... Quick stats ...*/
-$stats= $thisstaff->getTicketsStats();
+$stats = $thisstaff->getTicketsStats();
 
 // Clear advanced search upon request
 if (isset($_GET['clear_filter']))
@@ -355,76 +379,53 @@ if (isset($_GET['clear_filter']))
 
 //Navigation
 $nav->setTabActive('tickets');
-$open_name = _P('queue-name',
-    /* This is the name of the open ticket queue */
-    'Open');
-if($cfg->showAnsweredTickets()) {
-    $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
-                            'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php?status=open',
-                            'iconclass'=>'Ticket'),
-                        ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
-} else {
+$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
-    if ($stats) {
+// Fetch ticket queues organized by root and sub-queues
+$queues = CustomQueue::queues()
+    ->filter(Q::any(array(
+        'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+        'staff_id' => $thisstaff->getId(),
+    )))
+    ->all();
 
-        $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
-                               'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php?status=open',
-                               'iconclass'=>'Ticket'),
-                            ((!$_REQUEST['status'] && !isset($_SESSION['advsearch'])) || $_REQUEST['status']=='open'));
+// Start with all the top-level (container) queues
+foreach ($queues->findAll(array('parent_id' => 0))
+as $q) {
+    $nav->addSubMenu(function() use ($q, $queue) {
+        // A queue is selected if it is the one being displayed. It is
+        // "child" selected if its ID is in the path of the one selected
+        $child_selected = $queue
+            && false !== strpos($queue->getPath(), "/{$q->getId()}/");
+        include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
+    });
+}
+
+// Add my advanced searches
+$nav->addSubMenu(function() use ($queue, $adhoc) {
+    global $thisstaff;
+    // A queue is selected if it is the one being displayed. It is
+    // "child" selected if its ID is in the path of the one selected
+    $child_selected = $queue && !$queue->isAQueue();
+    $searches = SavedSearch::objects()
+        ->filter(Q::any(array(
+            'flags__hasbit' => SavedSearch::FLAG_PUBLIC,
+            'staff_id' => $thisstaff->getId(),
+        )))
+        ->exclude(array(
+            'flags__hasbit' => SavedSearch::FLAG_QUEUE
+        ))
+        ->all();
+
+    if (isset($adhoc)) {
+        // TODO: Add "Ad Hoc Search" to the personal children
     }
 
-    if($stats['answered']) {
-        $nav->addSubMenu(array('desc'=>__('Answered').' ('.number_format($stats['answered']).')',
-                               'title'=>__('Answered Tickets'),
-                               'href'=>'tickets.php?status=answered',
-                               'iconclass'=>'answeredTickets'),
-                            ($_REQUEST['status']=='answered'));
-    }
-}
+    include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
+});
 
-if($stats['assigned']) {
 
-    $nav->addSubMenu(array('desc'=>__('My Tickets').' ('.number_format($stats['assigned']).')',
-                           'title'=>__('Assigned Tickets'),
-                           'href'=>'tickets.php?status=assigned',
-                           'iconclass'=>'assignedTickets'),
-                        ($_REQUEST['status']=='assigned'));
-}
-
-if($stats['overdue']) {
-    $nav->addSubMenu(array('desc'=>__('Overdue').' ('.number_format($stats['overdue']).')',
-                           'title'=>__('Stale Tickets'),
-                           'href'=>'tickets.php?status=overdue',
-                           'iconclass'=>'overdueTickets'),
-                        ($_REQUEST['status']=='overdue'));
-
-    if(!$sysnotice && $stats['overdue']>10)
-        $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
-}
-
-if (isset($_SESSION['advsearch'])) {
-    // XXX: De-duplicate and simplify this code
-    $search = SavedSearch::create();
-    $form = $search->getFormFromSession('advsearch');
-    $tickets = TicketModel::objects();
-    $tickets = $search->mangleQuerySet($tickets, $form);
-    $count = $tickets->count();
-    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Ticket Search'),
-                           'href'=>'tickets.php?status=search',
-                           'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
-}
-
-$nav->addSubMenu(array('desc' => __('Closed'),
-                       'title'=>__('Closed Tickets'),
-                       'href'=>'tickets.php?status=closed',
-                       'iconclass'=>'closedTickets'),
-                    ($_REQUEST['status']=='closed'));
-
-if ($thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
+if ($thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),
                            'href'=>'tickets.php?a=open',
@@ -444,7 +445,7 @@ if($ticket) {
     $nav->setActiveSubMenu(-1);
     $inc = 'ticket-view.inc.php';
     if ($_REQUEST['a']=='edit'
-            && $ticket->checkStaffPerm($thisstaff, TicketModel::PERM_EDIT)) {
+            && $ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT)) {
         $inc = 'ticket-edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
@@ -455,21 +456,25 @@ if($ticket) {
     } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
 } else {
-	$inc = 'tickets.inc.php';
+    $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+            $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
-        if (!($query=$_SESSION[':Q:tickets']))
-            $errors['err'] = __('Query token not found');
-        elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
-            $errors['err'] = __('Internal error: Unable to dump query results');
+        if (isset($queue) && $queue) {
+            // XXX: Check staff access?
+            if (!($query = $queue->getBasicQuery()))
+                $errors['err'] = __('Query token not found');
+            elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
+                $errors['err'] = __('Internal error: Unable to dump query results');
+        }
     }
-
-    //Clear active submenu on search with no status
-    if($_REQUEST['a']=='search' && !$_REQUEST['status'])
-        $nav->setActiveSubMenu(-1);
+    elseif ($queue) {
+        // XXX: Check staff access?
+        $quick_filter = @$_REQUEST['filter'];
+        $tickets = $queue->getQuery(false, $quick_filter);
+    }
 
     //set refresh rate if the user has it configured
     if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {

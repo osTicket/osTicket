@@ -77,20 +77,31 @@ class ModelMeta implements ArrayAccess {
             elseif (!is_array($meta[$f]))
                 $meta[$f] = array($meta[$f]);
         }
-
-        // Break down foreign-key metadata
-        foreach ($meta['joins'] as $field => &$j) {
-            $this->processJoin($j);
-            if ($j['local'])
-                $meta['foreign_keys'][$j['local']] = $field;
-        }
-        unset($j);
         $this->base = $meta;
     }
 
+    function processJoins() {
+        // Break down foreign-key metadata
+        foreach ($this->base['joins'] as $field => &$j) {
+            $this->processJoin($j);
+            if ($j['local'])
+                $this->base['foreign_keys'][$j['local']] = $field;
+        }
+        unset($j);
+    }
+
+    /**
+     * Merge this class's meta-data into the recieved child meta-data.
+     * When a model extends another model, the meta data for the two models
+     * is merged to form the child's meta data. Returns the merged, child
+     * meta-data.
+     */
     function extend($meta) {
         if ($meta instanceof self)
             $meta = $meta->base;
+        // Merge 'joins' settings (instead of replacing)
+        if (isset($this->base['joins']))
+            $meta['joins'] += $this->base['joins'];
         return $meta + $this->base + self::$base;
     }
 
@@ -163,6 +174,21 @@ class ModelMeta implements ArrayAccess {
         $this->processJoin($this->base['joins'][$name]);
     }
 
+    /**
+     * Fetch ModelMeta instance by following a join path from this model
+     */
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P) {
+            if (!($root = $root['joins'][$P]['fkey'][0]))
+                break;
+            $root = $root::getMeta();
+        }
+        return $root;
+    }
+
     function offsetGet($field) {
         if (!isset($this->base[$field]))
             $this->setupLazy($field);
@@ -232,7 +258,7 @@ class VerySimpleModel {
     var $__deleted__ = false;
     var $__deferred__ = array();
 
-    function __construct($row) {
+    function __construct(array $row=array()) {
         $this->ht = $row;
     }
 
@@ -405,7 +431,10 @@ class VerySimpleModel {
     static function __oninspect() {}
 
     static function _inspect() {
-        static::$meta = new ModelMeta(get_called_class());
+        static::$meta = $T = new ModelMeta(get_called_class());
+        // Process joins separately to guard against recursion from
+        // inherited models
+        $T->processJoins();
 
         // Let the model participate
         static::__oninspect();
@@ -416,6 +445,27 @@ class VerySimpleModel {
             static::_inspect();
         $M = static::$meta;
         return ($key) ? $M->offsetGet($key) : $M;
+    }
+
+    static function getOrmFields($recurse=false) {
+        $fks = $lfields = $fields = array();
+        $myname = get_called_class();
+        foreach (static::getMeta('joins') as $name=>$j) {
+            $fks[$j['local']] = true;
+            if (!$j['reverse'] && !$j['list'] && $recurse) {
+                foreach ($j['fkey'][0]::getOrmFields($recurse - 1) as $name2=>$f) {
+                    $fields["{$name}__{$name2}"] = "{$name} / $f";
+                }
+            }
+        }
+        foreach (static::getMeta('fields') as $f) {
+            if (isset($fks[$f]))
+                continue;
+            if (in_array($f, static::getMeta('pk')))
+                continue;
+            $lfields[$f] = "{$f}";
+        }
+        return $lfields + $fields;
     }
 
     /**
@@ -603,6 +653,10 @@ class VerySimpleModel {
             $pk[$f] = $this->ht[$f];
         return $pk;
     }
+
+    function getDbFields() {
+        return $this->ht;
+    }
 }
 
 /**
@@ -613,40 +667,100 @@ class VerySimpleModel {
  * will delegate most all of the heavy lifting to the wrapped Model instance.
  */
 class AnnotatedModel {
+    static function wrap(VerySimpleModel $model, $extras=array(), $class=false) {
+        static $classes;
 
-    var $model;
-    var $annotations;
+        $class = $class ?: get_class($model);
 
-    function __construct($model, $annotations) {
-        $this->model = $model;
-        $this->annotations = $annotations;
+        if ($extras instanceof VerySimpleModel) {
+            $extra = "Writeable";
+        }
+        if (!isset($classes[$class])) {
+            $classes[$class] = eval(<<<END_CLASS
+class {$extra}AnnotatedModel___{$class}
+extends {$class} {
+    var \$__overlay__;
+    use {$extra}AnnotatedModelTrait;
+
+    function __construct(\$ht, \$annotations) {
+        parent::__construct(\$ht);
+        \$this->__overlay__ = \$annotations;
     }
-
-    function __get($what) {
-        return $this->get($what);
+}
+return "{$extra}AnnotatedModel___{$class}";
+END_CLASS
+            );
+        }
+        return new $classes[$class]($model->ht, $extras);
     }
+}
+
+trait AnnotatedModelTrait {
     function get($what) {
-        if (isset($this->annotations[$what]))
-            return $this->annotations[$what];
-        return $this->model->get($what, null);
+        if (isset($this->__overlay__[$what]))
+            return $this->__overlay__[$what];
+        return parent::get($what);
     }
 
-    function __set($what, $to) {
-        return $this->set($what, $to);
-    }
     function set($what, $to) {
-        if (isset($this->annotations[$what]))
+        if (isset($this->__overlay__[$what]))
             throw new OrmException('Annotated fields are read-only');
-        return $this->model->set($what, $to);
+        return parent::set($what, $to);
     }
 
     function __isset($what) {
-        return isset($this->annotations[$what]) || $this->model->__isset($what);
+        if (isset($this->__overlay__[$what]))
+            return true;
+        return parent::__isset($what);
     }
 
-    // Delegate everything else to the model
-    function __call($what, $how) {
-        return call_user_func_array(array($this->model, $what), $how);
+    function getDbFields() {
+        return $this->__overlay__ + parent::getDbFields();
+    }
+}
+
+/**
+ * Slight variant on the AnnotatedModelTrait, except that the overlay is
+ * another model. Its fields are preferred over the wrapped model's fields.
+ * Updates to the overlayed fields are tracked in the overlay model and
+ * therefore kept separate from the annotated model's fields. ::save() will
+ * call save on both models. Delete will only delete the overlay model (that
+ * is, the annotated model will remain).
+ */
+trait WriteableAnnotatedModelTrait {
+    function get($what) {
+        if ($this->__overlay__->__isset($what))
+            return $this->__overlay__->get($what);
+        return parent::get($what);
+    }
+
+    function set($what, $to) {
+        if ($this->__overlay__->__isset($what)) {
+            return $this->__overlay__->set($what, $to);
+        }
+        return parent::set($what, $to);
+    }
+
+    function __isset($what) {
+        if ($this->__overlay__->__isset($what))
+            return true;
+        return parent::__isset($what);
+    }
+
+    function getDbFields() {
+        return $this->__overlay__->getDbFields() + parent::getDbFields();
+    }
+
+    function save($refetch=false) {
+        $this->__overlay__->save($refetch);
+        return parent::save();
+    }
+
+    function delete() {
+        if ($rv = $this->__overlay__->delete())
+            // Mark the annotated object as deleted
+            $this->__deleted__ = true;
+        return $rv;
     }
 }
 
@@ -734,19 +848,27 @@ class SqlCase extends SqlFunction {
 
 class SqlExpr extends SqlFunction {
     function __construct($args) {
-        $this->args = $args;
+        $this->args = func_get_args();
+        if (count($this->args) == 1 && is_array($this->args[0]))
+            $this->args = $this->args[0];
     }
 
     function toSql($compiler, $model=false, $alias=false) {
         $O = array();
         foreach ($this->args as $field=>$value) {
-            list($field, $op) = $compiler->getField($field, $model);
-            if (is_callable($op))
-                $O[] = call_user_func($op, $field, $value, $model);
-            else
-                $O[] = sprintf($op, $field, $compiler->input($value));
+            if ($value instanceof Q) {
+                $ex = $compiler->compileQ($value, $model, false);
+                $O[] = $ex->text;
+            }
+            else {
+                list($field, $op) = $compiler->getField($field, $model);
+                if (is_callable($op))
+                    $O[] = call_user_func($op, $field, $value, $model);
+                else
+                    $O[] = sprintf($op, $field, $compiler->input($value));
+            }
         }
-        return implode(' ', $O) . ($alias ? ' AS ' . $alias : '');
+        return implode(' ', $O) . ($alias ? ' AS ' .  $compiler->quote($alias) : '');
     }
 }
 
@@ -757,13 +879,11 @@ class SqlExpression extends SqlFunction {
     function toSql($compiler, $model=false, $alias=false) {
         $O = array();
         foreach ($this->args as $operand) {
-            if ($operand instanceof SqlFunction)
-                $O[] = $operand->toSql($compiler, $model);
-            else
-                $O[] = $compiler->input($operand);
+            $O[] = $this->input($operand, $compiler, $model);
         }
-        return implode(' '.$this->func.' ', $O)
-            . ($alias ? ' AS '.$compiler->quote($alias) : '');
+        return '('.implode(' '.$this->func.' ', $O)
+            . ($alias ? ' AS '.$compiler->quote($alias) : '')
+            . ')';
     }
 
     static function __callStatic($operator, $operands) {
@@ -779,9 +899,14 @@ class SqlExpression extends SqlFunction {
             case 'bitor':
                 $operator = '|'; break;
             default:
-                throw new InvalidArgumentException('Invalid operator specified');
+                throw new InvalidArgumentException($operator.': Invalid operator specified');
         }
         return parent::__callStatic($operator, $operands);
+    }
+
+    function __call($operator, $operands) {
+        array_unshift($operands, $this);
+        return SqlExpression::__callStatic($operator, $operands);
     }
 }
 
@@ -808,7 +933,7 @@ class SqlInterval extends SqlFunction {
     }
 }
 
-class SqlField extends SqlFunction {
+class SqlField extends SqlExpression {
     var $level;
 
     function __construct($field, $level=0) {
@@ -1078,7 +1203,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function all() {
-        return $this->getIterator()->asArray();
+        return $this->getIterator();
     }
 
     function first() {
@@ -1101,7 +1226,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * If no such model or multiple models exist, an exception is thrown.
      */
     function one() {
-        $list = $this->all();
+        $list = $this->all()->asArray();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)
@@ -1402,6 +1527,41 @@ abstract class ResultSet implements Iterator, ArrayAccess, Countable {
     function count() {
         return count($this->asArray());
     }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
 }
 
 class ModelInstanceManager extends ResultSet {
@@ -1494,7 +1654,7 @@ class ModelInstanceManager extends ResultSet {
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {
-            $m = new AnnotatedModel($m, $extras);
+            $m = AnnotatedModel::wrap($m, $extras, $modelClass);
         }
         // TODO: If the model has deferred fields which are in $fields,
         // those can be resolved here
@@ -1573,6 +1733,47 @@ class ModelInstanceManager extends ResultSet {
             $this->map = $this->resource->getMap();
         }
     }
+
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. See ::findAll() for more details.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst(array $criteria) {
+        $records = $this->findAll($criteria, 1);
+        return count($records) > 0 ? $records[0] : null;
+    }
+
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance, as they can provide results with one more trip to the
+     * database.
+     */
+    function findAll(array $criteria, $limit=false) {
+        $records = new ListObject();
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field => $check) {
+                if (!SqlCompiler::evaluate($record, $check, $field)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                $records[] = $record;
+        }
+        return $records;
+    }
 }
 
 class FlatArrayIterator extends ResultSet {
@@ -1620,12 +1821,14 @@ class InstrumentedList extends ModelInstanceManager {
     }
 
     function add($object, $at=false) {
-        if (!$object || !$object instanceof $this->model)
+        // NOTE: Attempting to compare $object to $this->model will likely
+        // be problematic, and limits creative applications of the ORM
+        if (!$object) {
             throw new Exception(sprintf(
-                'Attempting to add invalid object to list. Expected <%s>, but got <%s>',
-                $this->model,
-                get_class($object)
+                'Attempting to add invalid object to list. Expected <%s>, but got <NULL>',
+                $this->model
             ));
+        }
 
         foreach ($this->key as $field=>$value)
             $object->set($field, $value);
@@ -1668,8 +1871,16 @@ class InstrumentedList extends ModelInstanceManager {
      * Reduce the list to a subset using a simply key/value constraint. New
      * items added to the subset will have the constraint automatically
      * added to all new items.
+     *
+     * Parameters:
+     * $criteria - (<Traversable>) criteria by which this list will be
+     *    constrained and filtered.
+     * $evaluate - (<bool>) if set to TRUE, the criteria will be evaluated
+     *    without making any more trips to the database. NOTE this may yield
+     *    unexpected results if this list does not contain all the records
+     *    from the database which would be matched by another query.
      */
-    function window($constraint) {
+    function window($constraint, $evaluate=false) {
         $model = $this->model;
         $fields = $model::getMeta('fields');
         $key = $this->key;
@@ -1678,70 +1889,24 @@ class InstrumentedList extends ModelInstanceManager {
                 throw new OrmException('InstrumentedList windowing must be performed on local fields only');
             $key[$field] = $value;
         }
-        return new static(array($this->model, $key), $this->filter($constraint));
+        $list = new static(array($this->model, $key), $this->filter($constraint));
+        if ($evaluate) {
+            $list->setCache($this->findAll($constraint));
+        }
+        return $list;
     }
 
     /**
-     * Find the first item in the current set which matches the given criteria.
-     * This would be used in favor of ::filter() which might trigger another
-     * database query. The criteria is intended to be quite simple and should
-     * not traverse relationships which have not already been fetched.
-     * Otherwise, the ::filter() or ::window() methods would provide better
-     * performance.
-     *
-     * Example:
-     * >>> $a = new User();
-     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
-     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
-     * <Role: administrator>
+     * Disable database fetching on this list by providing a static list of
+     * objects. ::add() and ::remove() are still supported.
      */
-    function findFirst(array $criteria) {
-        foreach ($this as $record) {
-            $matches = true;
-            foreach ($criteria as $field=>$check) {
-                if (!SqlCompiler::evaluate($record, $field, $check)) {
-                    $matches = false;
-                    break;
-                }
-            }
-            if ($matches)
-                return $record;
-        }
-    }
-
-    /**
-     * Sort the instrumented list in place. This would be useful to change the
-     * sorting order of the items in the list without fetching the list from
-     * the database again.
-     *
-     * Parameters:
-     * $key - (callable|int) A callable function to produce the sort keys
-     *      or one of the SORT_ constants used by the array_multisort
-     *      function
-     * $reverse - (bool) true if the list should be sorted descending
-     *
-     * Returns:
-     * This instrumented list for chaining and inlining.
-     */
-    function sort($key=false, $reverse=false) {
-        // Fetch all records into the cache
-        $this->asArray();
-        if (is_callable($key)) {
-            array_multisort(
-                array_map($key, $this->cache),
-                $reverse ? SORT_DESC : SORT_ASC,
-                $this->cache);
-        }
-        elseif ($key) {
-            array_multisort($this->cache,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->cache);
-        }
-        else
-            sort($this->cache);
-        return $this;
+    function setCache(array $cache) {
+        if ($this->cache)
+            throw new Exception('Cache must be set before fetching records');
+        // Set cache and disable fetching
+        $this->reset();
+        $this->cache = $cache;
+        $this->resource = false;
     }
 
     /**
@@ -1761,10 +1926,10 @@ class InstrumentedList extends ModelInstanceManager {
         return true;
     }
 
-    // QuerySet delegates
     function count() {
-        return $this->objects()->count();
+        return count($this->asArray());
     }
+    // QuerySet delegates
     function exists() {
         return $this->queryset->exists();
     }
@@ -1787,7 +1952,8 @@ class InstrumentedList extends ModelInstanceManager {
     }
     function offsetSet($a, $b) {
         $this->fillTo($a);
-        $this->cache[$a]->delete();
+        if ($obj = $this->cache[$a])
+            $obj->delete();
         $this->add($b, $a);
     }
 
@@ -1845,10 +2011,21 @@ class SqlCompiler {
     /**
      * Check if the values match given the operator.
      *
+     * Parameters:
+     * $record - <ModelBase> An model instance representing a row from the
+     *      database
+     * $field - Field path including operator used as the evaluated
+     *      expression base. To check if field `name` startswith something,
+     *      $field would be `name__startswith`.
+     * $check - <mixed> value used as the comparison. This would be the RHS
+     *      of the condition expressed with $field. This can also be a Q
+     *      instance, in which case, $field is not considered, and the Q
+     *      will be used to evaluate the $record directly.
+     *
      * Throws:
      * OrmException - if $operator is not supported
      */
-    static function evaluate($record, $field, $check) {
+    static function evaluate($record, $check, $field) {
         static $ops; if (!isset($ops)) { $ops = array(
             'exact' => function($a, $b) { return is_string($a) ? strcasecmp($a, $b) == 0 : $a == $b; },
             'isnull' => function($a, $b) { return is_null($a) == $b; },
@@ -1858,15 +2035,21 @@ class SqlCompiler {
             'lte' => function($a, $b) { return $a <= $b; },
             'contains' => function($a, $b) { return stripos($a, $b) !== false; },
             'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
-            'hasbit' => function($a, $b) { return $a & $b == $b; },
+            'endswith' => function($a, $b) { return iEndsWith($a, $b); },
+            'regex' => function($a, $b) { return preg_match("/$a/iu", $b); },
+            'hasbit' => function($a, $b) { return ($a & $b) == $b; },
         ); }
+        // TODO: Support Q expressions
+        if ($check instanceof Q)
+            return $check->evaluate($record);
+
         list($field, $path, $operator) = self::splitCriteria($field);
         if (!isset($ops[$operator]))
             throw new OrmException($operator.': Unsupported operator');
 
         if ($path)
             $record = $record->getByPath($path);
-        // TODO: Support Q expressions
+
         return $ops[$operator]($record->get($field), $check);
     }
 
@@ -2050,9 +2233,6 @@ class SqlCompiler {
      * $Q - (Q) constraint represented in a Q instance
      * $model - (VerySimpleModel) root model for all the field references in
      *      the Q instance
-     * $slot - (int) slot for inputs to be placed. Useful to differenciate
-     *      inputs placed in the joins and where clauses for SQL engines
-     *      which do not support named parameters.
      *
      * Returns:
      * (CompiledExpression) object containing the compiled expression (with
@@ -2060,13 +2240,14 @@ class SqlCompiler {
      * of the CompiledExpression will allow the compiler to place the
      * constraint properly in the WHERE or HAVING clause appropriately.
      */
-    function compileQ(Q $Q, $model, $slot=false) {
+    function compileQ(Q $Q, $model, $parens=true) {
         $filter = array();
         $type = CompiledExpression::TYPE_WHERE;
         foreach ($Q->constraints as $field=>$value) {
             // Handle nested constraints
             if ($value instanceof Q) {
-                $filter[] = $T = $this->compileQ($value, $model, $slot);
+                $filter[] = $T = $this->compileQ($value, $model,
+                    !$Q->isCompatibleWith($value));
                 // Bubble up HAVING constraints
                 if ($T instanceof CompiledExpression
                         && $T->type == CompiledExpression::TYPE_HAVING)
@@ -2079,7 +2260,8 @@ class SqlCompiler {
                     $f = $field . '__' . $f;
                     $criteria[$f] = $v;
                 }
-                $filter[] = $this->compileQ(new Q($criteria), $model, $slot);
+                $filter[] = $this->compileQ(new Q($criteria), $model,
+                    $Q->ored || $Q->negated);
             }
             // Handle simple field = <value> constraints
             else {
@@ -2101,19 +2283,27 @@ class SqlCompiler {
                     $filter[] = sprintf($op, $field, $this->input($value, $slot));
             }
         }
-        $glue = $Q->isOred() ? ' OR ' : ' AND ';
+        $glue = $Q->ored ? ' OR ' : ' AND ';
         $clause = implode($glue, $filter);
-        if (count($filter) > 1)
+        if (($Q->negated || $parens) && count($filter) > 1)
             $clause = '(' . $clause . ')';
-        if ($Q->isNegated())
+        if ($Q->negated)
             $clause = 'NOT '.$clause;
         return new CompiledExpression($clause, $type);
     }
 
     function compileConstraints($where, $model) {
         $constraints = array();
+        $prev = $parens = false;
         foreach ($where as $Q) {
-            $constraints[] = $this->compileQ($Q, $model);
+            if ($prev && !$prev->isCompatibleWith($Q)) {
+                $parens = true;
+                break;
+            }
+            $prev = $Q;
+        }
+        foreach ($where as $Q) {
+            $constraints[] = $this->compileQ($Q, $model, $parens);
         }
         return $constraints;
     }
@@ -2299,7 +2489,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function __range($a, $b) {
         // XXX: Crash if $b is not array of two items
-        return sprintf('%s BETWEEN %s AND %s', $a, $b[0], $b[1]);
+        return sprintf('%s BETWEEN %s AND %s', $a, $this->input($b[0]), $this->input($b[1]));
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
@@ -2428,6 +2618,7 @@ class MySqlCompiler extends SqlCompiler {
         $q->related = $q->anotations = false;
         $model = $q->model;
         $q->values = $model::getMeta('pk');
+        $q->annotations = false;
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
         $row = $exec->getRow();
@@ -2456,7 +2647,7 @@ class MySqlCompiler extends SqlCompiler {
                     $field = $sort->toSql($this, $model);
                 }
                 else {
-                    if ($sort[0] == '-') {
+                    if ($sort[0] === '-') {
                         $dir = 'DESC';
                         $sort = substr($sort, 1);
                     }
@@ -2530,8 +2721,13 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->values as $alias=>$v) {
                 list($f) = $this->getField($v, $model);
                 $unaliased = $f;
-                if ($f instanceof SqlFunction)
+                if ($f instanceof SqlFunction) {
                     $fields[$f->toSql($this, $model, $alias)] = true;
+                    if ($f instanceof SqlAggregate) {
+                        // Don't group_by aggregate expressions
+                        continue;
+                    }
+                }
                 else {
                     if (!is_int($alias))
                         $f .= ' AS '.$this->quote($alias);
@@ -2926,6 +3122,15 @@ class Q implements Serializable {
         $this->ored = true;
     }
 
+    /**
+     * Two neighboring Q's are compatible in a where clause if they have
+     * the same boolean AND / OR operator. Negated Q's should always use
+     * parentheses if there is more than one criterion.
+     */
+    function isCompatibleWith(Q $other) {
+        return $this->ored == $other->ored;
+    }
+
     function add($constraints) {
         if (is_array($constraints))
             $this->constraints = array_merge($this->constraints, $constraints);
@@ -2946,6 +3151,26 @@ class Q implements Serializable {
 
     static function all($constraints) {
         return new static($constraints);
+    }
+
+    function evaluate($record) {
+        // Start with FALSE for OR and TRUE for AND
+        $result = !$this->ored;
+        foreach ($this->constraints as $field=>$check) {
+            $R = SqlCompiler::evaluate($record, $check, $field);
+            if ($this->ored) {
+                if ($result |= $R)
+                    break;
+            }
+            elseif (!$R) {
+                // Anything AND false
+                $result = false;
+                break;
+            }
+        }
+        if ($this->negated)
+            $result = !$result;
+        return $result;
     }
 
     function serialize() {
