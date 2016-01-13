@@ -22,17 +22,36 @@ require_once(INCLUDE_DIR.'class.ajax.php');
 
 class SearchAjaxAPI extends AjaxController {
 
-    function getAdvancedSearchDialog() {
+    function getAdvancedSearchDialog($key=false, $context='advsearch') {
         global $thisstaff;
 
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create();
-        $form = $search->getFormFromSession('advsearch') ?: $search->getForm();
-        $matches = self::_getSupportedTicketMatches();
+        $search = SavedSearch::create(array(
+            'root' => 'T',
+        ));
+        if (isset($_SESSION[$context])) {
+            // Use the most recent search
+            if (!$key) {
+                reset($_SESSION[$context]);
+                $key = key($_SESSION[$context]);
+            }
+            $search->config = $_SESSION[$context][$key];
+        }
+        $this->_tryAgain($search, $search->getForm());
+    }
 
-        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+    function editSearch($id) {
+        global $thisstaff;
+
+        $search = SavedSearch::lookup($id);
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$search || !$search->checkAccess($thisstaff))
+            Http::response(404, 'No such saved search');
+
+        $this->_tryAgain($search, $search->getForm());
     }
 
     function addField($name) {
@@ -41,37 +60,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        @list($type, $id) = explode('!', $name, 2);
+        $search = SavedSearch::create(array('root'=>'T'));
+        $searchable = $search->getSupportedMatches();
+        if (!($F = $searchable[$name]))
+            Http::response(404, 'No such field: ', print_r($name, true));
 
-        switch (strtolower($type)) {
-        case ':ticket':
-        case ':user':
-        case ':organization':
-        case ':field':
-            // Support nested field ids for list properties and such
-            if (strpos($id, '.') !== false)
-                list(,$id) = explode('!', $id, 2);
-            if (!($field = DynamicFormField::lookup($id)))
-                Http::response(404, 'No such field: ', print_r($id, true));
-
-            $impl = $field->getImpl();
-            $impl->set('label', sprintf('%s / %s',
-                $field->form->getLocal('title'), $field->getLocal('label')
-            ));
-            break;
-
-        default:
-            $extended = SavedSearch::getExtendedTicketFields();
-
-            if (isset($extended[$name])) {
-                $impl = $extended[$name];
-                break;
-            }
-            Http::response(400, 'No such field type');
-        }
-
-        $fields = SavedSearch::getSearchField($impl, $name);
-        $form = new SimpleForm($fields);
+        $fields = SavedSearch::getSearchField($F, $name);
+        $form = new AdvancedSearchForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
             $F->value = true;
@@ -83,104 +78,103 @@ class SearchAjaxAPI extends AjaxController {
         return $this->encode(array(
             'success' => true,
             'html' => $html,
-            // Send the current formfield UID to be resent with the next
-            // addField request and set above
-            'ff_uid' => FormField::$uid,
         ));
     }
 
     function doSearch() {
-        global $thisstaff;
-
-        $search = SavedSearch::create();
-
+        $search = SavedSearch::create(array('root' => 'T'));
         $form = $search->getForm($_POST);
-        if (!$form->isValid()) {
-            $matches = self::_getSupportedTicketMatches();
-            include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+        if (false === $this->_setupSearch($search, $form)) {
             return;
         }
-        $_SESSION['advsearch'] = $form->getState();
 
         Http::response(200, $this->encode(array(
-            'redirect' => 'tickets.php?advanced',
+            'redirect' => 'tickets.php?queue=adhoc',
         )));
+    }
+
+    function _hasErrors(SavedSearch $search, $form) {
+        if (!$form->isValid()) {
+            $this->_tryAgain($search, $form);
+            return true;
+        }
+    }
+
+    function _setupSearch(SavedSearch $search, $form, $key='advsearch') {
+        if ($this->_hasErrors($search, $form))
+            return false;
+
+        if ($key) {
+            $keep = array();
+            // Add in new search to the list of recent searches
+            $criteria = $search->isolateCriteria($form->getClean());
+            $token = $this->_hashCriteria($criteria);
+            $keep[$token] = $criteria;
+            // Keep the last 5 recent searches looking from the beginning of
+            // the recent search list
+            if (isset($_SESSION[$key])) {
+                reset($_SESSION[$key]);
+                while (count($keep) < 5) {
+                    list($k, $v) = each($_SESSION[$key]);
+                    if (!$k)
+                        break;
+                    $keep[$k] = $v;
+                }
+            }
+            $_SESSION[$key] = $keep;
+        }
+    }
+    
+    function _hashCriteria($criteria, $size=10) {
+        $parts = array();
+        foreach ($criteria as $C) {
+            list($name, $method, $value) = $C;
+            if (is_array($value))
+                $value = implode('+', $value);
+            $parts[] = "{$name} {$method} {$value}";
+        }
+        $hash = sha1(implode(' ', $parts), true);
+        return substr(
+            str_replace(array('+','/','='), '', base64_encode($hash)),
+            -$size);
+    }
+
+    function _tryAgain($search, $form, $errors=array()) {
+        $matches = $search->getSupportedMatches();
+        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 
     function saveSearch($id) {
         global $thisstaff;
 
         $search = SavedSearch::lookup($id);
-        if (!$search || !$search->checkAccess($thisstaff))
-            Http::response(404, 'No such saved search');
-        elseif (!$thisstaff)
+        if (!$thisstaff)
             Http::response(403, 'Agent login is required');
+        elseif (!$search || !$search->checkAccess($thisstaff))
+            Http::response(404, 'No such saved search');
 
-        return self::_saveSearch($search);
-    }
+        if (false === $this->_saveSearch($search))
+            return;
 
-    function _saveSearch($search) {
-        $data = array();
-        foreach ($_POST['form'] as $id=>$info) {
-            $name = $info['name'];
-            if (substr($name, -2) == '[]')
-                $data[substr($name, 0, -2)][] = $info['value'];
-            else
-                $data[$name] = $info['value'];
-        }
-        $form = $search->getForm($data);
-        $form->setSource($data);
-        if (!$data || !$form->isValid()) {
-            Http::response(422, 'Validation errors exist on form');
-        }
-
-        $search->config = JsonDataEncoder::encode($form->getState());
-        if (isset($_POST['name']))
-            $search->title = $_POST['name'];
-        elseif ($search->__new__)
-            Http::response(400, 'A name is required');
-        if (!$search->save()) {
-            Http::response(500, 'Internal error. Unable to update search');
-        }
-        Http::response(201, $this->encode(array(
-            'id' => $search->id,
-            'title' => $search->title,
+        Http::response(200, $this->encode(array(
+            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
         )));
     }
 
-    function _getSupportedTicketMatches() {
-        // User information
-        $matches = array(
-            __('Ticket Built-In') => SavedSearch::getExtendedTicketFields(),
-            __('Custom Forms') => array()
-        );
-        foreach (array('ticket'=>'TicketForm', 'user'=>'UserForm', 'organization'=>'OrganizationForm') as $k=>$F) {
-            $form = $F::objects()->one();
-            $fields = &$matches[$form->getLocal('title')];
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $fields[":$k!".$f->get('id')] = __(ucfirst($k)).' / '.$f->getLocal('label');
-                /* TODO: Support matches on list item properties
-                if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
-                    foreach ($fi->getSubFields() as $p) {
-                        $fields[":$k.".$f->get('id').'.'.$p->get('id')]
-                            = __(ucfirst($k)).' / '.$f->getLocal('label').' / '.$p->getLocal('label');
-                    }
-                }
-                */
-            }
+    function _saveSearch(SavedSearch $search) {
+        $form = $search->getForm($_POST);
+        $errors = array();
+        if (!$search->update($_POST, $form, $errors)
+            || !$search->save()
+        ) {
+            return $this->_tryAgain($search, $form, $errors);
         }
-        $fields = &$matches[__('Custom Forms')];
-        foreach (DynamicForm::objects()->filter(array('type'=>'G')) as $form) {
-            foreach ($form->getFields() as $f) {
-                if (!$f->hasData() || $f->isPresentationOnly())
-                    continue;
-                $key = sprintf(':field!%d', $f->get('id'), $f->get('id'));
-                $fields[$key] = $form->getLocal('title').' / '.$f->getLocal('label');
-            }
+
+        if (false === $this->_setupSearch($search, $form)) {
+            return false;
         }
-        return $matches;
+
+        return true;
     }
 
     function createSearch() {
@@ -189,28 +183,14 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
 
-        $search = SavedSearch::create();
+        $search = SavedSearch::create(array('root' => 'T'));
         $search->staff_id = $thisstaff->getId();
-        return self::_saveSearch($search);
-    }
+        if (false === $this->_saveSearch($search))
+            return;
 
-    function loadSearch($id) {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            Http::response(403, 'Agent login is required');
-        }
-        elseif (!($search = SavedSearch::lookup($id))) {
-            Http::response(404, 'No such saved search');
-        }
-
-        if ($state = JsonDataParser::parse($search->config)) {
-            $form = $search->loadFromState($state);
-            $form->loadState($state);
-        }
-        $matches = self::_getSupportedTicketMatches();
-
-        include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+        Http::response(200, $this->encode(array(
+            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
+        )));
     }
 
     function deleteSearch($id) {
@@ -230,5 +210,148 @@ class SearchAjaxAPI extends AjaxController {
             'id' => $search->id,
             'success' => true,
         )));
+    }
+
+    function editColumn($column_id) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!($column = QueueColumn::lookup($column_id))) {
+            Http::response(404, 'No such queue');
+        }
+
+        if ($_POST) {
+            $data_form = $column->getDataConfigForm($_POST);
+            if ($data_form->isValid()) {
+                $column->update($_POST, 'Ticket');
+                if ($column->save())
+                    Http::response(201, 'Successfully updated');
+            }
+        }
+
+        $root = 'Ticket';
+        include STAFFINC_DIR . 'templates/queue-column-edit.tmpl.php';
+    }
+
+    function previewQueue($id=false) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        if ($id && (!($queue = CustomQueue::lookup($id)))) {
+            Http::response(404, 'No such queue');
+        }
+
+        if (!$queue) {
+            $queue = CustomQueue::create();
+        }
+
+        $queue->update($_POST);
+
+        $form = $queue->getForm($_POST);
+        $tickets = $queue->getQuery($form);
+        $count = 10; // count($queue->getBasicQuery($form));
+
+        include STAFFINC_DIR . 'templates/queue-preview.tmpl.php';
+    }
+
+    function addCondition() {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!isset($_GET['field']) || !isset($_GET['id']) || !isset($_GET['colid'])) {
+            Http::response(400, '`field`, `id`, and `colid` parameters required');
+        }
+        $fields = SavedSearch::getSearchableFields('Ticket');
+        if (!isset($fields[$_GET['field']])) {
+            Http::response(400, sprintf('%s: No such searchable field'),
+                Format::htmlchars($_GET['field']));
+        }
+      
+        list($label, $field) = $fields[$_GET['field']];
+        // Ensure `name` is preserved
+        $field_name = $_GET['field'];
+        $id = $_GET['id'];
+        $column = QueueColumn::create(array('id' => $_GET['colid']));
+        $condition = new QueueColumnCondition();
+        include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
+    }
+
+    function addConditionProperty() {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!isset($_GET['prop']) || !isset($_GET['condition'])) {
+            Http::response(400, '`prop` and `condition` parameters required');
+        }
+
+        $prop = $_GET['prop'];
+        $id = $_GET['condition'];
+        include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
+    }
+
+    function collectQueueCounts($ids=null) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+
+        $queues = CustomQueue::objects()
+            ->filter(Q::any(array(
+                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                'staff_id' => $thisstaff->getId(),
+            )));
+
+        if ($ids && is_array($ids))
+            $queues->filter(array('id__in' => $ids));
+
+        $query = Ticket::objects();
+
+        // Visibility contraints ------------------
+        // TODO: Consider SavedSearch::ignoreVisibilityConstraints()
+
+        // -- Open and assigned to me
+        $assigned = Q::any(array(
+            'staff_id' => $thisstaff->getId(),
+        ));
+        // -- Open and assigned to a team of mine
+        if ($teams = array_filter($thisstaff->getTeams()))
+            $assigned->add(array('team_id__in' => $teams));
+
+        $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
+
+        // -- Routed to a department of mine
+        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+            $visibility->add(array('dept_id__in' => $depts));
+
+        $query->filter($visibility);
+
+        foreach ($queues as $queue) {
+            $Q = $queue->getBasicQuery();
+            if (count($Q->extra) || $Q->isWindowed()) {
+                // XXX: This doesn't work
+                $query->annotate(array(
+                    'q'.$queue->id => $Q->values_flat()
+                        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
+                ));
+            }
+            else {
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+                $query->aggregate(array(
+                    'q'.$queue->id => SqlAggregate::COUNT($expr)
+                ));
+            }
+        }
+
+        Http::response(200, false, 'application/json');
+        return $this->encode($query->values()->one());
     }
 }
