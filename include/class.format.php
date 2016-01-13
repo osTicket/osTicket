@@ -522,7 +522,9 @@ class Format {
 
         $format = self::getStrftimeFormat($format);
         // Properly convert to user local time
-        $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
+        if (!($time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'))))
+           return '';
+
         $offset = $user_timezone->getOffset($time);
         $timestamp = $time->getTimestamp() + $offset;
         return strftime($format ?: $strftimeFallback, $timestamp);
