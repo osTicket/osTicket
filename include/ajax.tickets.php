@@ -472,7 +472,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $depts = array();
                     $tids = $_POST['tids'] ?: array_filter(explode(',', $_REQUEST['tids']));
                     if ($tids) {
-                        $tickets = TicketModel::objects()
+                        $tickets = Ticket::objects()
                             ->distinct('dept_id')
                             ->filter(array('ticket_id__in' => $tids));
                         $depts = $tickets->values_flat('dept_id');

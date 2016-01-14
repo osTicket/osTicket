@@ -58,7 +58,7 @@ $refresh_url = $path . '?' . http_build_query($args);
     <span class="valign-helper"></span>
     <?php
     require 'queue-quickfilter.tmpl.php';
-    require 'queue-sort.tmpl.php';
+   // require 'queue-sort.tmpl.php';
     ?>
   </div>
     <form action="tickets.php" method="get" onsubmit="javascript:
@@ -159,7 +159,7 @@ if (
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
 
-<table class="list queue tickets" border="0" cellspacing="1" cellpadding="2" width="940">
+<table class="list queue tickets" border="0" cellspacing="1" cellpadding="2" width="100%">
   <thead>
     <tr>
 <?php
