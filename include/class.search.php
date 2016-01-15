@@ -724,7 +724,11 @@ class SavedSearch extends VerySimpleModel {
         $root = $this->getRoot();
         return 'tickets.php?queue='.$this->getId();
     }
-
+    function getPHref() {
+        // TODO: Get base page from getRoot();
+        $root = $this->getRoot();
+        return 'queue='.$this->getId();
+    }
     function getRoot() {
         switch ($this->root) {
         case 'T':
@@ -1332,6 +1336,9 @@ extends SavedSearch {
 
     function getHref() {
         return 'tickets.php?queue=adhoc';
+    }
+	    function getPHref() {
+        return 'queue=adhoc';
     }
 }
 

@@ -241,13 +241,13 @@ foreach ($tickets as $T) {
 ?>  <div>
       <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
 <?php
-        echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
-        echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+        echo __('Page').':'.$pageNav->getPageLinks($queue->getPHref()).'&nbsp;';
+				echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'queue' => $_REQUEST['queue'],
                         'status' => $_REQUEST['status'])),
                 __('Export'));
-        ?>
+			        ?>
         <i class="help-tip icon-question-sign" href="#export"></i>
     </div>
 <?php
