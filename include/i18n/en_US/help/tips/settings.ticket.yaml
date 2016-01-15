@@ -79,6 +79,19 @@ show_related_tickets:
         Show all related tickets on user login - otherwise access is restricted to
         one ticket view per login
 
+autoclose_status:
+    title: Ticket Auto-Close Status
+    content: >
+        The Auto Close function will use this status to find tickets 
+        that will be marked <b>Closed</b> after the <b>Ticket Auto-Close Duration</b>.
+
+autoclose_duration:
+    title: Ticket Auto-Close Duration
+    content: >
+        Enter the number of Hours before a ticket marked with the 
+        <b>Ticket Auto-Close Status</b> selected status will be 
+        Auto-Closed by the system.
+
 human_verification:
     title: Human Verification
     content: >
