@@ -1542,6 +1542,9 @@ implements RestrictedAccess, Threadable {
                 $this->setStaffId(0); // Clear assignment
         }
 
+        if (!$autorespond)
+            return;
+
         // Figure out the user
         if ($this->getOwnerId() == $message->getUserId())
             $user = new TicketOwner(
@@ -1553,11 +1556,11 @@ implements RestrictedAccess, Threadable {
 
         /**********   double check auto-response  ************/
         if (!$user)
-            $autorespond=false;
-        elseif ($autorespond && (Email::getIdByEmail($user->getEmail())))
-            $autorespond=false;
-        elseif ($autorespond && ($dept=$this->getDept()))
-            $autorespond=$dept->autoRespONNewMessage();
+            $autorespond = false;
+        elseif ((Email::getIdByEmail($user->getEmail())))
+            $autorespond = false;
+        elseif (($dept=$this->getDept()))
+            $autorespond = $dept->autoRespONNewMessage();
 
         if (!$autorespond
             || !$cfg->autoRespONNewMessage()
@@ -2293,28 +2296,18 @@ implements RestrictedAccess, Threadable {
         }
 
         // Do not auto-respond to bounces and other auto-replies
-        if ($alerts)
-            $alerts = isset($vars['mailflags'])
+        $autorespond = isset($vars['mailflags'])
                 ? !$vars['mailflags']['bounce'] && !$vars['mailflags']['auto-reply']
                 : true;
-        if ($alerts && $message->isBounceOrAutoReply())
-            $alerts = false;
+        if ($autorespond && $message->isBounceOrAutoReply())
+            $autorespond = false;
 
-        if ($alerts && $this->getThread()->getLastEmailMessage(array(
-            'user_id' => $message->user_id,
-            'id__lt' => $message->id,
-            'created__gt' => SqlFunction::NOW()->minus(SqlInterval::MINUTE(5)),
-        ))) {
-            // One message already from this user in the last five minutes
-            $alerts = false;
-        }
+        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
 
-        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
-
-        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
 
-        if (!$alerts)
+        if (!($alerts && $autorespond))
             return $message; //Our work is done...
 
         $dept = $this->getDept();
