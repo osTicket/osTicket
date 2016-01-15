@@ -27,9 +27,11 @@ $page='';
 $ticket = $user = null; //clean start.
 $redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
-if($_REQUEST['id']) {
-    if(!($ticket=Ticket::lookup($_REQUEST['id'])))
+if($_REQUEST['id'] || $_REQUEST['number']) {
+    if($_REQUEST['id'] && !($ticket=Ticket::lookup($_REQUEST['id'])))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
+    elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(['number' => $_REQUEST['number']])))
+         $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
     elseif(!$ticket->checkStaffPerm($thisstaff)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
         $ticket=null; //Clear ticket obj.
@@ -82,8 +84,10 @@ if($_POST && !$errors):
                 $errors['err'] = __('Action denied. Contact admin for access');
             }
             else {
-
-                if(!$_POST['response'])
+                $vars = $_POST;
+                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                $vars['response'] = ThreadEntryBody::clean($vars['response']);
+                if(!$vars['response'])
                     $errors['response']=__('Response required');
 
                 if ($cfg->getLockTime()) {
@@ -106,10 +110,6 @@ if($_POST && !$errors):
                 if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
-
-            //If no error...do the do.
-            $vars = $_POST;
-            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -143,6 +143,7 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->getLockTime()) {
                 if (!$lock) {

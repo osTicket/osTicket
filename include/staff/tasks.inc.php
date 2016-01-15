@@ -27,6 +27,36 @@ $sort_options = array(
     'relevance' =>          __('Relevance'),
 );
 
+// Queues columns
+
+$queue_columns = array(
+        'number' => array(
+            'width' => '8%',
+            'heading' => __('Number'),
+            ),
+        'date' => array(
+            'width' => '20%',
+            'heading' => __('Date Created'),
+            'sort_col' => 'created',
+            ),
+        'title' => array(
+            'width' => '38%',
+            'heading' => __('Title'),
+            'sort_col' => 'cdata__title',
+            ),
+        'dept' => array(
+            'width' => '16%',
+            'heading' => __('Department'),
+            'sort_col'  => 'dept__name',
+            ),
+        'assignee' => array(
+            'width' => '16%',
+            'heading' => __('Agent'),
+            ),
+        );
+
+
+
 // Queue we're viewing
 $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TASK);
 $queue_name = $_SESSION[$queue_key] ?: '';
@@ -148,6 +178,7 @@ $orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
 
 switch ($sort_cols) {
 case 'number':
+    $queue_columns['number']['sort_dir'] = $sort_dir;
     $tasks->extra(array(
         'order_by'=>array(
             array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
@@ -155,14 +186,24 @@ case 'number':
     ));
     break;
 case 'due':
-    $date_header = __('Due Date');
-    $date_col = 'duedate';
+    $queue_columns['date']['heading'] = __('Due Date');
+    $queue_columns['date']['sort'] = 'due';
+    $queue_columns['date']['sort_col'] = $date_col = 'duedate';
     $tasks->values('duedate');
     $tasks->order_by(SqlFunction::COALESCE(new SqlField('duedate'), 'zzz'), $orm_dir_r);
     break;
+case 'closed':
+    $queue_columns['date']['heading'] = __('Date Closed');
+    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort_col'] = $date_col = 'closed';
+    $queue_columns['date']['sort_dir'] = $sort_dir;
+    $tasks->values('closed');
+    $tasks->order_by($sort_dir ? 'closed' : '-closed');
+    break;
 case 'updated':
-    $date_header = __('Last Updated');
-    $date_col = 'updated';
+    $queue_columns['date']['heading'] = __('Last Updated');
+    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort_col'] = $date_col = 'updated';
     $tasks->values('updated');
     $tasks->order_by($sort_dir ? 'updated' : '-updated');
     break;
@@ -172,11 +213,30 @@ case 'hot':
         'thread_count' => SqlAggregate::COUNT('thread__entries'),
     ));
     break;
-case 'created':
+case 'assignee':
+    $tasks->order_by('staff__lastname', $orm_dir);
+    $tasks->order_by('staff__firstname', $orm_dir);
+    $tasks->order_by('team__name', $orm_dir);
+    $queue_columns['assignee']['sort_dir'] = $sort_dir;
+    break;
 default:
+    if ($sort_cols && isset($queue_columns[$sort_cols])) {
+        $queue_columns[$sort_cols]['sort_dir'] = $sort_dir;
+        if (isset($queue_columns[$sort_cols]['sort_col']))
+            $sort_cols = $queue_columns[$sort_cols]['sort_col'];
+        $tasks->order_by($sort_cols, $orm_dir);
+        break;
+    }
+case 'created':
+    $queue_columns['date']['heading'] = __('Date Created');
+    $queue_columns['date']['sort'] = 'created';
+    $queue_columns['date']['sort_col'] = $date_col = 'created';
     $tasks->order_by($sort_dir ? 'created' : '-created');
     break;
 }
+
+if (in_array($sort_cols, array('created', 'due', 'updated')))
+    $queue_columns['date']['sort_dir'] = $sort_dir;
 
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
@@ -277,16 +337,24 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             <?php if ($thisstaff->canManageTickets()) { ?>
 	        <th width="4%">&nbsp;</th>
             <?php } ?>
-	        <th width="8%">
-                <?php echo __('Number'); ?></th>
-	        <th width="20%">
-                <?php echo $date_header ?: __('Date'); ?></th>
-	        <th width="38%">
-                <?php echo __('Title'); ?></th>
-            <th width="15%">
-                <?php echo __('Department');?></th>
-            <th width="15%">
-                <?php echo __('Assignee');?></th>
+
+            <?php
+            // Query string
+            unset($args['sort'], $args['dir'], $args['_pjax']);
+            $qstr = Http::build_query($args);
+            // Show headers
+            foreach ($queue_columns as $k => $column) {
+                echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
+                        class="%s">%s</a></th>',
+                        $column['width'],
+                        $column['sort'] ?: $k,
+                        $column['sort_dir'] ? 0 : 1,
+                        $qstr,
+                        isset($column['sort_dir'])
+                        ? ($column['sort_dir'] ? 'asc': 'desc') : '',
+                        $column['heading']);
+            }
+            ?>
         </tr>
      </thead>
      <tbody>
@@ -383,7 +451,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     </tfoot>
     </table>
     <?php
-    if ($total>0) { //if we actually had any tickets returned.
+    if ($total>0) { //if we actually had any tasks returned.
         echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
@@ -400,7 +468,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="mark_overdue-confirm">
-        <?php echo __('Are you sure want to flag the selected tickets as <font color="red"><b>overdue</b></font>?');?>
+        <?php echo __('Are you sure want to flag the selected tasks as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>
     <hr style="margin-top:1em"/>
@@ -416,38 +484,21 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 </div>
 <script type="text/javascript">
 $(function() {
-    $(document).off('.tasks');
-    $(document).on('click.tasks', 'a.tasks-action', function(e) {
-        e.preventDefault();
-        var count = checkbox_checker($('form#tasks'), 1);
-        if (count) {
-            var url = 'ajax.php/'
-            +$(this).attr('href').substr(1)
-            +'?count='+count
-            +'&_uid='+new Date().getTime();
-            var $redirect = $(this).data('redirect');
-            $.dialog(url, [201], function (xhr) {
-                if (!!$redirect)
-                    $.pjax({url: $redirect, container:'#pjax-container'});
-                else
-                    $.pjax.reload('#pjax-container');
-             });
-        }
-        return false;
-    });
-    $(document).off('.task-action');
-    $(document).on('click.task-action', 'a.task-action', function(e) {
+
+    $(document).off('.new-task');
+    $(document).on('click.new-task', 'a.new-task', function(e) {
         e.preventDefault();
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
         var $options = $(this).data('dialogConfig');
-        var $redirect = $(this).data('redirect');
         $.dialog(url, [201], function (xhr) {
-            if (!!$redirect)
-                window.location.href = $redirect;
-            else
+            var tid = parseInt(xhr.responseText);
+            if (tid) {
+                 window.location.href = 'tasks.php?id='+tid;
+            } else {
                 $.pjax.reload('#pjax-container');
+            }
         }, $options);
 
         return false;

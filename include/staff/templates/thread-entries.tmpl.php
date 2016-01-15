@@ -1,5 +1,15 @@
 <?php
-$events = $events->order_by('id');
+
+$sort = 'id';
+if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
+    $sort = '-id';
+
+$cmp = function ($a, $b) use ($sort) {
+    return ($sort == 'id')
+        ? ($a < $b) : $a > $b;
+};
+
+$events = $events->order_by($sort);
 $events = $events->getIterator();
 $events->rewind();
 $event = $events->current();
@@ -33,7 +43,7 @@ foreach (Attachment::objects()->filter(array(
             //       changes in dates between thread items.
             foreach ($entries as $entry) {
                 // Emit all events prior to this entry
-                while ($event && $event->timestamp < $entry->created) {
+                while ($event && $cmp($event->timestamp, $entry->created)) {
                     $event->render(ThreadEvent::MODE_STAFF);
                     $events->next();
                     $event = $events->current();
@@ -79,6 +89,7 @@ foreach (Attachment::objects()->filter(array(
         $('#'+container).data('imageUrls', <?php echo JsonDataEncoder::encode($urls); ?>);
         // Trigger thread processing.
         if ($.thread)
-            $.thread.onLoad(container);
+            $.thread.onLoad(container,
+                    {autoScroll: <?php echo $sort == 'id' ? 'true' : 'false'; ?>});
     });
 </script>

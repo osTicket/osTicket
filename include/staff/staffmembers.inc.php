@@ -22,7 +22,7 @@ if ($sort && $sortOptions[$sort]) {
 
 $order_column = $order_column ? $order_column : array('firstname', 'lastname');
 
-switch ($cfg->getClientNameFormat()) {
+switch ($cfg->getAgentNameFormat()) {
 case 'last':
 case 'lastfirst':
 case 'legal':

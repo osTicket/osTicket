@@ -136,8 +136,8 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';
     }
 
-    function massProcess($action)  {
-        global $thisstaff;
+    function massProcess($action, $w=null)  {
+        global $thisstaff, $cfg;
 
         $actions = array(
                 'transfer' => array(
@@ -145,6 +145,9 @@ class TasksAjaxAPI extends AjaxController {
                     ),
                 'assign' => array(
                     'verbed' => __('assigned'),
+                    ),
+                'claim' => array(
+                    'verbed' => __('claimed'),
                     ),
                 'delete' => array(
                     'verbed' => __('deleted'),
@@ -174,20 +177,112 @@ class TasksAjaxAPI extends AjaxController {
         }
 
         switch ($action) {
+        case 'claim':
+            $w = 'me';
         case 'assign':
             $inc = 'assign.tmpl.php';
-            $info[':action'] = '#tasks/mass/assign';
+            $info[':action'] = "#tasks/mass/assign/$w";
             $info[':title'] = sprintf('Assign %s',
                     _N('selected task', 'selected tasks', $count));
+
             $form = AssignmentForm::instantiate($_POST);
-            if ($_POST && $form->isValid()) {
+
+            $assignCB = function($t, $f, $e) {
+                return $t->assign($f, $e);
+            };
+
+            $assignees = null;
+            switch ($w) {
+            case 'agents':
+                $depts = array();
+                $tids = $_POST['tids'] ?: array_filter(
+                        explode(',', @$_REQUEST['tids'] ?: ''));
+                if ($tids) {
+                    $tasks = Task::objects()
+                        ->distinct('dept_id')
+                        ->filter(array('id__in' => $tids));
+                    $depts = $tasks->values_flat('dept_id');
+                }
+
+                $members = Staff::objects()
+                    ->distinct('staff_id')
+                    ->filter(array(
+                                'onvacation' => 0,
+                                'isactive' => 1,
+                                )
+                            );
+
+                if ($depts) {
+                    $members->filter(Q::any( array(
+                                    'dept_id__in' => $depts,
+                                    Q::all(array(
+                                        'dept_access__dept__id__in' => $depts,
+                                        Q::not(array('dept_access__dept__flags__hasbit'
+                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                        ))
+                                    )));
+                }
+
+                switch ($cfg->getAgentNameFormat()) {
+                case 'last':
+                case 'lastfirst':
+                case 'legal':
+                    $members->order_by('lastname', 'firstname');
+                    break;
+
+                default:
+                    $members->order_by('firstname', 'lastname');
+                }
+
+                $prompt  = __('Select an Agent');
+                $assignees = array();
+                foreach ($members as $member)
+                     $assignees['s'.$member->getId()] = $member->getName();
+
+                if (!$assignees)
+                    $info['warn'] =  __('No agents available for assignment');
+                break;
+            case 'teams':
+                $assignees = array();
+                $prompt = __('Select a Team');
+                foreach (Team::getActiveTeams() as $id => $name)
+                    $assignees['t'.$id] = $name;
+
+                if (!$assignees)
+                    $info['warn'] =  __('No teams available for assignment');
+                break;
+            case 'me':
+                $info[':action'] = '#tasks/mass/claim';
+                $info[':title'] = sprintf('Claim %s',
+                        _N('selected task', 'selected tasks', $count));
+                $info['warn'] = sprintf(
+                        __('Are you sure you want to CLAIM %s?'),
+                        _N('selected task', 'selected tasks', $count));
+                $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+                $id = sprintf('s%s', $thisstaff->getId());
+                $assignees = array($id => $thisstaff->getName());
+                $vars = $_POST ?: array('assignee' => array($id));
+                $form = ClaimForm::instantiate($vars);
+                $assignCB = function($t, $f, $e) {
+                    return $t->claim($f, $e);
+                };
+                break;
+            }
+
+            if ($assignees != null)
+                $form->setAssignees($assignees);
+
+            if ($prompt && ($f=$form->getField('assignee')))
+                $f->configure('prompt', $prompt);
+
+            if ($_POST && $form->isValid() && !$errors) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Task::lookup($tid))
                             // Make sure the agent is allowed to
                             // access and assign the task.
                             && $t->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
-                            // Do the transfer
-                            && $t->assign($form, $e)
+                            // Do the assignment
+                            && $assignCB($t, $form, $e)
                             )
                         $i++;
                 }
@@ -230,19 +325,34 @@ class TasksAjaxAPI extends AjaxController {
             $info['status'] = 'open';
         case 'close':
             $inc = 'task-status.tmpl.php';
+            $info[':action'] = "#tasks/mass/$action";
             $info['status'] = $info['status'] ?: 'closed';
-            $perm = '';
+            $perm = $action = '';
             switch ($info['status']) {
             case 'open':
                 // If an agent can create a task then they're allowed to
                 // reopen closed ones.
                 $perm = Task::PERM_CREATE;
+                $info[':title'] = sprintf('Reopen %s',
+                         _N('selected task', 'selected tasks', $count));
+
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('REOPEN %s'),
+                             _N('selected task', 'selected tasks', $count)
+                             ));
                 break;
             case 'closed':
                 $perm = Task::PERM_CLOSE;
+                $info[':title'] = sprintf('Close %s',
+                         _N('selected task', 'selected tasks', $count));
+
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('CLOSE %s'),
+                             _N('selected task', 'selected tasks', $count)
+                             ));
                 break;
             default:
-                $errors['err'] = __('Unknown action');
+                Http::response(404, __('Unknown action'));
             }
             // Check generic permissions --  department specific permissions
             // will be checked below.
@@ -401,13 +511,15 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/transfer.tmpl.php';
     }
 
-    function assign($tid) {
+    function assign($tid, $target=null) {
         global $thisstaff;
 
         if (!($task=Task::lookup($tid)))
             Http::response(404, __('No such task'));
 
-        if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN))
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
+                || !($form=$task->getAssignmentForm($_POST, array(
+                            'target' => $target))))
             Http::response(403, __('Permission Denied'));
 
         $errors = array();
@@ -415,8 +527,9 @@ class TasksAjaxAPI extends AjaxController {
                 ':title' => sprintf(__('Task #%s: %s'),
                     $task->getNumber(),
                     $task->isAssigned() ? __('Reassign') :  __('Assign')),
-                ':action' => sprintf('#tasks/%d/assign',
-                    $task->getId()),
+                ':action' => sprintf('#tasks/%d/assign%s',
+                    $task->getId(),
+                    $target ? "/$target" : ''),
                 );
         if ($task->isAssigned()) {
             $info['notice'] = sprintf(__('%s is currently assigned to %s'),
@@ -424,7 +537,6 @@ class TasksAjaxAPI extends AjaxController {
                     $task->getAssigned());
         }
 
-        $form = $task->getAssignmentForm($_POST);
         if ($_POST && $form->isValid()) {
             if ($task->assign($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
@@ -442,6 +554,64 @@ class TasksAjaxAPI extends AjaxController {
         }
 
         include STAFFINC_DIR . 'templates/assign.tmpl.php';
+    }
+
+    function claim($tid) {
+
+        global $thisstaff;
+
+        if (!($task=Task::lookup($tid)))
+            Http::response(404, __('No such task'));
+
+        // Check for premissions and such
+        if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
+                || !($form = $task->getClaimForm($_POST)))
+            Http::response(403, __('Permission Denied'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Task #%s: %s'),
+                    $task->getNumber(),
+                    __('Claim')),
+                ':action' => sprintf('#tasks/%d/claim',
+                    $task->getId()),
+
+                );
+
+        if ($task->isAssigned()) {
+            if ($task->getStaffId() == $thisstaff->getId())
+                $assigned = __('you');
+            else
+                $assigneed = $task->getAssigned();
+
+            $info['error'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
+                    __('This task'),
+                    $assigned);
+        } else {
+            $info['warn'] = sprintf(__('Are you sure you want to CLAIM %s?'),
+                    __('this task'));
+        }
+
+        if ($_POST && $form->isValid()) {
+            if ($task->claim($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s assigned to %s'),
+                            __('Task'),
+                            __('you'))
+                        );
+                Http::response(201, $task->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to claim task');
+        }
+
+        $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
+
+        include STAFFINC_DIR . 'templates/assign.tmpl.php';
+
     }
 
    function delete($tid) {
@@ -487,6 +657,71 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/delete.tmpl.php';
     }
 
+   function changeStatus($tid, $status) {
+        global $thisstaff;
+        $statuses = array(
+                'open' => __('Reopen'),
+                'closed' => __('Close'),
+                );
+
+        if(!($task=Task::lookup($tid)) || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, __('No such task'));
+
+        $perm = null;
+        $info = $errors = array();
+        switch ($status) {
+        case 'open':
+            $perm = Task::PERM_CREATE;
+            $info = array(
+                    ':title' => sprintf(__('Reopen Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/reopen',
+                        $task->getId())
+                    );
+            break;
+        case 'closed':
+            $perm = Task::PERM_CLOSE;
+            $info = array(
+                    ':title' => sprintf(__('Close Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/close',
+                        $task->getId())
+                    );
+
+            if (($m=$task->isCloseable()) !== true)
+                $errors['err'] = $info['error'] = $m;
+            else
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('change status of %s'), __('this task')));
+            break;
+        default:
+            Http::response(404, __('Unknown status'));
+        }
+
+        if (!$errors && (!$perm || !$task->checkStaffPerm($thisstaff, $perm)))
+            $errors['err'] = sprintf(
+                        __('You do not have permission to %s %s'),
+                        $statuses[$status], __('tasks'));
+
+        if ($_POST && !$errors) {
+            if ($task->setStatus($status, $_POST['comments'], $errors))
+                Http::response(201, 0);
+
+            $info['error'] = $errors['err'] ?: __('Unable to change status of the task');
+        }
+
+        $info['status'] = $status;
+
+        include STAFFINC_DIR . 'templates/task-status.tmpl.php';
+   }
+
+   function reopen($tid) {
+       return $this->changeStatus($tid, 'open');
+   }
+
+   function close($tid) {
+       return $this->changeStatus($tid, 'closed');
+   }
 
     function task($tid) {
         global $thisstaff;

@@ -49,7 +49,9 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
         $_SESSION['_staff']['auth']['dest'] =
             '/' . ltrim($_SERVER['REQUEST_URI'], '/');
         $_SESSION['_staff']['auth']['msg']=$msg;
-        require(SCP_DIR.'login.php');
+
+        // Redirect here with full path for application-type plugins
+        Http::redirect(ROOT_PATH.'scp/login.php');
         exit;
     }
 }

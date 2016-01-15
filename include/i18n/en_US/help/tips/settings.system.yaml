@@ -72,6 +72,19 @@ enable_richtext:
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
 
+enable_avatars:
+    title: Enable Avatars on Thread View
+    content: >
+        Enable this to show <span class="doc-desc-title">Avatars</span> on thread correspondence.
+        <br><br>
+        The <span class="doc-desc-title">Avatar Source</span> can be set in Agents' and Users' settings pages.
+    links:
+      - title: Agents Settings
+        href: /scp/settings.php?t=agents
+
+      - title: Users Settings
+        href: /scp/settings.php?t=users
+
 collision_avoidance:
     title: Agent Collision Avoidance
     content: >

@@ -71,3 +71,8 @@ client_verify_email:
         <br><br>
         Disabling email verification might allow third-parties (e.g. ticket
         collaborators) to impersonate the ticket owner.
+
+allow_auth_tokens:
+    title: Enable Authentication Tokens
+    content: >
+        Enable this option to allow use of authentication tokens to auto-login users on ticket link click.

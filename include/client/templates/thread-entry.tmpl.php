@@ -1,9 +1,10 @@
 <?php
+global $cfg;
 $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
-if ($user)
+if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
 ?>
 
@@ -25,10 +26,10 @@ if ($user)
         </div>
 <?php
             echo sprintf(__('<b>%s</b> posted %s'), $name,
-                sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                sprintf('<time datetime="%s" title="%s">%s</time>',
                     date(DateTime::W3C, Misc::db2gmtime($entry->created)),
                     Format::daydatetime($entry->created),
-                    Format::relativeTime(Misc::db2gmtime($entry->created))
+                    Format::datetime($entry->created)
                 )
             ); ?>
             <span style="max-width:500px" class="faded title truncate"><?php

@@ -270,6 +270,9 @@ var scp_prep = function() {
             var form = $el.closest('form');
             form.find('input[name=search-type]').val('typeahead');
             $el.val(obj.value);
+            if (obj.id) {
+                form.append($('<input type="hidden" name="number">').val(obj.id))
+            }
             form.submit();
         },
         property: "matches"
@@ -463,6 +466,10 @@ var scp_prep = function() {
   });
 
   $('[data-toggle="tooltip"]').tooltip()
+
+  $('[data-toggle="tooltip"]').on('click', function() {
+        $(this).tooltip('hide');
+  });
 
   $('.attached.input input[autofocus]').parent().addClass('focus')
   $('.attached.input input')

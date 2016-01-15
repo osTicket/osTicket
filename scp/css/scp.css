@@ -47,10 +47,6 @@ div#header a {
     margin-bottom: 15px;
 }
 
-.search-input {
-    height: 20px;
-}
-
 .clear {
     clear:both;
 }
@@ -78,7 +74,7 @@ div#header a {
 time[title]:hover {
     text-decoration: underline;
 }
-a time.relative {
+a time {
     color: initial;
 }
 
@@ -729,7 +725,10 @@ td.multi-line {
     padding-bottom: 0.4em;
 }
 
-.form_table input[type=text], .form_table input[type=password], .form_table textarea {
+input[type=text], input[type=password], textarea, input {
+    padding: 3px 5px;
+    font-size: 0.95em;
+    font-family: inherit;
     background:#fff;
     border:1px solid #aaa;
     border-radius:4px;
@@ -905,6 +904,12 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
+/***** top page ticket response buttons *****/
+a#post-note:hover {
+    background-color:#fff9e2;
+    color:#555!IMPORTANT;
+}
+
 .thread-entry {
     margin-bottom: 15px;
     z-index: 0;
@@ -996,9 +1001,10 @@ img.avatar {
     border-left: none;
     border-right: 8px solid #CCC;
 }
-.thread-entry.note:not(.avatar) .header {
+.thread-entry.system .header {
     background-color: #f4f4f4;
 }
+
 .thread-entry.avatar.response .header:before {
     border-right-color: #ccb3af;
 }
@@ -2827,15 +2833,6 @@ input[type=checkbox] {
 }
 .vertical-pad {
   margin-top: 3px;
-}
-
-input, textarea {
-    padding: 3px 5px;
-    font-size: 0.95em;
-    font-family: inherit;
-    border-radius:4px;
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
 }
 
 small {

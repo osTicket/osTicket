@@ -53,6 +53,7 @@ class Thread extends VerySimpleModel {
     const MODE_CLIENT = 2;
 
     var $_object;
+    var $_entries;
     var $_collaborators; // Cache for collabs
     var $_participants;
 
@@ -87,7 +88,6 @@ class Thread extends VerySimpleModel {
         return $this->entries->count();
     }
 
-    var $_entries;
     function getEntries($criteria=false) {
         if (!isset($this->_entries)) {
             $this->_entries = $this->entries->annotate(array(
@@ -243,6 +243,9 @@ class Thread extends VerySimpleModel {
         $entries = $this->getEntries();
         if ($type && is_array($type))
             $entries->filter(array('type__in' => $type));
+
+        if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
+            $entries->order_by('-id');
 
         // Precache all the attachments on this thread
         AttachmentFile::objects()->filter(array(
@@ -594,6 +597,7 @@ implements TemplateVariable {
 
     const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
     const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
+    const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -869,6 +873,10 @@ implements TemplateVariable {
     }
     function setFlag($flag) {
         return $this->set('flags', $this->get('flags') | $flag);
+    }
+
+    function isSystem() {
+        return $this->hasFlag(self::FLAG_SYSTEM);
     }
 
     //Web uploads - caller is expected to format, validate and set any errors.
@@ -1361,6 +1369,10 @@ implements TemplateVariable {
             // The current codebase properly balances html
             $entry->flags |= self::FLAG_BALANCED;
 
+        // Flag system messages
+        if (!($vars['staffId'] || $vars['userId']))
+            $entry->flags |= self::FLAG_SYSTEM;
+
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
             // inline attachments are saved and updated in the database)
@@ -1598,14 +1610,18 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function template($description) {
+        global $thisstaff, $cfg;
+
         $self = $this;
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self) {
+            function ($m) use ($self, $thisstaff, $cfg) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
                     if ($S = $self->staff) {
-                        $avatar = $S->getAvatar();
+                        $avatar = '';
+                        if ($cfg->isAvatarsEnabled())
+                            $avatar = $S->getAvatar();
                         $assignees[] =
                             $avatar.$S->getName();
                     }
@@ -1615,18 +1631,32 @@ class ThreadEvent extends VerySimpleModel {
                     return implode('/', $assignees);
                 case 'somebody':
                     $name = $self->getUserName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'timestamp':
-                    return sprintf('<time class="relative" datetime="%s" title="%s">%s</time>',
+                    $timeFormat = null;
+                    if ($thisstaff
+                            && !strcasecmp($thisstaff->datetime_format,
+                                'relative')) {
+                        $timeFormat = function ($timestamp) {
+                            return Format::relativeTime(Misc::db2gmtime($timestamp));
+                        };
+                    }
+
+                    return sprintf('<time %s datetime="%s"
+                            data-toggle="tooltip" title="%s">%s</time>',
+                        $timeFormat ? 'class="relative"' : '',
                         date(DateTime::W3C, Misc::db2gmtime($self->timestamp)),
                         Format::daydatetime($self->timestamp),
-                        Format::relativeTime(Misc::db2gmtime($self->timestamp))
+                        $timeFormat ? $timeFormat($self->timestamp) :
+                        Format::datetime($self->timestamp)
                     );
                 case 'agent':
                     $name = $self->agent->getName();
-                    if ($avatar = $self->getAvatar())
+                    if ($cfg->isAvatarsEnabled()
+                            && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
                     return $name;
                 case 'dept':
@@ -2132,6 +2162,22 @@ class ThreadEntryBody /* extends SplString */ {
             return new ThreadEntryBody($text);
         }
     }
+
+    static function clean($text, $format=null) {
+        global $cfg;
+
+        if (!$format && $cfg)
+            $format = $cfg->isRichTextEnabled() ? 'html' : 'text';
+
+        switch ($format) {
+        case 'html':
+            return trim($text, " <>br/\t\n\r") ? $text : '';
+        case 'text':
+            return trim($text) ? $text : '';
+        default:
+            return $text;
+        }
+    }
 }
 
 class TextThreadEntryBody extends ThreadEntryBody {
@@ -2140,7 +2186,8 @@ class TextThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return Format::stripEmptyLines($this->body);
+        return  Format::stripEmptyLines(
+                self::clean($this->body, $this->format));
     }
 
     function prepend($what) {
@@ -2187,7 +2234,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
+        return Format::sanitize(self::clean($this->body, $this->format));
     }
 
     function getSearchable() {
@@ -2399,44 +2446,68 @@ implements TemplateVariable {
         return $this->counts[NoteThreadEntry::ENTRY_TYPE];
     }
 
-    function getMessages() {
-        return $this->entries->filter(array(
-            'type' => MessageThreadEntry::ENTRY_TYPE
-        ));
-    }
 
     function getLastMessage($criteria=false) {
-        $entries = $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        $entries->filter(array(
             'type' => MessageThreadEntry::ENTRY_TYPE
         ));
+
         if ($criteria)
             $entries->filter($criteria);
 
-        return $entries->order_by('-id')->first();
+        $entries->order_by('-id');
+
+        return $entries->first();
     }
 
-    function getEntry($var) {
-        // XXX: PUNT
-        if (is_numeric($var))
-            $id = $var;
-        else {
-            $criteria = array_merge($var, array('limit' => 1));
-            $entries = $this->getEntries($criteria);
-            if ($entries && $entries[0])
-                $id = $entries[0]['id'];
-        }
+    function getLastEmailMessage($criteria=array()) {
 
-        return $id ? parent::getEntry($id) : null;
+        $criteria += array(
+                'source' => 'Email',
+                'email_info__headers__isnull' => false);
+
+        return $this->getLastMessage($criteria);
+    }
+
+    function getLastEmailMessageByUser($user) {
+
+        $uid = is_numeric($user) ? $user : 0;
+        if (!$uid && ($user instanceof EmailContact))
+            $uid = $user->getUserId();
+
+        return $uid
+                ? $this->getLastEmailMessage(array('user_id' => $uid))
+                : null;
+    }
+
+    function getEntry($criteria) {
+        // XXX: PUNT
+        if (is_numeric($criteria))
+            return parent::getEntry($criteria);
+
+        $entries = clone $this->getEntries();
+        $entries->filter($criteria);
+        return $entries->first();
+    }
+
+    function getMessages() {
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
+            'type' => MessageThreadEntry::ENTRY_TYPE
+        ));
     }
 
     function getResponses() {
-        return $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
             'type' => ResponseThreadEntry::ENTRY_TYPE
         ));
     }
 
     function getNotes() {
-        return $this->entries->filter(array(
+        $entries = clone $this->getEntries();
+        return $entries->filter(array(
             'type' => NoteThreadEntry::ENTRY_TYPE
         ));
     }
@@ -2565,10 +2636,6 @@ abstract class ThreadEntryAction {
     }
 
     abstract function trigger();
-
-    function getTicket() {
-        return $this->entry->getObject();
-    }
 
     function isEnabled() {
         return $this->isVisible();

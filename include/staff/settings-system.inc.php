@@ -69,16 +69,6 @@ $gmtime = Misc::gmtime();
                 &nbsp;<i class="help-tip icon-question-sign" href="#collision_avoidance"></i>
             </td>
         </tr>
-        <tr>
-            <td><?php echo __('Enable Rich Text'); ?>:</td>
-            <td>
-                <input type="checkbox" name="enable_richtext" <?php
-                echo $config['enable_richtext']?'checked="checked"':''; ?>>
-                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
-                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
-            </td>
-        </tr>
-
         <tr><td><?php echo __('Default Page Size');?>:</td>
             <td>
                 <select name="max_page_size">
@@ -121,6 +111,24 @@ $gmtime = Misc::gmtime();
                     } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#purge_logs"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Show Avatars'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_avatars" <?php
+                echo $config['enable_avatars'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Show Avatars on thread view.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_avatars"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Enable Rich Text'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_richtext" <?php
+                echo $config['enable_richtext'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
             </td>
         </tr>
         <tr>

@@ -1292,6 +1292,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function asView() {
         $unique = spl_object_hash($this);
         $classname = "QueryView{$unique}";
+
+        if (class_exists($classname))
+            return $classname;
+
         $class = <<<EOF
 class {$classname} extends VerySimpleModel {
     static \$meta = array(

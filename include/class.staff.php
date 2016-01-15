@@ -51,6 +51,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     var $passwd_change;
     var $_roles = null;
     var $_teams = null;
+    var $_config = null;
     var $_perm;
 
     function __onload() {
@@ -64,6 +65,34 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         if ($time)
             $this->passwd_change = time()-$time; //XXX: check timezone issues.
+    }
+
+    function get($field, $default=false) {
+
+        // Autoload config if not loaded already
+        if (!isset($this->_config))
+            $this->getConfig();
+
+        if (isset($this->_config[$field]))
+            return $this->_config[$field];
+
+        return parent::get($field, $default);
+    }
+
+    function getConfig() {
+
+        if (!isset($this->_config) && $this->getId()) {
+            $_config = new Config('staff.'.$this->getId(),
+                    // Defaults
+                    array(
+                        'default_from_name' => '',
+                        'datetime_format'   => '',
+                        'thread_view_order' => '',
+                        ));
+            $this->_config = $_config->getInfo();
+        }
+
+        return $this->_config;
     }
 
     function __toString() {
@@ -102,6 +131,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $base = $this->ht;
         unset($base['teams']);
         unset($base['dept_access']);
+
+        if ($this->getConfig())
+            $base += $this->getConfig();
+
         return $base;
     }
 
@@ -282,6 +315,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->default_signature_type;
     }
 
+    function getReplyFromNameType() {
+        return $this->default_from_name;
+    }
+
     function getDefaultPaperSize() {
         return $this->default_paper_size;
     }
@@ -376,6 +413,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
     }
 
+    function usePrimaryRoleOnAssignment() {
+        return $this->getExtraAttr('def_assn_role', true);
+    }
+
     function getLanguage() {
         return (isset($this->lang)) ? $this->lang : false;
     }
@@ -400,8 +441,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
                 return $this->_roles[$deptId] = $access->role;
 
-            // View only access
-            return new Role(array());
+            if (!$this->usePrimaryRoleOnAssignment())
+                // View only access
+                return new Role(array());
+
+            // Fall through to primary role
         }
         // For the primary department, use the primary role
         return $this->role;
@@ -526,15 +570,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if (!isset($this->_extra) && isset($this->extra))
             $this->_extra = JsonDataParser::decode($this->extra);
 
-        return $attr ? (@$this->_extra[$attr] ?: $default) : $this->_extra;
+        return $attr
+            ? (isset($this->_extra[$attr]) ? $this->_extra[$attr] : $default)
+            : $this->_extra;
     }
 
     function setExtraAttr($attr, $value, $commit=true) {
         $this->getExtraAttr();
         $this->_extra[$attr] = $value;
+        $this->extra = JsonDataEncoder::encode($this->_extra);
 
         if ($commit) {
-            $this->extra = JsonDataEncoder::encode($this->_extra);
             $this->save();
         }
     }
@@ -623,7 +669,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
-        $this->onvacation = isset($vars['onvacation'])?1:0;
+        $this->onvacation = isset($vars['onvacation']) ? 1 : 0;
 
         if (isset($vars['avatar_code']))
           $this->setExtraAttr('avatar', $vars['avatar_code']);
@@ -633,6 +679,16 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
         $_SESSION['::lang'] = null;
         TextDomain::configureForUser($this);
+
+        // Update the config information
+        $_config = new Config('staff.'.$this->getId());
+        $_config->updateAll(array(
+                    'datetime_format' => $vars['datetime_format'],
+                    'default_from_name' => $vars['default_from_name'],
+                    'thread_view_order' => $vars['thread_view_order'],
+                    )
+                );
+        $this->_config = $_config->getInfo();
 
         return $this->save();
     }
@@ -964,6 +1020,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             }
         }
         $this->updateAccess($access, $errors);
+        $this->setExtraAttr('def_assn_role',
+            isset($vars['assign_use_pri_role']), false);
 
         // Format team membership as [array(team_id, alerts?)]
         $teams = array();
@@ -983,7 +1041,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->onvacation = isset($vars['onvacation'])?1:0;
         $this->assigned_only = isset($vars['assigned_only'])?1:0;
         $this->role_id = $vars['role_id'];
-        $this->timezone = $vars['timezone'];
         $this->username = $vars['username'];
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
@@ -992,7 +1049,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->phone = Format::phone($vars['phone']);
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
-        $this->signature = Format::sanitize($vars['signature']);
         $this->notes = Format::sanitize($vars['notes']);
 
         if ($errors)

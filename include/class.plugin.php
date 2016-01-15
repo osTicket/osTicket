@@ -11,7 +11,7 @@ class PluginConfig extends Config {
         parent::Config("plugin.$name");
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
-                $this->config[$name]['value'] = $field->to_php($this->get($name));
+                $this->config[$name]->value = $field->to_php($this->get($name));
             elseif ($default = $field->get('default'))
                 $this->defaults[$name] = $default;
         }
