@@ -384,11 +384,12 @@ implements Searchable {
 			$vars['thread-type'] = 'N';
 			$stafftoassign = $vars['staffId'];
 			$staffname = staff::getFirstNameById($stafftoassign);
+			
 			//Check to make sure the assigneee is a staff member
 			if ($stafftoassign !== 0){
 				$object instanceof Ticket;
 				$object->assignToStaff($stafftoassign,null,$alert=true); 
-				
+				$object->setStatusId(11);
 			}
 		}
 		

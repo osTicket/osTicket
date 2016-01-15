@@ -1257,7 +1257,6 @@ implements RestrictedAccess, Threadable, Searchable {
             // Exclude the auto responding email just incase it's from staff member.
             if ($message instanceof ThreadEntry && $message->isAutoReply())
                 $sentlist[] = $this->getEmail();
-
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
                 if ($members = $dept->getMembersForAlerts()->all())
@@ -1433,7 +1432,7 @@ implements RestrictedAccess, Threadable, Searchable {
 		if ($vars['role'] == 'N')
 		$msg['subj'] = "{$msg['subj']} #note";
 
-            $notice = $this->replaceVars($msg, array('recipient' => $recipient));
+            $notice = $this->replaceVars($msg->asArray(), array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
@@ -2493,7 +2492,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->setStatus($vars['reply_status_id']);
         } else {
 			
-			if ($this->getStatusId() != 10 && $this->getStatusId() != 9)
+			if ($this->getStatusId() != 10 && $this->getStatusId() != 9 && $this->getStatusId() != 3);
 			$this->setStatusId(6);			
 		}
 		
@@ -3448,6 +3447,8 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['assignId']) {
             $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
+			
+		if (statusId !=3)
 			$statusId = 11;
         }
         else {
@@ -3472,7 +3473,12 @@ implements RestrictedAccess, Threadable, Searchable {
             if (!$ticket->setStatus($statusId, false, $errors, false)) {
                 // Tickets _must_ have a status. Forceably set one here
                 $ticket->setStatusId($cfg->getDefaultTicketStatusId());
-            }
+			
+					
+				}
+			}
+			if ($statusId == 3){
+					 $ticket->setStaffId($thisstaff->getId());
         }
 
         /**********   double check auto-response  ************/
@@ -3589,7 +3595,6 @@ implements RestrictedAccess, Threadable, Searchable {
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
             $response = $ticket->postReply($vars, $errors, false);
-			$ticket->setStatusId(6);	
         }
 
         // Not assigned...save optional note if any
