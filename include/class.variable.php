@@ -136,7 +136,7 @@ class VariableReplacer {
         catch (OOBContent $content) {
             $type = $content->getType();
             $existing = @$this->extras[$type] ?: array();
-            $this->extras[$type] = array_merge($existing, $content->getContent());
+            $this->extras[$type] = array_merge($existing, array($content->getContent()));
             return $content->asVar();
         }
 

@@ -25,7 +25,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
-<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
+<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" class="thread_content">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
@@ -33,8 +33,8 @@ if ($_POST)
     <div class="pull-left flush-left">
         <h2><?php echo __('Open a New Ticket');?></h2>
     </div>
-</div>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+</div></br>
+ <table class="form_table fixed" width="960" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to

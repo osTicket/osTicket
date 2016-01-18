@@ -126,7 +126,7 @@ a time.relative {
 
 
 #container {
-    width:960px;
+    width:98%;
     margin:0 auto 20px auto;
 }
 
@@ -164,7 +164,7 @@ a time.relative {
 #header p {
     display:block;
     width:auto;
-    max-width:630px;
+    max-width:1;
     margin:10px;
     background:#eee;
     border:1px solid #ccc;
@@ -175,7 +175,7 @@ a time.relative {
 #nav, #sub_nav {
     clear:both;
     margin:0;
-    padding:0 20px;
+    padding:0 0px;
     height:26px;
     line-height:26px;
     border-left:1px solid #aaa;
@@ -322,7 +322,7 @@ a time.relative {
 #sub_nav {
     background:#f7f7f7;
     border-bottom:1px solid #bebebe;
-    padding: 2px 20px;
+    padding: 2px 2px;
 }
 #customQ_nav {
     clear:both;
@@ -726,7 +726,7 @@ a time.relative {
 .jb-overflowmenu {
     position: relative;
     height:35px;
-    width: 960px;
+    width: 100%;
 }
 
 
@@ -1280,6 +1280,9 @@ a.print {
     margin-top:3px;
     border-left:1px solid #ddd;
     border-right:1px solid #ddd;
+	margin-left:auto; 
+    margin-right:auto;
+	
 }
 
 .form_table td {
@@ -1292,7 +1295,7 @@ a.print {
 
 table.fixed {
     table-layout: fixed;
-    width: 100%;
+    width: 940px%;
 }
 table.fixed > thead > tr > th:not([width]),
 table.fixed > thead > tr > td:not([width]),
@@ -1392,6 +1395,7 @@ div.section-break h3 {
 #content .settings_table th h4 a {
     display:block;
     color:#fff;
+	
 }
 
 .settings_table h4 a span {
@@ -1432,8 +1436,16 @@ h3 {
     padding:5px 0;
     color:#444;
 }
+.thread_content{
+	margin-left: auto;
+    margin-right: auto;
+    width: 960px;
+}
 .tixTitle {
    padding:0 5px 0px;
+   margin-left: auto;
+   margin-right: auto;
+   width: 960px;
 }
 .tixTitle h3 {
    color:#444;
@@ -1447,7 +1459,12 @@ h3 {
     padding-bottom:5px;
     border-bottom:1px solid #ddd;
 }
-
+.ticket_info{
+	margin-left: auto;
+	margin-right: auto;
+	width: 960px;
+	
+}
 .ticket_info th {
     text-align:left;
 }
@@ -1683,6 +1700,9 @@ ul.tabs {
     background:#eef3f8;
     position: relative;
     box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.3);
+	width: 960px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #response_options ul.tabs {
@@ -2992,6 +3012,9 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
+	width: 960px;
+	margin-left: auto;
+	margin-right: auto;
 }
 .tab_content:not(.left) {
     padding: 12px 0;
@@ -3507,12 +3530,17 @@ table.grid.form caption {
 
 #basic_search {
   background-color: #f4f4f4;
-  margin: -10px 0;
+  margin-top: -10px;
+  margin-right: -10px;
+  margin-left: -10px;
   margin-bottom: 5px;
-  padding: 8px;
+  margin-bottom: 5px;
+  padding-top: 8px;
+  padding-left: 18px;
+  padding-bottom: 8px;
   box-shadow: inset 0 4px 12px -10px black;
   border-bottom: 1px dotted #aaa;
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 0px 0px;
 }
 
 #basic-ticket-search {

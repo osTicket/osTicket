@@ -101,12 +101,13 @@ class PageNate {
         return $html;
     }
 
-    function getPageLinks($hash=false, $pjax=false) {
+    function getPageLinks($q, $hash=false, $pjax=false) {
         $html                 = '';
-        $file                =$this->url;
-        $displayed_span     = 5;
-        $total_pages         = ceil( ($this->total - $this->slack) / $this->limit );
-        $this_page             = ceil( ($this->start+1) / $this->limit );
+		$queue 				  = $q;
+        $file                 = $this->url;
+        $displayed_span       = 5;
+        $total_pages          = ceil( ($this->total - $this->slack) / $this->limit );
+        $this_page            = ceil( ($this->start+1) / $this->limit );
 
         $last=$this_page-1;
         $next=$this_page+1;
@@ -129,7 +130,7 @@ class PageNate {
 
         for ($i=$start_loop; $i <= $stop_loop; $i++) {
             $page = ($i - 1) * $this->limit;
-            $href = "{$file}&amp;p={$i}";
+            $href = "{$file}&amp;p={$i}&amp;{$queue}";
             if ($hash)
                 $href .= '#'.$hash;
             if ($i == $this_page) {

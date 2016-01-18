@@ -54,7 +54,7 @@ if($ticket->isOverdue())
 ?>
 <div>
     <div class="sticky bar">
-       <div class="content">
+       <div class="thread_content">
         <div class="pull-right flush-right">
             <?php
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
