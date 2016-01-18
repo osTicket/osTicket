@@ -195,6 +195,8 @@ class OsticketConfig extends Config {
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
         'ticket_lock' => 2, // Lock on activity
+        'autoclose_duration' => 72,
+        'autoclose_status_id' => 0,
     );
 
     function OsticketConfig($section=null) {
@@ -482,6 +484,14 @@ class OsticketConfig extends Config {
 
         return $this->defaultEmail;
     }
+
+    function getAutoCloseDuration() {
+         return $this->get('autoclose_duration');
+     }
+
+    function getAutoCloseStatusId() {
+        return $this->get('autoclose_status_id');
+     }
 
     function getDefaultEmailAddress() {
         return ($email=$this->getDefaultEmail()) ? $email->getAddress() : null;
@@ -1254,6 +1264,8 @@ class OsticketConfig extends Config {
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
             'default_ticket_queue'=>$vars['default_ticket_queue'],
+            'autoclose_duration'=>$vars['autoclose_duration'],
+            'autoclose_status_id'=>$vars['autoclose_status_id'],
         ));
     }
 
