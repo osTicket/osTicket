@@ -189,6 +189,46 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td width="180">
+                <?php echo __('Ticket Auto-Close Status'); ?>:
+            </td>
+            <td>
+                <span>
+                <select name="autoclose_status_id">
+		<option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
+                <?php
+                $criteria = array('states' => array('open'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' '.__('(disabled)');
+
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['autoclose_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['autoclose_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#autoclose_status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Ticket Auto-Close Duration'); ?>:</td>
+            <td>
+                <input type="text" name="autoclose_duration" size=4 value="<?php echo $config['autoclose_duration']; ?>">&nbsp;Hour(s)&nbsp;
+                <font class="error"><?php echo $errors['autoclose_duration']; ?></font>
+                <i class="help-tip icon-question-sign" href="#autoclose_duration"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
