@@ -1432,7 +1432,7 @@ implements RestrictedAccess, Threadable, Searchable {
 		if ($vars['role'] == 'N')
 		$msg['subj'] = "{$msg['subj']} #note";
 
-            $notice = $this->replaceVars($msg->asArray(), array('recipient' => $recipient));
+            $notice = $this->replaceVars($msg, array('recipient' => $recipient));
             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
