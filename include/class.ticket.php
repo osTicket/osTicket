@@ -2261,7 +2261,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->setLastMessage($message);
 		
 		// Set Status to Responded
-		if ($this->getStatusId() != 10 && $this->getStatusId() != 9)
+		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9)
 		$this->setStatusId(7);	
 
         // Add email recipients as collaborators...
@@ -2492,7 +2492,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->setStatus($vars['reply_status_id']);
         } else {
 			
-			if ($this->getStatusId() != 10 && $this->getStatusId() != 9 && $this->getStatusId() != 3);
+			if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9 && $this->getStatusId() !== 3)
 			$this->setStatusId(6);			
 		}
 		
@@ -3447,9 +3447,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['assignId']) {
             $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
-			
-		if (statusId !=3)
-			$statusId = 11;
+			$statusId = 11;	
         }
         else {
             // Auto assign staff or team - auto assignment based on filter
@@ -3473,13 +3471,13 @@ implements RestrictedAccess, Threadable, Searchable {
             if (!$ticket->setStatus($statusId, false, $errors, false)) {
                 // Tickets _must_ have a status. Forceably set one here
                 $ticket->setStatusId($cfg->getDefaultTicketStatusId());
-			
+			   
 					
 				}
 			}
 			if ($statusId == 3){
 					 $ticket->setStaffId($thisstaff->getId());
-        }
+			}
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.

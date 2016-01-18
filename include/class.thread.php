@@ -421,7 +421,7 @@ implements Searchable {
 		$vars['thread-type'] = 'R';
 		$vars['role'] = 'M';
 		$object instanceof Ticket;
-		if ($currentstatus !== 9 && $currentstatus !== 10)
+		if ($currentstatus !== 9 && $currentstatus !== 10 && $currentstatus !== 3)
 			$object->setStatusId(6);
 		}
 
