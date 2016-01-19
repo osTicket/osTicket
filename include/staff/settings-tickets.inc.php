@@ -178,8 +178,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <select name="autoclose_status_id">
 		<option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
                 <?php
-                $criteria = array('states' => array('closed'));
-                foreach (TicketStatusList::getStatuses() as $status) {
+                $criteria = array('states' => array('open','closed'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');
