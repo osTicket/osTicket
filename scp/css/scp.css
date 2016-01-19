@@ -1447,19 +1447,30 @@ h3 {
     padding:5px 0;
     color:#444;
 }
+.thread_content_top{
+	padding-bottom: 8px;
+    background: white;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px 5px 0 0;
+	border-left: 1px solid #999;
+	border-right: 1px solid #999;
+	border-radius: 5px 5px 0 0;
+}
 .thread_content{
 	background: #fff;
     margin-left: auto;
     margin-right: auto;
     padding-left: 20px;
     padding-top: 10px;
-    padding-bottom: 2px;
     padding-right: 20px;
     width: 960px;
 	border-radius: 5px 5px 0 0;
 	border-top: 1px solid #999;
-	border-left: 1px solid #999;
 	border-right: 1px solid #999;
+	
+	
 }
 .tixTitle {
     margin-left: auto;
@@ -3306,27 +3317,27 @@ td.indented {
 .form-simple select, .form-simple input, .form-simple textarea {
     margin-left: 0;
 }
+
 .sticky.bar.fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 6;
-  width: 100%;
-  background-color: white;
-  background-color: rgba(255,255,255,0.95);
-  border: 0px;
-  padding-left: 18px;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  padding-right: 20px;
-  box-sizing: border-box;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+	background: #eee;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 6;
+	width: 100%;
+	/*background-color: rgba(255,255,255,0.95);*/
+	padding-left: 18px;
+	padding-top: 10px;
+	padding-bottom: 0px;
+	padding-right: 20px;
+	box-sizing: border-box;
+	box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
 .sticky.bar .content {
-  margin: auto;
+	margin: auto;
 }
 .sticky.bar.fixed .notsticky {
-  display: none !important;
+	display: none !important;
 }
 
 .sticky.bar.fixed .inline {
