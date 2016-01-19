@@ -113,8 +113,19 @@ a time.relative {
 .notice-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
 
 #msg_warning,
-.warning-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #f26522; background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
-
+.warning-banner { 
+margin-left: auto; 
+margin-right: auto; 
+padding: 5px 10px 5px 36px; 
+margin-bottom: 10px; 
+border: 1px solid #f26522; 
+background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
+border-radius: 5px;
+}
+div#msg_warning {
+    width: 910px;
+	border-radius: 5px;
+}
 #msg_error,
 .error-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
 
@@ -1078,7 +1089,7 @@ a.Icon:hover {
     border-top:none;
     border-bottom:3px solid #bbb;
     padding:10px 10px 20px 10px;
-    background:#fff;
+    background:#eee;
 }
 
 a {
@@ -1442,10 +1453,15 @@ h3 {
     width: 960px;
 }
 .tixTitle {
-   padding:0 5px 0px;
-   margin-left: auto;
-   margin-right: auto;
-   width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 990px;
+    background: #fff;
+    border: 1px solid #999;
+    padding-top: 8px;
+    padding-left: 10px;
+	padding-bottom: 5px;
+	border-radius: 5px 5px 0 0;
 }
 .tixTitle h3 {
    color:#444;
@@ -1456,14 +1472,13 @@ h3 {
 }
 
 .has_bottom_border {
-    padding-bottom:5px;
     border-bottom:1px solid #ddd;
 }
 .ticket_info{
 	margin-left: auto;
 	margin-right: auto;
-	width: 960px;
-	
+	padding: 10px;
+
 }
 .ticket_info th {
     text-align:left;
@@ -1509,9 +1524,22 @@ h2 .reload {
     border-bottom:none;
     margin:0;
 }
+
+#threaddata{
+	margin-left: auto;
+	margin-right: auto;
+	width: 1000px;
+	background: #fff;
+	border: 1px solid #999;
+    border-radius: 0 0 5px 5px;
+}
+
 .thread-entry {
-    margin-bottom: 15px;
     z-index: 0;
+	margin-left: auto; 
+	margin-right: auto; 
+	margin-bottom: 10px;
+	width: 950px;
 }
 .thread-entry::after {
   content: "";
@@ -1535,6 +1563,9 @@ h2 .reload {
     display:inline-block;
     width:48px;
     height:auto;
+}
+.thread-entry.system {
+    background: #fff;
 }
 .avatar {
     border-radius: 12%;
@@ -1687,25 +1718,46 @@ img.avatar {
      background:#f9f9f9;
 }
 
-#response_options > form {
-    padding:0 10px;
-}
-
 ul.tabs {
-    padding:4px 0 0 20px;
+    padding: 6px 0 0 20px;
     margin:0;
     text-align:left;
     height:29px;
-    border-bottom:1px solid #aaa;
+    border-top:1px solid #aaa;
+	border-bottom:1px solid #aaa;
     background:#eef3f8;
     position: relative;
     box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.3);
-	width: 960px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 #response_options ul.tabs {
+    padding: 6px 0 0 20px;
+    margin:0;
+    text-align:left;
+    height:29px;
+    border-top:1px solid #aaa;
+	border-bottom:1px solid #aaa;
+    background:#eef3f8;
+    position: relative;
+    box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.3);
+	margin-left: auto;
+	margin-right: auto;
+	
+}
+
+#tasks_content{
+	padding-left: 20px;
+	padding-bottom: 20px;
+	padding-right: 20px;
+}
+
+form#task_reply {
+    padding-left: 20px;
+    padding-right: 20px;
+	padding-bottom: 1px;
+	background: #f9f9f9;
 }
 
 ul.tabs li {
@@ -1874,10 +1926,16 @@ ul.tabs.alt li.active {
 }
 
 #response_options > form {
-    padding:10px 5px;
+    padding-left:20px; 
+	padding-right: 20px;
+	padding-bottom: 5px;
+	padding-top: 20px;
     background:#f9f9f9;
-    border:1px solid #aaa;
+    border:0px solid #aaa;
     border-top:none;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 0 0 5px 5px;
 }
 
 #response_options > form > table {
@@ -1894,6 +1952,10 @@ ul.tabs.alt li.active {
     border-radius:4px;
    -webkit-border-radius: 4px;
    -moz-border-radius: 4px;
+}
+#response_tabs{
+	width: 100%;
+	position: relative;
 }
 
 .attachments .uploads div {
@@ -3012,12 +3074,16 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-	width: 960px;
+	width: 100%
 	margin-left: auto;
 	margin-right: auto;
-}
+	}
+	
 .tab_content:not(.left) {
-    padding: 12px 0;
+    padding-top: 12px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
 }
 .left-tabs {
     margin-left: 48px;
@@ -3349,6 +3415,113 @@ td.indented {
     margin: -4px 0.3em 0;
     vertical-align: middle;
 }
+/******** Start Thread Preview Styles ********/
+.thread-preview {
+    max-height:350px;
+    overflow-x:auto;
+    margin:5px 0px;
+}
+.thread-preview-entry {
+    margin-bottom:5px;
+}
+.thread-preview-entry:first-child {
+    margin-bottom:5px;
+    margin-top:5px;
+}
+/***Types of headers***/
+.thread-preview-entry.message .header {
+    background-color:#C3D9FF;
+}
+
+.thread-preview-entry.response .header {
+    background-color:#FFE0B3;
+}
+.thread-preview-entry.message .header .thread-name span:first-child,
+.thread-preview-entry.response .header .thread-name span:first-child {
+    color:#000;
+}
+/***Collapsed CSS***/
+
+.thread-preview-entry.collapsed {
+    background-color:#f7f7f7;
+    margin-bottom:0;
+    cursor:pointer;
+}
+.thread-preview-entry.collapsed:first-child {
+    margin-bottom:0px;
+    margin-top:0px;
+}
+.thread-preview-entry.collapsed.message .header,
+.thread-preview-entry.collapsed.response .header {
+    background-color:#f7f7f7;
+    border-bottom:1px solid #f7f7f7;
+}
+.thread-preview-entry.collapsed.message .header .thread-name span:first-child {
+    color:#0088cc;
+}
+
+.thread-preview-entry.collapsed.response .header .thread-name span:first-child {
+    color:#e65524;
+}
+.thread-preview-entry.collapsed .thread-body {
+    background-color:#f7f7f7;
+    padding-top:0;
+    border-left:1px solid #ccc;
+    border-right:1px solid #ccc;
+    height:20px;
+    overflow:hidden;
+    padding-bottom:10px;
+}
+.thread-preview-entry.collapsed .thread-body .thread-teaser {
+    width: auto;
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+/***Thread information styles***/
+.thread-info {
+    width:60%;
+}
+.thread-preview .thread-name span:first-child {
+    font-weight:bold;
+}
+
+
+/***Overrides***/
+
+.thread-preview #thread-items::before {
+    display:none;
+}
+.thread-preview-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: none;
+    cursor:pointer;
+}
+.thread-preview-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom: 1px solid #ccc;
+    border-radius: none;
+    padding-bottom:10px;
+    height:auto;
+    overflow:visible;
+}
+.thread-preview-entry .thread-body .thread-teaser {
+    width: auto;
+    display: block;
+    max-width: 100%;
+    white-space:normal;
+    overflow: visible;
+    text-overflow:inherit;
+    vertical-align:bottom;
+}
+/******** End Thread Preview Styles ********/
 
 #thread-items::before {
   border-left: 2px dotted #ddd;
@@ -3618,3 +3791,4 @@ a.attachment {
  * Fixes a rendering issue on Safari
  */
 .select2-search__field{-webkit-appearance: textfield;}
+

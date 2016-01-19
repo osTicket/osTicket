@@ -68,8 +68,7 @@ if($ticket->isOverdue())
             }
 
             if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
-                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i> <?php
-                    echo __('Edit'); ?></a>
+                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a>
             <?php
             } ?>
             <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
@@ -228,7 +227,8 @@ if($ticket->isOverdue())
         echo $subject_field->display($ticket->getSubject()); ?>
     </h3>
 </div>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<div id="threaddata">
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
@@ -358,8 +358,8 @@ if($ticket->isOverdue())
         </td>
     </tr>
 </table>
-<br>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <tr>
         <td width="50%">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
@@ -430,7 +430,7 @@ if($ticket->isOverdue())
         </td>
     </tr>
 </table>
-<br>
+
 <?php
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     // Skip core fields shown earlier in the ticket view
@@ -450,7 +450,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     if (count($displayed) == 0)
         continue;
     ?>
-    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="940" border="0">
+    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="100%" border="0">
     <thead>
         <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
     </thead>
@@ -471,7 +471,7 @@ echo $v;
     </tbody>
     </table>
 <?php } ?>
-<div class="clear"></div>
+<div class="clear has_bottom_border"></div>
 
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
@@ -515,8 +515,7 @@ if ($errors['err'] && isset($_POST['a'])) {
 <?php
 } ?>
 
-<div class="sticky bar stop actions" id="response_options"
->
+<div class="sticky bar stop actions" id="response_options">
     <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
@@ -811,6 +810,7 @@ if ($errors['err'] && isset($_POST['a'])) {
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
+   </div>
  </div>
  </div>
 </div>
