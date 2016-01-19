@@ -170,7 +170,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td width="180">
+            <td width="180" class="required">
                 <?php echo __('Ticket Auto-Close Status'); ?>:
             </td>
             <td>
@@ -179,7 +179,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 		<option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
                 <?php
                 $criteria = array('states' => array('closed'));
-                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                foreach (TicketStatusList::getStatuses() as $status) {
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');
