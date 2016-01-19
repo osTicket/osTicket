@@ -3633,7 +3633,7 @@ implements RestrictedAccess, Threadable {
 	if($grace == 1){$plural = 'hour';} else {$plural = 'hours';}
 
 	// select all tickets marked as selected status from config page where updated is older than ($grace) hours ago
-	$sql  = 'SELECT ticket_id FROM ' .TICKET_TABLE .' ticket '
+	$sql  = 'SELECT ticket_id FROM '.TICKET_TABLE.' ticket '
 		 .' INNER JOIN '.TICKET_STATUS_TABLE.' status ON (status.id=ticket.status_id AND status_id = '. $graceStatusId .') '
 	     .' AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$grace.'*3600';
 
