@@ -54,6 +54,7 @@ if($ticket->isOverdue())
 ?>
 <div>
     <div class="sticky bar">
+	<div class="thread_content_top">
        <div class="thread_content">
         <div class="pull-right flush-right">
             <?php
@@ -217,7 +218,7 @@ if($ticket->isOverdue())
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
              <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
             </h2>
-        </div>
+        </div></div>
     </div>
   </div>
 </div>
@@ -810,10 +811,12 @@ if ($errors['err'] && isset($_POST['a'])) {
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
+   
    </div>
  </div>
  </div>
 </div>
+
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
