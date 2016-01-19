@@ -13,7 +13,7 @@ foreach ($entries as $entry) {
 ?>
     <div id="thread-entry-<?php echo $enry->id; ?>">
         <div class="thread-preview-entry <?php
-        echo $i>2 ? 'collapsed ' : ' ';
+        echo $i>0 ? 'collapsed ' : ' ';
         echo $entryTypes[$entry->type]; ?>">
             <div class="header">
                <div class="thread-info">
