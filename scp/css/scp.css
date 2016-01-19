@@ -1448,9 +1448,18 @@ h3 {
     color:#444;
 }
 .thread_content{
-	margin-left: auto;
+	background: #fff;
+    margin-left: auto;
     margin-right: auto;
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 2px;
+    padding-right: 20px;
     width: 960px;
+	border-radius: 5px 5px 0 0;
+	border-top: 1px solid #999;
+	border-left: 1px solid #999;
+	border-right: 1px solid #999;
 }
 .tixTitle {
     margin-left: auto;
@@ -1461,7 +1470,7 @@ h3 {
     padding-top: 8px;
     padding-left: 10px;
 	padding-bottom: 5px;
-	border-radius: 5px 5px 0 0;
+	
 }
 .tixTitle h3 {
    color:#444;
@@ -2520,8 +2529,10 @@ input[type="button"],
     box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
     padding:2px 11px;
     color: #555;
-    background-color: #f0f0f0;
-    background-color: rgba(0,0,0,0.02);
+    /*background-color: #f0f0f0;*/
+
+    /*background-color: rgba(0,0,0,0.02);*/
+	background-color: rgba(255,255,255,0.95);
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
@@ -3303,7 +3314,11 @@ td.indented {
   width: 100%;
   background-color: white;
   background-color: rgba(255,255,255,0.95);
-  padding: 10px 20px;
+  border: 0px;
+  padding-left: 18px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  padding-right: 20px;
   box-sizing: border-box;
   box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
