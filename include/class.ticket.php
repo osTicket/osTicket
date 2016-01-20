@@ -3448,18 +3448,18 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['assignId']) {
             $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
             $ticket->assign($asnform, $vars['note']);
-			$statusId = 11;	
-        }
+			//$ticket->setStatus(11, false, $errors, false);
+	    }
         else {
             // Auto assign staff or team - auto assignment based on filter
             // rules. Both team and staff can be assigned
             if ($vars['staffId'])
                  $ticket->assignToStaff($vars['staffId'], false);
-				 $ticket->setStatusId(11);	
+				 //$ticket->setStatusId(11);	
             if ($vars['teamId'])
                 // No team alert if also assigned to an individual agent
                 $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
-				$ticket->setStatusId(11);
+				//$ticket->setStatusId(11);
         }
 
         // Update the estimated due date in the database
@@ -3469,16 +3469,19 @@ implements RestrictedAccess, Threadable, Searchable {
         // because if it is requested to be closed, it should not cause the
         // ticket to be reopened for assignment.
         if ($statusId) {
-            if (!$ticket->setStatus($statusId, false, $errors, false)) {
-                // Tickets _must_ have a status. Forceably set one here
-                $ticket->setStatusId($cfg->getDefaultTicketStatusId());
-			   
-					
+			if (!$vars['assignId']){
+				if (!$ticket->setStatus($statusId, false, $errors, false)) {
+                  // Tickets _must_ have a status. Forceably set one here
+                  $ticket->setStatusId($cfg->getDefaultTicketStatusId());
 				}
 			}
-			if ($statusId == 3){
-					 $ticket->setStaffId($thisstaff->getId());
-			}
+			if ($vars['assignId'] && $statusId == 1)
+				$ticket->setStatus(11, false, $errors, false);
+			
+			if ($vars['assignId'] && $statusId !== 1)
+				$ticket->setStatus($statusId, false, $errors, false);
+			
+		}
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
