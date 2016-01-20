@@ -1501,6 +1501,7 @@ extends AbstractForm {
                     'id'=>1,
                     'label' => __('Department'),
                     'required' => true,
+					'default' => 1,
                     'layout' => new GridFluidCell(6),
                     )),
                 'assignee' => new AssigneeField(array(
