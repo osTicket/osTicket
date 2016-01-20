@@ -2090,8 +2090,7 @@ implements RestrictedAccess, Threadable, Searchable {
         } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
             $errors['err'] = __('Permission denied');
         }
-		$this->setStatusId(11);	
-        if ($errors)
+	        if ($errors)
             return false;
 
         return $this->assignToStaff($assignee, $form->getComments(), false);
@@ -2104,18 +2103,17 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if (!$this->setStaffId($staff->getId()))
             return false;
-
+		$this->setStatusId(11);
         $this->onAssign($staff, $note, $alert);
-
+		
         global $thisstaff;
         $data = array();
         if ($thisstaff && $staff->getId() == $thisstaff->getId())
             $data['claim'] = true;
         else
             $data['staff'] = $staff->getId();
-
-        $this->logEvent('assigned', $data);
-
+		$this->logEvent('assigned', $data);
+		
         return true;
     }
 
@@ -2177,7 +2175,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if ($errors || !$this->save(true))
             return false;
-
+		$this->setStatusId(11);	
         $this->logEvent('assigned', $evd);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
