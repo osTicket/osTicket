@@ -152,7 +152,7 @@ implements Searchable {
 			return null;
 			
 		// If this is a staff member allow note collaborator.
-		if (Staff::getIdByEmail($user->getEmail()) !=0){
+		if (Staff::getIdByEmail($user->getEmail()) !=0 && $user->getId() !==627){
 				$vars['role'] = 'N';
 				$vars = array_merge(array(
 			    'threadId' => $this->getId(),
@@ -427,7 +427,7 @@ implements Searchable {
 		if ($currentstatus !== 9 && $currentstatus !== 10 && $currentstatus !== 3)
 			$object->setStatusId(6);
 		}
-
+	
 		if ($assignToStaffId !== $vars['staffId'] && $C = $this->collaborators->filter(array(
             'user__emails__address' => $mailinfo['email']
         ))->first() && !preg_match ('/#note/i', $vars['subject'])){
@@ -438,13 +438,17 @@ implements Searchable {
 			if ($assignToStaffId !== null && $currentstatus !== 9 && $currentstatus !== 10)  
 				$object->setStatusId(7);
 		}
-		
-		
+
+		// Don't add Bomgar as a collaborator
+		if ($vars['staffId'] == 8){
+			$vars['thread-type'] = 'N';
+		}
+
 		if ($assignToStaffId !== $vars['staffId']  && $vars['staffId'] !== 0 
 		&& !$vars['thread-type']  ){ 
-			
+
 			$vars['thread-type'] = 'N';
-            $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
+		    $vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 			$info['threadId'] = $this->getId();
 			$info['userId'] = $vars['userId'];
 			$info['role'] = 'N';
@@ -2768,7 +2772,7 @@ implements TemplateVariable {
         $vars['threadId'] = $this->getId();
 
 		// add agent as collaborator
-		if ($vars['staffId'] !== 0 && $vars['staffId'] !== $vars['assignToStaffId']){
+		if ($vars['staffId'] !== 0 && $vars['staffId'] !== $vars['assignToStaffId'] && $vars['staffId'] !==8){
 			$vars['flags'] = ThreadEntry::FLAG_COLLABORATOR;
 			$info['threadId'] = $vars['threadId'];
 			$info['userId'] = Staff::getStaffUserId($vars['staffId']);
