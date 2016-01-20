@@ -148,6 +148,9 @@ implements Searchable {
         if (!$user)
             return null;
 		
+		if (($user->getId()) == 627)
+			return null;
+			
 		// If this is a staff member allow note collaborator.
 		if (Staff::getIdByEmail($user->getEmail()) !=0){
 				$vars['role'] = 'N';

@@ -2587,7 +2587,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 array(
                     'signature' => $signature,
                     'from_name' => $from_name,
-					'userId' => $vars['userId'],
+					'userId' => Staff::getStaffUserId($vars['staffId']),
 					'poster' => $vars['poster'])
             );
         }
