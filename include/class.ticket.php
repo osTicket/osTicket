@@ -427,6 +427,7 @@ implements RestrictedAccess, Threadable, Searchable {
     //      fallback if the logic in ::setStatus fails.
     function setStatusId($id) {
         $this->status_id = $id;
+		$this->logEvent('edited', array('status' => $id));
         return $this->save();
     }
 
