@@ -87,6 +87,7 @@ a time {
 }
 
 .strike { text-decoration:line-through; color:red; }
+.completed { text-decoration: line-through; }
 
 .canned_attachments label, .canned_attachments span .uploads label { padding:3px; padding-right:10px; }
 .canned_attachments label { padding-right:3px; }
@@ -2316,7 +2317,9 @@ time.faq {
     width:100%;
 }
 
-fieldset {
+fieldset,
+.grid.form fieldset,
+.dialog fieldset {
     margin:0;
     padding:0 0;
     border:none;
@@ -3500,18 +3503,33 @@ small {
 table.grid.form {
   width: 100%;
   table-layout: fixed;
+  margin-bottom: 1em;
 }
+table.grid.form div.section-break,
 table.grid.form caption {
   font-size: 1.3em;
   font-weight: bold;
   text-align: start;
   padding: 0 9px;
+  border: none;
+  background: transparent;
+  color: black;
+}
+table.grid.form div.section-break {
+  margin-top: 0.5em;
+  padding-left: 5px;
 }
 .grid.form .cell {
   vertical-align: top;
 }
 .grid.form .field {
   padding: 5px;
+}
+.grid.form.inline {
+  border-collapse: collapse;
+}
+.grid.form.inline .field {
+  padding: 1px;
 }
 .grid.form .field input:not([type=checkbox]),
 .grid.form .field textarea,
@@ -3639,6 +3657,24 @@ img.avatar + img.avatar {
 .avatar.group.\38:hover { margin-right: -70px; }
 .avatar.group.\39:hover { margin-right: -80px; }
 
+.child.indent {
+    display: inline-block;
+    width: 20px;
+    position: relative;
+}
+.child.indent:last-of-type:before {
+content: "";
+    border-left: 2px dotted #aaa;
+    border-bottom: 2px dotted #aaa;
+    border-color: rgba(0,0,0,0.25);
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    position: absolute;
+    top: -15px;
+    left: 6px;
+}
+
 /* FIXME: Drop this with select2 4.0.1
  * Fixes a rendering issue on Safari
  */
@@ -3657,3 +3693,5 @@ img.avatar + img.avatar {
     height: auto;
     max-height: 400px !important;
 }
+
+.grid.form .field .select2-container { width: 100% !important; }

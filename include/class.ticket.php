@@ -3862,6 +3862,11 @@ implements RestrictedAccess, Threadable, Searchable {
             $topic_form->save();
         }
 
+        // Attach canned tasks, if configured
+        if ($topic && ($task_group = $topic->getTaskTemplateGroup())) {
+            $task_set = $task_group->instanciate($ticket);
+        }
+
         $ticket->loadDynamicData(true);
 
         $dept = $ticket->getDept();
@@ -4033,6 +4038,13 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($user->getNumOpenTickets()==$cfg->getMaxOpenTickets())
         ) {
             $ticket->onOpenLimit($autorespond && strcasecmp($origin, 'staff'));
+        }
+
+        // Start associated canned tasks, if any
+        if ($task_set) {
+            // If not alerting staff of the new ticket, then pass on the
+            // alerts for new tasks as well
+            $task_set->start($alertstaff);
         }
 
         // Fire post-create signal (for extra email sending, searching)

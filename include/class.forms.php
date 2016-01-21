@@ -22,6 +22,14 @@ class Form {
     static $renderer = 'GridFluidLayout';
     static $id = 0;
 
+    // Formats for the ::getClean() method
+    const FORMAT_DEFAULT = 0;
+    const FORMAT_PHP = 1;
+    const FORMAT_DATABASE = 2;
+    const FORMAT_EXPORT = 3;
+    const FORMAT_STRING = 4;
+    const FORMAT_DISPLAY = 5;
+
     var $options = array();
     var $fields = array();
     var $title = '';
@@ -51,6 +59,9 @@ class Form {
     }
     function setId($id) {
         $this->id = $id;
+    }
+    function getId() {
+        return @$this->id ?: static::$id;
     }
 
     function data($source) {
@@ -142,22 +153,42 @@ class Form {
         }
     }
 
-    function getClean($validate=true) {
-        if (!$this->_clean) {
-            $this->_clean = array();
-            foreach ($this->getFields() as $key=>$field) {
-                if (!$field->hasData())
-                    continue;
+    /**
+     * Fetch cleaned data from this form. This returns this list formatted
+     * in the format specified. Default, for historical reasons is PHP
+     * format.
+     */
+    function getClean($format=self::FORMAT_DEFAULT, $validate=true) {
+        $clean = array();
+        foreach ($this->getFields() as $key=>$field) {
+            if (!$field->hasData())
+                continue;
 
-                // Prefer indexing by field.id if indexing numerically
-                if (is_int($key) && $field->get('id'))
-                    $key = $field->get('id');
-                $this->_clean[$key] = $this->_clean[$field->get('name')]
-                    = $field->getClean($validate);
+            // Prefer indexing by field.id if indexing numerically
+            if (is_int($key) && $field->get('id'))
+                $key = $field->get('id');
+
+            // Get value and optionally convert to another format
+            $value = $field->getClean($validate);
+            switch ($format) {
+            case self::FORMAT_DATABASE:
+                $value = $field->to_database($value); break;
+            case self::FORMAT_EXPORT:
+                $value = $field->export($value); break;
+            case self::FORMAT_DISPLAY:
+                $value = $field->display($value); break;
+            case self::FORMAT_STRING:
+                $value = $field->toString($value); break;
+            case self::FORMAT_PHP:
+                $value = $field->to_php($value); break;
+            default:
+                // By default, leave value unchanged
             }
-            unset($this->_clean[""]);
+
+            $clean[$key] = $clean[$field->get('name')] = $value;
         }
-        return $this->_clean;
+        unset($clean[""]);
+        return $clean;
     }
 
     function errors($formOnly=false) {
@@ -353,7 +384,6 @@ class SimpleForm extends Form {
 }
 
 class CustomForm extends SimpleForm {
-
     function getFields() {
         global $thisstaff, $thisclient;
 
@@ -377,6 +407,12 @@ abstract class AbstractForm extends Form {
         parent::__construct($source, $options);
         $this->setFields($this->buildFields());
     }
+
+    function getId() {
+        // Use the class name as a unique id
+        return @$this->id ?: (int) crc32(get_class());
+    }
+
     /**
      * Fetch the fields defined for this form. This method is only called
      * once.
@@ -420,11 +456,11 @@ implements FormRenderer {
     function asTable($form) {
       ob_start();
 ?>
-      <table class="<?php echo 'grid form' ?>">
+      <table class="<?php echo 'grid form '.(@$this->options['classes']); ?>">
           <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
                   <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
           </caption>
-          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
+          <tbody class="hidden"><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
@@ -454,10 +490,11 @@ implements FormRenderer {
           ?>
           <td class="cell" <?php echo Format::array_implode('=', ' ', array_filter($attrs)); ?>
               data-field-id="<?php echo $f->get('id'); ?>">
+<?php     if ($f->hasData()) { ?>
               <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
                 id="field<?php echo $f->getWidget()->id; ?>"
                 data-field-id="<?php echo $f->get('id'); ?>">
-<?php         if ($label = $f->get('label')) { ?>
+<?php         if ($label = $f->getLabel()) { ?>
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
                   for="<?php echo $f->getWidget()->id; ?>">
                   <?php echo Format::htmlchars($label); ?>:
@@ -472,6 +509,7 @@ implements FormRenderer {
                       <?php echo Format::htmlchars($f->get('hint')); ?>
                   </div>
 <?php         }
+          }
               $f->render($options);
               if ($f->errors())
                   foreach ($f->errors() as $e)
@@ -582,7 +620,8 @@ class FormField {
 
     function __clone() {
         $this->_widget = null;
-        $this->ht['id'] = self::_uid();
+        if (isset($this->ht['id']))
+            $this->ht['id'] = self::$uid++;
     }
 
     static function addFieldTypes($group, $callable) {
@@ -1137,19 +1176,22 @@ class FormField {
      * Fetch a pseudo-random id for this form field. It is used when
      * rendering the widget in the @name attribute emitted in the resulting
      * HTML. The form element is based on the form id, field id and name,
-     * and the current user's session id. Therefor, the same form fields
+     * and the current user's session id. Therefore, the same form fields
      * will yield differing names for different users. This is used to ward
      * off bot attacks as it makes it very difficult to predict and
      * correlate the form names to the data they represent.
      */
     function getFormName() {
         $default = $this->get('name') ?: $this->get('id');
-        if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
+
+        if ($this->_form && is_numeric($fid = $this->_form->getFormId())) {
             return substr(md5(
                 session_id() . '-form-field-id-' . $fid . $default), -14);
-        elseif (is_numeric($this->get('id')))
+        }
+        elseif (is_numeric($this->get('id'))) {
             return substr(md5(
                 session_id() . '-field-id-'.$this->get('id')), -16);
+        }
 
         return $default;
     }
@@ -2594,6 +2636,10 @@ class DatetimeField extends FormField {
 class SectionBreakField extends FormField {
     static $widget = 'SectionBreakWidget';
 
+    function getLabel() {
+        return false;
+    }
+
     function hasData() {
         return false;
     }
@@ -3767,7 +3813,7 @@ class InlineFormField extends FormField {
     }
 
     function to_php($value) {
-        $data = JsonDataParser::decode($value);
+        $data = is_string($value) ? JsonDataParser::decode($value) : $value;
         // The InlineFormData helps with the variable replacer API
         return new InlineFormData($this->getInlineForm(), $data);
     }
@@ -3791,9 +3837,13 @@ class InlineFormField extends FormField {
     function getInlineForm($data=false) {
         $form = $this->get('form');
         if (is_array($form)) {
-            $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource());
-            // Ensure unique, but predictable form and field IDs
-            $form->setId(sprintf('%u', crc32($this->get('name')) >> 1));
+            $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource(),
+                // Generate a unique formId for the subform based on
+                // information about this field
+                array(
+                'id' => crc32($this->get('id') . $this->get('name')
+                    . ($this->_form ? $this->_form->getId() : ''))
+            ));
         }
         return $form;
     }
@@ -3824,29 +3874,6 @@ class InlineDynamicFormField extends FormField {
                 'default'=>'', 'choices'=>$choices
             )),
         );
-    }
-}
-
-class InlineFormWidget extends Widget {
-    function render($mode=false) {
-        $form = $this->field->getInlineForm();
-        if (!$form)
-            return;
-        // Handle first-step edits -- load data from $this->value
-        if ($form instanceof DynamicForm && !$form->getSource())
-            $form = $form->getForm($this->value);
-        $inc = ($mode == 'client') ? CLIENTINC_DIR : STAFFINC_DIR;
-        include $inc . 'templates/inline-form.tmpl.php';
-    }
-
-    function getValue() {
-        $data = $this->field->getSource();
-        if (!$data)
-            return null;
-        $form = $this->field->getInlineForm($data);
-        if (!$form)
-            return null;
-        return $form->getClean();
     }
 }
 
@@ -3891,6 +3918,36 @@ class Widget {
         return '%s.val()';
     }
 }
+
+class InlineFormWidget extends Widget {
+    function render($mode=false) {
+        $form = $this->field->getInlineForm($this->value);
+        if (!$form)
+            return;
+        // Handle first-step edits -- load data from $this->value
+        if ($form instanceof DynamicForm && !$form->getSource())
+            $form = $form->getForm($this->value);
+        echo $form->asTable(false, array('classes' => 'inline'));
+
+        #$inc = ($mode == 'client') ? CLIENTINC_DIR : STAFFINC_DIR;
+        #include $inc . 'templates/inline-form.tmpl.php';
+    }
+
+    function getValue() {
+        if ($value = parent::getValue())
+            return $value;
+
+        // Build from clean form data
+        $data = $this->field->getSource();
+        if (!$data)
+            return null;
+        $form = $this->field->getInlineForm($data);
+        if (!$form)
+            return null;
+        return $form->getClean() ?: parent::getValue();
+    }
+}
+
 
 class TextboxWidget extends Widget {
     static $input_type = 'text';
@@ -4519,10 +4576,10 @@ class DatetimePickerWidget extends Widget {
 
 class SectionBreakWidget extends Widget {
     function render($options=array()) {
-        ?><div class="form-header section-break"><h3><?php
+        ?><div class="form-header section-break"><?php
         echo Format::htmlchars($this->field->getLocal('label'));
-        ?></h3><em><?php echo Format::display($this->field->getLocal('hint'));
-        ?></em></div>
+        ?><div><small><?php echo Format::display($this->field->getLocal('hint'));
+        ?></small></div></div>
         <?php
     }
 }
@@ -4858,6 +4915,9 @@ class VisibilityConstraint {
     var $constraint;
 
     function __construct($constraint, $initial=self::VISIBLE) {
+        if (is_array($constraint))
+            $constraint = new Q($constraint);
+
         $this->constraint = $constraint;
         $this->initial = $initial;
     }

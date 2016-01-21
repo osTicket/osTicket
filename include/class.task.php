@@ -18,6 +18,8 @@ include_once INCLUDE_DIR.'class.role.php';
 
 
 class TaskModel extends VerySimpleModel {
+    use HasFlagsOrm;
+
     static $meta = array(
         'table' => TASK_TABLE,
         'pk' => array('id'),
@@ -63,6 +65,23 @@ class TaskModel extends VerySimpleModel {
                 ),
                 'null' => true,
             ),
+
+            // Related tasks (via template groups)
+            'set' => array(
+                'constraint' => array('set_id' => 'TaskSet.id'),
+                'null' => true,
+            ),
+            'template' => array(
+                'constraint' => array('template_id' => 'TaskTemplate.id'),
+            ),
+        ),
+        'select_related' => array(
+            'staff', 'team', 'thread', 'dept', 'set'
+        ),
+        'ordering' => array(
+            // Order by set and template order within set. Otherwise
+            // by task number
+            'set__sort', 'template__sort', 'number'
         ),
     );
 
@@ -114,19 +133,10 @@ class TaskModel extends VerySimpleModel {
 
     const ISOPEN    = 0x0001;
     const ISOVERDUE = 0x0002;
+    const ISPENDING = 0x0004;   // Await completion of another task
 
-
-    protected function hasFlag($flag) {
-        return ($this->get('flags') & $flag) !== 0;
-    }
-
-    protected function clearFlag($flag) {
-        return $this->set('flags', $this->get('flags') & ~$flag);
-    }
-
-    protected function setFlag($flag) {
-        return $this->set('flags', $this->get('flags') | $flag);
-    }
+    // XXX: Drop this when PHP 5.6 is required
+    const ISOPEN_PENDING = 0x0005;
 
     function getId() {
         return $this->id;
@@ -160,8 +170,16 @@ class TaskModel extends VerySimpleModel {
         return $this->dept;
     }
 
+    function getTemplate() {
+        return $this->template;
+    }
+
     function getCreateDate() {
         return $this->created;
+    }
+
+    function getStartDate() {
+        return $this->started;
     }
 
     function getDueDate() {
@@ -172,8 +190,88 @@ class TaskModel extends VerySimpleModel {
         return $this->isClosed() ? $this->closed : '';
     }
 
+    /**
+     * Fetches a list of tasks which this task depends on. That is, the
+     * tasks of which this task is a child or sub-task. Returns an empty
+     * array if this task is not part of a set.
+     */
+    function getDependencies() {
+        if (!$this->template || !$this->hasRelatedTasks())
+            return array();
+
+        // Flip so the farthest depends are first
+        $ids = array_reverse($this->template->getRecursiveDependentIds());
+        if (count($ids) === 0)
+            return array();
+
+        $depends = array();
+        foreach ($this->getRelatedTasks()->filter(array(
+            'template_id__in' => $ids
+        )) as $task) {
+            $idx = array_search($task->template_id, $ids);
+            $depends[$idx] = $task;
+        }
+        ksort($depends);
+        return $depends;
+    }
+
+    /**
+     * Fetches a list of tasks which are in the same set as this task. The
+     * set is the tasks which were added as part of the same template group
+     * when the template group (canned tasks) were added to a ticket. This
+     * task is excluded from the resulting set.
+     */
+    function getRelatedTasks() {
+        return static::objects()->filter(array(
+            Q::not(['id' => $this->id]),
+            'set_id' => $this->set_id,
+        ));
+    }
+
+    /**
+     * Returns TRUE/FALSE if this task is part of a set of tasks added at
+     * one time to a ticket.
+     */
+    function hasRelatedTasks() {
+        return !is_null($this->set_id);
+    }
+
+    /**
+     * Fetch a list of tasks which depend on this task. This would be the
+     * child or sub-tasks of this task. Returns an empty array if the task
+     * is not a member of a set.
+     */
+    function getDependents() {
+        if (!$this->hasRelatedTasks())
+            return array();
+
+        // Find all depedencies of all tasks related to this one
+        $dependents = array();
+        foreach ($this->getRelatedTasks()->select_related('template') as $task) {
+            // See which tasks depend on this one. This is done by
+            // inspecting the dependent template_ids on the template used to
+            // create this task.
+            if (in_array($this->template_id, $task->template->getDependentIds())) {
+                $dependents[] = $task;
+            }
+        }
+        return $dependents;
+    }
+
+    /**
+     * Fetch information on the related task set via the related
+     * TaskTemplateGroup object.
+     */
+    function getTaskTemplateGroup() {
+        return $this->set->group;
+    }
+
     function isOpen() {
         return $this->hasFlag(self::ISOPEN);
+    }
+
+    function isPending() {
+        return $this->hasFlag(self::ISOPEN) && $this->hasFlag(self::ISPENDING);
     }
 
     function isClosed() {
@@ -197,11 +295,53 @@ class TaskModel extends VerySimpleModel {
     }
 
     protected function close() {
-        return $this->clearFlag(self::ISOPEN);
+        global $thisstaff;
+
+        $this->clearFlag(self::ISOPEN);
+        $this->closed = SqlFunction::NOW();
+        $this->logEvent('closed');
+
+        if (!$this->save())
+            return false;
+
+        if ($this->ticket) {
+            $vars = array(
+               'title' => sprintf(__('Task %s Closed'),
+                    $this->getNumber()),
+               'note' => __('Task closed')
+            );
+            $this->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
+        }
+
+        // Start dependent tasks immediately
+        foreach ($this->getDependents() as $task) {
+            if ($task->canStart()) {
+                $task->start();
+            }
+        }
+
+        Signal::connect('task.closed', $this);
     }
 
     protected function reopen() {
-        return $this->setFlag(self::ISOPEN);
+        global $thisstaff;
+
+        $this->setFlag(self::ISOPEN);
+        $this->closed = null;
+        $this->logEvent('reopened', false, null, 'closed');
+
+        if (!$this->save())
+            return false;
+
+        if ($this->ticket) {
+            $this->ticket->reopen();
+            $vars = array(
+                'title' => sprintf('Task %s Reopened',
+                    $this->getNumber()),
+                'note' => __('Task reopened')
+            );
+            $this->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
+        }
     }
 
     function isAssigned($to=null) {
@@ -269,7 +409,16 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getStatus() {
-        return $this->isOpen() ? __('Open') : __('Completed');
+        static $states = array(
+            self::ISOPEN                    => /* @trans */ 'Open',
+            # self::ISOPEN | self::ISPENDING  => /* @trans */ 'Pending',
+            self::ISOPEN_PENDING            => /* @trans */ 'Pending',
+            self::ISPENDING                 => /* @trans */ 'Cancelled',
+            0                               => /* @trans */ 'Completed',
+        );
+
+        $x = $states[$this->flags & (self::ISOPEN | self::ISPENDING)];
+        return __($x);
     }
 
     function getTitle() {
@@ -430,6 +579,13 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         }
     }
 
+    function getTicket() {
+        if (!$this->object_id || $this->object_type != ObjectModel::OBJECT_TYPE_TICKET)
+            return null;
+
+        return Ticket::lookup($this->object_id);
+    }
+
     function getForm() {
         if (!isset($this->form)) {
             // Look for the entry first
@@ -544,28 +700,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     function setStatus($status, $comments='', &$errors=array()) {
         global $thisstaff;
 
-        $ecb = null;
         switch($status) {
         case 'open':
             if ($this->isOpen())
                 return false;
 
             $this->reopen();
-            $this->closed = null;
-
-            $ecb = function ($t) use($thisstaff) {
-                $t->logEvent('reopened', false, null, 'closed');
-                if ($t->ticket) {
-                    $t->ticket->reopen();
-                    $vars = array(
-                            'title' => sprintf('Task %s Reopened',
-                                $t->getNumber()),
-                            'note' => __('Task reopened')
-                            );
-                    $t->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
-                }
-            };
             break;
+
         case 'closed':
             if ($this->isClosed())
                 return false;
@@ -579,28 +721,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 return false;
 
             $this->close();
-            $this->closed = SqlFunction::NOW();
-            $ecb = function($t) use($thisstaff) {
-                $t->logEvent('closed');
-                if ($t->ticket) {
-                    $vars = array(
-                            'title' => sprintf('Task %s Closed',
-                                $t->getNumber()),
-                            'note' => __('Task closed')
-                            );
-                    $t->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
-                }
-            };
             break;
+
         default:
             return false;
         }
 
         if (!$this->save(true))
             return false;
-
-        // Log events via callback
-        if ($ecb) $ecb($this);
 
         if ($comments) {
             $errors = array();
@@ -702,11 +830,24 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
 
-    function assign(AssignmentForm $form, &$errors, $alert=true) {
+    function assignViaForm(AssignmentForm $form, &$errors, $alert=true) {
+        $assignee = $form->getAssignee();
+
+        if (!$this->assign($assignee, $errors))
+            return false;
+
+        $this->onAssignment($assignee,
+                $form->getField('comments')->getClean(),
+                $alert);
+
+        return true;
+    }
+
+    function assign($assignee, &$errors=array(), $event=true) {
         global $thisstaff;
 
         $evd = array();
-        $assignee = $form->getAssignee();
+
         if ($assignee instanceof Staff) {
             $dept = $this->getDept();
             if ($this->getStaffId() == $assignee->getId()) {
@@ -743,11 +884,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($errors || !$this->save(true))
             return false;
 
-        $this->logEvent('assigned', $evd);
-
-        $this->onAssignment($assignee,
-                $form->getField('comments')->getClean(),
-                $alert);
+        if ($event)
+            $this->logEvent('assigned', $evd);
 
         return true;
     }
@@ -1298,16 +1436,19 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($changes)
             $this->logEvent('edited', array('fields' => $changes));
 
-        Signal::send('model.updated', $this);
         return $this->save();
     }
 
     /* static routines */
     static function lookupIdByNumber($number) {
-
-        if (($task = self::lookup(array('number' => $number))))
-            return $task->getId();
-
+        try {
+            $row = static::objects()
+                ->filter(array('number' => $number))
+                ->values_flat('id')
+                ->one();
+            return $row[0];
+        }
+        catch (DoesNotExist $e) {}
     }
 
     static function isNumberUnique($number) {
@@ -1315,6 +1456,19 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     static function create($vars=false) {
+        global $cfg;
+
+        $task = parent::create(($vars ?: array()) + array(
+            'flags' => self::ISPENDING | self::ISOPEN,
+            'number' => $cfg->getNewTaskNumber(),
+            'created' => new SqlFunction('NOW'),
+            'updated' => new SqlFunction('NOW'),
+        ));
+
+        return $task;
+    }
+
+    static function createFromUi($vars=false) {
         global $thisstaff, $cfg;
 
         if (!is_array($vars)
@@ -1339,36 +1493,139 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if (!$task->save(true))
             return false;
 
-        // Add dynamic data
-        $task->addDynamicData($vars['default_formdata']);
-
-        // Create a thread + message.
+        // Create a thread
         $thread = TaskThread::create($task);
+
+        // Add dynamic data provided via UI
+        $task->addDynamicData($vars['default_formdata']);
         $thread->addDescription($vars);
 
-
         $task->logEvent('created', null, $thisstaff);
+        Signal::send('task.created', $task);
 
         // Get role for the dept
         $role = $thisstaff->getRole($task->getDept());
         // Assignment
         $assignee = $vars['internal_formdata']['assignee'];
         if ($assignee
-                // skip assignment if the user doesn't have perm.
-                && $role->hasPerm(Task::PERM_ASSIGN)) {
-            $_errors = array();
-            $assigneeId = sprintf('%s%d',
-                    ($assignee  instanceof Staff) ? 's' : 't',
-                    $assignee->getId());
-
-            $form = AssignmentForm::instantiate(array('assignee' => $assigneeId));
-
-            $task->assign($form, $_errors);
+            // Skip assignment if the user doesn't have perm.
+            && $role->hasPerm(Task::PERM_ASSIGN)
+        ) {
+            // Set the assignee, but don't send alerts out
+            $task->assign($assignee, array(), false);
         }
 
-        Signal::send('task.created', $task);
+        $task->start(true);
 
         return $task;
+    }
+
+    /**
+     * Determines if this task can be started. Current criteria include
+     * checking if the task is in PENDING status and has all its dependency
+     * tasks satisfied.
+     */
+    function canStart() {
+        if (!$this->isPending())
+            return false;
+
+        foreach ($this->getDependencies() as $task) {
+            if ($task->isOpen()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Start the task. This operation is distinct from creating a task in
+     * that the 'new task' alert is triggered and the assignment takes place
+     * with its corresponding alert emails.
+     */
+    function start($alert=true) {
+        global $cfg;
+
+        if (!$this->isPending())
+            throw new Exception('Task must be pending to be started');
+
+        $this->clearFlag(self::ISPENDING);
+        $this->started = SqlFunction::NOW();
+
+        // Continue onward if this fails
+        $this->save(true);
+
+        // Calculate the automated due date, if any, before sending
+        // communication emails
+        if ($this->template && $this->template->duedate && !$this->duedate) {
+            $this->duedate = $this->template->getCalculatedDueDate($this);
+        }
+
+        // Reprocess the assignment and send the alert this time
+        if ($this->team_id || $this->staff_id) {
+            $evd = array();
+            if ($this->team)
+                $evd['team'] = $this->team;
+            if ($this->staff)
+                $evd['staff'] = array($this->staff_id, $this->staff->getName());
+
+            $this->logEvent('assigned', $evd);
+            $this->onAssignment($this->team ?: $this->staff);
+        }
+
+        Signal::send('task.started', $this);
+        $this->save();
+
+        // Send alerts out if enabled.
+        if (!$alert || !$cfg->alertONNewTask())
+            return true;
+
+        if (!($dept=$this->getDept())
+            || !($tpl = $dept->getTemplate())
+            || !($email = $dept->getAlertEmail())
+        ) {
+            return true;
+        }
+
+        // Recipients
+        $options = array('thread' => $this->getThread());
+        $recipients = $sentlist = array();
+
+        if ($dept instanceof Dept) {
+            if ($cfg->alertDeptMembersONNewTask() && !$this->isAssigned()
+                && ($members = $dept->getMembersForAlerts()->all())
+            ) {
+                $recipients = $members;
+            }
+            if ($cfg->alertDeptManagerONNewTask() &&
+                ($manager = $dept->getManager())
+            ) {
+                $recipients[] = $manager;
+            }
+        }
+
+        if ($recipients
+            && ($msg = $tpl->getNewTaskAlertMsgTemplate())
+        ) {
+            // Send the alerts.
+            foreach ($recipients as $k => $staff) {
+                if (!is_object($staff)
+                    || !$staff->isAvailable()
+                    || in_array($staff->getEmail(), $sentlist)) {
+                    continue;
+                }
+                $alert = $this->replaceVars($msg, array('recipient' => $staff));
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+                $sentlist[] = $staff->getEmail();
+            }
+        }
+
+        if ($cfg->alertAdminONNewTask()) {
+            $options += array('utype'=>'A');
+            $alert = $this->replaceVars($msg, array('recipient' => 'Admin'));
+            $email->sendAlert($cfg->getAdminEmail(), $alert['subj'],
+                    $alert['body'], null, $options);
+        }
     }
 
     function delete($comments='') {
@@ -1482,6 +1739,957 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 }
 
+/**
+ * The skeleton of a task to be created and stapled to a ticket in the
+ * future. This template contains the information needed to create and start
+ * a task. Other information for duedate, attached forms, and dependencies
+ * is also represented in this model and breakouts.
+ */
+class TaskTemplate extends VerySimpleModel {
+    use HasFlagsOrm;
+
+    static $meta = array(
+        'pk' => array('id'),
+        'table' => TASK_TEMPLATE_TABLE,
+        'joins' => array(
+            'group' => array(
+                'constraint' => array('group_id' => 'TaskTemplateGroup.id'),
+            ),
+            'forms' => array(
+                'reverse' => 'TaskTemplateForm.template',
+            ),
+        ),
+        'select_related' => array('group'),
+    );
+
+    protected $depchain;
+
+    const FLAG_ENABLED  = 0x0001;
+    const FLAG_DELETED  = 0x0002;
+
+    function getId()    { return $this->id; }
+    function getAttachedForms() { return $this->forms; }
+
+    /**
+     * Fetch a list of DynamicForm objects which are associated with the
+     * task template. Fields which are marked as disabled are disabled on
+     * the respective forms in this routine.
+     */
+    function getForms() {
+        $forms = array();
+        foreach ($this->getAttachedForms() as $F) {
+            $forms[] = $F->getDynamicForm();
+        }
+        return $forms;
+    }
+
+    /**
+     * Create a Task instance from this template. The forms associated with
+     * the template are added immediately. The created and saved task is
+     * returned.
+     *
+     * Parameters:
+     * $vars - (array) Extra arguments for the Task constructor. Keys and
+     *      values in this array should be valid for the Task ORM object.
+     */
+    function instanciate($vars=false) {
+        $task = Task::create($vars);
+
+        $task->template_id = $this->id;
+
+        // Route and assign appropriately
+        $task->dept_id = $this->dept_id;
+        $task->staff_id = $this->staff_id;
+        $task->team_id = $this->team_id;
+
+        if (!$task->save())
+            return;
+
+        // Attach requested forms and initial data
+        foreach ($this->getAttachedForms() as $tform) {
+            $entry = $tform->getFormEntry($task, 1);
+            $entry->save();
+        }
+
+        // Add basic task form entry (for title and such)
+        $data = $this->getDataAsArray();
+        $entry = TaskForm::getDefaultForm()->instanciate(0, $data);
+        $entry->object_id = $task->id;
+        $entry->object_type = ObjectModel::OBJECT_TYPE_TASK;
+        $entry->save();
+
+        // Add description as first item to the thread
+        $thread = TaskThread::create($task);
+        $thread->addDescription(array(
+            'description' => $data['description'],
+        ));
+
+        return $task;
+    }
+
+    /**
+     * Fetch name (`title`) from the TaskForm and stored data
+     */
+    function getName() {
+        // This is somewhat of a hack for a speed optimization
+        $tf = TaskForm::getDefaultForm();
+        $title = $tf->getField('title');
+        $data = $this->getDataAsArray();
+        return $title->to_php($data['title']);
+    }
+
+    function getStatus() {
+        return $this->hasFlag(self::FLAG_ENABLED)
+            ? __('Active') : __('Draft');
+    }
+
+    /**
+     * Fetch a TaskForm instance configured from the data inside this task
+     * template, or the $source data provided. One change is made to the
+     * reference TaskForm -- The `description` field is changed here locally
+     * to a normal TextareaField, with html optionally enabled, and a
+     * SimpleForm instance is returned rather than a DynamicForm or
+     * DynamicFormEntry.
+     */
+    function getTaskForm($source=false) {
+        global $cfg;
+
+        $tf = TaskForm::getDefaultForm();
+
+        // Replace the `description` field with a simple html? textarea
+        $fields = array();
+        foreach ($tf->getFields() as $F) {
+            $F->reset();
+            $fields[$F->get('name') ?: $F->get('id')] = $F;
+        }
+        $description = $fields['description'];
+        $fields['description'] = new TextareaField(array(
+            'label' => $description->get('label'),
+            'configuration' => array(
+                'html' => $cfg->isRichTextEnabled(),
+                'placeholder' => $description->get('hint'),
+            ),
+        ));
+
+        // Create a surrogate form for the fields
+        $form = new SimpleForm($fields, $source, array(
+            'title' => $tf->getTitle(),
+            'instructions' => $tf->getInstructions(),
+        ));
+
+        if ($source)
+            $form->setSource($source);
+        elseif (isset($this->id))
+            $form->setSource($this->getDataAsArray());
+
+        return $form;
+    }
+
+    function getDataAsArray() {
+        return JsonDataParser::decode($this->data) ?: array();
+    }
+
+    function setData(array $data) {
+        $this->data = JsonDataEncoder::encode($data);
+    }
+
+    /**
+     * Fetch data for the TaskTemplateBasicForm from this task template
+     */
+    function getBasicForm($source=false, $options=array()) {
+        @list($reference, $term, $interval, $tpl_id) = $this->getDueDateInfo();
+        $source = $source ?: array(
+            'dept_id' => $this->dept_id,
+            'assignee' => $this->staff_id
+                ? ('s'.$this->staff_id)
+                : ($this->team_id
+                    ? ('t'.$this->team_id)
+                    : null),
+            'duedate' => array(
+                'term' => $term,
+                'interval' => $interval,
+                'reference' => $reference,
+                'related' => $tpl_id,
+            ),
+            'depends' => $this->getDependentIds(),
+        );
+
+        // Add group_id for depends drop-down list
+        $options += array('group_id' => $this->group_id);
+
+        return new TaskTemplateBasicForm($source, $options);
+    }
+
+    /**
+     * Calcuate the due date configured in this template for the referenced
+     * task. The returned time is a DateTime instance of the duedate in the
+     * database timezone.
+     *
+     * See getDueDateInfo for a description of the database format
+     */
+    function getCalculatedDueDate(Task $task) {
+        global $cfg;
+
+        static $multipliers = array(
+            'm' => 1,
+            'h' => 60,
+            'd' => 1440,
+            'w' => 10080,
+        );
+
+        // Separate the due date into the reference, term, and interval
+        @list($reference, $term, $interval, $tpl_id) = $this->getDueDateInfo();
+        if (!$term)
+            return null;
+
+        // Calcualte the term in minutes
+        $multiplier = $multipliers[$interval] ?: 1;
+        $term *= $multiplier;
+
+        // Find the reference timestamp. Leave things in the database
+        // time zone
+        $references = array(
+            'start'     => function($T) { return $T->started; },
+            'ticket'    => function($T) { return $T->getTicket()->created; },
+            'set'       => function($T) { return $T->set->created; },
+            'related'   => function($T) use ($tpl_id) {
+                return ($tpl = $T->set->getTaskByTemplateId($tpl_id))
+                    ? $tpl->started : null;
+            },
+        );
+        if (!isset($references[$reference]))
+            return null;
+
+        // Propogate null (undefined) from funcs
+        $func = $references[$reference];
+        if (!($starttime = $func($task)))
+            return $starttime;
+
+        return new DateTime(sprintf('%s + %d minutes', $starttime, $term),
+            new DateTimeZone($cfg->getDbTimezone()));
+    }
+
+    /**
+     * The format of the saved due date is assumed to be `reference:id+xh`,
+     * where `reference` is the name of a time reference which should be one
+     * of
+     *   - `task` the time this task was started
+     *   - `ticket` the time the associated ticket was created
+     *   - `set` the time the set of tasks was attached to the ticket
+     *   - `anoter` the time of the start of a related task in the set
+     * and `x` is a number, and `h` is a interval time, which should be `m`,
+     * `h`, `d`, or `w`, which indicates the number is a number of minutes,
+     * hours, days, or weeks respectively.
+     *
+     * For the reference of `related`, the template_id of the other task is
+     * also included in the format after the colon (`:`).
+     */
+    function getDueDateInfo() {
+        if (is_null($this->duedate))
+            return null;
+
+        // Separate the due date into the reference, term, and interval
+        list($reference, $period) = explode('+', $this->duedate);
+        @list($reference, $tpl_id) = explode(':', $reference);
+        if (!$period)
+            return null;
+
+        $term = (int) $period;
+        $interval = substr($period, -1);
+
+        return array($reference, $term, $interval, $tpl_id);
+    }
+
+    /**
+     * Fetch a list of TaskTemplate instances on which this task template
+     * depends. This template will not be included in the list.
+     */
+    function getDependencies() {
+        $depends = $this->getDependentIds();
+        if (count($depends) === 0)
+            return array();
+
+        $list = array();
+        foreach ($this->group->templates as $tpl) {
+            if (in_array($tpl->id, $depends))
+                $list[] = $tpl;
+        }
+        return $list;
+    }
+
+    /**
+     * Fetch a list of templates in the same group which are dependent on
+     * this template
+     */
+    function getDependents() {
+        // Find all depedencies of all tasks related to this one
+        $dependents = array();
+        foreach ($this->group->templates as $tpl) {
+            // See which tasks depend on this one
+            if (in_array($this->id, $tpl->getDependentIds())) {
+                $dependents[] = $tpl;
+            }
+        }
+        return $dependents;
+    }
+
+    /**
+     * Fetch a list of template ids that this template is dependent on. That
+     * is, ids of the next-level parent templates
+     */
+    function getDependentIds() {
+        if (!$this->depends)
+            return array();
+
+        return array_map('intval', explode(',', $this->depends));
+    }
+
+    /**
+     * Fetch a complete list of all templates which this task depends on,
+     * including tasks on which those tasks depend. This is useful for
+     * detecting circular dependencies.
+     */
+    function getRecursiveDependentIds() {
+        // Manage a list where the keys are template ids which this task
+        // depends on or is a recursive dependency. Use 0 for the key if
+        // that tasks's dependencies have not yet been considered. This
+        // algorithm assumes there are no circular dependencies in the
+        // ancestry but also uses a failsafe of 100 loops max.
+        $list = array_fill_keys($this->getDependentIds(), 0);
+        $loops = 100;
+        while (array_sum($list) < count($list) && --$loops) {
+            foreach ($list as $id=>$searched) {
+                if (!$searched && ($T = static::lookup($id))) {
+                    foreach ($T->getDependentIds() as $id2) {
+                        if (!isset($list[$id2]))
+                            $list[$id2] = 0;
+                    }
+                    $list[$id] = 1;
+                }
+            }
+        }
+        return array_keys($list);
+    }
+
+    /**
+     * Flow recursively through this template's dependencies and find the
+     * longest chain of dependencies for this template. This is useful in
+     * representing the template in a tree view for the respective task
+     * template group. The rationale is that the displayed task should be
+     * nested as deeply as possible based on its dependencies, if it is
+     * dependent on more than one parent task.
+     *
+     * Returns:
+     * This full list of dependencies for this task. This task will be the
+     * last item in the list. The first item will be the top-level
+     * dependency.
+     */
+    function getLongestDependencyChain() {
+        if (isset($this->depchain))
+            return $this->depchain;
+
+        $this->depchain = array();
+
+        foreach ($this->getDependentIds() as $id) {
+            if (!($tpl = TaskTemplate::lookup($id)))
+                continue;
+
+            // Detect circular dependency
+            $chain = $tpl->getLongestDependencyChain();
+            if (in_array($this, $chain))
+                // TODO: Do something
+                return array();
+
+            if (count($chain) + 1 > count($longest)) {
+                $chain[] = $tpl;
+                $this->depchain = $chain;
+            }
+        }
+
+        return $this->depchain;
+    }
+
+    function update(array $source, &$errors=array()) {
+        if (!$this->group_id || !TaskTemplateGroup::lookup($this->group_id))
+            $errors[] = __('Template must be associated with a valid group');
+
+        $basic = $this->getBasicForm($source);
+        if (!$basic->isValid())
+            $errors[] = __('Please correct the errors below');
+
+        $data = $basic->getClean(Form::FORMAT_PHP);
+        $this->dept_id = $data['dept_id'];
+        $this->staff_id = $data['assignee'] instanceof Staff
+            ? $data['assignee']->getId() : null;
+        $this->team_id = $data['assignee'] instanceof Team
+            ? $data['assignee']->getId() : null;
+        $this->duedate = $data['duedate']['term']
+            ? (sprintf('%s%s+%d%s', $data['duedate']['reference'],
+                $data['duedate']['related'] ? (':'.$data['duedate']['related']) : '',
+                $data['duedate']['term'], $data['duedate']['interval']))
+            : null;
+
+        // Verify built-in form data
+        $builtin = $this->getTaskForm($source);
+        if (!$builtin->isValid())
+            $errors[] = __('Please correct the errors below');
+
+        $this->setData($builtin->getClean(Form::FORMAT_PHP));
+
+        // Handling of extra forms, disabled fields, is performed by
+        // ::updateForms and is expected to be a separate call because that
+        // function implies save()ing.
+
+        $this->depends = is_array($data['depends'])
+            ? implode(',', array_keys($data['depends']))
+            : null;
+        unset($this->depchain);
+
+        // Verify dependencies do not create circular reference
+        if (isset($this->id)) {
+            if (in_array($this->id, $this->getDependentIds())) {
+                $errors[] = __('This task cannot depend on itself');
+            }
+            else {
+                foreach ($this->getDependencies() as $tpl) {
+                    // This is a bit unnecessary, and
+                    // $this->getRecursiveDependentIds() would reveal a
+                    // circular dependency; however, offering the name of
+                    // the offending reference is valuable to the user
+                    if (in_array($this->id, $tpl->getRecursiveDependentIds())) {
+                        $errors[] = sprintf(
+                            __('Circular dependency: "%s" requires this task'),
+                            $tpl->getName()
+                        );
+                    }
+                }
+            }
+        }
+
+        return count($errors) === 0;
+    }
+
+    /**
+     * Update the forms and enabled fields associated with this task
+     * template.
+     */
+    function updateForms(array $form_ids, $field_ids) {
+        $find_disabled = function($form) use ($field_ids) {
+            $disabled = array();
+            foreach ($form->fields->values_flat('id') as $row) {
+                list($id) = $row;
+                if (false === ($idx = array_search($id, $field_ids))) {
+                    $disabled[] = $id;
+                }
+            }
+            return $disabled;
+        };
+
+        // Consider all the forms in the request
+        $current = array();
+        foreach ($this->forms as $F) {
+            if (false !== ($idx = array_search($F->form_id, $form_ids))) {
+                $current[] = $F->form_id;
+                $F->sort = $idx + 1;
+                $F->extra = JsonDataEncoder::encode(
+                    array('disable' => $find_disabled($F->form))
+                );
+                $F->save();
+                unset($form_ids[$idx]);
+            }
+            else {
+                $F->delete();
+            }
+        }
+        foreach ($form_ids as $sort=>$id) {
+            if (!($form = DynamicForm::lookup($id))) {
+                continue;
+            }
+            elseif (in_array($id, $current)) {
+                // Don't add a form more than once
+                continue;
+            }
+            TaskTemplateForm::create(array(
+                'template_id' => $this->getId(),
+                'form_id' => $id,
+                'sort' => $sort + 1,
+                'extra' => JsonDataEncoder::encode(
+                    array('disable' => $find_disabled($form))
+                )
+            ))->save();
+        }
+        $this->forms->reset();
+        return true;
+    }
+
+    static function create($vars=false) {
+        $tpl = parent::create($vars);
+        $tpl->created = SqlFunction::NOW();
+        return $tpl;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+}
+
+class TaskTemplateBasicForm
+extends AbstractForm {
+    function getTitle() { return __('Visibility and Assignment'); }
+    function buildFields() {
+        $related = TaskTemplateGroup::lookup($this->options['group_id'])->getTemplateNames();
+        return array(
+            'dept_id' => new ChoiceField(array(
+                'label' => __('Department'),
+                'layout' => new GridFluidCell(6),
+                'choices' => Dept::getDepartments(),
+                'configuration' => array(
+                   'prompt' => __('Same as Ticket'),
+                ),
+            )),
+            'assignee' => new AssigneeField(array(
+                'label' => __('Assignee'),
+                'layout' => new GridFluidCell(6),
+                'configuration' => array(
+                   'prompt' => __('Initially Unassigned'),
+                ),
+            )),
+            'duedate' => new InlineFormField(array(
+                'label' => __('Due Date'),
+                'layout' => new GridFluidCell(6),
+                'form' => array(
+                    'term' => new TextboxField(array(
+                        'layout' => new GridFluidCell(3),
+                        'configuration' => array(
+                            'validator' => 'number',
+                        ),
+                    )),
+                    'interval' => new ChoiceField(array(
+                        'layout' => new GridFluidCell(3),
+                        'default' => 'd',
+                        'choices' => array(
+                            'h' => __("hours"),
+                            'd' => __("days"),
+                            'w' => __("weeks"),
+                        ),
+                    )),
+                    'reference' => new ChoiceField(array(
+                        'layout' => new GridFluidCell(6),
+                        'default' => 'start',
+                        'choices' => array(
+                            'start' => __("from the start of this task"),
+                            'set' => __("from the start of this task set"),
+                            'ticket' => __("from the start of the ticket"),
+                            'related' => __("from the start of a related task"),
+                        ),
+                    )),
+                    'related' => new ChoiceField(array(
+                        'choices' => $related,
+                        'required' => true,
+                        'visibility' => new VisibilityConstraint(array(
+                            'reference' => 'related',
+                        ), VisibilityConstraint::HIDDEN),
+                    )),
+                ),
+            )),
+            'sec2' => new SectionBreakField(array(
+                'label' => __('Dependency'),
+            )),
+            'depends' => new ChoiceField(array(
+                'label' => __('Dependent Tasks'),
+                '--hint' => __('Tasks which must be completed before this task can be started'),
+                'choices' => $related,
+                'configuration' => array(
+                    'multiselect' => true,
+                ),
+            )),
+        );
+    }
+}
+
+/**
+ * A form and initial data associated with a TaskTemplate instance. This
+ * represents a connection between a TaskTemplate and a DynamicForm. When
+ * the template is instanced, the form is also instanciated to a
+ * DynamicFormEntry and the initial data and sort order associated with this
+ * form attachment is included.
+ */
+class TaskTemplateForm extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('template_id', 'form_id'),
+        'table' => TASK_TEMPLATE_FORM_TABLE,
+        'joins' => array(
+            'template' => array(
+                'constraint' => array('template_id' => 'TaskTemplate.id'),
+            ),
+            'form' => array(
+                'constraint' => array('form_id' => 'DynamicForm.id'),
+            ),
+        ),
+        'select_related' => array('form'),
+    );
+
+    protected $_form;
+
+    /**
+     * NOTE: The returned instance is not yet saved
+     */
+    function getFormEntry(Task $task=null, $sort=0) {
+        $data = $this->getDataAsArray() ?: null;
+        $entry = $this->form->instanciate($this->sort ?: 1, $data);
+
+        if ($task) {
+            $entry->object_type = ObjectModel::OBJECT_TYPE_TASK;
+            $entry->object_id = $task->id;
+            $entry->sort = $this->sort + $sort;
+        }
+
+        // TODO: Configured disabled fields
+
+        return $entry;
+    }
+
+    function getDataAsArray() {
+        return JsonDataParser::decode($this->data) ?: array();
+    }
+
+    function setData(DynamicFormEntry $data) {
+        $this->data = JsonDataEncoder::encode(
+            $data->getClean(Form::FORMAT_DATABASE)
+        );
+    }
+
+    function getDynamicForm() {
+        $extra = JsonDataParser::decode($this->extra) ?: array();
+        // XXX: Does the form need to be copied to prevent subtle issues?
+        $this->form->disableFields($extra['disable'] ?: array());
+        return $this->form;
+    }
+}
+
+/**
+ * A logical grouping of task templates. This grouping has a name and is
+ * used in the help topics and the ticket view page to add several tasks to
+ * a ticket at one time. Once the tasks are added, the grouping is tracked
+ * separately so that further changes to the template grouping does not
+ * affect
+ */
+class TaskTemplateGroup extends VerySimpleModel {
+    use HasFlagsOrm;
+
+    static $meta = array(
+        'pk' => array('id'),
+        'table' => TASK_TEMPLATE_GROUP_TABLE,
+        'joins' => array(
+            'templates' => array(
+                'reverse' => 'TaskTemplate.group'
+            ),
+        ),
+        'ordering' => array('name'),
+    );
+
+    const FLAG_ENABLED  = 0x0001;
+    const FLAG_DELETED  = 0x0002;
+
+    function getId()    { return $this->id; }
+    function getName()  { return $this->name; }
+
+    function getStatus() {
+        return $this->hasFlag(self::FLAG_ENABLED)
+            ? __('Active') : __('Draft');
+    }
+
+    /**
+     * Fetch and ID keyed list of the related TaskTemplate objects in this
+     * group.
+     */
+    function getTemplates() {
+        $list = array();
+        foreach ($this->templates as $tpl) {
+            $list[$tpl->id] = $tpl;
+        }
+        return $list;
+    }
+
+    /**
+     * Fetch an ID keyed list of the template names in this group
+     */
+    function getTemplateNames() {
+        $names = array();
+        foreach ($this->templates as $tpl) {
+            $names[$tpl->id] = $tpl->getName();
+        }
+        return $names;
+    }
+
+    /**
+     * Creates a TaskSet instance and instanciates all the tasks in this
+     * group and adds them to the set. The created TaskSet is returned.
+     */
+    function instanciate(Ticket $ticket, $vars=false) {
+        $set = TaskSet::create($vars + array(
+            'template_group_id' => $this->id,
+        ));
+        $set->save();
+
+        foreach ($this->templates->filter(array(
+            // Don't add DRAFT templates
+            'flags__hasbit' => TaskTemplate::FLAG_ENABLED,
+        )) as $tmpl) {
+            $task = $tmpl->instanciate(array(
+                'set_id' => $set->id,
+                'object_id' => $ticket->getId(),
+                'object_type' => ObjectModel::OBJECT_TYPE_TICKET,
+            ));
+
+            if ($task->dept_id == 0)
+                $task->dept_id = $ticket->dept_id; // 0 := Same as ticket
+
+            if (!$task->save())
+                return;
+        }
+        return $set;
+    }
+
+    /**
+     * Fetch the list of templates in this group sorted by their declared
+     * sort order and by their interdepenency. That is, a group of tasks
+     * with the same dependencies are sorted according to the declared sort
+     * order. Otherwise, tasks are grouped in order to display a nice tree
+     * view where dependent tasks are shown under their parents.
+     *
+     * Returns:
+     * Tree-organized listing of templates in this group. The structure of
+     * the returned list is
+     *
+     * [id => [<TaskTemplate>, [id => [TaskTemplate, []], id => [...]]]]
+     *
+     * Where `id` is the id number of a task template, which is the key to a
+     * two-item array which is the template itself and the list of its
+     * dependents. Each template should appear exactly once in the list and
+     * every template in the group should be accounted for.
+     */
+    function getTreeOrganizedTemplates() {
+        $templates = array();
+        foreach ($this->templates->order_by('sort') as $tpl) {
+            $templates[$tpl->id] = $tpl;
+        }
+
+        // Now, go back through the list and arrange the templates by
+        // dependents
+        $chains = array();
+        foreach ($templates as $tpl) {
+            $chains[$tpl->id] = $tpl->getLongestDependencyChain();
+        }
+
+        // Now, sort the chains list so that the shortest chains come first.
+        // Then, the first item in the chain otherwise is the item which
+        // should be the parent of each template
+        uasort($chains, function($a, $b) { return count($a) - count($b); });
+
+        // Now organize the list as a list of singly-linked lists of the
+        // dependency chains
+        $root = array();
+        foreach ($chains as $tpl_id=>$C) {
+            $level = &$root;
+            foreach ($C as $depend) {
+                if (!isset($level[$depend->id])) {
+                    // Divergence
+                    throw new Exception('Dependency list creation diverged');
+                }
+                $level = &$level[$depend->id][1];
+            }
+            $level[$tpl_id] = array($templates[$tpl_id], array());
+        }
+
+        // Now sort each level by the `sort` property
+        $sort = function(&$level) use (&$sort) {
+            uasort($level, function($a, $b) { return $a[0]->sort - $b[0]->sort; });
+            foreach ($level as &$next) {
+                if (count($next[1]))
+                    $sort($next[1]);
+            }
+            unset($next);
+        };
+        $sort($root);
+        unset($level);
+
+        return $root;
+    }
+
+    function __toString() {
+        return $this->getName();
+    }
+
+    static function allActive() {
+        return static::objects()
+            ->filter(array('flags__hasbit'=>self::FLAG_ENABLED));
+    }
+
+    static function forTicket(Ticket $ticket) {
+        return static::objects()->filter(array(
+            // Don't offer DRAFT template groups
+            'flags__hasbit' => self::FLAG_ENABLED,
+            'dept_id__in' => array(0, $ticket->dept_id),
+            'topic_id__in' => array_unique(array(0, $ticket->topic_id)),
+        ));
+    }
+
+    static function create($vars=false) {
+        $inst = parent::create($vars);
+        $inst->created = SqlFunction::NOW();
+        return $inst;
+    }
+
+    function save($refetch=false) {
+        if ($refetch || $this->dirty) {
+            $this->updated = SqlFunction::NOW();
+        }
+        return parent::save($refetch || $this->dirty);
+    }
+}
+
+class TaskTemplateGroupForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'configuration' => array(
+                    'placeholder' => __('Name'),
+                ),
+            )),
+            '::' => new SectionBreakField(array(
+                'label' => __('Visibility'),
+                'hint' => __('Make this task group visible to only some departments or help topics'),
+            )),
+            'dept_id' => new ChoiceField(array(
+                'layout' => new GridFluidCell(6),
+                'choices' => array(
+                    0 => '— '.__('Any Department').' —',
+                ) + Dept::getDepartments()
+            )),
+            'topic_id' => new ChoiceField(array(
+                'layout' => new GridFluidCell(6),
+                'choices' => array(
+                    0 => '— '.__('Any Help Topic').' —',
+                ) + Topic::getHelpTopics(),
+            )),  
+            'notes' => new TextareaField(array(
+                'label' => __('Internal Notes'),
+                'configuration' => array(
+                    'html' => true,
+                    'placeholder' => __(/* Internal notes */ "be liberal, they're internal"),
+                ),
+            )),
+        );
+    }
+}
+
+/**
+ * A logical group of tasks which were created at the same time from a
+ * TaskTemplateGroup. These set entries are created whenever a group of
+ * tasks is created and attached to a ticket so that, if in the future,
+ * tasks were added or removed from the template group, that change is
+ * isolated from previous usages of the template group. The individual items
+ * are not recorded separately. Instead, each created task is linked to the
+ * set. Therefore, all tasks linked to the same set are said to be
+ * 'related'.
+ */
+class TaskSet extends VerySimpleModel {
+    use HasFlagsOrm;
+
+    static $meta = array(
+        'pk' => array('id'),
+        'table' => TASK_SET_TABLE,
+        'joins' => array(
+            'group' => array(
+                'constraint' => array(
+                    'template_group_id' => 'TaskTemplateGroup.id'
+                ),
+            ),
+        ),
+    );
+
+    const FLAG_STARTED      = 0x0001;
+    const FLAG_COMPLETED    = 0x0002;
+
+    function getName() {
+        return $this->group->getName();
+    }
+
+    /**
+     * Called when a task is closed. If all the tasks in this set are
+     * completed, then this set can also be marked as completed
+     */
+    static function onTaskClosed(Task $task) {
+        // Scan for initial dependencies on a set
+        if ($set = static::lookup(array('depends' => $task->id))) {
+            // The task closing is a dependency on a task set (which has
+            // not yet been started)
+            $set->start();
+        }
+        if (!$task->set_id || !($set = static::lookup($task->set_id))) {
+            // Not part of any TaskSet
+            return;
+        }
+
+        // Check if task set can be closed out
+        if ($set->getRemainingTasks()->count())
+            return;
+
+        $set->completed = SqlFunction::NOW();
+        $set->setFlag(self::FLAG_COMPLETED);
+        $set->save();
+    }
+
+    function isCompleted() {
+        return !$this->hasFlag(self::FLAG_COMPLETED);
+    }
+
+    function getTasks() {
+        return Task::objects()->filter(array(
+            'set_id' => $this->id,
+        ));
+    }
+
+    function getRemainingTasks() {
+        return $this->getTasks()->filter(array(
+            'flags__hasbit' => Task::ISOPEN,
+        ));
+    }
+
+    function getTaskByTemplateId($template_id) {
+        return $this->getTasks()->filter(array(
+            'template_id' => $template_id,
+        ))->one();
+    }
+
+    /**
+     * Kick off this set of tasks. This is done by interrogating each of the
+     * related tasks to see which ones can be started and kicking them off
+     */
+    function start($alert=true) {
+        if ($this->hasFlag(self::FLAG_STARTED))
+            return false;
+
+        foreach ($this->getTasks() as $task) {
+            if ($task->canStart())
+                $task->start($alert);
+        }
+        $this->setFlag(self::FLAG_STARTED);
+        return $this->save();
+    }
+
+    static function create($vars=false) {
+        $set = parent::create($vars);
+        $set->created = SqlFunction::NOW();
+        return $set;
+    }
+}
+Signal::connect('task.closed', array('TaskSet', 'onTaskClosed'));
 
 class TaskCData extends VerySimpleModel {
     static $meta = array(

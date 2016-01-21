@@ -1635,7 +1635,69 @@ function refer($tid, $target=null) {
         }
 
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
+    }
 
+    // TASK TEMPLATE OPERATIONS --------------------------------------
+
+    function addTaskGroupToTicket($ticketId) {
+        global $thisstaff;
+
+        if (!$thisstaff || !$thisstaff->isStaff())
+            Http::response(403, __('Permission Denied'));
+        // TODO: Check staff privilege to add task group
+        elseif (!($ticket = Ticket::lookup($ticketId)))
+            Http::response(404, 'No such ticket');
+
+        $form = new TicketAddTaskGroupForm($_POST, array('ticket' => $ticket));
+        if ($_POST && $form->isValid()) {
+            // Attempt to create a task set from the group
+            // Lookup the task group
+            $data = $form->getClean(Form::FORMAT_PHP);
+            $group = TaskTemplateGroup::lookup($data['group']);
+            $set = $group->instanciate($ticket, array(
+                'depends' => $data['depends'] ?: null
+            ));
+
+            // Attempt to start immediately
+            if ($set) {
+                if (!$set->depends) {
+                    $set->start();
+                }
+                Http::response(201);
+            }
+        }
+
+        $action = sprintf("#tickets/%d/tasks/add-set", $ticket->getId());
+        include STAFFINC_DIR . 'templates/ticket-add-task-set.tmpl.php';
     }
 }
+
+class TicketAddTaskGroupForm
+extends AbstractForm {
+    function buildFields() {
+        $ticket = $this->options['ticket'];
+        $open_tasks = array();
+        foreach ($ticket->tasks->filter(array('flags__hasbit' => Task::ISOPEN)) as $task) {
+            $open_tasks[$task->id] = sprintf('%s (#%s)', $task->getTitle(), $task->getNumber());
+        }
+        return array(
+            'group' => new ChoiceField(array(
+                'label' => __('Task Template Set'),
+                'required' => true,
+                'choices' => TaskTemplateGroup::forTicket($ticket)->all()->hash_by('id'),
+                'configuration' => array(
+                    'prompt' => __('Select a Template Group'),
+                ),
+            )),
+            'depends' => new ChoiceField(array(
+                'label' => __('Initial Dependency'),
+                'choices' => $open_tasks,
+                'configuration' => array(
+                    'prompt' => __('Start Immediately'),
+                ),
+            )),
+        );
+    }
+}
+
 ?>
