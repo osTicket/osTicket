@@ -522,6 +522,69 @@ if (!$ticket) { ?>
 <?php
 } ?>
 <div class="clear"></div>
+
+<?php if ($upstream = $task->getDependencies()) { ?>
+<div style="margin-bottom:1em;">
+<table class="table full-width"><tbody>
+  <tr class="flush-left">
+    <th style="width:20%;vertical-align:top"><?php echo __('Dependencies'); ?>:</th>
+    <td style="line-height:1.3em">
+<?php   foreach ($upstream as $T) {
+            echo sprintf('<div>%s <span class="%s">%s</span> %s</div>',
+                sprintf('<a href="tasks.php?id=%d">#%s</a>',
+                    $T->getId(), $T->getNumber()),
+                $T->isClosed() ? 'completed' : '',
+                Format::htmlchars($T->getTitle()),
+                $T->isClosed() ? sprintf(
+                    '<span class="faded">(%s)</span>', $T->getStatus()) : ''
+            );
+} ?>
+    </td>
+  </tr>
+</tbody></table>
+</div>
+<?php } ?>
+
+<?php if (($set = $task->set)
+    && ($related = $set->getTasks()->order_by('-created'))
+    && $related->exists(true)
+) { ?>
+<div style="margin-bottom:1em;">
+    <div style="margin-bottom:0.8em;font-size:110%">
+        <strong><?php echo __('Related Tasks'); ?></strong>:
+        <?php echo Format::htmlchars($set->getName()); ?>
+    </div>
+    <table class="list full-width" cellspacing="1" cellpadding="1">
+        <thead><tr>
+            <th style="width:12px"></th>
+            <th><?php echo __('Status'); ?></th>
+            <th style="width:45%"><?php echo __('Name'); ?></th>
+            <th><?php echo __('Started'); ?></th>
+            <th><?php echo __('Completed'); ?></th>
+            <th><?php echo __('Due Date'); ?></th>
+        </tr></thead>
+        <tbody>
+<?php
+$dbnow = Misc::dbtime();
+foreach ($related as $T) { ?>
+            <tr><td><?php echo ($T->id == $task->id)
+                    ? '<i class="icon-chevron-right"></i>'
+                    : ($T->isClosed() ? '<i class="faded icon-ok"></i>' : ''); ?></td>
+                <td><?php echo Format::htmlchars($T->getStatus()); ?></td>
+                <td><?php echo sprintf(
+                    $T->id == $task->id ? '%2$s' : '<a href="tasks.php?id=%d">%s</a>',
+                    $T->getId(), Format::htmlchars($T->getTitle())); ?></td>
+                <td><?php echo Format::relativeTime($T->started, $dbnow); ?></td>
+                <td><?php echo Format::relativeTime($T->getCloseDate(), $dbnow); ?></td>
+                <td><?php echo Format::relativeTime($T->getDueDate(), $dbnow); ?></td>
+            </tr>
+<?php } ?>
+        </tbody>
+    </table>
+</div>
+<?php
+} ?>
+
 <div id="task_thread_container">
     <div id="task_thread_content" class="tab_content">
      <?php

@@ -5,7 +5,7 @@ $role = $ticket->getRole($thisstaff);
 
 $tasks = Task::objects()
     ->select_related('dept', 'staff', 'team')
-    ->order_by('-created');
+    ->order_by('-created', 'set_id');
 
 $tasks->filter(array(
             'object_id' => $ticket->getId(),
@@ -30,14 +30,18 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 <div class="pull-right">
     <?php
     if ($role && $role->hasPerm(Task::PERM_CREATE)) { ?>
-        <a
-        class="green button action-button ticket-task-action"
+        <span
+            class="green button action-button">
+        <i class="icon-caret-down pull-right"
+            data-placement="bottom" data-dropdown="#add-new-task-dropdown"></i>
+        <a class="ticket-task-action"
         data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
         data-dialog-config='{"size":"large"}'
         href="#tickets/<?php
             echo $ticket->getId(); ?>/add-task">
             <i class="icon-plus-sign"></i> <?php
             print __('Add New Task'); ?></a>
+        </span>
     <?php
     }
     foreach ($tasks as $task)
@@ -52,6 +56,16 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
                     'status' => $taskStatus ? $taskStatus : '')
                 );
     ?>
+    <div id="add-new-task-dropdown" class="action-dropdown anchor-right">
+      <ul>
+<?php if ($ticket) { ?>
+        <li><a href="#" data-dialog="ajax.php/tickets/<?php echo $ticket->getId(); ?>/tasks/add-set"
+          >
+          <i class="icon-tasks icon-fixed-width"></i>
+          <?php echo __('Attach Task Template Group'); ?></a></li>
+<?php } ?>
+      </ul>
+    </div>
 </div>
 <div class="clear"></div>
 <div>
@@ -71,7 +85,7 @@ if ($count) { ?>
             <?php
             } ?>
             <th width="70"><?php echo __('Number'); ?></th>
-            <th width="100"><?php echo __('Date'); ?></th>
+            <th width="100"><?php echo __('Start Date'); ?></th>
             <th width="100"><?php echo __('Status'); ?></th>
             <th width="300"><?php echo __('Title'); ?></th>
             <th width="200"><?php echo __('Department'); ?></th>
@@ -80,6 +94,7 @@ if ($count) { ?>
     </thead>
     <tbody class="tasks">
     <?php
+    $set_id = 0;
     foreach($tasks as $task) {
         $id = $task->getId();
         $access = $task->checkStaffPerm($thisstaff);
@@ -92,7 +107,9 @@ if ($count) { ?>
                     Format::truncate($task->getAssigned(),40));
         }
 
-        $status = $task->isOpen() ? '<strong>open</strong>': 'closed';
+        $status = $task->getStatus();
+        if ($task->isOpen() && !$task->isPending())
+            $status = "<b>".$status."</b>";
 
         $title = Format::htmlchars(Format::truncate($task->getTitle(),40));
         $threadcount = $task->getThread() ?
@@ -102,6 +119,22 @@ if ($count) { ?>
             $viewhref = sprintf('#tickets/%d/tasks/%d/view', $ticket->getId(), $id);
         else
             $viewhref = '#';
+
+        // Add header
+        if ($task->set_id != $set_id
+            // No header for initial ad-hoc tasks
+            && ($set_id || $task->set_id)
+        ) {
+            echo '</tbody><tbody class="tasks"><tr><th colspan="7">';
+            if ($task->set_id && ($set = $task->set)
+                && ($group = $set->group)
+            ) {
+                echo Format::htmlchars($group->getName());
+            }
+            else echo '&nbsp;';
+            echo '</tr>';
+        }
+        $set_id = $task->set_id;
 
         ?>
         <tr id="<?php echo $id; ?>">
@@ -116,7 +149,8 @@ if ($count) { ?>
                 data-preview="#tasks/<?php echo $id; ?>/preview"
                 ><?php echo $task->getNumber(); ?></a></td>
             <td align="center" nowrap><?php echo
-            Format::datetime($task->created); ?></td>
+            Format::datetime($task->started) ?: sprintf(
+                '<em class="faded">%s</em>', __('never')); ?></td>
             <td><?php echo $status; ?></td>
             <td>
                 <?php
