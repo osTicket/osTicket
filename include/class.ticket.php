@@ -1261,7 +1261,7 @@ implements RestrictedAccess, Threadable, Searchable {
             // Only alerts dept members if the ticket is NOT assigned.
             if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
                 if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members);
+                    $recipients = array_merge($recipients, $members->asArray());
             }
 
             if ($cfg->alertDeptManagerONNewTicket() && $dept &&

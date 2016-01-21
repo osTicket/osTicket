@@ -442,7 +442,7 @@ if ($dept) {
             'role_id' => $x->role_id,
         ));
     }
-    usort($members, function($a, $b) { return strcmp($a->getName(), $b->getName()); });
+    usort($members->asArray(), function($a, $b) { return strcmp($a->getName(), $b->getName()); });
 
     foreach ($members as $member) {
         $primary = $member->dept_id == $info['id'];
