@@ -166,6 +166,7 @@ class OsticketConfig extends Config {
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
         'verify_email_addrs' => 1,
+        'max_open_tickets' => 0,
     );
 
     function OsticketConfig($section=null) {
