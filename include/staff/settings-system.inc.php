@@ -359,6 +359,8 @@ $gmtime = Misc::gmtime();
                 <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
+<?php
+if (CompressionFileAdapter::isSupported()) { ?>
         <tr>
             <td width="180"><?php echo __('Compress Attachments'); ?>:</td>
             </td>
@@ -374,14 +376,18 @@ foreach (CompressionFileAdapter::allModes() as $v=>$desc) {
 } ?>
                 </select>
         </tr>
+<?php
+}
+if (EncryptionFileAdapter::isSupported()) { ?>
         <tr>
             <td width="180"><?php echo __('Encrypt Attachments'); ?>:</td>
             </td>
             <td>
-                <label class="checkbox">
+                <label class="inline checkbox">
                 <input type="checkbox" style="vertical-align:middle" name="encrypt_files" <?php
                     if ($config['encrypt_files']) echo 'checked="checked"'; ?>
                     onchange="$('#encrypt-password').toggle($(this).prop('checked'));" />
+                </label>
                 <span id="encrypt-password" class="faded <?php 
                     if (!$config['encrypt_files']) echo 'hidden'; ?>">
                 — <?php echo __('Password'); ?>:
@@ -389,10 +395,11 @@ foreach (CompressionFileAdapter::allModes() as $v=>$desc) {
                     placeholder="<?php if (strlen($config['file_encrypt_pwd']))
                         echo '••••••••'; ?>" />
                 </span>
-                </label>
                 <div class="error"><?php echo $errors['encrypt_files']; ?></div>
             </td>
         </tr>
+<?php
+} ?>
     </tbody>
 </table>
 <p style="text-align:center;">
