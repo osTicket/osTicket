@@ -94,6 +94,9 @@ return false;">
                     title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
                     $queue->getName(); ?></a></h2>
             </div>
+
+<?php if ($thisstaff->isAdmin()) { ?>			
+
             <div class="configureQ">
                 <i class="icon-cog"></i>
                 <div class="noclick-dropdown anchor-left">
@@ -116,17 +119,20 @@ else {
                             class="icon-fixed-width icon-pencil"></i>
                             <?php echo __('Edit'); ?></a>
                         </li>
-<?php }
+<?php
+
+//Removing until it's fixed i.e stable upstream
 # Anyone has permission to create personal sub-queues
-?>
-                        <li>
-                            <a class="no-pjax" href="#"
+
+/*                        <li>
+                           <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search?parent_id=<?php
                               echo $queue->id; ?>"><i
                             class="icon-fixed-width icon-plus-sign"></i>
                             <?php echo __('Add Personal Queue'); ?></a>
-                        </li>
-<?php
+                        </li> */
+
+}
 }
 if (
     ($thisstaff->isAdmin() && $queue->parent_id)
@@ -141,7 +147,7 @@ if (
                     </ul>
                 </div>
             </div>
-
+<?php } ?>
           <div class="pull-right flush-right">
             <?php
             // TODO: Respect queue root and corresponding actions
@@ -241,7 +247,7 @@ foreach ($tickets as $T) {
 ?>  <div>
       <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
 <?php
-        echo __('Page').':'.$pageNav->getPageLinks($queue->getPHref()).'&nbsp;';
+        echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
 				echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'queue' => $_REQUEST['queue'],

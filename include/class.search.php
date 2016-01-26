@@ -724,11 +724,7 @@ class SavedSearch extends VerySimpleModel {
         $root = $this->getRoot();
         return 'tickets.php?queue='.$this->getId();
     }
-    function getPHref() {
-        // TODO: Get base page from getRoot();
-        $root = $this->getRoot();
-        return 'queue='.$this->getId();
-    }
+    
     function getRoot() {
         switch ($this->root) {
         case 'T':
@@ -1526,7 +1522,7 @@ class TicketSourceChoiceField extends ChoiceField {
             'phone' => __('Phone'),
             'api' => __('API'),
             'other' => __('Other'),
-        );
+		);
     }
 
     function getSearchMethods() {
@@ -1545,6 +1541,7 @@ class OpenClosedTicketStatusList extends TicketStatusList {
     function getItems($criteria=array()) {
         $rv = array();
         $base = parent::getItems($criteria);
+	
         foreach ($base as $idx=>$S) {
             if (in_array($S->state, array('open', 'closed')))
                 $rv[$idx] = $S;
@@ -1570,7 +1567,10 @@ class TicketStatusChoiceField extends SelectionField {
     }
 
     function getSearchQ($method, $value, $name=false) {
+		
         $name = $name ?: $this->get('name');
+		// Hardcode fix for queues to work until it's fixed upstream
+		$name = 'status__id';
         switch ($method) {
         case '!includes':
             return Q::not(array("{$name}__in" => array_keys($value)));

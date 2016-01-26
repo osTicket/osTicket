@@ -16,13 +16,13 @@ global $thisstaff;
     data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
   </span>
 
-  <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
+  <a <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
     ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
       <?php
         echo Format::htmlchars($q->getName()); ?>
       <?php
         if ($hasChildren) { ?>
-            <i class="icon-caret-down"></i>
+            <i class="icon-caret-right"></i>
       <?php } ?>
     </a>
 

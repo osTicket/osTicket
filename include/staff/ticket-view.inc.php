@@ -8,6 +8,7 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
+					
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
 $role  = $thisstaff->getRole($dept);
@@ -57,7 +58,12 @@ if($ticket->isOverdue())
 	<div class="thread_content_top">
        <div class="thread_content">
         <div class="pull-right flush-right">
-            <?php
+            
+			<a class="action-button pull-right" data-placement="bottom"  data-toggle="tooltip" title="<?php echo __('Tickets'); ?>"
+				href="tickets.php<?php 
+				
+			 ?>"><i class="icon-list-alt"></i></a>
+			<?php
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(Ticket::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
@@ -69,7 +75,8 @@ if($ticket->isOverdue())
             }
 
             if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
-                <a class="action-button pull-right" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a>
+                <a class="action-button pull-right" data-placement="bottom"  data-toggle="tooltip" title="<?php echo __('Edit'); ?>"
+				href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a>
             <?php
             } ?>
             <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
@@ -87,7 +94,7 @@ if($ticket->isOverdue())
             <?php
             // Transfer
             if ($role->hasPerm(Ticket::PERM_TRANSFER)) {?>
-            <a class="ticket-action action-button pull-right" id="ticket-transfer"
+            <a class="ticket-action action-button pull-right" data-placement="bottom"  data-toggle="tooltip"  title="<?php echo __('Transfer');?>" id="ticket-transfer"
                 data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
             </span>
@@ -97,7 +104,7 @@ if($ticket->isOverdue())
             <?php
             // Assign
             if ($role->hasPerm(Ticket::PERM_ASSIGN)) {?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-assign">
+            <span class="action-button pull-right"  data-placement="bottom" data-dropdown="#action-dropdown-assign" data-toggle="tooltip" title="<?php echo __('Assign'); ?>">
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
                     data-redirect="tickets.php"
@@ -198,7 +205,7 @@ if($ticket->isOverdue())
                  }
                 ?>
               </ul>
-            </div>
+			</div>
                 <?php
                 if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
                 <a href="#post-reply" class="post-response action-button"
@@ -520,8 +527,9 @@ if ($errors['err'] && isset($_POST['a'])) {
     <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
-        <li class="active"><a href="#reply"><?php echo __('Post Reply');?></a></li>
-
+        <li class="active <?php
+            echo isset($errors['reply']) ? 'error' : ''; ?>"><a
+            href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
         <li><a href="#note" <?php
@@ -533,7 +541,8 @@ if ($errors['err'] && isset($_POST['a'])) {
     <form id="reply" class="tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
-        action="tickets.php?id=<?php
+        action="tickets.php?<?php echo$qurl.$purl.$qfurl
+		?>&id=<?php
         echo $ticket->getId(); ?>#reply" name="reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -729,7 +738,8 @@ if ($errors['err'] && isset($_POST['a'])) {
     <form id="note" class="hidden tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
-        action="tickets.php?id=<?php echo $ticket->getId(); ?>#note"
+        action="tickets.php?<?php echo$qurl.$purl.$qfurl
+		?>&id=<?php echo $ticket->getId(); ?>#note"
         name="note" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
@@ -821,7 +831,12 @@ if ($errors['err'] && isset($_POST['a'])) {
     <h3><?php echo __('Ticket Print Options');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
-    <form action="tickets.php?id=<?php echo $ticket->getId(); ?>"
+    <form action="tickets.php?id=<?php echo $ticket->getId(); ?>
+	&queue=<?php 
+				if (isset($_REQUEST['queue'])) {
+					echo $_REQUEST['queue'];		}
+				
+			 ?>"
         method="post" id="print-form" name="print-form" target="_blank">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="print">

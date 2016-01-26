@@ -1140,7 +1140,11 @@ extends QueueColumnFilter {
     }
 
     function getLink($row) {
-        return Ticket::getLink($row['ticket_id']);
+		if (isset($_REQUEST['queue'])) 
+		$sq = "&queue={$_REQUEST['queue']}";
+		if (isset($_REQUEST['p'])) 
+					$sp =  "&p={$_REQUEST['p']}";
+	    return Ticket::getLink($row['ticket_id']).$sq.$sp;
     }
 }
 

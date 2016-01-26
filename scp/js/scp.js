@@ -407,7 +407,7 @@ var scp_prep = function() {
          visible = false;
 
      // Append scroll-up icon and set stop point for this sticky
-     $('.content', $that)
+     $('.thread_content', $that)
      .append($('<a class="only sticky scroll-up" href="#" data-stop='
              + (placeholder.offset().top-75) +' ><i class="icon-chevron-up icon-large"></i></a>'));
 

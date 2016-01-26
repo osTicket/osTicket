@@ -41,9 +41,12 @@ if($_REQUEST['id'] || $_REQUEST['number']) {
 if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
 }
+
+				
 if (!$ticket) {
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
-    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
+	    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
+	
     if (!$queue_name && isset($_SESSION[$queue_key]))
         $queue_name = $_SESSION[$queue_key];
 
@@ -56,9 +59,28 @@ if (!$ticket) {
             && !isset($_GET['status'])
             && $queue_name)
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
-}
+		// Get queue id from navigation
+		if (isset($_REQUEST['queue'])) 
+					$_SESSION['queueno'] = $_REQUEST['queue'];	
+if (isset($_REQUEST['p'])) 
+					$_SESSION['pageno'] = $_REQUEST['p'];
+if (isset($_REQUEST['filter'])) 
+					$_SESSION['qfilter'] = $_REQUEST['filter'];				
+				
+		$queue_id = $_SESSION['queueno'] ?: $cfg->getDefaultTicketQueueId();
+		$page_num = $_SESSION['pageno'] ?: 1;
+		$q_filter = $_SESSION['qfilter'] ?: 1;
+		$_SESSION['queueno'] = $queue_id;
+		$_SESSION['pageno'] = $page_num;
+		$_SESSION['qfilter'] = $q_filter;
 
-$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
+		$qurl= "&queue={$queue_id}";
+		$purl= "&p={$page_num}";
+		$qfurl= "&filter={$q_filter}";
+		}
+
+
+//$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
 if ((int) $queue_id) {
     $queue = CustomQueue::lookup($queue_id);
 }
@@ -138,7 +160,7 @@ if($_POST && !$errors):
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
                         sprintf(__('Ticket #%s'),
-                            sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                            sprintf('<a href="tickets.php?queue=30&id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
 
@@ -156,7 +178,8 @@ if($_POST && !$errors):
 
                 // Go back to the ticket listing page on reply
                 $ticket = null;
-                $redirect = 'tickets.php';
+				    $fl= $qurl.$purl.$qfurl;	
+					$redirect = "tickets.php?{$fl}";
 
             } elseif(!$errors['err']) {
                 $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
@@ -199,9 +222,9 @@ if($_POST && !$errors):
                     // Ticket is still open -- clear draft for the note
                     Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
                         $thisstaff->getId());
-
-                 $redirect = 'tickets.php';
-            } else {
+					$fl= $qurl.$purl.$qfurl;
+				   	$redirect = "tickets.php?queue={$fl}";
+                } else {
 
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
@@ -248,7 +271,7 @@ if($_POST && !$errors):
                         $errors['err'] = sprintf(__('Ticket is already assigned to %s'),$ticket->getAssigned());
                     } elseif ($ticket->claim()) {
                         $msg = __('Ticket is now assigned to you!');
-                    } else {
+					} else {
                         $errors['err'] = __('Problems assigning the ticket. Try again');
                     }
                     break;
