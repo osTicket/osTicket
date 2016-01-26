@@ -104,8 +104,7 @@ class PageNate {
     function getPageLinks($hash=false, $pjax=false) {
         $html                 = '';
 		$queue_id 			  = $_SESSION['queueno'];
-		$q_filter             = $_SESSION['qfilter'];
-        $file                 = $this->url;
+		$file                 = $this->url;
         $displayed_span       = 5;
         $total_pages          = ceil( ($this->total - $this->slack) / $this->limit );
         $this_page            = ceil( ($this->start+1) / $this->limit );
@@ -131,7 +130,7 @@ class PageNate {
 
         for ($i=$start_loop; $i <= $stop_loop; $i++) {
             $page = ($i - 1) * $this->limit;
-            $href = "{$file}&amp;p={$i}&amp;queue={$queue_id}&amp;filter={$q_filter }";
+            $href = "{$file}&amp;p={$i}&amp;queue={$queue_id}";
             if ($hash)
                 $href .= '#'.$hash;
             if ($i == $this_page) {
