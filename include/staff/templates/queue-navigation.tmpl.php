@@ -12,7 +12,7 @@ $selected = $_REQUEST['queue'] == $this_queue->getId();
   <a href="<?php echo $this_queue->getHref(); ?>"><i class="icon-sort-down pull-right"></i><?php echo $this_queue->getName(); ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
-      <!-- Add top-level queue (with count) --> 
+      <!-- Add top-level queue (with count) 
       <li class="top-level">
         <span class="pull-right newItemQ queue-count"
           data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
@@ -24,7 +24,7 @@ $selected = $_REQUEST['queue'] == $this_queue->getId();
           echo Format::htmlchars($q->getName()); ?>
         </a>
         </h4>
-      </li>
+      </li>--> 
 
       <!-- Start Dropdown and child queues -->
       <?php foreach ($this_queue->getPublicChildren() as $q) {
