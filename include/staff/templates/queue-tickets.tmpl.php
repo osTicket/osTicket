@@ -57,7 +57,7 @@ $refresh_url = $path . '?' . http_build_query($args);
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-    require 'queue-quickfilter.tmpl.php';
+    //require 'queue-quickfilter.tmpl.php';
    // require 'queue-sort.tmpl.php';
     ?>
   </div>
@@ -143,6 +143,7 @@ if (
                             class="icon-fixed-width icon-trash"></i>
                             <?php echo __('Delete'); ?></a>
                         </li>
+		
 <?php } ?>
                     </ul>
                 </div>
@@ -155,6 +156,9 @@ if (
                 Ticket::agentActions($thisstaff, array('status' => $status));
             }?>
             </div>
+			<div class="pull-right flush-right ">
+			<?php require 'queue-quickfilter.tmpl.php';?>
+			</div>
         </div>
     </div>
 </div>

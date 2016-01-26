@@ -16,7 +16,7 @@ if (!($qf_field = $queue->getQuickFilterField($quick_filter)))
 
 $choices = $qf_field->getQuickFilterChoices();
 ?>
-<span class="action-button muted" data-dropdown="#quickfilter-dropdown">
+<span class="action-button " data-dropdown="#quickfilter-dropdown">
   <i class="icon-caret-down pull-right"></i>
   <span><i class="icon-filter"></i> <?php
     echo $qf_field->get('label');
