@@ -18,6 +18,7 @@ if (!($qf_field = $queue->getQuickFilterField($quick_filter)))
 $choices = $qf_field->getQuickFilterChoices();
 $choices[0]="All";
 asort($choices, SORT_STRING);
+unset($choices[12]);
 
 ?>
 <span class="action-button " data-dropdown="#quickfilter-dropdown">
