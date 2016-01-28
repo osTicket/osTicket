@@ -1374,7 +1374,6 @@ implements RestrictedAccess, Threadable, Searchable {
         ) { 
             return;
         }
-		
         // Who posted the entry?
         $skip = array();
         if ($entry instanceof MessageThreadEntry) { 
@@ -1382,6 +1381,7 @@ implements RestrictedAccess, Threadable, Searchable {
 	
             // Skip the person who sent in the message
             $skip[$entry->getUserId()] = 1;
+			$skip[Staff::getStaffUserId($this->getStaffId())] = 1;
             // Skip all the other recipients of the message
             foreach ($entry->getAllEmailRecipients() as $R) {
                 foreach ($recipients as $R2) {
@@ -1411,7 +1411,7 @@ implements RestrictedAccess, Threadable, Searchable {
             'poster' => $poster ?: _S('A collaborator'),
             )
         );
-
+		
         $msg = $this->replaceVars($msg->asArray(), $vars);
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
