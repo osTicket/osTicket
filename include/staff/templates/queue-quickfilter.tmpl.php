@@ -9,12 +9,16 @@ if (!$queue || !$queue->filter)
     return;
 
 $param = $param ?: 'filter';
-$quick_filter = $quick_filter ?: $_REQUEST[$param];
+$quick_filter = $quick_filter ?: $_SESSION['qfilter'];
+$_SESSION['qfilter'] = $quick_filter;
 
 if (!($qf_field = $queue->getQuickFilterField($quick_filter)))
     return;
 
 $choices = $qf_field->getQuickFilterChoices();
+$choices[0]="All";
+asort($choices, SORT_STRING);
+
 ?>
 <span class="action-button " data-dropdown="#quickfilter-dropdown">
   <i class="icon-caret-down pull-right"></i>

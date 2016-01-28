@@ -60,8 +60,10 @@ if (!$ticket) {
             && $queue_name)
         $_GET['status'] = $_REQUEST['status'] = $queue_name;
 		// Get queue id from navigation
-		if (isset($_REQUEST['queue'])) 
-					$_SESSION['queueno'] = $_REQUEST['queue'];	
+if (isset($_REQUEST['queue'])) 
+					$_SESSION['queueno'] = $_REQUEST['queue'];
+				
+				
 if (isset($_REQUEST['p'])) 
 					$_SESSION['pageno'] = $_REQUEST['p'];
 if (isset($_REQUEST['filter'])) 
@@ -69,16 +71,17 @@ if (isset($_REQUEST['filter']))
 				
 		$queue_id = $_SESSION['queueno'] ?: $cfg->getDefaultTicketQueueId();
 		$page_num = $_SESSION['pageno'] ?: 1;
-		$q_filter = $_SESSION['qfilter'] ?: 1;
+		$q_filter = $_SESSION['qfilter'] ?: null;
+//$q_filter = null;		// needs to be null to reset... 
+
 		$_SESSION['queueno'] = $queue_id;
 		$_SESSION['pageno'] = $page_num;
 		$_SESSION['qfilter'] = $q_filter;
 
 		$qurl= "&queue={$queue_id}";
 		$purl= "&p={$page_num}";
-		$qfurl= "&filter={$q_filter}";
+		$qfurl= "&undefined&filter={$q_filter}";
 		}
-
 
 //$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
 if ((int) $queue_id) {
@@ -496,7 +499,7 @@ if($ticket) {
     elseif ($queue) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];
-        $tickets = $queue->getQuery(false, $quick_filter);
+        $tickets = $queue->getQuery(false, $q_filter);//$quick_filter);
     }
 
     //set refresh rate if the user has it configured
