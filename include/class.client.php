@@ -28,8 +28,6 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function __call($name, $args) {
-        global $cfg;
-
         $rv = null;
         if($this->user && is_callable(array($this->user, $name)))
             $rv = $args
@@ -53,6 +51,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getVar($tag) {
+        global $cfg;
         switch (strtolower($tag)) {
         case 'ticket_link':
             $qstr = array();
