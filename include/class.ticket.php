@@ -3722,7 +3722,7 @@ implements RestrictedAccess, Threadable, Searchable {
 				while(list($id)=db_fetch_row($res)) {
 
 					if($ticket=Ticket::lookup($id)){ 
-					$ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$grace.' '.$plural.' of no activity.',$errors, false);
+					$ticket->setStatus('12', 'Ticket Auto-Closed by the SYSTEM after '.$grace.' '.$plural.' of no activity.',$errors, false);
 					}
 				}
 			}
