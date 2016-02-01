@@ -1573,6 +1573,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->onAssignment($this->team ?: $this->staff);
         }
 
+        $this->logEvent('started');
         Signal::send('task.started', $this);
         $this->save();
 
@@ -1823,6 +1824,10 @@ class TaskTemplate extends VerySimpleModel {
         $thread->addDescription(array(
             'description' => $data['description'],
         ));
+
+        // XXX: Should the current agent be logged in the event? This is
+        //      automated, but might have been triggered by a person
+        $task->logEvent('created');
 
         return $task;
     }
