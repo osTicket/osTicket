@@ -2045,6 +2045,10 @@ class TaskTemplate extends VerySimpleModel {
             'description' => $data['description'],
         ));
 
+        // XXX: Should the current agent be logged in the event? This is
+        //      automated, but might have been triggered by a person
+        $task->logEvent('created');
+
         return $task;
     }
 

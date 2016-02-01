@@ -87,3 +87,7 @@
 - id: 21
   name: note
   description:
+
+- id: 22
+  name: started
+  description: Used when a task is started
