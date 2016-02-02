@@ -22,7 +22,12 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
                     'close' => array(
                         'icon' => 'icon-ok-circle',
                         'action' => __('Close')
-                    ));
+                    ),
+                    'cancel' => array(
+                        'icon' => 'icon-remove',
+                        'action' => __('Cancel'),
+                    ),
+            );
         }
     }
 }
