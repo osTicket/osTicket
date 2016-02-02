@@ -274,6 +274,20 @@ class TaskModel extends VerySimpleModel {
         return $this->hasFlag(self::ISOPEN) && $this->hasFlag(self::ISPENDING);
     }
 
+    function isCancelled() {
+        return $this->isClosed() && $this->hasFlag(self::ISPENDING);
+    }
+
+    function isCancellable() {
+        return $this->isPending();
+    }
+
+    function cancel() {
+        // For now, an alias of close(), because no separate events or
+        // signals are called.
+        return $this->close();
+    }
+
     function isClosed() {
         return !$this->isOpen();
     }
@@ -282,6 +296,9 @@ class TaskModel extends VerySimpleModel {
 
         if ($this->isClosed())
             return true;
+
+        if ($this->isPending())
+            return false;
 
         $warning = null;
         if ($this->getMissingRequiredFields()) {
@@ -320,7 +337,7 @@ class TaskModel extends VerySimpleModel {
             }
         }
 
-        Signal::connect('task.closed', $this);
+        Signal::send('task.closed', $this);
     }
 
     protected function reopen() {
@@ -723,11 +740,23 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->close();
             break;
 
+        case 'cancel':
+            if ($this->isClosed())
+                return false;
+
+            try {
+                $this->cancel();
+            }
+            catch (Exception $x) {
+                $errors['err'] = $x->getMessage()
+                    ?: sprintf(__('%s cannot be cancelled'), __('This task'));
+            }
+
         default:
             return false;
         }
 
-        if (!$this->save(true))
+        if ($errors || !$this->save(true))
             return false;
 
         if ($comments) {
@@ -1538,6 +1567,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return true;
     }
 
+    function isStarted() {
+        return !is_null($this->started);
+    }
+
     /**
      * Start the task. This operation is distinct from creating a task in
      * that the 'new task' alert is triggered and the assignment takes place
@@ -2053,6 +2086,11 @@ class TaskTemplate extends VerySimpleModel {
      * Fetch a complete list of all templates which this task depends on,
      * including tasks on which those tasks depend. This is useful for
      * detecting circular dependencies.
+     *
+     * This list is somewhat sorted in that the members are added to the
+     * list in the apparent order of recursive dependency. That is, the
+     * first level dependencies are added first, then the next level for
+     * each of the first level, and then so on.
      */
     function getRecursiveDependentIds() {
         // Manage a list where the keys are template ids which this task

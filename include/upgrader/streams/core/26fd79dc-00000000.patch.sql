@@ -7,7 +7,8 @@
 ALTER TABLE `%TABLE_PREFIX%task`
   ADD `template_id` int(11) unsigned DEFAULT NULL AFTER `object_type`,
   ADD `set_id` int(11) unsigned DEFAULT NULL AFTER `template_id`,
-  ADD `started` datetime DEFAULT NULL AFTER `duedate`;
+  ADD `started` datetime DEFAULT NULL AFTER `duedate`,
+  ADD KEY `set_id` (`set_id`);
 
 ALTER TABLE `%TABLE_PREFIX%help_topic`
   ADD `task_group_id` int(10) unsigned NOT NULL DEFAULT '0' AFTER `sequence_id`;

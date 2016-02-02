@@ -735,6 +735,7 @@ class TasksAjaxAPI extends AjaxController {
         $statuses = array(
                 'open' => __('Reopen'),
                 'closed' => __('Close'),
+                'cancel' => __('Cancel'),
                 );
 
         if(!($task=Task::lookup($tid)) || !$task->checkStaffPerm($thisstaff))
@@ -767,6 +768,21 @@ class TasksAjaxAPI extends AjaxController {
                 $info['warn'] = sprintf(__('Are you sure you want to change status of %s?'),
                         __('this task'));
             break;
+        case 'cancel':
+            $perm = Task::PERM_CLOSE;
+            $info = array(
+                    ':title' => sprintf(__('Cancel Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/close',
+                        $task->getId())
+                    );
+
+            if (($m=$task->isCancellable()) !== true)
+                $errors['err'] = $info['error'] = $m;
+            else
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('change status of %s'), __('this task')));
+            break;
         default:
             Http::response(404, __('Unknown status'));
         }
@@ -794,6 +810,10 @@ class TasksAjaxAPI extends AjaxController {
 
    function close($tid) {
        return $this->changeStatus($tid, 'closed');
+   }
+
+   function cancel($tid) {
+       return $this->changeStatus($tid, 'cancel');
    }
 
     function task($tid) {
