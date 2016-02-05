@@ -1,5 +1,6 @@
 .filedrop {
     padding-bottom: 10px;
+	
 }
 .filedrop .dropzone {
     border: 2px dashed rgba(0, 0, 0, 0.2);
@@ -7,6 +8,8 @@
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.05);
     color: #999;
+	margin-left: auto;
+	margin-right: auto;
 }
 .filedrop .dropzone a {
     color: rgba(24, 78, 129, 0.7);

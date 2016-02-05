@@ -10,19 +10,18 @@ if ($_POST)
     // timezone)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
-<form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data">
+<form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data" class="ticket_edit_content">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="update">
     <input type="hidden" name="a" value="edit">
     <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
-    <div style="margin-bottom:20px; padding-top:5px;">
-        <div class="pull-left flush-left">
-            <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
-        </div>
+        <div class="ticket_open_title">
+        <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
     </div>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-        <tbody>
-            <tr>
+	
+  <table class="ticket_edit" width="100%" border="0" cellspacing="0" cellpadding="2">
+       <tbody class="open_ticket_userinformation">
+        <tr id="open_ticket_userinformation">
                 <th colspan="2">
                     <em><strong><?php echo __('User Information'); ?></strong>: <?php echo __('Currently selected user'); ?></em>
                 </th>
@@ -31,7 +30,7 @@ if ($_POST)
     if(!$info['user_id'] || !($user = User::lookup($info['user_id'])))
         $user = $ticket->getUser();
     ?>
-    <tr><td><?php echo __('User'); ?>:</td><td>
+    <tr id="open_ticket_userdata"><td><?php echo __('User'); ?>:</td><td>
         <div id="client-info">
             <a href="#" onclick="javascript:
                 $.userLookup('ajax.php/users/<?php echo $ticket->getOwnerId(); ?>/edit',
@@ -57,19 +56,21 @@ if ($_POST)
             <input type="hidden" name="user_id" id="user_id"
                 value="<?php echo $info['user_id']; ?>" />
         </div>
-        </td></tr>
-    <tbody>
-        <tr>
+        </td>
+	</tr>
+	</tbody>
+  <tbody class="open_ticket_informationdata">
+        <tr id="open_ticket_informationoptions">
             <th colspan="2">
             <em><strong><?php echo __('Ticket Information'); ?></strong>: <?php echo __("Due date overrides SLA's grace period."); ?></em>
             </th>
         </tr>
-        <tr>
-            <td width="160" class="required">
+        <tr id="open_ticket_informationdata">
+            <td  class="required">
                 <?php echo __('Ticket Source');?>:
             </td>
             <td>
-                <select name="source">
+                <select name="source"  class="requiredfield">
                     <option value="" selected >&mdash; <?php echo __('Select Source');?> &mdash;</option>
                     <option value="Phone" <?php echo ($info['source']=='Phone')?'selected="selected"':''; ?>><?php echo __('Phone');?></option>
                     <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>><?php echo __('Email');?></option>
@@ -80,8 +81,8 @@ if ($_POST)
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
         </tr>
-        <tr>
-            <td width="160" class="required">
+        <tr id="open_ticket_informationdata">
+            <td  class="required">
                 <?php echo __('Help Topic');?>:
             </td>
             <td>
@@ -99,7 +100,7 @@ if ($_POST)
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
-        <tr>
+        <tr id="open_ticket_informationdata">
             <td width="160">
                 <?php echo __('SLA Plan');?>:
             </td>
@@ -118,7 +119,7 @@ if ($_POST)
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['slaId']; ?></font>
             </td>
         </tr>
-        <tr>
+        <tr  id="open_ticket_informationdata">
             <td width="160">
                 <?php echo __('Due Date');?>:
             </td>
@@ -136,23 +137,24 @@ if ($_POST)
                 <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
             </td>
         </tr>
-    </tbody>
-</table>
-<table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
+        <tr  id="ticket_informationdata" style="display: none;">
         <?php if ($forms)
             foreach ($forms as $form) {
                 $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
         } ?>
+		</tr>
+		<tr><td colspan="2" style="background-color:#F4FAFF;line-height: 1px;">&nbsp;</td></tr>
 </table>
-<table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="ticket_edit_note" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
-        <tr>
+        <tr id="edit_ticket_note">
             <th colspan="2">
                 <em><strong><?php echo __('Internal Note');?></strong>: <?php echo __('Reason for editing the ticket (required)');?> <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
             </th>
         </tr>
         <tr>
-            <td colspan="2">
+			<td style="padding-left: 16px;vertical-align: top;padding-top: 10px;"><strong>Internal Note:</strong></td>
+            <td style="padding-top: 10px;padding-right:16px;">
                 <textarea class="richtext no-bar" name="note" cols="21"
                     rows="6" style="width:80%;"><?php echo $info['note'];
                     ?></textarea>

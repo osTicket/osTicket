@@ -241,7 +241,7 @@ if($ticket->isOverdue())
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100"><?php echo __('Status');?>:</th>
+                    <th width="180"><?php echo __('Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
@@ -261,7 +261,7 @@ if($ticket->isOverdue())
         <td width="50%" style="vertical-align:top">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
-                    <th width="100"><?php echo __('User'); ?>:</th>
+                    <th width="180"><?php echo __('User'); ?>:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
                             $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
@@ -374,7 +374,7 @@ if($ticket->isOverdue())
                 <?php
                 if($ticket->isOpen()) { ?>
                 <tr>
-                    <th width="100"><?php echo __('Assigned To');?>:</th>
+                    <th width="180"><?php echo __('Assigned To');?>:</th>
                     <td>
                         <?php
                         if($ticket->isAssigned())
@@ -423,7 +423,7 @@ if($ticket->isOverdue())
         <td width="50%">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
                 <tr>
-                    <th width="100"><?php echo __('Help Topic');?>:</th>
+                    <th style="width:180px"><?php echo __('Help Topic');?>:</th>
                     <td><?php echo Format::htmlchars($ticket->getHelpTopic()); ?></td>
                 </tr>
                 <tr>
@@ -459,18 +459,18 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         continue;
     ?>
     <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="100%" border="0">
-    <thead>
-        <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
-    </thead>
+    <div style="display:none;">
+        <th colspan="2" style="display:none;"><?php echo Format::htmlchars($form->getTitle()); ?></th>
+    </div>
     <tbody>
 <?php
     foreach ($displayed as $stuff) {
         list($label, $v) = $stuff;
 ?>
         <tr>
-            <td width="200"><?php
+            <th width="180"><strong><?php
 echo Format::htmlchars($label);
-            ?>:</th>
+            ?>:</strong></th>
             <td><?php
 echo $v;
             ?></td>
@@ -479,7 +479,7 @@ echo $v;
     </tbody>
     </table>
 <?php } ?>
-<div class="clear has_bottom_border"></div>
+
 
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();

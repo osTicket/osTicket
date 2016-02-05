@@ -434,7 +434,7 @@ implements FormRenderer {
 <?php         if ($label = $f->get('label')) { ?>
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
                   for="<?php echo $f->getWidget()->id; ?>">
-                  <?php echo Format::htmlchars($label); ?>:
+                  <?php  echo Format::htmlchars($label); ?>:
                 <?php if ($f->isRequired()) { ?>
                 <span class="error">*</span>
                 <?php
@@ -1188,6 +1188,9 @@ class FormField {
      * Returns true if the field/widget should be rendered as an entire
      * block in the target form.
      */
+	function ForceFullWidth(){
+		return false;
+	}
     function isBlockLevel() {
         return false;
     }
@@ -2039,8 +2042,12 @@ class SectionBreakField extends FormField {
         return false;
     }
 
+	function ForceFullWidth(){
+		return true;
+	}
+	
     function isBlockLevel() {
-        return true;
+        return false;
     }
 }
 
@@ -2050,6 +2057,9 @@ class ThreadEntryField extends FormField {
     function isChangeable() {
         return false;
     }
+	function ForceFullWidth(){
+		return false;
+	}
     function isBlockLevel() {
         return true;
     }
@@ -3114,7 +3124,7 @@ class TextboxWidget extends Widget {
         $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
             $config['placeholder']));
         ?>
-        <input type="<?php echo $type; ?>"
+       <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
                 $size, $maxlength, $classes, $autocomplete, $disabled,
@@ -3841,6 +3851,10 @@ class FreeTextField extends FormField {
     function hasData() {
         return false;
     }
+	
+	function ForceFullWidth(){
+		return false;
+	}
 
     function isBlockLevel() {
         return true;
