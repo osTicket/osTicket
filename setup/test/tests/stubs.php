@@ -127,6 +127,7 @@ class IntlBreakIterator {
 
 class SqlFunction {
     static function NOW() {}
+    static function LENGTH() {}
     static function COALESCE() {}
     static function DATEDIFF() {}
 }

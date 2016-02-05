@@ -1029,7 +1029,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function isWindowed() {
-        return $this->limit || $this->offset;
+        return $this->limit || $this->offset || (count($this->values) + count($this->annotations) + @count($this->extra['select'])) > 1;
     }
 
     function select_related() {

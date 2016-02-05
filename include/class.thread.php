@@ -604,6 +604,8 @@ implements TemplateVariable {
     var $_headers;
     var $_thread;
     var $_actions;
+    var $is_autoreply;
+    var $is_bounce;
 
     static protected $perms = array(
         self::PERM_EDIT => array(

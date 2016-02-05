@@ -150,8 +150,19 @@ extends VerySimpleModel {
     );
 
     static function items($namespace, $column='namespace') {
-        return static::objects()
+
+        $items = static::objects()
             ->filter([$column => $namespace]);
+
+        try {
+            count($items);
+        }
+        catch (InconsistentModelException $ex) {
+            // Pending upgrade ??
+            $items = array();
+        }
+
+        return $items;
     }
 
     function save($refetch=false) {

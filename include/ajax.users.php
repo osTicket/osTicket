@@ -29,6 +29,10 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(400, __('Query argument is required'));
         }
 
+        $matches = array();
+        if (!$_REQUEST['q'])
+            return $this->json_encode($matches);
+
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();

@@ -1006,8 +1006,9 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
             return false;
         elseif (!($_config = new Config('pwreset')))
             return false;
-        elseif (($staff = StaffSession::lookup($_POST['userid'])) &&
-                !$staff->getId())
+
+        $staff = StaffSession::lookup($_POST['userid']);
+        if (!$staff || !$staff->getId())
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $staff->getId())
