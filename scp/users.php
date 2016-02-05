@@ -162,9 +162,7 @@ if ($_POST) {
 } elseif(!$user && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
-    if (!($token=$_REQUEST['qh']))
-        $errors['err'] = __('Query token required');
-    elseif (!($query=$_SESSION['users_qs_'.$token]))
+    if (!($query=$_SESSION[':Q:users']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveUsers($query, __("users")."-$ts.csv", 'csv'))
         $errors['err'] = __('Internal error: Unable to dump query results');

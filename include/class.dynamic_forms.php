@@ -198,7 +198,7 @@ class DynamicForm extends VerySimpleModel {
         return $this->save();
     }
 
-    function getExportableFields($exclude=array()) {
+    function getExportableFields($exclude=array(), $prefix='__') {
         $fields = array();
         foreach ($this->getFields() as $f) {
             // Ignore core fields
@@ -209,7 +209,8 @@ class DynamicForm extends VerySimpleModel {
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
 
-            $fields['__field_'.$f->get('id')] = $f;
+            $name = $f->get('name') ?: ('field_'.$f->get('id'));
+            $fields[$prefix.$name] = $f;
         }
         return $fields;
     }
@@ -342,6 +343,10 @@ class DynamicForm extends VerySimpleModel {
             return TicketForm::updateDynamicDataView($answer, $data);
         case 'A':
             return TaskForm::updateDynamicDataView($answer, $data);
+        case 'U':
+            return UserForm::updateDynamicDataView($answer, $data);
+        case 'O':
+            return OrganizationForm::updateDynamicDataView($answer, $data);
         }
 
     }
@@ -355,6 +360,10 @@ class DynamicForm extends VerySimpleModel {
             return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
         case 'A':
             return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
+        case 'U':
+            return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+        case 'O':
+            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
         }
 
     }
@@ -406,6 +415,12 @@ class DynamicForm extends VerySimpleModel {
 class UserForm extends DynamicForm {
     static $instance;
     static $form;
+
+    static $cdata = array(
+            'table' => USER_CDATA_TABLE,
+            'object_id' => 'user_id',
+            'object_type' => ObjectModel::OBJECT_TYPE_USER,
+        );
 
     static function objects() {
         $os = parent::objects();

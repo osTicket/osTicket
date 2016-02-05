@@ -180,20 +180,14 @@ RolePermission::register(/* @trans */ 'Users', UserModel::getPermissions());
 
 class UserCdata extends VerySimpleModel {
     static $meta = array(
-        'table' => 'user__cdata',
-        'view' => true,
+        'table' => USER_CDATA_TABLE,
         'pk' => array('user_id'),
+        'joins' => array(
+            'user' => array(
+                'constraint' => array('user_id' => 'UserModel.id'),
+            ),
+        ),
     );
-
-    static function getQuery($compiler) {
-        $form = UserForm::getUserForm();
-        $exclude = array('name', 'email');
-        return '('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).')';
-    }
-
-    static function getSqlAddParams($compiler) {
-        return static::getQuery($compiler);
-    }
 }
 
 class User extends UserModel
