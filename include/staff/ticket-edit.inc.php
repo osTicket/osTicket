@@ -133,7 +133,8 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?>
+                    (<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
             </td>
         </tr>
     </tbody>
