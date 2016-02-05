@@ -1126,8 +1126,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 }
 
-if ($cfg && $cfg->isAuthTokenEnabled())
-    UserAuthenticationBackend::register('AuthTokenAuthentication');
+UserAuthenticationBackend::register('AuthTokenAuthentication');
 
 //Simple ticket lookup backend used to recover ticket access link.
 // We're using authentication backend so we can guard aganist brute force
