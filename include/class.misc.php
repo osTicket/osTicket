@@ -92,7 +92,10 @@ class Misc {
         if (is_int($timestamp)) {
             $time = $timestamp;
         } else {
-            $date = new DateTime($timestamp, $tz);
+            if (!($date = new DateTime($timestamp, $tz))) {
+                // Timestamp might be invalid
+                return $timestamp;
+            }
             $time = $date->format('U');
         }
 
