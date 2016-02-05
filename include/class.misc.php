@@ -127,8 +127,15 @@ class Misc {
     }
 
     /*Helper get GM time based on timezone offset*/
-    function gmtime() {
-        return time()-date('Z');
+    function gmtime($time=false, $user=false) {
+        global $cfg;
+
+        $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
+        if (!($time = new DateTime($time ?: 'now'))) {
+            // Old standard
+            return time() - date('Z');
+        }
+        return $time->getTimestamp() - $tz->getOffset($time);
     }
 
     /* Needed because of PHP 4 support */
@@ -190,7 +197,7 @@ class Misc {
                 $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                $disp = Format::time($i*3600 + $minute*60 + 1, false, false, 'UTC');
+                $disp = Format::time($i*3600 + $minute*60 + 1);
                 echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }

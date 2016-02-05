@@ -1891,7 +1891,7 @@ class DatetimeField extends FormField {
         $name = $name ?: $this->get('name');
         $config = $this->getConfiguration();
         $value = is_int($value)
-            ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::dbtime($value) : $value) ?: $value
+            ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value
             : $value;
         switch ($method) {
         case 'equal':
@@ -1915,7 +1915,8 @@ class DatetimeField extends FormField {
         case 'between':
             foreach (array('left', 'right') as $side) {
                 $value[$side] = is_int($value[$side])
-                    ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::dbtime($value[$side]) : $value[$side]) ?: $value[$side]
+                    ? DateTime::createFromFormat('U', !$config['gmt']
+                        ? Misc::gmtime($value[$side]) : $value[$side]) ?: $value[$side]
                     : $value[$side];
             }
             return new Q(array(
@@ -1923,14 +1924,16 @@ class DatetimeField extends FormField {
                 "{$name}__lte" => $value['right'],
             ));
         case 'ndaysago':
+            $now = Misc::gmtime();
             return new Q(array(
-                "{$name}__lt" => SqlFunction::NOW(),
-                "{$name}__gte" => SqlExpression::minus(SqlFunction::NOW(), SqlInterval::DAY($value['until'])),
+                "{$name}__lt" => $now,
+                "{$name}__gte" => SqlExpression::minus($now, SqlInterval::DAY($value['until'])),
             ));
         case 'ndays':
+            $now = Misc::gmtime();
             return new Q(array(
-                "{$name}__gt" => SqlFunction::NOW(),
-                "{$name}__lte" => SqlExpression::plus(SqlFunction::NOW(), SqlInterval::DAY($value['until'])),
+                "{$name}__gt" => $now,
+                "{$name}__lte" => SqlExpression::plus($now, SqlInterval::DAY($value['until'])),
             ));
         default:
             return parent::getSearchQ($method, $value, $name);
