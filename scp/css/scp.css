@@ -1296,6 +1296,17 @@ a.print {
 	
 }
 
+.ticket_open_table {
+    margin-top:3px;
+	border-radius:5px 5px 0 0;
+	border-top:1px solid #ddd;
+    border-left:1px solid #ddd;
+    border-right:1px solid #ddd;
+	margin-left:auto; 
+    margin-right:auto;
+	
+}
+
 .form_table td {
     border-bottom:1px solid #ddd;
     padding: 4px;
@@ -1329,6 +1340,7 @@ td.multi-line {
 
 input[type=text], input[type=password], textarea, input {
     padding: 3px 5px;
+
     font-size: 0.95em;
     font-family: inherit;
     background:#fff;
@@ -1464,14 +1476,262 @@ h3 {
     margin-right: auto;
     padding-left: 20px;
     padding-top: 10px;
-    padding-right: 20px;
+	padding-right: 20px;
     width: 960px;
 	border-radius: 5px 5px 0 0;
-	border-top: 1px solid #999;
-	border-right: 1px solid #999;
-	
+    border-top: 1px solid #999;
+    border-right: 1px solid #999;
 	
 }
+
+.ticket_open_title{
+	background: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+}
+.ticket_open_content{
+	background: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+	width: 960px;
+	border-radius: 5px;
+	border: 1px solid #999;
+}
+.ticket_edit_content{
+	background: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+	width: 960px;
+	border-radius: 5px;
+	border: 1px solid #999;
+}
+.ticket_open{
+	background: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+	border-top: 1px solid #999;
+
+}
+
+.ticket_edit{
+	background: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+	
+}
+
+.ticket_userinformation {
+	border-radius:5px 5px 0 0;
+	padding-top: 5px;
+	padding-left: 10px;
+	padding-bottom: 5px;
+	background-color:#F4FAFF;
+	text-align: left;
+	width: auto;
+ }
+
+
+ .open_ticket_userinformation{
+	 background-color:#F4FAFF;
+}
+ 
+tr#open_ticket_userinformation th{
+	 padding-left: 15px;
+	 padding-top: 10px;
+	  padding-bottom: 10px;
+	 text-align: left;
+	 background-color:#FFF;
+	 border-bottom: 1px solid #999;
+}
+tr#open_ticket_userdata td{
+	
+	padding-left: 15px;
+	padding-bottom: 5px;
+	
+}
+ .open_ticket_informationdata{
+	 background-color:#F4FAFF;
+}
+ tr#open_ticket_informationoptions th{
+ 	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color:#FFF;
+	text-align: left;
+	 border-top: 1px solid #999;
+	  border-bottom: 1px solid #999;
+ }
+ 
+  tr#open_ticket_dynamicformdata{ 
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color: #f7f7f7;
+	text-align: left;
+	border-top: 1px solid #999;
+	border-left: 0px solid #999;
+	border-right: 0px solid #999;
+	border-bottom: 1px solid #999;
+	margin-left: auto;
+	margin-left: right;
+ }
+
+ tbody#dynamic-form>tr#open_ticket_dynamicformdata>td.multi-line.dynamicformdatamulti{
+	 
+	background-color:#F4FAFF;
+ }
+ tbody#dynamic-form>tr#open_ticket_dynamicformdata>td{
+	background-color:#F4FAFF; 
+ }
+ 
+ tbody#dynamic-form>tr#open_ticket_dynamicformdata>td#requiredfield{
+	 	background-color:#F4FAFF; 
+	 
+ }
+
+ tr#open_ticket_dynamicformdata>td>div.form-header.section-break{
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color:#FFF;
+	text-align: left;
+	border-top: 1px solid #999;
+	border-left: 0px solid #999;
+	border-right: 0px solid #999;
+	border-bottom: 1px solid #999;
+	margin-left: auto;
+	margin-left: right;
+ }
+  tr#open_ticket_dynamicformdata td h3{
+	    font-style: italic;
+		font-size: 14px;
+
+ }
+ tr#open_ticket_informationdata td{
+	padding-top: 5px;
+	padding-left: 15px;
+	padding-bottom: 5px;
+}
+
+.dynamicformdatamulti{
+	padding-left: 10px;
+	
+}
+ tr#open_ticket_dynamicformdata {
+	padding-top: 5px;
+	padding-left: 10px;
+	padding-bottom: 5px;
+	background-color: #f7f7f7;
+}
+ tr#open_ticket_dynamicformdata td{
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+
+ tbody#dynamic-form tr th {
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color:#FFF;
+	text-align: left;
+	border-top: 1px solid #999;
+	border-bottom: 1px solid #999;
+ }
+  
+  
+  tr#open_ticket_response th {
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color: #FFE0B3;
+	text-align: left;
+	border-top: 1px solid #999;
+	border-bottom: 1px solid #999;
+ }
+ 
+ tr#open_ticket_note th{
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+ 	background-color: #FFE;	
+	text-align: left;
+	border-top: 1px solid #999;
+	border-bottom: 1px solid #999;
+	border-left: 0px solid #999;
+	border-r: 0px solid #999;
+ 	
+ }
+.open_ticket_dynamic-form{
+	padding-left: 15px;
+	
+}tr#edit_ticket_note th{
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+ 	background-color: rgb(255, 255, 238);;	
+	text-align: left;
+	border-top: 1px solid #999;
+	border-bottom: 1px solid #999;
+	border-left: 0px solid #999;
+	border-r: 0px solid #999;
+ 	
+ }
+
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr>th{
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	background-color:#FFF;
+	text-align: left;
+	border-top: 1px solid #999;
+	border-left: 0px solid #999;
+	border-right: 0px solid #999;
+	border-bottom: 1px solid #999;
+	margin-left: auto;
+	margin-left: right;	
+}
+
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr>th>em>div.pull-right>i.icon-sort{
+	display: none;
+}
+
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td.multi-line.dynamicformdatamulti{
+	 
+	background-color:#F4FAFF;
+ }
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td{
+	background-color:#F4FAFF; 
+ }
+ 
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td#requiredfield{
+	 	background-color:#F4FAFF; 
+	 
+ }
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td{
+	padding-left: 15px
+	
+}
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td>div.form-header.section-break{
+	margin-left: -15px;
+}
+form#save.ticket_edit_content>table.ticket_edit>tbody>tr#df>td{
+	display: none;
+	
+}
+table.ticket_info.custom-data>thead>tr>th{
+>>>>>>> 3843a43... Fixed a bunch of fomatting
+	
+}
+ .user-info{
+	 
+	 background-color:#F4FAFF;
+ }
 .tixTitle {
     margin-left: auto;
     margin-right: auto;
@@ -1516,7 +1776,7 @@ h3 {
     padding: 3px;
 }
 table.custom-data {
-    margin-bottom: 1em;
+    /*margin-bottom: 1em;*/
 }
 
 .right_align { text-align:right; }
@@ -2189,26 +2449,6 @@ h2 > i.help-tip {
     color: white;
 }
 
-tr#open_ticket_userinformation th{
- 	background-color:#F4FAFF;
- }
- tr#open_ticket_informationoptions th{
- 	background-color:#F4FAFF;
- }
- 
- tbody#dynamic-form tr th {
- 	background-color:#C3D9FF;
- }
- 
- tr#open_ticket_response th {
- 	background-color: #FFE0B3;
- }
- 
- tr#open_ticket_note th{
- 	background-color: #FFE;	
- 	
- }
-/* Knowledgebase */
 /* Knowledgebase */
 #kb {
   margin: 2px 0;
@@ -2624,7 +2864,7 @@ select + .button {
   outline-style: none;
 }
 .input.attached input {
-  height: 100%;
+  height: 24px;
   box-sizing: border-box;
   margin-right:0;
   border: 1px solid #999;
@@ -3096,7 +3336,6 @@ tr.disabled th {
 
 .tab_content {
     position: relative;
-	width: 100%
 	margin-left: auto;
 	margin-right: auto;
 	}
@@ -3231,6 +3470,23 @@ tr i.help-tip.warning {
 .required {
     font-weight: bold;
 }
+
+.requiredfield {
+	background-color: #ffffcc !important;	
+}
+#requiredfield input[type="text"], input[type="password"],input[type="email"]{
+	background-color: #ffffcc !important;	
+}
+td#requiredfield .redactor-editor, .redactor-box, .redactor-box textarea
+{
+  background-color: #ffffcc;
+ 
+}
+td#requiredfield .redactor-placeholder{
+width: 100%;
+
+}
+
 .truncate {
     width: auto;
     display: inline-block;
@@ -3661,9 +3917,13 @@ form .inset {
 .form.footer {
     margin-top: 50px;
 }
-label.checkbox {
+/*label.checkbox {
     display: block;
     padding-left: 1.3em;
+    text-indent: -1.3em;
+}*/
+
+label.checkbox {
     text-indent: -1.3em;
 }
 label.inline.checkbox {
