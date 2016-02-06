@@ -1221,6 +1221,8 @@ class OsticketConfig extends Config {
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
+        $f['autoclose_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+        $f['autoclose_duration']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
 
 
         if($vars['enable_captcha']) {
