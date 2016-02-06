@@ -206,7 +206,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td><?php echo __('Ticket Auto-Close Duration'); ?>:</td>
             <td>
                 <input type="text" name="autoclose_duration" size=4 value="<?php echo $config['autoclose_duration']; ?>">&nbsp;Hour(s)&nbsp;
-                <font class="error"><?php echo $errors['autoclose_duration']; ?></font>
+                <font class="error">*&nbsp;<?php echo $errors['autoclose_duration']; ?></font>
                 <i class="help-tip icon-question-sign" href="#autoclose_duration"></i>
             </td>
         </tr>
