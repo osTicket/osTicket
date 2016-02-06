@@ -3615,7 +3615,9 @@ implements RestrictedAccess, Threadable {
 
         require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
     }
-   function AutoClose() {
+    
+    // Close tickets based on Ticket Auto-Close from config
+    function AutoClose() {
         global $cfg;
         
         $grace = $cfg->getAutoCloseDuration();
@@ -3627,10 +3629,12 @@ implements RestrictedAccess, Threadable {
                 } else {
                 $plural = 'hours';
             }
+            
             // select all tickets marked as selected status from config page where updated is older than ($grace) hours ago
             $sql  = 'SELECT ticket_id FROM '.TICKET_TABLE.' ticket '
                     .' INNER JOIN '.TICKET_STATUS_TABLE.' status ON (status.id=ticket.status_id AND status_id = '. $graceStatusId .') '
                     .' AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$grace.'*3600';
+            
             if(($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res)) {
                     if($ticket=Ticket::lookup($id)) 
