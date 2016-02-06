@@ -207,6 +207,8 @@ class OsticketConfig extends Config {
         'agent_avatar' => 'gravatar.mm',
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
+        'autoclose_duration' => 72,
+        'autoclose_status_id' => 0,
     );
 
     function OsticketConfig($section=null) {
@@ -481,6 +483,14 @@ class OsticketConfig extends Config {
             $this->defaultDept=Dept::lookup($this->getDefaultDeptId());
 
         return $this->defaultDept;
+    }
+
+    function getAutoCloseDuration() {
+        return $this->get('autoclose_duration');
+    }
+ 
+    function getAutoCloseStatusId() {
+        return $this->get('autoclose_status_id');
     }
 
     function getDefaultEmailId() {
@@ -1250,6 +1260,8 @@ class OsticketConfig extends Config {
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
+            'autoclose_duration'=>$vars['autoclose_duration'],
+            'autoclose_status_id'=>$vars['autoclose_status_id'],
         ));
     }
 
