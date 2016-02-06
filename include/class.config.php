@@ -206,6 +206,7 @@ class OsticketConfig extends Config {
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
         'ticket_lock' => 2, // Lock on activity
+        'max_open_tickets' => 0,
     );
 
     function OsticketConfig($section=null) {

@@ -166,7 +166,9 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
-                <?php echo __('per end user'); ?> <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
+                <?php echo __('per end user'); ?>
+                <span class="error">*&nbsp;<?php echo $errors['max_open_tickets']; ?></span>
+                <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
         <tr>
