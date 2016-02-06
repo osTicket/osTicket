@@ -60,7 +60,6 @@ implements TemplateVariable {
         ),
     );
 
-    var $page;
     var $_forms;
 
     const DISPLAY_DISABLED = 2;
