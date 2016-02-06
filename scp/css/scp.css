@@ -946,6 +946,8 @@ a#post-note:hover {
 }
 img.avatar {
     border-radius: inherit;
+    vertical-align: middle;
+    margin-right: 5px;
 }
 .avatar > img.avatar {
     width: 100%;

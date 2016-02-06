@@ -5,9 +5,11 @@
 if (($users=$thread->getCollaborators())) {?>
 <?php
     foreach($users as $user) {
-        echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
+        echo sprintf('<tr><td %s>%s%s <em class="faded">&lt;%s&gt;</em></td></tr>',
                 ($user->isActive()? '' : 'class="faded"'),
-                ($user->isActive()? 'comments' :  'comment-alt'),
+                (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                    ? $A->getImageTag(20) : sprintf('<i class="icon-%s"></i>',
+                        ($user->isActive()? 'comments' :  'comment-alt')),
                 Format::htmlchars($user->getName()),
                 $user->getEmail());
     }
