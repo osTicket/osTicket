@@ -2364,9 +2364,11 @@ class DatetimeField extends FormField {
         $nday_form = function($x=5) {
             return array(
                 'until' => new TextboxField(array(
+                    'layout' => new GridFluidCell(8),
                     'configuration' => array('validator'=>'number', 'size'=>4))
                 ),
                 'int' => new ChoiceField(array(
+                    'layout' => new GridFluidCell(4),
                     'default' => 'd',
                     'choices' => self::intervals($x),
                 )),
