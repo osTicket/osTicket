@@ -262,6 +262,7 @@ class Internationalization {
             return self::availableLanguages();
 
         if (!isset($langs)) {
+            $langs = array();
             $pri = $cfg->getPrimaryLanguage();
             if ($info = self::getLanguageInfo($pri))
                 $langs = array($pri => $info);

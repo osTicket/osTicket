@@ -24,7 +24,10 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
-        }
+        } 
+        
+        if (!$_REQUEST['q'])
+            return $this->json_encode(array());
 
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;

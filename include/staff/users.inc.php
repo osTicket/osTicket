@@ -1,8 +1,10 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qs = array();
+// Ensure cdata
+UserForm::ensureDynamicDataView();
 
+$qs = array();
 $users = User::objects()
     ->annotate(array('ticket_count'=>SqlAggregate::COUNT('tickets')));
 
@@ -51,7 +53,7 @@ $pageNav->setURL('users.php', $qs);
 $qstr.='&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 
 //echo $query;
-$_SESSION[':Q:users'] = clone $users;
+$_SESSION[':Q:users'] = $users;
 
 $users->values('id', 'name', 'default_email__address', 'account__id',
     'account__status', 'created', 'updated', 'org__name');

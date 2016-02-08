@@ -114,7 +114,8 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
         }
     }
     elseif ($user instanceof AuthenticatedUser) {
-        Http::redirect('tickets.php');
+        Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
     }
 }
 

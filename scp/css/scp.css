@@ -1856,6 +1856,8 @@ h2 .reload {
 }
 img.avatar {
     border-radius: inherit;
+    vertical-align: middle;
+    margin-right: 5px;
 }
 .avatar > img.avatar {
     width: 100%;
@@ -3950,6 +3952,16 @@ input[type=checkbox] {
 }
 .vertical-pad {
   margin-top: 3px;
+}
+
+input, textarea {
+    padding: 3px 5px;
+    font-size: 0.95em;
+    font-family: inherit;
+    border-radius:4px;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
+    border: 1px solid #bbb;
 }
 
 small {
