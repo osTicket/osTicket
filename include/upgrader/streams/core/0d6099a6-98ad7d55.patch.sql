@@ -52,6 +52,15 @@ UPDATE `%TABLE_PREFIX%form_field` A1
   SET A1.`flags` = A1.`flags` | 0x00002
   WHERE A2.`type` = 'T' AND A1.`name` = 'message';
 
+-- Change storage type for `DatetimeField` values to Y-m-d format
+UPDATE `%TABLE_PREFIX%form_entry_values` A1
+  JOIN `%TABLE_PREFIX%form_field` A2 ON (A2.`id` = A1.`field_id`)
+  SET A1.`value` = DATE_FORMAT(FROM_UNIXTIME(A1.`value`), '%Y-%m-%d %H:%i:%s')
+  WHERE A2.`type` = 'datetime';
+
+-- Updates should happen in the %cdata tables too; however, those are more
+-- complex and the tables are being dropped anyway
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '98ad7d550c26ac44340350912296e673'

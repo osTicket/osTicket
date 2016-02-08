@@ -1006,8 +1006,9 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
             return false;
         elseif (!($_config = new Config('pwreset')))
             return false;
-        elseif (($staff = StaffSession::lookup($_POST['userid'])) &&
-                !$staff->getId())
+
+        $staff = StaffSession::lookup($_POST['userid']);
+        if (!$staff || !$staff->getId())
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $staff->getId())
@@ -1125,8 +1126,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 }
 
-if ($cfg && $cfg->isAuthTokenEnabled())
-    UserAuthenticationBackend::register('AuthTokenAuthentication');
+UserAuthenticationBackend::register('AuthTokenAuthentication');
 
 //Simple ticket lookup backend used to recover ticket access link.
 // We're using authentication backend so we can guard aganist brute force

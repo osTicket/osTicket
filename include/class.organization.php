@@ -78,6 +78,10 @@ class OrganizationModel extends VerySimpleModel {
         return $this->name;
     }
 
+    function getNumUsers() {
+        return $this->users->count();
+    }
+
     function getAccountManager() {
         if (!isset($this->_manager)) {
             if ($this->manager[0] == 't')
@@ -153,18 +157,15 @@ RolePermission::register(/* @trans */ 'Organizations',
 
 class OrganizationCdata extends VerySimpleModel {
     static $meta = array(
-        'table' => 'org__cdata',
-        'view' => true,
+        'table' => ORGANIZATION_CDATA_TABLE,
         'pk' => array('org_id'),
+        'joins' => array(
+            'org' => array(
+                'constraint' => array('ord_id' => 'OrganizationModel.id'),
+            ),
+        ),
     );
-
-    function getQuery($compiler) {
-        $form = OrganizationForm::getDefaultForm();
-        $exclude = array('name');
-        return '('.$form->getCrossTabQuery($form->type, 'org_id', $exclude).')';
-    }
 }
-
 
 class Organization extends OrganizationModel
 implements TemplateVariable, Searchable {
@@ -541,6 +542,12 @@ implements TemplateVariable, Searchable {
 class OrganizationForm extends DynamicForm {
     static $instance;
     static $form;
+
+    static $cdata = array(
+            'table' => ORGANIZATION_CDATA_TABLE,
+            'object_id' => 'org_id',
+            'object_type' => ObjectModel::OBJECT_TYPE_ORG,
+        );
 
     static function objects() {
         $os = parent::objects();
