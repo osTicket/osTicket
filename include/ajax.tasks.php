@@ -783,6 +783,15 @@ class TasksAjaxAPI extends AjaxController {
                 $info['warn'] = sprintf(__('Are you sure you want to %s?'),
                         sprintf(__('change status of %s'), __('this task')));
             break;
+        case 'start':
+            $perm = Task::PERM_CREATE;
+            $info = array(
+                    ':title' => sprintf(__('Start Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/start',
+                        $task->getId())
+                    );
+            break;
         default:
             Http::response(404, __('Unknown status'));
         }
@@ -814,6 +823,10 @@ class TasksAjaxAPI extends AjaxController {
 
    function cancel($tid) {
        return $this->changeStatus($tid, 'cancel');
+   }
+
+   function start($tid) {
+       return $this->changeStatus($tid, 'start');
    }
 
     function task($tid) {

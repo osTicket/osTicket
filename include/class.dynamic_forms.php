@@ -154,11 +154,9 @@ class DynamicForm extends VerySimpleModel {
 
     function instanciate($sort=1, $data=null) {
         $inst = DynamicFormEntry::create(
-            array('form_id'=>$this->get('id'), 'sort'=>$sort)
+            array('form_id'=>$this->get('id'), 'sort'=>$sort),
+            $data
         );
-
-        if ($data)
-            $inst->setSource($data);
 
         $inst->_fields = $this->_fields ?: null;
 
@@ -441,9 +439,9 @@ class UserForm extends DynamicForm {
         return static::$instance;
     }
 
-    static function getNewInstance() {
+    static function getNewInstance($data=null) {
         $o = static::objects()->one();
-        static::$instance = $o->instanciate();
+        static::$instance = $o->instanciate(1, $data);
         return static::$instance;
     }
 }
@@ -946,7 +944,6 @@ class DynamicFormEntry extends VerySimpleModel {
     var $_fields;
     var $_form;
     var $_errors = false;
-    var $_clean = false;
     var $_source = null;
 
     function getId() {
@@ -1313,8 +1310,10 @@ class DynamicFormEntry extends VerySimpleModel {
     static function create($ht=false, $data=null) {
         $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
-        if ($data)
+        if ($data) {
             $inst->setSource($data);
+            $clean = $inst->getClean(Form::FORMAT_DATABASE);
+        }
         foreach ($inst->getDynamicFields() as $field) {
             if (!($impl = $field->getImpl($field)))
                 continue;
@@ -1322,9 +1321,12 @@ class DynamicFormEntry extends VerySimpleModel {
                 continue;
             $a = new DynamicFormEntryAnswer(
                 array('field'=>$field, 'entry'=>$inst));
+            if ($clean)
+                $a->value = $clean[$field->get('name')];
             $a->field->setAnswer($a);
             $inst->answers->add($a);
         }
+        $inst->_errors = false;
         return $inst;
     }
 }
@@ -1367,7 +1369,8 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     function getField() {
         if (!isset($this->_field)) {
             $this->_field = $this->field->getImpl($this->field);
-            $this->_field->setAnswer($this);
+            if (isset($this->value))
+                $this->_field->setAnswer($this);
         }
         return $this->_field;
     }
@@ -1377,11 +1380,15 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         if (!isset($this->_value)) {
             //XXX: We're settting the value here to avoid infinite loop
             $this->_value = false;
-            if (isset($this->value))
-                $this->_value = $this->getField()->to_php(
-                        $this->get('value'), $this->get('value_id'));
+            $field = $this->getField();
+            if (isset($this->value)) {
+                $this->_value = $field->to_php(
+                        $this->value, $this->value_id);
+            }
+            else {
+                $this->_value = $field->to_php($field->getClean());
+            }
         }
-
         return $this->_value;
     }
 

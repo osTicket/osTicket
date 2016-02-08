@@ -3558,8 +3558,7 @@ implements RestrictedAccess, Threadable, Searchable {
         Signal::send('ticket.create.before', null, $vars);
 
         // Create and verify the dynamic form entry for the new ticket
-        $form = TicketForm::getNewInstance();
-        $form->setSource($vars);
+        $form = TicketForm::getNewInstance($vars);
 
         // If submitting via email or api, ensure we have a subject and such
         if (!in_array(strtolower($origin), array('web', 'staff'))) {

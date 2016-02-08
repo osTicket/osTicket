@@ -122,7 +122,7 @@ if ($task->isOverdue())
 <?php if ($T = $task->getTicket()) { ?>
         <small class="faded"><?php echo str_replace('<a>',
             sprintf('<a href="tickets.php?id=%d">', $T->getId()),
-            sprintf(__('via Ticket <a> #%s </a>'), $T->getNumber(a))
+            sprintf(__('via ticket <a> #%s </a>'), $T->getNumber(a))
         ); ?></small>
 <?php } ?>
                 </h2>
@@ -225,7 +225,15 @@ if ($task->isOverdue())
                                 class="icon-fixed-width icon-remove"></i> <?php
                                 echo __('Cancel');?> </a>
                         </li>
+<?php                       if ($task->canStart()) { ?>
+                        <li>
+                            <a class="no-pjax task-action"
+                                href="#tasks/<?php echo $task->getId(); ?>/start"><i
+                                class="icon-fixed-width icon-level-up"></i> <?php
+                                echo __('Start');?> </a>
+                        </li>
                         <?php
+                            }
                         } elseif ($canClose) {
                         ?>
                         <li>
@@ -469,7 +477,7 @@ if (!$ticket) { ?>
 // Hide `related tasks` when rendering in the ticket view, because the list
 // of tasks already shows the task sets in labeled chunks
 if (!$ticket && ($set = $task->set)
-    && ($related = $set->getTasks()->order_by('-created'))
+    && ($related = $set->getTasks()->order_by('template__sort', 'id'))
     && $related->exists(true)
 ) { ?>
 <div style="margin-bottom:1em;">
@@ -618,22 +626,27 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task:status">
-                            <option value="pending" <?php
-                                echo $task->isPending() ? 'selected="selected"': ''; ?>> <?php
-                                echo __('Pending'); ?></option>
-                            <?php if ($task->isOpen() || $task->canStart()) { ?>
+<?php                       if ($task->isPending()) { ?>
+                            <option value="pending" selected="selected"><?php echo __('Pending'); ?></option>
+                            <option value="cancel"><?php echo __('Cancel'); ?></option>
+<?php                           if ($task->canStart()) { ?>
+                            <option value="start"><?php echo __('Start'); ?></option>
+<?php                           }
+                            }
+                            elseif ($task->isOpen()) { ?>
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Open'); ?></option>
-                            <?php
-                            }
+<?php                       }
                             if ($task->isClosed() || $canClose) { ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo __('Closed'); ?></option>
-                            <?php
+                                echo _('Closed'); ?></option>
+<?php                           if ($task->isClosed()) { ?>
+                            <option value="open"><?php echo __('Reopen'); ?></option>
+<?php                           }
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
@@ -682,23 +695,27 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task:status">
-                            <option value="pending" <?php
-                                echo $task->isPending() ? 'selected="selected"': ''; ?>> <?php
-                                echo __('Pending'); ?></option>
-                            <?php if ($task->isOpen() || $task->canStart()) { ?>
+<?php                       if ($task->isPending()) { ?>
+                            <option value="pending" selected="selected"><?php echo __('Pending'); ?></option>
+                            <option value="cancel"><?php echo __('Cancel'); ?></option>
+<?php                           if ($task->canStart()) { ?>
+                            <option value="start"><?php echo __('Start'); ?></option>
+<?php                           }
+                            }
+                            elseif ($task->isOpen()) { ?>
                             <option value="open" <?php
                                 echo $task->isOpen() && !$task->isPending() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Open'); ?></option>
-                            <?php
-                            }
-                            if ($task->isClosed() || $canClose) {
-                                ?>
+<?php                       }
+                            elseif ($task->isClosed() || $canClose) { ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Closed'); ?></option>
-                            <?php
+<?php                           if ($task->isClosed()) { ?>
+                            <option value="open"><?php echo __('Reopen'); ?></option>
+<?php                           }
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo

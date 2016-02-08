@@ -751,6 +751,20 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 $errors['err'] = $x->getMessage()
                     ?: sprintf(__('%s cannot be cancelled'), __('This task'));
             }
+            break;
+
+        case 'start':
+            if (!$this->canStart())
+                return false;
+
+            try {
+                $this->start();
+            }
+            catch (Exception $x) {
+                $errors['err'] = $x->getMessage()
+                    ?: sprintf(__('%s cannot be started'), __('This task'));
+            }
+            break;
 
         default:
             return false;
@@ -1598,10 +1612,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($this->team_id || $this->staff_id) {
             $evd = array();
             if ($this->team)
-                $evd['team'] = $this->team;
+                $evd['team'] = array($this->team_id, $this->team->getName());
             if ($this->staff)
                 $evd['staff'] = array($this->staff_id, $this->staff->getName());
-
             $this->logEvent('assigned', $evd);
             $this->onAssignment($this->team ?: $this->staff);
         }
@@ -2472,7 +2485,7 @@ class TaskTemplateGroup extends VerySimpleModel {
      * group and adds them to the set. The created TaskSet is returned.
      */
     function instanciate(Ticket $ticket, $vars=false) {
-        $set = TaskSet::create($vars + array(
+        $set = TaskSet::create(($vars ?: array()) + array(
             'template_group_id' => $this->id,
         ));
         $set->save();
