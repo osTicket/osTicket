@@ -25,7 +25,11 @@ abstract class Avatar {
     abstract function getUrl($size);
 
     function getImageTag($size=null) {
-        return '<img class="avatar" alt="'.__('Avatar').'" src="'.$this->getUrl($size).'" />';
+        $style = ($size)
+            ? sprintf('style="max-height:%spx"', $size)
+            : '';
+        return "<img {$style} class=\"avatar\" alt=\""
+            .__('Avatar').'" src="'.$this->getUrl($size).'" />';
     }
 
     function __toString() {

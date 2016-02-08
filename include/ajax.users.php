@@ -23,11 +23,15 @@ require_once INCLUDE_DIR.'class.note.php';
 class UsersAjaxAPI extends AjaxController {
 
     /* Assumes search by basic info for now */
-    function search($type = null, $fulltext=true) {
+    function search($type = null, $fulltext=false) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, __('Query argument is required'));
         }
+
+        $matches = array();
+        if (!$_REQUEST['q'])
+            return $this->json_encode($matches);
 
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
@@ -35,7 +39,7 @@ class UsersAjaxAPI extends AjaxController {
         $emails=array();
         $matches = array();
 
-        if (strlen($q) < 3)
+        if (strlen($q) < 2)
             return $this->encode(array());
 
         if (!$type || !strcasecmp($type, 'remote')) {
@@ -59,10 +63,8 @@ class UsersAjaxAPI extends AjaxController {
 
             if ($fulltext) {
                 global $ost;
-                $users = $ost->searcher->find($q, $users);
-                $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
-                    ->distinct('id');
-
+                $users = $ost->searcher->find($q, $users, true);
+                
                 if (!count($emails) && !count($users) && preg_match('`\w$`u', $q)) {
                     // Do wildcard full-text search
                     $_REQUEST['q'] = $q."*";
@@ -87,7 +89,7 @@ class UsersAjaxAPI extends AjaxController {
             }
 
             foreach ($users as $U) {
-                list($id,$email,$name) = $U;
+                list($id, $name, $email) = $U;
                 foreach ($matches as $i=>$u) {
                     if ($u['email'] == $email) {
                         unset($matches[$i]);

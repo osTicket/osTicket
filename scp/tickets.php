@@ -450,7 +450,6 @@ $nav->addSubMenu(function() use ($queue, $adhoc) {
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
 });
 
-
 if ($thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Ticket'),
                            'title'=> __('Open a New Ticket'),

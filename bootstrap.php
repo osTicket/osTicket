@@ -69,11 +69,15 @@ class Bootstrap {
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
+
         define('USER_TABLE',$prefix.'user');
+        define('USER_CDATA_TABLE', $prefix.'user__cdata');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
         define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
         define('ORGANIZATION_TABLE', $prefix.'organization');
+        define('ORGANIZATION_CDATA_TABLE', $prefix.'organization__cdata');
+
         define('NOTE_TABLE', $prefix.'note');
 
         define('STAFF_TABLE',$prefix.'staff');

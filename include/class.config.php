@@ -150,8 +150,19 @@ extends VerySimpleModel {
     );
 
     static function items($namespace, $column='namespace') {
-        return static::objects()
+
+        $items = static::objects()
             ->filter([$column => $namespace]);
+
+        try {
+            count($items);
+        }
+        catch (InconsistentModelException $ex) {
+            // Pending upgrade ??
+            $items = array();
+        }
+
+        return $items;
     }
 
     function save($refetch=false) {
@@ -197,6 +208,7 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'autoclose_duration' => 72,
         'autoclose_status_id' => 0,
+        'max_open_tickets' => 0,
     );
 
     function OsticketConfig($section=null) {

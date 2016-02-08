@@ -181,7 +181,7 @@ class HtmlInlineElement {
     }
 
     function traverse($node) {
-        if ($node->hasChildNodes()) {
+        if ($node && $node->hasChildNodes()) {
             for ($i = 0; $i < $node->childNodes->length; $i++) {
                 $n = $node->childNodes->item($i);
                 $this->children[] = identify_node($n, $this);
@@ -194,7 +194,9 @@ class HtmlInlineElement {
         $after_block = false;
         $this->ws = $this->getStyle('white-space', 'normal');
         // Direction
-        $dir = $this->node->getAttribute('dir');
+        if ($this->node)
+            $dir = $this->node->getAttribute('dir');
+
         // Ensure we have a value, but don't emit a control char unless
         // direction is declared
         $this->dir = $dir ?: 'ltr';
@@ -287,10 +289,11 @@ class HtmlInlineElement {
         if ($this->style && $this->style->has($property))
             return $this->style->get($property, $default);
 
-        if ($tag === false)
+        if ($this->node && $tag === false)
             $tag = $this->node->nodeName;
+
         if ($classes === false) {
-            if ($c = $this->node->getAttribute('class'))
+            if ($this->node && ($c = $this->node->getAttribute('class')))
                 $classes = explode(' ', $c);
             else
                 $classes = array();
