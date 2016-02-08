@@ -123,7 +123,7 @@ if ($_POST)
                 <em><strong><?php echo __('Ticket Information');?></strong>:</em>
             </th>
         </tr>
-        <tr id="open_ticket_informationdata" style="display:none;">
+        <tr id="open_ticket_informationdata">
             <td width="160" class="required">
                 <?php echo __('Ticket Source');?>:
             </td>
@@ -200,7 +200,7 @@ if ($_POST)
                 &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
             </td>
         </tr>
-         <tr  id="open_ticket_informationdata" style="display:none;">
+         <tr  id="open_ticket_informationdata">
             <td width="160">
                 <?php echo __('SLA Plan');?>:
             </td>

@@ -2261,9 +2261,8 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 	
         $this->setLastMessage($message);
-		
 		// Set Status to Responded
-		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9)
+		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9  && $this->getStatusId() !== 0)
 		$this->setStatusId(7);	
 
         // Add email recipients as collaborators...
