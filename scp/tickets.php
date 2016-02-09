@@ -273,7 +273,7 @@ if($_POST && !$errors):
                     } elseif($ticket->isAssigned()) {
                         $errors['err'] = sprintf(__('Ticket is already assigned to %s'),$ticket->getAssigned());
                     } elseif ($ticket->claim()) {
-                        $msg = __('Ticket is now assigned to you!');
+                        $msg = __('Ticket is now assigned to yhjchfsou!');
 					} else {
                         $errors['err'] = __('Problems assigning the ticket. Try again');
                     }
