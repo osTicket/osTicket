@@ -757,7 +757,7 @@ class TicketsAjaxAPI extends AjaxController {
                         );
             } elseif ($state != 'open') {
                  $msg = sprintf(__('%s status changed to %s'),
-                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                         sprintf(__("Ticket #<a href=\"tickets.php?queue=30&id={$ticket->getId()}\"\><b>{$ticket->getNumber()}</b></a>"), $ticket->getNumber()),
                          $status->getName());
             } else {
                 $msg = sprintf(

@@ -209,8 +209,13 @@ if($_POST && !$errors):
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
-                $msg=__('Internal note posted successfully');
-                // Clear attachment list
+                $msg = sprintf(__('%s: Internal note posted successfully'),
+                        sprintf(__('Ticket #%s'),
+                            sprintf('<a href="tickets.php?queue=30&id=%d"><b>%s</b></a>',
+                                $ticket->getId(), $ticket->getNumber()))
+                        );
+
+				// Clear attachment list
                 $note_form->setSource(array());
                 $note_form->getField('attachments')->reset();
 
@@ -271,7 +276,7 @@ if($_POST && !$errors):
                     } elseif($ticket->isAssigned()) {
                         $errors['err'] = sprintf(__('Ticket is already assigned to %s'),$ticket->getAssigned());
                     } elseif ($ticket->claim()) {
-                        $msg = __('Ticket is now assigned to yhjchfsou!');
+                        $msg = __('Ticket is now assigned to you!');
 					} else {
                         $errors['err'] = __('Problems assigning the ticket. Try again');
                     }
