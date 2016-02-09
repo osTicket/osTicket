@@ -723,7 +723,7 @@ class SavedSearch extends VerySimpleModel {
         // TODO: Get base page from getRoot();
         $root = $this->getRoot();
 		
-        return 'tickets.php?queue='.$this->getId()."&filter=";
+        return 'tickets.php?queue='.$this->getId()."&filter=&p=1";
     }
     
     function getRoot() {

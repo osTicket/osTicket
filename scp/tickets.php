@@ -23,7 +23,7 @@ require_once(INCLUDE_DIR.'class.json.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
-$page='';
+
 $ticket = $user = null; //clean start.
 $redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
@@ -63,7 +63,6 @@ if (!$ticket) {
 if (isset($_REQUEST['queue'])) 
 					$_SESSION['queueno'] = $_REQUEST['queue'];
 				
-				
 if (isset($_REQUEST['p'])) 
 					$_SESSION['pageno'] = $_REQUEST['p'];
 if (isset($_REQUEST['filter'])) 
@@ -82,7 +81,6 @@ if (isset($_REQUEST['filter']))
 		$purl= "&p={$page_num}";
 		$qfurl= "&undefined&filter={$q_filter}";
 		}
-
 //$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
 if ((int) $queue_id) {
     $queue = CustomQueue::lookup($queue_id);
@@ -497,7 +495,7 @@ if($ticket) {
     }
     elseif ($queue) {
         // XXX: Check staff access?
-        $quick_filter = @$_REQUEST['filter'];
+        $quick_filter = $_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $q_filter);//$quick_filter);
     }
 

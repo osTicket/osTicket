@@ -26,7 +26,7 @@ if (!$view_all_tickets) {
     $tickets->filter($visibility);
 }
 
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$page = ($_SESSION['pageno'])?$_SESSION['pageno']:1;
 $count = count($tickets);
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
