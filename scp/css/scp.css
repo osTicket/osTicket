@@ -1307,6 +1307,14 @@ a.print {
 	
 }
 
+form#save.ticket_open_content>table.ticket_open>tbody#dynamic-form>tr#open_ticket_dynamicformdata>td>div#requiredfield select{
+	background-color: #ffffcc !important;
+}
+form#save>table>tbody#dynamic-form>tr#open_ticket_dynamicformdata>td>div#requiredfield>span>span>span{
+	
+		background-color: #ffffcc !important;
+}
+
 .form_table td {
     border-bottom:1px solid #ddd;
     padding: 4px;
@@ -1593,6 +1601,9 @@ tr#open_ticket_userdata td{
 	 	background-color:#F4FAFF; 
 	 
  }
+  tbody#dynamic-form>tr#open_ticket_dynamicformdata>td#requiredfield>select{
+	 	background-color:#F4FAFF; 
+}
 
  tr#open_ticket_dynamicformdata>td>div.form-header.section-break{
 	padding-top: 10px;
@@ -1710,9 +1721,9 @@ form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicform
  }
  
 form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td#requiredfield{
-	 	background-color:#F4FAFF; 
-	 
- }
+	 	background-color:#ffffcc; 
+}
+
 form#save.ticket_edit_content>table.ticket_edit>tbody>tr#open_ticket_dynamicformdata>td{
 	padding-left: 15px
 	
@@ -1725,7 +1736,6 @@ form#save.ticket_edit_content>table.ticket_edit>tbody>tr#df>td{
 	
 }
 table.ticket_info.custom-data>thead>tr>th{
->>>>>>> 3843a43... Fixed a bunch of fomatting
 	
 }
  .user-info{
