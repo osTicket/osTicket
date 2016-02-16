@@ -2246,9 +2246,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     // Insert message from client
-    function postMessage($vars, $origin='', $alerts=true) {
+    function postMessage($vars, $origin='', $alerts='1') {
         global $cfg;
-
         if ($origin)
             $vars['origin'] = $origin;
         if (isset($vars['ip']))
@@ -2314,7 +2313,7 @@ implements RestrictedAccess, Threadable, Searchable {
 		
         $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage() && $alerts !='0')
             $this->notifyCollaborators($message, array('signature' => ''));
 
         if (!($alerts && $autorespond))
@@ -3423,7 +3422,7 @@ implements RestrictedAccess, Threadable, Searchable {
         //post the message.
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
-        $message = $ticket->postMessage($vars , $origin, false);
+        $message = $ticket->postMessage($vars , $origin, '0');
 
         // If a message was posted, flag it as the orignal message. This
         // needs to be done on new ticket, so as to otherwise separate the

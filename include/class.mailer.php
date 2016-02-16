@@ -344,12 +344,13 @@ class Mailer {
             if (!isset($options['inreplyto'])) {
 
                 $entry = null;
+				
                 switch (true) {
                 case $recipient instanceof TicketOwner:
                 case $recipient instanceof Collaborator:
-                    $entry = $thread->getLastEmailMessage(array(
-                                'user_id' => $recipient->getUserId()));
-                    break;
+                 //   $entry = $thread->getLastEmailMessage(array(
+                 //               'user_id' => $recipient->getUserId()));
+                 //   break;
                 case $recipient instanceof Staff:
                     //XXX: is it necessary ??
                     break;
