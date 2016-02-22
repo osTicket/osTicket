@@ -1991,8 +1991,7 @@ class CheckboxWidget extends Widget {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                return null;
-                //return false; returning false implies that checkbox will always be unchecked
+                return false;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();
