@@ -640,25 +640,25 @@ class EmailDataParser {
         $tolist = array();
         if (($to = $parser->getToAddressList()))
             $tolist['to'] = $to;
-
         if (($cc = $parser->getCcAddressList()))
             $tolist['cc'] = $cc;
-
+        if (($bcc = $parser->getBccAddressList()))
+            $tolist['bcc'] = $bcc;
         if (($dt = $parser->getDeliveredToAddressList()))
             $tolist['delivered-to'] = $dt;
 
+        $emails = array();
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
-                if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                    //Skip virtual Delivered-To addresses
-                    if ($source == 'delivered-to') continue;
-
+                if (($id=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $emails[] = $id;
+                    if (!$data['emailId'] && $source == 'delivered-to')
+                        $data['emailId'] = $id;
+                } elseif (!in_array($source, array('delivered-to', 'bcc'))) {
                     $data['recipients'][] = array(
                         'source' => sprintf(_S("Email (%s)"), $source),
                         'name' => trim(@$addr->personal, '"'),
                         'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$data['emailId']) {
-                    $data['emailId'] = $emailId;
                 }
             }
         }
@@ -676,18 +676,6 @@ class EmailDataParser {
                         $data['recipients'][$i]['source'] = 'delivered-to';
                 }
             }
-        }
-
-
-        //maybe we got BCC'ed??
-        if(!$data['emailId']) {
-            $emailId =  0;
-            if($bcc = $parser->getBccAddressList()) {
-                foreach ($bcc as $addr)
-                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
-                        break;
-            }
-            $data['emailId'] = $emailId;
         }
 
         if ($parser->isBounceNotice()) {
@@ -709,7 +697,10 @@ class EmailDataParser {
             $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
-        $data['to-email-id'] = $data['emailId'];
+        if (!$data['emailId'] && $emails)
+            $data['emailId'] =  $emails[0]; //TODO: allow multiqueue
+
+        $data['to-email-id'] = $data['emailId'] ?: 0;
 
         if (($replyto = $parser->getReplyTo())) {
             $replyto = $replyto[0];

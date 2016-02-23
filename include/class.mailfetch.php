@@ -204,7 +204,7 @@ class MailFetcher {
                     $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
                     if (!fwrite($f, $text))
                         throw new Exception();
-                    stream_filter_remove($s_filter); 
+                    stream_filter_remove($s_filter);
                     fclose($f);
                     if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp))))
                         throw new Exception();
@@ -320,10 +320,13 @@ class MailFetcher {
 
         // Put together a list of recipients
         $tolist = array();
-        if($headerinfo->to)
+        if ($headerinfo->to)
             $tolist['to'] = $headerinfo->to;
-        if($headerinfo->cc)
+        if ($headerinfo->cc)
             $tolist['cc'] = $headerinfo->cc;
+        if ($headerinfo->bcc)
+            $tolist['bcc'] = $headerinfo->bcc;
+
 
         //Add delivered-to address to list.
         if (stripos($header['header'], 'delivered-to:') !==false
@@ -333,19 +336,23 @@ class MailFetcher {
                 $tolist['delivered-to'] = $delivered_to;
         }
 
+        // System emails
+        $header['emails'] = array();
+        // Other third-party recipients
         $header['recipients'] = array();
-        foreach($tolist as $source => $list) {
-            foreach($list as $addr) {
-                if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
-                    //Skip virtual Delivered-To addresses
-                    if ($source == 'delivered-to') continue;
+        foreach ($tolist as $source => $list) {
+            foreach ($list as $addr) {
+                if (($id=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
+                    $header['emails'][] = $id;
+                    // Set email id if source is delivered-to.
+                    if (!$header['emailId'] && $source == 'delivered-to')
+                        $header['emailId'] = $id;
 
+                } elseif (!in_array($source, array('delivered-to', 'bcc'))) {
                     $header['recipients'][] = array(
                             'source' => sprintf(_S("Email (%s)"),$source),
                             'name' => $this->mime_decode(@$addr->personal),
                             'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$header['emailId']) {
-                    $header['emailId'] = $emailId;
                 }
             }
         }
@@ -357,15 +364,6 @@ class MailFetcher {
                     if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
                         $header['recipients'][$i]['source'] = 'delivered-to';
                 }
-            }
-        }
-
-        //BCCed?
-        if(!$header['emailId']) {
-            if ($headerinfo->bcc) {
-                foreach($headerinfo->bcc as $addr)
-                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
-                        break;
             }
         }
 
@@ -680,11 +678,18 @@ class MailFetcher {
         }
 
         $vars = $mailinfo;
+        $vars['mailflags'] = new ArrayObject();
         $vars['name'] = $mailinfo['name'];
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
-        $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
-        $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
-        $vars['mailflags'] = new ArrayObject();
+        if (!$vars['emailId']) {
+            // We're going to prefer the email account we're fetching
+            if (!$vars['emails'] || in_array($this->getEmailId(), $vars['emails']))
+                $vars['emailId'] = $this->getEmailId();
+            else
+                $vars['emailId'] = $vars['emails'][0];
+        }
+
+        $vars['to-email-id'] = $vars['emailId'] ?: 0;
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
@@ -804,10 +809,9 @@ class MailFetcher {
             }
 
             // Log an error to the system logs
-            $mailbox = Email::lookup($vars['emailId']);
             $ost->logError(_S('Mail Processing Exception'), sprintf(
                 _S("Mailbox: %s | Error(s): %s"),
-                $mailbox->getEmail(),
+                $this->getUsername(),
                 print_r($errors, true)
             ), false);
 
