@@ -620,6 +620,11 @@ class MailFetcher {
 
         if ($cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
+		
+		$body = str_replace('<o:p></o:p></p>', '<br>', $body); 
+		$body = str_replace('<p class="MsoNormal">', '', $body);
+		$body = str_replace('<o:p>&nbsp;</o:p></p>', '<br>', $body);
+		$body = str_replace('<o:p></o:p></span></p>', '<br>', $body);
 
         return $body;
     }
