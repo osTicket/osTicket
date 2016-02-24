@@ -3342,7 +3342,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$priority || !$priority->getIdValue())
             $form->setAnswer('priority', null, $cfg->getDefaultPriorityId());
         $deptId = $deptId ?: $cfg->getDefaultDeptId();
-        $statusId = $statusId ? $cfg->getDefaultTicketStatusId() : 1;
+        $statusId = $statusId ?: $cfg->getDefaultTicketStatusId();
         $topicId = isset($topic) ? $topic->getId() : 0;
         $ipaddress = $vars['ip'] ?: $_SERVER['REMOTE_ADDR'];
         $source = $source ?: 'Web';
