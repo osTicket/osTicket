@@ -328,7 +328,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
+        if (!db_query($sql) || !db_affected_rows())
             return self::dropDynamicDataView($cdata['table']);
     }
 
@@ -537,7 +537,7 @@ class TicketForm extends DynamicForm {
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'ticket__cdata` SET '.$fields
             .', `ticket_id`='.db_input($answer->getEntry()->get('object_id'))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
+        if (!db_query($sql) || !db_affected_rows())
             return self::dropDynamicDataView();
     }
 }
