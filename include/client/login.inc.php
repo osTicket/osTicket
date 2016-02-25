@@ -54,7 +54,7 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
     <?php echo __('Not yet registered?'); ?> <a href="account.php?do=create"><?php echo __('Create an account'); ?></a>
     </div>
 <?php } ?>
-<?php if ($cfg && $cfg->isRemoveStaffLoginLinkEnabled()) { ?>
+<?php if ($cfg && !$cfg->isRemoveStaffLoginLinkEnabled()) { ?>
     <div>
     <b><?php echo __("I'm an agent"); ?></b> —
     <a href="<?php echo ROOT_PATH; ?>scp/"><?php echo __('sign in here'); ?></a>
