@@ -122,6 +122,12 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td width="220"><?php echo __('Remove Staff Login Link');?>:</td>
+            <td>
+                <input type="checkbox" name="remove_staff_login_link" <?php echo $config['remove_staff_login_link'] ? 'checked="checked"': ''; ?>><?php echo __('Removes the staff login link from the client login interface');?>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Date and Time Options'); ?></b>&nbsp;
                 <i class="help-tip icon-question-sign" href="#date_time_options"></i>

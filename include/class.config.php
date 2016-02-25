@@ -366,6 +366,10 @@ class OsticketConfig extends Config {
         return $this->get('name_format');
     }
 
+    function isRemoveStaffLoginLinkEnabled() {
+        return $this->get('remove_staff_login_link');
+    }
+
     function getDefaultDeptId() {
         return $this->get('default_dept_id');
     }
@@ -893,6 +897,7 @@ class OsticketConfig extends Config {
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],
+            'remove_staff_login_link'=>isset($vars['remove_staff_login_link'])?1:0,
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
