@@ -53,12 +53,12 @@ $qstr = '&amp;'.Http::build_query($qs);
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="200"><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Group Name');?></a></th>
+            <th><a <?php echo $name_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Group Name');?></a></th>
             <th width="80"><a  <?php echo $status_sort; ?> href="groups.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $users_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Members');?></a></th>
             <th width="80" style="text-align:center;"><a  <?php echo $depts_sort; ?>href="groups.php?<?php echo $qstr; ?>&sort=depts"><?php echo __('Departments');?></a></th>
@@ -92,8 +92,8 @@ $qstr = '&amp;'.Http::build_query($qs);
                 <td style="text-align:right;padding-right:30px">&nbsp;&nbsp;
                     <?php echo $row['depts']; ?>
                 </td>
-                <td><?php echo Format::db_date($row['created']); ?>&nbsp;</td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td nowrap><?php echo Format::db_date($row['created']); ?>&nbsp;</td>
+                <td nowrap><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
             </tr>
             <?php
             } //end of while.

@@ -45,19 +45,19 @@ else
 <div class="pull-left" style="width:700px;padding-top:5px;">
  <h2><?php echo __('Departments');?></h2>
  </div>
-<div class="pull-left flush-right" style="padding-top:5px;padding-right:5px;">
+<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
     <b><a href="departments.php?a=add" class="Icon newDepartment"><?php echo __('Add New Department');?></a></b></div>
 <div class="clear"></div>
 <form action="departments.php" method="POST" name="depts">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="180"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
             <th width="80"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
             <th width="70"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Agents');?></a></th>
             <th width="300"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
@@ -91,9 +91,9 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['dept_id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>  <?php echo $default?'disabled="disabled"':''; ?> >
                 </td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['dept_name']; ?></a>&nbsp;<?php echo $default; ?></td>
-                <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
-                <td>&nbsp;&nbsp;
+                <td nowrap><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['dept_name']; ?></a>&nbsp;<?php echo $default; ?></td>
+                <td nowrap><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
+                <td nowrap>&nbsp;&nbsp;
                     <b>
                     <?php if($row['users']>0) { ?>
                         <a href="staff.php?did=<?php echo $row['dept_id']; ?>"><?php echo $row['users']; ?></a>
@@ -101,9 +101,9 @@ else
                     <?php } ?>
                     </b>
                 </td>
-                <td><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php
+                <td nowrap><span class="ltr"><a href="emails.php?id=<?php echo $row['email_id']; ?>"><?php
                     echo Format::htmlchars($row['email']); ?></a></span></td>
-                <td><a href="staff.php?id=<?php echo $row['manager_id']; ?>"><?php echo $row['manager']; ?>&nbsp;</a></td>
+                <td nowrap><a href="staff.php?id=<?php echo $row['manager_id']; ?>"><?php echo $row['manager']; ?>&nbsp;</a></td>
             </tr>
             <?php
             } //end of while.

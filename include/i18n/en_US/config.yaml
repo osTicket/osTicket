@@ -25,6 +25,7 @@ core:
     client_login_timeout: 2
     client_session_timeout: 30
     max_page_size: 25
+    max_page_width: 960
     max_open_tickets: 0
     autolock_minutes: 3
     default_priority_id: 2

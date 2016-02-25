@@ -35,7 +35,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 </ul>
 
 <div id="definition" class="tab_content">
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -105,7 +105,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     </table>
 </div>
 <div id="properties" class="tab_content" style="display:none">
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="7">
@@ -207,7 +207,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 </table>
 </div>
 <div id="items" class="tab_content" style="display:none">
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <?php if ($list) {
         $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;

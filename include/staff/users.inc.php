@@ -151,12 +151,12 @@ else
  <input type="hidden" id="action" name="a" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
  <input type="hidden" id="org_id" name="org_id" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th nowrap width="12"> </th>
-            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
+            <th><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
             <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
@@ -191,7 +191,7 @@ else
                 <td nowrap>
                     <input type="checkbox" value="<?php echo $row['id']; ?>" class="ckb mass nowarn"/>
                 </td>
-                <td>&nbsp;
+                <td nowrap>&nbsp;
                     <a class="userPreview" href="users.php?id=<?php echo $row['id']; ?>"><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
@@ -201,9 +201,9 @@ else
                              <small>(%d)</small>', $row['tickets']);
                     ?>
                 </td>
-                <td><?php echo $status; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td nowrap><?php echo $status; ?></td>
+                <td nowrap><?php echo Format::db_date($row['created']); ?></td>
+                <td nowrap><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

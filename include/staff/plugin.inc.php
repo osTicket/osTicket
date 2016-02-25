@@ -30,7 +30,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 if ($page)
     $config->renderCustomConfig();
 elseif ($form) { ?>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
 <?php $form->render(); ?>
     </tbody></table>

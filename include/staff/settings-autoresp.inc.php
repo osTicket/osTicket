@@ -2,7 +2,7 @@
 <form action="settings.php?t=autoresp" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="autoresp" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

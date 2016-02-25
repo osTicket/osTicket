@@ -7,7 +7,7 @@ $pages = Page::getPages();
     enctype="multipart/form-data">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="pages" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead><tr>
         <th colspan="2">
             <h4><?php echo __('Basic Information'); ?></h4>
@@ -93,7 +93,7 @@ $pages = Page::getPages();
         </tr>
     </tbody>
 </table>
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

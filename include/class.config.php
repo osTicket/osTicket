@@ -310,6 +310,10 @@ class OsticketConfig extends Config {
         return $this->get('max_page_size');
     }
 
+    function getPageWidth() {
+        return $this->get('max_page_width');
+    }
+
     function getGracePeriod() {
         return $this->get('overdue_grace_period');
     }
@@ -894,6 +898,7 @@ class OsticketConfig extends Config {
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
             'max_page_size'=>$vars['max_page_size'],
+            'max_page_width'=>$vars['max_page_width'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],

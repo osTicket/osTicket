@@ -11,7 +11,7 @@ $info['id']=$staff->getId();
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('My Account Profile');?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

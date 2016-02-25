@@ -105,11 +105,11 @@ if($res && ($num=db_num_rows($res)))
 else
     $showing=__('No agents found!');
 ?>
-<table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+<table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="160"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
             <th width="150"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
             <th width="180"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
             <th width="120"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone"><?php echo __('Phone Number');?></a></th>
@@ -127,7 +127,7 @@ else
                <tr id="<?php echo $row['staff_id']; ?>">
                 <td>&nbsp;<?php echo Format::htmlchars($name); ?></td>
                 <td>&nbsp;<?php echo Format::htmlchars($row['dept']); ?></td>
-                <td>&nbsp;<?php echo Format::htmlchars($row['email']); ?></td>
+                <td nowrap>&nbsp;<?php echo Format::htmlchars($row['email']); ?></td>
                 <td>&nbsp;<?php echo Format::phone($row['phone']); ?></td>
                 <td>&nbsp;<?php echo $row['phone_ext']; ?></td>
                 <td>&nbsp;<?php echo Format::phone($row['mobile']); ?></td>

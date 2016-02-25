@@ -45,6 +45,8 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo ROOT_PATH; ?>favicon.ico?v=2" />
+    <link rel="icon" type="image/x-icon" href="<?php echo ROOT_PATH; ?>favicon.ico?v=2" />
 
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
@@ -53,7 +55,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     ?>
 </head>
 <body>
-<div id="container">
+<div id="container" style="width:<?php echo $cfg->getConfigInfo()['max_page_width']; ?>px;">
     <?php
     if($ost->getError())
         echo sprintf('<div id="error_bar">%s</div>', $ost->getError());
