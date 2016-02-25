@@ -1,8 +1,14 @@
         </div>
     </div>
     <div id="footer">
-        <p>Copyright &copy; <?php echo date('Y'); ?> <?php echo (string) $ost->company ?: 'osTicket.com'; ?> - All rights reserved.</p>
-        <a id="poweredBy" href="http://osticket.com" target="_blank"><?php echo __('Helpdesk software - powered by osTicket'); ?></a>
+        <p><a href="<?php 
+            $dFooterURLStr = db_fetch_array(db_query('SELECT value FROM '.FORM_ANSWER_TABLE.' WHERE field_id=24'))["value"] ;
+            if (empty(parse_url($dFooterURLStr)['scheme'])) {
+                $dFooterURLStr = 'http://' . ltrim($dFooterURLStr, '/');
+            }
+            echo $dFooterURLStr ; 
+            ?>" target="_blank">Copyright &copy; <?php echo date('Y'); ?> <?php echo (string) $ost->company ?: 'osTicket.com'; ?> - All rights reserved.</a></p>
+        <a href="http://osticket.com" target="_blank"><?php echo __('Helpdesk software - powered by osTicket'); ?></a>
     </div>
 <div id="overlay"></div>
 <div id="loading">
