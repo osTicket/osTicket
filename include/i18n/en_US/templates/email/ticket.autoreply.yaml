@@ -1,6 +1,8 @@
 #
 # Email template: ticket.autoreply.yaml
 #
+# Ticket Name - New Ticket Auto-Reply
+#
 # Sent to a user when an automatic canned response is posted to a ticket
 # when it is created
 #
@@ -12,28 +14,45 @@ notes: |
     Available variables for replacement: %{ticket.*}, %{response}
 
 subject: |
-    Re: %{ticket.subject} [#%{ticket.number}]
+    [#%{ticket.number}]: Re: %{ticket.subject}
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
-    A request for support has been created and assigned ticket <a
-    href="%{recipient.ticket_link}">#%{ticket.number}</a> with the following
-    automatic reply
+    A request for our %{ticket.dept} has been created and assigned ticket with the following details and summary: <br>
     <br>
+    <table>
+        <tbody>
+            <tr>
+                <td><strong>Ticket ID</strong>:</td>
+                <td><a href="%{recipient.ticket_link}">%{ticket.number}</a></td>
+            </tr>
+            <tr>
+                <td><strong>Subject</strong>:</td>
+                <td>%{ticket.subject}</td>
+            </tr>
+            <tr>
+                <td><strong>Department</strong>:</td>
+                <td>%{ticket.dept}</td>
+            </tr>
+            <tr>
+                <td><strong>Status</strong>:</td>
+                <td>%{ticket.status}</td>
+            </tr>
+        </tbody>
+    </table>
+    <blockquote>
+        %{response}
+    </blockquote><br>
     <br>
-    Topic: <strong>%{ticket.topic.name}</strong>
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name} <br>
     <br>
-    Subject: <strong>%{ticket.subject}</strong>
+    <div style="color: rgb(127, 127, 127); font-size: small;">
+        <em>We hope this response has sufficiently answered your questions.<br>
+        If you wish to provide additional comments or informatione, please reply to this email or <a href="%{recipient.ticket_link}"><span style="color: rgb(84, 141, 212);">click here</span></a> for a complete archive of the ticket thread.</em><br>
+        <strong>When replying, please make sure that the ticket ID is kept in the subject so that we can track your replies.</strong>
+    </div>
     <br>
-    <br>
-    %{response}
-    <br>
-    <br>
-    <div style="color: rgb(127, 127, 127);">Your %{company.name} Team,<br>
-    %{signature}</div>
-    <hr>
-    <div style="color: rgb(127, 127, 127); font-size: small;"><em>We hope
-    this response has sufficiently answered your questions.  If you wish to
-    provide additional comments or informatione, please reply to this email
-    or <a href="%{recipient.ticket_link}"><span
-    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
-    a complete archive of your support requests.</em></div>
+    <div style="color: rgb(127, 127, 127);">
+        %{signature} <br>
+    </div>

@@ -1,6 +1,8 @@
 #
 # Email template: message.autoresp.yaml
 #
+# Ticket Name - New Message Auto-Response
+#
 # Sent to a user when the user posts a new message to a ticket. This can
 # happen if the users responds to an email from the system or visits the
 # customer web portal and posts a new message there.
@@ -12,19 +14,24 @@ notes: |
     customer web portal and posts a new message there.
 
 subject: |
-    Message Confirmation
+    [#%{ticket.number}]: Re: %{ticket.subject}
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
-    Your reply to support request <a
-    href="%{recipient.ticket_link}">#%{ticket.number}</a> has been noted
+    Your reply to our %{ticket.dept} has been noted, for your reference you submitted the following information: <br>
+    <blockquote>
+        %{ticket.thread.lastmessage}
+    </blockquote><br>
     <br>
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name} <br>
     <br>
-    <div style="color: rgb(127, 127, 127); ">
-    Your %{company.name} Team,<br>
-    %{signature}
+    <div style="color: rgb(127, 127, 127); font-size: small;">
+        <em><a href="%{recipient.ticket_link}">To update this ticket or to post a reply, please click here</a> or you can simply reply to this email.</em><br>
+        <strong>When replying, please make sure that the ticket ID is kept in the subject so that we can track your replies.</strong><br>
+        <em>You can check the status or view the progress of this ticket <a href="%{recipient.ticket_link}">online here</a></em>
     </div>
-    <hr>
-    <div style="color: rgb(127, 127, 127); font-size: small; text-align:
-    center"><em>You can view the support request progress <a
-    href="%{recipient.ticket_link}">online here</a></em>
+    <br>
+    <div style="color: rgb(127, 127, 127);">
+        %{signature} <br>
     </div>

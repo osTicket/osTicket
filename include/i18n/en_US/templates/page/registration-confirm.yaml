@@ -12,11 +12,14 @@ notes: >
     form. The template should mention that the system is sending 
     them an email confirmation link and what is the next step in the registration
     process.
-name: "Account registration"
+name: "Account registration - %{company.name}"
 body: >
-    <div><strong>Thanks for registering for an account.</strong><br/>
-    <br />
-    We've just sent you an email to the address you entered. Please follow
-    the link in the email to confirm your account and gain access to your
-    tickets.
+    <div><strong>Thanks for registering for an account.</strong><br>
+    <br>
+    We've just sent you an email to the address you entered. Please follow the link in the email to confirm your account and gain access to your tickets.<br>
+    <br>
+    <em style="font-size: small">
+    Kind Regards,<br>
+    %{company.name}
+    </em>
     </div>
