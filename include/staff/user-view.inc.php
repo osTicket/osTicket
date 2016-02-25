@@ -109,7 +109,8 @@ $org = $user->getOrganization();
                 <tr>
                     <th width="150"><?php echo __('Status'); ?>:</th>
                     <td> <span id="user-<?php echo $user->getId();
-                    ?>-status"><?php echo $user->getAccountStatus(); ?></span></td>
+                    ?>-status"><?php echo $user->getAccountStatus(); 
+                     echo (BanList::isbanned($user->getEmail()) == 1 ? '&nbsp;&nbsp;<font color="ff0000">(Banned)</font>' : ''); ?></span></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Created'); ?>:</th>

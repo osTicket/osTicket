@@ -201,7 +201,7 @@ else
                              <small>(%d)</small>', $row['tickets']);
                     ?>
                 </td>
-                <td nowrap><?php echo $status; ?></td>
+                <td nowrap><?php echo $status; ?><?php echo (BanList::isbanned($row['email']) ? '&nbsp;&nbsp;<font color="ff0000">(Banned)</font>' : ''); ?></td>
                 <td nowrap><?php echo Format::db_date($row['created']); ?></td>
                 <td nowrap><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
                </tr>
