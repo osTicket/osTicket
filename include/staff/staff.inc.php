@@ -128,7 +128,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Authentication'); ?></strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
+                <em><strong><?php echo __('Authentication'); ?></strong>: <?php
+                echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
             </th>
         </tr>
         <tr>
@@ -190,7 +192,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th colspan="2">
                 <em><strong><?php echo __("Agent's Signature");?></strong>:
                 <?php echo __('Optional signature used on outgoing emails.');?>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>
                 &nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
             </th>
         </tr>
