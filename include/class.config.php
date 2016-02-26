@@ -153,6 +153,7 @@ class OsticketConfig extends Config {
         'enable_html_thread' => true,
         'allow_attachments' =>  true,
         'name_format' =>        'full', # First Last
+        'enable_collaborators'=>  true,
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -791,6 +792,10 @@ class OsticketConfig extends Config {
         return ($this->get('overdue_alert_dept_members'));
     }
 
+    function enableCollaboratorsOnReply() {
+        return $this->get('enable_collaborators');
+    }
+
     function autoClaimTickets() {
         return $this->get('auto_claim_tickets');
     }
@@ -999,6 +1004,7 @@ class OsticketConfig extends Config {
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
+            'enable_collaborators'=>isset($vars['enable_collaborators'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
             'show_ticket_departments'=>isset($vars['show_ticket_departments'])?0:1,

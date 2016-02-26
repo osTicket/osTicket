@@ -159,6 +159,15 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Include Collaborators on Reply');?>:</td>
+            <td>
+                <input type="checkbox" name="enable_collaborators" <?php echo $config['enable_collaborators']?'checked="checked"':''; ?>>
+                <?php echo __('Enable Collaborators on ticket replies.');?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_collaborators']; ?></font>
+                &nbsp;<i class="help-tip icon-question-sign" href="#enable_collaborators"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Claim on Response'); ?>:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
