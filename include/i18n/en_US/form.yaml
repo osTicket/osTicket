@@ -77,7 +77,7 @@
     - id: 20
       type: text # notrans
       name: subject # notrans
-      label: Issue Summary
+      label: Issue Summary (Subject)
       required: true
       edit_mask: 15
       sort: 1
@@ -87,7 +87,7 @@
     - id: 21
       type: thread # notrans
       name: message # notrans
-      label: Issue Details
+      label: Issue Details (Body)
       hint: Details on the reason(s) for opening the ticket.
       required: true
       edit_mask: 15
