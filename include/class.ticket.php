@@ -1018,6 +1018,10 @@ class Ticket {
             if($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
                 if(($members=$dept->getMembersForAlerts()))
                     $recipients=array_merge($recipients, $members);
+            //Otherwise send alerts to dept members if the ticket has been auto-assigned via a ticket filter or help topic.
+            }elseif($cfg->alertDeptMembersONNewTicket() && $cfg->alertSendIfAutoAssignedONNewTicket()) {
+                if(($members=$dept->getMembersForAlerts()))
+                    $recipients=array_merge($recipients, $members);
             }
 
             if($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))

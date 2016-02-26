@@ -33,6 +33,12 @@
         </tr>
         <tr>
             <td>
+              <input type="checkbox" name="ticket_alert_send_if_auto_assigned" <?php echo $config['ticket_alert_send_if_auto_assigned']?'checked':''; ?>>
+              <?php echo __('Send if ticket is Auto-Assigned via Ticket Filter or Help Topic'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <input type="checkbox" name="ticket_alert_dept_manager" <?php echo $config['ticket_alert_dept_manager']?'checked':''; ?>>
                 <?php echo __('Department Manager'); ?>
             </td>

@@ -726,6 +726,10 @@ class OsticketConfig extends Config {
         return ($this->get('ticket_alert_admin'));
     }
 
+    function alertSendIfAutoAssignedONNewTicket() {
+        return ($this->get('ticket_alert_send_if_auto_assigned'));
+    }
+
     function alertDeptManagerONNewTicket() {
         return ($this->get('ticket_alert_dept_manager'));
     }
@@ -1146,6 +1150,7 @@ class OsticketConfig extends Config {
 
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
+                    && !isset($vars['ticket_alert_send_if_auto_assigned'])
                     && !isset($vars['ticket_alert_dept_manager'])
                     && !isset($vars['ticket_alert_dept_members'])
                     && !isset($vars['ticket_alert_acct_manager']))) {
@@ -1192,6 +1197,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_alert_active'=>$vars['ticket_alert_active'],
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
+            'ticket_alert_send_if_auto_assigned'=>isset($vars['ticket_alert_send_if_auto_assigned'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
             'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,
