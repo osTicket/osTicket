@@ -95,6 +95,15 @@ human_verification:
         <br><br>
         Requires GDLib library
 
+enable_collaborators:
+    title: Include Collaborators on Ticket Replies
+    content: >
+        Enable this to automatically tick the checkbox for collaborators to be
+        included on the ticket reply by the responding Agent.
+        <br><br>
+        Very helpful to disable this if you have agents who keep forgetting to
+        clear the checkbox before sending the ticket out.
+
 claim_tickets:
     title: Claim Tickets on Response
     content: >
