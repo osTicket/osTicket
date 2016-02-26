@@ -795,6 +795,10 @@ class OsticketConfig extends Config {
         return ($this->get('show_assigned_tickets'));
     }
 
+    function showTicketDepartments() {
+        return ($this->get('show_ticket_departments'));
+    }
+
     function showAnsweredTickets() {
         return ($this->get('show_answered_tickets'));
     }
@@ -993,6 +997,7 @@ class OsticketConfig extends Config {
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
+            'show_ticket_departments'=>isset($vars['show_ticket_departments'])?0:1,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,

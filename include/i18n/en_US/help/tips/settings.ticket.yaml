@@ -108,6 +108,12 @@ assigned_tickets:
         Enable this feature to exclude assigned tickets from the <span class="doc-desc-title">Open
         Tickets Queue</span>.
 
+ticket_departments:
+    title: Show Ticket Departments Column
+    content: >
+        Enable this feature to show the ticket departments column on the
+        <span class="doc-desc-title">Tickets</span> tab from the Agent Panel.
+
 answered_tickets:
     title: Answered Tickets
     content: >

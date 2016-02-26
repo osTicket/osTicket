@@ -175,6 +175,15 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Show Ticket Departments Column');?>:</td>
+            <td>
+                <input type="checkbox" name="show_ticket_departments" <?php
+                echo !$config['show_ticket_departments']?'checked="checked"':''; ?>>
+                <?php echo __('Show the ticket Departments column on the Agent Panel screens.'); ?>
+                <i class="help-tip icon-question-sign" href="#ticket_departments"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Answered Tickets');?>:</td>
             <td>
                 <input type="checkbox" name="show_answered_tickets" <?php

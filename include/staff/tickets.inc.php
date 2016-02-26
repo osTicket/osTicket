@@ -374,6 +374,12 @@ if ($results) {
 	        <th>
                  <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject'); ?></a></th>
+            <?php
+            if(!($cfg->showTicketDepartments())) { ?>
+                <th width="100">
+                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
+            <?php } ?>
             <th width="80">
                 <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                      title="<?php echo sprintf(__('Sort by %s %s'), __('Name'), __($negorder)); ?>"><?php echo __('From');?></a></th>
@@ -438,6 +444,8 @@ if ($results) {
                 }else{
                     $lc=Format::truncate($row['dept_name'],40);
                 }
+                $lcdept=Format::truncate($row['dept_name'],40);
+                
                 $tid=$row['number'];
 
                 $subject = Format::truncate($subject_field->display(
@@ -464,8 +472,8 @@ if ($results) {
                   <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
                     title="<?php echo __('Preview Ticket'); ?>"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
-                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>"><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                      <?php
                         if ($threadcount>1)
@@ -477,7 +485,11 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <td nowrap>&nbsp;<?php echo Format::htmlchars(
+                <?php
+                if(!($cfg->showTicketDepartments())) { ?>
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo $lcdept; ?></td>
+                <?php } ?>
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo Format::htmlchars(
                         Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
@@ -486,12 +498,12 @@ if ($results) {
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td nowrap>$displaystatus</td>";
                 } else { ?>
-                <td nowrap class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
                     <?php echo $row['priority_desc']; ?></td>
                 <?php
                 }
                 ?>
-                <td nowrap>&nbsp;<?php echo $lc; ?></td>
+                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo $lc; ?></td>
             </tr>
             <?php
             } //end of while.
@@ -501,7 +513,14 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
+        <?php
+        if(!($cfg->showTicketDepartments())) { ?>
+        <td colspan="8">
+        <?php
+        } else { ?>
         <td colspan="7">
+        <?php
+        } ?>
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
