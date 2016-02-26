@@ -49,6 +49,21 @@ default_page_size:
         Staff Panel. Each Agent can also customize this number for their own
         account under <span class="doc-desc-title">My Preferences</span>.
 
+auto_refresh_rate:
+    title: Auto Refresh Rate
+    content: >
+        Choose the default Tickets page refresh rate in minutes when createing new agents.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
+default_signature_type:
+    title: Default Agent Signature
+    content: >
+        Signature is made available as a choice, for <span
+        class="doc-desc-opt">Public</span> Departments, on Agent Responses.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
 default_page_width:
     title: Default Page Width (px)
     content: >

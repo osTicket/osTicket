@@ -84,6 +84,36 @@ primary_role:
     content: >
         Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
 
+max_page_size:
+    title: Maximum Page Size
+    content: >
+        Choose the number of items shown per page in the Ticket Queues in the
+        Staff Panel. Each Agent can also customize this number for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
+auto_refresh_rate:
+    title: Auto Refresh Rate
+    content: >
+        Choose the default Tickets page refresh rate in minutes for this agent.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
+department_signature:
+    title: Department Signature
+    content: >
+        Signature is made available as a choice, for <span
+        class="doc-desc-opt">Public</span> Departments, on Agent Responses.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">My Preferences</span>.
+
+show_assigned_tickets:
+    title: Show Assigned Tickets
+    content: >
+        Enable this to hide the agents name from the <span class="doc-desc-title">Open 
+        Tickets</span> queue for those tickets which they have been assigned. Upon 
+        hiding, the <span class="doc-desc-title">Department</span> name to which
+        they belong will replace where their name would normally be displayed.
+
 daylight_saving:
     title: Daylight Saving
     content: >

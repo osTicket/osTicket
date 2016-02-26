@@ -280,8 +280,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
+                <div id="toolbar"></div>
+                <textarea class="richtext ifhtml" name="signature" cols="21" rows="16" style="width:98%;" wrap="soft" data-toolbar-external="#toolbar" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>" data-draft-object-id="<?php echo $tpl_id; ?>">
+                    <?php echo $info['signature']; ?>
+                </textarea>
             </td>
         </tr>
     </tbody>

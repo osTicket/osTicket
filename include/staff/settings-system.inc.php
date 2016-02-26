@@ -77,6 +77,40 @@ $gmtime = Misc::gmtime();
                 <i class="help-tip icon-question-sign" href="#default_page_size"></i>
             </td>
         </tr>
+        <tr><td><?php echo __('Default Page Refresh Rate');?>:</td>
+            <td>
+                <select name="auto_refresh_rate">
+                  <option value="0">&mdash; <?php echo __('disable');?> &mdash;</option>
+                  <?php
+                  $y=1;
+                   for($i=1; $i <=30; $i+=$y) {
+                     $sel=($config['auto_refresh_rate']==$i)?'selected="selected"':'';
+                     echo sprintf('<option value="%1$d" %2$s>'
+                        .sprintf(
+                            _N('Every minute', 'Every %d minutes', $i), $i)
+                         .'</option>',$i,$sel);
+                     if($i>9)
+                        $y=2;
+                   } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#auto_refresh_rate"></i>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Default Agent Signature');?>:</td>
+            <td>
+                <select name="default_signature_type">
+                  <?php
+                   $options=array('none'=>__('&mdash; None &mdash;'),'dept'=>sprintf(__('Department Signature (%s)'),
+                       __('if set' /* This is used in 'Department Signature (>if set<)' */)));
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($config['default_signature_type']==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_signature_type"></i>
+            </td>
+        </tr>
         <tr><td><?php echo __('Default Page Width (Pixels)');?>:</td>
             <td>
                 <script type="text/javascript">

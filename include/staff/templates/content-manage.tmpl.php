@@ -12,9 +12,10 @@
         echo Format::htmlchars($info['name']); ?>" />
     <div style="margin-top: 5px">
     <div class="error"><?php echo $errors['body']; ?></div>
-    <textarea class="richtext no-bar" name="body"><?php
-    echo Format::viewableImages($info['body']);
-?></textarea>
+    <div id="toolbar"></div>
+    <textarea class="richtext ifhtml" name="body" wrap="soft" data-toolbar-external="#toolbar" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>" data-draft-object-id="<?php echo $tpl_id; ?>">
+        <?php echo Format::viewableImages($info['body']);?>
+    </textarea>
     </div>
     <div id="msg_info" style="margin-top:7px"><?php
 echo $content->getNotes(); ?></div>

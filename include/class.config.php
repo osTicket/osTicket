@@ -378,6 +378,14 @@ class OsticketConfig extends Config {
         return $this->get('default_dept_id');
     }
 
+    function getAutoRefreshRate() {
+        return $this->get('auto_refresh_rate');
+    }
+
+    function getDefaultSignatureType() {
+        return $this->get('default_signature_type');
+    }
+
     function getDefaultDept() {
 
         if(!$this->defaultDept && $this->getDefaultDeptId())
@@ -898,6 +906,8 @@ class OsticketConfig extends Config {
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
             'max_page_size'=>$vars['max_page_size'],
+            'auto_refresh_rate'=>$vars['auto_refresh_rate'],
+            'default_signature_type'=>$vars['default_signature_type'],
             'max_page_width'=>$vars['max_page_width'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
