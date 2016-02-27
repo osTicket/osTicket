@@ -1434,7 +1434,14 @@ class ThreadBody /* extends SplString */ {
     }
 
     function getClean() {
-        return trim($this->body);
+        switch ($this->type) {
+        case 'html':
+            return trim($this->body, " <>br/\t\n\r") ? $this->body: '';
+        case 'text':
+            return trim($this->body) ? $this->body: '';
+        default:
+            return trim($this->body);
+        }
     }
 
     function __toString() {
@@ -1476,6 +1483,13 @@ class ThreadBody /* extends SplString */ {
             return new ThreadBody($text);
         }
     }
+
+    static function clean($text, $format=null) {
+        global $cfg;
+        $format = $format ?: ($cfg->isHtmlThreadEnabled() ? 'html' : 'text');
+        $body = static::fromFormattedText($text, $format);
+        return $body->getClean();
+    }
 }
 
 class TextThreadBody extends ThreadBody {
@@ -1484,7 +1498,7 @@ class TextThreadBody extends ThreadBody {
     }
 
     function getClean() {
-        return Format::stripEmptyLines($this->body);
+        return  Format::stripEmptyLines(parent::getClean());
     }
 
     function display($output=false) {
@@ -1527,7 +1541,7 @@ class HtmlThreadBody extends ThreadBody {
     }
 
     function getClean() {
-        return trim($this->body, " <>br/\t\n\r") ? Format::sanitize($this->body) : '';
+        return Format::sanitize(parent::getClean());
     }
 
     function getSearchable() {

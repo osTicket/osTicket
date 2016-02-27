@@ -68,8 +68,10 @@ if($_POST && !$errors):
             if(!$thisstaff->canPostReply())
                 $errors['err'] = __('Action denied. Contact admin for access');
             else {
-
-                if(!$_POST['response'])
+                $vars = $_POST;
+                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                $vars['response'] = ThreadBody::clean($vars['response']);
+                if(!$vars['response'])
                     $errors['response']=__('Response required');
                 //Use locks to avoid double replies
                 if($lock && $lock->getStaffId()!=$thisstaff->getId())
@@ -79,10 +81,6 @@ if($_POST && !$errors):
                 if(!$errors['err'] && TicketFilter::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
-
-            //If no error...do the do.
-            $vars = $_POST;
-            $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -200,6 +198,7 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['note'] = ThreadBody::clean($vars['note']);
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
