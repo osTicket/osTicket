@@ -3088,13 +3088,7 @@ class Ticket {
         global $thisstaff, $cfg;
 
         $dept      = $this->getDept();
-      if ($thisstaff && $vars ['signature'] == 'mine') {
-        $signature = $thisstaff->getSignature();
-      }elseif ($vars ['signature'] == 'dept' && $dept && $dept->isPublic() ) {
         $signature = $dept->getSignature();
-      }else {
-        $signature = '';
-      }
         $poster    = $this->getName();
         $variables = array (
                     'signature' => $signature,
@@ -3116,13 +3110,7 @@ class Ticket {
         global $thisstaff, $cfg;
 
         $dept      = $this->getDept ();
-      if ($thisstaff && $vars ['signature'] == 'mine') {
-        $signature = $thisstaff->getSignature();
-      }elseif ($vars ['signature'] == 'dept' && $dept && $dept->isPublic() ) {
         $signature = $dept->getSignature();
-      }else {
-        $signature = '';
-      }
         $poster    = $this->getName();
         $SurveyURL = ($cfg->getLimeSurveyURL() 
                     . $dept->deptSurveyID() . '?' 
