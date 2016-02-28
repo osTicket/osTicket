@@ -1,0 +1,30 @@
+#
+# Email template: ticket.autosurvey.yaml
+#
+# Ticket Name - Surveyed Ticket Auto-reply
+#
+# Sent to a user when a ticket is surveyed automatically by the system
+#
+---
+notes: |
+    Sent to a user when a ticket is closed by the system.
+
+    Available variables for replacement: %{ticket.*}, %{response}, %{SurveyURL}, %{url}, %{company.*}, %{signature}
+
+subject: |
+    [#%{ticket.number}] Survey Request: Re: %{ticket.subject}
+body: |
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
+    I'm sure you're very busy, but hopefully you could spare a minute to answer just THREE multiple
+    choice questions about your recent experience with our %{ticket.dept}?<br>
+    <br>
+    <a href="%{SurveyURL}">Here is a link to the survey</a>.<br>
+    <br>
+    <br>
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name} <br>
+    <br>
+    <div style="color: rgb(127, 127, 127);">
+        %{signature}<br>
+    </div>

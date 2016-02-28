@@ -1,6 +1,8 @@
 #
 # Email template: ticket.autoresp.yaml
 #
+# Ticket Name - New Ticket Auto-Response
+#
 # Sent to a user when a new ticket is created
 #
 ---
@@ -8,24 +10,44 @@ notes: |
     Sent to a user when a new ticket is created
 
 subject: |
-    Support Ticket Opened [#%{ticket.number}]
+    [#%{ticket.number}]: %{ticket.subject}
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
-    <p>
-    A request for support has been created and assigned #%{ticket.number}.
-    A representative will follow-up with you as soon as possible. You can
-    <a href="%{recipient.ticket_link}">view this ticket's progress
-    online</a>.
-    </p>
+    Thank you for contacting us. This is an automated response confirming the receipt of your ticket. <br>
+    Our %{ticket.dept} team will get back to you as soon as possible. <br>
     <br>
-    <div style="color: rgb(127, 127, 127)">
-    Your %{company.name} Team,
+    <table>
+        <tbody>
+            <tr>
+                <td><strong>Ticket ID</strong>:</td>
+                <td><a href="%{recipient.ticket_link}">%{ticket.number}</a></td>
+            </tr>
+            <tr>
+                <td><strong>Subject</strong>:</td>
+                <td>%{ticket.subject}</td>
+            </tr>
+            <tr>
+                <td><strong>Department</strong>:</td>
+                <td>%{ticket.dept}</td>
+            </tr>
+            <tr>
+                <td><strong>Status</strong>:</td>
+                <td>%{ticket.status}</td>
+            </tr>
+        </tbody>
+    </table>
     <br>
-    %{signature}
+    <br>
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name} <br>
+    <br>
+    <div style="color: rgb(127, 127, 127); font-size: small;">
+        <em><a href="%{recipient.ticket_link}">To update this ticket or to post a reply, please click here</a> or you can simply reply to this email.</em><br>
+        <strong>When replying, please make sure that the ticket ID is kept in the subject so that we can track your replies.</strong><br>
+        <em>You can check the status or view the progress of this ticket <a href="%{recipient.ticket_link}">online here</a></em>
     </div>
-    <hr>
-    <div style="color: rgb(127, 127, 127); font-size: small; "><em>If you
-    wish to provide additional comments or information regarding the issue,
-    please reply to this email or <a href="%{recipient.ticket_link}"><span
-    style="color: rgb(84, 141, 212);" >login to your account</span></a> for
-    a complete archive of your support requests.</em></div>
+     <br>
+    <div style="color: rgb(127, 127, 127);">
+        %{signature} <br>
+    </div>

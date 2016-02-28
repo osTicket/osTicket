@@ -7,7 +7,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <form action="settings.php?t=tickets" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -55,13 +55,13 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Default Status'); ?>:
+                <?php echo __('Default New Ticket Status'); ?>:
             </td>
             <td>
                 <span>
                 <select name="default_ticket_status_id">
                 <?php
-                $criteria = array('states' => array('open'));
+                $criteria = array('states' => array('open','closed'));
                 foreach (TicketStatusList::getStatuses($criteria) as $status) {
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
@@ -81,6 +81,37 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 &nbsp;
                 <span class="error">*&nbsp;<?php echo $errors['default_ticket_status_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#default_ticket_status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Default Ticket Reply Status'); ?>:
+            </td>
+            <td>
+                <span>
+                <select name="default_reply_ticket_status_id">
+                <?php
+                $criteria = array('states' => array('open','closed'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' '.__('(disabled)');
+
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['default_reply_ticket_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['default_reply_ticket_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#default_reply_ticket_status"></i>
                 </span>
             </td>
         </tr>
@@ -150,12 +181,29 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('<b>Pending</b> Ticket Auto-Close'); ?>:</td>  
+            <td>  
+                <input type="text" name="autoclose_grace_period" size=4 value="<?php echo $config['autoclose_grace_period']; ?>">&nbsp;Day(s)&nbsp;  
+                <font class="error"><?php echo $errors['autoclose_grace_period']; ?></font>  
+                <i class="help-tip icon-question-sign" href="#autoclose_grace_period"></i>  
+            </td>  
+        </tr>
+        <tr>
             <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
                 <?php echo __('Enable CAPTCHA on new web tickets.');?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
                 &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Include Collaborators on Reply');?>:</td>
+            <td>
+                <input type="checkbox" name="enable_collaborators" <?php echo $config['enable_collaborators']?'checked="checked"':''; ?>>
+                <?php echo __('Enable Collaborators on ticket replies.');?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_collaborators']; ?></font>
+                &nbsp;<i class="help-tip icon-question-sign" href="#enable_collaborators"></i>
             </td>
         </tr>
         <tr>
@@ -172,6 +220,15 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 echo !$config['show_assigned_tickets']?'checked="checked"':''; ?>>
                 <?php echo __('Exclude assigned tickets from open queue.'); ?>
                 <i class="help-tip icon-question-sign" href="#assigned_tickets"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Show Ticket Departments Column');?>:</td>
+            <td>
+                <input type="checkbox" name="show_ticket_departments" <?php
+                echo !$config['show_ticket_departments']?'checked="checked"':''; ?>>
+                <?php echo __('Show the ticket Departments column on the Agent Panel screens.'); ?>
+                <i class="help-tip icon-question-sign" href="#ticket_departments"></i>
             </td>
         </tr>
         <tr>
@@ -281,6 +338,32 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
                     ><?php echo $class::$desc; ?></option><?php
                 } ?>
+            </td>
+        </tr>
+        <?php } ?>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('Surveys');?></b>:  <?php echo __('Survey settings for use with Lime Survey.');?></em>
+            </th>
+        </tr>
+        <tr>
+            <td><?php echo __('Enable Lime Survey'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_lime_surveys" <?php
+                echo $config['enable_lime_surveys']?'checked="checked"':''; ?>>
+                <?php echo __('Enable Lime Survey module.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_lime_surveys"></i>
+            </td>
+        </tr>
+        <?php if ($cfg->isLimeSurveyEnabled()) { ?>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey URL'); ?>:
+            </td>
+            <td>
+                <input type="text" size="40" name="lime_survey_url" value="<?php echo $config['lime_survey_url']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example">http://survey.example.com/index.php/</span></span>
+                <i class="help-tip icon-question-sign" href="#lime_survey_url"></i>
             </td>
         </tr>
         <?php } ?>

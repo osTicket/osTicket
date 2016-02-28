@@ -42,6 +42,16 @@ default_ticket_status:
       - title: Manage Ticket Statuses
         href: /scp/lists.php?type=ticket-status
 
+default_reply_ticket_status:
+    title: Default Status for Ticket Replies
+    content: >
+        Choose a status as the default for replies to tickets. This can be defined
+        for each help topic, if desired. It can also be overridden by a
+        ticket filter.
+    links:
+      - title: Manage Ticket Statuses
+        href: /scp/lists.php?type=ticket-status
+
 default_sla:
     title: Default SLA
     content: >
@@ -76,6 +86,13 @@ agent_collision_avoidance:
         <br><br>
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
+autoclose_grace_period:  
+    title: Pending Ticket Auto-Close  
+    content: >  
+        Enter the number of Days before a ticket marked <b>Pending</b> will be Auto-Closed by the system.  
+        <br><br>  
+        Enter <span class="doc-desc-opt">0</span> to disable the Auto-Close feature.  
+
 email_ticket_priority:
     title: Email Ticket Priority
     content: >
@@ -95,6 +112,15 @@ human_verification:
         <br><br>
         Requires GDLib library
 
+enable_collaborators:
+    title: Include Collaborators on Ticket Replies
+    content: >
+        Enable this to automatically tick the checkbox for collaborators to be
+        included on the ticket reply by the responding Agent.
+        <br><br>
+        Very helpful to disable this if you have agents who keep forgetting to
+        clear the checkbox before sending the ticket out.
+
 claim_tickets:
     title: Claim Tickets on Response
     content: >
@@ -107,6 +133,12 @@ assigned_tickets:
     content: >
         Enable this feature to exclude assigned tickets from the <span class="doc-desc-title">Open
         Tickets Queue</span>.
+
+ticket_departments:
+    title: Show Ticket Departments Column
+    content: >
+        Enable this feature to show the ticket departments column on the
+        <span class="doc-desc-title">Tickets</span> tab from the Agent Panel.
 
 answered_tickets:
     title: Answered Tickets
@@ -127,6 +159,26 @@ enable_html_ticket_thread:
     content: >
         If enabled, this will permit the use of rich text formatting between
         Clients and Agents.
+
+enable_lime_surveys:
+    title: Enable Lime Survey Module
+    content: >
+        If enabled, this will allow Lime Survey to be configured.<br/>
+        You will need to make sure you setup a TicketID question and a Staff Name question
+        under a question group on your Lime Survey server.<br/>
+        <strong>Make sure each question is hidden on your survey otherwise customers who click
+        the survey link will be able to see and change the Ticket ID and Staff Name for the ticket
+        that the survey relates to.</strong><br/><br/>
+        I would reccomend setting up the TicketID and StaffID questions under the first question
+        group you create in your Lime Survey server.<br/>
+        Also make sure you DO NOT enable the CAPTCHA Option for "Survey Access" under the
+        <strong>Publication &amp; access control</strong> section of your survey options.
+
+lime_survey_url:
+    title: Lime Survey URL
+    content: >
+        Put the Full URL of your Lime Survey server here.<br/>
+        <strong>Make sure it starts with either http:// or https:// and ends in /index.php/</strong>.
 
 ticket_attachment_settings:
     title: Ticket Thread Attachments

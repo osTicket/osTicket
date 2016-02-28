@@ -11,20 +11,18 @@ name: "%{company.name} Help Desk Access"
 body: >
     <h3><strong>Hi %{user.name.first},</strong></h3>
     <div>
-    A password reset request has been submitted on your behalf for the
-    helpdesk at %{url}.<br />
-    <br />
-    If you feel that this has been done in error, delete and disregard this
-    email. Your account is still secure and no one has been given access to
-    it. It is not locked and your password has not been reset. Someone could
-    have mistakenly entered your email address.<br />
-    <br />
-    Follow the link below to login to the help desk and change your
-    password.<br />
-    <br />
-    <a href="%{link}">%{link}</a><br />
-    <br />
-    <em style="font-size: small">Your friendly Customer Support System
-    <br />
-    %{company.name}</em>
+    A password reset request has been submitted on your behalf for the helpdesk at %{url}.<br>
+    <br>
+    If you feel that this has been done in error, delete and disregard this email.
+    Your account is still secure and no one has been given access to it.
+    It is not locked and your password has not been reset.
+    Someone could have mistakenly entered your email address.<br>
+    <br>
+    Follow the link below to login to the help desk and change your password.<br>
+    <a href="%{link}">%{link}</a><br>
+    <br>
+    <em style="font-size: small">
+    Kind Regards,<br>
+    %{company.name}
+    </em>
     </div>

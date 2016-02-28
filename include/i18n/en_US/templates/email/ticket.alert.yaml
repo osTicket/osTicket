@@ -1,6 +1,8 @@
 #
 # Email template: ticket.alert.yaml
 #
+# Template name:  New Ticket Alert
+#
 # Sent to a staff member when a new ticket is created in the system. This
 # applies to tickets created via email, the web portal, or the api.
 #
@@ -10,41 +12,45 @@ notes: |
     applies to tickets created via email, the web portal, or the api.
 
 subject: |
-    New Ticket Alert
+    New Ticket Alert: [#%{ticket.number}]
 body: |
     <h2>Hi %{recipient.name},</h2>
-    New ticket #%{ticket.number} created
-    <br>
+    New ticket %{ticket.number} created<br>
     <br>
     <table>
-    <tbody>
-    <tr>
-        <td>
-            <strong>From</strong>:
-        </td>
-        <td>
-            %{ticket.name} &lt;%{ticket.email}&gt;
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <strong>Department</strong>:
-        </td>
-        <td>
-            %{ticket.dept.name}
-        </td>
-    </tr>
-    </tbody>
+        <tbody>
+            <tr>
+                <td><strong>Ticket ID</strong>:</td>
+                <td><a href="%{recipient.ticket_link}">%{ticket.number}</a></td>
+            </tr>
+            <tr>
+                <td><strong>Department</strong>:</td>
+                <td>%{ticket.dept.name}</td>
+            </tr>
+            <tr>
+                <td><strong>Status</strong>:</td>
+                <td>%{ticket.status}</td>
+            </tr>
+            <tr>
+                <td><strong>Priority</strong>:</td>
+                <td>%{ticket.priority}</td>
+            </tr>
+            <tr>
+                <td><strong>From</strong>:</td>
+                <td>%{ticket.name} &lt;%{ticket.email}&gt;</td>
+            </tr>
+            <tr>
+                <td><strong>Subject</strong>:</td>
+                <td>%{ticket.subject}</td>
+            </tr>
+        </tbody>
     </table>
+    <blockquote>
+        %{message}
+    </blockquote><br>
+    <hr/>
+    <div>To view or respond to the ticket, please <a href="%{ticket.staff_link}">login</a> to the support ticket system</div>
     <br>
-    %{message}
-    <br>
-    <br>
-    <hr>
-    <div>To view or respond to the ticket, please <a
-    href="%{ticket.staff_link}">login</a> to the support ticket system</div>
-    <em style="font-size: small">Your friendly Customer Support System</em>
-    <br>
-    <a href="http://osticket.com/"><img width="126" height="19"
-        style="width: 126px; " alt="Powered By osTicket"
-        src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name}<br>

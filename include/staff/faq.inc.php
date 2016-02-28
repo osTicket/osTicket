@@ -30,7 +30,7 @@ $qstr = Http::build_query($qs);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('FAQ');?></h2>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table fixed" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr><td></td><td></td></tr> <!-- For fixed table layout -->
         <tr>

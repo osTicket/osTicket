@@ -7,7 +7,7 @@ $gmtime = Misc::gmtime();
 <form action="settings.php?t=system" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -77,6 +77,55 @@ $gmtime = Misc::gmtime();
                 <i class="help-tip icon-question-sign" href="#default_page_size"></i>
             </td>
         </tr>
+        <tr><td><?php echo __('Default Page Refresh Rate');?>:</td>
+            <td>
+                <select name="auto_refresh_rate">
+                  <option value="0">&mdash; <?php echo __('disable');?> &mdash;</option>
+                  <?php
+                  $y=1;
+                   for($i=1; $i <=30; $i+=$y) {
+                     $sel=($config['auto_refresh_rate']==$i)?'selected="selected"':'';
+                     echo sprintf('<option value="%1$d" %2$s>'
+                        .sprintf(
+                            _N('Every minute', 'Every %d minutes', $i), $i)
+                         .'</option>',$i,$sel);
+                     if($i>9)
+                        $y=2;
+                   } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#auto_refresh_rate"></i>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Default Agent Signature');?>:</td>
+            <td>
+                <select name="default_signature_type">
+                  <?php
+                   $options=array('none'=>__('&mdash; None &mdash;'),'dept'=>sprintf(__('Department Signature (%s)'),
+                       __('if set' /* This is used in 'Department Signature (>if set<)' */)));
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($config['default_signature_type']==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_signature_type"></i>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Default Page Width (Pixels)');?>:</td>
+            <td>
+                <script type="text/javascript">
+                    function isNumberKey(evt) {
+                        var charCode = (evt.which) ? evt.which : event.keyCode
+                        if (charCode > 31 && (charCode < 48 || charCode > 57))
+                        return false;
+                        return true;
+                    }
+                </script>
+                <input type="number" size="10" name="max_page_width" value="<?php echo $config['max_page_width']; ?>" onkeypress="return isNumberKey(event)">
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['max_page_width']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_page_width"></i>
+            </td>
+        </tr>
         <tr>
             <td><?php echo __('Default Log Level');?>:</td>
             <td>
@@ -119,6 +168,12 @@ $gmtime = Misc::gmtime();
 <?php } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="220"><?php echo __('Remove Staff Login Link');?>:</td>
+            <td>
+                <input type="checkbox" name="remove_staff_login_link" <?php echo $config['remove_staff_login_link'] ? 'checked="checked"': ''; ?>><?php echo __('Removes the staff login link from the client login interface');?>
             </td>
         </tr>
         <tr>

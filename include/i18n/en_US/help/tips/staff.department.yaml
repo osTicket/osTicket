@@ -95,11 +95,72 @@ new_message:
         You may disable the Auto-Response sent to the User to confirm
         a newly posted message for tickets in this Department.
 
+closed_auto_response:
+    title: Closed Ticket Auto Response
+    content: >
+        You may disable the Auto-Response sent to the User when a ticket
+        is closed by this Department or automatically if the <strong>Pending
+        Ticket Auto-Close</strong> feature is enabled.
+    links:
+      - title: Manage Tickets - Pending Ticket Auto-Close
+        href: /scp/settings.php?t=tickets
+
 auto_response_email:
     title: Auto Response Email
     content: >
         Select an email address from which Auto-Responses are sent for this
         Department.
+
+survey_closed_tickets:
+    title: Enable Lime Survey Module for this Department
+    content: >
+        If enabled, this will allow you to configure the survey settings for this department.<br/>
+        You will need to make sure you setup a TicketID question and a Staff Name question
+        under a question group on your Lime Survey server.<br/>
+        <strong>Make sure each question is hidden on your survey otherwise customers who click
+        the survey link will be able to see and change the Ticket ID and Staff Name for the ticket
+        that the survey relates to.</strong><br/><br/>
+        I would reccomend setting up the TicketID and StaffID questions under the first question
+        group you create in your Lime Survey server.<br/>
+        Also make sure you DO NOT enable the CAPTCHA Option for "Survey Access" under the
+        <strong>Publication &amp; access control</strong> section of your survey options.
+
+lime_survey_id:
+    title: Lime Survey - Survey ID / Survey Number
+    content: >
+        Enter the Survey ID you will be using on your Lime Survey installation for gathering your customers responses.
+
+lime_survey_ticket_gid:
+    title: Lime Survey ID for the Ticket Question Group Number
+    content: >
+        This can be found by selecting the Ticket question and then clicking the <strong>Check Logic</strong>
+        button on the menu bar at the top.<br>
+        The number you need to enter is in the square brackets with <strong>GID</strong> in.<br/><br/>
+        For example, if <strong>[GID 12]</strong> was displaying you would simply enter 12 in the box.
+
+lime_survey_ticket_qid:
+    title: Lime Survey ID for the Ticket Question Number
+    content: >
+        This can be found by selecting the Ticket Question and then clicking the <strong>Check Logic</strong>
+        button on the menu bar at the top.<br>
+        The number you need to enter is in the square brackets with <strong>QID</strong> in.<br/><br/>
+        For example, if <strong>[QID 141]</strong> was displaying you would simply enter 141 in the box.
+
+lime_survey_staff_gid:
+    title: Lime Survey ID for the Staff Question Group Number
+    content: >
+        This can be found by selecting the question and then clicking the <strong>Check Logic</strong>
+        button on the menu bar at the top.<br>
+        The number you need to enter is in the square brackets with <strong>GID</strong> in.<br/><br/>
+        For example, if <strong>[GID 12]</strong> was displaying you would simply enter 12 in the box.
+
+lime_survey_staff_qid:
+    title: Lime Survey ID for the Staff Question Number
+    content: >
+        This can be found by selecting the question and then clicking the <strong>Check Logic</strong>
+        button on the menu bar at the top.<br>
+        The number you need to enter is in the square brackets with <strong>QID</strong> in.<br/><br/>
+        For example, if <strong>[QID 142]</strong> was displaying you would simply enter 142 in the box.
 
 department_access:
     title: Group Access

@@ -51,12 +51,12 @@ else
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
             <th width="150"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
             <th width="80"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
             <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
@@ -81,10 +81,10 @@ else
                   <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>
-                <td><?php echo $row['ispublic']?'<b>'.__('Public').'</b>':__('Internal'); ?></td>
+                <td nowrap><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>
+                <td nowrap><?php echo $row['ispublic']?'<b>'.__('Public').'</b>':__('Internal'); ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td nowrap>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

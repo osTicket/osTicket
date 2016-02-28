@@ -33,7 +33,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <h2><?php echo __('Site Pages'); ?>
     <i class="help-tip icon-question-sign" href="#site_pages"></i>
     </h2>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table fixed" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr><td></td><td></td></tr> <!-- For fixed table layout -->
         <tr>

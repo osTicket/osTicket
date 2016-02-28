@@ -38,7 +38,7 @@ $actions= array(
                 || $statusId == $status->getId())
             continue;
         ?>
-        <li>
+        <li><?php if (strtolower($status->getName()) != 'surveyed') { ?>
             <a class="no-pjax <?php
                 echo $ticket? 'ticket-action' : 'tickets-action'; ?>"
                 href="<?php
@@ -56,7 +56,7 @@ $actions= array(
                         echo $actions[$status->getState()]['icon'] ?: 'icon-tag';
                     ?>"></i> <?php
                         echo __($status->getName()); ?></a>
-        </li>
+        </li><?php } ?>
     <?php
     } ?>
     </ul>

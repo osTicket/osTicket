@@ -52,7 +52,7 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="20%" class="has_bottom_border">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
@@ -167,7 +167,7 @@ if($ticket->isOverdue())
         </td>
     </tr>
 </table>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">
@@ -266,7 +266,7 @@ if($ticket->isOverdue())
     </tr>
 </table>
 <br>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <tr>
         <td width="50%">
             <table cellspacing="0" cellpadding="4" width="100%" border="0">
@@ -338,7 +338,7 @@ if($ticket->isOverdue())
     </tr>
 </table>
 <br>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
 <?php
 $idx = 0;
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
@@ -390,7 +390,7 @@ $tcount+= $ticket->getNumNotes();
     $types = array('M', 'R', 'N');
     if(($thread=$ticket->getThreadEntries($types))) {
        foreach($thread as $entry) { ?>
-        <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="940" border="0">
+        <table class="thread-entry <?php echo $threadTypes[$entry['thread_type']]; ?>" cellspacing="0" cellpadding="1" width="100%" border="0">
             <tr>
                 <th colspan="4" width="100%">
                 <div>
@@ -508,7 +508,7 @@ $tcount+= $ticket->getNumNotes();
                 </td>
                 <td>
                     <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
-                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
+                        <?php if ($cfg->enableCollaboratorsOnReply()) echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
                         style="display:<?php echo $ticket->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
@@ -616,6 +616,7 @@ print $response_form->getField('attachments')->render();
                 <td>
                     <select name="reply_status_id">
                     <?php
+                    $statusIdDefault = $info['statusId'] ?: $cfg->getDefaultReplyTicketStatusId();
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
                     if ($thisstaff->canCloseTickets())
@@ -625,14 +626,17 @@ print $response_form->getField('attachments')->render();
                                 array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;
                         $selected = ($statusId == $s->getId());
-                        echo sprintf('<option value="%d" %s>%s%s</option>',
+                        $selectedDefault = ($statusIdDefault == $s->getId());
+                        if (strtolower($s->getName()) != 'surveyed') {
+                            echo sprintf('<option value="%d" %s>%s%s</option>',
                                 $s->getId(),
-                                $selected
-                                 ? 'selected="selected"' : '',
+                                $selectedDefault
+                                ? 'selected="selected"' : '',
                                 __($s->getName()),
                                 $selected
                                 ? (' ('.__('current').')') : ''
-                                );
+                            );
+                        }
                     }
                     ?>
                     </select>

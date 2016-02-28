@@ -1,6 +1,8 @@
 #
 # Email template: ticket.activity.notice.yaml
 #
+# Ticket Name - New Activity Notice
+#
 # Notice sent to collaborators on ticket activity e.g reply or message
 #
 ---
@@ -8,21 +10,27 @@ notes: |
     Notice sent to collaborators on ticket activity e.g reply or message.
 
 subject: |
-    Re: %{ticket.subject} [#%{ticket.number}]
+    [#%{ticket.number}]: Re: %{ticket.subject}
 body: |
     <h3><strong>Dear %{recipient.name.first},</strong></h3>
     <div>
         <em>%{poster.name}</em> just logged a message to a ticket in which you participate.
     </div>
+    <blockquote>
+        %{message}
+    </blockquote><br>
     <br>
-    %{message}
+    Kind Regards,<br>
+    %{ticket.dept}<br>
+    %{company.name}<br>
     <br>
+    <div style="color: rgb(127, 127, 127); font-size: small;">
+        <em><a href="%{recipient.ticket_link}">To update this ticket or to post a reply, please click here</a> or you can simply reply to this email.</em><br>
+        <strong>When replying, please make sure that the ticket ID is kept in the subject so that we can track your replies.</strong><br>
+        <em>You're getting this email because you are a collaborator on ticket <a style="color: rgb(84, 141, 212);" href="%{recipient.ticket_link}">%{ticket.number}</a>. <br>
+        To participate, simply reply to this email or <a style="color: rgb(84, 141, 212);" href="%{recipient.ticket_link}">click here</a> for a complete archive of the ticket thread.</em>
+    </div>
     <br>
-    <hr>
-    <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
-    <em>You're getting this email because you are a collaborator
-    on ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
-    >#%{ticket.number}</a>.  To participate, simply reply to this email
-    or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
-    >click here</a> for a complete archive of the ticket thread.</em>
+    <div style="color: rgb(127, 127, 127);">
+        %{signature} <br>
     </div>

@@ -42,66 +42,93 @@ class ContentAjaxAPI extends AjaxController {
     function ticket_variables() {
 
         $content='
-<div style="width:680px;">
+<div style="width:740px;">
     <h2>'.__('Ticket Variables').'</h2>
     '.__('Please note that non-base variables depend on the context of use. Visit osTicket Wiki for up to date documentation.').'
     <br/>
     <table width="100%" border="0" cellspacing=1 cellpadding=2>
-        <tr><td width="55%" valign="top"><b>'.__('Base Variables').'</b></td><td><b>'.__('Other Variables').'</b></td></tr>
         <tr>
-            <td width="55%" valign="top">
-                <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td width="130">%{ticket.id}</td><td>'.__('Ticket ID').' ('.__('internal ID').')</td></tr>
-                    <tr><td>%{ticket.number}</td><td>'.__('Ticket number').' ('.__('external ID').')</td></tr>
-                    <tr><td>%{ticket.email}</td><td>'.__('Email address').'</td></tr>
-                    <tr><td>%{ticket.name}</td><td>'.__('Full name').' &mdash;
-                        <em>'.__('see name expansion').'</em></td></tr>
-                    <tr><td>%{ticket.subject}</td><td>'.__('Subject').'</td></tr>
-                    <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
-                    <tr><td>%{ticket.status}</td><td>'.__('Status').'</td></tr>
-                    <tr><td>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
-                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').'</td></tr>
-                    <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
-                    <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
-                    <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
-                    <tr><td>%{ticket.recipients}</td><td>'.__('List of all recipient names').'</td></tr>
+            <td width="50%" valign="top">
+                <table width="100%" border="0" cellspacing=1 cellpadding=1 style="padding-bottom: 10px;">
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Base Variables').'</b></em></td></tr>
+                    <tr><td nowrap>%{ticket.id}</td><td>'.__('Ticket ID').' ('.__('internal ID').')</td></tr>
+                    <tr><td nowrap>%{ticket.number}</td><td>'.__('Ticket number').' ('.__('external ID').')</td></tr>
+                    <tr><td nowrap>%{ticket.email}</td><td>'.__('Email address').'</td></tr>
+                    <tr><td nowrap>%{ticket.subject}</td><td>'.__('Subject').'</td></tr>
+                    <tr><td nowrap>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
+                    <tr><td nowrap>%{ticket.status}</td><td>'.__('Status').'</td></tr>
+                    <tr><td nowrap>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
+                    <tr><td nowrap>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').'</td></tr>
+                    <tr><td nowrap>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
+                    <tr><td nowrap>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
+                    <tr><td nowrap>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
+                    <tr><td nowrap>%{ticket.recipients}</td><td>'.__('List of all recipient names').'</td></tr>
                     <tr><td nowrap>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'<br/>
                     '.__('Agent\'s ticket view link').'</td></tr>
-                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Expandable Variables').'</b></em></td></tr>
-                    <tr><td>%{ticket.topic}</td><td>'.__('Help topic').'</td></tr>
-                    <tr><td>%{ticket.dept}</td><td>'.__('Department').'</td></tr>
-                    <tr><td>%{ticket.staff}</td><td>'.__('Assigned/closing agent').'</td></tr>
-                    <tr><td>%{ticket.team}</td><td>'.__('Assigned/closing team').'</td></tr>
-                    <tr><td>%{ticket.thread}</td><td>'.__('Ticket Thread').'</td></tr>
+                    <tr><td nowrap>%{recipient.name.email}</td><td>'.__('Recipient Email').'</td></tr>
+                </table>
+                <table width="100%" border="0" cellspacing=1 cellpadding=1>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Other Variables').'</b></em></td></tr>
+                    <tr><td nowrap>%{message}</td><td>'.__('Incoming message Variables').'</td></tr>
+                    <tr><td nowrap>%{response}</td><td>'.__('Outgoing response').'</td></tr>
+                    <tr><td nowrap>%{response.poster}</td><td>'.__('Name of responder').'</td></tr>
+                    <tr><td nowrap>%{comments}</td><td>'.__('Assign/transfer comments').'</td></tr>
+                    <tr><td nowrap>%{note}</td><td>'.__('Internal note').'</td></tr>
+                    <tr><td nowrap>%{note.poster}</td><td>'.__('Internal note poster').'</td></tr>
+                    <tr><td nowrap>%{note.title}</td><td>'.__('Internal note title').'</td></tr>
+                    <tr><td nowrap>%{note.message}</td><td>'.__('Internal note message').'</td></tr>
+                    <tr><td nowrap>%{assignee}</td><td>'.__('Assigned agent/team').'</td></tr>
+                    <tr><td nowrap>%{assigner}</td><td>'.__('Agent assigning the ticket').'</td></tr>
+                    <tr><td nowrap>%{url}</td><td>'.__('osTicket\'s base url (FQDN)').'</td></tr>
+                    <tr><td nowrap>%{reset_link}</td><td>'.__('Reset link used by the password reset feature').'</td></tr>
+                    <tr><td nowrap>%{signature}</td><td>'.__('Signature').'</td></tr>
+                    <tr><td nowrap>%{company.name}</td><td>'.__('Company Name').'</td></tr>
+                    <tr><td nowrap>%{poster.name}</td><td>'.__('Posters Name').'</td></tr>
                 </table>
             </td>
-            <td valign="top">
-                <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td width="100">%{message}</td><td>'.__('Incoming message').'</td></tr>
-                    <tr><td>%{response}</td><td>'.__('Outgoing response').'</td></tr>
-                    <tr><td>%{comments}</td><td>'.__('Assign/transfer comments').'</td></tr>
-                    <tr><td>%{note}</td><td>'.__('Internal note <em>(expandable)</em>').'</td></tr>
-                    <tr><td>%{assignee}</td><td>'.__('Assigned agent/team').'</td></tr>
-                    <tr><td>%{assigner}</td><td>'.__('Agent assigning the ticket').'</td></tr>
-                    <tr><td>%{url}</td><td>'.__('osTicket\'s base url (FQDN)').'</td></tr>
-                    <tr><td>%{reset_link}</td>
-                        <td>'.__('Reset link used by the password reset feature').'</td></tr>
+            <td width="50%" valign="top">
+                <table width="100%" border="0" cellspacing=1 cellpadding=1 style="padding-bottom: 10px;">
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Ticket Variables').'</b></em></td></tr>
+                    <tr><td nowrap>%{ticket.auth_token}</td><td>'.__('Auth. token used for auto-login').'</td></tr>
+                    <tr><td nowrap>%{ticket.staff_link}</td><td>'.__('Staff\'s ticket view link').'</td></tr>
+                    <tr><td nowrap>%{ticket.topic}</td><td>'.__('Help topic').'</td></tr>
+                    <tr><td nowrap>%{ticket.topic.name}</td><td>'.__('Ticket Topic Name').'</td></tr>
+                    <tr><td nowrap>%{ticket.dept}</td><td>'.__('Department').'</td></tr>
+                    <tr><td nowrap>%{ticket.dept.name}</td><td>'.__('Department Name').'</td></tr>
+                    <tr><td nowrap>%{ticket.dept.manager.name}</td><td>'.__('Department Manager Name').'</td></tr>
+                    <tr><td nowrap>%{ticket.staff}</td><td>'.__('Assigned/closing staff').'</td></tr>
+                    <tr><td nowrap>%{ticket.team}</td><td>'.__('Assigned/closing team').'</td></tr>
+                    <tr><td nowrap>%{ticket.staff}</td><td>'.__('Assigned/closing agent').'</td></tr>
+                    <tr><td nowrap>%{ticket.team}</td><td>'.__('Assigned/closing team').'</td></tr>
+                    <tr><td nowrap>%{ticket.thread}</td><td>'.__('Ticket Thread').'</td></tr>
+                    <tr><td nowrap>%{ticket.thread.original}</td><td>'.__('Original ticket body').'</td></tr>
+                    <tr><td nowrap>%{ticket.thread.lastmessage}</td><td>'.__('To get the last message').'</td></tr>
                 </table>
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
-                    <tr><td colspan="2"><b>'.__('Name Expansion').'</b></td></tr>
-                    <tr><td>.first</td><td>'.__('First Name').'</td></tr>
-                    <tr><td>.last</td><td>'.__('Last Name').'</td></tr>
-                    <tr><td>.full</td><td>'.__('First Last').'</td></tr>
-                    <tr><td>.short</td><td>'.__('First L.').'</td></tr>
-                    <tr><td>.shortformal</td><td>'.__('F. Last').'</td></tr>
-                    <tr><td>.lastfirst</td><td>'.__('Last, First').'</td></tr>
-                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Ticket Thread expansions').'</b></em></td></tr>
-                    <tr><td>.original</td><td>'.__('Original Message').'</td></tr>
-                    <tr><td>.lastmessage</td><td>'.__('Last Message').'</td></tr>
-                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Thread Entry expansions').'</b></em></td></tr>
-                    <tr><td>.poster</td><td>'.__('Poster').'</td></tr>
-                    <tr><td>.create_date</td><td>'.__('Date created').'</td></tr>
-                </table>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Name Variables<br>(replace ### with ticket, staff or recipient)').'</b></em></td></tr>
+                    <tr><td nowrap>%{ticket.name}</td><td>'.__('Full name').'</td></tr>
+                    <tr><td nowrap>%{staff.name}</td><td>'.__('Staff Full name').'</td></tr>
+                    <tr><td nowrap>%{recipient.name}</td><td>'.__('Recipient Full name').'</td></tr>
+                    <tr><td nowrap>%{###.name.first}</td><td>'.__('First name').'</td></tr>
+                    <tr><td nowrap>%{###.name.last}</td><td>'.__('Last name').'</td></tr>
+                    <tr><td nowrap>%{###.name.lastfirst}</td><td>'.__('Last, First name').'</td></tr>
+                    <tr><td nowrap>%{###.name.short}</td><td>'.__('Short name - First L.').'</td></tr>
+                    <tr><td nowrap>%{###.name.shortformal}</td><td>'.__('Short Formal - F. Last').'</td></tr>
+                    <tr><td nowrap>%{###.name.full}</td><td>'.__('Full').'</td></tr>
+                    <tr><td nowrap>%{###.name.original}</td><td>'.__('Original').'</td></tr>
+                    <tr><td nowrap>%{###.name.formal}</td><td>'.__('Formal').'</td></tr>
+                    <tr><td nowrap>%{###.name.initials}</td><td>'.__('Initials').'</td></tr>
+                    <tr><td nowrap>%{###.name.legal}</td><td>'.__('Legal').'</td></tr>
+                </table>';
+            global $cfg;
+            if ($cfg->isLimeSurveyEnabled()) {
+        $content= $content . '
+                <table width="100%" border="0" cellspacing=1 cellpadding=1>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Survey Variables').'</b></em></td></tr>
+                    <tr><td nowrap>%{SurveyURL}</td><td>'.__('Survey URL Link').'</td></tr>
+                </table>';
+            }
+        $content= $content . '
             </td>
         </tr>
     </table>

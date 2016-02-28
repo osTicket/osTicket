@@ -25,7 +25,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
  <h2><?php echo __('Email Template');?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

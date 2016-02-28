@@ -853,6 +853,7 @@ class Ticket {
                     $t->reload();
                     $t->logEvent('closed');
                     $t->deleteDrafts();
+                    $t->emailClosed();
                 };
                 break;
             case 'open':
@@ -1016,6 +1017,10 @@ class Ticket {
 
             //Only alerts dept members if the ticket is NOT assigned.
             if($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
+                if(($members=$dept->getMembersForAlerts()))
+                    $recipients=array_merge($recipients, $members);
+            //Otherwise send alerts to dept members if the ticket has been auto-assigned via a ticket filter or help topic.
+            }elseif($cfg->alertDeptMembersONNewTicket() && $cfg->alertSendIfAutoAssignedONNewTicket()) {
                 if(($members=$dept->getMembersForAlerts()))
                     $recipients=array_merge($recipients, $members);
             }
@@ -2368,6 +2373,13 @@ class Ticket {
                 .'WHERE ticket.isanswered = 1 '
                 . $where
 
+                .'UNION SELECT \'pending\', count( ticket.ticket_id ) AS tickets '  
+                .'FROM ' . TICKET_TABLE . ' ticket '  
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status  
+                    ON (ticket.status_id=status.id  
+                            AND status.name=\'pending\') '  
+                . $where  
+
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
@@ -2388,7 +2400,7 @@ class Ticket {
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
                     ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
+                            AND status.state=\'closed\' AND status.name<>\'pending\' ) '
                 .'WHERE 1 '
                 . $where;
 
@@ -3026,5 +3038,113 @@ class Ticket {
         }
    }
 
+    // Close Pending tickets based on Pending Ticket Auto-Close time from Settings > Tickets screen
+    function closePending() {
+        global $cfg;
+
+        $days = $cfg->getAutoCloseGrace();
+
+        if($days != 0){
+            // select all tickets marked as 'pending' where updated is older than ($days) days ago
+            $sql  = 'SELECT ticket_id FROM ' .TICKET_TABLE .' ticket '
+                   .'INNER JOIN '.TICKET_STATUS_TABLE.' status '
+                   .'ON (status.id=ticket.status_id AND status.name = "pending") '
+                   .'AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$days.'*86400 '
+                   .'LIMIT 50'; //Close upto 50 Pending Tickets at a time
+
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res)) {
+                    //Set the status of the ticket as Closed
+                    if(($ticket=Ticket::lookup($id)) && $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$days.' days of no activity.', false));
+                }
+            }
+        }
+    }
+
+   // Survey Closed tickets if the Survey settings are enabled globally and per department after 1 minute of being closed an no more than 1 hour after being closed
+    function surveyClosed() {
+         global $cfg;
+
+         if($cfg->isLimeSurveyEnabled() != 0){
+            // select all tickets marked as 'closed' where survey closed tickets are enabled per department
+            $sql  = 'SELECT ticket.ticket_id FROM ' .TICKET_TABLE .' ticket '
+                   .'INNER JOIN '. TICKET_STATUS_TABLE. ' status '
+                   .'ON (status.id=ticket.status_id AND (status.name = "closed")) '
+                   .'AND ((TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>=1*60) '
+                   .'AND (TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))<=60*60)) '
+                   .'LIMIT 50'; //Survey upto 50 Closed Tickets at a time
+
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res)) {
+                    //Set the status of the ticket as Surveyed since this is the first time we have sent one
+                    if(($ticket=Ticket::lookup($id)) && ($ticket->setStatus('7', 'Survey sent to user by the SYSTEM as the ticket was closed and the department was enabled to send surveys.', false)) && ($ticket->emailSurveySend()));  
+                }
+            }
+        }
+    }
+
+    // Function to send the Closed Ticket Email template to the cuustomer if enabled and allowed per department and globally
+    function emailClosed() {
+        global $thisstaff, $cfg;
+
+        $dept      = $this->getDept();
+        $signature = $dept->getSignature();
+        $poster    = $this->getName();
+        $variables = array (
+                    'signature' => $signature,
+                    'staff' => $thisstaff,
+                    'poster' => $poster,
+                    'recipient' => $this->getOwner());
+
+        if ((($email = $dept->getEmail() ) && ($tpl = $dept->getTemplate() ) && ($msg = $tpl->getClosedMsgTemplate() ) && ($dept->autoRespONClosedMessage() == 1) ) && ($this->getStatusId() == 3)) {
+            $msg = $this->replaceVars ( $msg->asArray (), $variables );
+            if ($cfg->stripQuotedReply() && ($tag = $cfg->getReplySeparator() ) )
+                $msg ['body'] = "<p style=\"display:none\">$tag<p>" . $msg ['body'];
+            $email->send ( $this->getEmail (), $msg ['subj'], $msg ['body']);
+        }
+    }
+
+    // Function to send the Email Survey template to the cuustomer if enabled and allowed per department and globally
+    // This has been built to work with Lime Survey
+    function emailSurveySend() {
+        global $thisstaff, $cfg;
+
+        $dept      = $this->getDept();
+        $signature = $dept->getSignature();
+        $poster    = $this->getName();
+        $SurveyURL = ($cfg->getLimeSurveyURL() 
+                    . $dept->deptSurveyID() . '?' 
+                    . $this->genRandomString(25) . '&' 
+                    . $dept->deptSurveyTicketSecret() . '=' . urlencode($this->getNumber()) . '&' 
+                    . $this->genRandomString(40) . '=' . $this->genRandomString(25) . '&' 
+                    . $dept->deptSurveyStaffSecret() . '=' . urlencode($this->getStaff()) . '&' 
+                    . $this->genRandomString(25) );
+        $variables = array (
+                    'signature' => $signature,
+                    'staff' => $thisstaff,
+                    'poster' => $poster,
+                    'recipient' => $this->getOwner(),
+                    'SurveyURL' => $SurveyURL);
+
+        if ((($email = $dept->getEmail() ) && ($tpl = $dept->getTemplate() ) && ($msg = $tpl->getSurveyMsgTemplate() ) && (($cfg->isLimeSurveyEnabled() != 0) && ($dept->deptSurveyClosedTicket() == 1) ) ) && ($this->getStatusId() == 7) ) {
+            $msg = $this->replaceVars ( $msg->asArray (), $variables );
+            if ($cfg->stripQuotedReply() && ($tag = $cfg->getReplySeparator() ) )
+                $msg ['body'] = "<p style=\"display:none\">$tag<p>" . $msg ['body'];
+            $email->send ( $this->getEmail (), $msg ['subj'], $msg ['body']);
+        }
+    }
+
+    // Function to generate a random alphanumeric string at a length required
+    function genRandomString($length) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
 }
+
 ?>

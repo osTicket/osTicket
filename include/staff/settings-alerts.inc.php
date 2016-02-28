@@ -3,7 +3,7 @@
 <form action="settings.php?t=alerts" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="alerts" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th>
@@ -29,6 +29,12 @@
             <td>
                 <input type="checkbox" name="ticket_alert_admin" <?php echo $config['ticket_alert_admin']?'checked':''; ?>>
                 <?php echo __('Admin Email'); ?> <em>(<?php echo $cfg->getAdminEmail(); ?>)</em>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <input type="checkbox" name="ticket_alert_send_if_auto_assigned" <?php echo $config['ticket_alert_send_if_auto_assigned']?'checked':''; ?>>
+              <?php echo __('Send if ticket is Auto-Assigned via Ticket Filter or Help Topic'); ?>
             </td>
         </tr>
         <tr>

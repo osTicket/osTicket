@@ -77,12 +77,12 @@ if($search)
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="350"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+            <th><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
             <th width="200"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Ban Status');?></a></th>
             <th width="120"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
             <th width="120"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
@@ -101,10 +101,10 @@ if($search)
                 <td width=7px>
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
-                <td>&nbsp;&nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
-                <td><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
+                <td nowrap>&nbsp;<a href="banlist.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['val']); ?></a></td>
+                <td nowrap>&nbsp;&nbsp;<?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
+                <td nowrap><?php echo Format::db_date($row['created']); ?></td>
+                <td nowrap><?php echo Format::db_datetime($row['updated']); ?>&nbsp;</td>
                </tr>
             <?php
             } //end of while.

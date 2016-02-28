@@ -1,6 +1,8 @@
 #
 # Email template: note.alert.yaml
 #
+# Template name:  Internal Activity Alert
+#
 # Sent to staff members when a new internal note is appended to a ticket.
 # Internal notes can only be added by staff members.
 #
@@ -10,44 +12,49 @@ notes: |
     note or an agent reply is appended to a ticket.
 
 subject: |
-    New Internal Activity Alert
+    New Internal Activity Alert: [#%{ticket.number}]
 body: |
     <h3><strong>Hi %{recipient.name},</strong></h3>
-    An agent has logged activity on ticket <a
-    href="%{ticket.staff_link}">#%{ticket.number}</a>
-    <br>
+    An agent has logged activity on ticket <a href="%{ticket.staff_link}">%{ticket.number}</a><br>
     <br>
     <table>
-    <tbody>
-    <tr>
-        <td>
-            <strong>From</strong>:
-        </td>
-        <td>
-            %{note.poster}
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <strong>Title</strong>:
-        </td>
-        <td>
-            %{note.title}
-        </td>
-    </tr>
-    </tbody>
+        <tbody>
+            <tr>
+                <td><strong>Ticket ID</strong>:</td>
+                <td><a href="%{recipient.ticket_link}">%{ticket.number}</a></td>
+            </tr>
+            <tr>
+                <td><strong>Department</strong>:</td>
+                <td>%{ticket.dept}</td>
+            </tr>
+            <tr>
+                <td><strong>Status</strong>:</td>
+                <td>%{ticket.status}</td>
+            </tr>
+            <tr>
+                <td><strong>Priority</strong>:</td>
+                <td>%{ticket.priority}</td>
+            </tr>
+            <tr>
+                <td><strong>From</strong>:</td>
+                <td>%{note.poster}</td>
+            </tr>
+            <tr>
+                <td><strong>Title</strong>:</td>
+                <td>%{note.title}</td>
+            </tr>
+            <tr>
+                <td><strong>Subject</strong>:</td>
+                <td>%{ticket.subject}</td>
+            </tr>
+        </tbody>
     </table>
-    <br>
-    %{note.message}
-    <br>
-    <br>
+    <blockquote>
+        %{note.message}
+    </blockquote><br>
     <hr>
-    To view/respond to the ticket, please <a
-    href="%{ticket.staff_link}">login</a> to the support ticket system
+    To view/respond to the ticket, please <a href="%{ticket.staff_link}">login</a> to the support ticket system<br>
     <br>
-    <br>
-    <em style="font-size: small; ">Your friendly Customer Support
-    System</em>
-    <br>
-    <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
-    alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
+    Kind Regards, <br>
+    %{ticket.dept} <br>
+    %{company.name}<br>

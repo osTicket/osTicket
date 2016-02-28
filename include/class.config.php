@@ -151,8 +151,10 @@ class OsticketConfig extends Config {
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
         'enable_html_thread' => true,
+        'enable_lime_surveys' => false,
         'allow_attachments' =>  true,
         'name_format' =>        'full', # First Last
+        'enable_collaborators'=>  true,
         'auto_claim_tickets'=>  true,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -310,6 +312,10 @@ class OsticketConfig extends Config {
         return $this->get('max_page_size');
     }
 
+    function getPageWidth() {
+        return $this->get('max_page_width');
+    }
+
     function getGracePeriod() {
         return $this->get('overdue_grace_period');
     }
@@ -320,6 +326,14 @@ class OsticketConfig extends Config {
 
     function isHtmlThreadEnabled() {
         return $this->get('enable_html_thread');
+    }
+
+    function isLimeSurveyEnabled() {
+        return $this->get('enable_lime_surveys');
+    }
+
+    function getLimeSurveyURL() {
+        return $this->get('lime_survey_url');
     }
 
     function allowClientUpdates() {
@@ -366,8 +380,20 @@ class OsticketConfig extends Config {
         return $this->get('name_format');
     }
 
+    function isRemoveStaffLoginLinkEnabled() {
+        return $this->get('remove_staff_login_link');
+    }
+
     function getDefaultDeptId() {
         return $this->get('default_dept_id');
+    }
+
+    function getAutoRefreshRate() {
+        return $this->get('auto_refresh_rate');
+    }
+
+    function getDefaultSignatureType() {
+        return $this->get('default_signature_type');
     }
 
     function getDefaultDept() {
@@ -395,7 +421,11 @@ class OsticketConfig extends Config {
     }
 
     function getDefaultTicketStatusId() {
-        return $this->get('default_ticket_status_id', 1);
+        return $this->get('default_ticket_status_id');
+    }
+
+    function getDefaultReplyTicketStatusId() {
+        return $this->get('default_reply_ticket_status_id');
     }
 
     function getDefaultSLAId() {
@@ -410,6 +440,10 @@ class OsticketConfig extends Config {
         return $this->defaultSLA;
     }
 
+    function getAutoCloseGrace() {  
+        return $this->get('autoclose_grace_period');  
+    }  
+  
     function getAlertEmailId() {
         return $this->get('alert_email_id');
     }
@@ -710,6 +744,10 @@ class OsticketConfig extends Config {
         return ($this->get('ticket_alert_admin'));
     }
 
+    function alertSendIfAutoAssignedONNewTicket() {
+        return ($this->get('ticket_alert_send_if_auto_assigned'));
+    }
+
     function alertDeptManagerONNewTicket() {
         return ($this->get('ticket_alert_dept_manager'));
     }
@@ -771,12 +809,20 @@ class OsticketConfig extends Config {
         return ($this->get('overdue_alert_dept_members'));
     }
 
+    function enableCollaboratorsOnReply() {
+        return $this->get('enable_collaborators');
+    }
+
     function autoClaimTickets() {
         return $this->get('auto_claim_tickets');
     }
 
     function showAssignedTickets() {
         return ($this->get('show_assigned_tickets'));
+    }
+
+    function showTicketDepartments() {
+        return ($this->get('show_ticket_departments'));
     }
 
     function showAnsweredTickets() {
@@ -890,9 +936,13 @@ class OsticketConfig extends Config {
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
             'max_page_size'=>$vars['max_page_size'],
+            'auto_refresh_rate'=>$vars['auto_refresh_rate'],
+            'default_signature_type'=>$vars['default_signature_type'],
+            'max_page_width'=>$vars['max_page_width'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'name_format'=>$vars['name_format'],
+            'remove_staff_login_link'=>isset($vars['remove_staff_login_link'])?1:0,
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
@@ -934,6 +984,7 @@ class OsticketConfig extends Config {
         $f=array();
         $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+        $f['default_reply_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
@@ -967,16 +1018,22 @@ class OsticketConfig extends Config {
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
+            'default_reply_ticket_status_id'=>$vars['default_reply_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
+            'autoclose_grace_period'=>$vars['autoclose_grace_period'], 
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
+            'enable_collaborators'=>isset($vars['enable_collaborators'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
+            'show_ticket_departments'=>isset($vars['show_ticket_departments'])?0:1,
             'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'hide_staff_name'=>isset($vars['hide_staff_name'])?1:0,
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
+            'enable_lime_surveys'=>isset($vars['enable_lime_surveys'])?1:0,
+            'lime_survey_url'=>$vars['lime_survey_url'],
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
         ));
@@ -1121,6 +1178,7 @@ class OsticketConfig extends Config {
 
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
+                    && !isset($vars['ticket_alert_send_if_auto_assigned'])
                     && !isset($vars['ticket_alert_dept_manager'])
                     && !isset($vars['ticket_alert_dept_members'])
                     && !isset($vars['ticket_alert_acct_manager']))) {
@@ -1167,6 +1225,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_alert_active'=>$vars['ticket_alert_active'],
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
+            'ticket_alert_send_if_auto_assigned'=>isset($vars['ticket_alert_send_if_auto_assigned'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
             'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,

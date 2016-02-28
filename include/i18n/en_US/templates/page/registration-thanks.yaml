@@ -11,14 +11,15 @@ notes: >
     register by confirming their account. This page should inform the user 
     that registration is complete and that the Client can now submit a ticket 
     or access existing tickets.
-name: "Account Confirmed!"
+name: "Account Confirmed! - %{company.name}"
 body: >
     <div>
-    <strong>Thanks for registering for an account.</strong><br />
-    <br />
-    You've confirmed your email address and successfully activated your
-    account. You may proceed to open a new ticket or manage existing tickets.<br />
-    <br />
-    <em>Your friendly support center</em><br />
+    <strong>Thanks for registering for an account.</strong><br>
+    <br>
+    You've confirmed your email address and successfully activated your account. You may proceed to open a new ticket or manage existing tickets.<br>
+    <br>
+    <em style="font-size: small">
+    Kind Regards,<br>
     %{company.name}
+    </em>
     </div>

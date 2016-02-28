@@ -41,7 +41,7 @@ if ($cfg->getTopicSortMode() == 'a')
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
          echo $showing; ?></span>
          <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
@@ -59,11 +59,11 @@ if ($cfg->getTopicSortMode() == 'a')
     <thead>
         <tr>
             <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="360"><?php echo __('Help Topic'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="80"><?php echo __('Status'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Type'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Priority'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="160"><?php echo __('Department'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="50"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="50"><?php echo __('Type'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="50"><?php echo __('Priority'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="120"><?php echo __('Department'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="150" nowrap><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
@@ -103,11 +103,11 @@ if ($cfg->getTopicSortMode() == 'a')
                     <i class="icon-sort"></i>
 <?php } ?>
 <a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
-                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
-                <td><?php echo $row['priority']; ?></td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                <td nowrap><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
+                <td nowrap><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
+                <td nowrap><?php echo $row['priority']; ?></td>
+                <td nowrap><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
+                <td nowrap>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
             </tr>
             <?php
             } //end of while.

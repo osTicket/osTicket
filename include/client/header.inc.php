@@ -42,6 +42,8 @@ if (($lang = Internationalization::getCurrentLanguage())
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-fonts.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo ROOT_PATH; ?>favicon.ico?v=2" />
+    <link rel="icon" type="image/x-icon" href="<?php echo ROOT_PATH; ?>favicon.ico?v=2" />
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";

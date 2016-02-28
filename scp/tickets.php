@@ -433,6 +433,14 @@ if($stats['overdue']) {
         $sysnotice=sprintf(__('%d overdue tickets!'),$stats['overdue']);
 }
 
+if($stats['pending']) {  
+    $nav->addSubMenu(array('desc'=>__('Pending').' ('.number_format($stats['pending']).')',  
+                           'title'=>__('Pending Tickets'),  
+                           'href'=>'tickets.php?status=pending',  
+                           'iconclass'=>'Ticket'),  
+                        ($_REQUEST['status']=='pending'));    
+}  
+
 if($thisstaff->showAssignedOnly() && $stats['closed']) {
     $nav->addSubMenu(array('desc'=>__('My Closed Tickets').' ('.number_format($stats['closed']).')',
                            'title'=>__('My Closed Tickets'),

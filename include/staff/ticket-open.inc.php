@@ -24,7 +24,7 @@ if ($_POST)
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
  <h2><?php echo __('Open a New Ticket');?></h2>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table fixed" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to

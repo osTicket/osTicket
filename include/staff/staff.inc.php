@@ -24,6 +24,8 @@ if($staff && $_REQUEST['a']!='add'){
     $info['isactive']=1;
     $info['isvisible']=1;
     $info['isadmin']=0;
+    $info['auto_refresh_rate'] = $cfg->getAutoRefreshRate();
+    $info['default_signature_type'] = $cfg->getDefaultSignatureType();
     $info['timezone_id'] = $cfg->getDefaultTimezoneId();
     $info['daylight_saving'] = $cfg->observeDaylightSaving();
     $qs += array('a' => 'add');
@@ -36,7 +38,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
  <h2><?php echo __('Agent Account');?></h2>
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -128,7 +130,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } ?>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Authentication'); ?></strong>: <?php echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
+                <em><strong><?php echo __('Authentication'); ?></strong>: <?php
+                echo $passwd_text; ?> &nbsp;<span class="error">&nbsp;<?php echo $errors['temppasswd']; ?></span>
+                &nbsp;<i class="help-tip icon-question-sign" href="#account_password"></i></em>
             </th>
         </tr>
         <tr>
@@ -190,14 +194,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <th colspan="2">
                 <em><strong><?php echo __("Agent's Signature");?></strong>:
                 <?php echo __('Optional signature used on outgoing emails.');?>
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span></em>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['signature']; ?></span>
                 &nbsp;<i class="help-tip icon-question-sign" href="#agents_signature"></i></em>
             </th>
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
+                <div id="toolbar"></div>
+                <textarea class="richtext ifhtml" name="signature" cols="21" rows="16" style="width: 98%;" wrap="soft" data-toolbar-external="#toolbar" data-draft-namespace="tpl.<?php echo Format::htmlchars($selected); ?>" data-draft-object-id="<?php echo $tpl_id; ?>">
+                    <?php echo $info['signature']; ?>
+                </textarea>
                 <br><em><?php echo __('Signature is made available as a choice, on ticket reply.');?></em>
             </td>
         </tr>
@@ -265,6 +271,68 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     ?>
                 </select>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['dept_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#primary_department"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Maximum Page size');?>:</td>
+            <td>
+                <select name="max_page_size">
+                    <option value="0">&mdash; <?php echo __('system default');?> &mdash;</option>
+                    <?php
+                    $pagelimit=$info['max_page_size']?$info['max_page_size']:$cfg->getPageSize();
+                    for ($i = 5; $i <= 50; $i += 5) {
+                        $sel=($pagelimit==$i)?'selected="selected"':'';
+                         echo sprintf('<option value="%d" %s>'.__('show %s records').'</option>',$i,$sel,$i);
+                    } ?>
+                </select> <?php echo __('per page.');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#max_page_size"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Auto Refresh Rate');?>:</td>
+            <td>
+                <select name="auto_refresh_rate">
+                  <option value="0">&mdash; <?php echo __('disable');?> &mdash;</option>
+                  <?php
+                  $y=1;
+                   for($i=1; $i <=30; $i+=$y) {
+                     $sel=($info['auto_refresh_rate']==$i)?'selected="selected"':'';
+                     echo sprintf('<option value="%1$d" %2$s>'
+                        .sprintf(
+                            _N('Every minute', 'Every %d minutes', $i), $i)
+                         .'</option>',$i,$sel);
+                     if($i>9)
+                        $y=2;
+                   } ?>
+                </select>
+                <em><?php echo __('(Tickets page refresh rate in minutes.)');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#auto_refresh_rate"></i></em>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Default Signature');?>:</td>
+            <td>
+                <select name="default_signature_type">
+                  <option value="none" selected="selected">&mdash; <?php echo __('None');?> &mdash;</option>
+                  <?php
+                   $options=array('mine'=>__('My Signature'),'dept'=>sprintf(__('Department Signature (%s)'),
+                       __('if set' /* This is used in 'Department Signature (>if set<)' */)));
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($info['default_signature_type']==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <em><?php echo __('(This can be selected when replying to a ticket)');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#department_signature"></i></em>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Show Assigned Tickets');?>:</td>
+            <td>
+                <input type="checkbox" name="show_assigned_tickets" <?php echo $info['show_assigned_tickets']?'checked="checked"':''; ?>>
+                <em><?php echo __('Show assigned tickets on open queue.');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#show_assigned_tickets"></i></em>
             </td>
         </tr>
         <tr>
