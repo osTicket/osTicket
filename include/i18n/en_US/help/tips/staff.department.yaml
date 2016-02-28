@@ -95,6 +95,16 @@ new_message:
         You may disable the Auto-Response sent to the User to confirm
         a newly posted message for tickets in this Department.
 
+closed_auto_response:
+    title: Closed Ticket Auto Response
+    content: >
+        You may disable the Auto-Response sent to the User when a ticket
+        is closed by this Department or automatically if the <strong>Pending
+        Ticket Auto-Close</strong> feature is enabled.
+    links:
+      - title: Manage Tickets - Pending Ticket Auto-Close
+        href: /scp/settings.php?t=tickets
+
 auto_response_email:
     title: Auto Response Email
     content: >

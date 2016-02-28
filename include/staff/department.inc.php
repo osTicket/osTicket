@@ -195,6 +195,18 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
+                <?php echo __('Closed Ticket');?>:
+            </td>
+            <td>
+                <span>
+                <input type="checkbox" name="closed_auto_response" value="0" <?php echo $info['closed_auto_response']?'':'checked="checked"'; ?> >
+                <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                <i class="help-tip icon-question-sign" href="#closed_auto_response"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 <?php echo __('Auto-Response Email'); ?>:
             </td>
             <td>

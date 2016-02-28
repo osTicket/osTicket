@@ -616,6 +616,7 @@ print $response_form->getField('attachments')->render();
                 <td>
                     <select name="reply_status_id">
                     <?php
+                    $statusIdDefault = $info['statusId'] ?: $cfg->getDefaultReplyTicketStatusId();
                     $statusId = $info['reply_status_id'] ?: $ticket->getStatusId();
                     $states = array('open');
                     if ($thisstaff->canCloseTickets())
@@ -625,9 +626,10 @@ print $response_form->getField('attachments')->render();
                                 array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;
                         $selected = ($statusId == $s->getId());
+                        $selectedDefault = ($statusIdDefault == $s->getId());
                         echo sprintf('<option value="%d" %s>%s%s</option>',
                                 $s->getId(),
-                                $selected
+                                $selectedDefault
                                  ? 'selected="selected"' : '',
                                 __($s->getName()),
                                 $selected

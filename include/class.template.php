@@ -27,6 +27,10 @@ class EmailTemplateGroup {
         'ticket.staff' => /* @trans */ 'Agent Email Templates',
     );
     static $all_names=array(
+        'ticket.autoclose'=>array(
+            'group'=>'ticket.user',
+            'name'=>/* @trans */ 'Closed Ticket Auto-reply',
+            'desc'=>/* @trans */ 'Closed  Ticket Notification sent to user, if enabled, on tickets that are closed by an agent or automatically by the system.'),
         'ticket.autoresp'=>array(
             'group'=>'ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-response',
@@ -218,6 +222,10 @@ class EmailTemplateGroup {
 
     function getAutoReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket.autoreply');
+    }
+
+    function getClosedMsgTemplate() {
+        return $this->getMsgTemplate('ticket.autoclose');
     }
 
     function getReplyMsgTemplate() {

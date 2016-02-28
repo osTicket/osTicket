@@ -412,7 +412,11 @@ class OsticketConfig extends Config {
     }
 
     function getDefaultTicketStatusId() {
-        return $this->get('default_ticket_status_id', 1);
+        return $this->get('default_ticket_status_id');
+    }
+
+    function getDefaultReplyTicketStatusId() {
+        return $this->get('default_reply_ticket_status_id');
     }
 
     function getDefaultSLAId() {
@@ -427,6 +431,10 @@ class OsticketConfig extends Config {
         return $this->defaultSLA;
     }
 
+    function getAutoCloseGrace() {  
+        return $this->get('autoclose_grace_period');  
+    }  
+  
     function getAlertEmailId() {
         return $this->get('alert_email_id');
     }
@@ -967,6 +975,7 @@ class OsticketConfig extends Config {
         $f=array();
         $f['default_sla_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+        $f['default_reply_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
@@ -1000,9 +1009,11 @@ class OsticketConfig extends Config {
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
+            'default_reply_ticket_status_id'=>$vars['default_reply_ticket_status_id'],
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
+            'autoclose_grace_period'=>$vars['autoclose_grace_period'], 
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'enable_collaborators'=>isset($vars['enable_collaborators'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,

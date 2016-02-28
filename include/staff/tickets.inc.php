@@ -28,12 +28,18 @@ $status=null;
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'open':
         $status='open';
-		$results_type=__('Open Tickets');
+        $results_type=__('Open Tickets');
+        break;
+    case 'pending':
+        $status='pending';
+        $showpending=true;
+        $results_type=__('Pending Tickets');
         break;
     case 'closed':
         $status='closed';
-		$results_type=__('Closed Tickets');
+        $results_type=__('Closed Tickets');
         $showassigned=true; //closed by.
+        $showclosed=true; //Show Closed.
         break;
     case 'overdue':
         $status='open';
@@ -105,6 +111,11 @@ if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
     $qwhere.=' AND ticket.isoverdue=1 ';
 }elseif($showanswered) { ////Answered
     $qwhere.=' AND ticket.isanswered=1 ';
+}elseif($showpending) { ////Pending
+    $qwhere.=' AND status.name="pending" ';
+}elseif($showclosed) { ////Closed
+    $qwhere.=' AND status.name<>"pending" ';
+    $qwhere.=' AND status.state="closed" AND status.name<>"pending" ';
 }elseif(!strcasecmp($status, 'open') && !$search) { //Open queue (on search OPEN means all open tickets - regardless of state).
     //Showing answered tickets on open queue??
     if(!$cfg->showAnsweredTickets())

@@ -14,7 +14,7 @@ notes: |
 subject: |
     [#%{ticket.number}]: Re: %{ticket.subject}
 body: |
-    <h3><strong>Dear %{recipient.name},</strong></h3>
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
     %{response} <br>
     <br>
     <br>

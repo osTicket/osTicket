@@ -42,6 +42,16 @@ default_ticket_status:
       - title: Manage Ticket Statuses
         href: /scp/lists.php?type=ticket-status
 
+default_reply_ticket_status:
+    title: Default Status for Ticket Replies
+    content: >
+        Choose a status as the default for replies to tickets. This can be defined
+        for each help topic, if desired. It can also be overridden by a
+        ticket filter.
+    links:
+      - title: Manage Ticket Statuses
+        href: /scp/lists.php?type=ticket-status
+
 default_sla:
     title: Default SLA
     content: >
@@ -75,6 +85,13 @@ agent_collision_avoidance:
         on a ticket without any activity.
         <br><br>
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
+
+autoclose_grace_period:  
+    title: Pending Ticket Auto-Close  
+    content: >  
+        Enter the number of Days before a ticket marked <b>Pending</b> will be Auto-Closed by the system.  
+        <br><br>  
+        Enter <span class="doc-desc-opt">0</span> to disable the Auto-Close feature.  
 
 email_ticket_priority:
     title: Email Ticket Priority

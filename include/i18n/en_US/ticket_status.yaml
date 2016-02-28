@@ -66,3 +66,16 @@
   properties:
     description: >
         Tickets queued for deletion. Not accessible on ticket queues.
+
+- id: 6
+  name: Pending
+  state: closed
+  mode: 1
+  sort: 6
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+        Pending tickets. Tickets in this state will be automatically closed by the
+        system after X Days.

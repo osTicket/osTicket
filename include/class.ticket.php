@@ -853,6 +853,7 @@ class Ticket {
                     $t->reload();
                     $t->logEvent('closed');
                     $t->deleteDrafts();
+                    $t->emailClosed();
                 };
                 break;
             case 'open':
@@ -2372,6 +2373,13 @@ class Ticket {
                 .'WHERE ticket.isanswered = 1 '
                 . $where
 
+                .'UNION SELECT \'pending\', count( ticket.ticket_id ) AS tickets '  
+                .'FROM ' . TICKET_TABLE . ' ticket '  
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status  
+                    ON (ticket.status_id=status.id  
+                            AND status.name=\'pending\') '  
+                . $where  
+
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
@@ -2392,7 +2400,7 @@ class Ticket {
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
                     ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
+                            AND status.state=\'closed\' AND status.name<>\'pending\' ) '
                 .'WHERE 1 '
                 . $where;
 
@@ -3030,5 +3038,49 @@ class Ticket {
         }
    }
 
+    // Close Pending tickets based on Pending Ticket Auto-Close time from Settings > Tickets screen
+    function closePending() {
+        global $cfg;
+
+        $days = $cfg->getAutoCloseGrace();
+
+        if($days != 0){
+            // select all tickets marked as 'pending' where updated is older than ($days) days ago
+            $sql  = 'SELECT ticket_id FROM ' .TICKET_TABLE .' ticket '
+                   .'INNER JOIN '.TICKET_STATUS_TABLE.' status '
+                   .'ON (status.id=ticket.status_id AND status.name = "pending") '
+                   .'AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$days.'*86400';
+
+            if(($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res)) {
+                    //Set the status of the ticket as Closed
+                    if(($ticket=Ticket::lookup($id)) && $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$days.' days of no activity.', false));
+                }
+            }
+        }
+    }
+
+    function emailClosed() {
+        global $thisstaff, $cfg;
+
+        $dept      = $this->getDept();
+        $signature = $dept->getSignature();
+        $poster    = $this->getName();
+       
+        $variables = array (
+                    'signature' => $signature,
+                    'staff' => $thisstaff,
+                    'poster' => $poster,
+                    'recipient' => $this->getOwner());
+       
+        if ((($email = $dept->getEmail() ) && ($tpl = $dept->getTemplate() ) && ($msg = $tpl->getClosedMsgTemplate() ) && ($dept->autoRespONClosedMessage() == 1) ) && $this->getStatusId() == 3) {
+            $msg = $this->replaceVars ( $msg->asArray (), $variables );
+            if ($cfg->stripQuotedReply() && ($tag = $cfg->getReplySeparator() ) )
+                $msg ['body'] = "<p style=\"display:none\">$tag<p>" . $msg ['body'];
+            $email->send ( $this->getEmail (), $msg ['subj'], $msg ['body']);
+        }
+    }
+
 }
+
 ?>

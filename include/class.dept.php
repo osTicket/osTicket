@@ -279,6 +279,10 @@ class Dept {
         return ($this->ht['message_auto_response']);
     }
 
+    function autoRespONClosedMessage() {
+        return ($this->config->get('closed_auto_response', 1));
+    }
+
     function noreplyAutoResp() {
          return ($this->ht['noreply_autoresp']);
     }
@@ -332,6 +336,7 @@ class Dept {
 
         // Misc. config settings
         $this->config->set('assign_members_only', $vars['assign_members_only']);
+        $this->config->set('closed_auto_response', (isset($vars['closed_auto_response'])?0:1) );
 
         return true;
     }

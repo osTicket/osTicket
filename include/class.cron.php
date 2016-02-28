@@ -26,9 +26,13 @@ class Cron {
     }
 
     function TicketMonitor() {
+        global $cfg;
         require_once(INCLUDE_DIR.'class.ticket.php');
         require_once(INCLUDE_DIR.'class.lock.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
+            if ($cfg->getAutoCloseGrace() <> 0 ) {
+                Ticket::closePending(); //Close pending tickets
+            }
         TicketLock::cleanup(); //Remove expired locks
     }
 

@@ -55,13 +55,13 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         </tr>
         <tr>
             <td width="180" class="required">
-                <?php echo __('Default Status'); ?>:
+                <?php echo __('Default New Ticket Status'); ?>:
             </td>
             <td>
                 <span>
                 <select name="default_ticket_status_id">
                 <?php
-                $criteria = array('states' => array('open'));
+                $criteria = array('states' => array('open','closed'));
                 foreach (TicketStatusList::getStatuses($criteria) as $status) {
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
@@ -81,6 +81,37 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 &nbsp;
                 <span class="error">*&nbsp;<?php echo $errors['default_ticket_status_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#default_ticket_status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Default Ticket Reply Status'); ?>:
+            </td>
+            <td>
+                <span>
+                <select name="default_reply_ticket_status_id">
+                <?php
+                $criteria = array('states' => array('open','closed'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' '.__('(disabled)');
+
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['default_reply_ticket_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['default_reply_ticket_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#default_reply_ticket_status"></i>
                 </span>
             </td>
         </tr>
@@ -148,6 +179,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
                 <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;<?php echo __('minutes'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#agent_collision_avoidance"></i>
             </td>
+        </tr>
+        <tr>
+            <td><?php echo __('<b>Pending</b> Ticket Auto-Close'); ?>:</td>  
+            <td>  
+                <input type="text" name="autoclose_grace_period" size=4 value="<?php echo $config['autoclose_grace_period']; ?>">&nbsp;Day(s)&nbsp;  
+                <font class="error"><?php echo $errors['autoclose_grace_period']; ?></font>  
+                <i class="help-tip icon-question-sign" href="#autoclose_grace_period"></i>  
+            </td>  
         </tr>
         <tr>
             <td><?php echo __('Human Verification');?>:</td>
