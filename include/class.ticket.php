@@ -3066,7 +3066,7 @@ class Ticket {
          global $cfg;
 
          if($cfg->isLimeSurveyEnabled() != 0){
-             // select all tickets marked as 'closed' where survey closed tickets are enabled per department
+            // select all tickets marked as 'closed' where survey closed tickets are enabled per department
             $sql  = 'SELECT ticket.ticket_id FROM ' .TICKET_TABLE .' ticket '
                    .'INNER JOIN '. TICKET_STATUS_TABLE. ' status '
                    .'ON (status.id=ticket.status_id AND (status.name = "closed")) '
@@ -3109,7 +3109,7 @@ class Ticket {
     function emailSurveySend() {
         global $thisstaff, $cfg;
 
-        $dept      = $this->getDept ();
+        $dept      = $this->getDept();
         $signature = $dept->getSignature();
         $poster    = $this->getName();
         $SurveyURL = ($cfg->getLimeSurveyURL() 
