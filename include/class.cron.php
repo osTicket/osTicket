@@ -33,6 +33,9 @@ class Cron {
             if ($cfg->getAutoCloseGrace() <> 0 ) {
                 Ticket::closePending(); //Close pending tickets
             }
+            if ($cfg->isLimeSurveyEnabled()) {
+                Ticket::surveyClosed(); //Survey closed tickets
+            }
         TicketLock::cleanup(); //Remove expired locks
     }
 

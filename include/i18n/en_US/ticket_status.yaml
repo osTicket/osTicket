@@ -79,3 +79,18 @@
     description: >
         Pending tickets. Tickets in this state will be automatically closed by the
         system after X Days.
+
+- id: 7
+  name: Surveyed
+  state: closed
+  mode: 1
+  sort: 7
+  flags: 0
+  properties:
+    allowreopen: true
+    reopenstatus: 0
+    description: >
+        Surveyed tickets. Tickets that have been closed and the department was
+        enabled to send surveys to will be automatically set to this status by 
+        the system.
+

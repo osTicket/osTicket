@@ -341,6 +341,32 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <?php } ?>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('Surveys');?></b>:  <?php echo __('Survey settings for use with Lime Survey.');?></em>
+            </th>
+        </tr>
+        <tr>
+            <td><?php echo __('Enable Lime Survey'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_lime_surveys" <?php
+                echo $config['enable_lime_surveys']?'checked="checked"':''; ?>>
+                <?php echo __('Enable Lime Survey module.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_lime_surveys"></i>
+            </td>
+        </tr>
+        <?php if ($cfg->isLimeSurveyEnabled()) { ?>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey URL'); ?>:
+            </td>
+            <td>
+                <input type="text" size="40" name="lime_survey_url" value="<?php echo $config['lime_survey_url']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example">http://survey.example.com/index.php/</span></span>
+                <i class="help-tip icon-question-sign" href="#lime_survey_url"></i>
+            </td>
+        </tr>
+        <?php } ?>
     </tbody>
 </table>
 <p style="padding-left:250px;">

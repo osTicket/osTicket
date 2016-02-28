@@ -119,7 +119,16 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td nowrap>%{###.name.formal}</td><td>'.__('Formal').'</td></tr>
                     <tr><td nowrap>%{###.name.initials}</td><td>'.__('Initials').'</td></tr>
                     <tr><td nowrap>%{###.name.legal}</td><td>'.__('Legal').'</td></tr>
-                </table>
+                </table>';
+            global $cfg;
+            if ($cfg->isLimeSurveyEnabled()) {
+        $content= $content . '
+                <table width="100%" border="0" cellspacing=1 cellpadding=1>
+                    <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Survey Variables').'</b></em></td></tr>
+                    <tr><td nowrap>%{SurveyURL}</td><td>'.__('Survey URL Link').'</td></tr>
+                </table>';
+            }
+        $content= $content . '
             </td>
         </tr>
     </table>

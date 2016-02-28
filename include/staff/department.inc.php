@@ -259,6 +259,76 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 </span>
             </td>
         </tr>
+        <?php if ($cfg->isLimeSurveyEnabled()) { ?>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('Surveys');?></b>:  <?php echo __('Survey settings for use with Lime Survey.');?>
+                <i class="help-tip icon-question-sign" href="#survey_lime_survey"></i></em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Surveys Closed Tickets');?>:
+            </td>
+            <td>
+                <span>
+                <input type="checkbox" name="survey_closed_tickets" value="1" <?php echo $info['survey_closed_tickets']?'checked="checked"':'1'; ?> >
+                <?php echo __('Send Surveys for this Department for messages that get closed.'); ?>
+                <i class="help-tip icon-question-sign" href="#survey_closed_tickets"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Survey ID / Number'); ?>:
+            </td>
+            <td>
+                <input type="text" size="10" name="lime_survey_id" value="<?php echo $info['lime_survey_id']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example">123456</span></span>
+                <i class="help-tip icon-question-sign" href="#lime_survey_id"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey Ticket GID'); ?>:
+            </td>
+            <td>
+                <input type="text" size="4" name="lime_survey_ticket_gid" value="<?php echo $info['lime_survey_ticket_gid']; ?>"/>
+                <?php echo __('Question Group ID for the Ticket Number in Lime Survey.'); ?>
+                <i class="help-tip icon-question-sign" href="#lime_survey_ticket_gid"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey Ticket QID'); ?>:
+            </td>
+            <td>
+                <input type="text" size="8" name="lime_survey_ticket_qid" value="<?php echo $info['lime_survey_ticket_qid']; ?>"/>
+                <?php echo __('Question ID for the Ticket Number in Lime Survey.'); ?>
+                <i class="help-tip icon-question-sign" href="#lime_survey_ticket_qid"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey Staff GID'); ?>:
+            </td>
+            <td>
+                <input type="text" size="4" name="lime_survey_staff_gid" value="<?php echo $info['lime_survey_staff_gid']; ?>"/>
+                <?php echo __('Question Group ID for the Staff Name in Lime Survey.'); ?>
+                <i class="help-tip icon-question-sign" href="#lime_survey_staff_gid"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Lime Survey Staff QID'); ?>:
+            </td>
+            <td>
+                <input type="text" size="8" name="lime_survey_staff_qid" value="<?php echo $info['lime_survey_staff_qid']; ?>"/>
+                <?php echo __('Question ID for the Staff Name in Lime Survey.'); ?>
+                <i class="help-tip icon-question-sign" href="#lime_survey_staff_qid"></i>
+            </td>
+        </tr>
+        <?php } ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Group Access'); ?></strong>:
