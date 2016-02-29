@@ -1690,9 +1690,17 @@ implements RestrictedAccess, Threadable {
 
         //Log an internal note - no alerts on the internal note.
         if ($user_comments) {
-            $note = $this->logNote(
-                sprintf(_S('Ticket Assigned to %s'), $assignee->getName()),
-                $comments, $assigner, false);
+            if ($assignee instanceof Staff
+                    && $thisstaff
+                    // self assignment
+                    && $assignee->getId() == $thisstaff->getId())
+                $title = sprintf(_S('Ticket claimed by %s'),
+                    $thisstaff->getName());
+            else
+                $title = sprintf(_S('Ticket Assigned to %s'),
+                        $assignee->getName());
+
+            $note = $this->logNote($title, $comments, $assigner, false);
         }
 
         // See if we need to send alerts
@@ -2160,10 +2168,12 @@ implements RestrictedAccess, Threadable {
                 $errors['err'] = __('Permission denied');
             } else {
                 $this->staff_id = $assignee->getId();
-                if ($thisstaff && $thisstaff->getId() == $assignee->getId())
+                if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
+                    $alert = false;
                     $evd['claim'] = true;
-                else
+                } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
+                }
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -3382,8 +3392,12 @@ implements RestrictedAccess, Threadable {
 
         // Assign ticket to staff or team (new ticket by staff)
         if ($vars['assignId']) {
-            $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
-            $ticket->assign($asnform, $vars['note']);
+            $asnform = $ticket->getAssignmentForm(array(
+                        'assignee' => $vars['assignId'],
+                        'comments' => $vars['note'])
+                    );
+            $e = array();
+            $ticket->assign($asnform, $e);
         }
         else {
             // Auto assign staff or team - auto assignment based on filter
