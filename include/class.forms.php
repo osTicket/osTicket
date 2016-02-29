@@ -747,6 +747,10 @@ class TextboxField extends FormField {
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
     }
+
+    function parse($value) {
+        return Format::striptags($value);
+    }
 }
 
 class PasswordField extends TextboxField {

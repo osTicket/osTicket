@@ -153,8 +153,6 @@ class DynamicForm extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        if (isset($this->dirty['notes']))
-            $this->notes = Format::sanitize($this->notes);
         return parent::save($refetch);
     }
 

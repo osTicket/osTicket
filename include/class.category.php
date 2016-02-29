@@ -30,7 +30,7 @@ class Category {
             .' WHERE cat.category_id='.db_input($id)
             .' GROUP BY cat.category_id';
 
-        if (!($res=db_query($sql)) || !db_num_rows($res)) 
+        if (!($res=db_query($sql)) || !db_num_rows($res))
             return false;
 
         $this->ht = db_fetch_array($res);
@@ -54,14 +54,14 @@ class Category {
 
     function isPublic() { return ($this->ht['ispublic']); }
     function getHashtable() { return $this->ht; }
-    
+
     /* ------------------> Setter methods <--------------------- */
     function setName($name) { $this->ht['name']=$name; }
     function setNotes($notes) { $this->ht['notes']=$notes; }
     function setDescription($desc) { $this->ht['description']=$desc; }
 
     /* --------------> Database access methods <---------------- */
-    function update($vars, &$errors) { 
+    function update($vars, &$errors) {
 
         if(!$this->save($this->getId(), $vars, $errors))
             return false;
@@ -81,7 +81,7 @@ class Category {
         if(db_query($sql) && ($num=db_affected_rows())) {
             db_query('DELETE FROM '.FAQ_TABLE
                     .' WHERE category_id='.db_input($this->getId()));
-    
+
         }
 
         return $num;
