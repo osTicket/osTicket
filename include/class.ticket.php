@@ -2302,9 +2302,9 @@ implements RestrictedAccess, Threadable {
         if ($autorespond && $message->isBounceOrAutoReply())
             $autorespond = false;
 
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
+        $this->onMessage($message, ($autorespond && $alerts)); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
 
         if (!($alerts && $autorespond))
