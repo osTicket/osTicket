@@ -1978,7 +1978,7 @@ implements RestrictedAccess, Threadable {
         return $save ? $this->save() : true;
     }
 
-    //Dept Tranfer...with alert.. done by staff
+    //Dept Transfer...with alert.. done by staff
     function transfer(TransferForm $form, &$errors, $alert=true) {
         global $thisstaff, $cfg;
 

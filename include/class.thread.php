@@ -1565,7 +1565,7 @@ class ThreadEvent extends VerySimpleModel {
     const OVERDUE   = 'overdue';
     const REOPENED  = 'reopened';
     const STATUS    = 'status';
-    const TRANFERRED = 'transferred';
+    const TRANSFERRED = 'transferred';
     const VIEWED    = 'viewed';
 
     const MODE_STAFF = 1;
