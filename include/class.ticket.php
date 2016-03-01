@@ -1099,7 +1099,11 @@ implements RestrictedAccess, Threadable {
         if ($slaId == $this->getSLAId())
             return true;
 
-        $this->sla = Sla::lookup($slaId);
+        $sla = null;
+        if ($slaId && !($sla = Sla::lookup($slaId)))
+            return false;
+
+        $this->sla = $sla;
         return $this->save();
     }
     /**
@@ -2012,7 +2016,8 @@ implements RestrictedAccess, Threadable {
 
         // Set SLA of the new department
         if (!$this->getSLAId() || $this->getSLA()->isTransient())
-            $this->selectSLAId();
+            if (($slaId=$this->getDept()->getSLAId()))
+                $this->selectSLAId($slaId);
 
         // Log transfer event
         $this->logEvent('transferred');
