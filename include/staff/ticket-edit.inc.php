@@ -70,12 +70,17 @@ if ($_POST)
             </td>
             <td>
                 <select name="source">
-                    <option value="" selected >&mdash; <?php echo __('Select Source');?> &mdash;</option>
-                    <option value="Phone" <?php echo ($info['source']=='Phone')?'selected="selected"':''; ?>><?php echo __('Phone');?></option>
-                    <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>><?php echo __('Email');?></option>
-                    <option value="Web"   <?php echo ($info['source']=='Web')?'selected="selected"':''; ?>><?php echo __('Web');?></option>
-                    <option value="API"   <?php echo ($info['source']=='API')?'selected="selected"':''; ?>><?php echo __('API');?></option>
-                    <option value="Other" <?php echo ($info['source']=='Other')?'selected="selected"':''; ?>><?php echo __('Other');?></option>
+                    <option value="" selected >&mdash; <?php
+                        echo __('Select Source');?> &mdash;</option>
+                    <?php
+                    $source = $info['source'] ?: 'Phone';
+                    foreach (Ticket::getSources() as $k => $v) {
+                        echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,
+                                ($source == $k ) ? 'selected="selected"' : '',
+                                $v);
+                    }
+                    ?>
                 </select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
