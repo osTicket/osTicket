@@ -60,6 +60,11 @@ class Ticket {
             /* @trans */ 'Phone',
             'Email' =>
             /* @trans */ 'Email',
+
+            'Web' =>
+            /* @trans */ 'Web',
+            'API' =>
+            /* @trans */ 'API',
             'Other' =>
             /* @trans */ 'Other',
             );
@@ -2223,6 +2228,11 @@ class Ticket {
             elseif(strtotime($vars['duedate'].' '.$vars['time'])<=time())
                 $errors['duedate']=__('Due date must be in the future');
         }
+
+        if (isset($vars['source']) // Check ticket source if provided
+                && !array_key_exists($vars['source'], Ticket::getSources()))
+            $errors['source'] = sprintf( __('Invalid source given - %s'),
+                    Format::htmlchars($vars['source']));
 
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());
