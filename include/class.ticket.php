@@ -773,7 +773,13 @@ class Ticket {
     }
 
     function setSLAId($slaId) {
-        if ($slaId == $this->getSLAId()) return true;
+        if ($slaId == $this->getSLAId())
+            return true;
+
+        $sla = null;
+        if ($slaId && !($sla = Sla::lookup($slaId)))
+            return false;
+
         return db_query(
              'UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($slaId)
             .' WHERE ticket_id='.db_input($this->getId()))
@@ -1567,8 +1573,9 @@ class Ticket {
         $dept = $this->getDept();
 
         // Set SLA of the new department
-        if(!$this->getSLAId() || $this->getSLA()->isTransient())
-            $this->selectSLAId();
+        if (!$this->getSLAId() || $this->getSLA()->isTransient())
+            if (($slaId=$this->getDept()->getSLAId()))
+                $this->selectSLAId($slaId);
 
         // Make sure the new department allows assignment to the
         // currently assigned agent (if any)
