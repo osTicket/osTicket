@@ -92,6 +92,10 @@ class TicketApiController extends ApiController {
         return true;
     }
 
+    function restCreate() {
+        $format = $this->contentTypeToFormat($this->getContentType());
+        return $this->create($format);
+    }
 
     function create($format) {
 
@@ -110,6 +114,9 @@ class TicketApiController extends ApiController {
         if(!$ticket)
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
 
+        # FIXME: find real location
+        $location_base = '/api/tickets/';
+        header('Location: '.$location_base.$ticket->getNumber());
         $this->response(201, $ticket->getNumber());
     }
 
@@ -161,6 +168,98 @@ class TicketApiController extends ApiController {
         return $this->createTicket($data);
     }
 
+
+    function restDelete($ticket_number) {
+
+        #FIXME: Create authorization flag for ticket deletion in apikey 
+        if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+            return $this->exerr(401, __('API key not authorized'));
+
+        #See if the necessary information are in the request
+        if (is_numeric($ticket_number)){
+            #Looks if there is a matching ID to the specified number
+            $id = Ticket::getIdByNumber($ticket_number);
+            if ($id > 0){
+                $ticket = new Ticket(0);
+                $ticket->load($id);
+                $ticket->delete();
+                $this->response(200, __("Ticket deleted"));
+            }
+            else
+                $this->response(404, __("Ticket not found"));
+        }
+        else
+            $this->response(415, __("Number not sent"));
+    }
+
+    function restGetTicket($ticket_number) {
+
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        # Checks for valid ticket number
+        if (!is_numeric($ticket_number))
+            return $this->response(404, __("Invalid ticket number"));
+
+        # Checks for existing ticket with that number
+        $id = Ticket::getIdByNumber($ticket_number);
+        if ($id <= 0)
+            return $this->response(404, __("Ticket not found"));
+
+        # Load ticket and send response
+        $ticket = new Ticket(0);
+        $ticket->load($id);
+
+        $response = array();
+        array_push($response, array('number' => $ticket->getNumber()));
+        array_push($response, array('subject' => $ticket->getSubject()));
+        array_push($response, array('status' => $ticket->getStatus()->getName()));
+        array_push($response, array('priority' => $ticket->getPriority()));
+        array_push($response, array('department' => $ticket->getDeptName()));
+        array_push($response, array('create_timestamp' => $ticket->getCreateDate()));
+        array_push($response, array('user_name' => $ticket->getName()->getFull()));
+        array_push($response, array('user_email' => $ticket->getEmail()));
+        array_push($response, array('user_phone' => $ticket->getPhoneNumber()));
+        array_push($response, array('source' => $ticket->getSource()));
+        array_push($response, array('ip' => $ticket->getIP()));
+
+        $b = array();
+        foreach ($ticket->getAssignees() as $a) {
+            if (method_exists($a,"getFull"))
+                array_push($b, $a->getFull());
+            else
+                array_push($b, $a);
+        }
+        array_push($response, array('assigned_to' => $b));
+        unset($b);
+
+        array_push($response, array('sla' => $ticket->getSLA()->getName()));
+        array_push($response, array('due_timestamp' => $ticket->getEstDueDate()));
+        array_push($response, array('close_timestamp' => $ticket->getCloseDate()));
+        array_push($response, array('help_topic' => $ticket->getHelpTopic()));
+        array_push($response, array('last_message_timestamp' => $ticket->getLastMsgDate()));
+        array_push($response, array('last_response_timestamp' => $ticket->getLastRespDate()));
+
+        # get thread entries
+        $tcount = $ticket->getThreadCount();
+        $tcount += $ticket->getNumNotes();
+        $types = array('M', 'R', 'N');
+        $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
+        $thread = $ticket->getThreadEntries($types);
+
+        array_push($response, array('thread_count' => $tcount));
+        $a = array();
+        foreach ($thread as $tentry) {
+            array_push($a, array('type', $threadTypes[$tentry['thread_type']]));
+            array_push($a, array('timestamp', $tentry['created']));
+            array_push($a, array('title', $tentry['title']));
+            array_push($a, array('name', $tentry['name']));
+            array_push($a, array('body', $tentry['body']->getClean()));
+        }
+        array_push($response, array('thread_entries' => $a));
+
+        $this->response(200, json_encode($response), $contentType="application/json");
+    }
 }
 
 //Local email piping controller - no API key required!
