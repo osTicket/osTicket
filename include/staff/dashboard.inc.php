@@ -18,8 +18,10 @@ $plots = $report->getPlotData();
             <?php echo csrf_token(); ?>
             <label>
                 <?php echo __( 'Report timeframe'); ?>:
-                <input type="text" class="dp input-medium search-query" name="start" placeholder="<?php echo __('Last month');?>"i
-                    value="<?php echo Format::htmlchars($_POST['start']); ?>" />
+                <input type="text" class="dp input-medium search-query"
+                    name="start" placeholder="<?php echo __('Last month');?>"i
+                    value="<?php echo $_POST['start'] ?
+                    Format::htmlchars($_POST['start']) : ''; ?>" />
             </label>
             <label>
                 <?php echo __( 'period');?>:

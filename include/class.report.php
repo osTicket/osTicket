@@ -35,13 +35,19 @@ class OverviewReport {
         $start = $this->start ?: 'last month';
         $stop = $this->end ?: 'now';
 
-        $start = strtotime($start);
-
-        if (substr($stop, 0, 1) == '+')
-            $stop = strftime('%Y-%m-%d ', $start) . $stop;
+        // Convert user time to db time
+        $start = Misc::dbtime($start);
+        // Stop time can be relative.
+        if ($stop[0] == '+') {
+            // $start time + time(X days)
+            $now = time();
+            $stop = $start + (strtotime($stop, $now)-$now);
+        } else {
+            $stop = Misc::dbtime($stop);
+        }
 
         $start = 'FROM_UNIXTIME('.$start.')';
-        $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
+        $stop = 'FROM_UNIXTIME('.$stop.')';
 
         return array($start, $stop);
     }
