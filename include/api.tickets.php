@@ -114,7 +114,6 @@ class TicketApiController extends ApiController {
         if(!$ticket)
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
 
-        # FIXME: find real location
         $location_base = '/api/tickets/';
         header('Location: '.$location_base.$ticket->getNumber());
         $this->response(201, $ticket->getNumber());
@@ -171,7 +170,7 @@ class TicketApiController extends ApiController {
 
     function restDelete($ticket_number) {
 
-        #FIXME: Create authorization flag for ticket deletion in apikey 
+        # FIXME: Create authorization flag for ticket deletion in apikey
         if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
             return $this->exerr(401, __('API key not authorized'));
 
@@ -192,6 +191,12 @@ class TicketApiController extends ApiController {
             $this->response(415, __("Number not sent"));
     }
 
+    /**
+     * RESTful GET ticket
+     * 
+     * $ticket_number is the external ticket number and is provided by the
+     * url dispatcher.
+     */
     function restGetTicket($ticket_number) {
 
         if(!($key=$this->requireApiKey()))
@@ -259,6 +264,131 @@ class TicketApiController extends ApiController {
         array_push($response, array('thread_entries' => $a));
 
         $this->response(200, json_encode($response), $contentType="application/json");
+    }
+
+    /**
+     * RESTful GET ticket collection
+     * 
+     * Pagination is made wit Range header.
+     * i.e.
+     *      Range: items=0-    <-- request all items
+     *      Range: items=0-9   <-- request first 10 items
+     *      Range: items 10-19 <-- request items 11 to 20
+     * 
+     * Pagination status is given on Content-Range header.
+     * i.e.
+     *      Content-Range items 0-9/100 <-- first 10 items retrieved, 100 total items.
+     *
+     * TODO: Add filtering support
+     * 
+     */
+    function restGetTickets() {
+
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        header('Accept-Ranges: items');
+
+        # Parse and check range header
+        $range = 'items=0-';
+        foreach (getallheaders() as $k => $v) {
+            if (strcasecmp('range', $k) == 0) {
+                $range = $v;
+                break;
+            }
+        }
+        $range = explode('=',$range);
+
+        # check if range is expressed in items
+        if (strcasecmp($range[0], 'items') != 0)
+            return $this->exerr(416, __('Requested Range Not Satisfiable'));
+
+        # check if values are numeric
+        $range = explode('-', $range[1]);
+        foreach ($range as $v) {
+            if (strlen($v)>0 && !is_numeric($v))
+                return $this->exerr(416, __('Requested Range Not Satisfiable'));
+            }
+
+        # cast values to integer
+        $range_low = intval($range[0]);
+        if (strlen($range[1])>0) {
+            $range_high = intval($range[1]);
+            }
+        else
+            $range_high = -1; # empty range_high
+
+        if ($range_low < 0)
+            return $this->exerr(416, __('Requested Range Not Satisfiable'));
+
+        # determine range length and check
+        $range_len = $range_high - $range_low + 1;
+        if ($range_len < 1)
+            return $this->exerr(416, __('Requested Range Not Satisfiable'));
+
+        # limit query to 100 items
+        $range_len_max = 100;
+        header("X-Request-Range-Maximum-Length: ${range_len_max})");
+        if (($range_len > $range_len_max) || ($range_high < 0))
+            $range_len = $range_len_max;
+
+        $range_high_request = $range_low + $range_len - 1;
+        header("X-Request-Range: items=${range_low}-${range_high_request}");
+
+        # Build query
+        $qfields = array('number', 'created', 'updated', 'closed',
+             'lastmessage', 'lastresponse');
+
+        $q = 'SELECT SQL_CALC_FOUND_ROWS ';
+        foreach ($qfields as $f) {
+            $q.=$f.',';
+            }
+        $q=rtrim($q, ',');
+
+        $qfrom = ' FROM '.TICKET_TABLE;
+        $q .= $qfrom;
+
+        $qlimit = " LIMIT ${range_len} OFFSET ${range_low}";
+        $q .= $qlimit;
+
+        $q2 = 'SELECT FOUND_ROWS()';
+
+        $res = db_query($q);
+
+        # get total number of tickets
+        $res2 = db_query($q2);
+        $row = $res2->data_seek(0);
+        $row = $res2->fetch_assoc();
+        $found_rows = $row['FOUND_ROWS()'];
+        mysqli_free_result($res2);
+        unset($row);
+
+        $tickets = array();
+        $result_rows = $res->num_rows -1;
+        for ($row_no = 0; $row_no <= $result_rows; $row_no++) {
+            $res->data_seek($row_no);
+            $row = $res->fetch_assoc();
+            $ticket = array();
+            foreach ($qfields as $f) {
+                array_push($ticket, array($f, $row[$f]));
+                }
+            array_push($ticket, array('href', '/api/tickets/'.$row['number']));
+            array_push($tickets, $ticket);
+        }
+
+        # Replace range_high with the actual number of rows
+        # returned
+        $range_high = $range_low + $result_rows;
+
+        header("Content-Range: items ${range_low}-${range_high}/${found_rows}");
+        # Partial or full collection?
+        if ($result_rows < $found_rows)
+            $result_code = 200;
+        else
+            $result_code = 206; # 206 Partial Content
+
+        $this->response($result_code, json_encode($tickets),
+             $contentType="application/json");
     }
 }
 
