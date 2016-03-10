@@ -1063,7 +1063,6 @@ implements TemplateVariable {
 
     /* Emailed & API attachments handler */
     function importAttachment(&$attachment) {
-
         if(!$attachment || !is_array($attachment))
             return null;
 
@@ -1074,8 +1073,7 @@ implements TemplateVariable {
                 $error = sprintf(_S('Unable to import attachment - %s'),
                         $attachment['name']);
             //FIXME: logComment here
-            $this->getThread()->getObject()->logNote(
-                    _S('File Import Error'), $error, _S('SYSTEM'), false);
+           //$this->getThread()->getObject()->logNote(__('File Upload Error'), $error, 'SYSTEM', false);
         }
 
         return $A;
