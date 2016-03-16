@@ -1045,14 +1045,19 @@ class Ticket {
                 $sentlist[]=$cfg->getAdminEmail();
             }
 
-            //Only alerts dept members if the ticket is NOT assigned.
-            if($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()) {
-                if(($members=$dept->getMembersForAlerts()))
-                    $recipients=array_merge($recipients, $members);
+            // Only alerts dept members if the ticket is NOT assigned.
+            $manager = $dept->getManager();
+            if ($cfg->alertDeptMembersONNewTicket() && !$this->isAssigned()
+                && ($members = $dept->getMembersForAlerts())
+            ) {
+                foreach ($members as $M)
+                    if ($M != $manager)
+                        $recipients[] = $M;
             }
 
-            if($cfg->alertDeptManagerONNewTicket() && $dept && ($manager=$dept->getManager()))
-                $recipients[]= $manager;
+            if ($cfg->alertDeptManagerONNewTicket() && $manager) {
+                $recipients[] = $manager;
+            }
 
             // Account manager
             if ($cfg->alertAcctManagerONNewMessage()
