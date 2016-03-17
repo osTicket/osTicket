@@ -45,6 +45,7 @@ if (($lang = Internationalization::getCurrentLanguage())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <script type="text/javascript" src="./js/jquery.dropdown.js"></script>
+    <link id="page_favicon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwUlEQVQ4T2NkwAWi6//jlANJLG1kBFFgAisAGvB/SQNWKcYYqDjQEFQDCNi6I9aSwd3dnQFkAMhwEI1hACFbYRphTmNkIMPWl31ZYP3iRdOALiDCr+i2ggwQExODegFqwMWLF1ECTF9fH8WvyLYihwVRLgCZjGwr0S549eoV3K/IthLtAnhIA6OLZBfANMPCAtlW5MDCGwa4XABLxpCkjCMW0F2AEkXQfIBiAL6MA077SJowvIBPM1wOpwFE6catCAA234uylrOCtgAAAABJRU5ErkJggg==" rel="icon" type="image/x-icon">
 
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
