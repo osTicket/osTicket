@@ -1057,7 +1057,7 @@ if ($.support.pjax) {
     var $this = $(this);
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
-        && $this.attr('href')[0] != '#')
+        && $this.attr('href').charAt(0) != '#')
       $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
   })
 }
