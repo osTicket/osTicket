@@ -607,7 +607,8 @@ class EmailDataParser {
         $data['subject'] = $parser->getSubject();
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
-        $data['priorityId'] = $parser->getPriority();
+        //Use priority instead of priorityId as dynamic field expects input to be named priority.
+        $data['priority'] = $parser->getPriority();
         $data['flags'] = new ArrayObject();
 
         //FROM address: who sent the email.

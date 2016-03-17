@@ -2674,10 +2674,6 @@ class Ticket {
         if (isset($vars['autorespond']))
             $autorespond = $vars['autorespond'];
 
-        # Apply filter-specific priority
-        if ($vars['priorityId'])
-            $form->setAnswer('priority', null, $vars['priorityId']);
-
         // If the filter specifies a help topic which has a form associated,
         // and there was previously either no help topic set or the help
         // topic did not have a form, there's no need to add it now as (1)

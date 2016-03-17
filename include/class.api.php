@@ -444,7 +444,7 @@ class ApiEmailDataParser extends EmailDataParser {
             $data['emailId'] = $cfg->getDefaultEmailId();
 
         if(!$cfg->useEmailPriority())
-            unset($data['priorityId']);
+            unset($data['priority']);
 
         return $data;
     }

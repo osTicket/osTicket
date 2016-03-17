@@ -706,8 +706,12 @@ class MailFetcher {
         if(!$vars['name'])
             list($vars['name']) = explode('@', $vars['email']);
 
-        if($ost->getConfig()->useEmailPriority())
-            $vars['priorityId']=$this->getPriority($mid);
+        if($ost->getConfig()->useEmailPriority()){
+            //Use priority instead of priorityId as dynamic field expects input to be named priority.
+            //This enables filtering on priority for incoming emails and means there is no need to 
+            //explicitly set priorityId to the priority form field in Ticket::create().
+            $vars['priority']=$this->getPriority($mid);
+        }
 
         $ticket=null;
         $newticket=true;
