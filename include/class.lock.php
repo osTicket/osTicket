@@ -115,7 +115,7 @@ class Lock extends VerySimpleModel {
             return null;
 
         // Create the new lock.
-        $lock = parent::create(array(
+        $lock = new static(array(
             'created' => SqlFunction::NOW(),
             'staff_id' => $staffId,
             'expire' => SqlExpression::plus(

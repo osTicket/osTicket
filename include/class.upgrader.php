@@ -87,7 +87,7 @@ class Upgrader {
 
         //Create a ticket to make the system warm and happy.
         $errors = array();
-        Ticket::create2($vars, $errors, 'api', false, false);
+        Ticket::create($vars, $errors, 'api', false, false);
     }
 
     function getMode() {

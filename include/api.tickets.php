@@ -129,7 +129,7 @@ class TicketApiController extends ApiController {
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
 
-        $ticket = Ticket::create2($data, $errors, $data['source'], $autorespond, $alert);
+        $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
         if (count($errors)) {
             if(isset($errors['errno']) && $errors['errno'] == 403)

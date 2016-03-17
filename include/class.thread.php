@@ -534,10 +534,7 @@ class Thread extends VerySimpleModel {
     }
 
     static function create($vars=false) {
-        // $vars is expected to be an array
-        assert(is_array($vars));
-
-        $inst = parent::create($vars);
+        $inst = new static($vars);
         $inst->created = SqlFunction::NOW();
         return $inst;
     }
@@ -964,14 +961,14 @@ implements TemplateVariable {
             $fileId = $file;
         elseif ($file instanceof AttachmentFile)
             $fileId = $file->getId();
-        elseif ($F = AttachmentFile::createFile($file))
+        elseif ($F = AttachmentFile::create($file))
             $fileId = $F->getId();
         elseif (is_array($file) && isset($file['id']))
             $fileId = $file['id'];
         else
             return false;
 
-        $att = Attachment::create(array(
+        $att = new Attachment(array(
             'type' => 'H',
             'object_id' => $this->getId(),
             'file_id' => $fileId,
@@ -1067,7 +1064,7 @@ implements TemplateVariable {
         if (!$id || !$mid)
             return false;
 
-        $this->email_info = ThreadEntryEmailInfo::create(array(
+        $this->email_info = new ThreadEntryEmailInfo(array(
             'thread_entry_id' => $id,
             'mid' => $mid,
         ));
@@ -1359,7 +1356,7 @@ implements TemplateVariable {
         if ($poster && is_object($poster))
             $poster = (string) $poster;
 
-        $entry = parent::create(array(
+        $entry = new static(array(
             'created' => SqlFunction::NOW(),
             'type' => $vars['type'],
             'thread_id' => $vars['threadId'],
@@ -1703,7 +1700,7 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     static function create($ht=false, $user=false) {
-        $inst = parent::create($ht);
+        $inst = new static($ht);
         $inst->timestamp = SqlFunction::NOW();
 
         global $thisstaff, $thisclient;
@@ -1721,7 +1718,7 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     static function forTicket($ticket, $state, $user=false) {
-        $inst = static::create(array(
+        $inst = self::create(array(
             'staff_id' => $ticket->getStaffId(),
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
@@ -2586,7 +2583,6 @@ implements TemplateVariable {
 
 // Ticket thread class
 class TicketThread extends ObjectThread {
-
     static function create($ticket=false) {
         assert($ticket !== false);
 

@@ -293,7 +293,7 @@ class AttachmentFile extends VerySimpleModel {
                     'tmp_name'=>$file['tmp_name'],
                     );
 
-        return static::createFile($info, $ft, $deduplicate);
+        return static::create($info, $ft, $deduplicate);
     }
 
     static function uploadLogo($file, &$error, $aspect_ratio=2) {
@@ -327,7 +327,7 @@ class AttachmentFile extends VerySimpleModel {
         return false;
     }
 
-    static function createFile(&$file, $ft='T', $deduplicate=true) {
+    static function create(&$file, $ft='T', $deduplicate=true) {
         if (isset($file['encoding'])) {
             switch ($file['encoding']) {
             case 'base64':
@@ -380,7 +380,7 @@ class AttachmentFile extends VerySimpleModel {
             $file['type'] = 'application/octet-stream';
 
 
-        $f = static::create(array(
+        $f = new static(array(
             'type' => strtolower($file['type']),
             'name' => $file['name'],
             'key' => $file['key'],
@@ -445,7 +445,7 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function __create($file, &$errors) {
-        return static::createFile($file);
+        return static::create($file);
     }
 
     /**

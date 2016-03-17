@@ -983,7 +983,7 @@ class SavedSearch extends VerySimpleModel {
     }
 
     static function create($vars=array()) {
-        $inst = parent::create($vars);
+        $inst = new static($vars);
         $inst->created = SqlFunction::NOW();
         return $inst;
     }

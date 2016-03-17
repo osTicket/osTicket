@@ -216,7 +216,7 @@ class DynamicForm extends VerySimpleModel {
     }
 
     static function create($ht=false) {
-        $inst = parent::create($ht);
+        $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
         if (isset($ht['fields'])) {
             $inst->save();
@@ -896,7 +896,7 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     static function create($ht=false) {
-        $inst = parent::create($ht);
+        $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
         if (isset($ht['configuration']))
             $inst->configuration = JsonDataEncoder::encode($ht['configuration']);
@@ -1288,7 +1288,7 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     static function create($ht=false, $data=null) {
-        $inst = parent::create($ht);
+        $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
         if ($data)
             $inst->setSource($data);
@@ -1297,7 +1297,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 continue;
             if (!$impl->hasData() || !$impl->isStorable())
                 continue;
-            $a = DynamicFormEntryAnswer::create(
+            $a = new DynamicFormEntryAnswer(
                 array('field'=>$field, 'entry'=>$inst));
             $a->field->setAnswer($a);
             $inst->answers->add($a);

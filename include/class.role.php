@@ -193,7 +193,7 @@ class Role extends RoleModel {
     }
 
     static function create($vars=false) {
-        $role = parent::create($vars);
+        $role = new static($vars);
         $role->created = SqlFunction::NOW();
         return $role;
     }

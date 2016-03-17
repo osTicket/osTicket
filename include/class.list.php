@@ -478,7 +478,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $ht['configuration'] = JsonDataEncoder::encode($ht['configuration']);
         }
 
-        $inst = parent::create($ht);
+        $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
 
         if (isset($ht['properties'])) {
@@ -798,7 +798,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         if (isset($ht['properties']) && is_array($ht['properties']))
             $ht['properties'] = JsonDataEncoder::encode($ht['properties']);
 
-        $inst = parent::create($ht);
+        $inst = new static($ht);
 
         // Auto-config properties if any
         if ($ht['configuration'] && is_array($ht['configuration'])) {
@@ -1398,7 +1398,7 @@ implements CustomListItem, TemplateVariable {
 
         $ht['created'] = new SqlFunction('NOW');
 
-        return  parent::create($ht);
+        return new static($ht);
     }
 
     static function lookup($var, $list=null) {

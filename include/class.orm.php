@@ -32,7 +32,7 @@ class InconsistentModelException extends OrmException {
  * name, default sorting information, database fields, etc.
  *
  * This class is constructed and built automatically from the model's
- * ::_inspect method using a class's ::$meta array.
+ * ::getMeta() method using a class's ::$meta array.
  */
 class ModelMeta implements ArrayAccess {
 
@@ -48,17 +48,24 @@ class ModelMeta implements ArrayAccess {
     static $model_cache;
 
     var $model;
+    var $meta = array();
+    var $new;
+    var $subclasses = array();
 
     function __construct($model) {
         $this->model = $model;
 
         // Merge ModelMeta from parent model (if inherited)
         $parent = get_parent_class($this->model);
+        $meta = $model::$meta;
+        if ($model::$meta instanceof self)
+            $meta = $meta->meta;
         if (is_subclass_of($parent, 'VerySimpleModel')) {
-            $meta = $parent::getMeta()->extend($model::$meta);
+            $this->parent = $parent::getMeta();
+            $meta = $this->parent->extend($this, $meta);
         }
         else {
-            $meta = $model::$meta + self::$base;
+            $meta = $meta + self::$base;
         }
 
         if (!$meta['view']) {
@@ -85,13 +92,30 @@ class ModelMeta implements ArrayAccess {
                 $meta['foreign_keys'][$j['local']] = $field;
         }
         unset($j);
-        $this->base = $meta;
+        $this->meta = $meta;
     }
 
-    function extend($meta) {
-        if ($meta instanceof self)
-            $meta = $meta->base;
-        return $meta + $this->base + self::$base;
+    function extend(ModelMeta $child, $meta) {
+        $this->subclasses[$child->model] = $child;
+        return $meta + $this->meta + self::$base;
+    }
+
+    function isSuperClassOf($model) {
+        if (isset($this->subclasses[$model]))
+            return true;
+        foreach ($this->subclasses as $M=>$meta)
+            if ($meta->isSuperClassOf($M))
+                return true;
+    }
+
+    function isSubclassOf($model) {
+        if (!isset($this->parent))
+            return false;
+
+        if ($this->parent->model === $model)
+            return true;
+
+        return $this->parent->isSubclassOf($model);
     }
 
     /**
@@ -159,20 +183,20 @@ class ModelMeta implements ArrayAccess {
     }
 
     function addJoin($name, array $join) {
-        $this->base['joins'][$name] = $join;
-        $this->processJoin($this->base['joins'][$name]);
+        $this->meta['joins'][$name] = $join;
+        $this->processJoin($this->meta['joins'][$name]);
     }
 
     function offsetGet($field) {
-        if (!isset($this->base[$field]))
+        if (!isset($this->meta[$field]))
             $this->setupLazy($field);
-        return $this->base[$field];
+        return $this->meta[$field];
     }
     function offsetSet($field, $what) {
-        $this->base[$field] = $what;
+        $this->meta[$field] = $what;
     }
     function offsetExists($field) {
-        return isset($this->base[$field]);
+        return isset($this->meta[$field]);
     }
     function offsetUnset($field) {
         throw new Exception('Model MetaData is immutable');
@@ -181,20 +205,33 @@ class ModelMeta implements ArrayAccess {
     function setupLazy($what) {
         switch ($what) {
         case 'fields':
-            $this->base['fields'] = self::inspectFields();
-            break;
-        case 'newInstance':
-            $class_repr = sprintf(
-                'O:%d:"%s":0:{}',
-                strlen($this->model), $this->model
-            );
-            $this->base['newInstance'] = function() use ($class_repr) {
-                return unserialize($class_repr);
-            };
+            $this->meta['fields'] = self::inspectFields();
             break;
         default:
             throw new Exception($what . ': No such meta-data');
         }
+    }
+
+    /**
+     * Create a new instance of the model, optionally hydrating it with the
+     * given hash table. The constructor is not called, which leaves the
+     * default constructor free to assume new object status.
+     */
+    function newInstance($props=false) {
+        if (!isset($this->new)) {
+            $this->new = sprintf(
+                'O:%d:"%s":0:{}',
+                strlen($this->model), $this->model
+            );
+        }
+        // TODO: Compare timing between unserialize() and
+        //       ReflectionClass::newInstanceWithoutConstructor
+        $instance = unserialize($this->new);
+        // Hydrate if props were included
+        if (is_array($props)) {
+            $instance->ht = $props;
+        }
+        return $instance;
     }
 
     function inspectFields() {
@@ -232,8 +269,12 @@ class VerySimpleModel {
     var $__deleted__ = false;
     var $__deferred__ = array();
 
-    function __construct($row) {
-        $this->ht = $row;
+    function __construct($row=false) {
+        if (is_array($row))
+            foreach ($row as $field=>$value)
+                if (!is_array($value))
+                    $this->set($field, $value);
+        $this->__new__ = true;
     }
 
     function get($field, $default=false) {
@@ -354,7 +395,19 @@ class VerySimpleModel {
                 }
                 // Pass. Set local field to NULL in logic below
             }
-            elseif ($value instanceof $j['fkey'][0]) {
+            elseif ($value instanceof VerySimpleModel) {
+                // Ensure that the model being assigned as a relationship is
+                // an instance of the foreign model given in the
+                // relationship, or is a super class thereof. The super
+                // class case is used primary for the xxxThread classes
+                // which all extend from the base Thread class.
+                if (!$value instanceof $j['fkey'][0]
+                    && !$value::getMeta()->isSuperClassOf($j['fkey'][0])
+                ) {
+                    throw new InvalidArgumentException(
+                        sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
+                        $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
+                }
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
                 if ($value->__new__)
@@ -364,11 +417,6 @@ class VerySimpleModel {
                     $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
-            else
-                throw new InvalidArgumentException(
-                    sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
-                    $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
-
             // Capture the foreign key id value
             $field = $j['local'];
         }
@@ -402,18 +450,13 @@ class VerySimpleModel {
     }
 
     function __onload() {}
-    static function __oninspect() {}
-
-    static function _inspect() {
-        static::$meta = new ModelMeta(get_called_class());
-
-        // Let the model participate
-        static::__oninspect();
-    }
 
     static function getMeta($key=false) {
-        if (!static::$meta instanceof ModelMeta)
-            static::_inspect();
+        if (!static::$meta instanceof ModelMeta
+            || get_called_class() != static::$meta->model
+        ) {
+            static::$meta = new ModelMeta(get_called_class());
+        }
         $M = static::$meta;
         return ($key) ? $M->offsetGet($key) : $M;
     }
@@ -585,17 +628,6 @@ class VerySimpleModel {
         }
         $this->dirty = array();
         return true;
-    }
-
-    static function create($ht=false) {
-        if (!$ht) $ht=array();
-        $class = get_called_class();
-        $i = new $class(array());
-        $i->__new__ = true;
-        foreach ($ht as $field=>$value)
-            if (!is_array($value))
-                $i->set($field, $value);
-        return $i;
     }
 
     private function getPk() {
@@ -1480,18 +1512,12 @@ class ModelInstanceManager extends ResultSet {
         // Check the cache for the model instance first
         if (!($m = self::checkCache($modelClass, $fields))) {
             // Construct and cache the object
-            $m = new $modelClass($fields);
+            $m = $modelClass::$meta->newInstance($fields);
             // XXX: defer may refer to fields not in this model
             $m->__deferred__ = $this->queryset->defer;
             $m->__onload();
             if ($cache)
                 $this->cache($m);
-        }
-        elseif (get_class($m) != $modelClass) {
-            // Change the class of the object to be returned to match what
-            // was expected
-            // TODO: Emit a warning?
-            $m = new $modelClass($m->ht);
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {

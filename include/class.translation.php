@@ -1018,7 +1018,7 @@ class CustomDataTranslation extends VerySimpleModel {
             $ht['text'] = static::encodeComplex($ht['text']);
             $ht['flags'] = ($ht['flags'] ?: 0) | self::FLAG_COMPLEX;
         }
-        return parent::create($ht);
+        return new static($ht);
     }
 
     static function allTranslations($msgid, $type='phrase', $lang=false) {

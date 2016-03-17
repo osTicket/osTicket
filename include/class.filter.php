@@ -530,7 +530,7 @@ class Filter {
 
             switch ($action) {
             case 'N': # new filter action
-                $I = FilterAction::create(array(
+                $I = new FilterAction(array(
                     'type'=>$info,
                     'filter_id'=>$id,
                     'sort' => (int) $sort,

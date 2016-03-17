@@ -1269,7 +1269,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 || !$thisstaff->hasPerm(Task::PERM_CREATE, false))
             return null;
 
-        $task = parent::create(array(
+        $task = new static(array(
             'flags' => self::ISOPEN,
             'object_id' => $vars['object_id'],
             'object_type' => $vars['object_type'],

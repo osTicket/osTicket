@@ -130,14 +130,14 @@ extends InstrumentedList {
                 $fileId = $file['id'];
             elseif (isset($file['tmp_name']) && ($F = AttachmentFile::upload($file)))
                 $fileId = $F->getId();
-            elseif ($F = AttachmentFile::createFile($file))
+            elseif ($F = AttachmentFile::create($file))
                 $fileId = $F->getId();
             else
                 continue;
 
             $_inline = isset($file['inline']) ? $file['inline'] : $inline;
 
-            $att = $this->add(Attachment::create(array(
+            $att = $this->add(new Attachment(array(
                 'file_id' => $fileId,
                 'inline' => $_inline ? 1 : 0,
             )));

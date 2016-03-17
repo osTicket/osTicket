@@ -2651,7 +2651,7 @@ class FileUploadField extends FormField {
         if ($file['size'] > $config['size'])
             throw new FileUploadError(__('File size is too large'));
 
-        if (!$F = AttachmentFile::createFile($file))
+        if (!$F = AttachmentFile::create($file))
             throw new FileUploadError(__('Unable to save file'));
 
         return $F;

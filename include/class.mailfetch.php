@@ -792,7 +792,7 @@ class MailFetcher {
             // NOTE: This might not be a "ticket"
             $ticket = $thread->getObject();
         }
-        elseif (($ticket=Ticket::create2($vars, $errors, 'Email'))) {
+        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
         }
         else {

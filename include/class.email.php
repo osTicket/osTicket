@@ -224,7 +224,7 @@ class Email extends VerySimpleModel {
     }
 
     static function create($vars=false) {
-        $inst = parent::create($vars);
+        $inst = new static($vars);
         $inst->created = SqlFunction::NOW();
         return $inst;
     }
