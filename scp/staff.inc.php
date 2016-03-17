@@ -108,7 +108,7 @@ $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'"
 $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
 $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
 
-define('PAGE_LIMIT', $thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
+define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
 
 $tabs=array();
 $submenu=array();

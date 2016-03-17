@@ -38,7 +38,7 @@ class ConfigAjaxAPI extends AjaxController {
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
-              'page_size'       => $thisstaff->getPageLimit(),
+              'page_size'       => $thisstaff->getPageLimit() ?: PAGE_LIMIT,
         );
         return $this->json_encode($config);
     }
