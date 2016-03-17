@@ -45,7 +45,7 @@ if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     if (!$(this).hasClass('no-pjax')
         && !$(this).closest('.no-pjax').length
-        && $(this).attr('href')[0] != '#')
+        && $(this).attr('href').charAt(0) != '#')
       $.pjax.click(event, {container: $('#pjax-container'), timeout: 2000});
   })
 }
