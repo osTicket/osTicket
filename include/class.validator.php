@@ -202,6 +202,10 @@ class Validator {
         }
         return false;
     }
+    
+    function is_regex($regex){
+        return !(@preg_match($regex, null) === false);
+    }
 
     function is_username($username, &$error='') {
         if (strlen($username)<2)

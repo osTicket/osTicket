@@ -71,6 +71,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
                 <span>
                 <input type="text" size="30" name="ipaddr" value="<?php echo $info['ipaddr']; ?>">
+                <input type="checkbox" name="ip_is_pattern" value="1" <?php echo $info['ip_is_pattern'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('pattern');?>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['ipaddr']; ?></span>
                 <i class="help-tip icon-question-sign" href="#ip_addr"></i>
                 </span>
