@@ -390,7 +390,7 @@ if ($results) {
             <?php
             }
 
-            if($showassigned ) {
+            //if($showassigned ) {
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
                     <th width="150">
@@ -403,12 +403,12 @@ if ($results) {
                             title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
                 <?php
                 }
-            } else { ?>
+            //} else { ?>
                 <th width="150">
                     <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
             <?php
-            } ?>
+            //} ?>
         </tr>
      </thead>
      <tbody>
@@ -428,16 +428,16 @@ if ($results) {
                     $flag='overdue';
 
                 $lc='';
-                if($showassigned) {
+                //if($showassigned) {
                     if($row['staff_id'])
                         $lc=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
                     elseif($row['team_id'])
                         $lc=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
                     else
                         $lc=' ';
-                }else{
-                    $lc=Format::truncate($row['dept_name'],40);
-                }
+                //}else{
+                    $lc2=Format::truncate($row['dept_name'],40);
+                //}
                 $tid=$row['number'];
 
                 $subject = Format::truncate($subject_field->display(
@@ -492,6 +492,8 @@ if ($results) {
                 }
                 ?>
                 <td nowrap>&nbsp;<?php echo $lc; ?></td>
+                <td nowrap>&nbsp;<?php echo $lc2; ?></td>
+
             </tr>
             <?php
             } //end of while.
@@ -501,7 +503,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
