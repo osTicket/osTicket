@@ -1,6 +1,6 @@
 <?php
-require(INCLUDE_DIR.'class.ostsession.php');
-require(INCLUDE_DIR.'class.usersession.php');
+require_once INCLUDE_DIR.'class.ostsession.php';
+require_once INCLUDE_DIR.'class.usersession.php';
 
 
 abstract class AuthenticatedUser {
