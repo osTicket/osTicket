@@ -51,6 +51,7 @@ class ModelMeta implements ArrayAccess {
     var $meta = array();
     var $new;
     var $subclasses = array();
+    var $fields;
 
     function __construct($model) {
         $this->model = $model;
@@ -66,6 +67,20 @@ class ModelMeta implements ArrayAccess {
         }
         else {
             $meta = $meta + self::$base;
+        }
+
+        // Short circuit the meta-data processing if APCu is available.
+        // This is preferred as the meta-data is unlikely to change unless
+        // osTicket is upgraded, (then the upgrader calls the
+        // flushModelCache method to clear this cache). Also, GIT_VERSION is
+        // used in the APC key which should be changed if new code is
+        // deployed.
+        if (function_exists('apcu_store')) {
+            $loaded = false;
+            $apc_key = SECRET_SALT.GIT_VERSION."/orm/{$this->model}";
+            $this->meta = apcu_fetch($apc_key, $loaded);
+            if ($loaded)
+                return;
         }
 
         if (!$meta['view']) {
@@ -93,6 +108,10 @@ class ModelMeta implements ArrayAccess {
         }
         unset($j);
         $this->meta = $meta;
+
+        if (function_exists('apcu_store')) {
+            apcu_store($apc_key, $this->meta);
+        }
     }
 
     function extend(ModelMeta $child, $meta) {
@@ -188,8 +207,6 @@ class ModelMeta implements ArrayAccess {
     }
 
     function offsetGet($field) {
-        if (!isset($this->meta[$field]))
-            $this->setupLazy($field);
         return $this->meta[$field];
     }
     function offsetSet($field, $what) {
@@ -202,31 +219,33 @@ class ModelMeta implements ArrayAccess {
         throw new Exception('Model MetaData is immutable');
     }
 
-    function setupLazy($what) {
-        switch ($what) {
-        case 'fields':
-            $this->meta['fields'] = self::inspectFields();
-            break;
-        default:
-            throw new Exception($what . ': No such meta-data');
-        }
+    /**
+     * Fetch the column names of the table used to persist instances of this
+     * model in the database.
+     */
+    function getFieldNames() {
+        if (!isset($this->fields))
+            $this->fields = self::inspectFields();
+        return $this->fields;
     }
 
     /**
      * Create a new instance of the model, optionally hydrating it with the
      * given hash table. The constructor is not called, which leaves the
      * default constructor free to assume new object status.
+     *
+     * Three methods were considered, with runtime for 10000 iterations
+     *   * unserialze('O:9:"ModelBase":0:{}') - 0.0671s
+     *   * new ReflectionClass("ModelBase")->newInstanceWithoutConstructor()
+     *      - 0.0478s
+     *   * and a hybrid by cloning the reflection class instance - 0.0335s
      */
     function newInstance($props=false) {
         if (!isset($this->new)) {
-            $this->new = sprintf(
-                'O:%d:"%s":0:{}',
-                strlen($this->model), $this->model
-            );
+            $rc = new ReflectionClass($this->model);
+            $this->new = $rc->newInstanceWithoutConstructor();
         }
-        // TODO: Compare timing between unserialize() and
-        //       ReflectionClass::newInstanceWithoutConstructor
-        $instance = unserialize($this->new);
+        $instance = clone $this->new;
         // Hydrate if props were included
         if (is_array($props)) {
             $instance->ht = $props;
@@ -252,7 +271,7 @@ class ModelMeta implements ArrayAccess {
 
     static function flushModelCache() {
         if (self::$model_cache)
-            @apc_clear_cache('user');
+            @apcu_clear_cache('user');
     }
 }
 
@@ -346,7 +365,7 @@ class VerySimpleModel {
             return null;
 
         // Check to see if the column referenced is actually valid
-        if (in_array($field, static::getMeta('fields')))
+        if (in_array($field, static::getMeta()->getFieldNames()))
             return null;
 
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
@@ -1300,16 +1319,17 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
         // Load defaults from model
         $model = $this->model;
+        $meta = $model::getMeta();
         $query = clone $this;
         $options += $this->options;
         if ($options['nosort'])
             $query->ordering = array();
-        elseif (!$query->ordering && $model::getMeta('ordering'))
-            $query->ordering = $model::getMeta('ordering');
-        if (false !== $query->related && !$query->values && $model::getMeta('select_related'))
-            $query->related = $model::getMeta('select_related');
-        if (!$query->defer && $model::getMeta('defer'))
-            $query->defer = $model::getMeta('defer');
+        elseif (!$query->ordering && $meta['ordering'])
+            $query->ordering = $meta['ordering'];
+        if (false !== $query->related && !$query->values && $meta['select_related'])
+            $query->related = $meta['select_related'];
+        if (!$query->defer && $meta['defer'])
+            $query->defer = $meta['defer'];
 
         $class = $options['compiler'] ?: $this->compiler;
         $compiler = new $class($options);
@@ -1698,7 +1718,7 @@ class InstrumentedList extends ModelInstanceManager {
      */
     function window($constraint) {
         $model = $this->model;
-        $fields = $model::getMeta('fields');
+        $fields = $model::getMeta()->getFieldNames();
         $key = $this->key;
         foreach ($constraint as $field=>$value) {
             if (!is_string($field) || false === in_array($field, $fields))
@@ -2370,10 +2390,11 @@ class MySqlCompiler extends SqlCompiler {
         if (!isset($rmodel))
             $rmodel = $model;
         // Support inline views
-        $table = ($rmodel::getMeta('view'))
+        $rmeta = $rmodel::getMeta();
+        $table = ($rmeta['view'])
             // XXX: Support parameters from the nested query
             ? $rmodel::getSqlAddParams($this)
-            : $this->quote($rmodel::getMeta('table'));
+            : $this->quote($rmeta['table']);
         $base = "{$join}{$table} {$alias}";
         return array($base, $constraints);
     }
@@ -2507,14 +2528,15 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the field listing
         $fields = $group_by = array();
-        $table = $this->quote($model::getMeta('table')).' '.$rootAlias;
+        $meta = $model::getMeta();
+        $table = $this->quote($meta['table']).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
             $count = 0;
             $fieldMap = $theseFields = array();
             $defer = $queryset->defer ?: array();
             // Add local fields first
-            foreach ($model::getMeta('fields') as $f) {
+            foreach ($meta->getFieldNames() as $f) {
                 // Handle deferreds
                 if (isset($defer[$f]))
                     continue;
@@ -2536,7 +2558,7 @@ class MySqlCompiler extends SqlCompiler {
                     $theseFields = array();
                     list($alias, $fmodel) = $this->getField($full_path, $model,
                         array('table'=>true, 'model'=>true));
-                    foreach ($fmodel::getMeta('fields') as $f) {
+                    foreach ($fmodel::getMeta()->getFieldNames() as $f) {
                         // Handle deferreds
                         if (isset($defer[$sr . '__' . $f]))
                             continue;
@@ -2573,7 +2595,7 @@ class MySqlCompiler extends SqlCompiler {
         // Simple selection from one table
         elseif (!$queryset->aggregated) {
             if ($queryset->defer) {
-                foreach ($model::getMeta('fields') as $f) {
+                foreach ($meta->getFieldNames() as $f) {
                     if (isset($queryset->defer[$f]))
                         continue;
                     $fields[$rootAlias .'.'. $this->quote($f)] = true;
@@ -2601,7 +2623,7 @@ class MySqlCompiler extends SqlCompiler {
             }
             // If no group by has been set yet, use the root model pk
             if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
-                foreach ($model::getMeta('pk') as $pk)
+                foreach ($meta['pk'] as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
         }
