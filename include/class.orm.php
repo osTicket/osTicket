@@ -110,7 +110,7 @@ class ModelMeta implements ArrayAccess {
         $this->meta = $meta;
 
         if (function_exists('apcu_store')) {
-            apcu_store($apc_key, $this->meta);
+            apcu_store($apc_key, $this->meta, 1800);
         }
     }
 
@@ -255,16 +255,16 @@ class ModelMeta implements ArrayAccess {
 
     function inspectFields() {
         if (!isset(self::$model_cache))
-            self::$model_cache = function_exists('apc_fetch');
+            self::$model_cache = function_exists('apcu_fetch');
         if (self::$model_cache) {
-            $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
+            $key = SECRET_SALT.GIT_VERSION."/orm/{$this['table']}";
             if ($fields = apc_fetch($key)) {
                 return $fields;
             }
         }
         $fields = DbEngine::getCompiler()->inspectTable($this['table']);
         if (self::$model_cache) {
-            apc_store($key, $fields);
+            apcu_store($key, $fields, 1800);
         }
         return $fields;
     }
