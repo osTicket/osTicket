@@ -2368,6 +2368,13 @@ class Ticket {
                 .'WHERE ticket.isanswered = 1 '
                 . $where
 
+                .'UNION SELECT \'pending\', count( ticket.ticket_id ) AS tickets '
+                .'FROM ' . TICKET_TABLE . ' ticket '
+                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
+                    ON (ticket.status_id=status.id
+                            AND status.name=\'pending\') '
+                . $where
+
                 .'UNION SELECT \'overdue\', count( ticket.ticket_id ) AS tickets '
                 .'FROM ' . TICKET_TABLE . ' ticket '
                 .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
@@ -3026,5 +3033,26 @@ class Ticket {
         }
    }
 
+   // Close Pending tickets based on Pending Ticket Auto-Close from config
+   function ClosePending() {
+	global $cfg;
+	
+	$grace = $cfg->getAutoCloseGrace();
+
+	if($grace != 0){ 
+
+	if($grace == 1){$dayplural = 'day';} else {$dayplural = 'days';}
+
+	// select all tickets marked as 'pending' where updated is older than ($days) days ago
+	$sql  = 'SELECT ticket_id FROM ' .TICKET_TABLE .' ticket '
+		 .' INNER JOIN '.TICKET_STATUS_TABLE.' status ON (status.id=ticket.status_id AND status.name = "pending") '
+	     .' AND TIME_TO_SEC(TIMEDIFF(NOW(),ticket.updated))>='.$grace.'*86400';
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if(($ticket=Ticket::lookup($id)) && $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$grace.' '.$dayplural.' of no activity.', false));
+	}}}
+
+   }
 }
 ?>

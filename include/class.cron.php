@@ -29,6 +29,7 @@ class Cron {
         require_once(INCLUDE_DIR.'class.ticket.php');
         require_once(INCLUDE_DIR.'class.lock.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
+        Ticket::ClosePending(); //Close pending tickets
         TicketLock::cleanup(); //Remove expired locks
     }
 

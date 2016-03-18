@@ -76,6 +76,13 @@ agent_collision_avoidance:
         <br><br>
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
+autoclose_grace_period:
+    title: Pending Ticket Auto-Close
+    content: >
+        Enter the number of Days before a ticket marked <b>Pending</b> will be Auto-Closed by the system.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the Auto-Close feature.
+
 email_ticket_priority:
     title: Email Ticket Priority
     content: >

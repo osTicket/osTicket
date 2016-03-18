@@ -410,6 +410,10 @@ class OsticketConfig extends Config {
         return $this->defaultSLA;
     }
 
+    function getAutoCloseGrace() {
+        return $this->get('autoclose_grace_period');
+    }
+
     function getAlertEmailId() {
         return $this->get('alert_email_id');
     }
@@ -970,6 +974,7 @@ class OsticketConfig extends Config {
             'default_sla_id'=>$vars['default_sla_id'],
             'max_open_tickets'=>$vars['max_open_tickets'],
             'autolock_minutes'=>$vars['autolock_minutes'],
+            'autoclose_grace_period'=>$vars['autoclose_grace_period'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
