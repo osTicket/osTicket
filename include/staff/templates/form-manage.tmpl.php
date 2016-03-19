@@ -24,19 +24,7 @@ foreach ($forms as $e) { ?>
 </div>
 <hr/>
 <i class="icon-plus"></i>&nbsp;
-<select name="new-form" onchange="javascript:
-    var $sel = $(this).find('option:selected');
-    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
-        .text(' '+$sel.text())
-        .data('id', $sel.val())
-        .prepend($('<i>').addClass('icon-reorder'))
-        .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val($sel.val()))
-        .append($('<div></div>').addClass('button-group')
-          .append($('<div></div>').addClass('delete')
-            .append($('<a href=\'#\'>').append($('<i>').addClass('icon-trash')))
-        ))
-    );
-    $sel.prop('disabled',true);">
+<select name="new-form" onchange="selectNewForm();">
 <option selected="selected" disabled="disabled"><?php
     echo __('Add a form'); ?></option>
 <?php foreach (DynamicForm::objects()->filter(array(
@@ -48,6 +36,27 @@ foreach ($forms as $e) { ?>
     echo $f->getTitle(); ?></option><?php
 } ?>
 </select>
+
+<script type="text/javascript">
+	function selectNewForm(){
+	    var $sel = $(this).find('option:selected');
+	    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
+	        .text(' '+$sel.text())
+	        .data('id', $sel.val())
+	        .prepend($('<i>').addClass('icon-reorder'))
+	        .append($('<input/>').attr({name:'forms[]', type:'hidden'}).val($sel.val()))
+	        .append($('<div></div>').addClass('button-group')
+	          .append($('<div></div>').addClass('delete')
+	            .append($('<a href=\'#\'>').append($('<i>').addClass('icon-trash')))
+	        ))
+	    );
+	    $sel.prop('disabled',true);
+
+	    return false;
+	};
+</script>
+
+
 <div id="delete-warning" style="display:none">
 <hr>
     <div id="msg_warning"><?php echo __(
