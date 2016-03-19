@@ -98,7 +98,7 @@ class Config {
     }
 
     function create($key, $value) {
-        $item = ConfigItem::create([
+        $item = new ConfigItem([
             $this->section_column => $this->section,
             'key' => $key,
             'value' => $value,
@@ -215,9 +215,10 @@ class OsticketConfig extends Config {
         if (count($this->config) == 0) {
             // Fallback for osticket < 1.7@852ca89e
             $sql='SELECT * FROM '.$this->table.' WHERE id = 1';
+            $meta = ConfigItem::getMeta();
             if (($res=db_query($sql)) && db_num_rows($res))
                 foreach (db_fetch_array($res) as $key=>$value)
-                    $this->config[$key] = new ConfigItem(array('value'=>$value));
+                    $this->config[$key] = $meta->newInstance(array('value'=>$value));
         }
 
         return true;

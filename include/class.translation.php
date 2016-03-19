@@ -651,16 +651,16 @@ class Translation extends gettext_reader implements Serializable {
     }
 
     static function resurrect($key) {
-        if (!function_exists('apc_fetch'))
+        if (!function_exists('apcu_fetch'))
             return false;
 
         $success = true;
-        if (($translation = apc_fetch($key, $success)) && $success)
+        if (($translation = apcu_fetch($key, $success)) && $success)
             return $translation;
     }
     function cache($key) {
-        if (function_exists('apc_add'))
-            apc_add($key, $this);
+        if (function_exists('apcu_add'))
+            apcu_add($key, $this);
     }
 
 

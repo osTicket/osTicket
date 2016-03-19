@@ -258,7 +258,7 @@ class ModelMeta implements ArrayAccess {
             self::$model_cache = function_exists('apcu_fetch');
         if (self::$model_cache) {
             $key = SECRET_SALT.GIT_VERSION."/orm/{$this['table']}";
-            if ($fields = apc_fetch($key)) {
+            if ($fields = apcu_fetch($key)) {
                 return $fields;
             }
         }
