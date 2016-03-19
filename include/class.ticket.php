@@ -3026,5 +3026,41 @@ class Ticket {
         }
    }
 
+   //  trigger overdue ticket notification
+   function notifyOverdue($whine=true) {
+
+        global $cfg;
+
+        if(!$this->isOverdue())
+            return true;
+
+        $this->logEvent('overdue reminder');
+        $this->onOverdue($whine);
+
+        return true;
+    }
+
+	// Find overdue tickets and send notify the owners
+    function triggerOverdue() {
+
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id=T1.status_id AND status.state="open") '
+            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.isactive=1) '
+            .' WHERE isoverdue=1 '
+            .' ORDER BY T1.created';
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if( $ticket=Ticket::lookup($id) ) 
+			$ticket->notifyOverdue();
+            }
+        } else {
+            //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
+
+        }
+   }
+
+
 }
 ?>
