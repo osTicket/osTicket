@@ -23,12 +23,21 @@ define('DISABLE_SESSION', true);
 
 require_once('../main.inc.php');
 
-if (($logo = $ost->getConfig()->getStaffLogo())) {
-    $logo->display();
-} else {
+if (isset($_GET['backdrop'])) {
+    if (($backdrop = $ost->getConfig()->getStaffLoginBackdrop())) {
+        $backdrop->display();
+        // ::display() will not return
+    }
     header("Cache-Control: private, max-age=86400");
     header('Pragma: private');
-    header('Location: images/ost-logo.png');
+    Http::redirect('images/login-headquarters.jpg');
 }
+elseif (($logo = $ost->getConfig()->getStaffLogo())) {
+    $logo->display();
+}
+
+header("Cache-Control: private, max-age=86400");
+header('Pragma: private');
+Http::redirect('images/ost-logo.png');
 
 ?>
