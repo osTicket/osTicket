@@ -62,7 +62,7 @@ if ($_POST) {
 
     case 'mass_process':
         if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = sprintf(__('You must select at least %s.'),
+            $errors['err'] = sprintf(__('You must select at least %s'),
                 __('one organization'));
         }
         else {

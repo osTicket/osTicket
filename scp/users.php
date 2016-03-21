@@ -72,7 +72,7 @@ if ($_POST) {
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'),
+                $errors['err'] = sprintf(__('You must select at least %s'),
                     __('one end user'));
             } else {
                 $users = User::objects()->filter(
@@ -150,7 +150,7 @@ if ($_POST) {
         case 'import-users':
             $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted']);
             if (is_numeric($status))
-                $msg = sprintf(__('Successfully imported %1$d %2$s.'), $status,
+                $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
                     _N('end user', 'end users', $status));
             else
                 $errors['err'] = $status;

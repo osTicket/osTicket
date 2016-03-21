@@ -17,8 +17,8 @@ $category=$faq->getCategory();
 <div class="article-title flush-left">
 <?php echo $faq->getLocalQuestion() ?>
 </div>
-<div class="faded"><?php echo __('Last updated').' '
-    . Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?></div>
+<div class="faded"><?php echo sprintf(__('Last Updated %s'),
+    Format::relativeTime(Misc::db2gmtime($category->getUpdateDate()))); ?></div>
 <br/>
 <div class="thread-body bleed">
 <?php echo $faq->getLocalAnswerWithImages(); ?>

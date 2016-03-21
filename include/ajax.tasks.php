@@ -115,7 +115,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(404, __('No such task'));
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_EDIT))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $info = $errors = array();
         $forms = DynamicFormEntry::forObject($task->getId(),
@@ -128,7 +128,9 @@ class TasksAjaxAPI extends AjaxController {
             if ($task->update($forms, $_POST, $errors)) {
                 Http::response(201, 'Task updated successfully');
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to update the task. Correct the errors below and try again!');
+                $errors['err']=sprintf(
+                    __('Unable to update %s. Correct any errors below and try again.'),
+                    __('task'));
             }
             $info = Format::htmlchars($_POST);
         }
@@ -170,7 +172,7 @@ class TasksAjaxAPI extends AjaxController {
         if ($_POST) {
             if (!$_POST['tids'] || !($count=count($_POST['tids'])))
                 $errors['err'] = sprintf(
-                        __('You must select at least %s.'),
+                        __('You must select at least %s'),
                         __('one task'));
         } else {
             $count  =  $_REQUEST['count'];
@@ -289,8 +291,7 @@ class TasksAjaxAPI extends AjaxController {
 
                 if (!$i) {
                     $info['error'] = sprintf(
-                            __('Unable to %1$s %2$s'),
-                            __('assign'),
+                            __('Unable to assign %s' /* %s may be pluralized */),
                             _N('selected task', 'selected tasks', $count));
                 }
             }
@@ -315,8 +316,7 @@ class TasksAjaxAPI extends AjaxController {
 
                 if (!$i) {
                     $info['error'] = sprintf(
-                            __('Unable to %1$s %2$s'),
-                            __('transfer'),
+                            __('Unable to transfer %s' /* %s may be pluralized */),
                             _N('selected task', 'selected tasks', $count));
                 }
             }
@@ -358,9 +358,9 @@ class TasksAjaxAPI extends AjaxController {
             // will be checked below.
             if ($perm && !$thisstaff->hasPerm($perm, false))
                 $errors['err'] = sprintf(
-                        __('You do not have permission to %s %s'),
-                        __($action),
-                        __('tasks'));
+                        __('You do not have permission to %s tasks'
+                            /* %s will be an action verb */ ),
+                        __($action));
 
             if ($_POST && !$errors) {
                 if (!$_POST['status']
@@ -410,8 +410,7 @@ class TasksAjaxAPI extends AjaxController {
 
                 if (!$i) {
                     $info['error'] = sprintf(
-                            __('Unable to %1$s %2$s'),
-                            __('delete'),
+                            __('Unable to delete %s'),
                             _N('selected task', 'selected tasks', $count));
                 }
             }
@@ -427,7 +426,7 @@ class TasksAjaxAPI extends AjaxController {
             if ($i==$count) {
                 $msg = sprintf(__('Successfully %s %s.'),
                         $actions[$action]['verbed'],
-                        sprintf(__('%1$d %2$s'),
+                        sprintf('%1$d %2$s',
                             $count,
                             _N('selected task', 'selected tasks', $count))
                         );
@@ -443,7 +442,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(201, 'processed');
         } elseif($_POST && !isset($info['error'])) {
             $info['error'] = $errors['err'] ?: sprintf(
-                    __('Unable to %1$s  %2$s'),
+                    __('Unable to %1$s %2$s'),
                     __('process'),
                     _N('selected task', 'selected tasks', $count));
         }
@@ -476,7 +475,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(404, __('No such task'));
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_TRANSFER))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
 
@@ -520,7 +519,7 @@ class TasksAjaxAPI extends AjaxController {
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
                 || !($form=$task->getAssignmentForm($_POST, array(
                             'target' => $target))))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
         $info = array(
@@ -566,7 +565,7 @@ class TasksAjaxAPI extends AjaxController {
         // Check for premissions and such
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
                 || !($form = $task->getClaimForm($_POST)))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
         $info = array(
@@ -621,7 +620,7 @@ class TasksAjaxAPI extends AjaxController {
             Http::response(404, __('No such task'));
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_DELETE))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
         $info = array(
@@ -700,8 +699,8 @@ class TasksAjaxAPI extends AjaxController {
 
         if (!$errors && (!$perm || !$task->checkStaffPerm($thisstaff, $perm)))
             $errors['err'] = sprintf(
-                        __('You do not have permission to %s %s'),
-                        $statuses[$status], __('tasks'));
+                        __('You do not have permission to %s tasks'),
+                        $statuses[$status]);
 
         if ($_POST && !$errors) {
             if ($task->setStatus($status, $_POST['comments'], $errors))

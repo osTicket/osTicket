@@ -167,7 +167,7 @@ if ($avatar->isChangeable()) { ?>
             <td width="180"><?php echo __('Maximum Page size');?>:</td>
             <td>
                 <select name="max_page_size">
-                    <option value="0">&mdash; <?php echo __('system default');?> &mdash;</option>
+                    <option value="0">&mdash; <?php echo __('System Default');?> &mdash;</option>
                     <?php
                     $pagelimit = $staff->max_page_size ?: $cfg->getPageSize();
                     for ($i = 5; $i <= 50; $i += 5) {
@@ -183,7 +183,7 @@ if ($avatar->isChangeable()) { ?>
             </td>
             <td>
                 <select name="auto_refresh_rate">
-                  <option value="0">&mdash; <?php echo __('disable');?> &mdash;</option>
+                  <option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
                   <?php
                   $y=1;
                    for($i=1; $i <=30; $i+=$y) {

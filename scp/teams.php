@@ -28,7 +28,7 @@ if($_POST){
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this team'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to update %s. Correct any error(s) below and try again.'),
+                $errors['err']=sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                     __('this team'));
             }
             break;
@@ -44,7 +44,7 @@ if($_POST){
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']=sprintf(__('You must select at least %s.'), __('one team'));
+                $errors['err']=sprintf(__('You must select at least %s'), __('one team'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {

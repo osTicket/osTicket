@@ -58,7 +58,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
             <td>
                 <select name="pid">
-                    <option value="">&mdash; <?php echo __('Top-Level Deptartment'); ?> &mdash;</option>
+                    <option value="">&mdash; <?php echo __('Top-Level Department'); ?> &mdash;</option>
 <?php foreach (Dept::getDepartments() as $id=>$name) {
     if ($info['id'] && $id == $info['id'])
         continue; ?>

@@ -110,7 +110,7 @@ elseif (is_object($ticket) && $ticket->getId()) {
     switch(strtolower($_REQUEST['a'])) {
     case 'print':
         if (!$ticket || !$ticket->pdfExport($_REQUEST['psize']))
-            $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
+            $errors['err'] = __('Internal error: Unable to print to PDF');
         break;
     }
 }

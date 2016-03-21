@@ -182,11 +182,11 @@ implements TemplateVariable {
             return $this->members->saveAll();
 
         if (isset($this->team_id)) {
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s'), __('this team'))
+               .' — '.__('Internal error occurred');
         } else {
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this team'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s'), __('this team'))
+               .' — '.__('Internal error occurred');
         }
 
         return false;

@@ -548,6 +548,7 @@ class i18n_Compiler extends Module {
             'msgid ""',
             'msgstr ""',
             '"Project-Id-Version: osTicket '.trim(`git describe`).'\n"',
+            '"X-Osticket-Major-Version: '.MAJOR_VERSION.'\n"',
             '"POT-Create-Date: '.date('Y-m-d H:i O').'\n"',
             '"Report-Msgid-Bugs-To: support@osticket.com\n"',
             '"Language: en_US\n"',

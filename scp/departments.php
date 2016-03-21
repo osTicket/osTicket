@@ -62,7 +62,7 @@ if($_POST){
                                 $warn=sprintf(__(
                                     /* Phrase will read:
                                        <a> of <b> <selected objects> made PUBLIC */
-                                    '%1$d of %2$d %s made PUBLIC'), $num, $count,
+                                    '%1$d of %2$d %3$s made PUBLIC'), $num, $count,
                                     _N('selected department', 'selected departments', $count));
                         } else {
                             $errors['err']=sprintf(__('Unable to make %s PUBLIC.'),
@@ -111,7 +111,7 @@ if($_POST){
                                     '%1$d of %2$d %3$s deleted'), $i, $count,
                                     _N('selected department', 'selected departments', $count));
                             elseif(!$errors['err'])
-                                $errors['err'] = sprintf(__('Unable to delete %s.'),
+                                $errors['err'] = sprintf(__('Unable to delete %s'),
                                     _N('selected department', 'selected departments', $count));
                         }
                         break;

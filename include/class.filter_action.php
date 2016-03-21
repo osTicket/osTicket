@@ -369,7 +369,7 @@ class FA_AssignTeam extends TriggerAction {
                     array(':new:' => '— '.__('Add New').' —'),
                 'validators' => function($self, $clean) {
                     if ($clean === ':new:')
-                        $self->addError(__('Select a team'));
+                        $self->addError(__('Select a Team'));
                 }
             )),
         );

@@ -199,7 +199,7 @@ if (count($bks) > 1) {
 
     <div style="padding:8px 3px; margin-top: 1.6em">
         <strong class="big"><?php echo __('Internal Notes');?>: </strong>
-        <?php echo __("be liberal, they're internal.");?>
+        <?php echo __("Be liberal, they're internal");?>
     </div>
 
     <textarea name="notes" class="richtext">

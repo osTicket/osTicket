@@ -149,7 +149,7 @@ class Role extends RoleModel {
             $errors['name'] = __('Name required');
         elseif (($r=Role::lookup(array('name'=>$vars['name'])))
                 && $r->getId() != $vars['id'])
-            $errors['name'] = __('Name already in-use');
+            $errors['name'] = __('Name already in use');
         elseif (!$vars['perms'] || !count($vars['perms']))
             $errors['err'] = __('Must check at least one permission for the role');
 

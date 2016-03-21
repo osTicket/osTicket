@@ -91,7 +91,7 @@ if($_POST) {
                             $msg = sprintf(__('Successfully deleted %s'),
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
-                            $warn = sprintf(__('%1$d of %1$d %3$s deleted'), $i, $count,
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s'),

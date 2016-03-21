@@ -26,7 +26,7 @@ if($_POST) {
                     $banner = __('Unable to send reset email. Internal error');
             }
             else
-                $banner = sprintf(__('Unable to verify username: %s'),
+                $banner = sprintf(__('Unable to verify username %s'),
                     Format::htmlchars($_POST['userid']));
             break;
         case 'reset':

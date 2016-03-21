@@ -80,7 +80,7 @@ if($_POST) {
                 }
 
                 if ($errors)
-                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                         __('custom list items'));
                 else {
                     $list->_items = null;
@@ -89,11 +89,11 @@ if($_POST) {
                 }
 
             } elseif ($errors)
-                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                     __('this custom list'));
             else
-                $errors['err']=sprintf(__('Unable to update %s.'), __('this custom list'))
-                    .' '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to update %s'), __('this custom list'))
+                    .' — '.__('Internal error occurred');
 
             break;
         case 'add':
@@ -106,8 +106,8 @@ if($_POST) {
                 $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
                     __('this custom list'));
             } else {
-                $errors['err']=sprintf(__('Unable to add %s.'), __('this custom list'))
-                    .' '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to add %s'), __('this custom list'))
+                    .' — '.__('Internal error occurred');
             }
             break;
 
@@ -146,7 +146,7 @@ if($_POST) {
             else {
                 $status = $list->importFromPost($_FILES['import'] ?: $_POST['pasted']);
                 if (is_numeric($status))
-                    $msg = sprintf(__('Successfully imported %1$d %2$s.'), $status,
+                    $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
                         _N('list item', 'list items', $status));
                 else
                     $errors['err'] = $status;

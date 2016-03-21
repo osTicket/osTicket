@@ -54,7 +54,7 @@ if($_POST){
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'),
+                $errors['err'] = sprintf(__('You must select at least %s'),
                     __('one agent'));
             } elseif(in_array($_POST['a'], array('disable', 'delete'))
                 && in_array($thisstaff->getId(),$_POST['ids'])

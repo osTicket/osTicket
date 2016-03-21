@@ -1,9 +1,9 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $pageTypes = array(
-        'landing' => __('Landing page'),
-        'offline' => __('Offline page'),
-        'thank-you' => __('Thank you page'),
+        'landing' => __('Landing Page'),
+        'offline' => __('Offline Page'),
+        'thank-you' => __('Thank-You page'),
         'other' => __('Other'),
         );
 $info = $qs = array();
@@ -182,7 +182,7 @@ else
   </div>
   <div class="tab_content" style="display:none" id="notes">
     <em><strong><?php echo __('Internal Notes'); ?></strong>:
-      <?php echo __("be liberal, they're internal"); ?></em>
+      <?php echo __("Be liberal, they're internal"); ?></em>
     <textarea class="richtext no-bar" name="notes" cols="21"
       rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
   </div>

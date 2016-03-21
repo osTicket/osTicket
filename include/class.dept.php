@@ -639,11 +639,11 @@ implements TemplateVariable {
         }
 
         if (isset($this->id))
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s'), __('this department'))
+               .' — '.__('Internal error occurred');
         else
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this department'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s'), __('this department'))
+               .' — '.__('Internal error occurred');
 
         return false;
     }

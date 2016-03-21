@@ -43,7 +43,7 @@ if($_POST){
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
-                $msg=sprintf(__('Successfull added %s'), Format::htmlchars($_POST['name']));
+                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
                 $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),

@@ -23,7 +23,7 @@ else
     <div class="login-box">
     <div><strong><?php echo Format::htmlchars($errors['login']); ?></strong></div>
     <div>
-        <label for="email"><?php echo __('E-Mail Address'); ?>:
+        <label for="email"><?php echo __('Email Address'); ?>:
         <input id="email" placeholder="<?php echo __('e.g. john.doe@osticket.com'); ?>" type="text"
             name="lemail" size="30" value="<?php echo $email; ?>" class="nowarn"></label>
     </div>

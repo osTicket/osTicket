@@ -442,7 +442,7 @@ class UsersAjaxAPI extends AjaxController {
         }
 
         if ($org && $user->getOrgId() && $org->getId() != $user->getOrgId())
-            $info['warning'] = __("Are you sure you want to change user's organization?");
+            $info['warning'] = __("Are you sure you want to change the user's organization?");
 
         $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
 

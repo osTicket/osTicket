@@ -288,7 +288,7 @@ class Page extends VerySimpleModel {
         if ($rv)
             return $rv;
 
-        $errors['err']=sprintf(__('Unable to update %s.'), __('this site page'));
+        $errors['err']=sprintf(__('Unable to update %s'), __('this site page'));
         return false;
     }
 

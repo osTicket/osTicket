@@ -39,7 +39,7 @@ require_once('setup.inc.php');
 <p><?php echo __("Retype admin's password. Must match.");?></p>
 </div>
 <div id="t9">
-<b><?php echo __('MySQL Table Prefix.');?></b>
+<b><?php echo __('MySQL Table Prefix');?></b>
 <p><?php echo __('osTicket requires table prefix in order to avoid possible table conflicts in a shared database.');?></p>
 </div>
 <div id="t10">

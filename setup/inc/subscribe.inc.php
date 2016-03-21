@@ -5,7 +5,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$_SESSION['info'];
         <h1><?php echo __('Basic Installation Completed');?></h1>
         <p><?php echo __('osTicket installation has been completed successfully.');?></p>
         <h3 style="color:#FF7700;"><?php echo __('Stay up to date');?>: </h3>
-        <?php echo __("It's important to keep your installation up to date. Get announcements, security updates and alerts delivered directly to you!");?>
+        <?php echo __("It's important to keep your osTicket installation up to date. Get announcements, security updates and alerts delivered directly to you!");?>
         <br><br>
         <form action="install.php" method="post">
             <input type="hidden" name="s" value="subscribe">

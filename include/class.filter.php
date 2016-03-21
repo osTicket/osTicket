@@ -494,13 +494,13 @@ class Filter {
         if($id) {
             $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
             if(!db_query($sql))
-                $errors['err']=sprintf(__('Unable to update %s.'), __('this ticket filter'))
-                   .' '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to update %s'), __('this ticket filter'))
+                   .' — '.__('Internal error occurred');
         }else{
             $sql='INSERT INTO '.FILTER_TABLE.' SET '.$sql.',created=NOW() ';
             if(!db_query($sql) || !($id=db_insert_id()))
-                $errors['err']=sprintf(__('Unable to add %s.'), __('this ticket filter'))
-                   .' '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to add %s'), __('this ticket filter'))
+                   .' — '.__('Internal error occurred');
         }
 
         if($errors || !$id) return false;

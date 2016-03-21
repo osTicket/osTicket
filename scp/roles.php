@@ -39,11 +39,11 @@ if ($_POST) {
             $msg = __('Role updated successfully');
         } elseif ($errors) {
             $errors['err'] = $errors['err'] ?:
-                sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
+                sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                     __('this role'));
         } else {
-            $errors['err'] = sprintf(__('Unable to update %s.'), __('this role'))
-                    .' '.__('Internal error occurred');
+            $errors['err'] = sprintf(__('Unable to update %s'), __('this role'))
+                    .' — '.__('Internal error occurred');
         }
         break;
     case 'add':
@@ -57,8 +57,8 @@ if ($_POST) {
                 sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
                     __('role'));
         } else {
-            $errors['err'] = sprintf(__('Unable to add %s.'), __('role'))
-                    .' '.__('Internal error occurred');
+            $errors['err'] = sprintf(__('Unable to add %s'), __('role'))
+                    .' — '.__('Internal error occurred');
         }
         break;
     case 'mass_process':

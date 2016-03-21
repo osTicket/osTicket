@@ -94,7 +94,7 @@ if($_POST){
                             $msg = sprintf(__('Successfully deleted %s'),
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %s deleted'), $i, $count,
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif(!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s'),
@@ -106,7 +106,7 @@ if($_POST){
             }
             break;
         default:
-            $errors['err']=__('Unknown command/action');
+            $errors['err']=__('Unknown action');
             break;
     }
 }

@@ -98,9 +98,9 @@ if($_POST && !$errors):
 
             } else {
                 if (!$errors['err'])
-                    $errors['err'] = __('Unable to post reply - missing or invalid data.');
+                    $errors['err'] = __('Unable to post the reply - missing or invalid data.');
 
-                $errors['postreply'] = __('Unable to post the reply. Correct the error(s) below and try again!');
+                $errors['postreply'] = __('Unable to post the reply. Correct the errors below and try again!');
             }
             break;
         default:
@@ -221,7 +221,7 @@ if($task) {
         // Auto add new fields to the entries
         foreach ($forms as $f) $f->addMissingFields();
     } elseif($_REQUEST['a'] == 'print' && !$task->pdfExport($_REQUEST['psize']))
-        $errors['err'] = __('Internal error: Unable to export the task to PDF for print.');
+        $errors['err'] = __('Internal error: Unable to print to PDF');
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&

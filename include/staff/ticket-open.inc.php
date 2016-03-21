@@ -371,7 +371,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     if($thisstaff->getSignature()) { ?>
                         <label><input type="radio" name="signature" value="mine"
-                            <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My signature');?></label>
+                            <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My Signature');?></label>
                     <?php
                     } ?>
                     <label><input type="radio" name="signature" value="dept"

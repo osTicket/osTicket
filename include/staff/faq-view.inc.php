@@ -83,7 +83,7 @@ if ($otherLangs) { ?>
 <div>
     <strong><?php echo $faq->isPublished()?__('Published'):__('Internal'); ?></strong>
 </div>
-<a data-dialog="ajax.php/kb/faq/<?php echo $faq->getId(); ?>/access" href="#"><?php echo __('manage access'); ?></a>
+<a data-dialog="ajax.php/kb/faq/<?php echo $faq->getId(); ?>/access" href="#"><?php echo __('Manage Access'); ?></a>
 </section>
 
 </div>

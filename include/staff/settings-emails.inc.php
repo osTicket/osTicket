@@ -141,7 +141,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <?php echo __('Automatically add collaborators from email fields'); ?>&nbsp;
             <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
-        <tr><th colspan=2><em><strong><?php echo __('Outgoing Emails');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
+        <tr><th colspan=2><em><strong><?php echo __('Outgoing Email');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
         <tr><td width="180"><?php echo __('Default MTA'); ?>:</td>
             <td>
                 <select name="default_smtp_id">

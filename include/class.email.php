@@ -416,12 +416,12 @@ class Email extends VerySimpleModel {
             return true;
 
         if ($id) { //update
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this email'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s'), __('this email'))
+               .' — '.__('Internal error occurred');
         }
         else {
-            $errors['err']=sprintf(__('Unable to add %s.'), __('this email'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to add %s'), __('this email'))
+               .' — '.__('Internal error occurred');
         }
 
         return false;

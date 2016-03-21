@@ -108,10 +108,10 @@ if ($_POST) {
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected canned response', 'selected canned responses', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d %s enabled'), $num, $count,
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
                                     _N('selected canned response', 'selected canned responses', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
                                 _N('selected canned response', 'selected canned responses', $count));
                         }
                         break;
@@ -123,7 +123,7 @@ if ($_POST) {
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected canned response', 'selected canned responses', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d %s disabled'), $num, $count,
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
                                     _N('selected canned response', 'selected canned responses', $count));
                         } else {
                             $errors['err'] = sprintf(__('Unable to disable %s'),
@@ -149,7 +149,7 @@ if ($_POST) {
                                 _N('selected canned response', 'selected canned responses', $count));
                         break;
                     default:
-                        $errors['err']=__('Unknown command');
+                        $errors['err']=__('Unknown action');
                 }
             }
             break;

@@ -1033,7 +1033,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
     static function getVarScope() {
         $base = array(
-            'assigned' => __('Assigned agent and/or team'),
+            'assigned' => __('Assigned Agent / Team'),
             'close_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
@@ -1046,7 +1046,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'due_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
-            'number' => __('Task number'),
+            'number' => __('Task Number'),
             'recipients' => array(
                 'class' => 'UserList', 'desc' => __('List of all recipient names'),
             ),

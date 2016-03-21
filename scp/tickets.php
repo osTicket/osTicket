@@ -205,7 +205,9 @@ if($_POST && !$errors):
                 if(!$ticket->checkStaffPerm($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to update the ticket. Correct the errors below and try again!');
+                $errors['err']=sprintf(
+                    __('Unable to update %s. Correct any errors below and try again.'),
+                    __('ticket'));
             }
             break;
         case 'process':
@@ -318,7 +320,7 @@ if($_POST && !$errors):
                 if (!$thisstaff ||
                         !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
-                             sprintf(__('You do not have permission %s.'),
+                             sprintf(__('You do not have permission %s'),
                                  __('to create tickets')),
                              __('Contact admin for such access'));
                 } else {

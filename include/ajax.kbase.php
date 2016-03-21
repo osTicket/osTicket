@@ -45,7 +45,7 @@ class KbaseAjaxAPI extends AjaxController {
                 '<div style="width:650px;">
                  <strong>%s</strong><div class="thread-body">%s</div>
                  <div class="clear"></div>
-                 <div class="faded">'.__('Last updated %s').'</div>
+                 <div class="faded">'.__('Last Updated %s').'</div>
                  <hr>
                  <a href="faq.php?id=%d">'.__('View').'</a> | <a href="faq.php?id=%d">'.__('Attachments (%d)').'</a>',
                 $faq->getQuestion(),

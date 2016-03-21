@@ -61,7 +61,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
                     <tr><td>%{ticket.status}</td><td>'.__('Status').'</td></tr>
                     <tr><td>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
-                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').'</td></tr>
+                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned Agent / Team').'</td></tr>
                     <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
                     <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
                     <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
@@ -82,7 +82,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{response}</td><td>'.__('Outgoing response').'</td></tr>
                     <tr><td>%{comments}</td><td>'.__('Assign/transfer comments').'</td></tr>
                     <tr><td>%{note}</td><td>'.__('Internal note <em>(expandable)</em>').'</td></tr>
-                    <tr><td>%{assignee}</td><td>'.__('Assigned agent/team').'</td></tr>
+                    <tr><td>%{assignee}</td><td>'.__('Assigned Agent / Team').'</td></tr>
                     <tr><td>%{assigner}</td><td>'.__('Agent assigning the ticket').'</td></tr>
                     <tr><td>%{url}</td><td>'.__('osTicket\'s base url (FQDN)').'</td></tr>
                     <tr><td>%{reset_link}</td>

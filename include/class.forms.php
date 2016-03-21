@@ -865,10 +865,10 @@ class FormField {
      */
     function whatChanged($before, $after) {
         if ($before)
-            $desc = __('changed from <strong>%2$s</strong> to <strong>%1$s</strong>');
+            $desc = __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>');
         else
-            $desc = __('set to <strong>%1$s</strong>');
-        return sprintf($desc, $this->display($after), $this->display($before));
+            $desc = __('set to <strong>%2$s</strong>');
+        return sprintf($desc, $this->display($before), $this->display($after));
     }
 
     /**
@@ -4215,7 +4215,7 @@ class TransferForm extends Form {
                     'label' => __('Department'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Department selection required'),
+                    'validator-error' => __('Department selection is required'),
                     )
                 ),
             'comments' => new TextareaField(array(

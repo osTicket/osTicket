@@ -286,10 +286,10 @@ extends VerySimpleModel {
             return true;
 
         if ($isnew)
-            $errors['err'] = sprintf(__('Unable to update %s.'), __('this canned response'));
+            $errors['err'] = sprintf(__('Unable to update %s'), __('this canned response'));
         else
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this canned response'))
-               .' '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s'), __('this canned response'))
+               .' — '.__('Internal error occurred');
 
         return true;
     }

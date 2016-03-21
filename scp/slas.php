@@ -19,7 +19,7 @@ include_once(INCLUDE_DIR.'class.sla.php');
 $sla=null;
 if($_REQUEST['id'] && !($sla=SLA::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
-        __('SLA plan'));
+        __('SLA Plan'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
@@ -48,7 +48,7 @@ if($_POST){
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'),
+                $errors['err'] = sprintf(__('You must select at least %s'),
                     __('one SLA plan'));
             } else {
                 $count=count($_POST['ids']);

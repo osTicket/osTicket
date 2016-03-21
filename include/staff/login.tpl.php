@@ -22,7 +22,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
             autofocus autocorrect="off" autocapitalize="off">
         <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
             <?php if ($show_reset && $cfg->allowPasswordReset()) { ?>
-            <h3 style="display:inline"><a href="pwreset.php"><?php echo __('Forgot my password'); ?></a></h3>
+            <h3 style="display:inline"><a href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
             <?php } ?>
             <button class="submit button pull-right" type="submit" name="submit"><i class="icon-signin"></i>
                 <?php echo __('Log In'); ?>

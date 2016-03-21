@@ -30,7 +30,7 @@ if($_POST) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                $errors['err'] = sprintf(__('Unable to add %s. Correct any errors below and try again.'),
                     __('this site page'));
         break;
         case 'update':
@@ -43,12 +43,12 @@ if($_POST) {
                 $_REQUEST['a']=null; //Go back to view
                 Draft::deleteForNamespace('page.'.$page->getId().'%');
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
+                $errors['err'] = sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                     __('this site page'));
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'),
+                $errors['err'] = sprintf(__('You must select at least %s'),
                     __('one site page'));
             } elseif(array_intersect($_POST['ids'], $cfg->getDefaultPages()) && strcasecmp($_POST['a'], 'enable')) {
                 $errors['err'] = sprintf(__('One or more of the %s is in-use and CANNOT be disabled/deleted.'),

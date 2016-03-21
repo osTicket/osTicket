@@ -25,7 +25,7 @@ if($_POST) {
                     if ($p = Plugin::lookup($id)) {
                         if (!$p->enable())
                             $errors['err'] = sprintf(
-                                __('Unable to enable %s.'),
+                                __('Unable to enable %s'),
                                 $p->getName());
                     }
                 }

@@ -246,7 +246,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
 
 <div class="tab_content" style="display:none;" id="notes">
     <div>
-        <b><?php echo __('Internal Notes');?></b>:<span class="faded"><?php echo __("Be libergsdfgal, they're internal");?></span>
+        <b><?php echo __('Internal Notes');?></b>:<span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"

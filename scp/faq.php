@@ -68,7 +68,7 @@ if ($_POST) {
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
+                $errors['err'] = sprintf(__('Unable to add %s. Correct any errors below and try again.'),
                      __('this FAQ article'));
         break;
         case 'update':
@@ -81,7 +81,7 @@ if ($_POST) {
                 // Delete pending draft updates for this faq (for ALL users)
                 Draft::deleteForNamespace('faq.'.$faq->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
+                $errors['err'] = sprintf(__('Unable to update %s. Correct any errors below and try again.'),
                     __('this FAQ article'));
             break;
         case 'manage-faq':
@@ -111,7 +111,7 @@ if ($_POST) {
                             $msg=sprintf(__('Successfully deleted %s'), Format::htmlchars($faq->getQuestion()));
                             $faq=null;
                         } else {
-                            $errors['err']=sprintf(__('Unable to delete %s.'), __('this FAQ article'));
+                            $errors['err']=sprintf(__('Unable to delete %s'), __('this FAQ article'));
                         }
                         break;
                     default:

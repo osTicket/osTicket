@@ -75,7 +75,7 @@ if($_POST){
                                 $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
                                     _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
                                 _N('selected help topic', 'selected help topics', $count));
                         }
                         break;

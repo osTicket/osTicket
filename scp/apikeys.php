@@ -18,15 +18,15 @@ include_once(INCLUDE_DIR.'class.api.php');
 
 $api=null;
 if($_REQUEST['id'] && !($api=API::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('API key'));
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('API Key'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$api){
-                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('API key'));
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('API Key'));
             }elseif($api->update($_POST,$errors)){
-                $msg=sprintf(__('Succesfully updated %s'), __('this API key'));
+                $msg=sprintf(__('Successfully updated %s'), __('this API key'));
             }elseif(!$errors['err']){
                 $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this API key'));
             }
@@ -57,7 +57,7 @@ if($_POST){
                                 $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
                                     _N('selected API key', 'selected API keys', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
                                 _N('selected API key', 'selected API keys', $count));
                         }
                         break;

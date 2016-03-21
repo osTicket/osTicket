@@ -99,7 +99,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <th colspan="7">
                 <em><strong><?php echo __('Internal Notes'); ?>:</strong>
-                <?php echo __("be liberal, they're internal"); ?></em>
+                <?php echo __("Be liberal, they're internal"); ?></em>
             </th>
         </tr>
         <tr>
