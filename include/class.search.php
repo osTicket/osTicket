@@ -31,7 +31,7 @@ abstract class SearchBackend {
     const SORT_OLDEST = 3;
 
     abstract function update($model, $id, $content, $new=false, $attrs=array());
-    abstract function find($query, $criteria, $model=false, $sort=array());
+    abstract function find($query, $criteria=array(), $model=false, $sort=array());
 
     static function register($backend=false) {
         $backend = $backend ?: get_called_class();
@@ -61,8 +61,9 @@ class SearchInterface {
         $this->bootstrap();
     }
 
-    function find($query, $criteria, $model=false, $sort=array()) {
+    function find($query, $criteria=array(), $model=false, $sort=array()) {
         $query = Format::searchable($query);
+
         return $this->backend->find($query, $criteria, $model, $sort);
     }
 

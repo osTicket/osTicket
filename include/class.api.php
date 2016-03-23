@@ -75,6 +75,16 @@ class API {
         return ($this->ht['can_exec_cron']);
     }
 
+    function canSearchTickets() {
+        return ($this->ht['can_search_tickets']);
+    }
+
+    function canGetTicketData() {
+        return ($this->ht['can_get_ticket_data']);
+    }
+
+
+
     function update($vars, &$errors) {
 
         if(!API::save($this->getId(), $vars, $errors))
@@ -130,6 +140,10 @@ class API {
             .',isactive='.db_input($vars['isactive'])
             .',can_create_tickets='.db_input($vars['can_create_tickets'])
             .',can_exec_cron='.db_input($vars['can_exec_cron'])
+            .',can_search_tickets='.db_input($vars['can_search_tickets'])
+            .',can_get_ticket_data='.db_input($vars['can_get_ticket_data'])
+
+
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
@@ -326,8 +340,8 @@ class ApiXmlDataParser extends XmlDataParser {
     function fixup($current) {
         global $cfg;
 
-		if($current['ticket'])
-			$current = $current['ticket'];
+    if($current['ticket'])
+      $current = $current['ticket'];
 
         if (!is_array($current))
             return $current;

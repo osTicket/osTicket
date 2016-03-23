@@ -86,16 +86,16 @@ class Format {
         return JsonDataEncoder::encode($what);
     }
 
-	function phone($phone) {
+    function phone($phone) {
 
-		$stripped= preg_replace("/[^0-9]/", "", $phone);
-		if(strlen($stripped) == 7)
-			return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
-		elseif(strlen($stripped) == 10)
-			return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
-		else
-			return $phone;
-	}
+        $stripped= preg_replace("/[^0-9]/", "", $phone);
+        if(strlen($stripped) == 7)
+          return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
+        elseif(strlen($stripped) == 10)
+          return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3",$stripped);
+        else
+          return $phone;
+    }
 
     function truncate($string,$len,$hard=false) {
 
@@ -667,6 +667,7 @@ class Format {
         // Drop leading and trailing whitespace
         $text = trim($text);
 
+
         if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
@@ -674,10 +675,13 @@ class Format {
             ) {
                 $tokenizer->setText($text);
                 $tokens = array();
-                foreach ($tokenizer as $token)
+                foreach ($tokenizer as $token) {
+
                     $tokens[] = $token;
+                }
                 $text = implode(' ', $tokens);
             }
+
         }
         else {
             // Approximate word boundaries from Unicode chart at
@@ -685,6 +689,7 @@ class Format {
 
             // Punt for now
         }
+
         return $text;
     }
 }

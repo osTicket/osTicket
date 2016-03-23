@@ -99,6 +99,25 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
+        <tr>
+            <td colspan=2 style="padding-left:5px">
+                <label>
+                    <input type="checkbox" name="can_search_tickets" value="1" <?php echo $info['can_search_tickets']?'checked="checked"':''; ?> >
+                    <?php echo __('Can Search Tickets');?>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan=2 style="padding-left:5px">
+                <label>
+                    <input type="checkbox" name="can_get_ticket_data" value="1" <?php echo $info['can_get_ticket_data']?'checked="checked"':''; ?> >
+                    <?php echo __('Can Get Ticket Data');?>
+                </label>
+            </td>
+        </tr>
+        <tr>
+
+        <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?>&nbsp;</em>
             </th>

@@ -14,7 +14,8 @@ class TicketApiController extends ApiController {
             "attachments" => array("*" =>
                 array("name", "type", "data", "encoding", "size")
             ),
-            "message", "ip", "priorityId"
+            "message", "ip", "priorityId", "passwd", "user", "criteria",
+            "query"
         );
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
@@ -160,6 +161,91 @@ class TicketApiController extends ApiController {
         }
         return $this->createTicket($data);
     }
+
+    function search($format) {
+      $this->initalizeUser($format);
+      $params = $this->getRequest($format);
+
+      $search = $ost->searcher;
+      $search = new SearchInterface();
+      $results = $search->find($params['query'], isset($params['criteria']) ? $params['criteria'] : array());
+      $this->response(
+        201,
+        json_encode(
+          array(
+            'results' => $results,
+            'count' => count($results)
+          )
+        )
+      );
+    }
+
+    function getTicket($format) {
+      $this->initalizeUser($format);
+      $params = $this->getRequest($format);
+
+      $ticket = new Ticket($params['id']);
+      if($ticket->id==$params['id'])
+        $this->response(201, json_encode($ticket->getApiData()));
+      else
+        $this->response(201, json_encode(array('id' => $params['id'], 'error' => 'TicketNotFound')));
+    }
+
+    function getThreadEntry($format) {
+      $this->initalizeUser($format);
+      $params = $this->getRequest($format);
+
+      $entry = new ThreadEntry($params['id']);
+
+      if($entry->id == $params['id']) {
+        $data = $entry->ht;
+        $data['attachments'] = $entry->getAttachmentUrls();
+        $this->response(201, json_encode($data));
+      } else
+        $this->response(201, json_encode(array('id' => $params['id'], 'error' => 'ThreadEntryNotFound')));
+
+    }
+
+    function changeTicketStatus($format) {
+      $this->initalizeUser($format);
+      $params = $this->getRequest($format);
+
+      $ticket = new Ticket($params['id']);
+
+      if(empty($params['comments']))
+        return $this->exerr(500, __("Unable to change ticket status: comments missing"));
+
+      if($ticket->id==$params['id']) {
+        if($ticket->setStatus($params['status'], $params['comments'])) {
+          $this->response(201, json_encode(array(
+            'ticket_id' => $ticket->id,
+            'status' => $ticket->getStatusId()
+          )));
+        } else {
+          $this->response(201, json_encode(array('id' => $params['id'], 'status' => $ticket->getStatusId(), 'error' => 'TicketStatusNotChanged')));
+        }
+      } else
+        $this->response(201, json_encode(array('id' => $params['id'], 'error' => 'TicketNotFound')));
+    }
+
+
+    private function initalizeUser($format) {
+      if(!($key=$this->requireApiKey()) || !$key->canGetTicketData())
+        return $this->exerr(401, __('API key not authorized'));
+
+      global $ost, $thisstaff;
+      $params = $this->getRequest($format);
+
+      $thisstaff = StaffAuthenticationBackend::process(
+        $params['user'],
+        $params['passwd'], $errors
+      );
+      if(!$thisstaff->id)
+        return $this->exerr(401, __('API user not found'));
+
+    }
+
+
 
 }
 

@@ -104,7 +104,7 @@ class Thread {
         return $this->getEntries('N');
     }
 
-    function getEntries($type, $order='ASC') {
+    function getEntries($type = false, $order='ASC') {
 
         if(!$order || !in_array($order, array('DESC','ASC')))
             $order='ASC';
