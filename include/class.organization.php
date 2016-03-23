@@ -359,6 +359,7 @@ class Organization extends OrganizationModel {
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
             $org = Organization::create(array(
                 'name' => $vars['name'],
+                'domain' => $vars['domain'],
                 'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
             ));
