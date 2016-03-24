@@ -167,7 +167,11 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <td>
                 <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?>>
                 <?php echo __('Email attachments to the user'); ?>
-                <i class="help-tip icon-question-sign" href="#ticket_response_files"></i>
+                <i class="help-tip icon-question-sign" href="#email_attachments"></i>
+                &nbsp;
+                <input type="checkbox" name="email_attachments_agents" <?php echo $config['email_attachments_agents']?'checked="checked"':''; ?>>
+                <?php echo __('Email attachments to agents'); ?>
+                <i class="help-tip icon-question-sign" href="#email_attachments_agents"></i>
             </td>
         </tr>
     </tbody>

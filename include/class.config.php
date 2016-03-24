@@ -810,6 +810,10 @@ class OsticketConfig extends Config {
         return ($this->get('email_attachments'));
     }
 
+    function emailAttachmentsToAgents() {
+        return ($this->get('email_attachments_agents'));
+    }
+
     function allowAttachments() {
         return ($this->get('allow_attachments'));
     }
@@ -1014,6 +1018,7 @@ class OsticketConfig extends Config {
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
             'email_attachments'=>isset($vars['email_attachments'])?1:0,
+            'email_attachments_agents'=>isset($vars['email_attachments_agents'])?1:0,
          ));
     }
 

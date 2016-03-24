@@ -74,6 +74,7 @@ core:
     hide_staff_name: 0
     overlimit_notice_active: 0
     email_attachments: 1
+    email_attachments_agents: 0
     number_format: '######'
     sequence_id: 0
     log_level: 2
