@@ -459,10 +459,9 @@ class VerySimpleModel {
     static function lookup($criteria) {
         // Model::lookup(1), where >1< is the pk value
         if (!is_array($criteria)) {
-            $criteria = array();
-            $pk = static::getMeta('pk');
-            foreach (func_get_args() as $i=>$f)
-                $criteria[$pk[$i]] = $f;
+            $val = $criteria;
+            $pk = static::getMeta('pk')[0];
+            $criteria = array($pk => $val);
 
             // Only consult cache for PK lookup, which is assumed if the
             // values are passed as args rather than an array
