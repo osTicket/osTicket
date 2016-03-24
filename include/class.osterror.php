@@ -1,6 +1,6 @@
 <?php
 /*********************************************************************
-    class.error.php
+    class.osterror.php
 
     Error handling for PHP < 5.0. Allows for returning a formal error from a
     function since throwing it isn't available. Also allows for consistent
@@ -17,7 +17,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Error extends Exception {
+class osTicketError extends Exception {
     static $title = '';
     static $sendAlert = true;
 
@@ -42,17 +42,17 @@ class Error extends Exception {
     }
 }
 
-class InitialDataError extends Error {
+class InitialDataError extends osTicketError {
     static $title = 'Problem with install initial data';
 }
 
 function raise_error($message, $class=false) {
-    if (!$class) $class = 'Error';
+    if (!$class) $class = 'osTicketError';
     new $class($message);
 }
 
 // File storage backend exceptions
-class IOException extends Error {
+class IOException extends osTicketError {
     static $title = 'Unable to read resource content';
 }
 

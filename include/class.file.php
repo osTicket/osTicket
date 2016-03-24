@@ -12,7 +12,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once(INCLUDE_DIR.'class.signal.php');
-require_once(INCLUDE_DIR.'class.error.php');
+require_once(INCLUDE_DIR.'class.osterror.php');
 
 class AttachmentFile extends VerySimpleModel {
 
