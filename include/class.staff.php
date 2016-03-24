@@ -56,12 +56,15 @@ implements EmailContact {
             $sql .= 'email='.db_input($var);
         elseif (is_string($var))
             $sql .= 'username='.db_input($var);
-        else
-            return null;
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return NULL;
-
+            
+        if(!($res=db_query($sql)) || !db_num_rows($res)) {
+            $sql='SELECT staff.created as added, grp.*, staff.* '
+                .' FROM '.STAFF_TABLE.' staff '
+                .' LEFT JOIN '.GROUP_TABLE.' grp ON(grp.group_id=staff.group_id)
+                   WHERE username='.db_input($var);
+            if(!($res=db_query($sql)) || !db_num_rows($res))
+                return null;
+        }
 
         $this->ht=db_fetch_array($res);
         $this->id  = $this->ht['staff_id'];
