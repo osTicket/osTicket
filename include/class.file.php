@@ -891,7 +891,7 @@ class AttachmentChunkedData extends FileStorageBackend {
             // Chunks are considered immutable. Importing chunks should
             // forceable remove the contents of a file before write()ing new
             // chunks. Therefore, inserts should be safe.
-            $chunk = AttachmentFileChunk::create(array(
+            $chunk = new AttachmentFileChunk(array(
                 'file' => $this->file,
                 'chunk_id' => $this->_chunk++,
                 'filedata' => $block

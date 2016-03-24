@@ -86,11 +86,7 @@ if($_POST && !$errors):
             else {
                 $vars = $_POST;
                 $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
-<<<<<<< HEAD
-                $vars['response'] = ThreadBody::clean($vars['response']);
-=======
                 $vars['response'] = ThreadEntryBody::clean($vars['response']);
->>>>>>> upstream/develop-next
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
 
@@ -147,9 +143,6 @@ if($_POST && !$errors):
             $attachments = $note_form->getField('attachments')->getClean();
             $vars['cannedattachments'] = array_merge(
                 $vars['cannedattachments'] ?: array(), $attachments);
-<<<<<<< HEAD
-            $vars['note'] = ThreadBody::clean($vars['note']);
-=======
             $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->getLockTime()) {
@@ -164,7 +157,6 @@ if($_POST && !$errors):
                     $errors['err'] = __('Your lock has expired. Please try again');
                 }
             }
->>>>>>> upstream/develop-next
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
