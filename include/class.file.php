@@ -296,35 +296,50 @@ class AttachmentFile extends VerySimpleModel {
         return static::create($info, $ft, $deduplicate);
     }
 
+    static function uploadBackdrop(array $file, &$error) {
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
+
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
+        }
+        return self::upload($file, 'B', false);
+    }
+
     static function uploadLogo($file, &$error, $aspect_ratio=2) {
         /* Borrowed in part from
          * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
          */
-        if (!extension_loaded('gd'))
-            return self::upload($file, 'L');
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
 
-        $source_path = $file['tmp_name'];
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
 
-        list($source_width, $source_height, $source_type) = getimagesize($source_path);
+            $source_aspect_ratio = $source_width / $source_height;
 
-        switch ($source_type) {
-            case IMAGETYPE_GIF:
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_PNG:
-                break;
-            default:
-                // TODO: Return an error
-                $error = __('Invalid image file type');
+            if ($source_aspect_ratio < $aspect_ratio) {
+                $error = __('Image is too square. Upload a wider image');
                 return false;
+            }
         }
-
-        $source_aspect_ratio = $source_width / $source_height;
-
-        if ($source_aspect_ratio >= $aspect_ratio)
-            return self::upload($file, 'L', false);
-
-        $error = __('Image is too square. Upload a wider image');
-        return false;
+        return self::upload($file, 'L', false);
     }
 
     static function create(&$file, $ft='T', $deduplicate=true) {
@@ -616,10 +631,15 @@ class AttachmentFile extends VerySimpleModel {
         return true;
     }
 
-    /* static */
-    function allLogos() {
+    static function allLogos() {
         return static::objects()
             ->filter(array('ft' => 'L'))
+            ->order_by('created');
+    }
+
+    static function allBackdrops() {
+        return static::objects()
+            ->filter(array('ft' => 'B'))
             ->order_by('created');
     }
 }
@@ -820,6 +840,12 @@ class AttachmentFileChunk extends VerySimpleModel {
 class AttachmentChunkedData extends FileStorageBackend {
     static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
+
+    const FILE_TYPES = array(
+        'T' => 'Attachment',
+        'L' => 'Logo',
+        'B' => 'Backdrop',
+    );
 
     function __construct($file) {
         $this->file = $file;

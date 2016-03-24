@@ -1385,6 +1385,14 @@ class OsticketConfig extends Config {
         return $this->getLogo('staff');
     }
 
+    function getStaffLoginBackdropId() {
+        return $this->get("staff_backdrop_id", false);
+    }
+    function getStaffLoginBackdrop() {
+        $id = $this->getStaffLoginBackdropId();
+        return ($id) ? AttachmentFile::lookup((int) $id) : null;
+    }
+
     function updatePagesSettings($vars, &$errors) {
         global $ost;
 
@@ -1404,6 +1412,17 @@ class OsticketConfig extends Config {
                 $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 
+        if ($_FILES['backdrop']) {
+            $error = false;
+            list($backdrop) = AttachmentFile::format($_FILES['backdrop']);
+            if (!$backdrop)
+                ; // Pass
+            elseif ($backdrop['error'])
+                $errors['backdrop'] = $backdrop['error'];
+            elseif (!AttachmentFile::uploadBackdrop($backdrop, $error))
+                $errors['backdrop'] = sprintf(__('Unable to upload backdrop image: %s'), $error);
+        }
+
         $company = $ost->company;
         $company_form = $company->getForm();
         $company_form->setSource($_POST);
@@ -1421,6 +1440,12 @@ class OsticketConfig extends Config {
                         && ($f = AttachmentFile::lookup((int) $id)))
                     $f->delete();
 
+        if (isset($vars['delete-backdrop']))
+            foreach ($vars['delete-backdrop'] as $id)
+                if (($vars['selected-logo'] != $id)
+                        && ($f = AttachmentFile::lookup((int) $id)))
+                    $f->delete();
+
         return $this->updateAll(array(
             'landing_page_id' => $vars['landing_page_id'],
             'offline_page_id' => $vars['offline_page_id'],
@@ -1431,6 +1456,9 @@ class OsticketConfig extends Config {
             'staff_logo_id' => (
                 (is_numeric($vars['selected-logo-scp']) && $vars['selected-logo-scp'])
                 ? $vars['selected-logo-scp'] : false),
+            'staff_backdrop_id' => (
+                (is_numeric($vars['selected-backdrop']) && $vars['selected-backdrop'])
+                ? $vars['selected-backdrop'] : false),
            ));
     }
 
