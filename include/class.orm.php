@@ -653,7 +653,7 @@ class AnnotatedModel {
 class SqlFunction {
     var $alias;
 
-    function SqlFunction($name) {
+    function __construct($name) {
         $this->func = $name;
         $this->args = array_slice(func_get_args(), 1);
     }
