@@ -216,7 +216,13 @@ EOF;
     }
 
     static function getSources() {
-        return self::$sources;
+        static $translated = false;
+        if (!$translated) {
+            foreach (static::$sources as $k=>$v)
+                static::$sources[$k] = __($v);
+        }
+
+        return static::$sources;
     }
 }
 
