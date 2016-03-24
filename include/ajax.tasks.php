@@ -483,7 +483,7 @@ class TasksAjaxAPI extends AjaxController {
         $info = array(
                 ':title' => sprintf(__('Task #%s: %s'),
                     $task->getNumber(),
-                    __('Tranfer')),
+                    __('Transfer')),
                 ':action' => sprintf('#tasks/%d/transfer',
                     $task->getId())
                 );

@@ -540,15 +540,19 @@ class FormField {
     static $more_types = array();
     static $uid = null;
 
+    function _uid() {
+        return ++self::$uid;
+    }
+
     function __construct($options=array()) {
         $this->ht = array_merge($this->ht, $options);
         if (!isset($this->ht['id']))
-            $this->ht['id'] = self::$uid++;
+            $this->ht['id'] = self::_uid();
     }
 
     function __clone() {
         $this->_widget = null;
-        $this->ht['id'] = self::$uid++;
+        $this->ht['id'] = self::_uid();
     }
 
     static function addFieldTypes($group, $callable) {

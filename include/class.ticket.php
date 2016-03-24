@@ -145,6 +145,11 @@ class TicketModel extends VerySimpleModel {
             /* @trans */ 'Phone',
             'Email' =>
             /* @trans */ 'Email',
+
+            'Web' =>
+            /* @trans */ 'Web',
+            'API' =>
+            /* @trans */ 'API',
             'Other' =>
             /* @trans */ 'Other',
             );
@@ -211,7 +216,13 @@ EOF;
     }
 
     static function getSources() {
-        return self::$sources;
+        static $translated = false;
+        if (!$translated) {
+            foreach (static::$sources as $k=>$v)
+                static::$sources[$k] = __($v);
+        }
+
+        return static::$sources;
     }
 }
 
@@ -1099,7 +1110,11 @@ implements RestrictedAccess, Threadable {
         if ($slaId == $this->getSLAId())
             return true;
 
-        $this->sla = Sla::lookup($slaId);
+        $sla = null;
+        if ($slaId && !($sla = Sla::lookup($slaId)))
+            return false;
+
+        $this->sla = $sla;
         return $this->save();
     }
     /**
@@ -1690,9 +1705,17 @@ implements RestrictedAccess, Threadable {
 
         //Log an internal note - no alerts on the internal note.
         if ($user_comments) {
-            $note = $this->logNote(
-                sprintf(_S('Ticket Assigned to %s'), $assignee->getName()),
-                $comments, $assigner, false);
+            if ($assignee instanceof Staff
+                    && $thisstaff
+                    // self assignment
+                    && $assignee->getId() == $thisstaff->getId())
+                $title = sprintf(_S('Ticket claimed by %s'),
+                    $thisstaff->getName());
+            else
+                $title = sprintf(_S('Ticket Assigned to %s'),
+                        $assignee->getName());
+
+            $note = $this->logNote($title, $comments, $assigner, false);
         }
 
         // See if we need to send alerts
@@ -1966,7 +1989,7 @@ implements RestrictedAccess, Threadable {
         return $save ? $this->save() : true;
     }
 
-    //Dept Tranfer...with alert.. done by staff
+    //Dept Transfer...with alert.. done by staff
     function transfer(TransferForm $form, &$errors, $alert=true) {
         global $thisstaff, $cfg;
 
@@ -2004,7 +2027,8 @@ implements RestrictedAccess, Threadable {
 
         // Set SLA of the new department
         if (!$this->getSLAId() || $this->getSLA()->isTransient())
-            $this->selectSLAId();
+            if (($slaId=$this->getDept()->getSLAId()))
+                $this->selectSLAId($slaId);
 
         // Log transfer event
         $this->logEvent('transferred');
@@ -2160,10 +2184,12 @@ implements RestrictedAccess, Threadable {
                 $errors['err'] = __('Permission denied');
             } else {
                 $this->staff_id = $assignee->getId();
-                if ($thisstaff && $thisstaff->getId() == $assignee->getId())
+                if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
+                    $alert = false;
                     $evd['claim'] = true;
-                else
+                } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
+                }
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -2302,9 +2328,9 @@ implements RestrictedAccess, Threadable {
         if ($autorespond && $message->isBounceOrAutoReply())
             $autorespond = false;
 
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
+        $this->onMessage($message, ($autorespond && $alerts)); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
 
         if (!($alerts && $autorespond))
@@ -2730,6 +2756,11 @@ implements RestrictedAccess, Threadable {
             elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
+
+        if (isset($vars['source']) // Check ticket source if provided
+                && !array_key_exists($vars['source'], Ticket::getSources()))
+            $errors['source'] = sprintf( __('Invalid source given - %s'),
+                    Format::htmlchars($vars['source']));
 
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());
@@ -3382,8 +3413,12 @@ implements RestrictedAccess, Threadable {
 
         // Assign ticket to staff or team (new ticket by staff)
         if ($vars['assignId']) {
-            $asnform = $ticket->getAssignmentForm(array('assignee' => $vars['assignId']));
-            $ticket->assign($asnform, $vars['note']);
+            $asnform = $ticket->getAssignmentForm(array(
+                        'assignee' => $vars['assignId'],
+                        'comments' => $vars['note'])
+                    );
+            $e = array();
+            $ticket->assign($asnform, $e);
         }
         else {
             // Auto assign staff or team - auto assignment based on filter

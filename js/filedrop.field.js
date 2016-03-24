@@ -196,7 +196,7 @@
         var i = this.uploads.indexOf(filenode);
         if (i !== -1)
             this.uploads.splice(i,1);
-        filenode.slideUp('fast', function() { this.remove(); });
+        filenode.slideUp('fast', function() { $(this).remove(); });
       }
     },
     cancelUpload: function(node) {

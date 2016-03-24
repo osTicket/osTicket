@@ -24,10 +24,33 @@ class OverviewReport {
     var $start;
     var $end;
 
-    function __construct($start, $end='now') {
+    var $format;
+
+    function __construct($start, $end='now', $format=null) {
+        global $cfg;
+
         $this->start = $start;
         $this->end = $end;
+        $this->format = $format ?: $cfg->getDateFormat(true);
     }
+
+
+    function getStartDate($format=null, $translate=true) {
+
+        if (!$this->start)
+            return '';
+
+        $format =  $format ?: $this->format;
+        if ($translate) {
+            $format = str_replace(
+                    array('y', 'Y', 'm'),
+                    array('yy', 'yyyy', 'mm'),
+                    $format);
+        }
+
+        return Format::date(Misc::dbtime($this->start), false, $format);
+    }
+
 
     function getDateRange() {
         global $cfg;
@@ -35,13 +58,19 @@ class OverviewReport {
         $start = $this->start ?: 'last month';
         $stop = $this->end ?: 'now';
 
-        $start = strtotime($start);
-
-        if (substr($stop, 0, 1) == '+')
-            $stop = strftime('%Y-%m-%d ', $start) . $stop;
+        // Convert user time to db time
+        $start = Misc::dbtime($start);
+        // Stop time can be relative.
+        if ($stop[0] == '+') {
+            // $start time + time(X days)
+            $now = time();
+            $stop = $start + (strtotime($stop, $now)-$now);
+        } else {
+            $stop = Misc::dbtime($stop);
+        }
 
         $start = 'FROM_UNIXTIME('.$start.')';
-        $stop = 'FROM_UNIXTIME('.strtotime($stop).')';
+        $stop = 'FROM_UNIXTIME('.$stop.')';
 
         return array($start, $stop);
     }

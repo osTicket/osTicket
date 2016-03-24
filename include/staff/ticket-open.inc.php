@@ -131,7 +131,9 @@ if ($_POST)
                 <select name="source">
                     <?php
                     $source = $info['source'] ?: 'Phone';
-                    foreach (Ticket::getSources() as $k => $v)
+                    $sources = Ticket::getSources();
+                    unset($sources['Web'], $sources['API']);
+                    foreach ($sources as $k => $v)
                         echo sprintf('<option value="%s" %s>%s</option>',
                                 $k,
                                 ($source == $k ) ? 'selected="selected"' : '',
