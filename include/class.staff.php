@@ -15,7 +15,7 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.dept.php');
-include_once(INCLUDE_DIR.'class.error.php');
+include_once(INCLUDE_DIR.'class.osterror.php');
 include_once(INCLUDE_DIR.'class.team.php');
 include_once(INCLUDE_DIR.'class.role.php');
 include_once(INCLUDE_DIR.'class.passwd.php');
@@ -840,7 +840,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
+            return new osTicketError(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),

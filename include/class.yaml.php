@@ -23,7 +23,7 @@
 **********************************************************************/
 
 require_once "Spyc.php";
-require_once "class.error.php";
+require_once "class.osterror.php";
 
 class YamlDataParser {
     /* static */
@@ -36,7 +36,7 @@ class YamlDataParser {
     }
 }
 
-class YamlParserError extends Error {
+class YamlParserError extends osTicketError {
     static $title = 'Error parsing YAML document';
 }
 ?>
