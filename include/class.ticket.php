@@ -3329,8 +3329,8 @@ implements RestrictedAccess, Threadable {
         //We are ready son...hold on to the rails.
         $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
         $ticket = new static(array(
-            'created' => SqlFunction::NOW(),
-            'lastupdate' => SqlFunction::NOW(),
+            'created' => date('Y-m-d G:i', strtotime( $vars['date'] ) ),
+            'lastupdate' => date('Y-m-d G:i', strtotime( $vars['date'] ) ),
             'number' => $number,
             'user' => $user,
             'dept_id' => $deptId,

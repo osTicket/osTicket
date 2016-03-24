@@ -254,6 +254,10 @@ class Mail_Parse {
         return Format::mimedecode($this->struct->headers['subject'], $this->charset);
     }
 
+    function getDate(){
+        return Format::mimedecode($this->struct->headers['date'], $this->charset);
+    }
+
     function getReplyTo() {
         if (!($header = @$this->struct->headers['reply-to']))
             return null;
@@ -605,6 +609,7 @@ class EmailDataParser {
         $data['emailId'] = 0;
         $data['recipients'] = array();
         $data['subject'] = $parser->getSubject();
+        $data['date'] = $parser->getDate();
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
