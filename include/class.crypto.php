@@ -231,7 +231,7 @@ class CryptoAlgo {
 
     var $ciphers = null;
 
-    function  CryptoAlgo($tag) {
+    function __construct($tag) {
         $this->tag_number = $tag;
     }
 
@@ -332,8 +332,8 @@ Class CryptoMcrypt extends CryptoAlgo {
                 ),
             );
 
-    function getCipher($cid=null) {
-        return parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
    function _checkCipher($c) {
@@ -465,8 +465,8 @@ class CryptoOpenSSL extends CryptoAlgo {
             ? $cipher['method']: '';
     }
 
-    function getCipher($cid) {
-        return parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
     function _checkCipher($c) {
@@ -580,8 +580,8 @@ class CryptoPHPSecLib extends CryptoAlgo {
         return new $class($c['mode']);
     }
 
-    function getCipher($cid) {
-        return  parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return  parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
     function _checkCipher($c) {

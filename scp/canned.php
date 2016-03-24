@@ -17,7 +17,8 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageCannedResponses()
+if(!$thisstaff
+        || !$thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
@@ -29,14 +30,14 @@ $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('canned response'));
 
-$canned_form = new Form(array(
+$canned_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
         'configuration'=>array('extensions'=>false,
             'size'=>$cfg->getMaxFileSize())
    )),
 ));
 
-if($_POST && $thisstaff->canManageCannedResponses()) {
+if ($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$canned) {
@@ -44,30 +45,19 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
             } elseif($canned->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s'),
                     __('this canned response'));
+
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
+                // Upload NEW attachments IF ANY - TODO: validate attachment types??
                 $keepers = $canned_form->getField('attachments')->getClean();
-                $attachments = $canned->attachments->getSeparates(); //current list of attachments.
-                foreach($attachments as $k=>$file) {
-                    if($file['id'] && !in_array($file['id'], $keepers)) {
-                        $canned->attachments->delete($file['id']);
-                    }
-                }
-
-                //Upload NEW attachments IF ANY - TODO: validate attachment types??
-                if ($keepers)
-                    $canned->attachments->upload($keepers);
+                $canned->attachments->keepOnlyFileIds($keepers, false);
 
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
-                    $canned->attachments->deleteInlines();
-                    $canned->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']),
-                        true);
+                    $images = $draft->getAttachmentIds($_POST['response']);
+                    $canned->attachments->keepOnlyFileIds($images, true);
                 }
-
-                $canned->reload();
 
                 // XXX: Handle nicely notifying a user that the draft was
                 // deleted | OR | show the draft for the user on the name
@@ -82,18 +72,19 @@ if($_POST && $thisstaff->canManageCannedResponses()) {
             }
             break;
         case 'create':
-            if(($id=Canned::create($_POST, $errors))) {
+            $premade = Canned::create();
+            if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
-                if (($c=Canned::lookup($id)) && $keepers)
-                    $c->attachments->upload($keepers);
+                if ($keepers)
+                    $premade->attachments->upload($keepers);
 
                 // Attach inline attachments from the editor
-                if ($c && isset($_POST['draft_id'])
+                if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id'])))
-                    $c->attachments->upload(
+                    $premade->attachments->upload(
                         $draft->getAttachmentIds($_POST['response']), true);
 
                 // Delete this user's drafts for new canned-responses

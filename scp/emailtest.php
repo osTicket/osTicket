@@ -99,7 +99,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('To');?>:
             </td>
             <td>
-                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
@@ -117,13 +118,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <div style="padding-top:0.5em;padding-bottom:0.5em">
                 <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
                 <textarea class="richtext draft draft-delete" name="message" cols="21"
-                    data-draft-namespace="email.diag"
-                    rows="10" style="width: 90%;"><?php echo $info['message']; ?></textarea>
+                    rows="10" style="width: 90%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['message']);
+    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+                 ?></textarea>
             </td>
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
+<p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo __('Send Message');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="emails.php"'>

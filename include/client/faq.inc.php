@@ -4,29 +4,62 @@ if(!defined('OSTCLIENTINC') || !$faq  || !$faq->isPublished()) die('Access Denie
 $category=$faq->getCategory();
 
 ?>
+<div class="row">
+<div class="span8">
+
 <h1><?php echo __('Frequently Asked Questions');?></h1>
 <div id="breadcrumbs">
     <a href="index.php"><?php echo __('All Categories');?></a>
     &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
 </div>
-<div style="width:700px;padding-top:2px;" class="pull-left">
-<strong style="font-size:16px;"><?php echo $faq->getQuestion() ?></strong>
-</div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;"></div>
-<div class="clear"></div>
-<div class="thread-body">
-<?php echo Format::safe_html($faq->getAnswerWithImages()); ?>
-</div>
-<p>
-<?php
-if($faq->getNumAttachments()) { ?>
- <div><span class="faded"><b><?php echo __('Attachments');?>:</b></span>  <?php echo $faq->getAttachmentsLinks(); ?></div>
-<?php
-} ?>
 
-<div class="article-meta"><span class="faded"><b><?php echo __('Help Topics');?>:</b></span>
-    <?php echo ($topics=$faq->getHelpTopics())?implode(', ',$topics):' '; ?>
+<div class="faq-content">
+<div class="article-title flush-left">
+<?php echo $faq->getLocalQuestion() ?>
 </div>
-</p>
-<hr>
-<div class="faded">&nbsp;<?php echo __('Last updated').' '.Format::db_daydatetime($category->getUpdateDate()); ?></div>
+<div class="faded"><?php echo __('Last updated').' '
+    . Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?></div>
+<br/>
+<div class="thread-body bleed">
+<?php echo $faq->getLocalAnswerWithImages(); ?>
+</div>
+</div>
+</div>
+
+<div class="span4 pull-right">
+<div class="sidebar">
+<div class="searchbar">
+    <form method="get" action="faq.php">
+    <input type="hidden" name="a" value="search"/>
+    <input type="text" name="q" class="search" placeholder="<?php
+        echo __('Search our knowledge base'); ?>"/>
+    <input type="submit" style="display:none" value="search"/>
+    </form>
+</div>
+<div class="content"><?php
+    if ($attachments = $faq->getLocalAttachments()->all()) { ?>
+<section>
+    <strong><?php echo __('Attachments');?>:</strong>
+<?php foreach ($attachments as $att) { ?>
+    <div>
+    <a href="<?php echo $att->file->getDownloadUrl(); ?>" class="no-pjax">
+        <i class="icon-file"></i>
+        <?php echo Format::htmlchars($att->getFilename()); ?>
+    </a>
+    </div>
+<?php } ?>
+</section>
+<?php }
+if ($faq->getHelpTopics()->count()) { ?>
+<section>
+    <strong><?php echo __('Help Topics'); ?></strong>
+<?php foreach ($faq->getHelpTopics() as $T) { ?>
+    <div><?php echo $T->topic->getFullName(); ?></div>
+<?php } ?>
+</section>
+<?php }
+?></div>
+</div>
+</div>
+
+</div>

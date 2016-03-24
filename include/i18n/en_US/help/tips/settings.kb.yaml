@@ -35,7 +35,7 @@ restrict_kb:
         your knowledge base articles on the client interface.
     links:
       - title: Access Control Settings
-        href: /scp/settings.php?t=access
+        href: /scp/settings.php?t=users
 
 canned_responses:
     title: Canned Responses

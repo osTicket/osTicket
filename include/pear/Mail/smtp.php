@@ -188,7 +188,7 @@ class Mail_smtp extends Mail {
      *              defaults.
      * @access public
      */
-    function Mail_smtp($params)
+    function __construct($params)
     {
         if (isset($params['host'])) $this->host = $params['host'];
         if (isset($params['port'])) $this->port = $params['port'];
@@ -346,7 +346,7 @@ class Mail_smtp extends Mail {
         }
 
         include_once 'Net/SMTP.php';
-        $this->_smtp = &new Net_SMTP($this->host,
+        $this->_smtp = new Net_SMTP($this->host,
                                      $this->port,
                                      $this->localhost);
 

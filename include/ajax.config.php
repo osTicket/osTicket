@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.ajax.php';
 
 if(!defined('INCLUDE_DIR')) die('!');
 
@@ -23,6 +24,7 @@ class ConfigAjaxAPI extends AjaxController {
         global $cfg, $thisstaff;
 
         $lang = Internationalization::getCurrentLanguage();
+        $info = Internationalization::getLanguageInfo($lang);
         list($sl, $locale) = explode('_', $lang);
 
         $rtl = false;
@@ -31,19 +33,27 @@ class ConfigAjaxAPI extends AjaxController {
                 $rtl = true;
         }
 
+        $primary = $cfg->getPrimaryLanguage();
+        $primary_info = Internationalization::getLanguageInfo($primary);
+        list($primary_sl, $primary_locale) = explode('_', $primary);
+
         $config=array(
-              'lock_time'       => ($cfg->getLockTime()*3600),
-              'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
-              'date_format'     => ($cfg->getDateFormat()),
+              'lock_time'       => $cfg->getTicketLockMode() == Lock::MODE_DISABLED ? 0 : ($cfg->getLockTime()*60),
+              'html_thread'     => (bool) $cfg->isRichTextEnabled(),
+              'date_format'     => $cfg->getDateFormat(true),
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
-              'page_size'       => $thisstaff->getPageLimit(),
+              'lang_flag'       => strtolower($info['flag'] ?: $locale ?: $sl),
+              'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
+              'primary_language' => Internationalization::rfc1766($primary),
+              'secondary_languages' => $cfg->getSecondaryLanguages(),
+              'page_size'       => $thisstaff->getPageLimit() ?: PAGE_LIMIT,
         );
         return $this->json_encode($config);
     }
 
-    function client() {
+    function client($headers=true) {
         global $cfg;
 
         $lang = Internationalization::getCurrentLanguage();
@@ -56,15 +66,19 @@ class ConfigAjaxAPI extends AjaxController {
         }
 
         $config=array(
-            'html_thread'     => (bool) $cfg->isHtmlThreadEnabled(),
+            'html_thread'     => (bool) $cfg->isRichTextEnabled(),
             'lang'            => $lang,
             'short_lang'      => $sl,
             'has_rtl'         => $rtl,
+            'primary_language' => Internationalization::rfc1766($cfg->getPrimaryLanguage()),
+            'secondary_languages' => $cfg->getSecondaryLanguages(),
         );
 
         $config = $this->json_encode($config);
-        Http::cacheable(md5($config), $cfg->lastModified());
-        header('Content-Type: application/json; charset=UTF-8');
+        if ($headers) {
+            Http::cacheable(md5($config), $cfg->lastModified());
+            header('Content-Type: application/json; charset=UTF-8');
+        }
 
         return $config;
     }
@@ -78,10 +92,40 @@ class ConfigAjaxAPI extends AjaxController {
             array('name'=>'End-User Login Page', 'url'=> '%{url}/login.php'),
         ));
 
-        Http::cacheable(md5($links), filemtime(__file__));
+        Http::cacheable(md5($links));
         header('Content-Type: application/json; charset=UTF-8');
 
         return $links;
+    }
+
+    /**
+     * Ajax: GET /config/date-format?format=<format>
+     *
+     * Formats the user's current date and time according to the given
+     * format in INTL codes.
+     *
+     * Get-Arguments:
+     * format - (string) format string used to format the current date and
+     *      time (from the user's perspective)
+     *
+     * Returns:
+     * (string) Current sequence number, optionally formatted
+     *
+     * Throws:
+     * 403 - Not logged in
+     * 400 - ?format missing
+     */
+    function dateFormat() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login required');
+        elseif (!isset($_GET['format']))
+            Http::response(400, '?format is required');
+
+        return Format::htmlchars(Format::__formatDate(
+            Misc::gmtime(), $_GET['format'], false, null, null, '', 'UTC'
+        ));
     }
 }
 ?>

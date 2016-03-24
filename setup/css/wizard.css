@@ -11,8 +11,8 @@ a { color: #2a67ac; display: inline-block; }
 .hidden { display: none;}
 .error { color:#f00;}
 
-#header { height: 72px; margin-bottom: 20px; width: 100%; }
-#header #logo { width: 280px; height: 72px; display: block; float: left; }
+#header { min-height: 72px; margin-bottom: 20px; width: 100%; }
+#header #logo { width: auto; height: 72px; margin-right: 3em; float: left; }
 #header .info { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #2a67ac; color: #444; text-align: right; float: right; }
 #header ul { margin: 0; padding: 0; text-align: right; }
 #header ul li { list-style: none; margin: 5px 0 0 0; padding: 0; }
@@ -194,7 +194,7 @@ a.flag { text-decoration: none; }
 .rtl ul.progress li { padding-left: 0; padding-right: 24px; }
 .rtl form h4.head { padding-right: 24px; background-position: right center; background-position: calc(100% - 5px); }
 .rtl form .subhead { padding-right: 24px; }
-.rtl #header #logo { float: right; }
+.rtl #header #logo { float: right; margin: 0; margin-left: 3em; }
 .rtl #header .info, .rtl #header ul, .rtl div.flags { text-align:left; }
 .rtl #header .info { float: left; }
 .rtl .ltr { text-align: right; }

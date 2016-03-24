@@ -56,20 +56,22 @@ else
     $showing .= __("This organization doesn't have any users yet");
 
 ?>
-<div style="width:700px;" class="pull-left"><b><?php echo $showing; ?></b></div>
-<div class="pull-right flush-right" style="padding-right:5px;">
-    <b><a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="Icon newstaff add-user"
-        ><?php echo __('Add User'); ?></a></b>
-    |
-    <b><a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="add-user">
-    <i class="icon-cloud-upload icon-large"></i>
-    <?php echo __('Import'); ?></a></b>
+<form action="orgs.php?id=<?php echo $org->getId(); ?>" method="POST" name="users" >
+
+<div style="margin-top:5px;" class="pull-left"><b><?php echo $showing; ?></b></div>
+<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+<div class="pull-right flush-right" style="margin-bottom:10px;">
+    <a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="green button action-button add-user"
+        ><i class="icon-plus"></i> <?php echo __('Add User'); ?></a>
+    <a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="button action-button add-user">
+        <i class="icon-cloud-upload icon-large"></i>
+    <?php echo __('Import'); ?></a>
+    <button id="actions" class="red button action-button" type="submit" name="remove-users"><i class="icon-trash"></i> <?php echo __('Remove'); ?></button>
 </div>
+<?php } ?>
 <div class="clear"></div>
-<br/>
 <?php
 if ($num) { ?>
-<form action="orgs.php?id=<?php echo $org->getId(); ?>" method="POST" name="users" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="id" name="id" value="<?php echo $org->getId(); ?>" >
@@ -77,11 +79,11 @@ if ($num) { ?>
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7px">&nbsp;</th>
-            <th width="350"><?php echo __('Name'); ?></th>
-            <th width="300"><?php echo __('Email'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
-            <th width="100"><?php echo __('Created'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="38%"><?php echo __('Name'); ?></th>
+            <th width="35%"><?php echo __('Email'); ?></th>
+            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="15%"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
     <tbody>
@@ -90,20 +92,22 @@ if ($num) { ?>
             $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
             while ($row = db_fetch_array($res)) {
 
-                $name = new PersonsName($row['name']);
+                $name = new UsersName($row['name']);
                 $status = 'Active';
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
                 ?>
                <tr id="<?php echo $row['id']; ?>">
-                <td width=7px>
+                <td align="center">
                   <input type="checkbox" class="ckb" name="ids[]"
                     value="<?php echo $row['id']; ?>" <?php echo $sel?'checked="checked"':''; ?> >
                 </td>
                 <td>&nbsp;
-                    <a class="userPreview"
-                        href="users.php?id=<?php echo $row['id']; ?>"><?php
+                    <a class="preview"
+                        href="users.php?id=<?php echo $row['id']; ?>"
+                        data-preview="#users/<?php
+                        echo $row['id']; ?>/preview" ><?php
                         echo Format::htmlchars($name); ?></a>
                     &nbsp;
                     <?php
@@ -114,7 +118,7 @@ if ($num) { ?>
                 </td>
                 <td><?php echo Format::htmlchars($row['email']); ?></td>
                 <td><?php echo $status; ?></td>
-                <td><?php echo Format::db_date($row['created']); ?></td>
+                <td><?php echo Format::date($row['created']); ?></td>
                </tr>
             <?php
             } //end of while.
@@ -144,9 +148,7 @@ if ($res && $num) { //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 
     ?>
-    <p class="centered" id="actions">
-        <input class="button" type="submit" name="remove-users" value="<?php echo __('Remove'); ?>" >
-    </p>
+
 <?php
 }
 ?>
@@ -155,7 +157,7 @@ if ($res && $num) { //Show options..
 } ?>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-    <h3><?php echo __('Please Confirm'); ?></h3>
+    <h3 class="drag-handle"><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="remove-users-confirm">

@@ -15,7 +15,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <?php echo __('These items are necessary in order to install and use osTicket.');?>
             <ul class="progress">
                 <li class="<?php echo $installer->check_php()?'yes':'no'; ?>">
-                <?php echo sprintf(__('%s or greater'), '<span class="ltr">PHP v5.3</span>');?> &mdash; <small class="ltr">(<b><?php echo PHP_VERSION; ?></b>)</small></li>
+                <?php echo sprintf(__('%s or greater'), '<span class="ltr">PHP v5.4</span>');?> &mdash; <small class="ltr">(<b><?php echo PHP_VERSION; ?></b>)</small></li>
                 <li class="<?php echo $installer->check_mysql()?'yes':'no'; ?>">
                 <?php echo __('MySQLi extension for PHP');?> &mdash; <small><b><?php
                     echo extension_loaded('mysqli')?__('module loaded'):__('missing!'); ?></b></small></li>
@@ -36,6 +36,12 @@ if(!defined('SETUPINC')) die('Kwaheri!');
                     echo __('recommended for all installations');?></li>
                 <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar <?php echo __('extension');?> &mdash; <?php
                     echo __('recommended for plugins and language packs');?></li>
+                <li class="<?php echo extension_loaded('intl')?'yes':'no'; ?>">Intl <?php echo __('extension');?> &mdash; <?php
+                    echo __('recommended for improved localization');?></li>
+                <li class="<?php echo extension_loaded('apcu')?'yes':'no'; ?>">APCu <?php echo __('extension');?> &mdash; <?php
+                    echo __('(faster performance)');?></li>
+                <li class="<?php echo extension_loaded('Zend OPcache')?'yes':'no'; ?>">Zend OPcache <?php echo __('extension');?> &mdash; <?php
+                    echo __('(faster performance)');?></li>
             </ul>
             <div id="bar">
                 <form method="post" action="install.php">

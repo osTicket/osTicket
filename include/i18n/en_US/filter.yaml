@@ -8,8 +8,6 @@
 # Fields:
 # isactive - (bool:0|1) true or false if the filter is initially enabled
 # execorder - (int) order the filters should be executed in (lowest first)
-# reject_ticket - (bool:0|1) if a ticket matches the filter it should be
-#       rejected (ie. not be created).
 # name - (string) Descriptive name for the filter
 # notes - (string) Administrative notes (viewable internally only)
 # rules - (list<FilterRule>) List of rules for the filter
@@ -19,19 +17,25 @@
 # what - (enum<email|>) field to check
 # how - (enum<equals|contains|dncontain>) how to check for <val>
 # val - (string) search value
+#
+# Fields for FilterAction
+# type - type of filter action
+#
 ---
 - isactive: 1
   execorder: 99
-  reject_ticket: 1
-  # NOTE: Don't translate 'Email'
-  target: Email
-  # NOTE: Don't translate 'SYSTEM BAN LIST'
-  name: SYSTEM BAN LIST
+  match_all_rules: 0
+  email_id: 0
+  target: Email #notrans
+  name: SYSTEM BAN LIST #notrans
   notes: |
     Internal list for email banning. Do not remove
 
   rules:
     - isactive: 1
-      what: email
-      how: equal
-      val: test@example.com
+      what: email #notrans
+      how: equal #notrans
+      val: test@example.com #notrans
+  actions:
+    - sort: 1
+      type: reject #notrans

@@ -113,7 +113,7 @@ if($_POST) {
                 'name'=>trim($_POST["name-new-$i"]),
             ));
             $field->setRequirementMode($_POST["visibility-new-$i"]);
-            $field->setForm($form);
+            $form->fields->add($field);
             if (in_array($field->get('name'), $names))
                 $field->addError(__('Field variable name is not unique'), 'name');
             if ($field->isValid()) {
@@ -124,9 +124,7 @@ if($_POST) {
             else
                 $errors["new-$i"] = $field->errors();
         }
-        // XXX: Move to an instrumented list that can handle this better
         if (!$errors) {
-            $form->_dfields = $form->_fields = null;
             $form->save(true);
             foreach ($form_fields as $field) {
                 $field->form = $form;

@@ -19,7 +19,7 @@ class API {
 
     var $ht;
 
-    function API($id) {
+    function __construct($id) {
         $this->id = 0;
         $this->load($id);
     }
@@ -196,7 +196,7 @@ class ApiController {
     function getRequest($format) {
         global $ost;
 
-        $input = $ost->is_cli()?'php://stdin':'php://input';
+        $input = osTicket::is_cli()?'php://stdin':'php://input';
 
         if (!($stream = @fopen($input, 'r')))
             $this->exerr(400, __("Unable to read request body"));
@@ -353,12 +353,12 @@ class ApiXmlDataParser extends XmlDataParser {
                     $value['body'] = Charset::utf8($value['body'], $value['encoding']);
 
                 if (!strcasecmp($value['type'], 'text/html'))
-                    $value = new HtmlThreadBody($value['body']);
+                    $value = new HtmlThreadEntryBody($value['body']);
                 else
-                    $value = new TextThreadBody($value['body']);
+                    $value = new TextThreadEntryBody($value['body']);
 
             } else if ($key == "attachments") {
-                if(!isset($value['file'][':text']))
+                if(isset($value['file']) && !isset($value['file'][':text']))
                     $value = $value['file'];
 
                 if($value && is_array($value)) {
@@ -398,9 +398,9 @@ class ApiJsonDataParser extends JsonDataParser {
                 $data = Format::parseRfc2397($value, 'utf-8');
 
                 if (isset($data['type']) && $data['type'] == 'text/html')
-                    $value = new HtmlThreadBody($data['data']);
+                    $value = new HtmlThreadEntryBody($data['data']);
                 else
-                    $value = new TextThreadBody($data['data']);
+                    $value = new TextThreadEntryBody($data['data']);
 
             } else if ($key == "attachments") {
                 foreach ($value as &$info) {

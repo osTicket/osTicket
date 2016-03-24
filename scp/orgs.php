@@ -13,6 +13,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('staff.inc.php');
+require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.note.php';
 
 $org = null;
@@ -94,18 +95,35 @@ if ($_POST) {
     default:
         $errors['err'] = __('Unknown action');
     }
-} elseif ($_REQUEST['a'] == 'export') {
+} elseif (!$org && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
-    if (!($token=$_REQUEST['qh']))
-        $errors['err'] = __('Query token required');
-    elseif (!($query=$_SESSION['orgs_qs_'.$token]))
+    if (!($query=$_SESSION[':Q:orgs']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveOrganizations($query, __('organizations')."-$ts.csv", 'csv'))
         $errors['err'] = __('Internal error: Unable to export results');
 }
 
-$page = $org? 'org-view.inc.php' : 'orgs.inc.php';
+$page = 'orgs.inc.php';
+if ($org) {
+    $page = 'org-view.inc.php';
+    switch (strtolower($_REQUEST['t'])) {
+    case 'tickets':
+        if (isset($_SERVER['HTTP_X_PJAX'])) {
+            $page='templates/tickets.tmpl.php';
+            $pjax_container = @$_SERVER['HTTP_X_PJAX_CONTAINER'];
+            require(STAFFINC_DIR.$page);
+            return;
+        } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':O:tickets'])) {
+            $filename = sprintf('%s-tickets-%s.csv',
+                    $org->getName(), strftime('%Y%m%d'));
+            if (!Export::saveTickets($query, $filename, 'csv'))
+                $errors['err'] = __('Internal error: Unable to dump query results');
+        }
+        break;
+    }
+}
+
 $nav->setTabActive('users');
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);

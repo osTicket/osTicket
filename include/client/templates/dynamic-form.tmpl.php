@@ -6,7 +6,7 @@
     <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
     <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
-    <em><?php echo Format::htmlchars($form->getInstructions()); ?></em>
+    <div><?php echo Format::display($form->getInstructions()); ?></div>
     </div>
     </td></tr>
     <?php
@@ -14,35 +14,38 @@
     // 'private' are not included in the output for clients
     global $thisclient;
     foreach ($form->getFields() as $field) {
-        if (!$field->isVisibleToUsers())
+        if (isset($options['mode']) && $options['mode'] == 'create') {
+            if (!$field->isVisibleToUsers() && !$field->isRequiredForUsers())
+                continue;
+        }
+        elseif (!$field->isVisibleToUsers() && !$field->isEditableToUsers()) {
             continue;
+        }
         ?>
         <tr>
-            <?php if ($field->isBlockLevel()) { ?>
-                <td colspan="2">
-            <?php
-            }
-            else { ?>
-                <td><label for="<?php echo $field->getFormName(); ?>" class="<?php
-                    if ($field->get('required')) echo 'required'; ?>">
-                <?php echo Format::htmlchars($field->get('label')); ?>:</label></td><td>
-            <?php
-            }
-            $field->render('client'); ?>
-            <?php if ($field->get('required')) { ?>
-                <font class="error">*</font>
-            <?php
-            }
-            if ($field->get('hint') && !$field->isBlockLevel()) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($field->get('hint')); ?></em>
-            <?php
-            }
-            foreach ($field->errors() as $e) { ?>
-                <br />
-                <font class="error"><?php echo $e; ?></font>
+            <td colspan="2" style="padding-top:10px;">
+            <?php if (!$field->isBlockLevel()) { ?>
+                <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
+                    if ($field->isRequiredForUsers()) echo 'required'; ?>">
+                <?php echo Format::htmlchars($field->getLocal('label')); ?>
+            <?php if ($field->isRequiredForUsers()) { ?>
+                <span class="error">*</span>
             <?php }
-            $field->renderExtras('client');
+            ?></span><?php
+                if ($field->get('hint')) { ?>
+                    <br /><em style="color:gray;display:inline-block"><?php
+                        echo Format::viewableImages($field->getLocal('hint')); ?></em>
+                <?php
+                } ?>
+            <br/>
+            <?php
+            }
+            $field->render(array('client'=>true));
+            ?></label><?php
+            foreach ($field->errors() as $e) { ?>
+                <div class="error"><?php echo $e; ?></div>
+            <?php }
+            $field->renderExtras(array('client'=>true));
             ?>
             </td>
         </tr>

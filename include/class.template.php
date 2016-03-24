@@ -23,65 +23,166 @@ class EmailTemplateGroup {
     var $_templates;
     static $all_groups = array(
         'sys' => /* @trans */ 'System Management Templates',
-        'ticket.user' => /* @trans */ 'End-User Email Templates',
-        'ticket.staff' => /* @trans */ 'Agent Email Templates',
+        'a.ticket.user' => /* @trans */ 'Ticket End-User Email Templates',
+        'b.ticket.staff' => /* @trans */ 'Ticket Agent Email Templates',
+        'c.task' => /* @trans */ 'Task Email Templates',
     );
     static $all_names=array(
         'ticket.autoresp'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-response',
-            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.'),
+            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'signature', 'message', 'recipient'
+            ),
+        ),
         'ticket.autoreply'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Auto-reply',
-            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.'),
+            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.',
+            'context' => array(
+                'ticket', 'signature', 'response', 'recipient',
+            ),
+        ),
         'message.autoresp'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Message Auto-response',
-            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.'),
+            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.',
+            'context' => array(
+                'ticket', 'signature', 'recipient',
+            ),
+        ),
         'ticket.notice'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Ticket Notice',
-            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).'),
+            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).',
+            'context' => array(
+                'ticket', 'signature', 'recipient', 'staff', 'message',
+            ),
+        ),
         'ticket.overlimit'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Over Limit Notice',
-            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.'),
+            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
+            'context' => array(
+                'ticket', 'signature',
+            ),
+        ),
         'ticket.reply'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Response/Reply Template',
-            'desc'=>/* @trans */ 'Template used on ticket response/reply'),
+            'desc'=>/* @trans */ 'Template used on ticket response/reply',
+            'context' => array(
+                'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
+            ),
+        ),
         'ticket.activity.notice'=>array(
-            'group'=>'ticket.user',
+            'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Activity Notice',
-            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)'),
+            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
+            'context' => array(
+                'ticket', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
         'ticket.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.'),
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message',
+            ),
+        ),
         'message.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Message Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.'),
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message', 'poster',
+            ),
+        ),
         'note.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Internal Activity Alert',
-            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.'),
+            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
         'assigned.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Ticket Assignment Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.'),
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
+        ),
         'transfer.alert'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Ticket Transfer Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.'),
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'staff',
+            ),
+        ),
         'ticket.overdue'=>array(
-            'group'=>'ticket.staff',
+            'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Overdue Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.'),
-        );
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.',
+            'context' => array(
+                'ticket', 'recipient', 'comments',
+            ),
+        ),
+        'task.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new task.',
+            'context' => array(
+                'task', 'recipient', 'message',
+            ),
+        ),
+        'task.activity.notice' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Notice',
+            'desc'=>/* @trans */ 'Template used to notify collaborators on task activity.',
+            'context' => array(
+                'task', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
+        'task.activity.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Alert',
+            'desc'=>/* @trans */ 'Alert sent to selected agents, if enabled, on new activity.',
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
+        'task.assignment.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Assignment Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task assignment.',
+            'context' => array(
+                'task', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
+        ),
+        'task.transfer.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Transfer Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task transfer.',
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
+        'task.overdue.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Overdue Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue task.',
+            'context' => array(
+                'task', 'recipient', 'comments',
+            ),
+        ),
+    );
 
-    function EmailTemplateGroup($id){
+    function __construct($id){
         $this->id=0;
         $this->load($id);
     }
@@ -157,7 +258,7 @@ class EmailTemplateGroup {
         return (db_query($sql) && db_affected_rows());
     }
 
-    function getTemplateDescription($name) {
+    static function getTemplateDescription($name) {
         return static::$all_names[$name];
     }
 
@@ -246,6 +347,31 @@ class EmailTemplateGroup {
 
     function getOverdueAlertMsgTemplate() {
         return $this->getMsgTemplate('ticket.overdue');
+    }
+
+    /* Tasks templates */
+    function getNewTaskAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.alert');
+    }
+
+    function  getTaskActivityAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.alert');
+    }
+
+    function  getTaskActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.notice');
+    }
+
+    function getTaskTransferAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.transfer.alert');
+    }
+
+    function getTaskAssignmentAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.assignment.alert');
+    }
+
+    function getTaskOverdueAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.overdue.alert');
     }
 
     function update($vars,&$errors) {
@@ -382,7 +508,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function EmailTemplate($id, $group=null){
+    function __construct($id, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;
@@ -401,7 +527,7 @@ class EmailTemplate {
 
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
-        $this->attachments = new GenericAttachments($this->id, 'T');
+        $this->attachments = GenericAttachments::forIdAndType($this->id, 'T');
 
         return true;
     }
@@ -456,6 +582,22 @@ class EmailTemplate {
         return $this->getGroup()->getTemplateDescription($this->ht['code_name']);
     }
 
+    function getInvalidVariableUsage() {
+        $context = VariableReplacer::getContextForRoot($this->ht['code_name']);
+        $invalid = array();
+        foreach (array($this->getSubject(), $this->getBody()) as $B) {
+            $variables = array();
+            if (!preg_match_all('`%\{([^}]*)\}`', $B, $variables, PREG_SET_ORDER))
+                continue;
+            foreach ($variables as $V) {
+                if (!isset($context[$V[1]])) {
+                    $invalid[] = $V[0];
+                }
+            }
+        }
+        return $invalid;
+    }
+
     function update($vars, &$errors) {
 
         if(!$this->save($this->getId(),$vars,$errors))
@@ -464,12 +606,10 @@ class EmailTemplate {
         $this->reload();
 
         // Inline images (attached to the draft)
-        if (isset($vars['draft_id']) && $vars['draft_id']) {
-            if ($draft = Draft::lookup($vars['draft_id'])) {
-                $this->attachments->deleteInlines();
-                $this->attachments->upload($draft->getAttachmentIds($this->getBody()), true);
-            }
-        }
+        $keepers = Draft::getAttachmentIds($this->getBody());
+        // Just keep the IDs only
+        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $this->attachments->keepOnlyFileIds($keepers, true);
 
         return true;
     }

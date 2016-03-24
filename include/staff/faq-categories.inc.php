@@ -2,91 +2,136 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
-<h2><?php echo __('Frequently Asked Questions');?></h2>
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
-    <div>
-        <input id="query" type="text" size="20" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-        <select name="cid" id="cid">
-            <option value="">&mdash; <?php echo __('All Categories');?> &mdash;</option>
-            <?php
-            $sql='SELECT category_id, name, count(faq.category_id) as faqs '
-                .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-                .' LEFT JOIN '.FAQ_TABLE.' faq USING(category_id) '
-                .' GROUP BY cat.category_id '
-                .' HAVING faqs>0 '
-                .' ORDER BY cat.name DESC ';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($row=db_fetch_array($res))
-                    echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                            $row['category_id'],
-                            ($_REQUEST['cid'] && $row['category_id']==$_REQUEST['cid']?'selected="selected"':''),
-                            $row['name'],
-                            $row['faqs']);
-            }
-            ?>
-        </select>
-        <input id="searchSubmit" type="submit" value="<?php echo __('Search');?>">
-    </div>
-    <div>
-        <select name="topicId" style="width:350px;" id="topic-id">
-            <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-            <?php
-            $sql='SELECT ht.topic_id, CONCAT_WS(" / ", pht.topic, ht.topic) as helptopic, count(faq.topic_id) as faqs '
-                .' FROM '.TOPIC_TABLE.' ht '
-                .' LEFT JOIN '.TOPIC_TABLE.' pht ON (pht.topic_id=ht.topic_pid) '
-                .' LEFT JOIN '.FAQ_TOPIC_TABLE.' faq ON(faq.topic_id=ht.topic_id) '
-                .' GROUP BY ht.topic_id '
-                .' HAVING faqs>0 '
-                .' ORDER BY helptopic';
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($row=db_fetch_array($res))
-                    echo sprintf('<option value="%d" %s>%s (%d)</option>',
-                            $row['topic_id'],
-                            ($_REQUEST['topicId'] && $row['topic_id']==$_REQUEST['topicId']?'selected="selected"':''),
-                            $row['helptopic'], $row['faqs']);
-            }
-            ?>
-        </select>
+    <input type="hidden" name="cid" value="<?php echo Format::htmlchars($_REQUEST['cid']); ?>"/>
+    <input type="hidden" name="topicId" value="<?php echo Format::htmlchars($_REQUEST['topicId']); ?>"/>
+
+    <div id="basic_search">
+        <div class="attached input">
+            <input id="query" type="text" size="20" name="q" autofocus
+                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+            <button class="attached button" id="searchSubmit" type="submit">
+                <i class="icon icon-search"></i>
+            </button>
+        </div>
+
+        <div class="pull-right">
+            <span class="action-button muted" data-dropdown="#category-dropdown">
+                <i class="icon-caret-down pull-right"></i>
+                <span>
+                    <i class="icon-filter"></i>
+                    <?php echo __('Category'); ?>
+                </span>
+            </span>
+            <span class="action-button muted" data-dropdown="#topic-dropdown">
+                <i class="icon-caret-down pull-right"></i>
+                <span>
+                    <i class="icon-filter"></i>
+                    <?php echo __('Help Topic'); ?>
+                </span>
+            </span>
+        </div>
+
+        <div id="category-dropdown" class="action-dropdown anchor-right"
+            onclick="javascript:
+                var form = $(this).closest('form');
+                form.find('[name=cid]').val($(event.target).data('cid'));
+                form.submit();">
+            <ul class="bleed-left">
+<?php
+$total = FAQ::objects()->count();
+
+$categories = Category::objects()
+    ->annotate(array('faq_count' => SqlAggregate::COUNT('faqs')))
+    ->filter(array('faq_count__gt' => 0))
+    ->order_by('name')
+    ->all();
+array_unshift($categories, new Category(array('id' => 0, 'name' => __('All Categories'), 'faq_count' => $total)));
+foreach ($categories as $C) {
+        $active = $_REQUEST['cid'] == $C->getId(); ?>
+        <li <?php if ($active) echo 'class="active"'; ?>>
+            <a href="#" data-cid="<?php echo $C->getId(); ?>">
+                <i class="icon-fixed-width <?php
+                if ($active) echo 'icon-hand-right'; ?>"></i>
+                <?php echo sprintf('%s (%d)',
+                    Format::htmlchars($C->getLocalName()),
+                    $C->faq_count); ?></a>
+        </li> <?php
+} ?>
+            </ul>
+        </div>
+
+        <div id="topic-dropdown" class="action-dropdown anchor-right"
+            onclick="javascript:
+                var form = $(this).closest('form');
+                form.find('[name=topicId]').val($(event.target).data('topicId'));
+                form.submit();">
+            <ul class="bleed-left">
+<?php
+$topics = Topic::objects()
+    ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
+    ->filter(array('faq_count__gt'=>0))
+    ->all();
+usort($topics, function($a, $b) {
+    return strcmp($a->getFullName(), $b->getFullName());
+});
+array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), 'faq_count' => $total)));
+foreach ($topics as $T) {
+        $active = $_REQUEST['topicId'] == $T->getId(); ?>
+        <li <?php if ($active) echo 'class="active"'; ?>>
+            <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
+                <i class="icon-fixed-width <?php
+                if ($active) echo 'icon-hand-right'; ?>"></i>
+                <?php echo sprintf('%s (%d)',
+                    Format::htmlchars($T->getFullName()),
+                    $T->faq_count); ?></a>
+        </li> <?php
+} ?>
+            </ul>
+        </div>
+
     </div>
 </form>
-<hr>
+    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
+        <div class="pull-left">
+            <h2><?php echo __('Frequently Asked Questions');?></h2>
+        </div>
+        <div class="clear"></div>
+    </div>
 <div>
 <?php
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
-    $sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments, count(ft.topic_id) as topics '
-        .' FROM '.FAQ_TABLE.' faq '
-        .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
-        .' LEFT JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.faq_id=faq.faq_id) '
-        .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-             ON(attach.object_id=faq.faq_id AND attach.type=\'F\' AND attach.inline = 0) '
-        .' WHERE 1 ';
+    $faqs = FAQ::objects()
+        ->annotate(array(
+            'attachment_count'=>SqlAggregate::COUNT('attachments'),
+            'topic_count'=>SqlAggregate::COUNT('topics')
+        ))
+        ->order_by('question');
 
-    if($_REQUEST['cid'])
-        $sql.=' AND faq.category_id='.db_input($_REQUEST['cid']);
+    if ($_REQUEST['cid'])
+        $faqs->filter(array('category_id'=>$_REQUEST['cid']));
 
-    if($_REQUEST['topicId'])
-        $sql.=' AND ft.topic_id='.db_input($_REQUEST['topicId']);
+    if ($_REQUEST['topicId'])
+        $faqs->filter(array('topics__topic_id'=>$_REQUEST['topicId']));
 
-    if($_REQUEST['q']) {
-        $sql.=" AND (question LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR answer LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR keywords LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR cat.name LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 OR cat.description LIKE ('%".db_input($_REQUEST['q'],false)."%')
-                 )";
-    }
-
-    $sql.=' GROUP BY faq.faq_id ORDER BY question';
+    if ($_REQUEST['q'])
+        $faqs->filter(Q::ANY(array(
+            'question__contains'=>$_REQUEST['q'],
+            'answer__contains'=>$_REQUEST['q'],
+            'keywords__contains'=>$_REQUEST['q'],
+            'category__name__contains'=>$_REQUEST['q'],
+            'category__description__contains'=>$_REQUEST['q'],
+        )));
 
     echo "<div><strong>".__('Search Results')."</strong></div><div class='clear'></div>";
-    if(($res=db_query($sql)) && db_num_rows($res)) {
+    if ($faqs->exists(true)) {
         echo '<div id="faq">
                 <ol>';
-        while($row=db_fetch_array($res)) {
-            echo sprintf('
-                <li><a href="faq.php?id=%d" class="previewfaq">%s</a> - <span>%s</span></li>',
-                $row['faq_id'],$row['question'],$row['ispublished']?__('Published'):__('Internal'));
+        foreach ($faqs as $F) {
+            echo sprintf(
+                '<li><a href="faq.php?id=%d" class="previewfaq">%s</a> - <span>%s</span></li>',
+                $F->getId(), $F->getLocalQuestion(), $F->getVisibilityDescription());
         }
         echo '  </ol>
              </div>';
@@ -94,23 +139,25 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         echo '<strong class="faded">'.__('The search did not match any FAQs.').'</strong>';
     }
 } else { //Category Listing.
-    $sql='SELECT cat.category_id, cat.name, cat.description, cat.ispublic, count(faq.faq_id) as faqs '
-        .' FROM '.FAQ_CATEGORY_TABLE.' cat '
-        .' LEFT JOIN '.FAQ_TABLE.' faq ON(faq.category_id=cat.category_id) '
-        .' GROUP BY cat.category_id '
-        .' ORDER BY cat.name';
-    if(($res=db_query($sql)) && db_num_rows($res)) {
+    $categories = Category::objects()
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
+        ->all();
+
+    if (count($categories)) {
+        usort($categories, function($a, $b) {
+            return strcmp($a->getLocalName(), $b->getLocalName());
+        });
         echo '<div>'.__('Click on the category to browse FAQs or manage its existing FAQs.').'</div>
                 <ul id="kb">';
-        while($row=db_fetch_array($res)) {
-
+        foreach ($categories as $C) {
             echo sprintf('
                 <li>
-                    <h4><a href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></h4>
+                    <h4><a class="truncate" style="max-width:600px" href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></h4>
                     %s
-                </li>',$row['category_id'],$row['name'],$row['faqs'],
-                ($row['ispublic']?__('Public'):__('Internal')),
-                Format::safe_html($row['description']));
+                </li>',$C->getId(),$C->getLocalName(),$C->faq_count,
+                $C->getVisibilityDescription(),
+                Format::safe_html($C->getLocalDescriptionWithImages())
+            );
         }
         echo '</ul>';
     } else {

@@ -1,83 +1,108 @@
 <?php
+$args = array();
+parse_str($_SERVER['QUERY_STRING'], $args);
+$args['t'] = 'tickets';
+unset($args['p'], $args['_pjax']);
 
-$select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id, ticket.user_id '
-        .' ,dept.dept_name,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
-        .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
-        .' ,CONCAT_WS(" ", staff.firstname, staff.lastname) as staff, team.name as team '
-        .' ,IF(staff.staff_id IS NULL,team.name,CONCAT_WS(" ", staff.lastname, staff.firstname)) as assigned '
-        .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic '
-        .' ,cdata.priority as priority_id, cdata.subject, user.name, email.address as email';
+$tickets = TicketModel::objects();
 
-$from =' FROM '.TICKET_TABLE.' ticket '
-      .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
-        ON status.id = ticket.status_id '
-      .' LEFT JOIN '.USER_TABLE.' user ON user.id = ticket.user_id '
-      .' LEFT JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-      .' LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (ticket.user_id=account.user_id) '
-      .' LEFT JOIN '.DEPT_TABLE.' dept ON ticket.dept_id=dept.dept_id '
-      .' LEFT JOIN '.STAFF_TABLE.' staff ON (ticket.staff_id=staff.staff_id) '
-      .' LEFT JOIN '.TEAM_TABLE.' team ON (ticket.team_id=team.team_id) '
-      .' LEFT JOIN '.TOPIC_TABLE.' topic ON (ticket.topic_id=topic.topic_id) '
-      .' LEFT JOIN '.TOPIC_TABLE.' ptopic ON (ptopic.topic_id=topic.topic_pid) '
-      .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id) '
-      .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority)';
+if ($user) {
+    $filter = $tickets->copy()
+        ->values_flat('ticket_id')
+        ->filter(array('user_id' => $user->getId()))
+        ->union($tickets->copy()
+            ->values_flat('ticket_id')
+            ->filter(array('thread__collaborators__user_id' => $user->getId()))
+        , false);
+} elseif ($org) {
+    $filter = $tickets->copy()
+        ->values_flat('ticket_id')
+        ->filter(array('user__org' => $org));
+}
 
-if ($user)
-    $where = 'WHERE ticket.user_id = '.db_input($user->getId());
-elseif ($org)
-    $where = 'WHERE user.org_id = '.db_input($org->getId());
+// Apply filter
+$tickets->filter(array('ticket_id__in' => $filter));
 
+// Apply staff visibility
+if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
+    // -- Open and assigned to me
+    $visibility = array(
+        new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
+    );
+    // -- Routed to a department of mine
+    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
+        $visibility[] = new Q(array('dept_id__in' => $depts));
+    // -- Open and assigned to a team of mine
+    if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
+        $visibility[] = new Q(array(
+            'team_id__in' => array_filter($teams), 'status__state'=>'open'
+        ));
+    $tickets->filter(Q::any($visibility));
+}
+
+$tickets->constrain(array('lock' => array(
+                'lock__expire__gt' => SqlFunction::NOW())));
+
+// Group by ticket_id.
+$tickets->distinct('ticket_id');
+
+// Save the query to the session for exporting
+$queue = sprintf(':%s:tickets', $user ? 'U' : 'O');
+$_SESSION[$queue] = $tickets;
+
+// Apply pagination
+$total = $tickets->count();
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$pageNav = new Pagenate($total, $page, PAGE_LIMIT);
+$pageNav->setURL(($user ? 'users.php' : 'orgs.php'), $args);
+$tickets = $pageNav->paginate($tickets);
+
+$tickets->annotate(array(
+    'collab_count' => SqlAggregate::COUNT('thread__collaborators', true),
+    'attachment_count' => SqlAggregate::COUNT(SqlCase::N()
+       ->when(new SqlField('thread__entries__attachments__inline'), null)
+       ->otherwise(new SqlField('thread__entries__attachments')),
+        true
+    ),
+    'thread_count' => SqlAggregate::COUNT(SqlCase::N()
+        ->when(
+            new Q(array('thread__entries__flags__hasbit'=>ThreadEntry::FLAG_HIDDEN)),
+            null)
+        ->otherwise(new SqlField('thread__entries__id')),
+       true
+    ),
+));
+
+$tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
+
+$tickets->order_by('-created');
 
 TicketForm::ensureDynamicDataView();
-
-$query ="$select $from $where ORDER BY ticket.created DESC";
-
 // Fetch the results
-$results = array();
-$res = db_query($query);
-while ($row = db_fetch_array($res))
-    $results[$row['ticket_id']] = $row;
-
-if ($results) {
-    $counts_sql = 'SELECT ticket.ticket_id,
-        count(DISTINCT attach.attach_id) as attachments,
-        count(DISTINCT thread.id) as thread_count,
-        count(DISTINCT collab.id) as collaborators
-        FROM '.TICKET_TABLE.' ticket
-        LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON (ticket.ticket_id=attach.ticket_id) '
-     .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ( ticket.ticket_id=thread.ticket_id) '
-     .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-            ON ( ticket.ticket_id=collab.ticket_id) '
-     .' WHERE ticket.ticket_id IN ('.implode(',', db_input(array_keys($results))).')
-        GROUP BY ticket.ticket_id';
-    $ids_res = db_query($counts_sql);
-    while ($row = db_fetch_array($ids_res)) {
-        $results[$row['ticket_id']] += $row;
-    }
-}
 ?>
-<div style="width:700px;" class="pull-left">
+<div class="pull-left" style="margin-top:5px;">
    <?php
-    if ($results) {
-        echo '<strong>'.sprintf(_N('Showing %d ticket', 'Showing %d tickets',
-            count($results)), count($results)).'</strong>';
+    if ($total) {
+        echo '<strong>'.$pageNav->showing().'</strong>';
     } else {
         echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
     }
    ?>
 </div>
-<div class="pull-right flush-right" style="padding-right:5px;">
-    <?php
-    if ($user) { ?>
-    <b><a class="Icon newTicket" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
-    <?php print __('Create New Ticket'); ?></a></b>
-    <?php
-    } ?>
+<div style="margin-bottom:10px;">
+    <div class="pull-right flush-right">
+        <?php
+        if ($user) { ?>
+            <a class="green button action-button" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>">
+                <i class="icon-plus"></i> <?php print __('Create New Ticket'); ?></a>
+        <?php
+        } ?>
+    </div>
 </div>
 <br/>
 <div>
 <?php
-if ($results) { ?>
+if ($total) { ?>
 <form action="users.php" method="POST" name='tickets' style="padding-top:10px;">
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
@@ -87,81 +112,106 @@ if ($results) { ?>
         <tr>
             <?php
             if (0) {?>
-            <th width="8px">&nbsp;</th>
+            <th width="4%">&nbsp;</th>
             <?php
             } ?>
-            <th width="70"><?php echo __('Ticket'); ?></th>
-            <th width="100"><?php echo __('Date'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
-            <th width="300"><?php echo __('Subject'); ?></th>
+            <th width="10%"><?php echo __('Ticket'); ?></th>
+            <th width="18%"><?php echo __('Last Updated'); ?></th>
+            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="30%"><?php echo __('Subject'); ?></th>
             <?php
             if ($user) { ?>
-            <th width="200"><?php echo __('Department'); ?></th>
-            <th width="200"><?php echo __('Assignee'); ?></th>
+            <th width="15%"><?php echo __('Department'); ?></th>
+            <th width="15%"><?php echo __('Assignee'); ?></th>
             <?php
             } else { ?>
-            <th width="400"><?php echo __('User'); ?></th>
+            <th width="30%"><?php echo __('User'); ?></th>
             <?php
             } ?>
         </tr>
     </thead>
     <tbody>
     <?php
-    foreach($results as $row) {
+    $subject_field = TicketForm::objects()->one()->getField('subject');
+    $user_id = $user ? $user->getId() : 0;
+    foreach($tickets as $T) {
         $flag=null;
-        if ($row['lock_id'])
+        if ($T['lock__lock_id'] && $T['lock__staff_id'] != $thisstaff->getId())
             $flag='locked';
-        elseif ($row['isoverdue'])
+        elseif ($T['isoverdue'])
             $flag='overdue';
 
         $assigned='';
-        if ($row['staff_id'])
-            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
-        elseif ($row['team_id'])
-            $assigned=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
+        if ($T['staff_id'])
+            $assigned = new AgentsName(array(
+                'first' => $T['staff__firstname'],
+                'last' => $T['staff__lastname']
+            ));
+        elseif ($T['team_id'])
+            $assigned = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
         else
             $assigned=' ';
 
-        $status = ucfirst($row['status']);
-        $tid=$row['number'];
-        $subject = Format::htmlchars(Format::truncate($row['subject'],40));
-        $threadcount=$row['thread_count'];
+        $status = TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
+        $tid = $T['number'];
+        $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
+        $threadcount = $T['thread_count'];
         ?>
-        <tr id="<?php echo $row['ticket_id']; ?>">
+        <tr id="<?php echo $T['ticket_id']; ?>">
             <?php
             //Implement mass  action....if need be.
             if (0) { ?>
             <td align="center" class="nohover">
-                <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
+                <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $T['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
             </td>
             <?php
             } ?>
-            <td align="center" nowrap>
-              <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
+            <td nowrap>
+              <a class="Icon <?php
+                echo strtolower($T['source']); ?>Ticket preview"
                 title="<?php echo __('Preview Ticket'); ?>"
-                href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
-            <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
+                href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
+                data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"><?php
+                echo $tid; ?></a>
+               <?php
+                if ($user_id && $user_id != $T['user_id'])
+                    echo '<span class="pull-right faded-more" data-toggle="tooltip" title="'
+                            .__('Collaborator').'"><i class="icon-eye-open"></i></span>';
+            ?></td>
+            <td nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
             <td><?php echo $status; ?></td>
-            <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
+            <td><a class="truncate <?php if ($flag) { ?> Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket<?php } ?>"
+                style="max-width: 230px;"
+                href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                  <?php
-                    if ($threadcount>1)
-                        echo "<small>($threadcount)</small>&nbsp;".'<i
-                            class="icon-fixed-width icon-comments-alt"></i>&nbsp;';
-                    if ($row['collaborators'])
-                        echo '<i class="icon-fixed-width icon-group faded"></i>&nbsp;';
-                    if ($row['attachments'])
-                        echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
+                    if ($T['attachment_count'])
+                        echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
+                            .$T['attachment_count'].'"></i>';
+                    if ($threadcount > 1) { ?>
+                            <span class="pull-right faded-more"><i class="icon-comments-alt"></i>
+                            <small><?php echo $threadcount; ?></small></span>
+<?php               }
+                    if ($T['attachments'])
+                        echo '<i class="small icon-paperclip icon-flip-horizontal"></i>';
+                    if ($T['collab_count'])
+                        echo '<span class="faded-more" data-toggle="tooltip" title="'
+                            .$T['collab_count'].'"><i class="icon-group"></i></span>';
                 ?>
             </td>
             <?php
-            if ($user) { ?>
-            <td><?php echo Format::truncate($row['dept_name'], 40); ?></td>
-            <td>&nbsp;<?php echo $assigned; ?></td>
+            if ($user) {
+                $dept = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']); ?>
+            <td><span class="truncate" style="max-wdith:125px"><?php
+                echo Format::htmlchars($dept); ?></span></td>
+            <td><span class="truncate" style="max-width:125px"><?php
+                echo Format::htmlchars($assigned); ?></span></td>
             <?php
             } else { ?>
-            <td>&nbsp;<?php echo sprintf('<a href="users.php?id=%d">%s <em> &lt;%s&gt;</em></a>',
-                    $row['user_id'], $row['name'], $row['email']); ?></td>
+            <td><a class="truncate" style="max-width:250px" href="users.php?id="<?php
+                echo $T['user_id']; ?>><?php echo Format::htmlchars($T['user__name']);
+                    ?> <em>&lt;<?php echo Format::htmlchars($T['user__default_email__address']);
+                ?>&gt;</em></a>
+            </td>
             <?php
             } ?>
         </tr>
@@ -170,6 +220,18 @@ if ($results) { ?>
     ?>
     </tbody>
 </table>
+<?php
+if ($total>0) {
+    echo '<div>';
+    echo __('Page').':'.$pageNav->getPageLinks('tickets', '#tickets').'&nbsp;';
+    echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+            Http::build_query(array(
+                    'id' => $user ? $user->getId(): $org->getId(),
+                    'a' => 'export',
+                    't' => 'tickets')),
+            __('Export'));
+    echo '</div>';
+} ?>
 </form>
 <?php
  } ?>

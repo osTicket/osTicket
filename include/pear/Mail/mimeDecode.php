@@ -149,7 +149,7 @@ class Mail_mimeDecode extends PEAR
      * @param string The input to decode
      * @access public
      */
-    function Mail_mimeDecode(&$input)
+    function __construct(&$input)
     {
         list($header, $body)   = $this->_splitBodyHeader($input);
 

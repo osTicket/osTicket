@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'class.banlist.php');
 require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
@@ -32,7 +33,7 @@ class MailFetcher {
 
     var $tnef = false;
 
-    function MailFetcher($email, $charset='UTF-8') {
+    function __construct($email, $charset='UTF-8') {
 
 
         if($email && is_numeric($email)) //email_id
@@ -554,7 +555,7 @@ class MailFetcher {
                     if ($body = $this->getPart(
                         $mid, 'text/plain', $this->charset, $struct, false, 3, false
                     )) {
-                        return new TextThreadBody($body);
+                        return new TextThreadEntryBody($body);
                     }
                 }
             }
@@ -602,21 +603,21 @@ class MailFetcher {
     function getBody($mid) {
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
+        if ($cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($mid, 'text/html', $this->charset))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($mid, 'text/html', $this->charset))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
@@ -650,7 +651,7 @@ class MailFetcher {
         }
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && Banlist::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning(_S('Ticket denied'),
                 sprintf(_S('Banned email — %s'),$mailinfo['email']), false);
@@ -683,22 +684,22 @@ class MailFetcher {
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
-        $vars['flags'] = new ArrayObject();
+        $vars['mailflags'] = new ArrayObject();
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
             if ($headers = $this->getOriginalMessageHeaders($mid)) {
                 $vars['references'] = $headers['references'];
-                $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $vars['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
-            $vars['flags']['bounce'] = true;
+            $vars['mailflags']['bounce'] = true;
         }
         else {
             $vars['message'] = $this->getBody($mid);
-            $vars['flags']['bounce'] = TicketFilter::isBounce($info);
+            $vars['mailflags']['bounce'] = TicketFilter::isBounce($info);
         }
 
 
@@ -770,23 +771,31 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
-                && ($t=$thread->getTicket())
-                && ($vars['staffId']
-                    || !$t->isClosed()
-                    || $t->isReopenable())
-                && ($message = $thread->postEmail($vars))) {
+        if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+            && ($message = $entry->postEmail($vars))
+        ) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
-            $ticket = $message->getTicket();
-        } elseif ($seen) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $message->getThread()->getObject();
+        }
+        elseif ($seen) {
             // Already processed, but for some reason (like rejection), no
             // thread item was created. Ignore the email
             return true;
-        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
+        }
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($vars))
+            && ($message = $thread->postEmail($vars))
+        ) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $thread->getObject();
+        }
+        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
-        } else {
+        }
+        else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!

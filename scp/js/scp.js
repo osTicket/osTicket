@@ -37,7 +37,10 @@ function checkbox_checker(formObj, min, max) {
 
 var scp_prep = function() {
 
-    $("input:not(.dp):visible:enabled:first").focus();
+    $("input[autofocus]:visible:enabled:first").each(function() {
+      if ($(this).val())
+        $(this).blur();
+    });
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
@@ -81,14 +84,18 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions :submit.button:not(.no-confirm)').bind('click', function(e) {
+    $('#actions:submit, #actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
 
-        var formObj = $(this).closest('form');
-        e.preventDefault();
-        if($('.dialog#confirm-action p#'+this.name+'-confirm').length == 0) {
-            alert('Unknown action '+this.name+' - get technical help.');
+        var formObj,
+            name = this.name || $(this).data('name');
+        if ($(this).data('formId'))
+            formObj = $('#' + $(this).data('formId'));
+        else
+            formObj = $(this).closest('form');
+        if($('.dialog#confirm-action p#'+name+'-confirm').length === 0) {
+            alert('Unknown action '+name+' - get technical help.');
         } else if(checkbox_checker(formObj, 1)) {
-            var action = this.name;
+            var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
                 e.preventDefault();
@@ -100,11 +107,11 @@ var scp_prep = function() {
              });
             $.toggleOverlay(true);
             $('.dialog#confirm-action .confirm-action').hide();
-            $('.dialog#confirm-action p#'+this.name+'-confirm')
+            $('.dialog#confirm-action p#'+name+'-confirm')
             .show()
             .parent('div').show().trigger('click');
         }
-
+        e.preventDefault();
         return false;
      });
 
@@ -125,24 +132,11 @@ var scp_prep = function() {
         }
      });
 
-
-    if($.browser.msie) {
-        $('.inactive').mouseenter(function() {
-            var elem = $(this);
-            var ie_shadow = $('<div>').addClass('ieshadow').css({
-                height:$('ul', elem).height()
-            });
-            elem.append(ie_shadow);
-        }).mouseleave(function() {
-            $('.ieshadow').remove();
-        });
-    }
-
     var warnOnLeave = function (el) {
         var fObj = el.closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
-            $('input[type=submit]', fObj).css('color', 'red');
+            $('input[type=submit], button[type=submit]', fObj).addClass('save pending');
             $(window).bind('beforeunload', function(e) {
                 return __('Are you sure you want to leave? Any changes or info you\'ve entered will be discarded!');
             });
@@ -152,14 +146,14 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save :input").change(function() {
-        warnOnLeave($(this));
+    $("form#save").on('change', ':input[name], :button[name]', function() {
+        if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save :input[type=reset]").click(function() {
+    $("form#save").on('click', ':input[type=reset], :button[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
-            $('input[type=submit]', fObj).removeAttr('style');
+            $('input[type=submit], button[type=submit]', fObj).removeClass('save pending');
             $('label', fObj).removeAttr('style');
             $('label', fObj).removeClass('strike');
             fObj.data('changed', false);
@@ -182,7 +176,7 @@ var scp_prep = function() {
         form.submit();
      });
 
-    $(".clearrule").live('click',function() {
+    $(document).on('click', ".clearrule",function() {
         $(this).closest("tr").find(":input").val('');
         return false;
      });
@@ -221,12 +215,12 @@ var scp_prep = function() {
                         redactor = box.data('redactor');
                     if(canned.response) {
                         if (redactor)
-                            redactor.insertHtml(canned.response);
+                            redactor.insert.html(canned.response);
                         else
                             box.val(box.val() + canned.response);
 
                         if (redactor)
-                            redactor.observeStart();
+                            redactor.observe.load();
                     }
                     //Canned attachments.
                     var ca = $('.attachments', fObj);
@@ -258,11 +252,13 @@ var scp_prep = function() {
 
     /* Typeahead tickets lookup */
     var last_req;
-    $('#basic-ticket-search').typeahead({
+    $('input.basic-search').typeahead({
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
+            var $el = this.$element;
+            var url = $el.data('url')+'?q='+encodeURIComponent(query);
             last_req = $.ajax({
-                url: "ajax.php/tickets/lookup?q="+query,
+                url: url,
                 dataType: 'json',
                 success: function (data) {
                     typeahead.process(data);
@@ -270,8 +266,14 @@ var scp_prep = function() {
             });
         },
         onselect: function (obj) {
-            $('#basic-ticket-search').val(obj.value);
-            $('#basic-ticket-search').closest('form').submit();
+            var $el = this.$element;
+            var form = $el.closest('form');
+            form.find('input[name=search-type]').val('typeahead');
+            $el.val(obj.value);
+            if (obj.id) {
+                form.append($('<input type="hidden" name="number">').val(obj.id))
+            }
+            form.submit();
         },
         property: "matches"
     });
@@ -321,107 +323,38 @@ var scp_prep = function() {
     });
 
     //Dialog
-    $('.dialog').each(function() {
+    $('.dialog').resize(function() {
         var w = $(window), $this=$(this);
         $this.css({
             top : (w.innerHeight() / 7),
             left : (w.width() - $this.outerWidth()) / 2
         });
-        $this.hasClass('draggable') && $this.draggable({handle:'h3'});
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
+    });
+
+
+    $('.dialog').each(function() {
+        $this=$(this);
+        $this.resize();
+        $this.hasClass('draggable') && $this.draggable({handle:'.drag-handle'});
     });
 
     $('.dialog').delegate('input.close, a.close', 'click', function(e) {
         e.preventDefault();
-        $(this).parents('div.dialog').hide()
+        var $dialog = $(this).parents('div.dialog');
+        $dialog.off('blur.redactor');
+        $dialog
+        .hide()
+        .removeAttr('style');
         $.toggleOverlay(false);
 
         return false;
-    });
-
-    /* advanced search */
-    $('.dialog#advanced-search').css({
-        top  : ($(window).height() / 6),
-        left : ($(window).width() / 2 - 300)
     });
 
     /* loading ... */
     $("#loading").css({
         top  : ($(window).height() / 3),
         left : ($(window).width() - $("#loading").outerWidth()) / 2
-    });
-
-    $('#go-advanced').click(function(e) {
-        e.preventDefault();
-        $('#result-count').html('');
-        $.toggleOverlay(true);
-        $('#advanced-search').show();
-    });
-
-
-    $('#advanced-search').delegate('#statusId, #flag', 'change', function() {
-        switch($(this).children('option:selected').data('state')) {
-            case 'closed':
-                $('select#assignee')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#flag')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#staffId').removeAttr('disabled');
-                break;
-            case 'open':
-                $('select#staffId')
-                .attr('disabled','disabled')
-                .find('option:first')
-                .attr('selected', 'selected');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-                break;
-            default:
-                $('select#staffId').removeAttr('disabled');
-                $('select#assignee').removeAttr('disabled');
-                $('select#flag').removeAttr('disabled');
-        }
-    });
-
-    $('#advanced-search form#search').submit(function(e) {
-        e.preventDefault();
-        var fObj = $(this);
-        var elem = $('#advanced-search');
-        $('#result-count').html('');
-        fixupDatePickers.call(this);
-        $.ajax({
-                url: "ajax.php/tickets/search",
-                data: fObj.serialize(),
-                dataType: 'json',
-                beforeSend: function ( xhr ) {
-                   $('.buttons', elem).hide();
-                   $('.spinner', elem).show();
-                   return true;
-                },
-                success: function (resp) {
-
-                    if(resp.success) {
-                        $('#result-count').html('<div class="success">' + resp.success +'</div>');
-                    } else if (resp.fail) {
-                        $('#result-count').html('<div class="fail">' + resp.fail +'</div>');
-                    } else {
-                        $('#result-count').html('<div class="fail">Unknown error</div>');
-                    }
-                }
-            })
-            .done( function () {
-             })
-            .fail( function () {
-                $('#result-count').html('<div class="fail">'
-                    + __('Advanced search failed - try again!') + '</div>');
-            })
-            .always( function () {
-                $('.spinner', elem).hide();
-                $('.buttons', elem).show();
-             });
     });
 
    // Return a helper with preserved width of cells
@@ -437,13 +370,111 @@ var scp_prep = function() {
        'helper': fixHelper,
        'cursor': 'move',
        'stop': function(e, ui) {
-           var attr = ui.item.parent('tbody').data('sort');
+           var attr = ui.item.parent('tbody').data('sort'),
+               offset = parseInt($('#sort-offset').val(), 10) || 0;
            warnOnLeave(ui.item);
            $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
-               $(el).val(i+1);
+               $(el).val(i + 1 + offset);
            });
        }
    });
+
+    // Scroll to a stop or top on scroll-up click
+     $(document).off('click.scroll-up');
+     $(document).on('click.scroll-up', 'a.scroll-up', function() {
+        $stop = $(this).data('stop');
+        $('html, body').animate({scrollTop: ($stop ? $stop : 0)}, 'fast');
+        return false;
+      });
+
+
+   // Make translatable fields translatable
+   $('input[data-translate-tag]').translatable();
+
+   if (window.location.hash) {
+     $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
+   }
+
+   // Make sticky bars float on scroll
+   // Thanks, https://stackoverflow.com/a/17166225/1025836
+   $('div.sticky.bar:not(.stop)').each(function() {
+     var $that = $(this),
+         placeholder = $('<div class="sticky placeholder">').insertBefore($that),
+         offset = $that.offset(),
+         top = offset.top - parseFloat($that.css('marginTop').replace(/auto/, 100)),
+         stop = $('div.sticky.bar.stop').filter(':visible'),
+         stopAt,
+         visible = false;
+
+     // Append scroll-up icon and set stop point for this sticky
+     $('.content', $that)
+     .append($('<a class="only sticky scroll-up" href="#" data-stop='
+             + (placeholder.offset().top-75) +' ><i class="icon-chevron-up icon-large"></i></a>'));
+
+     if (stop.length) {
+       var onmove = function() {
+         // Recalc when pictures pop in
+         stopAt = stop.offset().top;
+       };
+       $('#ticket_thread .thread-body img').each(function() {
+         this.onload = onmove;
+       });
+       onmove();
+     }
+
+     // Drop the sticky bar on PJAX navigation
+     $(document).on('pjax:start', function() {
+         placeholder.removeAttr('style');
+         $that.stop().removeClass('fixed');
+         $(window).off('.sticky');
+     });
+
+     $that.find('.content').width($that.width());
+     $(window).on('scroll.sticky', function (event) {
+       // what the y position of the scroll is
+       var y = $(this).scrollTop();
+
+       // whether that's below the form
+       if (y >= top && (!stopAt || stopAt > y)) {
+         // if so, add the fixed class
+         if (!visible) {
+           visible = true;
+           setTimeout(function() {
+             $that.addClass('fixed').css('top', '-'+$that.height()+'px')
+                .animate({top:0}, {easing: 'swing', duration:'fast'});
+             placeholder.height($that.height());
+             $that.find('[data-dropdown]').dropdown('hide');
+           }, 1);
+         }
+       } else {
+         // otherwise remove it
+         if (visible) {
+           visible = false;
+           setTimeout(function() {
+             placeholder.removeAttr('style');
+             $that.find('[data-dropdown]').dropdown('hide');
+             $that.stop().removeClass('fixed');
+           }, 1);
+         }
+       }
+    });
+  });
+
+  $('div.tab_content[id] div.error:not(:empty)').each(function() {
+    var div = $(this).closest('.tab_content');
+    $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+  });
+
+  $('[data-toggle="tooltip"]').tooltip()
+
+  $('[data-toggle="tooltip"]').on('click', function() {
+        $(this).tooltip('hide');
+  });
+
+  $('.attached.input input[autofocus]').parent().addClass('focus')
+  $('.attached.input input')
+    .on('focus', function() { $(this).parent().addClass('focus'); })
+    .on('blur', function() { $(this).parent().removeClass('focus'); })
 };
 
 $(document).ready(scp_prep);
@@ -498,13 +529,20 @@ jQuery.fn.exists = function() { return this.length>0; };
 
 $.translate_format = function(str) {
     var translation = {
-        'd':'dd',
-        'j':'d',
-        'z':'o',
-        'm':'mm',
-        'F':'MM',
-        'n':'m',
-        'Y':'yy'
+        'DD':   'oo',
+        'D':    'o',
+        'EEEE': 'DD',
+        'EEE':  'D',
+        'MMMM': '||',   // Double replace necessary
+        'MMM':  '|',
+        'MM':   'mm',
+        'M':    'm',
+        '||':   'MM',
+        '|':    'M',
+        'yyyy': '`',
+        'yyy':  '`',
+        'yy':   'y',
+        '`':    'yy'
     };
     // Change PHP formats to datepicker ones
     $.each(translation, function(php, jqdp) {
@@ -524,6 +562,25 @@ $(document).keydown(function(e) {
     }
 });
 
+
+$(document).on('focus', 'form.spellcheck textarea, form.spellcheck input[type=text]', function() {
+  var $this = $(this);
+  if ($this.attr('lang') !== undefined)
+    return;
+  var lang = $(this).closest('[lang]').attr('lang');
+  if (lang)
+    $(this).attr({'spellcheck':'true', 'lang': lang});
+});
+
+$(document).on('click', '.thread-entry-group a', function() {
+    var inner = $(this).parent().find('.thread-entry-group-inner');
+    if (inner.is(':visible'))
+      inner.slideUp();
+    else
+      inner.slideDown();
+    return false;
+});
+
 $.toggleOverlay = function (show) {
   if (typeof(show) === 'undefined') {
     return $.toggleOverlay(!$('#overlay').is(':visible'));
@@ -537,7 +594,7 @@ $.toggleOverlay = function (show) {
     $('body').css('overflow', 'auto');
   }
 };
-
+//modal---------//
 $.dialog = function (url, codes, cb, options) {
     options = options||{};
 
@@ -546,28 +603,48 @@ $.dialog = function (url, codes, cb, options) {
 
     var $popup = $('.dialog#popup');
 
+    $popup.attr('class',
+        function(pos, classes) {
+            return classes.replace(/\bsize-\S+/g, '');
+    });
+
+    $popup.addClass(options.size ? ('size-'+options.size) : 'size-normal');
+
     $.toggleOverlay(true);
     $('div.body', $popup).empty().hide();
     $('div#popup-loading', $popup).show()
         .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
-    $popup.show();
-    $('div.body', $popup).load(url, function () {
+    $popup.resize().show();
+    $('div.body', $popup).load(url, options.data, function () {
         $('div#popup-loading', $popup).hide();
         $('div.body', $popup).slideDown({
             duration: 300,
             queue: false,
-            complete: function() { if (options.onshow) options.onshow(); }
+            complete: function() {
+                if (options.onshow) options.onshow();
+                $(this).removeAttr('style');
+            }
         });
+        $("input[autofocus]:visible:enabled:first", $popup).focus();
+        var submit_button = null;
         $(document).off('.dialog');
+        $(document).on('click.dialog',
+            '#popup input[type=submit], #popup button[type=submit]',
+            function(e) { submit_button = $(this); });
         $(document).on('submit.dialog', '.dialog#popup form', function(e) {
             e.preventDefault();
-            var $form = $(this);
+            var $form = $(this),
+                data = $form.serialize();
+            if (submit_button) {
+                data += '&' + escape(submit_button.attr('name')) + '='
+                    + escape(submit_button.attr('value'));
+            }
             $('div#popup-loading', $popup).show()
                 .find('h1').css({'margin-top':function() { return $popup.height()/3-$(this).height()/3}});
             $.ajax({
                 type:  $form.attr('method'),
                 url: 'ajax.php/'+$form.attr('action').substr(1),
-                data: $form.serialize(),
+                data: data,
                 cache: false,
                 success: function(resp, status, xhr) {
                     if (xhr && xhr.status && codes
@@ -581,9 +658,18 @@ $.dialog = function (url, codes, cb, options) {
                         var done = $.Event('dialog:close');
                         $popup.trigger(done, [resp, status, xhr]);
                     } else {
+                        try {
+                            var json = $.parseJSON(resp);
+                            if (json.redirect) return window.location.href = json.redirect;
+                        }
+                        catch (e) { }
                         $('div.body', $popup).html(resp);
                         $popup.effect('shake');
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
+                        $('div.tab_content[id] div.error:not(:empty)', $popup).each(function() {
+                          var div = $(this).closest('.tab_content');
+                          $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+                        });
                     }
                 }
             })
@@ -596,6 +682,25 @@ $.dialog = function (url, codes, cb, options) {
      });
     if (options.onload) { options.onload(); }
  };
+$(document).on('click', 'a[data-dialog]', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var link = $(this);
+    $.dialog($(this).data('dialog'), 201, function(xhr, json) {
+      try {
+        json = JSON.parse(json);
+      } catch (e) {}
+      if (link.attr('href').length > 1) {
+        // Replace {xx} expressions with data from JSON
+        if (typeof json === 'object')
+            link.attr('href',
+              link.attr('href').replace(/\{([^}]+)\}/, function($0, $1) { return json[$1]; }));
+        $.pjax.click(event, '#pjax-container');
+      }
+      else $.pjax.reload('#pjax-container');
+    });
+    return false;
+});
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
@@ -603,14 +708,17 @@ $.sysAlert = function (title, msg, cb) {
         $.toggleOverlay(true);
         $('#title', $dialog).html(title);
         $('#body', $dialog).html(msg);
-        $dialog.show();
+        $dialog.resize().show();
+        if (cb)
+            $dialog.find('input.ok.close').click(cb);
     } else {
         alert(msg);
     }
 };
 
-$.confirm = function(message, title) {
+$.confirm = function(message, title, options) {
     title = title || __('Please Confirm');
+    options = options || {};
     var D = $.Deferred(),
       $popup = $('.dialog#popup'),
       hide = function() {
@@ -618,7 +726,7 @@ $.confirm = function(message, title) {
           $popup.hide();
       };
       $('div#popup-loading', $popup).hide();
-      $('div.body', $popup).empty()
+      var body = $('div.body', $popup).empty()
         .append($('<h3></h3>').text(title))
         .append($('<a class="close" href="#"><i class="icon-remove-circle"></i></a>'))
         .append($('<hr/>'))
@@ -626,7 +734,20 @@ $.confirm = function(message, title) {
             .text(message)
         ).append($('<div></div>')
             .append($('<b>').text(__('Please confirm to continue.')))
-        ).append($('<hr style="margin-top:1em"/>'))
+        );
+
+      if (Object.keys(options).length)
+          body.append('<hr>');
+      $.each(options, function(k, v) {
+        body.append($('<div>')
+          .html('&nbsp;'+v)
+          .prepend($('<input type="checkbox">')
+            .attr('name', k)
+          )
+        );
+      });
+
+      body.append($('<hr style="margin-top:1em"/>'))
         .append($('<p class="full-width"></p>')
             .append($('<span class="buttons pull-left"></span>')
                 .append($('<input type="button" class="close"/>')
@@ -635,10 +756,10 @@ $.confirm = function(message, title) {
             )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
-                    .click(function() {  hide(); D.resolve(); })
+                    .click(function() {  hide(); D.resolve(body.find('input').serializeArray()); })
         ))).append($('<div class="clear"></div>'));
     $.toggleOverlay(true);
-    $popup.show();
+    $popup.resize().show();
     return D.promise();
 };
 
@@ -662,16 +783,202 @@ $.orgLookup = function (url, cb) {
 
 $.uid = 1;
 
-//Tabs
-$(document).on('click.tab', 'ul.tabs li a', function(e) {
++function($) {
+  var MessageBar = function() {
+    this.defaults = {
+      avatar: 'oscar-boy',
+      bar: '<div class="message bar"></div>',
+      button: '<button type="button" class="inline button"></button>',
+      buttonClass: '',
+      buttonText: __('OK'),
+      classes: '',
+      dismissible: true,
+      html: false,
+      onok: null,
+      position: 'top',
+    };
+
+    this.show = function(title, message, options) {
+      this.hide();
+      options = $.extend({}, this.defaults, options);
+      var bar = this.bar = $(options.bar).addClass(options.classes)
+        .append($('<div class="title"></div>').html(title))
+        .append($('<div class="body"></div>').html(message))
+        .addClass(options.position);
+      if (options.avatar)
+        bar.prepend($('<div class="avatar pull-left" title="Oscar"></div>')
+            .addClass(options.avatar));
+
+      if (options.onok || options.dismissible) {
+        bar
+          .prepend($('<div><div class="valign-helper"></div></div>')
+            // FIXME: This is not compatible with .rtl
+            .css({position: 'absolute', top: 0, bottom: 0, right: 0, margin: '0 15px'})
+            .append($(options.button)
+              .text(options.buttonText)
+              .click(this.dismiss.bind(this))
+              .addClass(options.buttonClass)
+            )
+          );
+      }
+      this.visible = true;
+      this.options = options;
+
+      $('body').append(bar);
+      this.height = bar.height();
+
+      // Slight slide in
+      if (options.position == 'bottom') {
+        bar.css('bottom', -this.height/2).animate({'bottom': 0});
+      }
+      // Otherwise assume TOP positioning
+      else {
+        var hovering = false,
+            y = $(window).scrollTop(),
+            targetY = (y < this.height) ? -this.height - 10 + y : 0;
+        bar.css('top', -this.height/2).animate({'top': targetY});
+
+        // Plop out on mouse hover
+        bar.hover(function() {
+          if (!hovering && this.visible && bar.css('top') != '0') {
+            bar.stop().animate({'margin-top': -parseInt(bar.css('top'), 10)}, 400, 'easeOutBounce');
+            hovering = true;
+          }
+        }.bind(this), function() {
+          if (this.visible && hovering) {
+            bar.stop().animate({'margin-top': 0});
+            hovering = false;
+          }
+        }.bind(this));
+      }
+
+      return bar;
+    };
+
+    this.scroll = function(event) {
+      // Shade on scroll to top
+      if (!this.visible || this.options.position != 'top')
+        return;
+      var y = $(window).scrollTop();
+      if (y < this.height) {
+        this.bar.css({top: -this.height -10 + y});
+        this.shading = true;
+      }
+      else if (this.bar.css('top') != '0') {
+        if (this.shading) {
+          this.bar.stop().animate({top: 0});
+          this.shading = false;
+        }
+      }
+    };
+
+    this.dismiss = function(event) {
+      if (this.options.onok) {
+        this.bar.find('button').replaceWith(
+          $('<i class="icon-spinner icon-spin icon-large"></i>')
+        );
+        if (this.options.onok(event) === false)
+          return;
+      }
+      this.hide();
+    };
+
+    this.hide = function() {
+      if (!this.bar || !this.visible)
+        return;
+      var bar = this.bar.removeAttr('style');
+      var dir = this.options.position == 'bottom' ? 'down' : 'up';
+      // NOTE: destroy() is not called here because a new bar might be
+      //       created before the animation finishes
+      bar.hide("slide", { direction: dir }, 400, function() { bar.remove(); });
+      this.visible = false;
+    };
+
+    this.destroy = function() {
+      if (!this.bar || !this.visible)
+        return;
+      this.bar.remove();
+      this.visible = false;
+    };
+
+    // Destroy on away navigation
+    $(document).on('pjax:start.messageBar', this.destroy.bind(this));
+    $(window).on('scroll.messageBar', this.scroll.bind(this));
+  };
+
+  $.messageBar = new MessageBar();
+}(window.jQuery);
+
+// Tabs
+$(document).on('click.tab', 'ul.tabs > li > a', function(e) {
     e.preventDefault();
-    if ($('.tab_content'+$(this).attr('href')).length) {
-        var ul = $(this).closest('ul');
-        $('ul.tabs li a', ul.parent()).removeClass('active');
-        $(this).addClass('active');
-        $('.tab_content', ul.parent()).hide();
-        $('.tab_content'+$(this).attr('href')).show();
+    var $this = $(this),
+        $ul = $(this).closest('ul'),
+        $container = $('#'+$ul.attr('id')+'_container');
+    if (!$container.length)
+        $container = $ul.parent();
+
+    var $tab = $($this.attr('href'), $container);
+    if (!$tab.length && $(this).data('url').length > 1) {
+        var url = $this.data('url');
+        if (url.charAt(0) == '#')
+            url = 'ajax.php/' + url.substr(1);
+        $tab = $('<div>')
+            .addClass('tab_content')
+            .attr('id', $this.attr('href').substr(1)).hide();
+        $container.append(
+            $tab.load(url, function () {
+                // TODO: Add / hide loading spinner
+            })
+         );
+        $this.removeData('url');
     }
+    else {
+        $tab.addClass('tab_content');
+        // Don't change the URL hash for nested tabs or in dialogs
+        if ($(this).closest('.tab_content, .dialog').length == 0)
+            $.changeHash($(this).attr('href'), true);
+    }
+
+    if ($tab.length) {
+        $ul.children('li.active').removeClass('active');
+        $(this).closest('li').addClass('active');
+        $container.children('.tab_content').hide();
+        $tab.fadeIn('fast');
+        return false;
+    }
+
+});
+$.changeHash = function(hash, quiet) {
+  if (quiet) {
+    hash = hash.replace( /^#/, '' );
+    var fx, node = $( '#' + hash );
+    if ( node.length ) {
+      node.attr( 'id', '' );
+      fx = $( '<div></div>' )
+              .css({
+                  position:'absolute',
+                  visibility:'hidden',
+                  top: $(document).scrollTop() + 'px'
+              })
+              .attr( 'id', hash )
+              .appendTo( document.body );
+    }
+    document.location.hash = hash;
+    if ( node.length ) {
+      fx.remove();
+      node.attr( 'id', hash );
+    }
+  }
+  else {
+    document.location.hash = hash;
+  }
+};
+
+// Forms — submit, stay on same tab
+$(document).on('submit', 'form', function() {
+    if (!!$(this).attr('action') && $(this).attr('action').indexOf('#') == -1)
+        $(this).attr('action', $(this).attr('action') + window.location.hash);
 });
 
 //Collaborators
@@ -691,37 +998,22 @@ $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
 // NOTE: getConfig should be global
 getConfig = (function() {
     var dfd = $.Deferred(),
-        requested = null;
+        requested = false;
     return function() {
-        if (dfd.state() != 'resolved' && !requested)
-            requested = $.ajax({
-                url: "ajax.php/config/scp",
-                dataType: 'json',
-                success: function (json_config) {
-                    dfd.resolve(json_config);
-                },
-                error: function() {
-                    requested = null;
-                }
-            });
         return dfd;
-    }
+    };
 })();
 
 $(document).on('pjax:click', function(options) {
-    clearTimeout(window.ticket_refresh);
-    // Release ticket lock (maybe)
-    if ($.autoLock !== undefined)
-        $.autoLock.releaseLock();
     // Stop all animations
     $(document).stop(false, true);
 
     // Remove tips and clear any pending timer
-    $('.tip, .help-tips, .userPreview, .ticketPreview, .previewfaq').each(function() {
+    $('.tip, .help-tips, .previewfaq, .preview').each(function() {
         if ($(this).data('timer'))
             clearTimeout($(this).data('timer'));
     });
-    $('.tip_box').remove();
+    $('.tip_box, .typeahead.dropdown-menu').remove();
 });
 
 $(document).on('pjax:start', function() {
@@ -759,8 +1051,50 @@ $(document).on('pjax:complete', function() {
     $('#overlay').removeAttr('style');
 });
 
+// Enable PJAX for the staff interface
+if ($.support.pjax) {
+  $(document).on('click', 'a', function(event) {
+    var $this = $(this);
+    if (!$this.hasClass('no-pjax')
+        && !$this.closest('.no-pjax').length
+        && $this.attr('href').charAt(0) != '#')
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 2000});
+  })
+}
+
+$(document).on('click', '.link:not(a):not(.button)', function(event) {
+  var $e = $(event.currentTarget);
+  $('<a>').attr({href: $e.attr('href'), 'class': $e.attr('class')})
+    .hide()
+    .insertBefore($e)
+    .get(0).click(event);
+});
+
+// Quick-Add dialogs
+$(document).on('change', 'select[data-quick-add]', function() {
+    var $select = $(this),
+        selected = $select.find('option:selected'),
+        type = selected.parent().closest('[data-quick-add]').data('quickAdd');
+    if (!type || (selected.data('quickAdd') === undefined && selected.val() !== ':new:'))
+        return;
+    $.dialog('ajax.php/admin/quick-add/' + type, 201,
+    function(xhr, data) {
+        data = JSON.parse(data);
+        if (data && data.id && data.name) {
+          var id = data.id;
+          if (selected.data('idPrefix'))
+            id = selected.data('idPrefix') + id;
+          $('<option>')
+            .attr('value', id)
+            .text(data.name)
+            .insertBefore(selected)
+          $select.val(id);
+        }
+    });
+});
+
 // Quick note interface
-$('.quicknote .action.edit-note').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.edit-note', function() {
     var note = $(this).closest('.quicknote'),
         body = note.find('.body'),
         T = $('<textarea>').text(body.html());
@@ -768,19 +1102,19 @@ $('.quicknote .action.edit-note').live('click.note', function() {
         T.addClass('no-bar small');
     body.replaceWith(T);
     $.redact(T);
-    $(T).redactor('focus');
+    $(T).redactor('focus.setStart');
     note.find('.action.edit-note').hide();
     note.find('.action.save-note').show();
     note.find('.action.cancel-edit').show();
     $('#new-note-box').hide();
     return false;
 });
-$('.quicknote .action.cancel-edit').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.cancel-edit', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea'),
         body = $('<div class="body">');
     body.load('ajax.php/note/' + note.data('id'), function() {
-      try { T.redactor('destroy'); } catch (e) {}
+      try { T.redactor('core.destroy'); } catch (e) {}
       T.replaceWith(body);
       note.find('.action.save-note').hide();
       note.find('.action.cancel-edit').hide();
@@ -789,14 +1123,14 @@ $('.quicknote .action.cancel-edit').live('click.note', function() {
     });
     return false;
 });
-$('.quicknote .action.save-note').live('click.note', function() {
+$(document).on('click.note', '.quicknote .action.save-note', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea');
     $.post('ajax.php/note/' + note.data('id'),
-      { note: T.redactor('get') },
+      { note: T.redactor('code.get') },
       function(html) {
         var body = $('<div class="body">').html(html);
-        try { T.redactor('destroy'); } catch (e) {}
+        try { T.redactor('core.destroy'); } catch (e) {}
         T.replaceWith(body);
         note.find('.action.save-note').hide();
         note.find('.action.cancel-edit').hide();
@@ -807,7 +1141,7 @@ $('.quicknote .action.save-note').live('click.note', function() {
     );
     return false;
 });
-$('.quicknote .delete').live('click.note', function() {
+$(document).on('click.note', '.quicknote .delete', function() {
   var that = $(this),
       id = $(this).closest('.quicknote').data('id');
   $.ajax('ajax.php/note/' + id, {
@@ -821,15 +1155,15 @@ $('.quicknote .delete').live('click.note', function() {
   });
   return false;
 });
-$('#new-note').live('click', function() {
+$(document).on('click', '#new-note', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
     button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
-        { note: T.redactor('get'), no_options: note.hasClass('no-options') },
+        { note: T.redactor('code.get'), no_options: note.hasClass('no-options') },
         function(response) {
-          $(T).redactor('destroy').replaceWith(note);
+          $(T).redactor('core.destroy').replaceWith(note);
           $(response).show('highlight').insertBefore(note.parent());
           $('.submit', note.parent()).remove();
         },
@@ -842,7 +1176,7 @@ $('#new-note').live('click', function() {
     $('<p>').addClass('submit').css('text-align', 'center')
         .append(button).appendTo(T.parent());
     $.redact(T);
-    $(T).redactor('focus');
+    $(T).redactor('focus.setStart');
     return false;
 });
 
@@ -851,3 +1185,44 @@ function __(s) {
     return $.oststrings[s];
   return s;
 }
+
+// Thanks, http://stackoverflow.com/a/487049
+function addSearchParam(data) {
+    var kvp = document.location.search.substr(1).replace('+', ' ').split('&');
+    var i=kvp.length, x, params = {};
+    while (i--) {
+        x = kvp[i].split('=');
+        params[decodeURIComponent(x[0])] = decodeURIComponent(x[1]);
+    }
+
+    //this will reload the page, it's likely better to store this until finished
+    return $.param($.extend(params, data));
+}
+
+// Periodically adjust relative times
+window.relativeAdjust = setInterval(function() {
+  // Thanks, http://stackoverflow.com/a/7641822/1025836
+  var prettyDate = function(time) {
+    var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
+        diff = (((new Date()).getTime() - date.getTime()) / 1000),
+        day_diff = Math.floor(diff / 86400);
+
+    if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) return;
+
+    return day_diff == 0 && (
+         diff < 60 && __("just now")
+      || diff < 120 && __("about a minute ago")
+      || diff < 3600 && __("%d minutes ago").replace('%d', Math.floor(diff/60))
+      || diff < 7200 && __("about an hour ago")
+      || diff < 86400 &&  __("%d hours ago").replace('%d', Math.floor(diff/3600))
+    )
+    || day_diff == 1 && __("yesterday")
+    || day_diff < 7 && __("%d days ago").replace('%d', day_diff);
+    // Longer dates don't need to change dynamically
+  };
+  $('time.relative[datetime]').each(function() {
+    var rel = prettyDate($(this).attr('datetime'));
+    if (rel) $(this).text(rel);
+  });
+}, 20000);
+

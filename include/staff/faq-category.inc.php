@@ -2,46 +2,62 @@
 if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 
 ?>
-<div class="pull-left" style="width:700px;padding-top:10px;">
+<div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
+<div class="pull-left">
   <h2><?php echo __('Frequently Asked Questions');?></h2>
 </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">&nbsp;</div>
-<div class="clear"></div>
-<br>
-<div>
-    <strong><?php echo $category->getName() ?></strong>
-    <span>(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
-    <time> <?php echo __('Last updated').' '. Format::db_daydatetime($category->getUpdateDate()); ?></time>
-</div>
-<div class="cat-desc">
-<?php echo Format::display($category->getDescription()); ?>
-</div>
-<?php
-if($thisstaff->canManageFAQ()) {
-    echo sprintf('<div class="cat-manage-bar"><a href="categories.php?id=%d" class="Icon editCategory">'.__('Edit Category').'</a>
-             <a href="categories.php" class="Icon deleteCategory">'.__('Delete Category').'</a>
-             <a href="faq.php?cid=%d&a=add" class="Icon newFAQ">'.__('Add New FAQ').'</a></div>',
-            $category->getId(),
-            $category->getId());
+<?php if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
+echo sprintf('<div class="pull-right flush-right">
+    <a class="green action-button" href="faq.php?cid=%d&a=add">'.__('Add New FAQ').'</a>
+    <span class="action-button" data-dropdown="#action-dropdown-more"
+          style="/*DELME*/ vertical-align:top; margin-bottom:0">
+        <i class="icon-caret-down pull-right"></i>
+        <span ><i class="icon-cog"></i>'. __('More').'</span>
+    </span>
+    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+        <ul>
+            <li><a class="user-action" href="categories.php?id=%d">
+                <i class="icon-pencil icon-fixed-width"></i>'
+                .__('Edit Category').'</a>
+            </li>
+            <li class="danger">
+                <a class="user-action" href="categories.php">
+                    <i class="icon-trash icon-fixed-width"></i>'
+                    .__('Delete Category').'</a>
+            </li>
+        </ul>
+    </div>
+</div>', $category->getId(), $category->getId());
 } else {
-?>
-<hr>
-<?php
-}
+?><?php
+} ?>
+    <div class="clear"></div>
 
-$sql='SELECT faq.faq_id, question, ispublished, count(attach.file_id) as attachments '
-    .' FROM '.FAQ_TABLE.' faq '
-    .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-         ON(attach.object_id=faq.faq_id AND attach.type=\'F\' AND attach.inline = 0) '
-    .' WHERE faq.category_id='.db_input($category->getId())
-    .' GROUP BY faq.faq_id ORDER BY question';
-if(($res=db_query($sql)) && db_num_rows($res)) {
+</div>
+<div class="faq-category">
+    <div style="margin-bottom:10px;">
+        <div class="faq-title pull-left"><?php echo $category->getName() ?></div>
+        <div class="faq-status inline">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</div>
+        <div class="clear"><time class="faq"> <?php echo __('Last updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time></div>
+    </div>
+    <div class="cat-desc has_bottom_border">
+    <?php echo Format::display($category->getDescription()); ?>
+</div>
+<?php
+
+
+$faqs = $category->faqs
+    ->constrain(array('attachments__inline' => 0))
+    ->annotate(array('attachments' => SqlAggregate::COUNT('attachments')));
+if ($faqs->exists(true)) {
     echo '<div id="faq">
             <ol>';
-    while($row=db_fetch_array($res)) {
+    foreach ($faqs as $faq) {
         echo sprintf('
-            <li><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a></li>',
-            $row['faq_id'],$row['question'],$row['ispublished']?__('Published'):__('Internal'));
+            <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
+            $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
+            $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
+        );
     }
     echo '  </ol>
          </div>';
@@ -49,3 +65,4 @@ if(($res=db_query($sql)) && db_num_rows($res)) {
     echo '<strong>'.__('Category does not have FAQs').'</strong>';
 }
 ?>
+</div>

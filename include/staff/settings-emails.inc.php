@@ -2,14 +2,13 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 ?>
 <h2><?php echo __('Email Settings and Options');?></h2>
-<form action="settings.php?t=emails" method="post" id="save">
+<form action="emailsettings.php" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="emails" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Email Settings');?></h4>
                 <em><?php echo __('Note that some of the global settings can be overwridden at department/email level.');?></em>
             </th>
         </tr>
@@ -172,7 +171,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>

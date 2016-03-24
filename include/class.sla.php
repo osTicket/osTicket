@@ -3,7 +3,6 @@
     class.sla.php
 
     SLA
-
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
     http://www.osticket.com
@@ -14,76 +13,60 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class SLA {
+class SLA extends VerySimpleModel
+implements TemplateVariable {
 
-    var $id;
+    static $meta = array(
+        'table' => SLA_TABLE,
+        'pk' => array('id'),
+    );
 
-    var $info;
-    var $config;
+    const FLAG_ACTIVE       = 0x0001;
+    const FLAG_ESCALATE     = 0x0002;
+    const FLAG_NOALERTS     = 0x0004;
+    const FLAG_TRANSIENT    = 0x0008;
 
-    function SLA($id) {
-        $this->id=0;
-        $this->load($id);
-    }
-
-    function load($id=0) {
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT * FROM '.SLA_TABLE.' WHERE id='.db_input($id);
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['id'];
-        return true;
-    }
-
-    function reload() {
-        return $this->load();
-    }
+    var $_config;
 
     function getId() {
         return $this->id;
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->getLocal('name');
     }
 
     function getGracePeriod() {
-        return $this->ht['grace_period'];
-    }
-
-    function getNotes() {
-        return $this->ht['notes'];
-    }
-
-    function getHashtable() {
-        return array_merge($this->getConfig()->getInfo(), $this->ht);
+        return $this->grace_period;
     }
 
     function getInfo() {
-        return $this->getHashtable();
+        $base = $this->ht;
+        $base['isactive'] = $this->flags & self::FLAG_ACTIVE;
+        $base['disable_overdue_alerts'] = $this->flags & self::FLAG_NOALERTS;
+        $base['enable_priority_escalation'] = $this->flags & self::FLAG_ESCALATE;
+        $base['transient'] = $this->flags & self::FLAG_TRANSIENT;
+        return $base;
     }
 
-    function getConfig() {
-        if (!isset($this->config))
-            $this->config = new SlaConfig($this->getId());
-        return $this->config;
+    function getCreateDate() {
+        return $this->created;
+    }
+
+    function getUpdateDate() {
+        return $this->updated;
     }
 
     function isActive() {
-        return ($this->ht['isactive']);
+        return $this->flags & self::FLAG_ACTIVE;
     }
 
     function isTransient() {
-        return $this->getConfig()->get('transient', false);
+        return $this->flags & self::FLAG_TRANSIENT;
     }
 
     function sendAlerts() {
-        return (!$this->ht['disable_overdue_alerts']);
+        return 0 === ($this->flags & self::FLAG_NOALERTS);
     }
 
     function alertOnOverdue() {
@@ -91,18 +74,80 @@ class SLA {
     }
 
     function priorityEscalation() {
-        return ($this->ht['enable_priority_escalation']);
+        return $this->flags && self::FLAG_ESCALATE;
     }
 
-    function update($vars,&$errors) {
+    function getTranslateTag($subtag) {
+        return _H(sprintf('sla.%s.%s', $subtag, $this->getId()));
+    }
 
-        if(!SLA::save($this->getId(),$vars,$errors))
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+
+    static function getLocalById($id, $subtag, $default) {
+        $tag = _H(sprintf('sla.%s.%s', $subtag, $id));
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $default;
+    }
+
+    // TemplateVariable interface
+    function asVar() {
+        return $this->getName();
+    }
+
+    static function getVarScope() {
+        return array(
+            'name' => __('SLA Plan'),
+            'graceperiod' => __("Grace Period (hrs)"),
+        );
+    }
+
+    function update($vars, &$errors) {
+
+        if (!$vars['grace_period'])
+            $errors['grace_period'] = __('Grace period required');
+        elseif (!is_numeric($vars['grace_period']))
+            $errors['grace_period'] = __('Numeric value required (in hours)');
+
+        if (!$vars['name'])
+            $errors['name'] = __('Name is required');
+        elseif (($sid=SLA::getIdByName($vars['name'])) && $sid!=$vars['id'])
+            $errors['name'] = __('Name already exists');
+
+        if ($errors)
             return false;
 
-        $this->reload();
-        $this->getConfig()->set('transient', isset($vars['transient']) ? 1 : 0);
+        $this->name = $vars['name'];
+        $this->grace_period = $vars['grace_period'];
+        $this->notes = Format::sanitize($vars['notes']);
+        $this->flags =
+              ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
+            | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
+            | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
+            | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
 
-        return true;
+        if ($this->save())
+            return true;
+
+        if (isset($this->id)) {
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
+        } else {
+            $errors['err']=sprintf(__('Unable to add %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
+        }
+
+        return false;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+
+        return parent::save($refetch || $this->dirty);
     }
 
     function delete() {
@@ -111,6 +156,7 @@ class SLA {
         if(!$cfg || $cfg->getDefaultSLAId()==$this->getId())
             return false;
 
+        //TODO: Use ORM to delete & update
         $id=$this->getId();
         $sql='DELETE FROM '.SLA_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
@@ -123,95 +169,49 @@ class SLA {
     }
 
     /** static functions **/
-    function create($vars,&$errors) {
-        if (($id = SLA::save(0,$vars,$errors)) && ($sla = self::lookup($id)))
-            $sla->getConfig()->set('transient',
-                isset($vars['transient']) ? 1 : 0);
-        return $id;
-    }
+    static function getSLAs($criteria=array()) {
 
-    function getSLAs() {
+       $slas = self::objects()
+           ->order_by('name')
+           ->values_flat('id', 'name', 'flags', 'grace_period');
 
-        $slas=array();
-
-        $sql='SELECT id, name, isactive, grace_period FROM '.SLA_TABLE.' ORDER BY name';
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while($row=db_fetch_array($res))
-                $slas[$row['id']] = sprintf(__('%s (%d hours - %s)'
+        $entries = array();
+        foreach ($slas as $row) {
+            $row[2] = $row[2] & self::FLAG_ACTIVE;
+            $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
                         /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
-                        $row['name'],
-                        $row['grace_period'],
-                        $row['isactive']?__('Active'):__('Disabled'));
+                        self::getLocalById($row[0], 'name', $row[1]),
+                        $row[3],
+                        $row[2] ? __('Active') : __('Disabled'));
         }
 
-        return $slas;
+        return $entries;
     }
 
-
-    function getIdByName($name) {
-
-        $sql='SELECT id FROM '.SLA_TABLE.' WHERE name='.db_input($name);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
-
-        return $id;
+    static function getSLAName($id) {
+        $slas = static::getSLAs();
+        return @$slas[$id];
     }
 
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($sla= new SLA($id)) && $sla->getId()==$id)?$sla:null;
+    static function getIdByName($name) {
+        $row = static::objects()
+            ->filter(array('name'=>$name))
+            ->values_flat('id')
+            ->first();
+
+        return $row ? $row[0] : 0;
     }
 
-    function save($id,$vars,&$errors) {
-
-        if(!$vars['grace_period'])
-            $errors['grace_period']=__('Grace period required');
-        elseif(!is_numeric($vars['grace_period']))
-            $errors['grace_period']=__('Numeric value required (in hours)');
-
-        if(!$vars['name'])
-            $errors['name']=__('Name is required');
-        elseif(($sid=SLA::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name']=__('Name already exists');
-
-        if($errors) return false;
-
-        $sql=' updated=NOW() '.
-             ',isactive='.db_input($vars['isactive']).
-             ',name='.db_input($vars['name']).
-             ',grace_period='.db_input($vars['grace_period']).
-             ',disable_overdue_alerts='.db_input(isset($vars['disable_overdue_alerts'])?1:0).
-             ',enable_priority_escalation='.db_input(isset($vars['enable_priority_escalation'])?1:0).
-             ',notes='.db_input(Format::sanitize($vars['notes']));
-
-        if($id) {
-            $sql='UPDATE '.SLA_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
-            if(db_query($sql))
-                return true;
-
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
-               .' '.__('Internal error occurred');
-        }else{
-            if (isset($vars['id']))
-                $sql .= ', id='.db_input($vars['id']);
-
-            $sql='INSERT INTO '.SLA_TABLE.' SET '.$sql.',created=NOW() ';
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-
-            $errors['err']=sprintf(__('Unable to add %s.'), __('this SLA plan'))
-               .' '.__('Internal error occurred');
-        }
-
-        return false;
+    static function create($vars=false, &$errors=array()) {
+        $sla = new static($vars);
+        $sla->created = SqlFunction::NOW();
+        return $sla;
     }
-}
 
-require_once(INCLUDE_DIR.'class.config.php');
-class SlaConfig extends Config {
-    var $table = CONFIG_TABLE;
-
-    function SlaConfig($id) {
-        parent::Config("sla.$id");
+    static function __create($vars, &$errors=array()) {
+        $sla = self::create($vars);
+        $sla->save();
+        return $sla;
     }
 }
 ?>

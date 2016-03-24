@@ -11,6 +11,7 @@ class mysqli {
     function select_db() {}
     function set_charset() {}
     function autocommit() {}
+    function rollback() {}
 }
 
 class mysqli_stmt {
@@ -30,11 +31,13 @@ class mysqli_stmt {
 class mysqli_result {
     function free() {}
     function free_result() {}
+    function fetch_fields() {}
 }
 
 class ReflectionClass {
     function getMethods() {}
     function getConstants() {}
+    function newInstanceArgs() {}
 }
 
 class DomNode {
@@ -124,6 +127,47 @@ class IntlBreakIterator {
 
 class SqlFunction {
     static function NOW() {}
+    static function LENGTH() {}
+    static function COALESCE() {}
+    static function DATEDIFF() {}
+}
+
+class SqlExpression {
+    static function plus() {}
+    static function times() {}
+    static function bitor() {}
+    static function bitand() {}
+}
+
+class SqlInterval {
+    static function MINUTE() {}
+    static function DAY() {}
+}
+
+class SqlAggregate {
+    static function COUNT() {}
+}
+
+class Q {
+    static function ANY() {}
+}
+
+class IntlDateFormatter {
+    function setPattern() {}
+    function getPattern() {}
+    function parse() {}
+}
+
+class ResourceBundle {
+    function getLocales() {}
+}
+
+class NumberFormatter {
+    function getSymbol() {}
+}
+
+class Collator {
+    function setStrength() {}
 }
 
 class Aws_Route53_Client {

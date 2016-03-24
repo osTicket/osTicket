@@ -1,51 +1,67 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
+if (!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
-$sql='SELECT topic.* '
-    .', dept.dept_name as department '
-    .', priority_desc as priority '
-    .' FROM '.TOPIC_TABLE.' topic '
-    .' LEFT JOIN '.DEPT_TABLE.' dept ON (dept.dept_id=topic.dept_id) '
-    .' LEFT JOIN '.TICKET_PRIORITY_TABLE.' pri ON (pri.priority_id=topic.priority_id) ';
-$sql.=' WHERE 1';
-$order_by = ($cfg->getTopicSortMode() == 'm' ? '`sort`' : '`topic_id`');
 
-$page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-//Ok..lets roll...create the actual query
-$query="$sql ORDER BY $order_by";
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
-    $showing=sprintf(_N('Showing %d help topic', 'Showing %d help topics', $num), $num);
-else
-    $showing=__('No help topics found!');
+$page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
+$count = Topic::objects()->count();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav->setURL('helptopics.php', $_qstr);
+$showing = $pageNav->showing().' '._N('help topic', 'help topics', $count);
 
-// Get the full names and filter for this page
-$topics = array();
-while ($row = db_fetch_array($res))
-    $topics[] = $row;
-
-foreach ($topics as &$t)
-    $t['name'] = Topic::getTopicName($t['topic_id']);
-
-if ($cfg->getTopicSortMode() == 'a')
-    usort($topics, function($a, $b) { return strcasecmp($a['name'], $b['name']); });
+$order_by = 'sort';
 
 ?>
-<div class="pull-left" style="width:700px;padding-top:5px;">
- <h2><?php echo __('Help Topics');?></h2>
- </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <b><a href="helptopics.php?a=add" class="Icon newHelpTopic"><?php echo __('Add New Help Topic');?></a></b></div>
-<div class="clear"></div>
 <form action="helptopics.php" method="POST" name="topics">
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('Help Topics');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <?php if ($cfg->getTopicSortMode() != 'a') { ?>
+                <button class="button no-confirm" type="submit" name="sort"><i class="icon-save"></i>
+                <?php echo __('Save'); ?></button>
+                <?php } ?>
+                <a href="helptopics.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Help Topic');?></a>
+                <span class="action-button" data-dropdown="#action-dropdown-more">
+           <i class="icon-caret-down pull-right"></i>
+            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                </span>
+                <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                    <ul id="actions">
+                        <li>
+                            <a class="confirm" data-name="enable" href="helptopics.php?a=enable">
+                                <i class="icon-ok-sign icon-fixed-width"></i>
+                                <?php echo __( 'Enable'); ?>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="confirm" data-name="disable" href="helptopics.php?a=disable">
+                                <i class="icon-ban-circle icon-fixed-width"></i>
+                                <?php echo __( 'Disable'); ?>
+                            </a>
+                        </li>
+                        <li class="danger">
+                            <a class="confirm" data-name="delete" href="helptopics.php?a=delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __( 'Delete'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><span class="pull-left" style="display:inline-block;vertical-align:middle"><?php
-         echo $showing; ?></span>
-         <div class="pull-right"><?php echo __('Sorting Mode'); ?>:
-        <select name="help_topic_sort_mode" onchange="javascript:
+
+    <thead>
+<tr><td colspan="7">
+    <div style="padding:3px" class="pull-right"><?php echo __('Sorting Mode'); ?>:
+    <select name="help_topic_sort_mode" onchange="javascript:
     var $form = $(this).closest('form');
     $form.find('input[name=a]').val('sort');
     $form.submit();
@@ -55,67 +71,90 @@ if ($cfg->getTopicSortMode() == 'a')
         $i, $i == $cfg->getTopicSortMode() ? ' selected="selected"' : '', $m); ?>
         </select>
     </div>
-    </caption>
-    <thead>
+</td></tr>
         <tr>
-            <th width="7" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="360"><?php echo __('Help Topic'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="80"><?php echo __('Status'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Type'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="100"><?php echo __('Priority'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="160"><?php echo __('Department'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="150" nowrap><?php echo __('Last Updated'); ?></th>
+            <th width="4%" style="height:20px;">&nbsp;</th>
+            <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Type'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Priority'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="14%"><?php echo __('Department'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="20%" nowrap><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
         data-sort="sort-">
     <?php
-        $total=0;
-        $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if (count($topics)):
+        $ids= ($errors && is_array($_POST['ids'])) ? $_POST['ids'] : null;
+        if ($count) {
+            $topics = Topic::objects()
+                ->order_by(sprintf('%s%s',
+                            strcasecmp($order, 'DESC') ? '' : '-',
+                            $order_by))
+                ->limit($pageNav->getLimit())
+                ->offset($pageNav->getStart());
+
+            $T = $topics;
+            $names = $topics = array();
+            foreach ($T as $topic) {
+                $names[$topic->getId()] = $topic->getFullName();
+                $topics[$topic->getId()] = $topic;
+            }
+            $names = Internationalization::sortKeyedList($names);
+
             $defaultDept = $cfg->getDefaultDept();
             $defaultPriority = $cfg->getDefaultPriority();
             $sort = 0;
-            foreach($topics as $row) {
+            foreach($names as $topic_id=>$name) {
+                $topic = $topics[$topic_id];
+                $id = $topic->getId();
                 $sort++; // Track initial order for transition
                 $sel=false;
-                if($ids && in_array($row['topic_id'],$ids))
+                if ($ids && in_array($id, $ids))
                     $sel=true;
 
-                if (!$row['dept_id'] && $defaultDept) {
-                    $row['dept_id'] = $defaultDept->getId();
-                    $row['department'] = (string) $defaultDept;
+                if ($topic->dept_id) {
+                    $deptId = $topic->dept_id;
+                    $dept = (string) $topic->dept;
+                } elseif ($defaultDept) {
+                    $deptId = $defaultDept->getId();
+                    $dept = (string) $defaultDept;
+                } else {
+                    $deptId = 0;
+                    $dept = '';
                 }
-
-                if (!$row['priority'] && $defaultPriority)
-                    $row['priority'] = (string) $defaultPriority;
-
+                $priority = $topic->priority ?: $defaultPriority;
                 ?>
-            <tr id="<?php echo $row['topic_id']; ?>">
-                <td width=7px>
-                  <input type="hidden" name="sort-<?php echo $row['topic_id']; ?>" value="<?php
-                        echo $row['sort'] ?: $sort; ?>"/>
-                  <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['topic_id']; ?>"
-                            <?php echo $sel?'checked="checked"':''; ?>>
+            <tr id="<?php echo $id; ?>">
+                <td align="center">
+                  <input type="hidden" name="sort-<?php echo $id; ?>" value="<?php
+                        echo $topic->sort ?: $sort; ?>"/>
+                  <input type="checkbox" class="ckb" name="ids[]"
+                    value="<?php echo $id; ?>" <?php
+                    echo $sel ? 'checked="checked"' : ''; ?>>
                 </td>
                 <td>
-<?php if ($cfg->getTopicSortMode() == 'm') { ?>
-                    <i class="icon-sort"></i>
-<?php } ?>
-<a href="helptopics.php?id=<?php echo $row['topic_id']; ?>"><?php echo $row['name']; ?></a>&nbsp;</td>
-                <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
-                <td><?php echo $row['ispublic']?__('Public'):'<b>'.__('Private').'</b>'; ?></td>
-                <td><?php echo $row['priority']; ?></td>
-                <td><a href="departments.php?id=<?php echo $row['dept_id']; ?>"><?php echo $row['department']; ?></a></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
+                    <?php
+                    if ($cfg->getTopicSortMode() == 'm') { ?>
+                        <i class="icon-sort faded"></i>
+                    <?php } ?>
+                    <a href="helptopics.php?id=<?php echo $id; ?>"><?php
+                    echo Topic::getTopicName($id); ?></a>&nbsp;
+                </td>
+                <td><?php echo $topic->isactive ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>
+                <td><?php echo $topic->ispublic ? __('Public') : '<b>'.__('Private').'</b>'; ?></td>
+                <td><?php echo $priority; ?></td>
+                <td><a href="departments.php?id=<?php echo $deptId;
+                ?>"><?php echo $dept; ?></a></td>
+                <td>&nbsp;<?php echo Format::datetime($team->updated); ?></td>
             </tr>
             <?php
-            } //end of while.
-        endif; ?>
+            } //end of foreach.
+        }?>
     <tfoot>
      <tr>
         <td colspan="7">
-            <?php if($res && $num){ ?>
+            <?php if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
@@ -128,16 +167,10 @@ if ($cfg->getTopicSortMode() == 'a')
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
+if ($count): //Show options..
+     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-<?php if ($cfg->getTopicSortMode() != 'a') { ?>
-    <input class="button no-confirm" type="submit" name="sort" value="Save"/>
-<?php } ?>
-    <button class="button" type="submit" name="enable" value="Enable" ><?php echo __('Enable'); ?></button>
-    <button class="button" type="submit" name="disable" value="Disable"><?php echo __('Disable'); ?></button>
-    <button class="button" type="submit" name="delete" value="Delete"><?php echo __('Delete'); ?></button>
-</p>
+
 <?php
 endif;
 ?>
@@ -172,4 +205,3 @@ endif;
      </p>
     <div class="clear"></div>
 </div>
-

@@ -7,6 +7,7 @@ if($sla && $_REQUEST['a']!='add'){
     $submit_text=__('Save Changes');
     $info=$sla->getInfo();
     $info['id']=$sla->getId();
+    $trans['name'] = $sla->getTranslateTag('name');
     $qs += array('id' => $sla->getId());
 }else {
     $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
@@ -24,12 +25,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo __('Service Level Agreement');?></h2>
+ <h2><?php echo $title; ?>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
+</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Tickets are marked overdue on grace period violation.');?></em>
             </th>
         </tr>
@@ -40,7 +44,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
               <?php echo __('Name');?>:
             </td>
             <td>
-                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>">
+                <input type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
+                    autofocus data-translate-tag="<?php echo $trans['name']; ?>"/>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#name"></i>
             </td>
         </tr>
@@ -86,8 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Admin Notes');?></strong>: <?php echo __('Internal notes.');?>
-                &nbsp;&nbsp;<i class="help-tip icon-question-sign" href="#admin_notes"></i></em>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal");?>
                 </em>
             </th>
         </tr>

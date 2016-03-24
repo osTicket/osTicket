@@ -42,44 +42,58 @@ class Export {
     #      attachments associated with each, ...
     static function dumpTickets($sql, $how='csv') {
         // Add custom fields to the $sql statement
-        $cdata = $fields = $select = array();
+        $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
             // Ignore core fields
-            if (in_array($f->get('name'), array('subject','priority')))
+            if (in_array($f->get('name'), array('priority')))
                 continue;
             // Ignore non-data fields
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
 
-            $name = $f->get('name') ? $f->get('name') : 'field_'.$f->get('id');
-            $key = '__field_'.$f->get('id');
-            $cdata[$key] = $f->get('label');
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
             $fields[$key] = $f;
-            $select[] = "cdata.`$name` AS __field_".$f->get('id');
+            $cdata[$key] = $f->getLocal('label');
         }
-        if ($select)
-            $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
-        return self::dumpQuery($sql,
+        // Reset the $sql query
+        $tickets = $sql->models()
+            ->select_related('user', 'user__default_email', 'dept', 'staff',
+                'team', 'staff', 'cdata', 'topic', 'status', 'cdata__:priority')
+            ->annotate(array(
+                'collab_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id'))),
+                'attachment_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->filter(array('entries__attachments__inline' => 0))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+                'thread_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
+            ));
+
+        return self::dumpQuery($tickets,
             array(
                 'number' =>         __('Ticket Number'),
-                'ticket_created' => __('Date'),
-                'subject' =>        __('Subject'),
-                'name' =>           __('From'),
-                'email' =>          __('From Email'),
-                'priority_desc' =>  __('Priority'),
-                'dept_name' =>      __('Department'),
-                'helptopic' =>      __('Help Topic'),
+                'created' =>        __('Date Created'),
+                'cdata.subject' =>  __('Subject'),
+                'user.name' =>      __('From'),
+                'user.default_email.address' => __('From Email'),
+                'cdata.:priority.priority_desc' => __('Priority'),
+                'dept::getLocalName' => __('Department'),
+                'topic::getName' => __('Help Topic'),
                 'source' =>         __('Source'),
-                'status' =>         __('Current Status'),
-                'effective_date' => __('Last Updated'),
-                'duedate' =>        __('Due Date'),
+                'status::getName' =>__('Current Status'),
+                'lastupdate' =>     __('Last Updated'),
+                'est_duedate' =>    __('Due Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
-                'assigned' =>       __('Assigned To'),
-                'staff' =>          __('Agent Assigned'),
-                'team' =>           __('Team Assigned'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
                 'thread_count' =>   __('Thread Count'),
-                'attachments' =>    __('Attachment Count'),
+                'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
@@ -93,9 +107,65 @@ class Export {
             );
     }
 
-    /* static */ function saveTickets($sql, $filename, $how='csv') {
-        ob_start();
+    static  function saveTickets($sql, $filename, $how='csv') {
+        Http::download($filename, "text/$how");
         self::dumpTickets($sql, $how);
+        exit;
+    }
+
+
+    static function dumpTasks($sql, $how='csv') {
+        // Add custom fields to the $sql statement
+        $cdata = $fields = array();
+        foreach (TaskForm::getInstance()->getFields() as $f) {
+            // Ignore non-data fields
+            if (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
+            $fields[$key] = $f;
+            $cdata[$key] = $f->getLocal('label');
+        }
+        // Reset the $sql query
+        $tasks = $sql->models()
+            ->select_related('dept', 'staff', 'team', 'cdata')
+            ->annotate(array(
+            'collab_count' => SqlAggregate::COUNT('thread__collaborators'),
+            'attachment_count' => SqlAggregate::COUNT('thread__entries__attachments'),
+            'thread_count' => SqlAggregate::COUNT('thread__entries'),
+        ));
+
+        return self::dumpQuery($tasks,
+            array(
+                'number' =>         __('Task Number'),
+                'created' =>        __('Date Created'),
+                'cdata.title' =>    __('Title'),
+                'dept::getLocalName' => __('Department'),
+                '::getStatus' =>    __('Current Status'),
+                'duedate' =>        __('Due Date'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
+                'thread_count' =>   __('Thread Count'),
+                'attachment_count' => __('Attachment Count'),
+            ) + $cdata,
+            $how,
+            array('modify' => function(&$record, $keys) use ($fields) {
+                foreach ($fields as $k=>$f) {
+                    if (($i = array_search($k, $keys)) !== false) {
+                        $record[$i] = $f->export($f->to_php($record[$i]));
+                    }
+                }
+                return $record;
+            })
+            );
+    }
+
+
+    static function saveTasks($sql, $filename, $how='csv') {
+
+        ob_start();
+        self::dumpTasks($sql, $how);
         $stuff = ob_get_contents();
         ob_end_clean();
         if ($stuff)
@@ -108,32 +178,21 @@ class Export {
 
         $exclude = array('name', 'email');
         $form = UserForm::getUserForm();
-        $fields = $form->getExportableFields($exclude);
-
-        // Field selection callback
-        $fname = function ($f) {
-            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
-        };
-
-        $sql = substr_replace($sql,
-                ','.implode(',', array_map($fname, $fields)).' ',
-                strpos($sql, 'FROM '), 0);
-
-        $sql = substr_replace($sql,
-                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, 'user_id', $exclude).') cdata
-                    ON (cdata.user_id = user.id) ',
-                strpos($sql, 'WHERE '), 0);
+        $fields = $form->getExportableFields($exclude, 'cdata.');
 
         $cdata = array_combine(array_keys($fields),
                 array_values(array_map(
-                        function ($f) { return $f->get('label'); }, $fields)));
+                        function ($f) { return $f->getLocal('label'); }, $fields)));
+
+        $users = $sql->models()
+            ->select_related('org', 'cdata');
 
         ob_start();
-        echo self::dumpQuery($sql,
+        echo self::dumpQuery($users,
                 array(
                     'name'  =>          __('Name'),
-                    'organization' =>   __('Organization'),
-                    'email' =>          __('Email'),
+                    'org' =>   __('Organization'),
+                    '::getEmail' =>          __('Email'),
                     ) + $cdata,
                 $how,
                 array('modify' => function(&$record, $keys) use ($fields) {
@@ -158,30 +217,19 @@ class Export {
 
         $exclude = array('name');
         $form = OrganizationForm::getDefaultForm();
-        $fields = $form->getExportableFields($exclude);
-
-        // Field selection callback
-        $fname = function ($f) {
-            return 'cdata.`'.$f->getSelectName().'` AS __field_'.$f->get('id');
-        };
-
-        $sql = substr_replace($sql,
-                ','.implode(',', array_map($fname, $fields)).' ',
-                strpos($sql, 'FROM '), 0);
-
-        $sql = substr_replace($sql,
-                'LEFT JOIN ('.$form->getCrossTabQuery($form->type, '_org_id', $exclude).') cdata
-                    ON (cdata._org_id = org.id) ',
-                strpos($sql, 'WHERE '), 0);
-
+        $fields = $form->getExportableFields($exclude, 'cdata.');
         $cdata = array_combine(array_keys($fields),
                 array_values(array_map(
-                        function ($f) { return $f->get('label'); }, $fields)));
+                        function ($f) { return $f->getLocal('label'); }, $fields)));
 
-        $cdata += array('account_manager' => 'Account Manager', 'users' => 'Users');
+        $cdata += array(
+                '::getNumUsers' => 'Users',
+                '::getAccountManager' => 'Account Manager',
+                );
 
+        $orgs = $sql->models();
         ob_start();
-        echo self::dumpQuery($sql,
+        echo self::dumpQuery($orgs,
                 array(
                     'name'  =>  'Name',
                     ) + $cdata,
@@ -209,32 +257,22 @@ class Export {
 class ResultSetExporter {
     var $output;
 
-    function ResultSetExporter($sql, $headers, $options=array()) {
+    function __construct($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);
-        if ($s = strpos(strtoupper($sql), ' LIMIT '))
-            $sql = substr($sql, 0, $s);
+        // Remove limit and offset
+        $sql->limit(null)->offset(null);
         # TODO: If $filter, add different LIMIT clause to query
         $this->options = $options;
         $this->output = $options['output'] ?: fopen('php://output', 'w');
 
-        $this->_res = db_query($sql, true, true);
-        if ($row = db_fetch_array($this->_res)) {
-            $query_fields = array_keys($row);
-            $this->headers = array();
-            $this->keys = array();
-            $this->lookups = array();
-            foreach ($headers as $field=>$name) {
-                if (array_key_exists($field, $row)) {
-                    $this->headers[] = $name;
-                    $this->keys[] = $field;
-                    # Remember the location of this header in the query results
-                    # (column-wise) so we don't have to do hashtable lookups for every
-                    # column of every row.
-                    $this->lookups[] = array_search($field, $query_fields);
-                }
-            }
-            db_data_reset($this->_res);
+        $this->headers = array();
+        $this->keys = array();
+        foreach ($headers as $field=>$name) {
+            $this->headers[] = $name;
+            $this->keys[] = $field;
         }
+        $this->_res = $sql->getIterator();
+        $this->_res->rewind();
     }
 
     function getHeaders() {
@@ -242,12 +280,30 @@ class ResultSetExporter {
     }
 
     function next() {
-        if (!($row = db_fetch_row($this->_res)))
+        if (!$this->_res->valid())
             return false;
 
+        $object = $this->_res->current();
+        $this->_res->next();
+
         $record = array();
-        foreach ($this->lookups as $idx)
-            $record[] = $row[$idx];
+
+        foreach ($this->keys as $field) {
+            list($field, $func) = explode('::', $field);
+            $path = explode('.', $field);
+            $current = $object;
+            // Evaluate dotted ORM path
+            if ($field) {
+                foreach ($path as $P) {
+                    $current = $current->{$P};
+                }
+            }
+            // Evalutate :: function call on target current
+            if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
+                $current = $current->{$func}();
+            }
+            $record[] = (string) $current;
+        }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
             $record = $this->options['modify']($record, $this->keys);
@@ -276,10 +332,23 @@ class CsvResultsExporter extends ResultSetExporter {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
+        // Detect delimeter from the current locale settings. For locales
+        // which use comma (,) as the decimal separator, the semicolon (;)
+        // should be used as the field separator
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        }
+
+        // Output a UTF-8 BOM (byte order mark)
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($this->output, $this->getHeaders());
+        fputcsv($this->output, $this->getHeaders(), $delimiter);
         while ($row=$this->next())
-            fputcsv($this->output, $row);
+            fputcsv($this->output, $row, $delimiter);
 
         fclose($this->output);
     }
@@ -310,21 +379,21 @@ class DatabaseExporter {
     var $options;
     var $tables = array(CONFIG_TABLE, SYSLOG_TABLE, FILE_TABLE,
         FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
-        GROUP_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
+        STAFF_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
         FAQ_TOPIC_TABLE, FAQ_CATEGORY_TABLE, DRAFT_TABLE,
         CANNED_TABLE, TICKET_TABLE, ATTACHMENT_TABLE,
-        TICKET_THREAD_TABLE, TICKET_ATTACHMENT_TABLE, TICKET_PRIORITY_TABLE,
-        TICKET_LOCK_TABLE, TICKET_EVENT_TABLE, TICKET_EMAIL_INFO_TABLE,
+        THREAD_TABLE, THREAD_ENTRY_TABLE, THREAD_ENTRY_EMAIL_TABLE,
+        LOCK_TABLE, THREAD_EVENT_TABLE, TICKET_PRIORITY_TABLE,
         EMAIL_TABLE, EMAIL_TEMPLATE_TABLE, EMAIL_TEMPLATE_GRP_TABLE,
         FILTER_TABLE, FILTER_RULE_TABLE, SLA_TABLE, API_KEY_TABLE,
         TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE,
         FORM_SEC_TABLE, FORM_FIELD_TABLE, LIST_TABLE, LIST_ITEM_TABLE,
         FORM_ENTRY_TABLE, FORM_ANSWER_TABLE, USER_TABLE, USER_EMAIL_TABLE,
-        PLUGIN_TABLE, TICKET_COLLABORATOR_TABLE,
+        PLUGIN_TABLE, THREAD_COLLABORATOR_TABLE, TRANSLATION_TABLE,
         USER_ACCOUNT_TABLE, ORGANIZATION_TABLE, NOTE_TABLE
     );
 
-    function DatabaseExporter($stream, $options=array()) {
+    function __construct($stream, $options=array()) {
         $this->stream = $stream;
         $this->options = $options;
     }

@@ -14,39 +14,22 @@
 require_once(INCLUDE_DIR.'class.signal.php');
 require_once(INCLUDE_DIR.'class.error.php');
 
-class AttachmentFile {
+class AttachmentFile extends VerySimpleModel {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => FILE_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'attachments' => array(
+                'reverse' => 'Attachment.file'
+            ),
+        ),
+    );
+    static $keyCache = array();
 
-    function AttachmentFile($id) {
-        $this->id =0;
-        return ($this->load($id));
-    }
-
-    function load($id=0) {
-
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT id, f.type, size, name, `key`, signature, ft, bk, f.created, '
-            .' count(DISTINCT a.object_id) as canned, count(DISTINCT t.ticket_id) as tickets '
-            .' FROM '.FILE_TABLE.' f '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' a ON(a.file_id=f.id) '
-            .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' t ON(t.file_id=f.id) '
-            .' WHERE f.id='.db_input($id)
-            .' GROUP BY f.id';
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-        $this->id =$this->ht['id'];
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load();
+    function __onload() {
+        // Cache for lookup in the ::lookupByHash method below
+        static::$keyCache[$this->key] = $this;
     }
 
     function getHashtable() {
@@ -57,16 +40,16 @@ class AttachmentFile {
         return $this->getHashtable();
     }
 
-    function getNumTickets() {
-        return $this->ht['tickets'];
+    function getNumEntries() {
+        return $this->attachments->count();
     }
 
     function isCanned() {
-        return ($this->ht['canned']);
+        return $this->getNumEntries();
     }
 
     function isInUse() {
-        return ($this->getNumTickets() || $this->isCanned());
+        return $this->getNumEntries();
     }
 
     function getId() {
@@ -74,11 +57,11 @@ class AttachmentFile {
     }
 
     function getType() {
-        return $this->ht['type'];
+        return $this->type;
     }
 
     function getBackend() {
-        return $this->ht['bk'];
+        return $this->bk;
     }
 
     function getMime() {
@@ -86,25 +69,25 @@ class AttachmentFile {
     }
 
     function getSize() {
-        return $this->ht['size'];
+        return $this->size;
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->name;
     }
 
     function getKey() {
-        return $this->ht['key'];
+        return $this->key;
     }
 
     function getSignature($cascade=false) {
-        $sig = $this->ht['signature'];
+        $sig = $this->signature;
         if (!$sig && $cascade) return $this->getKey();
         return $sig;
     }
 
     function lastModified() {
-        return $this->ht['created'];
+        return $this->created;
     }
 
     function open() {
@@ -142,8 +125,7 @@ class AttachmentFile {
 
     function delete() {
 
-        $sql='DELETE FROM '.FILE_TABLE.' WHERE id='.db_input($this->getId()).' LIMIT 1';
-        if(!db_query($sql) || !db_affected_rows())
+        if (!parent::delete())
             return false;
 
         if ($bk = $this->open())
@@ -249,8 +231,10 @@ class AttachmentFile {
             return;
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
-        Http::download($this->getName(), $this->getType() ?: 'application/octet-stream',
-            null, $disposition);
+        $type = $this->getType() ?: 'application/octet-stream';
+        if (isset($_REQUEST['overridetype']))
+            $type = $_REQUEST['overridetype'];
+        Http::download($this->getName(), $type, null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
@@ -293,7 +277,7 @@ class AttachmentFile {
     }
 
     /* Function assumes the files types have been validated */
-    function upload($file, $ft='T', $deduplicate=true) {
+    static function upload($file, $ft='T', $deduplicate=true) {
 
         if(!$file['name'] || $file['error'] || !is_uploaded_file($file['tmp_name']))
             return false;
@@ -309,42 +293,62 @@ class AttachmentFile {
                     'tmp_name'=>$file['tmp_name'],
                     );
 
-        return AttachmentFile::save($info, $ft, $deduplicate);
+        return static::create($info, $ft, $deduplicate);
     }
 
-    function uploadLogo($file, &$error, $aspect_ratio=2) {
+    static function uploadBackdrop(array $file, &$error) {
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
+
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
+        }
+        return self::upload($file, 'B', false);
+    }
+
+    static function uploadLogo($file, &$error, $aspect_ratio=2) {
         /* Borrowed in part from
          * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
          */
-        if (!extension_loaded('gd'))
-            return self::upload($file, 'L');
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
 
-        $source_path = $file['tmp_name'];
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
 
-        list($source_width, $source_height, $source_type) = getimagesize($source_path);
+            $source_aspect_ratio = $source_width / $source_height;
 
-        switch ($source_type) {
-            case IMAGETYPE_GIF:
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_PNG:
-                break;
-            default:
-                // TODO: Return an error
-                $error = __('Invalid image file type');
+            if ($source_aspect_ratio < $aspect_ratio) {
+                $error = __('Image is too square. Upload a wider image');
                 return false;
+            }
         }
-
-        $source_aspect_ratio = $source_width / $source_height;
-
-        if ($source_aspect_ratio >= $aspect_ratio)
-            return self::upload($file, 'L', false);
-
-        $error = __('Image is too square. Upload a wider image');
-        return false;
+        return self::upload($file, 'L', false);
     }
 
-    function save(&$file, $ft='T', $deduplicate=true) {
-
+    static function create(&$file, $ft='T', $deduplicate=true) {
+        if (isset($file['encoding'])) {
+            switch ($file['encoding']) {
+            case 'base64':
+                $file['data'] = base64_decode($file['data']);
+            }
+        }
         if (isset($file['data'])) {
             // Allow a callback function to delay or avoid reading or
             // fetching ihe file contents
@@ -359,15 +363,17 @@ class AttachmentFile {
 
         if (isset($file['size']) && $file['size'] > 0) {
             // Check and see if the file is already on record
-            $sql = 'SELECT id, `key` FROM '.FILE_TABLE
-                .' WHERE signature='.db_input($file['signature'])
-                .' AND size='.db_input($file['size']);
+            $existing = static::objects()->filter(array(
+                'signature' => $file['signature'],
+                'size' => $file['size']
+            ))->first();
 
-            // If the record exists in the database already, a file with the
-            // same hash and size is already on file -- just return its ID
-            if ($deduplicate && (list($id, $key) = db_fetch_row(db_query($sql, false)))) {
-                $file['key'] = $key;
-                return $id;
+            // If the record exists in the database already, a file with
+            // the same hash and size is already on file -- just return
+            // the file
+            if ($deduplicate && $existing) {
+                $file['key'] = $existing->key;
+                return $existing;
             }
         }
         elseif (!isset($file['data'])) {
@@ -388,20 +394,20 @@ class AttachmentFile {
         if (!$file['type'])
             $file['type'] = 'application/octet-stream';
 
-        $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
-            .',type='.db_input(strtolower($file['type']))
-            .',name='.db_input($file['name'])
-            .',`key`='.db_input($file['key'])
-            .',ft='.db_input($ft ?: 'T')
-            .',signature='.db_input($file['signature']);
+
+        $f = new static(array(
+            'type' => strtolower($file['type']),
+            'name' => $file['name'],
+            'key' => $file['key'],
+            'ft' => $ft ?: 'T',
+            'signature' => $file['signature'],
+            'created' => SqlFunction::NOW(),
+        ));
 
         if (isset($file['size']))
-            $sql .= ',size='.db_input($file['size']);
+            $f->size = $file['size'];
 
-        if (!(db_query($sql) && ($id = db_insert_id())))
-            return false;
-
-        if (!($f = AttachmentFile::lookup($id)))
+        if (!$f->save())
             return false;
 
         // Note that this is preferred over $f->open() because the file does
@@ -435,26 +441,26 @@ class AttachmentFile {
             return false;
         }
 
-        $sql = 'UPDATE '.FILE_TABLE.' SET bk='.db_input($bk->getBkChar());
+        $f->bk = $bk->getBkChar();
 
         if (!isset($file['size'])) {
             if ($size = $bk->getSize())
-                $file['size'] = $size;
+                $f->size = $size;
             // Prefer mb_strlen, because mbstring.func_overload will
             // automatically prefer it if configured.
             elseif (extension_loaded('mbstring'))
-                $file['size'] = mb_strlen($file['data'], '8bit');
+                $f->size = mb_strlen($file['data'], '8bit');
             // bootstrap.php include a compat version of mb_strlen
             else
-                $file['size'] = strlen($file['data']);
-
-            $sql .= ', `size`='.db_input($file['size']);
+                $f->size = strlen($file['data']);
         }
 
-        $sql .= ' WHERE id='.db_input($f->getId());
-        db_query($sql);
+        $f->save();
+        return $f;
+    }
 
-        return $f->getId();
+    static function __create($file, &$errors) {
+        return static::create($file);
     }
 
     /**
@@ -518,10 +524,8 @@ class AttachmentFile {
             return false;
         }
 
-        $sql = 'UPDATE '.FILE_TABLE.' SET bk='
-            .db_input($target->getBkChar())
-            .' WHERE id='.db_input($this->getId());
-        if (!db_query($sql) || db_affected_rows()!=1)
+        $this->bk = $target->getBkChar();
+        if (!$this->save())
             return false;
 
         return $source->unlink();
@@ -542,38 +546,30 @@ class AttachmentFile {
     static function getBackendForFile($file) {
         global $cfg;
 
-        if (!$cfg)
-            return new AttachmentChunkedData($file);
-
-        $char = $cfg->getDefaultStorageBackendChar();
-        return FileStorageBackend::lookup($char, $file);
-    }
-
-    /* Static functions */
-    function getIdByHash($hash) {
-
-        $sql='SELECT id FROM '.FILE_TABLE.' WHERE `key`='.db_input($hash);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
-
-        return $id;
-    }
-
-    function lookup($id) {
-
-        $id = is_numeric($id)?$id:AttachmentFile::getIdByHash($id);
-
-        return ($id && ($file = new AttachmentFile($id)) && $file->getId()==$id)?$file:null;
-    }
-
-    static function create($info, &$errors) {
-        if (isset($info['encoding'])) {
-            switch ($info['encoding']) {
-                case 'base64':
-                    $info['data'] = base64_decode($info['data']);
-            }
+        $char = null;
+        if ($cfg) {
+            $char = $cfg->getDefaultStorageBackendChar();
         }
-        return self::save($info);
+        try {
+            return FileStorageBackend::lookup($char ?: 'D', $file);
+        }
+        catch (Exception $x) {
+            return new AttachmentChunkedData($file);
+        }
+    }
+
+    static function lookupByHash($hash) {
+        if (isset(static::$keyCache[$hash]))
+            return static::$keyCache[$hash];
+
+        // Cache a negative lookup if no such file exists
+        return parent::lookup(array('key' => $hash));
+    }
+
+    static function lookup($id) {
+        return is_string($id)
+            ? static::lookupByHash($id)
+            : parent::lookup($id);
     }
 
     /*
@@ -615,36 +611,36 @@ class AttachmentFile {
      * Removes files and associated meta-data for files which no ticket,
      * canned-response, or faq point to any more.
      */
-    /* static */ function deleteOrphans() {
+    static function deleteOrphans() {
 
         // XXX: Allow plugins to define filetypes which do not represent
         //      files attached to tickets or other things in the attachment
         //      table and are not logos
-        $sql = 'SELECT id FROM '.FILE_TABLE.' WHERE id NOT IN ('
-                .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
-                .' UNION '
-                .'SELECT file_id FROM '.ATTACHMENT_TABLE
-            .") AND `ft` = 'T' AND TIMESTAMPDIFF(DAY, `created`, CURRENT_TIMESTAMP) > 1";
+        $files = static::objects()
+            ->filter(array(
+                'attachments__object_id__isnull' => true,
+                'ft' => 'T',
+                'created__gt' => new DateTime('now -1 day'),
+            ));
 
-        if (!($res = db_query($sql)))
-            return false;
-
-        while (list($id) = db_fetch_row($res))
-            if (($file = self::lookup($id)) && !$file->delete())
+        foreach ($files as $f) {
+            if (!$f->delete())
                 break;
+        }
 
         return true;
     }
 
-    /* static */
-    function allLogos() {
-        $sql = 'SELECT id FROM '.FILE_TABLE.' WHERE ft="L"
-            ORDER BY created';
-        $logos = array();
-        $res = db_query($sql);
-        while (list($id) = db_fetch_row($res))
-            $logos[] = AttachmentFile::lookup($id);
-        return $logos;
+    static function allLogos() {
+        return static::objects()
+            ->filter(array('ft' => 'L'))
+            ->order_by('created');
+    }
+
+    static function allBackdrops() {
+        return static::objects()
+            ->filter(array('ft' => 'B'))
+            ->order_by('created');
     }
 }
 
@@ -653,6 +649,7 @@ class FileStorageBackend {
     static $desc = false;
     static $registry;
     static $blocksize = 131072;
+    static $private = false;
 
     /**
      * All storage backends should call this function during the request
@@ -662,8 +659,15 @@ class FileStorageBackend {
         self::$registry[$typechar] = $class;
     }
 
-    static function allRegistered() {
-        return self::$registry;
+    static function allRegistered($private=false) {
+        $R = self::$registry;
+        if (!$private) {
+            foreach ($R as $i=>$bk) {
+                if ($bk::$private)
+                    unset($R[$i]);
+            }
+        }
+        return $R;
     }
 
     /**
@@ -822,31 +826,58 @@ class FileStorageBackend {
  * LOB fields in the MySQL database
  */
 define('CHUNK_SIZE', 500*1024); # Beware if you change this...
+class AttachmentFileChunk extends VerySimpleModel {
+    static $meta = array(
+        'table' => FILE_CHUNK_TABLE,
+        'pk' => array('file_id', 'chunk_id'),
+        'joins' => array(
+            'file' => array(
+                'constraint' => array('file_id' => 'AttachmentFile.id'),
+            ),
+        ),
+    );
+}
 class AttachmentChunkedData extends FileStorageBackend {
-    static $desc = "In the database";
+    static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
+
+    const FILE_TYPES = array(
+        'T' => 'Attachment',
+        'L' => 'Logo',
+        'B' => 'Backdrop',
+    );
 
     function __construct($file) {
         $this->file = $file;
         $this->_chunk = 0;
         $this->_buffer = false;
+        $this->eof = false;
     }
 
     function getSize() {
-        list($length) = db_fetch_row(db_query(
-             'SELECT SUM(LENGTH(filedata)) FROM '.FILE_CHUNK_TABLE
-            .' WHERE file_id='.db_input($this->file->getId())));
-        return $length;
+        $row = AttachmentFileChunk::objects()
+            ->filter(array('file' => $this->file))
+            ->aggregate(array('length' => SqlAggregate::SUM(SqlFunction::LENGTH(new SqlField('filedata')))))
+            ->one();
+        return $row['length'];
     }
 
     function read($amount=CHUNK_SIZE, $offset=0) {
         # Read requested length of data from attachment chunks
+        if ($this->eof)
+            return false;
+
         while (strlen($this->_buffer) < $amount + $offset) {
-            list($buf) = @db_fetch_row(db_query(
-                'SELECT filedata FROM '.FILE_CHUNK_TABLE.' WHERE file_id='
-                .db_input($this->file->getId()).' AND chunk_id='.$this->_chunk++));
-            if (!$buf)
+            try {
+                list($buf) = AttachmentFileChunk::objects()
+                    ->filter(array('file' => $this->file, 'chunk_id' => $this->_chunk++))
+                    ->values_flat('filedata')
+                    ->one();
+            }
+            catch (DoesNotExist $e) {
+                $this->eof = true;
                 break;
+            }
             $this->_buffer .= $buf;
         }
         $chunk = substr($this->_buffer, $offset, $amount);
@@ -856,25 +887,79 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function write($what, $chunk_size=CHUNK_SIZE) {
         $offset=0;
-        for (;;) {
-            $block = bin2hex(substr($what, $offset, $chunk_size));
-            if (!$block) break;
-            if (!db_query('REPLACE INTO '.FILE_CHUNK_TABLE
-                    .' SET filedata=0x'.$block.', file_id='
-                    .db_input($this->file->getId()).', chunk_id='.db_input($this->_chunk++)))
+        while ($block = substr($what, $offset, $chunk_size)) {
+            // Chunks are considered immutable. Importing chunks should
+            // forceable remove the contents of a file before write()ing new
+            // chunks. Therefore, inserts should be safe.
+            $chunk = AttachmentFileChunk::create(array(
+                'file' => $this->file,
+                'chunk_id' => $this->_chunk++,
+                'filedata' => $block
+            ));
+            if (!$chunk->save())
                 return false;
-            $offset += strlen($block)/2;
+            $offset += strlen($block);
         }
 
         return $this->_chunk;
     }
 
     function unlink() {
-        db_query('DELETE FROM '.FILE_CHUNK_TABLE
-            .' WHERE file_id='.db_input($this->file->getId()));
-        return db_affected_rows() > 0;
+        return AttachmentFileChunk::objects()
+            ->filter(array('file' => $this->file))
+            ->delete();
     }
 }
 FileStorageBackend::register('D', 'AttachmentChunkedData');
 
+/**
+ * This class provides an interface for files attached on the filesystem in
+ * versions previous to v1.7. The upgrader will keep the attachments on the
+ * disk where they were and write the path into the `attrs` field of the
+ * %file table. This module will continue to serve those files until they
+ * are migrated with the `file` cli app
+ */
+class OneSixAttachments extends FileStorageBackend {
+    static $desc = "upload_dir folder (from osTicket v1.6)";
+    static $private = true;
+
+    function read($bytes=32768, $offset=false) {
+        $filename = $this->meta->attrs;
+        if (!$this->fp)
+            $this->fp = @fopen($filename, 'rb');
+        if (!$this->fp)
+            throw new IOException($filename.': Unable to open for reading');
+        if ($offset)
+            fseek($this->fp, $offset);
+        if (($status = @fread($this->fp, $bytes)) === false)
+            throw new IOException($filename.': Unable to read from file');
+        return $status;
+    }
+
+    function passthru() {
+        $filename = $this->meta->attrs;
+        if (($status = @readfile($filename)) === false)
+            throw new IOException($filename.': Unable to read from file');
+        return $status;
+    }
+
+    function write($data) {
+        throw new IOException('This backend does not support new files');
+    }
+
+    function upload($filepath) {
+        throw new IOException('This backend does not support new files');
+    }
+
+    function unlink() {
+        $filename = $this->meta->attrs;
+        if (!@unlink($filename))
+            throw new IOException($filename.': Unable to delete file');
+        // Drop usage of the `attrs` field
+        $this->meta->attrs = null;
+        $this->meta->save();
+        return true;
+    }
+}
+FileStorageBackend::register('6', 'OneSixAttachments');
 ?>

@@ -7,58 +7,40 @@ require_once(INCLUDE_DIR.'class.draft.php');
 class DraftAjaxAPI extends AjaxController {
 
     function _createDraft($vars) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $vars['body'] = urldecode($_POST[$field]);
-                break;
-            }
-        }
-        if (!isset($vars['body']))
-            return Http::response(422, "Draft body not found in request");
+        if (false === ($vars['body'] = self::_findDraftBody($_POST)))
+            return JsonDataEncoder::encode(array(
+                'error' => __("Draft body not found in request"),
+                'code' => 422,
+                ));
 
-        $errors = array();
-        if (!($draft = Draft::create($vars, $errors)))
-            Http::response(500, print_r($errors, true));
-
-        // If the draft is created from an existing document, ensure inline
-        // attachments from the cloned document are attachned to the draft
-        // XXX: Actually, I think this is just wasting time, because the
-        //     other object already has the items attached, so the database
-        //     won't clean up the files. They don't have to be attached to
-        //     the draft for Draft::getAttachmentIds to return the id of the
-        //     attached file
-        //$draft->syncExistingAttachments();
+        if (!($draft = Draft::create($vars)) || !$draft->save())
+            Http::response(500, 'Unable to create draft');
 
         echo JsonDataEncoder::encode(array(
             'draft_id' => $draft->getId(),
         ));
     }
 
-    function _getDraft($id) {
-        if (!($draft = Draft::lookup($id)))
+    function _getDraft($draft) {
+        if (!$draft || !$draft instanceof Draft)
             Http::response(205, "Draft not found. Create one first");
 
         $body = Format::viewableImages($draft->getBody());
 
         echo JsonDataEncoder::encode(array(
             'body' => $body,
-            'draft_id' => (int)$id,
+            'draft_id' => $draft->getId(),
         ));
     }
 
     function _updateDraft($draft) {
-        $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue');
-        foreach ($field_list as $field) {
-            if (isset($_POST[$field])) {
-                $body = urldecode($_POST[$field]);
-                break;
-            }
-        }
-        if (!isset($body))
-            return Http::response(422, "Draft body not found in request");
+        if (false === ($body = self::_findDraftBody($_POST)))
+            return JsonDataEncoder::encode(array(
+                'error' => array(
+                    'message' => "Draft body not found in request",
+                    'code' => 422,
+                )
+            ));
 
         if (!$draft->setBody($body))
             return Http::response(500, "Unable to update draft body");
@@ -79,6 +61,21 @@ class DraftAjaxAPI extends AjaxController {
             unset($_FILES['file']);
 
             $file = AttachmentFile::format($_FILES['image']);
+            # Allow for data-uri uploaded files
+            $fp = fopen($file[0]['tmp_name'], 'rb');
+            if (fread($fp, 5) == 'data:') {
+                $data = 'data:';
+                while ($block = fread($fp, 8192))
+                  $data .= $block;
+                $file[0] = Format::parseRfc2397($data);
+                list(,$ext) = explode('/', $file[0]['type'], 2);
+                $file[0] += array(
+                    'name' => Misc::randCode(8).'.'.$ext,
+                    'size' => strlen($file[0]['data']),
+                );
+            }
+            fclose($fp);
+
             # TODO: Detect unacceptable attachment extension
             # TODO: Verify content-type and check file-content to ensure image
             $type = $file[0]['type'];
@@ -97,8 +94,13 @@ class DraftAjaxAPI extends AjaxController {
                     ))
                 );
 
+            // Paste uploads in Chrome will have a name of 'blob'
+            if ($file[0]['name'] == 'blob')
+                $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
 
-            if (!($ids = $draft->attachments->upload($file))) {
+            $ids = $draft->attachments->upload($file);
+
+            if (!$ids) {
                 if ($file[0]['error']) {
                     return Http::response(403,
                         JsonDataEncoder::encode(array(
@@ -110,7 +112,7 @@ class DraftAjaxAPI extends AjaxController {
                     return Http::response(500, 'Unable to attach image');
             }
 
-            $id = $ids[0];
+            $id = (is_array($ids)) ? $ids[0] : $ids;
         }
         else {
             $type = explode('/', $_POST['contentType']);
@@ -129,6 +131,8 @@ class DraftAjaxAPI extends AjaxController {
 
         echo JsonDataEncoder::encode(array(
             'content_id' => 'cid:'.$f->getKey(),
+            // Return draft_id to connect the auto draft creation
+            'draft_id' => $draft->getId(),
             'filelink' => $f->getDownloadUrl(false, 'inline'),
         ));
     }
@@ -141,30 +145,35 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Valid session required");
 
         $vars = array(
-            'staff_id' => ($thisclient) ? $thisclient->getId() : 0,
             'namespace' => $namespace,
         );
 
-        $info = self::_createDraft($vars);
-        $info['draft_id'] = $namespace;
+        return self::_createDraft($vars);
     }
 
     function getDraftClient($namespace) {
         global $thisclient;
 
         if ($thisclient) {
-            if (!($id = Draft::findByNamespaceAndStaff($namespace,
-                    $thisclient->getId())))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                    $thisclient->getId());
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
         else {
             if (substr($namespace, -12) != substr(session_id(), -12))
                 Http::response(404, "Draft not found");
-            elseif (!($id = Draft::findByNamespaceAndStaff($namespace, 0)))
+            try {
+                $draft = Draft::lookupByNamespaceAndStaff($namespace, 0);
+            }
+            catch (DoesNotExist $e) {
                 Http::response(205, "Draft not found. Create one first");
+            }
         }
-
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraftClient($id) {
@@ -220,6 +229,21 @@ class DraftAjaxAPI extends AjaxController {
         return self::_uploadInlineImage($draft);
     }
 
+    function uploadInlineImageEarlyClient($namespace) {
+        global $thisclient;
+
+        if (!$thisclient && substr($namespace, -12) != substr(session_id(), -12))
+            Http::response(403, "Valid session required");
+
+        $draft = Draft::create(array(
+            'namespace' => $namespace,
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImageClient($draft->getId());
+    }
+
     // Staff interface for drafts ========================================
     function createDraft($namespace) {
         global $thisstaff;
@@ -228,7 +252,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(403, "Login required for draft creation");
 
         $vars = array(
-            'staff_id' => $thisstaff->getId(),
             'namespace' => $namespace,
         );
 
@@ -240,11 +263,15 @@ class DraftAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required for draft creation");
-        elseif (!($id = Draft::findByNamespaceAndStaff($namespace,
-                $thisstaff->getId())))
+        try {
+            $draft = Draft::lookupByNamespaceAndStaff($namespace,
+                $thisstaff->getId());
+        }
+        catch (DoesNotExist $e) {
             Http::response(205, "Draft not found. Create one first");
+        }
 
-        return self::_getDraft($id);
+        return self::_getDraft($draft);
     }
 
     function updateDraft($id) {
@@ -273,6 +300,21 @@ class DraftAjaxAPI extends AjaxController {
         return self::_uploadInlineImage($draft);
     }
 
+    function uploadInlineImageEarly($namespace) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required for image upload");
+
+        $draft = Draft::create(array(
+            'namespace' => $namespace
+        ));
+        if (!$draft->save())
+            Http::response(500, 'Unable to create draft');
+
+        return $this->uploadInlineImage($draft->getId());
+    }
+
     function deleteDraft($id) {
         global $thisstaff;
 
@@ -292,11 +334,23 @@ class DraftAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required for file queries");
 
-        $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft) FROM '.FILE_TABLE
+        if (isset($_GET['threadId']) && is_numeric($_GET['threadId'])
+            && ($thread = Thread::lookup($_GET['threadId']))
+            && ($object = $thread->getObject())
+            && ($thisstaff->canAccess($object))
+        ) {
+            $union = ' UNION SELECT f.id, a.`type`, a.`name` FROM '.THREAD_TABLE.' t
+                JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
+                JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
+                JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
+                WHERE a.`inline` = 1 AND t.id='.db_input($_GET['threadId']);
+        }
+
+        $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft), a.`name` FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE (a.`type` IN (\'C\', \'F\', \'T\', \'P\') OR f.ft = \'L\')
-                AND f.`type` LIKE \'image/%\'';
-        if (!($res = db_query($sql)))
+            WHERE ((a.`type` IN (\'C\', \'F\', \'T\', \'P\') AND a.`inline` = 1) OR f.ft = \'L\')'
+                .' AND f.`type` LIKE \'image/%\'';
+        if (!($res = db_query($sql.$union)))
             Http::response(500, 'Unable to lookup files');
 
         $files = array();
@@ -306,18 +360,44 @@ class DraftAjaxAPI extends AjaxController {
             'T' => __('Email Templates'),
             'L' => __('Logos'),
             'P' => __('Pages'),
+            'H' => __('This Thread'),
         );
-        while (list($id, $type) = db_fetch_row($res)) {
-            $f = AttachmentFile::lookup($id);
+        while (list($id, $type, $name) = db_fetch_row($res)) {
+            $f = AttachmentFile::lookup((int) $id);
             $url = $f->getDownloadUrl();
             $files[] = array(
-                'thumb'=>$url.'&s=128',
+                // Don't send special sizing for thread items 'cause they
+                // should be cached already by the client
+                'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
                 'image'=>$url,
-                'title'=>$f->getName(),
+                'title'=>$name ?: $f->getName(),
                 'folder'=>$folders[$type]
             );
         }
         echo JsonDataEncoder::encode($files);
+    }
+
+    function _findDraftBody($vars) {
+        if (isset($vars['name'])) {
+            $parts = array();
+            // Support nested `name`, like trans[lang]
+            if (preg_match('`(\w+)(?:\[(\w+)\])?(?:\[(\w+)\])?`', $_POST['name'], $parts)) {
+                array_shift($parts);
+                $focus = $vars;
+                foreach ($parts as $p)
+                    $focus = $focus[$p];
+                return $focus;
+            }
+        }
+        $field_list = array('response', 'note', 'answer', 'body',
+             'message', 'issue', 'description');
+        foreach ($field_list as $field) {
+            if (isset($vars[$field])) {
+                return $vars[$field];
+            }
+        }
+
+        return false;
     }
 
 }

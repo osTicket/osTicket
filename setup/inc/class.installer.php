@@ -21,7 +21,7 @@ class Installer extends SetupWizard {
 
     var $config;
 
-    function Installer($configfile) {
+    function __construct($configfile) {
         $this->config =$configfile;
         $this->errors=array();
     }
@@ -53,8 +53,8 @@ class Installer extends SetupWizard {
         $f['lname']         = array('type'=>'string',   'required'=>1, 'error'=>__('Last name required'));
         $f['admin_email']   = array('type'=>'email',    'required'=>1, 'error'=>__('Valid email required'));
         $f['username']      = array('type'=>'username', 'required'=>1, 'error'=>__('Username required'));
-        $f['passwd']        = array('type'=>'password', 'required'=>1, 'error'=>__('Password required'));
-        $f['passwd2']       = array('type'=>'password', 'required'=>1, 'error'=>__('Confirm Password'));
+        $f['passwd']        = array('type'=>'string', 'required'=>1, 'error'=>__('Password required'));
+        $f['passwd2']       = array('type'=>'string', 'required'=>1, 'error'=>__('Confirm Password'));
         $f['prefix']        = array('type'=>'string',   'required'=>1, 'error'=>__('Table prefix required'));
         $f['dbhost']        = array('type'=>'string',   'required'=>1, 'error'=>__('Host name required'));
         $f['dbname']        = array('type'=>'string',   'required'=>1, 'error'=>__('Database name required'));
@@ -73,6 +73,7 @@ class Installer extends SetupWizard {
         //Admin's pass confirmation.
         if(!$this->errors && strcasecmp($vars['passwd'],$vars['passwd2']))
             $this->errors['passwd2']=__('Password(s) do not match');
+
         //Check table prefix underscore required at the end!
         if($vars['prefix'] && substr($vars['prefix'], -1)!='_')
             $this->errors['prefix']=__('Bad prefix. Must have underscore (_) at the end. e.g \'ost_\'');
@@ -110,14 +111,24 @@ class Installer extends SetupWizard {
             }
         }
 
-        //bailout on errors.
-        if($this->errors) return false;
-
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('TABLE_PREFIX',$vars['prefix']); //Table prefix
         Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
+
+        // Check password against password policy (after loading code)
+        try {
+            PasswordPolicy::checkPassword($vars['passwd'], null);
+        }
+        catch (BadPassword $e) {
+            $this->errors['passwd'] = $e->getMessage();
+        }
+
+        // bailout on errors.
+        if ($this->errors)
+            return false;
+
 
         $debug = true; // Change it to false to squelch SQL errors.
 
@@ -151,108 +162,125 @@ class Installer extends SetupWizard {
             }
         }
 
-        if(!$this->errors) {
+        if ($this->errors)
+            return false;
 
-            // TODO: Use language selected from install worksheet
-            $i18n = new Internationalization($vars['lang_id']);
-            $i18n->loadDefaultData();
+        // TODO: Use language selected from install worksheet
+        $i18n = new Internationalization($vars['lang_id']);
+        $i18n->loadDefaultData();
 
-            Signal::send('system.install', $this);
+        Signal::send('system.install', $this);
 
-            $sql='SELECT `id` FROM '.TABLE_PREFIX.'sla ORDER BY `id` LIMIT 1';
-            $sla_id_1 = db_result(db_query($sql, false));
+        list($sla_id) = Sla::objects()->order_by('id')->values_flat('id')->first();
+        list($dept_id) = Dept::objects()->order_by('id')->values_flat('id')->first();
+        list($role_id) = Role::objects()->order_by('id')->values_flat('id')->first();
 
-            $sql='SELECT `dept_id` FROM '.TABLE_PREFIX.'department ORDER BY `dept_id` LIMIT 1';
-            $dept_id_1 = db_result(db_query($sql, false));
+        $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
+        $template_id_1 = db_result(db_query($sql, false));
 
-            $sql='SELECT `tpl_id` FROM '.TABLE_PREFIX.'email_template_group ORDER BY `tpl_id` LIMIT 1';
-            $template_id_1 = db_result(db_query($sql, false));
-
-            $sql='SELECT `group_id` FROM '.TABLE_PREFIX.'groups ORDER BY `group_id` LIMIT 1';
-            $group_id_1 = db_result(db_query($sql, false));
-
-            $sql='SELECT `value` FROM '.TABLE_PREFIX.'config WHERE namespace=\'core\' and `key`=\'default_timezone_id\' LIMIT 1';
-            $default_timezone = db_result(db_query($sql, false));
-
-            //Create admin user.
-            $sql='INSERT INTO '.TABLE_PREFIX.'staff SET created=NOW() '
-                .", isactive=1, isadmin=1, group_id='$group_id_1', dept_id='$dept_id_1'"
-                .", timezone_id='$default_timezone', max_page_size=25"
-                .', email='.db_input($vars['admin_email'])
-                .', firstname='.db_input($vars['fname'])
-                .', lastname='.db_input($vars['lname'])
-                .', username='.db_input($vars['username'])
-                .', passwd='.db_input(Passwd::hash($vars['passwd']));
-            if(!db_query($sql, false) || !($uid=db_insert_id()))
-                $this->errors['err']=__('Unable to create admin user (#6)');
+        // Create admin user.
+        $staff = Staff::create(array(
+            'isactive' => 1,
+            'isadmin' => 1,
+            'max_page_size' => 25,
+            'dept_id' => $dept_id,
+            'role_id' => $role_id,
+            'email' => $vars['admin_email'],
+            'firstname' => $vars['fname'],
+            'lastname' => $vars['lname'],
+            'username' => $vars['username'],
+        ));
+        $staff->updatePerms(array(
+            User::PERM_CREATE,
+            User::PERM_EDIT,
+            User::PERM_DELETE,
+            User::PERM_MANAGE,
+            User::PERM_DIRECTORY,
+            Organization::PERM_CREATE,
+            Organization::PERM_EDIT,
+            Organization::PERM_DELETE,
+            FAQ::PERM_MANAGE,
+            Email::PERM_BANLIST,
+        ));
+        $staff->setPassword($vars['passwd']);
+        if (!$staff->save()) {
+            $this->errors['err'] = __('Unable to create admin user (#6)');
+            return false;
         }
 
-        if(!$this->errors) {
-            //Create default emails!
-            $email = $vars['email'];
-            list(,$domain)=explode('@',$vars['email']);
-            $sql='INSERT INTO '.TABLE_PREFIX.'email (`name`,`email`,`created`,`updated`) VALUES '
-                    ." ('Support','$email',NOW(),NOW())"
-                    .",('osTicket Alerts','alerts@$domain',NOW(),NOW())"
-                    .",('','noreply@$domain',NOW(),NOW())";
-            $support_email_id = db_query($sql, false) ? db_insert_id() : 0;
-
-
-            $sql='SELECT `email_id` FROM '.TABLE_PREFIX."email WHERE `email`='alerts@$domain' LIMIT 1";
-            $alert_email_id = db_result(db_query($sql, false));
-
-            //Create config settings---default settings!
-            $defaults = array(
-                'default_email_id'=>$support_email_id,
-                'alert_email_id'=>$alert_email_id,
-                'default_dept_id'=>$dept_id_1, 'default_sla_id'=>$sla_id_1,
-                'default_template_id'=>$template_id_1,
-                'admin_email'=>$vars['admin_email'],
-                'schema_signature'=>$streams['core'],
-                'helpdesk_url'=>URL,
-                'helpdesk_title'=>$vars['name']);
-            $config = new Config('core');
-            if (!$config->updateAll($defaults))
-                $this->errors['err']=__('Unable to create config settings').' (#7)';
-
-            // Set company name
-            require_once(INCLUDE_DIR.'class.company.php');
-            $company = new Company();
-            $company->getForm()->setAnswer('name', $vars['name']);
-            $company->getForm()->save();
-
-			foreach ($streams as $stream=>$signature) {
-				if ($stream != 'core') {
-                    $config = new Config($stream);
-                    if (!$config->update('schema_signature', $signature))
-                        $this->errors['err']=__('Unable to create config settings').' (#8)';
-				}
-			}
+        // Create default emails!
+        $email = $vars['email'];
+        list(,$domain) = explode('@', $vars['email']);
+        foreach (array(
+            "Support" => $email,
+            "osTicket Alerts" => "alerts@$domain",
+            '' => "noreply@$domain",
+        ) as $name => $mailbox) {
+            $mb = Email::create(array(
+                'name' => $name,
+                'email' => $mailbox,
+                'dept_id' => $dept_id,
+            ));
+            $mb->save();
+            if ($mailbox == $email)
+                $support_email_id = $mb->email_id;
+            if ($mailbox == "alerts@$domain")
+                $alert_email_id = $mb->email_id;
         }
 
-        if($this->errors) return false; //Abort on internal errors.
+        //Create config settings---default settings!
+        $defaults = array(
+            'default_email_id'=>$support_email_id,
+            'alert_email_id'=>$alert_email_id,
+            'default_dept_id'=>$dept_id, 'default_sla_id'=>$sla_id,
+            'default_template_id'=>$template_id_1,
+            'default_timezone' => $vars['timezone'] ?: date_default_timezone_get(),
+            'admin_email'=>$vars['admin_email'],
+            'schema_signature'=>$streams['core'],
+            'helpdesk_url'=>URL,
+            'helpdesk_title'=>$vars['name']
+        );
+
+        $config = new Config('core');
+        if (!$config->updateAll($defaults))
+            $this->errors['err']=__('Unable to create config settings').' (#7)';
+
+        // Set company name
+        require_once(INCLUDE_DIR.'class.company.php');
+        $company = new Company();
+        $company->getForm()->setAnswer('name', $vars['name']);
+        $company->getForm()->save();
+
+        foreach ($streams as $stream => $signature) {
+            if ($stream != 'core') {
+                $config = new Config($stream);
+                if (!$config->update('schema_signature', $signature))
+                    $this->errors['err'] = __('Unable to create config settings').' (#8)';
+				    }
+			  }
+
+        if ($this->errors)
+            return false; //Abort on internal errors.
 
 
         //Rewrite the config file - MUST be done last to allow for installer recovery.
-        $configFile= str_replace("define('OSTINSTALLED',FALSE);","define('OSTINSTALLED',TRUE);",$configFile);
-        $configFile= str_replace('%ADMIN-EMAIL',$vars['admin_email'],$configFile);
-        $configFile= str_replace('%CONFIG-DBHOST',$vars['dbhost'],$configFile);
-        $configFile= str_replace('%CONFIG-DBNAME',$vars['dbname'],$configFile);
-        $configFile= str_replace('%CONFIG-DBUSER',$vars['dbuser'],$configFile);
-        $configFile= str_replace('%CONFIG-DBPASS',$vars['dbpass'],$configFile);
-        $configFile= str_replace('%CONFIG-PREFIX',$vars['prefix'],$configFile);
-        $configFile= str_replace('%CONFIG-SIRI',Misc::randCode(32),$configFile);
-        if(!$fp || !ftruncate($fp,0) || !fwrite($fp,$configFile)) {
+        $configFile = strtr($configFile, array(
+            "define('OSTINSTALLED',FALSE);" => "define('OSTINSTALLED',TRUE);",
+            '%ADMIN-EMAIL' => $vars['admin_email'],
+            '%CONFIG-DBHOST' => $vars['dbhost'],
+            '%CONFIG-DBNAME' => $vars['dbname'],
+            '%CONFIG-DBUSER' => $vars['dbuser'],
+            '%CONFIG-DBPASS' => $vars['dbpass'],
+            '%CONFIG-PREFIX' => $vars['prefix'],
+            '%CONFIG-SIRI' => Misc::randCode(32),
+        ));
+        if (!$fp || !ftruncate($fp,0) || !fwrite($fp,$configFile)) {
             $this->errors['err']=__('Unable to write to config file. Permission denied! (#5)');
             return false;
         }
         @fclose($fp);
 
         /************* Make the system happy ***********************/
-
-        $sql='UPDATE '.TABLE_PREFIX."email SET dept_id=$dept_id_1";
-        db_query($sql, false);
-
         global $cfg;
         $cfg = new OsticketConfig();
 
@@ -263,9 +291,9 @@ class Installer extends SetupWizard {
         $ticket = Ticket::create($ticket_vars, $errors, 'api', false, false);
 
         if ($ticket
-                && ($org = Organization::objects()->order_by('id')->one())) {
-
-            $user=User::lookup($ticket->getOwnerId());
+            && ($org = Organization::objects()->order_by('id')->one())
+        ) {
+            $user = User::lookup($ticket->getOwnerId());
             $user->setOrganization($org);
         }
 

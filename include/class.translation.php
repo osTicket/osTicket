@@ -119,7 +119,7 @@ class gettext_reader {
    * @param object Reader the StreamReader object
    * @param boolean enable_cache Enable or disable caching of strings (default on)
    */
-  function gettext_reader($Reader, $enable_cache = true) {
+  function __construct($Reader, $enable_cache = true) {
     // If there isn't a StreamReader, turn on short circuit mode.
     if (! $Reader || isset($Reader->error) ) {
       $this->short_circuit = true;
@@ -462,7 +462,7 @@ class FileReader {
   var $_fd;
   var $_length;
 
-  function FileReader($filename) {
+  function __construct($filename) {
     if (is_resource($filename)) {
         $this->_length = strlen(stream_get_contents($filename));
         rewind($filename);
@@ -651,16 +651,16 @@ class Translation extends gettext_reader implements Serializable {
     }
 
     static function resurrect($key) {
-        if (!function_exists('apc_fetch'))
+        if (!function_exists('apcu_fetch'))
             return false;
 
         $success = true;
-        if (($translation = apc_fetch($key, $success)) && $success)
+        if (($translation = apcu_fetch($key, $success)) && $success)
             return $translation;
     }
     function cache($key) {
-        if (function_exists('apc_add'))
-            apc_add($key, $this);
+        if (function_exists('apcu_add'))
+            apcu_add($key, $this);
     }
 
 
@@ -759,8 +759,7 @@ class TextDomain {
 
     static function configureForUser($user=false) {
         $lang = Internationalization::getCurrentLanguage($user);
-
-        $info = Internationalization::getLanguageInfo(strtolower($lang));
+        $info = Internationalization::getLanguageInfo($lang);
         if (!$info)
             // Not a supported language
             return;
@@ -855,6 +854,198 @@ class TextDomain {
     }
 }
 
+require_once INCLUDE_DIR . 'class.orm.php';
+class CustomDataTranslation extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => TRANSLATION_TABLE,
+        'pk' => array('id')
+    );
+
+    const FLAG_FUZZY        = 0x01;     // Source string has been changed
+    const FLAG_UNAPPROVED   = 0x02;     // String has been reviewed by an authority
+    const FLAG_CURRENT      = 0x04;     // If more than one version exist, this is current
+    const FLAG_COMPLEX      = 0x08;     // Multiple strings in one translation. For instance article title and body
+
+    var $_complex;
+
+    static function lookup($msgid, $flags=0) {
+        if (!is_string($msgid))
+            return parent::lookup($msgid);
+
+        // Hash is 16 char of md5
+        $hash = substr(md5($msgid), -16);
+
+        $criteria = array('object_hash'=>$hash);
+
+        if ($flags)
+            $criteria += array('flags__hasbit'=>$flags);
+
+        return parent::lookup($criteria);
+    }
+
+    static function getTranslation($locale, $cache=true) {
+        static $_cache = array();
+
+        if ($cache && isset($_cache[$locale]))
+            return $_cache[$locale];
+
+        $criteria = array(
+            'lang' => $locale,
+            'type' => 'phrase',
+        );
+
+        $mo = array();
+        foreach (static::objects()->filter($criteria) as $t) {
+            $mo[$t->object_hash] = $t;
+        }
+
+        return $_cache[$locale] = $mo;
+    }
+
+    static function translate($msgid, $locale=false, $cache=true, $type='phrase') {
+        global $thisstaff, $thisclient;
+
+        // Support sending a User as the locale
+        if (is_object($locale) && method_exists($locale, 'getLanguage'))
+            $locale = $locale->getLanguage();
+        elseif (!$locale)
+            $locale = Internationalization::getCurrentLanguage();
+
+        // Perhaps a slight optimization would be to check if the selected
+        // locale is also the system primary. If so, short-circuit
+
+        if ($locale) {
+            if ($cache) {
+                $mo = static::getTranslation($locale);
+                if (isset($mo[$msgid]))
+                    $msgid = $mo[$msgid]->text;
+            }
+            elseif ($p = static::lookup(array(
+                    'type' => $type,
+                    'lang' => $locale,
+                    'object_hash' => $msgid
+            ))) {
+                $msgid = $p->text;
+            }
+        }
+        return $msgid;
+    }
+
+    /**
+     * Decode complex translation message. Format is given in the $text
+     * parameter description. Complex data should be stored with the
+     * FLAG_COMPLEX flag set, and allows for complex key:value paired data
+     * to be translated. This is useful for strings which are translated
+     * together, such as the title and the body of an article. Storing the
+     * data in a single, complex record allows for a single database query
+     * to fetch or update all data for a particular object, such as a
+     * knowledgebase article. It also simplifies search indexing as only one
+     * translation record could be added for all the translatable elements
+     * for a single translatable object.
+     *
+     * Caveats:
+     * ::$text will return the stored, complex text. Use ::getComplex() to
+     * decode the complex storage format and retrieve the array.
+     *
+     * Parameters:
+     * $text - (string) - encoded text with the following format
+     *      version \x03 key \x03 item1 \x03 key \x03 item2 ...
+     *
+     * Returns:
+     * (array) key:value pairs of translated content
+     */
+    function decodeComplex($text) {
+        $blocks = explode("\x03", $text);
+        $version = array_shift($blocks);
+
+        $data = array();
+        switch ($version) {
+        case 'A':
+            while (count($blocks) > 1) {
+                $key = array_shift($blocks);
+                $data[$key] = array_shift($blocks);
+            }
+            break;
+        default:
+            throw new Exception($version . ': Unknown complex format');
+        }
+
+        return $data;
+    }
+
+    /**
+     * Encode complex content using the format outlined in ::decodeComplex.
+     *
+     * Caveats:
+     * This method does not set the FLAG_COMPLEX flag for this record, which
+     * should be set when storing complex data.
+     */
+    static function encodeComplex(array $data) {
+        $encoded = 'A';
+        foreach ($data as $key=>$text) {
+            $encoded .= "\x03{$key}\x03{$text}";
+        }
+        return $encoded;
+    }
+
+    function getComplex() {
+        if (!$this->flags && self::FLAG_COMPLEX)
+            throw new Exception('Data consistency error. Translation is not complex');
+        if (!isset($this->_complex))
+            $this->_complex = $this->decodeComplex($this->text);
+        return $this->_complex;
+    }
+
+    static function translateArticle($msgid, $locale=false) {
+        return static::translate($msgid, $locale, false, 'article');
+    }
+
+    function save($refetch=false) {
+        if (isset($this->text) && is_array($this->text)) {
+            $this->text = static::encodeComplex($this->text);
+            $this->flags |= self::FLAG_COMPLEX;
+        }
+        return parent::save($refetch);
+    }
+
+    static function create($ht=false) {
+        if (!is_array($ht))
+            return null;
+
+        if (is_array($ht['text'])) {
+            // The parent constructor does not honor arrays
+            $ht['text'] = static::encodeComplex($ht['text']);
+            $ht['flags'] = ($ht['flags'] ?: 0) | self::FLAG_COMPLEX;
+        }
+        return new static($ht);
+    }
+
+    static function allTranslations($msgid, $type='phrase', $lang=false) {
+        $criteria = array('type' => $type);
+
+        if (is_array($msgid))
+            $criteria['object_hash__in'] = $msgid;
+        else
+            $criteria['object_hash'] = $msgid;
+
+        if ($lang)
+            $criteria['lang'] = $lang;
+
+        try {
+            return static::objects()->filter($criteria)->all();
+        }
+        catch (OrmException $e) {
+            // Translation table might not exist yet — happens on the upgrader
+            return array();
+        }
+    }
+}
+
+class CustomTextDomain {
+
+}
+
 // Functions for gettext library. Since the gettext extension for PHP is not
 // used as a fallback, there is no detection and compat funciton
 // installation for the gettext library function calls.
@@ -910,6 +1101,15 @@ function _dcnpgettext($domain, $context, $singular, $plural, $category, $n) {
         ->npgettext($context, $singular, $plural, $n);
 }
 
+// Custom data translations
+function _H($tag) {
+    return substr(md5($tag), -16);
+}
+
+interface Translatable {
+    function getTranslationTag();
+    function getLocalName($user=false);
+}
 
 do {
   if (PHP_SAPI != 'cli') break;

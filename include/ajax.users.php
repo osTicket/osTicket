@@ -22,61 +22,90 @@ require_once INCLUDE_DIR.'class.note.php';
 
 class UsersAjaxAPI extends AjaxController {
 
-    /* Assumes search by emal for now */
-    function search($type = null) {
+    /* Assumes search by basic info for now */
+    function search($type = null, $fulltext=false) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, __('Query argument is required'));
         }
 
+        $matches = array();
+        if (!$_REQUEST['q'])
+            return $this->json_encode($matches);
+
+        $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
+        $matches = array();
+
+        if (strlen($q) < 3)
+            return $this->encode(array());
 
         if (!$type || !strcasecmp($type, 'remote')) {
-            foreach (AuthenticationBackend::searchUsers($_REQUEST['q']) as $u) {
-                $name = new PersonsName(array('first' => $u['first'], 'last' => $u['last']));
-                $users[] = array('email' => $u['email'], 'name'=>(string) $name,
+            foreach (AuthenticationBackend::searchUsers($q) as $u) {
+                if (!trim($u['email']))
+                    // Email is required currently
+                    continue;
+                $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
+                $matches[] = array('email' => $u['email'], 'name'=>(string) $name,
                     'info' => "{$u['email']} - $name (remote)",
-                    'id' => "auth:".$u['id'], "/bin/true" => $_REQUEST['q']);
+                    'id' => "auth:".$u['id'], "/bin/true" => $q);
                 $emails[] = $u['email'];
             }
         }
 
         if (!$type || !strcasecmp($type, 'local')) {
-            $remote_emails = ($emails = array_filter($emails))
-                ? ' OR email.address IN ('.implode(',',db_input($emails)).') '
-                : '';
 
-            $q = str_replace(' ', '%', $_REQUEST['q']);
-            $escaped = db_input($q, false);
-            $sql='SELECT DISTINCT user.id, email.address, name '
-                .' FROM '.USER_TABLE.' user '
-                .' JOIN '.USER_EMAIL_TABLE.' email ON user.id = email.user_id '
-                .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'U\' AND entry.object_id = user.id)
-                   LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-                .' WHERE email.address LIKE \'%'.$escaped.'%\'
-                   OR user.name LIKE \'%'.$escaped.'%\'
-                   OR value.value LIKE \'%'.$escaped.'%\''.$remote_emails
-                .' LIMIT '.$limit;
+            $users = User::objects()
+                ->values_flat('id', 'name', 'default_email__address')
+                ->limit($limit);
 
-            if(($res=db_query($sql)) && db_num_rows($res)){
-                while(list($id,$email,$name)=db_fetch_row($res)) {
-                    foreach ($users as $i=>$u) {
-                        if ($u['email'] == $email) {
-                            unset($users[$i]);
-                            break;
-                        }
-                    }
-                    $name = Format::htmlchars(new PersonsName($name));
-                    $users[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                        "id" => $id, "/bin/true" => $_REQUEST['q']);
+            if ($fulltext) {
+                global $ost;
+                $users = $ost->searcher->find($q, $users);
+                $users->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+                    ->distinct('id');
+
+                if (!count($emails) && !count($users) && preg_match('`\w$`u', $q)) {
+                    // Do wildcard full-text search
+                    $_REQUEST['q'] = $q."*";
+                    return $this->search($type, $fulltext);
                 }
+            } else {
+                $users->filter(Q::any(array(
+                    'emails__address__contains' => $q,
+                    'name__contains' => $q,
+                    'org__name__contains' => $q,
+                )));
             }
-            usort($users, function($a, $b) { return strcmp($a['name'], $b['name']); });
+
+            // Omit already-imported remote users
+            if ($emails = array_filter($emails)) {
+                $users->union(User::objects()
+                    ->values_flat('id', 'name', 'default_email__address')
+                    ->annotate(array('__relevance__' => new SqlCode(1)))
+                    ->filter(array(
+                        'emails__address__in' => $emails
+                )));
+            }
+
+            foreach ($users as $U) {
+                list($id, $name, $email) = $U;
+                foreach ($matches as $i=>$u) {
+                    if ($u['email'] == $email) {
+                        unset($matches[$i]);
+                        break;
+                    }
+                }
+                $name = Format::htmlchars(new UsersName($name));
+                $matches[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
+                    "id" => $id, "/bin/true" => $_REQUEST['q']);
+            }
+            usort($matches, function($a, $b) { return strcmp($a['name'], $b['name']); });
         }
 
-        return $this->json_encode(array_values($users));
+        return $this->json_encode(array_values($matches));
 
     }
 
@@ -110,6 +139,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -126,6 +157,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -142,6 +175,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_MANAGE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -169,6 +204,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_MANAGE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
@@ -201,17 +238,17 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_DELETE))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($id)))
             Http::response(404, 'Unknown user');
 
         $info = array();
         if ($_POST) {
             if ($user->tickets->count()) {
-                if (!$thisstaff->canDeleteTickets()) {
-                    $info['error'] = __('You do not have permission to delete a user with tickets!');
-                } elseif ($_POST['deletetickets']) {
-                    foreach($user->tickets as $ticket)
-                        $ticket->delete();
+                if ($_POST['deletetickets']) {
+                    if (!$user->deleteAllTickets())
+                        $info['error'] = __('You do not have permission to delete a user with tickets!');
                 } else {
                     $info['error'] = __('You cannot delete a user with tickets!');
                 }
@@ -241,6 +278,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function addUser() {
+        global $thisstaff;
 
         $info = array();
 
@@ -248,6 +286,9 @@ class UsersAjaxAPI extends AjaxController {
             $info['lookup'] = 'local';
 
         if ($_POST) {
+            if (!$thisstaff->hasPerm(User::PERM_CREATE))
+                Http::response(403, 'Permission Denied');
+
             $info['title'] = __('Add New User');
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form)))
@@ -264,6 +305,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
         elseif (!($backend = AuthenticationBackend::getSearchDirectoryBackend($bk))
@@ -285,6 +328,8 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
 
         $info = array(
             'title' => __('Import Users'),
@@ -305,6 +350,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function selectUser($id) {
+        global $thisstaff;
 
         if ($id)
             $user = User::lookup($id);
@@ -320,9 +366,14 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     static function _lookupform($form=null, $info=array()) {
+        global $thisstaff;
 
-        if (!$info or !$info['title'])
-            $info += array('title' => __('Lookup or create a user'));
+        if (!$info or !$info['title']) {
+            if ($thisstaff->hasPerm(User::PERM_CREATE))
+                $info += array('title' => __('Lookup or create a user'));
+            else
+                $info += array('title' => __('Lookup a user'));
+        }
 
         ob_start();
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
@@ -413,7 +464,7 @@ class UsersAjaxAPI extends AjaxController {
     }
 
     function manageForms($user_id) {
-        $forms = DynamicFormEntry::forUser($user_id);
+        $forms = DynamicFormEntry::forObject($user_id, 'U');
         $info = array('action' => '#users/'.Format::htmlchars($user_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -423,13 +474,15 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required");
+        elseif (!$thisstaff->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($user = User::lookup($user_id)))
             Http::response(404, "No such user");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forUser($user_id);
+        $forms = DynamicFormEntry::forObject($user_id, 'U');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {

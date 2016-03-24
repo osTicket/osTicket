@@ -30,7 +30,7 @@
   color: #333333;
   background-color: #ffffff;
   margin: 0;
-  padding: 0.5em;
+  padding: 0.9em;
   word-wrap: break-word;
   overflow-x: auto;
 }
@@ -68,7 +68,7 @@
 .thread-body kbd,
 .thread-body pre,
 .thread-body samp {
-  font-family: monospace, serif;
+  font-family: 'Source Code Pro', 'Monaco', 'Consolas', monospace, serif;
   font-size: 1em;
 }
 .thread-body pre {
@@ -110,16 +110,16 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.thread-body a {
-  color: #428bca;
-  text-decoration: none;
+.thread-body a:not(.button) {
+  color: #428bca !important;
+  text-decoration: underline;
 }
-.thread-body a:hover,
-.thread-body a:focus {
+.thread-body a:not(.button):hover,
+.thread-body a:not(.button):focus {
   color: #2a6496;
   text-decoration: underline;
 }
-.thread-body a:focus {
+.thread-body a:not(.button):focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
@@ -210,15 +210,15 @@
 }
 .thread-body h1,
 .thread-body .h1 {
-  font-size: 36px;
+  font-size: 30px;
 }
 .thread-body h2,
 .thread-body .h2 {
-  font-size: 30px;
+  font-size: 25px;
 }
 .thread-body h3,
 .thread-body .h3 {
-  font-size: 24px;
+  font-size: 21px;
 }
 .thread-body h4,
 .thread-body .h4 {
@@ -396,7 +396,7 @@
 .thread-body blockquote,
 .thread-body pre {
 	font-size: 14px;
-	line-height: 1.4rem;
+	line-height: 1.5rem;
 }
 
 /* Adjust plain/text messages posted as <pre> in the thread body to show in
@@ -422,9 +422,16 @@
 	margin: 0;
 	margin-bottom: 10px;
 	border: none;
-	background: none !important;
+    background: none;
 	box-shadow: none !important;
     text-indent: 0 !important;
+}
+
+.thread-body pre {
+    background: #f5f5f5;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 5px;
+    padding: 0.5em;
 }
 
 .thread-body iframe,
@@ -469,9 +476,6 @@ table.thread-entry {
 table.thread-entry th div span {
     vertical-align: middle;
 }
-table.thread-entry th div :not(.title) {
-    font-weight: 600;
-}
 table.thread-entry th div .title {
     font-weight: 400;
 }
@@ -486,23 +490,18 @@ table.thread-entry th .textra {
     max-width: 100%; /* Ensure image hovered is resized */
 }
 .image-hover .caption {
-    background-color: rgba(0,0,0,0.5);
-    min-width: 20em;
-    color: white;
-    padding: 1em;
-    display: none;
-    width: 100%;
     position: absolute;
-    bottom: 0;
-    left: 0;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    right: 3px;
+    bottom: 5px;
+
+    visibility: hidden;
+    opacity: 0.5;
+    transition: visibility 0s linear, opacity 0.2s ease-in;
 }
-.image-hover .caption .filename {
-    display: inline-block;
-    max-width: 60%;
-    overflow: hidden;
+.image-hover:hover .caption {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0.2s;
 }
 
 /* Additional style for the mighty Microsoft Office emails "standard" style */

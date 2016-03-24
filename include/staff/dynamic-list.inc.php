@@ -6,6 +6,8 @@ if ($list) {
     $action = 'update';
     $submit_text = __('Save Changes');
     $info = $list->getInfo();
+    $trans['name'] = $list->getTranslateTag('name');
+    $trans['plural'] = $list->getTranslateTag('plural');
     $newcount=2;
 } else {
     $title = __('Add New Custom List');
@@ -22,24 +24,27 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2><?php echo __('Custom List'); ?>
-    <?php echo $list ? $list->getName() : __('Add new list'); ?></h2>
-
-<ul class="tabs">
-    <li><a href="#definition" class="active">
+    <h2><?php echo $title; ?>
+        <?php if (isset($info['name'])) { ?><small>
+        — <?php echo $info['name']; ?></small>
+        <?php } ?>
+    </h2>
+<ul class="clean tabs" id="list-tabs">
+    <li <?php if (!$list) echo 'class="active"'; ?>><a href="#definition">
         <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
-    <li><a href="#items">
-        <i class="icon-list"></i> <?php echo __('Items'); ?></a></li>
+<?php if ($list) { ?>
+    <li class="active"><a href="#items">
+        <i class="icon-list"></i> <?php echo sprintf(__('Items (%d)'), $list->getItems()->count()); ?></a></li>
+<?php } ?>
     <li><a href="#properties">
         <i class="icon-asterisk"></i> <?php echo __('Properties'); ?></a></li>
 </ul>
-
-<div id="definition" class="tab_content">
+<div id="list-tabs_container">
+<div id="definition" class="tab_content <?php if ($list) echo 'hidden'; ?>">
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __(
                 'Custom lists are used to provide drop-down lists for custom forms.'
                 ); ?>&nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
@@ -55,9 +60,10 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     echo $list->getName();
                 else {
                     echo sprintf('<input size="50" type="text" name="name"
+                            data-translate-tag="%s" autofocus
                             value="%s"/> <span
                             class="error">*<br/>%s</span>',
-                            $info['name'], $errors['name']);
+                            $trans['name'], $info['name'], $errors['name']);
                 }
                 ?>
             </td>
@@ -70,8 +76,9 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                         echo $list->getPluralName();
                     else
                         echo sprintf('<input size="50" type="text"
+                                data-translate-tag="%s"
                                 name="name_plural" value="%s"/>',
-                                $info['name_plural']);
+                                $trans['plural'], $info['name_plural']);
                 ?>
             </td>
         </tr>
@@ -104,7 +111,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     </tbody>
     </table>
 </div>
-<div id="properties" class="tab_content" style="display:none">
+<div id="properties" class="hidden tab_content">
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -117,6 +124,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <th nowrap></th>
             <th nowrap><?php echo __('Label'); ?></th>
             <th nowrap><?php echo __('Type'); ?></th>
+            <th nowrap><?php echo __('Visibility'); ?></th>
             <th nowrap><?php echo __('Variable'); ?></th>
             <th nowrap><?php echo __('Delete'); ?></th>
         </tr>
@@ -131,6 +139,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <td><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="prop-label-<?php echo $id; ?>"
+                data-translate-tag="<?php echo $f->getTranslateTag('label'); ?>"
                 value="<?php echo Format::htmlchars($f->get('label')); ?>"/>
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
@@ -155,6 +164,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     href="#form/field-config/<?php
                         echo $f->get('id'); ?>"><i
                         class="icon-cog"></i> <?php echo __('Config'); ?></a> <?php } ?></td>
+            <td>
+                <?php echo $f->getVisibilityDescription(); ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
                     value="<?php echo Format::htmlchars($f->get('name'));
@@ -195,6 +206,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 </optgroup>
                 <?php } ?>
             </select></td>
+            <td></td>
             <td><input type="text" size="20" name="name-new-<?php echo $i; ?>"
                 value="<?php echo $info["name-new-$i"]; ?>"/>
                 <font class="error"><?php
@@ -206,125 +218,15 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     </tbody>
 </table>
 </div>
-<div id="items" class="tab_content" style="display:none">
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-    <?php if ($list) {
-        $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-        $count = $list->getNumItems();
-        $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-        $pageNav->setURL('list.php', array('id' => $list->getId()));
-        $showing=$pageNav->showing().' '.__('list items');
-        ?>
-    <?php }
-        else $showing = __('Add a few initial items to the list');
-    ?>
-        <tr>
-            <th colspan="5">
-                <em><?php echo $showing; ?></em>
-            </th>
-        </tr>
-        <tr>
-            <th></th>
-            <th><?php echo __('Value'); ?></th>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <th><?php echo __(/* Short for 'abbreviation' */ 'Abbrev'); ?> <em style="display:inline">&mdash;
-                <?php echo __('abbreviations and such'); ?></em></th>
-            <?php
-            } ?>
-            <th><?php echo __('Disabled'); ?></th>
-            <th><?php echo __('Delete'); ?></th>
-        </tr>
-    </thead>
 
-    <tbody <?php if ($info['sort_mode'] == 'SortCol') { ?>
-            class="sortable-rows" data-sort="sort-"<?php } ?>>
-        <?php
-        if ($list) {
-            $icon = ($info['sort_mode'] == 'SortCol')
-                ? '<i class="icon-sort"></i>&nbsp;' : '';
-        foreach ($list->getAllItems() as $i) {
-            $id = $i->getId(); ?>
-        <tr class="<?php if (!$i->isEnabled()) echo 'disabled'; ?>">
-            <td><?php echo $icon; ?>
-                <input type="hidden" name="sort-<?php echo $id; ?>"
-                value="<?php echo $i->getSortOrder(); ?>"/></td>
-            <td><input type="text" size="40" name="value-<?php echo $id; ?>"
-                value="<?php echo $i->getValue(); ?>"/>
-                <?php if ($list->hasProperties()) { ?>
-                   <a class="action-button field-config"
-                       style="overflow:inherit"
-                       href="#list/<?php
-                        echo $list->getId(); ?>/item/<?php
-                        echo $id ?>/properties"
-                       id="item-<?php echo $id; ?>"
-                    ><?php
-                        echo sprintf('<i class="icon-edit" %s></i> ',
-                                $i->getConfiguration()
-                                ? '': 'style="color:red; font-weight:bold;"');
-                        echo __('Properties');
-                   ?></a>
-                <?php
-                }
-
-                if ($errors["value-$id"])
-                    echo sprintf('<br><span class="error">%s</span>',
-                            $errors["value-$id"]);
-                ?>
-            </td>
-            <?php
-            if ($list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-<?php echo $id; ?>"
-                value="<?php echo $i->getAbbrev(); ?>"/></td>
-            <?php
-            } ?>
-            <td>
-                <?php
-                if (!$i->isDisableable())
-                     echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="disable-%s"
-                            %s %s />',
-                            $id,
-                            !$i->isEnabled() ? ' checked="checked" ' : '',
-                            (!$i->isEnabled() && !$i->isEnableable()) ? ' disabled="disabled" ' : ''
-                            );
-                ?>
-            </td>
-            <td>
-                <?php
-                if (!$i->isDeletable())
-                    echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="delete-item-%s">', $id);
-
-                ?>
-            </td>
-        </tr>
-    <?php }
-    }
-
-    if (!$list || $list->allowAdd()) {
-       for ($i=0; $i<$newcount; $i++) { ?>
-        <tr>
-            <td><?php echo $icon; ?> <em>+</em>
-                <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
-            <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-new-<?php echo $i; ?>"/></td>
-            <?php
-            } ?>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-    <?php
-       }
-    }?>
-    </tbody>
-    </table>
+<?php if ($list) { ?>
+<div id="items" class="tab_content">
+<?php
+    $pjax_container = '#items';
+    include STAFFINC_DIR . 'templates/list-items.tmpl.php'; ?>
 </div>
+<?php } ?>
+
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
@@ -335,13 +237,45 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
 
 <script type="text/javascript">
 $(function() {
-    $('a.field-config').click( function(e) {
+    $('#properties, #items').on('click', 'a.field-config', function(e) {
         e.preventDefault();
         var $id = $(this).attr('id');
         var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, [201], function (xhr) {
-            $('a#'+$id+' i').removeAttr('style');
+        $.dialog(url, [201], function (xhr, resp) {
+          var json = $.parseJSON(resp);
+          if (json && json.success) {
+            if (json.row) {
+              if (json.id)
+                $('#list-item-' + json.id).replaceWith(json.row);
+              else
+                $('#list-items').append(json.row);
+            }
+          }
         });
+        return false;
+    });
+    $('#items').on('click', 'a.items-action', function(e) {
+        e.preventDefault();
+        var ids = [];
+        $('form#save :checkbox.mass:checked').each(function() {
+            ids.push($(this).val());
+        });
+        if (ids.length && confirm(__('You sure?'))) {
+            $.ajax({
+              url: 'ajax.php/' + $(this).attr('href').substr(1),
+              type: 'POST',
+              data: {count:ids.length, ids:ids},
+              dataType: 'json',
+              success: function(json) {
+                if (json.success) {
+                  if (window.location.search.indexOf('a=items') != -1)
+                    $.pjax.reload('#items');
+                  else
+                    $.pjax.reload('#pjax-container');
+                }
+              }
+            });
+        }
         return false;
     });
 });

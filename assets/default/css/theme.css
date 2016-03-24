@@ -6,7 +6,7 @@ html {
 }
 body {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.231;
   padding: 0;
 }
@@ -14,7 +14,7 @@ body,
 input,
 select,
 textarea {
-  font-family: sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   color: #000;
 }
 b,
@@ -80,12 +80,7 @@ input[type="checkbox"],
 input[type="radio"] {
   box-sizing: border-box;
 }
-input[type="search"] {
-  -webkit-appearance: textfield;
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-}
+
 textarea {
   overflow: auto;
   vertical-align: top;
@@ -115,9 +110,16 @@ fieldset {
   padding: 0;
 }
 /* Typography */
-a {
+a, .link {
   color: #0072bc;
   text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1px;
+}
+a:hover, .link:hover {
+    border-bottom: 1px dotted #0072bc;
+    margin-bottom: 0;
+    cursor: pointer;
 }
 h1 {
   color: #00AEEF;
@@ -201,7 +203,7 @@ h2, .subject {
   border: 1px solid #0a0;
   background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0;
 }
-#msg_warning {
+#msg_warning, .warning-banner {
   margin: 0;
   padding: 5px 10px 5px 36px;
   height: 16px;
@@ -238,13 +240,13 @@ h2, .subject {
 .button,
 .button:visited {
   background: #222;
+  border: none;
   display: inline-block;
   font-size: 16px;
-  padding: 8px 16px 6px 16px;
+  padding: 4px 16px 4px 16px;
   max-width: 220px;
   text-align: center;
   color: #fff;
-  font-weight: bold;
   text-decoration: none;
   border-radius: 5px;
   -moz-border-radius: 5px;
@@ -329,6 +331,7 @@ body {
   box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 }
 #nav li {
   margin: 0;
@@ -413,13 +416,15 @@ body {
 }
 .front-page-button {
 }
+.main-content {
+  width: 565px;
+}
 #landing_page #new_ticket {
   margin-top: 40px;
   background: url('../images/new_ticket_icon.png') top left no-repeat;
 }
 #landing_page #new_ticket,
-#landing_page #check_status,
-.front-page-button {
+#landing_page #check_status {
   width: 295px;
   padding-left: 75px;
 }
@@ -427,12 +432,8 @@ body {
   margin-top: 40px;
   background: url('../images/check_status_icon.png') top left no-repeat;
 }
-.rtl #landing_page #new_ticket,
-.rtl #landing_page #check_status,
-.rtl .front-page-button {
-  padding-left: 0;
-  padding-right: 75px;
-  background-position: top right;
+#landing_page h1, #landing_page h2, #landing_page h3 {
+    margin-bottom: 10px;
 }
 /* Landing page FAQ not yet implemented. */
 #faq {
@@ -482,10 +483,7 @@ body {
   margin: 0;
   background: url(../images/kb_category_bg.png) bottom left repeat-x;
   border-bottom: 1px solid #ddd;
-}
-#kb > li h4 {
-  padding-bottom: 3px;
-  margin-bottom: 3px;
+  display: block;
 }
 #kb > li h4 span {
   color: #666;
@@ -493,13 +491,51 @@ body {
 #kb > li h4 a {
   font-size: 14px;
 }
-#kb li i {
+#kb > li > i {
   display: block;
   width: 32px;
   height: 32px;
   float: left;
   margin-right: 6px;
   background: url(../images/kb_large_folder.png) top left no-repeat;
+}
+.featured-category {
+    margin-top: 10px;
+    width: 49.7%;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+}
+.category-name {
+    display: inline-block;
+    font-weight: 400;
+    font-size: 120%;
+}
+.featured-category i {
+    color: rgba(0,174,239, 0.8);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    vertical-align: middle;
+}
+.article-headline {
+    margin-left: 34px;
+}
+.rtl .article-headline {
+    margin-left: 0;
+    margin-right: 34px;
+}
+.article-teaser {
+    font-size: 90%;
+    line-height: 1.5em;
+    height: 3em;
+    overflow: hidden;
+}
+.article-title {
+    font-weight: 500;
+}
+.faq-content .article-title {
+    font-size: 17pt;
+    margin-top: 15px;
 }
 #kb-search {
   padding: 10px 0;
@@ -556,7 +592,7 @@ body {
 #clientLogin div label {
   display: block;
 }
-label.required {
+label.required, span.required {
   font-weight: bold;
 }
 #ticketForm div label.required,
@@ -693,13 +729,15 @@ label.required {
     border-radius: 4px;
 }
 #reply {
-  margin-top: 20px;
-  padding: 10px 5px;
+  margin-top: 5px;
+  padding: 10px;
   background: #f9f9f9;
   border: 1px solid #ccc;
 }
 #reply h2 {
   margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px dotted rgba(0,0,0,0.1);
 }
 #reply > table {
   width: auto;
@@ -754,9 +792,6 @@ label.required {
   font-size: 1em;
   background-image: url('../images/icons/thread.gif?1319556657');
 }
-.Icon:hover {
-  text-decoration: underline;
-}
 #ticketTable {
   border: 1px solid #aaa;
   border-left: none;
@@ -778,12 +813,13 @@ label.required {
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
+  padding: 0 5px;
 }
 #ticketTable th a {
   color: #000;
 }
 #ticketTable td {
-  padding: 2px;
+  padding: 3px 5px;
   border: 1px solid #aaa;
   border-right: none;
   border-top: none;
@@ -791,70 +827,29 @@ label.required {
 #ticketTable tr.alt td {
   background: #f9f9f9;
 }
-#ticketSearchForm {
-  display: inline-block;
-  float: left;
-  padding: 0 0 5px 0;
+i.refresh {
+  color: #0a0;
+  font-size: 80%;
+  vertical-align: middle;
 }
-a.refresh {
-  display: block;
-  width: auto;
-  float: right;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  padding: 0 10px 0 28px;
-  border: 1px solid #aaa;
-  margin-left: 10px;
-  color: #333;
-  background-position: 5px 50%;
-  background-repeat: no-repeat;
-  background-image: url('../images/icons/refresh.png');
+.states small {
+    font-size: 70%;
+}
+.active.state {
+    font-weight: bold;
+}
+.search.well {
+    padding: 10px;
+    background-color: rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+    margin-top: -15px;
 }
 .infoTable {
   background: #F4FAFF;
 }
 .infoTable th {
   text-align: left;
-}
-#ticketThread table.response,
-#ticketThread table.message {
-  margin-top: 10px;
-  border: 1px solid #aaa;
-  border-bottom: 2px solid #aaa;
-}
-#ticketThread table th {
-  text-align: left;
-  border-bottom: 1px solid #aaa;
-  font-size: 12px;
-  padding: 5px;
-}
-#ticketThread table th span {
-  font-weight: normal;
-  color: #888;
-  padding-left: 20px;
-}
-#ticketThread .message th {
-  background: #d8efff;
-}
-#ticketThread .response th {
-  background: #ddd;
-}
-#ticketThread .info {
-  padding: 2px;
-  background: #f9f9f9;
-  border-top: 1px solid #ddd;
-  height: 16px;
-  line-height: 16px;
-}
-#ticketThread .info a {
-  display: inline-block;
-  margin: 5px 10px 5px 0;
-  padding-left: 24px;
-  height: 16px;
-  line-height: 16px;
-  background-position: 0 50%;
-  background-repeat: no-repeat;
+  padding: 3px 8px;
 }
 .action-button {
   -webkit-border-radius: 3px;
@@ -868,7 +863,6 @@ a.refresh {
   border: 1px solid #aaa;
   cursor: pointer;
   font-size: 11px;
-  height: 18px;
   overflow: hidden;
   background-color: #dddddd;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
@@ -880,7 +874,6 @@ a.refresh {
   padding: 0 5px;
   text-decoration: none;
   line-height:18px;
-  float:right;
   margin-left:5px;
 }
 .action-button span,
@@ -946,4 +939,346 @@ img.sign-in-image {
 }
 .flush-left {
     text-align: left;
+}
+.sidebar {
+    margin-bottom: 20px;
+    margin-left: 20px;
+    width: 215px;
+}
+.rtl .sidebar {
+    margin-left: 0;
+    margin-right: 20px;
+}
+.sidebar .content {
+    padding: 10px; border: 1px solid #C8DDFA; background: #F7FBFE;
+}
+.sidebar .content:empty {
+    display: none;
+}
+
+.sidebar section .header {
+    font-weight: bold;
+    margin-bottom: 0.3em;
+}
+.sidebar section + section {
+    margin-top: 15px;
+}
+.search-form {
+    padding-top: 12px;
+}
+.searchbar .search,
+.search-form .search {
+    display: inline-block;
+    width: 400px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.searchbar .search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.bleed {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.row {
+}
+.span4 {
+    display: inline-block;
+    width: 29.5%;
+    margin: 0 1%;
+    vertical-align: top;
+}
+.span8 {
+    display: inline-block;
+    width: 66.0%;
+    margin: 0 1%;
+    vertical-align: top;
+}
+.truncate {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+.image-hover a.action-button:hover,
+.image-hover a.action-button {
+    color: initial !important;
+    text-decoration: none;
+}
+table.custom-data {
+    margin-top: 10px;
+}
+table.custom-data th {
+    width: 25%;
+}
+table.custom-data th {
+    background-color: #F4FAFF;
+    padding: 3px 8px;
+}
+table .headline,
+table.custom-data .headline {
+    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid rgba(0,0,0,0.15);
+    font-weight: bold;
+    background-color: white;
+}
+#ticketInfo h1 {
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    border-bottom: 2px dotted rgba(0, 0, 0, 0.15);
+}
+#ticketInfo h1 small {
+    font-weight: normal;
+}
+.thread-entry {
+    margin-bottom: 15px;
+}
+.thread-entry.avatar {
+    margin-left: 60px;
+}
+.thread-entry.response.avatar {
+    margin-right: 60px;
+    margin-left: 0;
+}
+.thread-entry > .avatar {
+    margin-left: -60px;
+    display:inline-block;
+    width:48px;
+    height:auto;
+    border-radius: 5px;
+}
+.thread-entry.response > .avatar {
+    margin-left: initial;
+    margin-right: -60px;
+}
+img.avatar {
+    border-radius: inherit;
+}
+.avatar > img.avatar {
+    width: 100%;
+    height: auto;
+}
+.thread-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: 5px 5px 0 0;
+}
+.thread-entry.avatar .header:before {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #b0b0b0;
+  display: inline-block;
+}
+.thread-entry.avatar .header:after {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.thread-entry.avatar .header {
+    position: relative;
+}
+
+.thread-entry.response .header {
+    background:#dddddd;
+}
+.thread-entry.avatar.response .header:after {
+    border-left: 7px solid #dddddd;
+    margin-right: 1px;
+}
+
+.thread-entry.message .header {
+    background:#C3D9FF;
+}
+.thread-entry.avatar.message .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+.thread-entry.avatar.message .header:before {
+    border-right-color: #9cadcc;
+}
+.thread-entry.avatar.message .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #c3d9ff;
+    margin-left: 1px;
+}
+
+.thread-entry .header .title {
+    max-width: 500px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.thread-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom:2px solid #aaa;
+    border-radius: 0 0 5px 5px;
+}
+.thread-body .attachments {
+  background-color: #f4faff;
+  margin: 0 -0.9em;
+  position: relative;
+  top: 0.9em;
+  padding: 0.3em 0.9em;
+  border-top: 1px dotted #ccc;
+  border-top-color: rgba(0,0,0,0.2);
+  border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments .filesize {
+  margin-left: 0.5em;
+}
+.thread-body .attachments a,
+.thread-body .attachments a:hover {
+  text-decoration: none;
+}
+.thread-body .attachment-info {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+}
+.thread-body .attachment-info .filename {
+  max-width: 80%;
+  max-width: calc(100% - 70px);
+}
+.label {
+  font-size: 11px;
+  padding: 1px 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 14px;
+  color: #ffffff;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999999;
+}
+.label-bare {
+  background-color: transparent;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #999999;
+  color: #999999;
+  text-shadow: none;
+}
+.thread-event {
+    padding: 0px 2px 15px;
+    margin-left: 60px;
+}
+.type-icon {
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    padding: 4px 6px;
+    margin-right: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.1em;
+    border: 1px solid #eee;
+    vertical-align: top;
+}
+.type-icon.dark {
+    border-color: #666;
+    background-color: #949494;
+}
+.thread-event img.avatar {
+    vertical-align: middle;
+    border-radius: 3px;
+    width: auto;
+    max-height: 24px;
+    margin: -3px 3px 0;
+}
+.thread-event .description {
+    margin-left: -30px;
+    padding-top: 6px;
+    padding-left: 30px;
+    display: inline-block;
+    width: 642px;
+    width: calc(100% - 95px);
+    line-height: 1.4em;
+}
+.thread-event .type-icon {
+  position:relative;
+}
+.thread-event .type-icon::after {
+  content: "";
+  border: 16px solid white;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: -3px;
+  right: 0;
+  z-index: -1;
+}
+.thread-entry::after {
+  content: "";
+  border-bottom: 2px solid white;
+  display: block;
+}
+.thread-entry::before {
+  content: "";
+  display: block;
+  border-top: 2px solid white;
+}
+#ticketThread::before {
+  border-left: 2px dotted #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+  position: absolute;
+  margin-left: 74px;
+  z-index: -1;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+#ticketThread {
+  z-index: 0;
+  position: relative;
+  border-bottom: 2px solid #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+
+.freetext-files {
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px dotted #ddd;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+}
+.freetext-files .file {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+    padding-top: 0.2em;
+}
+.freetext-files .title {
+    font-weight: bold;
+    margin-bottom: 0.3em;
+    font-size: 1.1em;
 }

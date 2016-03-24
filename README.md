@@ -43,7 +43,7 @@ And deploy the code into somewhere in your server's www root folder, for
 instance
 
     cd osTicket-1.8
-    php setup/cli/manage.php deploy --setup /var/www/htdocs/osticket/
+    php manage.php deploy --setup /var/www/htdocs/osticket/
 
 Then you can configure your server if necessary to serve that folder, and
 visit the page and install osTicket as usual. Go ahead and even delete
@@ -52,7 +52,7 @@ later, you can fetch updates and deploy them (from the folder where you
 cloned the git repo into)
 
     git pull
-    php setup/cli/manage.php deploy -v /var/www/htdocs/osticket/
+    php manage.php deploy -v /var/www/htdocs/osticket/
 
 Upgrading
 ---------
@@ -72,10 +72,17 @@ osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
 be presented and will walk you through the rest of the process. (The couple
 clicks needed to go through the process are pretty boring to describe).
 
+### Upgrading from v1.6
 **WARNING**: If you are upgrading from osTicket 1.6, please ensure that all
     your files in your upload folder are both readable and writable to your
     http server software. Unreadable files will not be migrated to the
     database during the upgrade and will be effectively lost.
+
+After upgrading, we recommend migrating your attachments to the database or
+to the new filesystem plugin. Use the `file` command-line applet to perform
+the migration.
+
+    php manage.php file migrate --backend=6 --to=D
 
 View the UPGRADING.txt file for other todo items to complete your upgrade.
 
@@ -119,6 +126,7 @@ osTicket is supported by several magical open source projects including:
   * [Font-Awesome](http://fortawesome.github.com/Font-Awesome/)
   * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
   * [jQuery dropdown](http://labs.abeautifulsite.net/jquery-dropdown/)
+  * [jsTimezoneDetect](http://pellepim.bitbucket.org/jstz/)
   * [mPDF](http://www.mpdf1.com/)
   * [PasswordHash](http://www.openwall.com/phpass/)
   * [PEAR](http://pear.php.net/package/PEAR)

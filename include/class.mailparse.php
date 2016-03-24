@@ -32,7 +32,7 @@ class Mail_Parse {
 
     var $tnef = false;      // TNEF encoded mail
 
-    function Mail_parse(&$mimeMessage, $charset=null){
+    function __construct(&$mimeMessage, $charset=null){
 
         $this->mime_message = &$mimeMessage;
 
@@ -208,14 +208,14 @@ class Mail_Parse {
         if (!($header = $this->struct->headers['from']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getDeliveredToAddressList() {
         if (!($header = $this->struct->headers['delivered-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getToAddressList(){
@@ -223,7 +223,7 @@ class Mail_Parse {
         $tolist = array();
         if ($header = $this->struct->headers['to'])
             $tolist = array_merge($tolist,
-                Mail_Parse::parseAddressList($header));
+                Mail_Parse::parseAddressList($header, $this->charset));
         return $tolist ? $tolist : null;
     }
 
@@ -231,14 +231,14 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['cc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getBccAddressList(){
         if (!($header = @$this->struct->headers['bcc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getMessageId(){
@@ -258,7 +258,7 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['reply-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function isBounceNotice() {
@@ -279,7 +279,7 @@ class Mail_Parse {
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
             if ($body = $this->getPart($this->struct, 'text/plain', 3, false))
-                return new TextThreadBody($body);
+                return new TextThreadEntryBody($body);
         }
         return false;
     }
@@ -303,21 +303,21 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($cfg && $cfg->isHtmlThreadEnabled()) {
+        if ($cfg && $cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($this->struct,'text/html'))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($this->struct,'text/plain'))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($this->struct,'text/plain'))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($this->struct,'text/html'))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg && $cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
@@ -543,7 +543,7 @@ class Mail_Parse {
     	return 0;
     }
 
-    function parseAddressList($address){
+    function parseAddressList($address, $charset='UTF-8'){
         if (!$address)
             return array();
 
@@ -558,11 +558,11 @@ class Mail_Parse {
 
         // Decode name and mailbox
         foreach ($parsed as $p) {
-            $p->personal = Format::mimedecode($p->personal, $this->charset);
+            $p->personal = Format::mimedecode($p->personal, $charset);
             // Some mail clients may send ISO-8859-1 strings without proper encoding.
             // Also, handle the more sane case where the mailbox is properly encoded
             // against RFC2047
-            $p->mailbox = Format::mimedecode($p->mailbox, $this->charset);
+            $p->mailbox = Format::mimedecode($p->mailbox, $charset);
         }
 
         return $parsed;
@@ -581,7 +581,7 @@ class EmailDataParser {
     var $stream;
     var $error;
 
-    function EmailDataParser($stream=null) {
+    function __construct($stream=null) {
         $this->stream = $stream;
     }
 
@@ -608,7 +608,7 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
-        $data['flags'] = new ArrayObject();
+        $data['mailflags'] = new ArrayObject();
 
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList())) {
@@ -694,19 +694,19 @@ class EmailDataParser {
             // Fetch the original References and assign to 'references'
             if ($headers = $parser->getOriginalMessageHeaders()) {
                 $data['references'] = $headers['references'];
-                $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $data['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();
             $data['thread-type'] = 'N';
-            $data['flags']['bounce'] = true;
+            $data['mailflags']['bounce'] = true;
         }
         else {
             // Typical email
             $data['message'] = $parser->getBody();
             $data['in-reply-to'] = @$parser->struct->headers['in-reply-to'];
             $data['references'] = @$parser->struct->headers['references'];
-            $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
+            $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
         $data['to-email-id'] = $data['emailId'];

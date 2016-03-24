@@ -27,20 +27,3 @@ span.label.disabled {
 span.label {
     cursor: pointer;
 }
-#table-here tr :not(:first-child) {
-    text-align: right;
-    padding-right: 2.3em;
-    width: 12%;
-}
-#table-here tr :not(:first-child) div {
-    position: relative;
-    margin-right: -1em;
-}
-#table-here tr :not(:first-child) div div {
-    position: absolute;
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    border-radius: 1em;
-}
-
-

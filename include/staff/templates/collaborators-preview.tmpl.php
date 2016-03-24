@@ -2,26 +2,28 @@
 <table border="0" cellspacing="" cellpadding="1">
 <colgroup><col style="min-width: 250px;"></col></colgroup>
 <?php
-if (($users=$ticket->getCollaborators())) {?>
+if (($users=$thread->getCollaborators())) {?>
 <?php
     foreach($users as $user) {
-        echo sprintf('<tr><td %s><i class="icon-%s"></i> %s <em>&lt;%s&gt;</em></td></tr>',
+        echo sprintf('<tr><td %s>%s%s <em class="faded">&lt;%s&gt;</em></td></tr>',
                 ($user->isActive()? '' : 'class="faded"'),
-                ($user->isActive()? 'comments' :  'comment-alt'),
+                (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                    ? $A->getImageTag(20) : sprintf('<i class="icon-%s"></i>',
+                        ($user->isActive()? 'comments' :  'comment-alt')),
                 Format::htmlchars($user->getName()),
                 $user->getEmail());
     }
 }  else {
-    echo "<strong>".__("Ticket doesn't have any collaborators.")."</strong>";
+    echo "<strong>".__("Thread doesn't have any collaborators.")."</strong>";
 }?>
 </table>
 <?php
 $options = array();
 
 $options[] = sprintf(
-        '<a class="collaborators" id="managecollab" href="#tickets/%d/collaborators">%s</a>',
-        $ticket->getId(),
-        $ticket->getNumCollaborators()
+        '<a class="collaborators" id="managecollab" href="#thread/%d/collaborators">%s</a>',
+        $thread->getId(),
+        $thread->getNumCollaborators()
         ? __('Manage Collaborators') : __('Add Collaborator')
         );
 

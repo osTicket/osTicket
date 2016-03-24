@@ -1,46 +1,52 @@
 <?php
-if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->canCreateTickets()) die('Access Denied');
+if (!defined('OSTSCPINC') || !$thisstaff
+        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+        die('Access Denied');
+
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
 
-$form = null;
+$forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
-    $form = $topic->getForm();
-    if ($_POST && $form) {
-        $form = $form->instanciate();
-        $form->isValid();
+    foreach ($topic->getForms() as $F) {
+        if (!$F->hasAnyVisibleFields())
+            continue;
+        if ($_POST) {
+            $F = $F->instanciate();
+            $F->isValidForClient();
+        }
+        $forms[] = $F;
     }
 }
 
 if ($_POST)
-    $info['duedate'] = Format::date($cfg->getDateFormat(),
-       strtotime($info['duedate']));
+    $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
- <h2><?php echo __('Open a New Ticket');?></h2>
+<div style="margin-bottom:20px; padding-top:5px;">
+    <div class="pull-left flush-left">
+        <h2><?php echo __('Open a New Ticket');?></h2>
+    </div>
+</div>
  <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to
          construct the column widths of the entire toable. Therefore, the
          first row needs to have two cells -->
-        <tr><td></td><td></td></tr>
-        <tr>
-            <th colspan="2">
-                <h4><?php echo __('New Ticket');?></h4>
-            </th>
-        </tr>
+        <tr><td style="padding:0;"></td><td style="padding:0;"></td></tr>
     </thead>
     <tbody>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
+                <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
         <?php
@@ -59,7 +65,7 @@ if ($_POST)
                 <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
-                <a class="action-button" style="overflow:inherit" href="#"
+                <a class="inline button" style="overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
@@ -68,7 +74,7 @@ if ($_POST)
                                 $('#user-email').text('<'+user.email+'>');
                         });
                         return false;
-                    "><i class="icon-edit"></i> <?php echo __('Change'); ?></a>
+                    "><i class="icon-retweet"></i> <?php echo __('Change'); ?></a>
             </div>
         </td></tr>
         <?php
@@ -77,10 +83,14 @@ if ($_POST)
         <tr>
             <td width="160" class="required"> <?php echo __('Email Address'); ?>: </td>
             <td>
-                <span style="display:inline-block;">
-                    <input type="text" size=45 name="email" id="user-email"
+                <div class="attached input">
+                    <input type="text" size=45 name="email" id="user-email" class="attached"
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['email']; ?></font>
+                <a href="?a=open&amp;uid={id}" data-dialog="ajax.php/users/lookup/form"
+                    class="attached button"><i class="icon-search"></i></a>
+                </div>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['email']; ?></div>
             </td>
         </tr>
         <tr>
@@ -88,7 +98,8 @@ if ($_POST)
             <td>
                 <span style="display:inline-block;">
                     <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
-                <font class="error">* <?php echo $errors['name']; ?></font>
+                <span class="error">*</span>
+                <div class="error"><?php echo $errors['name']; ?></div>
             </td>
         </tr>
         <?php
@@ -118,9 +129,16 @@ if ($_POST)
             </td>
             <td>
                 <select name="source">
-                    <option value="Phone" selected="selected"><?php echo __('Phone'); ?></option>
-                    <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>><?php echo __('Email'); ?></option>
-                    <option value="Other" <?php echo ($info['source']=='Other')?'selected="selected"':''; ?>><?php echo __('Other'); ?></option>
+                    <?php
+                    $source = $info['source'] ?: 'Phone';
+                    $sources = Ticket::getSources();
+                    unset($sources['Web'], $sources['API']);
+                    foreach ($sources as $k => $v)
+                        echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,
+                                ($source == $k ) ? 'selected="selected"' : '',
+                                $v);
+                    ?>
                 </select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
@@ -143,7 +161,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics()) {
+                    if ($topics=Topic::getHelpTopics(false, false, true)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -154,9 +172,9 @@ if ($_POST)
                                 $id, ($info['topicId']==$id)?'selected="selected"':'',
                                 $selected, $name);
                         }
-                        if (count($topics) == 1 && !$form) {
+                        if (count($topics) == 1 && !$forms) {
                             if (($T = Topic::lookup($id)))
-                                $form =  $T->getForm();
+                                $forms =  $T->getForms();
                         }
                     }
                     ?>
@@ -172,8 +190,14 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=Dept::getDepartments()) {
+                    if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
                         foreach($depts as $id =>$name) {
+                            if (!($role = $thisstaff->getRole($id))
+                                || !$role->hasPerm(Ticket::PERM_CREATE)
+                            ) {
+                                // No access to create tickets in this dept
+                                continue;
+                            }
                             echo sprintf('<option value="%d" %s>%s</option>',
                                     $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
                         }
@@ -219,12 +243,12 @@ if ($_POST)
                 echo Misc::timeDropdown($hr, $min, 'time');
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo $thisstaff->getTZoffset(); ?>)</em>
+                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
             </td>
         </tr>
 
         <?php
-        if($thisstaff->canAssignTickets()) { ?>
+        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)) { ?>
         <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -258,23 +282,16 @@ if ($_POST)
         </tbody>
         <tbody id="dynamic-form">
         <?php
-            if ($form) {
+            foreach ($forms as $form) {
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
         ?>
         </tbody>
-        <tbody> <?php
-        $tform = TicketForm::getInstance();
-        if ($_POST && !$tform->errors())
-            $tform->isValidForStaff();
-        $tform->render(true);
-        ?>
-        </tbody>
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if($thisstaff->canPostReply()) { ?>
+        if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
@@ -295,22 +312,25 @@ if ($_POST)
                         }
                         ?>
                     </select>
-                    &nbsp;&nbsp;&nbsp;
-                    <label><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
+                    &nbsp;&nbsp;
+                    <label class="checkbox inline"><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
                 </div>
             <?php
             }
                 $signature = '';
                 if ($thisstaff->getDefaultSignatureType() == 'mine')
                     $signature = $thisstaff->getSignature(); ?>
-                <textarea class="richtext ifhtml draft draft-delete"
-                    data-draft-namespace="ticket.staff.response"
-                    data-signature="<?php
+                <textarea
+                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
+                        ?> draft draft-delete" data-signature="<?php
                         echo Format::htmlchars(Format::viewableImages($signature)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
-                    style="width:80%;"><?php echo $info['response']; ?></textarea>
+                    style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
+    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+                ?></textarea>
                     <div class="attachments">
 <?php
 print $response_form->getField('attachments')->render();
@@ -325,7 +345,7 @@ print $response_form->getField('attachments')->render();
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->canCloseTickets())
+                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -372,11 +392,14 @@ print $response_form->getField('attachments')->render();
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext ifhtml draft draft-delete"
+                <textarea
+                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
+                        ?> draft draft-delete"
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
-                    data-draft-namespace="ticket.staff.note" name="note"
-                    cols="21" rows="6" style="width:80%;"
-                    ><?php echo $info['note']; ?></textarea>
+                    name="note" cols="21" rows="6" style="width:80%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
+    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
+                ?></textarea>
             </td>
         </tr>
     </tbody>

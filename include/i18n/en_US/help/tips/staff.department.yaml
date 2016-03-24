@@ -77,6 +77,14 @@ sandboxing:
         if <span class="doc-desc-title">Alerts &amp; Notices
         Recipients</span> includes groups members.
 
+disable_auto_claim:
+    title: Disable Auto Claim
+    content: >
+        Check this to <strong>disable</strong> auto-claim on response/reply for
+        this department.
+        <br><br>
+        Agents can still manually claim unassigned tickets
+
 auto_response_settings:
     title: Autoresponder Settings
     content: >

@@ -21,11 +21,11 @@ $_SESSION['ost_upgrader']=null;
         <br>
         <p><b><?php echo __('PS');?></b>: <?php echo __("Don't just make customers happy, make happy customers!");?></p>
     </div>
-    <div id="sidebar">
+    <div class="sidebar">
             <h3><?php echo __("What's Next?");?></h3>
             <p><b><?php echo __('Post-upgrade');?></b>: <?php
             echo sprintf(__('You can now go to %s to enable the system and explore the new features. For complete and up-to-date release notes see the %s'),
-                sprintf('<a href="scp/settings.php" target="_blank">%s</a>', __('Admin Panel')),
+                sprintf('<a href="'. ROOT_PATH . 'scp/settings.php" target="_blank">%s</a>', __('Admin Panel')),
                 sprintf('<a href="http://osticket.com/wiki/Release_Notes" target="_blank">%s</a>', __('osTicket Wiki')));?></p>
             <p><b><?php echo __('Stay up to date');?></b>: <?php echo __("It's important to keep your osTicket installation up to date. Get announcements, security updates and alerts delivered directly to you!");?>
             <?php echo sprintf(__('%1$s Get in the loop %2$s today and stay informed!'), '<a target="_blank" href="http://osticket.com/subscribe.php">', '</a>');?></p>

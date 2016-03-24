@@ -90,6 +90,12 @@ function db_autocommit($enable=true) {
     return $__db->autocommit($enable);
 }
 
+function db_rollback() {
+    global $__db;
+
+    return $__db->rollback();
+}
+
 function db_close() {
     global $__db;
     return @$__db->close();
@@ -108,7 +114,7 @@ function db_version() {
 }
 
 function db_timezone() {
-    return db_get_variable('time_zone');
+    return db_get_variable('system_time_zone', 'global');
 }
 
 function db_get_variable($variable, $type='session') {

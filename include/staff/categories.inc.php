@@ -2,93 +2,111 @@
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
 $qs = array();
-$sql='SELECT cat.category_id, cat.name, cat.ispublic, cat.updated, count(faq.faq_id) as faqs '.
-     ' FROM '.FAQ_CATEGORY_TABLE.' cat '.
-     ' LEFT JOIN '.FAQ_TABLE.' faq ON (faq.category_id=cat.category_id) ';
-$sql.=' WHERE 1';
-$sortOptions=array('name'=>'cat.name','type'=>'cat.ispublic','faqs'=>'faqs','updated'=>'cat.updated');
-$orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
+$categories = Category::objects()
+    ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')));
+$sortOptions=array('name'=>'name','type'=>'ispublic','faqs'=>'faq_count','updated'=>'updated');
+$orderWays=array('DESC'=>'-','ASC'=>'');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'name';
 //Sorting options...
 if($sort && $sortOptions[$sort]) {
     $order_column =$sortOptions[$sort];
 }
-$order_column=$order_column?$order_column:'cat.name';
+$order_column=$order_column ?: 'name';
 
 if($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])]) {
     $order=$orderWays[strtoupper($_REQUEST['order'])];
 }
-$order=$order?$order:'ASC';
+$order=$order ?: '';
 
-if($order_column && strpos($order_column,',')){
-    $order_column=str_replace(','," $order,",$order_column);
-}
 $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $order_by="$order_column $order ";
 
-$total=db_count('SELECT count(*) FROM '.FAQ_CATEGORY_TABLE.' cat ');
+$total=$categories->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('categories.php', $qs);
 $qstr = '&amp;order='.($order=='DESC'?'ASC':'DESC');
-$query="$sql GROUP BY cat.category_id ORDER BY $order_by LIMIT ".$pageNav->getStart().",".$pageNav->getLimit();
-$res=db_query($query);
-if($res && ($num=db_num_rows($res)))
+$pageNav->paginate($categories);
+
+if ($total)
     $showing=$pageNav->showing().' '.__('categories');
 else
     $showing=__('No FAQ categories found!');
 
 ?>
-<div class="pull-left" style="width:700px;padding-top:5px;">
- <h2><?php echo __('FAQ Categories');?></h2>
- </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-    <b><a href="categories.php?a=add" class="Icon newCategory"><?php echo __('Add New Category');?></a></b></div>
-<div class="clear"></div>
-<form action="categories.php" method="POST" name="cat">
- <?php csrf_token(); ?>
- <input type="hidden" name="do" value="mass_process" >
- <input type="hidden" id="action" name="a" value="" >
+
+<form action="categories.php" method="POST" id="mass-actions">
+    <div class="sticky bar opaque">
+        <div class="content">
+            <div class="pull-left flush-left">
+                <h2><?php echo __('FAQ Categories');?></h2>
+            </div>
+            <div class="pull-right flush-right">
+                <a href="categories.php?a=add" class="green button">
+                    <i class="icon-plus-sign"></i>
+                    <?php echo __( 'Add New Category');?>
+                </a>
+                <div class="pull-right flush-right">
+
+                    <span class="action-button" data-dropdown="#action-dropdown-more">
+                        <i class="icon-caret-down pull-right"></i>
+                        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+                    </span>
+                    <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                        <ul id="actions">
+                            <li class="danger">
+                                <a class="confirm" data-form-id="mass-actions" data-name="delete" href="categories.php?a=delete">
+                                    <i class="icon-trash icon-fixed-width"></i>
+                                    <?php echo __( 'Delete'); ?>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <?php csrf_token(); ?>
+    <input type="hidden" name="do" value="mass_process" >
+    <input type="hidden" id="action" name="a" value="" >
  <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th width="500"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="150"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <th width="80"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
-            <th width="150" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th width="4%">&nbsp;</th>
+            <th width="56%"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="10%"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
+            <th width="10%"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
+            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
     <?php
         $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
-        if($res && db_num_rows($res)):
-            while ($row = db_fetch_array($res)) {
-                $sel=false;
-                if($ids && in_array($row['category_id'],$ids))
-                    $sel=true;
+        foreach ($categories as $C) {
+            $sel=false;
+            if ($ids && in_array($C->getId(), $ids))
+                $sel=true;
 
-                $faqs=0;
-                if($row['faqs'])
-                    $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$row['category_id'],$row['faqs']);
-                ?>
-            <tr id="<?php echo $row['category_id']; ?>">
-                <td width=7px>
-                  <input type="checkbox" name="ids[]" value="<?php echo $row['category_id']; ?>" class="ckb"
+            $faqs=0;
+            if ($C->faq_count)
+                $faqs=sprintf('<a href="faq.php?cid=%d">%d</a>',$C->getId(),$C->faq_count);
+            ?>
+            <tr id="<?php echo $C->getId(); ?>">
+                <td align="center">
+                  <input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td><a href="categories.php?id=<?php echo $row['category_id']; ?>"><?php echo Format::truncate($row['name'],200); ?></a>&nbsp;</td>
-                <td><?php echo $row['ispublic']?'<b>'.__('Public').'</b>':__('Internal'); ?></td>
+                <td><a class="truncate" style="width:500px" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
+                    echo $C->getLocalName(); ?></a></td>
+                <td><?php echo $C->getVisibilityDescription(); ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
-                <td>&nbsp;<?php echo Format::db_datetime($row['updated']); ?></td>
-            </tr>
-            <?php
-            } //end of while.
-        endif; ?>
+                <td>&nbsp;<?php echo Format::datetime($C->updated); ?></td>
+            </tr><?php
+        } // end of foreach ?>
     <tfoot>
      <tr>
         <td colspan="5">
@@ -98,7 +116,7 @@ else
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
             <?php }else{
-                echo __('No FAQ categories found.');
+                echo __('No FAQ categories found!');
             } ?>
         </td>
      </tr>

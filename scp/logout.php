@@ -20,19 +20,22 @@ require('staff.inc.php');
 if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
     @header('Location: index.php');
 
-$thisstaff->logOut();
+try {
+    $thisstaff->logOut();
 
-//Clear any ticket locks the staff has.
-TicketLock::removeStaffLocks($thisstaff->getId());
+    //Destroy session on logout.
+    // TODO: Stop doing this starting with 1.9 - separate session data per
+    // app/panel.
+    session_unset();
+    session_destroy();
 
-//Destroy session on logout.
-// TODO: Stop doing this starting with 1.9 - separate session data per
-// app/panel.
-session_unset();
-session_destroy();
+    osTicketSession::destroyCookie();
 
-osTicketSession::destroyCookie();
+    //Clear any ticket locks the staff has.
+    Lock::removeStaffLocks($thisstaff->getId());
+}
+catch (Exception $x) {
+    // Lock::removeStaffLocks may throw InconsistentModel on upgrade
+}
 
-@header('Location: login.php');
-require('login.php');
-?>
+Http::redirect('login.php');

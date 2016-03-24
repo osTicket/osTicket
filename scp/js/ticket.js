@@ -13,279 +13,259 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-var autoLock = {
++function( $ ) {
+  var Lock = function(element, options) {
+    this.$element = $(element);
+    this.options = $.extend({}, $.fn.exclusive.defaults, options);
+    if (!this.$element.data('lockObjectId'))
+      return;
+    this.objectId = this.$element.data('lockObjectId');
+    this.fails = 0;
+    this.disabled = false;
+    getConfig().then(function(c) {
+      if (c.lock_time)
+        this.setup(options.lockId || this.$element.data('lockId') || undefined);
+    }.bind(this));
+  }
 
-    // Defaults
-    lockId: 0,
-    timerId: 0,
-    lasteventTime: 0,
-    lastattemptTime: 0,
-    acquireTime: 0,
-    renewTime: 0,
-    renewFreq: 0, //renewal frequency in seconds...based on returned lock time.
-    time: 0,
-    lockAttempts: 0, //Consecutive lock attempt errors
-    maxattempts: 2, //Maximum failed lock attempts before giving up.
-    warn: true,
-    retry: true,
+  Lock.prototype = {
+    constructor: Lock,
+    registry: [],
 
-    addEvent: function(elm, evType, fn, useCapture) {
-        if(elm.addEventListener) {
-            elm.addEventListener(evType, fn, useCapture);
-            return true;
-        }else if(elm.attachEvent) {
-            return elm.attachEvent('on' + evType, fn);
-        }else{
-            elm['on' + evType] = fn;
-        }
+    setup: function(lockId) {
+      // When something inside changes or is clicked which requires a lock,
+      // attempt to fetch one (lazily)
+      $(':input', this.$element).on('keyup, change', this.acquire.bind(this));
+      $(':submit', this.$element).click(this.ensureLocked.bind(this));
+
+      // If lock already held, assume full time of lock remains, but warn
+      // user about pending expiration
+      if (lockId) {
+        getConfig().then(function(c) {
+          this.update({id: lockId, time: c.lock_time - 10});
+        }.bind(this));
+      }
     },
 
-    removeEvent: function(elm, evType, fn, useCapture) {
-        if(elm.removeEventListener) {
-            elm.removeEventListener(evType, fn, useCapture);
-            return true;
-        }else if(elm.detachEvent) {
-            return elm.detachEvent('on' + evType, fn);
-        }else {
-            elm['on' + evType] = null;
-        }
+    acquire: function() {
+      if (this.lockId)
+        return this.renew();
+      if (this.nextRenew && new Date().getTime() < this.nextRenew)
+        return this.locked;
+      if (this.disabled || this.ajaxActive)
+        return this.locked;
+
+      this.ajaxActive = $.ajax({
+        type: "POST",
+        url: 'ajax.php/lock/'+this.objectId,
+        dataType: 'json',
+        cache: false,
+        success: $.proxy(this.update, this),
+        error: $.proxy(this.retry, this, this.acquire),
+        complete: $.proxy(function() { this.ajaxActive = false; }, this)
+      });
+      return this.locked = $.Deferred();
     },
 
-    //Incoming event...
-    handleEvent: function(e) {
-        if(!autoLock.lockId) {
-            var now = new Date().getTime();
-            //Retry every 5 seconds??
-            if(autoLock.retry && (!autoLock.lastattemptTime || (now-autoLock.lastattemptTime)>5000)) {
-                autoLock.acquireLock(e,autoLock.warn);
-                autoLock.lastattemptTime=new Date().getTime();
-            }
-        }else{
-            autoLock.renewLock(e);
-        }
+    renew: function() {
+      if (!this.lockId)
+        return;
+      if (this.nextRenew && new Date().getTime() < this.nextRenew)
+        return this.locked;
+      if (this.disabled || this.ajaxActive)
+        return this.locked;
 
-        if(autoLock.lockId && !autoLock.lasteventTime) { //I hate nav away warnings..but
-            $(document).on('pjax:beforeSend.changed', function(e) {
-                return confirm(__("Any changes or info you've entered will be discarded!"));
-            });
-            $(window).bind('beforeunload', function(e) {
-                return __("Any changes or info you've entered will be discarded!");
-             });
-        }
-
-        autoLock.lasteventTime=new Date().getTime();
+      this.ajaxActive = $.ajax({
+        type: "POST",
+        url: 'ajax.php/lock/{0}/{1}/renew'.replace('{0}',this.lockId).replace('{1}',this.objectId),
+        dataType: 'json',
+        cache: false,
+        success: $.proxy(this.update, this),
+        error: $.proxy(this.retry, this, this.renew),
+        complete: $.proxy(function() { this.ajaxActive = false; }, this)
+      });
+      return this.locked = $.Deferred();
     },
 
-    //Watch activity on individual form.
-    watchForm: function(fObj,fn) {
-        if(!fObj || !fObj.length)
-            return;
-
-        //Watch onSubmit event on the form.
-        autoLock.addEvent(fObj,'submit',autoLock.onSubmit,true);
-        //Watch activity on text + textareas + select fields.
-        for (var i=0; i<fObj.length; i++) {
-            switch(fObj[i].type) {
-                case 'textarea':
-                case 'text':
-                    autoLock.addEvent(fObj[i],'keyup',autoLock.handleEvent,true);
-                    break;
-                case 'select-one':
-                case 'select-multiple':
-                    if(fObj.name!='reply') //Bug on double ajax call since select make it's own ajax call. TODO: fix it
-                        autoLock.addEvent(fObj[i],'change',autoLock.handleEvent,true);
-                    break;
-                default:
-            }
-        }
+    wakeup: function(e) {
+      // Click handler from message bar. Bar will be manually hidden when
+      // lock is re-acquired
+      this.renew();
+      return false;
     },
 
-    //Watch all the forms on the document.
-    watchDocument: function() {
+    retry: function(func, xhr, textStatus, response) {
+      var json = xhr ? xhr.responseJSON : response;
 
-        //Watch forms of interest only.
-        for (var i=0; i<document.forms.length; i++) {
-            if(!document.forms[i].id.value || parseInt(document.forms[i].id.value)!=autoLock.tid)
-                continue;
-            autoLock.watchForm(document.forms[i],autoLock.checkLock);
-        }
+      if (xhr.status == 418) {
+          this.disabled = true;
+          return this.destroy();
+      }
+
+      if ((typeof json == 'object' && !json.retry) || !this.options.retry)
+        return this.fail(json.msg);
+      if (typeof json == 'object' && json.retry == 'acquire') {
+        // Lock no longer exists server-side
+        this.destroy();
+        setTimeout(this.acquire.bind(this), 2);
+      }
+      if (++this.fails > this.options.maxRetries)
+        // Attempt to acquire a new lock ?
+        return this.fail(json ? json.msg : null);
+      this.retryTimer = setTimeout($.proxy(func, this), this.options.retryInterval * 1000);
     },
 
-    Init: function(config) {
+    release: function() {
+      if (!this.lockId)
+        return false;
+      if (this.ajaxActive)
+        this.ajaxActive.abort();
 
-        //make sure we are on ticket view page & locking is enabled!
-        var fObj=$('form#note');
-        if(!fObj
-                || !$(':input[name=id]',fObj).length
-                || !$(':input[name=locktime]',fObj).length
-                || $(':input[name=locktime]',fObj).val()==0) {
-            return;
-        }
-
-        void(autoLock.tid=parseInt($(':input[name=id]',fObj).val()));
-        void(autoLock.lockTime=parseInt($(':input[name=locktime]',fObj).val()));
-
-        autoLock.watchDocument();
-        autoLock.resetTimer();
-        autoLock.addEvent(window,'unload',autoLock.releaseLock,true); //Release lock regardless of any activity.
+      $.ajax({
+        type: 'POST',
+        url: 'ajax.php/lock/{0}/release'.replace('{0}', this.lockId),
+        data: 'delete',
+        cache: false,
+        success: this.clearAll.bind(this),
+        complete: this.destroy.bind(this)
+      });
     },
 
-
-    onSubmit: function(e) {
-        if(e.type=='submit') { //Submit. double check!
-            //remove nav away warning if any.
-            $(window).unbind('beforeunload');
-            //Only warn if we had a failed lock attempt.
-            if(autoLock.warn && !autoLock.lockId && autoLock.lasteventTime) {
-                var answer=confirm(__('Unable to acquire a lock on the ticket. Someone else could be working on the same ticket.  Please confirm if you wish to continue anyways.'));
-                if(!answer) {
-                    e.returnValue=false;
-                    e.cancelBubble=true;
-                    if(e.preventDefault) {
-                        e.preventDefault();
-                    }
-                    return false;
-                }
-            }
-        }
-        return true;
+    clearAll: function() {
+      // Clear all other current locks with the same ID as this
+      $.each(Lock.prototype.registry, function(i, l) {
+        if (l.lockId && l.lockId == this.lockId)
+          l.shutdown();
+      }.bind(this));
     },
 
-    acquireLock: function(e,warn) {
-
-        if(!autoLock.tid) { return false; }
-
-        var warn = warn || false;
-
-        if(autoLock.lockId) {
-            autoLock.renewLock(e);
-        } else {
-            $.ajax({
-                type: "POST",
-                url: 'ajax.php/tickets/'+autoLock.tid+'/lock',
-                dataType: 'json',
-                cache: false,
-                success: function(lock){
-                    autoLock.setLock(lock,'acquire',warn);
-                }
-            })
-            .done(function() { })
-            .fail(function() { });
-        }
-
-        return autoLock.lockId;
+    shutdown: function() {
+      clearTimeout(this.warning);
+      clearTimeout(this.retryTimer);
+      $(document).off('.exclusive');
     },
 
-    //Renewal only happens on form activity..
-    renewLock: function(e) {
-
-        if(!autoLock.lockId) { return false; }
-
-        var now= new Date().getTime();
-        if(!autoLock.lastcheckTime || (now-autoLock.lastcheckTime)>=(autoLock.renewFreq*1000)){
-            $.ajax({
-                type: 'POST',
-                url: 'ajax.php/tickets/'+autoLock.tid+'/lock/'+autoLock.lockId+'/renew',
-                dataType: 'json',
-                cache: false,
-                success: function(lock){
-                    autoLock.setLock(lock,'renew',autoLock.warn);
-                }
-            })
-            .done(function() {  })
-            .fail(function() { });
-        }
+    destroy: function() {
+      this.shutdown();
+      delete this.lockId;
+      $(this.options.lockInput, this.$element).val('');
+      if (this.locked)
+        this.locked.reject();
     },
 
-    releaseLock: function(e) {
-        if (!autoLock.tid || !autoLock.lockId) { return false; }
+    update: function(lock) {
+      if (typeof lock != 'object' || lock.retry === true) {
+        // Non-json response, or retry requested server-side
+        return this.retry(this.renew, this.activeAjax, false, lock);
+      }
+      if (!lock.id) {
+        // Response did not include a lock id number
+        return this.fail(lock.msg);
+      }
+      if (!this.lockId) {
+        // Set up release on away navigation
+        $(document).off('.exclusive');
+        $(document).on('pjax:click.exclusive', $.proxy(this.release, this));
+        Lock.prototype.registry.push(this);
+      }
 
-        $.ajax({
-            type: 'POST',
-            url: 'ajax.php/tickets/'+autoLock.tid+'/lock/'+autoLock.lockId+'/release',
-            data: 'delete',
-            async: false,
-            cache: false,
-            success: function() {
-                autoLock.lockId = 0;
-            }
-        })
-        .done(function() { })
-        .fail(function() { });
+      this.lockId = lock.id;
+      this.fails = 0;
+      $.messageBar.hide();
+      this.errorBar = false;
+
+      // If there is an input with the name 'lockCode', then set the value
+      // to the lock.code retrieved (if any)
+      if (lock.code)
+        $(this.options.lockInput, this.$element).val(lock.code);
+
+      // Deadband renew to every 30 seconds
+      this.nextRenew = new Date().getTime() + 30000;
+
+      // Warn 10 seconds before expiration
+      this.lockTimeout(lock.time - 10);
+
+      if (this.locked)
+        this.locked.resolve(lock);
     },
 
-    setLock: function(lock, action, warn) {
-        var warn = warn || false;
-
-        if(!lock) return false;
-
-        if(lock.id) {
-            autoLock.renewFreq=lock.time?(lock.time/2):30;
-            autoLock.lastcheckTime=new Date().getTime();
-        }
-        autoLock.lockId=lock.id; //override the lockid.
-
-        switch(action){
-            case 'renew':
-                if(!lock.id && lock.retry) {
-                    autoLock.lockAttempts=1; //reset retries.
-                    autoLock.acquireLock(e,false); //We lost the lock?? ..try to re acquire now.
-                }
-                break;
-            case 'acquire':
-                if(!lock.id) {
-                    autoLock.lockAttempts++;
-                    if(warn && (!lock.retry || autoLock.lockAttempts>=autoLock.maxattempts)) {
-                        autoLock.retry=false;
-                        alert(__('Unable to lock the ticket. Someone else could be working on the same ticket.'));
-                    }
-                }
-                break;
-        }
+    lockTimeout: function(time) {
+      if (this.warning)
+        clearTimeout(this.warning);
+      this.warning = setTimeout(this.warn.bind(this), time * 1000);
     },
 
-    discardWarning: function(e) {
-        e.returnValue=__("Any changes or info you've entered will be discarded!");
+    ensureLocked: function(e) {
+      // Make sure a lock code has been fetched first
+      if (!$(this.options.lockInput, this.$element).val()) {
+        var $target = $(e.target),
+            text = $target.text() || $target.val();
+        $target.prop('disabled', true).text(__('Acquiring Lock')).val(__('Acquiring Lock'));
+        this.acquire().always(function(lock) {
+          $target.text(text).val(text).prop('disabled', false);
+          if (typeof lock == 'object' && lock.code)
+            $target.trigger(e.type, e);
+        }.bind(this));
+        return false;
+      }
     },
 
-    //TODO: Monitor events and elapsed time and warn user when the lock is about to expire.
-    monitorEvents: function() {
-       // warn user when lock is about to expire??;
-        //autoLock.resetTimer();
+    warn: function() {
+      $.messageBar.show(
+        __('Your lock is expiring soon.'),
+        __('The lock you hold on this ticket will expire soon. Would you like to renew the lock?'),
+        {onok: this.wakeup.bind(this), buttonText: __("Renew")}
+      ).addClass('warning');
     },
 
-    clearTimer: function() {
-        clearTimeout(autoLock.timerId);
-    },
-
-    resetTimer: function() {
-        clearTimeout(autoLock.timerId);
-        autoLock.timerId=setTimeout(function () { autoLock.monitorEvents() },30000);
+    fail: function(msg) {
+      // Don't retry for 5 seconds
+      this.nextRenew = new Date().getTime() + 5000;
+      // Resolve anything awaiting
+      if (this.locked)
+        this.locked.rejectWith(msg);
+      // No longer locked
+      this.destroy();
+      // Flash the error bar if it's already on the screen
+      if (this.errorBar && $.messageBar.visible)
+          return this.errorBar.effect('highlight');
+      // Add the error bar to the screen
+      this.errorBar = $.messageBar.show(
+        msg || __('Unable to lock the ticket.'),
+        __('Someone else could be working on the same ticket.'),
+        {avatar: 'oscar-borg', buttonClass: 'red', dismissible: true}
+      ).addClass('danger');
     }
-};
-$.autoLock = autoLock;
+  };
+
+  $.fn.exclusive = function ( option ) {
+    return this.each(function () {
+      var $this = $(this),
+        data = $this.data('exclusive'),
+        options = typeof option == 'object' && option;
+      if (!data) $this.data('exclusive', (data = new Lock(this, options)));
+      if (typeof option == 'string') data[option]();
+    });
+  };
+
+  $.fn.exclusive.defaults = {
+    lockInput: 'input[name=lockCode]',
+    maxRetries: 2,
+    retry: true,
+    retryInterval: 2
+  };
+
+  $.fn.exclusive.Constructor = Lock;
+
+}(window.jQuery);
 
 /*
    UI & form events
 */
-$.showNonLocalImage = function(div) {
-    var $div = $(div),
-        $img = $div.append($('<img>')
-          .attr('src', $div.data('src'))
-          .attr('alt', $div.attr('alt'))
-          .attr('title', $div.attr('title'))
-          .attr('style', $div.data('style'))
-        );
-    if ($div.attr('width'))
-        $img.width($div.attr('width'));
-    if ($div.attr('height'))
-        $img.height($div.attr('height'));
-};
-
 $.showImagesInline = function(urls, thread_id) {
     var selector = (thread_id == undefined)
         ? '.thread-body img[data-cid]'
-        : '.thread-body#thread-id-'+thread_id+' img[data-cid]';
+        : '.thread-body#thread-entry-'+thread_id+' img[data-cid]';
     $(selector).each(function(i, el) {
         var e = $(el),
             cid = e.data('cid').toLowerCase(),
@@ -308,79 +288,37 @@ $.showImagesInline = function(urls, thread_id) {
                     }
                 ).append($('<div class="caption">')
                     .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                    .append($('<a href="'+info.download_url+'" class="action-button pull-right no-pjax"><i class="icon-download-alt"></i> '+__('Download')+'</a>')
+                      .attr('download', info.filename)
+                    )
                 );
             e.data('wrapped', true);
         }
     });
 };
 
-$.refreshTicketView = function() {
-    if (0 === $('.dialog:visible').length)
-        $.pjax({url: document.location.href, container:'#pjax-container'});
-}
+$.refreshTicketView = function(interval) {
+    var refresh = setInterval(function() {
+      if ($('table.list input.ckb[name=tids\\[\\]]:checked').length)
+        // Skip the refresh b/c items are checked
+        return;
+      else if (0 < $('.dialog:visible').length)
+        // Dialog open — skip refresh
+        return;
+
+      clearInterval(refresh);
+      $.pjax({url: document.location.href, container:'#pjax-container'});
+    }, interval);
+    $(document).on('pjax:start', function() {
+        clearInterval(refresh);
+    });
+};
 
 var ticket_onload = function($) {
-    $('#response_options form').hide();
-    $('#ticket_notes').hide();
-    if(location.hash != "" && $('#response_options '+location.hash).length) {
-        $('#response_options '+location.hash+'_tab').addClass('active');
-        $('#response_options '+location.hash).show();
-    } else if(location.hash == "#notes" && $('#ticket_notes').length) {
-        $('#response_options #note_tab').addClass('active');
-        $('#response_options form').hide();
-        $('#response_options #note').show();
-        $('#ticket_thread').hide();
-        $('#ticket_notes').show();
-        $('#toggle_ticket_thread').removeClass('active');
-        $('#toggle_notes').addClass('active');
-    } else {
-        $('#response_options ul.tabs li:first a').addClass('active');
-        $('#response_options '+$('#response_options ul.tabs li:first a').attr('href')).show();
-    }
+    if (0 === $('#ticketThread').length)
+        return;
 
-    $('#reply_tab').click(function() {
-       $(this).removeClass('tell');
-     });
-
-    $('#note_tab').click(function() {
-        if($('#response').val() != '') {
-            $('#reply_tab').addClass('tell');
-        }
-     });
-
-    $('#response_options ul.tabs li a').click(function(e) {
-        e.preventDefault();
-        $('#response_options ul.tabs li a').removeClass('active');
-        $(this).addClass('active');
-        $('#response_options form').hide();
-        //window.location.hash = this.hash;
-        $('#response_options '+$(this).attr('href')).show();
-        $("#msg_error, #msg_notice, #msg_warning").fadeOut();
-     });
-
-    $('#toggle_ticket_thread, #toggle_notes, .show_notes').click(function(e) {
-        e.preventDefault();
-        $('#threads a').removeClass('active');
-
-        if($(this).attr('id') == 'toggle_ticket_thread') {
-            $('#ticket_notes').hide();
-            $('#ticket_thread').show();
-            $('#toggle_ticket_thread').addClass('active');
-            $('#reply_tab').removeClass('tell').click();
-        } else {
-            $('#ticket_thread').hide();
-            $('#ticket_notes').show();
-            $('#toggle_notes').addClass('active');
-            $('#note_tab').click();
-            if($('#response').val() != '') {
-                $('#reply_tab').addClass('tell');
-            }
-        }
-     });
-
-    //Start watching the form for activity.
-    autoLock.Init();
+    $(function(){$('.exclusive[data-lock-object-id]').exclusive();});
 
     /*** Ticket Actions **/
     //print options TODO: move to backend
@@ -398,69 +336,26 @@ var ticket_onload = function($) {
         var url = 'ajax.php/'
         +$(this).attr('href').substr(1)
         +'?_uid='+new Date().getTime();
-        var $redirect = $(this).data('href');
+        var $redirect = $(this).data('redirect');
+        var $options = $(this).data('dialog');
         $.dialog(url, [201], function (xhr) {
-            window.location.href = $redirect ? $redirect : window.location.href;
-        });
+            if (!!$redirect)
+                window.location.href = $redirect;
+            else
+                $.pjax.reload('#pjax-container');
+        }, $options);
 
         return false;
     });
 
-    $(document).on('change', 'form#reply select#emailreply', function(e) {
-         var $cc = $('form#reply tbody#cc_sec');
+    $(document).on('change', 'form[name=reply] select#emailreply', function(e) {
+         var $cc = $('form[name=reply] tbody#cc_sec');
         if($(this).val() == 0)
             $cc.hide();
         else
             $cc.show();
      });
 
-    // Optionally show external images
-    $('.thread-entry').each(function(i, te) {
-        var extra = $(te).find('.textra'),
-            imgs = $(te).find('.non-local-image[data-src]');
-        if (!extra) return;
-        if (!imgs.length) return;
-        extra.append($('<a>')
-          .addClass("action-button pull-right show-images")
-          .css({'font-weight':'normal'})
-          .text(' ' + __('Show Images'))
-          .click(function(ev) {
-            imgs.each(function(i, img) {
-              $.showNonLocalImage(img);
-              $(img).removeClass('non-local-image')
-                // Remove placeholder sizing
-                .css({'display':'inline-block'})
-                .width('auto')
-                .height('auto')
-                .removeAttr('width')
-                .removeAttr('height');
-              extra.find('.show-images').hide();
-            });
-          })
-          .prepend($('<i>')
-            .addClass('icon-picture')
-          )
-        );
-        imgs.each(function(i, img) {
-            var $img = $(img);
-            // Save a copy of the original styling
-            $img.data('style', $img.attr('style'));
-            $img.removeAttr('style');
-            // If the image has a 'height' attribute, use it, otherwise, use
-            // 40px
-            $img.height(($img.attr('height') || '40') + 'px');
-            // Ensure the image placeholder is visible width-wise
-            if (!$img.width())
-                $img.width(($img.attr('width') || '80') + 'px');
-            // TODO: Add a hover-button to show just one image
-        });
-    });
-
-    $('.thread-body').each(function() {
-        var urls = $(this).data('urls');
-        if (urls)
-            $.showImagesInline(urls, $(this).data('id'));
-    });
 };
 $(ticket_onload);
 $(document).on('pjax:success', function() { ticket_onload(jQuery); });
