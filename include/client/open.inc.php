@@ -72,7 +72,8 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
         <tr><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <tr><td><?php echo __('Client'); ?>:</td><td><?php echo
+        Format::htmlchars($thisclient->getName()); ?></td></tr>
         <?php } ?>
     </tbody>
     <tbody id="dynamic-form">

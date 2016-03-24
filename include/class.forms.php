@@ -747,6 +747,10 @@ class TextboxField extends FormField {
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
     }
+
+    function parse($value) {
+        return Format::striptags($value);
+    }
 }
 
 class PasswordField extends TextboxField {
@@ -1151,6 +1155,13 @@ class ThreadEntryField extends FormField {
     }
     function hasSpecialSearch() {
         return false;
+    }
+
+    function getConfiguration() {
+        global $cfg;
+        $config = parent::getConfiguration();
+        $config['html'] = (bool) ($cfg && $cfg->isHtmlThreadEnabled());
+        return $config;
     }
 
     function getConfigurationOptions() {
@@ -1829,6 +1840,21 @@ class TextareaWidget extends Widget {
         </span>
         <?php
     }
+
+    function parseValue() {
+        parent::parseValue();
+        if (isset($this->value)) {
+            $value = $this->value;
+            $config = $this->field->getConfiguration();
+            // Trim empty spaces based on text input type.
+            // Preserve original input if not empty.
+            if ($config['html'])
+                $this->value = trim($value, " <>br/\t\n\r") ? $value : '';
+            else
+                $this->value = trim($value) ? $value : '';
+        }
+    }
+
 }
 
 class PhoneNumberWidget extends Widget {
@@ -2085,8 +2111,8 @@ class SectionBreakWidget extends Widget {
 
 class ThreadEntryWidget extends Widget {
     function render($client=null) {
-        global $cfg;
 
+        $config = $this->field->getConfiguration();
         ?><div style="margin-bottom:0.5em;margin-top:0.5em"><strong><?php
         echo Format::htmlchars($this->field->get('label'));
         ?></strong>:</div>
@@ -2098,11 +2124,10 @@ class ThreadEntryWidget extends Widget {
                 data-draft-namespace="ticket.client"
                 data-draft-object-id="<?php echo substr(session_id(), -12); ?>"
             <?php } ?>
-            class="richtext draft draft-delete ifhtml"
+            class="<?php if ($config['html']) echo 'richtext'; ?> draft draft-delete ifhtml"
             cols="21" rows="8" style="width:80%;"><?php echo
             Format::htmlchars($this->value); ?></textarea>
     <?php
-        $config = $this->field->getConfiguration();
         if (!$config['attachments'])
             return;
 
@@ -2126,6 +2151,21 @@ class ThreadEntryWidget extends Widget {
         $field->setForm($this->field->getForm());
         return $field;
     }
+
+    function parseValue() {
+        parent::parseValue();
+        if (isset($this->value)) {
+            $value = $this->value;
+            $config = $this->field->getConfiguration();
+            // Trim spaces based on text input type.
+            // Preserve original input if not empty.
+            if ($config['html'])
+                $this->value = trim($value, " <>br/\t\n\r") ? $value : '';
+            else
+                $this->value = trim($value) ? $value : '';
+        }
+    }
+
 }
 
 class FileUploadWidget extends Widget {

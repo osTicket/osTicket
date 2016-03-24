@@ -888,7 +888,7 @@ class Ticket {
                     $thisstaff ?: 'SYSTEM');
 
             $alert = false;
-            if ($comments) {
+            if (($comments = ThreadBody::clean($comments))) {
                 $note .= sprintf('<hr>%s', $comments);
                 // Send out alerts if comments are included
                 $alert = true;
@@ -2179,6 +2179,8 @@ class Ticket {
         if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
             return false;
 
+        $vars['note'] = ThreadBody::clean($vars['note']);
+
         $fields=array();
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>__('Help topic selection is required'));
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>__('Select a valid SLA'));
@@ -2917,6 +2919,8 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
+        $vars['response'] = ThreadBody::clean($vars['response']);
+        $vars['note'] = ThreadBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
         $create_vars['cannedattachments']

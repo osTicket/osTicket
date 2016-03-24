@@ -232,6 +232,7 @@ class Team {
         if($id && $vars['id']!=$id)
             $errors['err']=__('Missing or invalid team');
 
+        $vars['name'] = Format::striptags($vars['name']);
         if(!$vars['name']) {
             $errors['name']=__('Team name is required');
         } elseif(strlen($vars['name'])<3) {

@@ -356,6 +356,7 @@ class Organization extends OrganizationModel {
 
     static function fromVars($vars) {
 
+        $vars['name'] = Format::striptags($vars['name']);
         if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
             $org = Organization::create(array(
                 'name' => $vars['name'],
