@@ -1269,7 +1269,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 || !$thisstaff->hasPerm(Task::PERM_CREATE, false))
             return null;
 
-        $task = parent::create(array(
+        $task = new static(array(
             'flags' => self::ISOPEN,
             'object_id' => $vars['object_id'],
             'object_type' => $vars['object_type'],
@@ -1545,7 +1545,9 @@ class TaskThread extends ObjectThread {
         return MessageThreadEntry::create($vars, $errors);
     }
 
-    static function create($task) {
+    static function create($task=false) {
+        assert($task !== false);
+
         $id = is_object($task) ? $task->getId() : $task;
         $thread = parent::create(array(
                     'object_id' => $id,

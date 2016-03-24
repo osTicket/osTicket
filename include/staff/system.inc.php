@@ -41,6 +41,14 @@ $extensions = array(
             'name' => 'fileinfo',
             'desc' => __('Used to detect file types for uploads')
             ),
+        'apcu' => array(
+            'name' => 'APCu',
+            'desc' => __('Improves overall performance')
+            ),
+        'Zend Opcache' => array(
+            'name' => 'Zend Opcache',
+            'desc' => __('Improves overall performance')
+            ),
         );
 
 ?>

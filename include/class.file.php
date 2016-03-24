@@ -380,7 +380,7 @@ class AttachmentFile extends VerySimpleModel {
             $file['type'] = 'application/octet-stream';
 
 
-        $f = parent::create(array(
+        $f = new static(array(
             'type' => strtolower($file['type']),
             'name' => $file['name'],
             'key' => $file['key'],

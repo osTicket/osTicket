@@ -30,7 +30,7 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-    function Config($section=null, $defaults=array()) {
+    function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
 
@@ -98,7 +98,7 @@ class Config {
     }
 
     function create($key, $value) {
-        $item = ConfigItem::create([
+        $item = new ConfigItem([
             $this->section_column => $this->section,
             'key' => $key,
             'value' => $value,
@@ -209,15 +209,16 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
     );
 
-    function OsticketConfig($section=null) {
-        parent::Config($section);
+    function __construct($section=null) {
+        parent::__construct($section);
 
         if (count($this->config) == 0) {
             // Fallback for osticket < 1.7@852ca89e
             $sql='SELECT * FROM '.$this->table.' WHERE id = 1';
+            $meta = ConfigItem::getMeta();
             if (($res=db_query($sql)) && db_num_rows($res))
                 foreach (db_fetch_array($res) as $key=>$value)
-                    $this->config[$key] = new ConfigItem(array('value'=>$value));
+                    $this->config[$key] = $meta->newInstance(array('value'=>$value));
         }
 
         return true;

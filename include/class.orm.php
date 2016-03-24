@@ -32,7 +32,7 @@ class InconsistentModelException extends OrmException {
  * name, default sorting information, database fields, etc.
  *
  * This class is constructed and built automatically from the model's
- * ::_inspect method using a class's ::$meta array.
+ * ::getMeta() method using a class's ::$meta array.
  */
 class ModelMeta implements ArrayAccess {
 
@@ -48,17 +48,39 @@ class ModelMeta implements ArrayAccess {
     static $model_cache;
 
     var $model;
+    var $meta = array();
+    var $new;
+    var $subclasses = array();
+    var $fields;
 
     function __construct($model) {
         $this->model = $model;
 
         // Merge ModelMeta from parent model (if inherited)
         $parent = get_parent_class($this->model);
+        $meta = $model::$meta;
+        if ($model::$meta instanceof self)
+            $meta = $meta->meta;
         if (is_subclass_of($parent, 'VerySimpleModel')) {
-            $meta = $parent::getMeta()->extend($model::$meta);
+            $this->parent = $parent::getMeta();
+            $meta = $this->parent->extend($this, $meta);
         }
         else {
-            $meta = $model::$meta + self::$base;
+            $meta = $meta + self::$base;
+        }
+
+        // Short circuit the meta-data processing if APCu is available.
+        // This is preferred as the meta-data is unlikely to change unless
+        // osTicket is upgraded, (then the upgrader calls the
+        // flushModelCache method to clear this cache). Also, GIT_VERSION is
+        // used in the APC key which should be changed if new code is
+        // deployed.
+        if (function_exists('apcu_store')) {
+            $loaded = false;
+            $apc_key = SECRET_SALT.GIT_VERSION."/orm/{$this->model}";
+            $this->meta = apcu_fetch($apc_key, $loaded);
+            if ($loaded)
+                return;
         }
 
         if (!$meta['view']) {
@@ -85,13 +107,34 @@ class ModelMeta implements ArrayAccess {
                 $meta['foreign_keys'][$j['local']] = $field;
         }
         unset($j);
-        $this->base = $meta;
+        $this->meta = $meta;
+
+        if (function_exists('apcu_store')) {
+            apcu_store($apc_key, $this->meta, 1800);
+        }
     }
 
-    function extend($meta) {
-        if ($meta instanceof self)
-            $meta = $meta->base;
-        return $meta + $this->base + self::$base;
+    function extend(ModelMeta $child, $meta) {
+        $this->subclasses[$child->model] = $child;
+        return $meta + $this->meta + self::$base;
+    }
+
+    function isSuperClassOf($model) {
+        if (isset($this->subclasses[$model]))
+            return true;
+        foreach ($this->subclasses as $M=>$meta)
+            if ($meta->isSuperClassOf($M))
+                return true;
+    }
+
+    function isSubclassOf($model) {
+        if (!isset($this->parent))
+            return false;
+
+        if ($this->parent->model === $model)
+            return true;
+
+        return $this->parent->isSubclassOf($model);
     }
 
     /**
@@ -159,63 +202,76 @@ class ModelMeta implements ArrayAccess {
     }
 
     function addJoin($name, array $join) {
-        $this->base['joins'][$name] = $join;
-        $this->processJoin($this->base['joins'][$name]);
+        $this->meta['joins'][$name] = $join;
+        $this->processJoin($this->meta['joins'][$name]);
     }
 
     function offsetGet($field) {
-        if (!isset($this->base[$field]))
-            $this->setupLazy($field);
-        return $this->base[$field];
+        return $this->meta[$field];
     }
     function offsetSet($field, $what) {
-        $this->base[$field] = $what;
+        $this->meta[$field] = $what;
     }
     function offsetExists($field) {
-        return isset($this->base[$field]);
+        return isset($this->meta[$field]);
     }
     function offsetUnset($field) {
         throw new Exception('Model MetaData is immutable');
     }
 
-    function setupLazy($what) {
-        switch ($what) {
-        case 'fields':
-            $this->base['fields'] = self::inspectFields();
-            break;
-        case 'newInstance':
-            $class_repr = sprintf(
-                'O:%d:"%s":0:{}',
-                strlen($this->model), $this->model
-            );
-            $this->base['newInstance'] = function() use ($class_repr) {
-                return unserialize($class_repr);
-            };
-            break;
-        default:
-            throw new Exception($what . ': No such meta-data');
+    /**
+     * Fetch the column names of the table used to persist instances of this
+     * model in the database.
+     */
+    function getFieldNames() {
+        if (!isset($this->fields))
+            $this->fields = self::inspectFields();
+        return $this->fields;
+    }
+
+    /**
+     * Create a new instance of the model, optionally hydrating it with the
+     * given hash table. The constructor is not called, which leaves the
+     * default constructor free to assume new object status.
+     *
+     * Three methods were considered, with runtime for 10000 iterations
+     *   * unserialze('O:9:"ModelBase":0:{}') - 0.0671s
+     *   * new ReflectionClass("ModelBase")->newInstanceWithoutConstructor()
+     *      - 0.0478s
+     *   * and a hybrid by cloning the reflection class instance - 0.0335s
+     */
+    function newInstance($props=false) {
+        if (!isset($this->new)) {
+            $rc = new ReflectionClass($this->model);
+            $this->new = $rc->newInstanceWithoutConstructor();
         }
+        $instance = clone $this->new;
+        // Hydrate if props were included
+        if (is_array($props)) {
+            $instance->ht = $props;
+        }
+        return $instance;
     }
 
     function inspectFields() {
         if (!isset(self::$model_cache))
-            self::$model_cache = function_exists('apc_fetch');
+            self::$model_cache = function_exists('apcu_fetch');
         if (self::$model_cache) {
-            $key = md5(SECRET_SALT . GIT_VERSION . $this['table']);
-            if ($fields = apc_fetch($key)) {
+            $key = SECRET_SALT.GIT_VERSION."/orm/{$this['table']}";
+            if ($fields = apcu_fetch($key)) {
                 return $fields;
             }
         }
         $fields = DbEngine::getCompiler()->inspectTable($this['table']);
         if (self::$model_cache) {
-            apc_store($key, $fields);
+            apcu_store($key, $fields, 1800);
         }
         return $fields;
     }
 
     static function flushModelCache() {
         if (self::$model_cache)
-            @apc_clear_cache('user');
+            @apcu_clear_cache('user');
     }
 }
 
@@ -232,8 +288,12 @@ class VerySimpleModel {
     var $__deleted__ = false;
     var $__deferred__ = array();
 
-    function __construct($row) {
-        $this->ht = $row;
+    function __construct($row=false) {
+        if (is_array($row))
+            foreach ($row as $field=>$value)
+                if (!is_array($value))
+                    $this->set($field, $value);
+        $this->__new__ = true;
     }
 
     function get($field, $default=false) {
@@ -305,7 +365,7 @@ class VerySimpleModel {
             return null;
 
         // Check to see if the column referenced is actually valid
-        if (in_array($field, static::getMeta('fields')))
+        if (in_array($field, static::getMeta()->getFieldNames()))
             return null;
 
         throw new OrmException(sprintf(__('%s: %s: Field not defined'),
@@ -354,7 +414,19 @@ class VerySimpleModel {
                 }
                 // Pass. Set local field to NULL in logic below
             }
-            elseif ($value instanceof $j['fkey'][0]) {
+            elseif ($value instanceof VerySimpleModel) {
+                // Ensure that the model being assigned as a relationship is
+                // an instance of the foreign model given in the
+                // relationship, or is a super class thereof. The super
+                // class case is used primary for the xxxThread classes
+                // which all extend from the base Thread class.
+                if (!$value instanceof $j['fkey'][0]
+                    && !$value::getMeta()->isSuperClassOf($j['fkey'][0])
+                ) {
+                    throw new InvalidArgumentException(
+                        sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
+                        $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
+                }
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
                 if ($value->__new__)
@@ -364,11 +436,6 @@ class VerySimpleModel {
                     $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
-            else
-                throw new InvalidArgumentException(
-                    sprintf(__('Expecting NULL or instance of %s. Got a %s instead'),
-                    $j['fkey'][0], is_object($value) ? get_class($value) : gettype($value)));
-
             // Capture the foreign key id value
             $field = $j['local'];
         }
@@ -402,18 +469,13 @@ class VerySimpleModel {
     }
 
     function __onload() {}
-    static function __oninspect() {}
-
-    static function _inspect() {
-        static::$meta = new ModelMeta(get_called_class());
-
-        // Let the model participate
-        static::__oninspect();
-    }
 
     static function getMeta($key=false) {
-        if (!static::$meta instanceof ModelMeta)
-            static::_inspect();
+        if (!static::$meta instanceof ModelMeta
+            || get_called_class() != static::$meta->model
+        ) {
+            static::$meta = new ModelMeta(get_called_class());
+        }
         $M = static::$meta;
         return ($key) ? $M->offsetGet($key) : $M;
     }
@@ -458,10 +520,11 @@ class VerySimpleModel {
      */
     static function lookup($criteria) {
         // Model::lookup(1), where >1< is the pk value
+        $args = func_get_args();
         if (!is_array($criteria)) {
             $criteria = array();
             $pk = static::getMeta('pk');
-            foreach (func_get_args() as $i=>$f)
+            foreach ($args as $i=>$f)
                 $criteria[$pk[$i]] = $f;
 
             // Only consult cache for PK lookup, which is assumed if the
@@ -586,17 +649,6 @@ class VerySimpleModel {
         return true;
     }
 
-    static function create($ht=false) {
-        if (!$ht) $ht=array();
-        $class = get_called_class();
-        $i = new $class(array());
-        $i->__new__ = true;
-        foreach ($ht as $field=>$value)
-            if (!is_array($value))
-                $i->set($field, $value);
-        return $i;
-    }
-
     private function getPk() {
         $pk = array();
         foreach ($this::getMeta('pk') as $f)
@@ -653,7 +705,7 @@ class AnnotatedModel {
 class SqlFunction {
     var $alias;
 
-    function SqlFunction($name) {
+    function __construct($name) {
         $this->func = $name;
         $this->args = array_slice(func_get_args(), 1);
     }
@@ -1267,16 +1319,17 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
         // Load defaults from model
         $model = $this->model;
+        $meta = $model::getMeta();
         $query = clone $this;
         $options += $this->options;
         if ($options['nosort'])
             $query->ordering = array();
-        elseif (!$query->ordering && $model::getMeta('ordering'))
-            $query->ordering = $model::getMeta('ordering');
-        if (false !== $query->related && !$query->values && $model::getMeta('select_related'))
-            $query->related = $model::getMeta('select_related');
-        if (!$query->defer && $model::getMeta('defer'))
-            $query->defer = $model::getMeta('defer');
+        elseif (!$query->ordering && $meta['ordering'])
+            $query->ordering = $meta['ordering'];
+        if (false !== $query->related && !$query->values && $meta['select_related'])
+            $query->related = $meta['select_related'];
+        if (!$query->defer && $meta['defer'])
+            $query->defer = $meta['defer'];
 
         $class = $options['compiler'] ?: $this->compiler;
         $compiler = new $class($options);
@@ -1479,18 +1532,12 @@ class ModelInstanceManager extends ResultSet {
         // Check the cache for the model instance first
         if (!($m = self::checkCache($modelClass, $fields))) {
             // Construct and cache the object
-            $m = new $modelClass($fields);
+            $m = $modelClass::$meta->newInstance($fields);
             // XXX: defer may refer to fields not in this model
             $m->__deferred__ = $this->queryset->defer;
             $m->__onload();
             if ($cache)
                 $this->cache($m);
-        }
-        elseif (get_class($m) != $modelClass) {
-            // Change the class of the object to be returned to match what
-            // was expected
-            // TODO: Emit a warning?
-            $m = new $modelClass($m->ht);
         }
         // Wrap annotations in an AnnotatedModel
         if ($extras) {
@@ -1671,7 +1718,7 @@ class InstrumentedList extends ModelInstanceManager {
      */
     function window($constraint) {
         $model = $this->model;
-        $fields = $model::getMeta('fields');
+        $fields = $model::getMeta()->getFieldNames();
         $key = $this->key;
         foreach ($constraint as $field=>$value) {
             if (!is_string($field) || false === in_array($field, $fields))
@@ -2343,10 +2390,11 @@ class MySqlCompiler extends SqlCompiler {
         if (!isset($rmodel))
             $rmodel = $model;
         // Support inline views
-        $table = ($rmodel::getMeta('view'))
+        $rmeta = $rmodel::getMeta();
+        $table = ($rmeta['view'])
             // XXX: Support parameters from the nested query
             ? $rmodel::getSqlAddParams($this)
-            : $this->quote($rmodel::getMeta('table'));
+            : $this->quote($rmeta['table']);
         $base = "{$join}{$table} {$alias}";
         return array($base, $constraints);
     }
@@ -2480,14 +2528,15 @@ class MySqlCompiler extends SqlCompiler {
 
         // Compile the field listing
         $fields = $group_by = array();
-        $table = $this->quote($model::getMeta('table')).' '.$rootAlias;
+        $meta = $model::getMeta();
+        $table = $this->quote($meta['table']).' '.$rootAlias;
         // Handle related tables
         if ($queryset->related) {
             $count = 0;
             $fieldMap = $theseFields = array();
             $defer = $queryset->defer ?: array();
             // Add local fields first
-            foreach ($model::getMeta('fields') as $f) {
+            foreach ($meta->getFieldNames() as $f) {
                 // Handle deferreds
                 if (isset($defer[$f]))
                     continue;
@@ -2509,7 +2558,7 @@ class MySqlCompiler extends SqlCompiler {
                     $theseFields = array();
                     list($alias, $fmodel) = $this->getField($full_path, $model,
                         array('table'=>true, 'model'=>true));
-                    foreach ($fmodel::getMeta('fields') as $f) {
+                    foreach ($fmodel::getMeta()->getFieldNames() as $f) {
                         // Handle deferreds
                         if (isset($defer[$sr . '__' . $f]))
                             continue;
@@ -2546,7 +2595,7 @@ class MySqlCompiler extends SqlCompiler {
         // Simple selection from one table
         elseif (!$queryset->aggregated) {
             if ($queryset->defer) {
-                foreach ($model::getMeta('fields') as $f) {
+                foreach ($meta->getFieldNames() as $f) {
                     if (isset($queryset->defer[$f]))
                         continue;
                     $fields[$rootAlias .'.'. $this->quote($f)] = true;
@@ -2574,7 +2623,7 @@ class MySqlCompiler extends SqlCompiler {
             }
             // If no group by has been set yet, use the root model pk
             if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
-                foreach ($model::getMeta('pk') as $pk)
+                foreach ($meta['pk'] as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
         }

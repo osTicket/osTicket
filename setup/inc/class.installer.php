@@ -21,7 +21,7 @@ class Installer extends SetupWizard {
 
     var $config;
 
-    function Installer($configfile) {
+    function __construct($configfile) {
         $this->config =$configfile;
         $this->errors=array();
     }

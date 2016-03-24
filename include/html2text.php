@@ -561,7 +561,7 @@ class HtmlUnorderedListElement extends HtmlListElement {
 }
 
 class HtmlListItem extends HtmlBlockElement {
-    function HtmlListItem($node, $parent, $number) {
+    function __construct($node, $parent, $number) {
         parent::__construct($node, $parent);
         $this->number = $number;
     }

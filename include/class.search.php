@@ -230,7 +230,7 @@ class MySqlSearchConfig extends Config {
     var $table = CONFIG_TABLE;
 
     function __construct() {
-        parent::Config("mysqlsearch");
+        parent::__construct("mysqlsearch");
     }
 }
 
@@ -983,7 +983,7 @@ class SavedSearch extends VerySimpleModel {
     }
 
     static function create($vars=array()) {
-        $inst = parent::create($vars);
+        $inst = new static($vars);
         $inst->created = SqlFunction::NOW();
         return $inst;
     }
@@ -1011,14 +1011,14 @@ class HelpTopicChoiceField extends ChoiceField {
         return true;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         return Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
     }
 }
 
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return Dept::getDepartments();
     }
 
@@ -1031,7 +1031,7 @@ class DepartmentChoiceField extends ChoiceField {
 }
 
 class AssigneeChoiceField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         global $thisstaff;
 
         $items = array(
@@ -1128,7 +1128,7 @@ class AssigneeChoiceField extends ChoiceField {
 }
 
 class TicketStateChoiceField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return array(
             'open' => __('Open'),
             'closed' => __('Closed'),
@@ -1150,7 +1150,7 @@ class TicketStateChoiceField extends ChoiceField {
 }
 
 class TicketFlagChoiceField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return array(
             'isanswered' =>   __('Answered'),
             'isoverdue' =>    __('Overdue'),
@@ -1178,7 +1178,7 @@ class TicketFlagChoiceField extends ChoiceField {
 }
 
 class TicketSourceChoiceField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return array(
             'web' => __('Web'),
             'email' => __('Email'),

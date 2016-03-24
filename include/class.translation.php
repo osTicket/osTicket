@@ -119,7 +119,7 @@ class gettext_reader {
    * @param object Reader the StreamReader object
    * @param boolean enable_cache Enable or disable caching of strings (default on)
    */
-  function gettext_reader($Reader, $enable_cache = true) {
+  function __construct($Reader, $enable_cache = true) {
     // If there isn't a StreamReader, turn on short circuit mode.
     if (! $Reader || isset($Reader->error) ) {
       $this->short_circuit = true;
@@ -462,7 +462,7 @@ class FileReader {
   var $_fd;
   var $_length;
 
-  function FileReader($filename) {
+  function __construct($filename) {
     if (is_resource($filename)) {
         $this->_length = strlen(stream_get_contents($filename));
         rewind($filename);
@@ -651,16 +651,16 @@ class Translation extends gettext_reader implements Serializable {
     }
 
     static function resurrect($key) {
-        if (!function_exists('apc_fetch'))
+        if (!function_exists('apcu_fetch'))
             return false;
 
         $success = true;
-        if (($translation = apc_fetch($key, $success)) && $success)
+        if (($translation = apcu_fetch($key, $success)) && $success)
             return $translation;
     }
     function cache($key) {
-        if (function_exists('apc_add'))
-            apc_add($key, $this);
+        if (function_exists('apcu_add'))
+            apcu_add($key, $this);
     }
 
 
@@ -1018,7 +1018,7 @@ class CustomDataTranslation extends VerySimpleModel {
             $ht['text'] = static::encodeComplex($ht['text']);
             $ht['flags'] = ($ht['flags'] ?: 0) | self::FLAG_COMPLEX;
         }
-        return parent::create($ht);
+        return new static($ht);
     }
 
     static function allTranslations($msgid, $type='phrase', $lang=false) {

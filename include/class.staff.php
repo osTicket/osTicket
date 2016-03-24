@@ -702,7 +702,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         while(list(, list($team_id, $alerts)) = each($membership)) {
             $member = $this->teams->findFirst(array('team_id' => $team_id));
             if (!$member) {
-                $this->teams->add($member = TeamMember::create(array(
+                $this->teams->add($member = new TeamMember(array(
                     'team_id' => $team_id,
                 )));
             }
@@ -819,7 +819,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
 
     static function create($vars=false) {
-        $staff = parent::create($vars);
+        $staff = new static($vars);
         $staff->created = SqlFunction::NOW();
         return $staff;
     }
@@ -840,7 +840,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
+            return new BaseError(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -1093,7 +1093,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
             if (!isset($da)) {
-                $da = StaffDeptAccess::create(array(
+                $da = new StaffDeptAccess(array(
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
@@ -1315,8 +1315,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 
@@ -1366,8 +1366,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 

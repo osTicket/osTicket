@@ -393,7 +393,7 @@ class DatabaseExporter {
         USER_ACCOUNT_TABLE, ORGANIZATION_TABLE, NOTE_TABLE
     );
 
-    function DatabaseExporter($stream, $options=array()) {
+    function __construct($stream, $options=array()) {
         $this->stream = $stream;
         $this->options = $options;
     }

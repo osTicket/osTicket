@@ -207,7 +207,7 @@ extends VerySimpleModel {
     /*** Static functions ***/
 
     static function create($vars=false) {
-        $faq = parent::create($vars);
+        $faq = new static($vars);
         $faq->created = SqlFunction::NOW();
         return $faq;
     }

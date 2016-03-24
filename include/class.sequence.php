@@ -205,7 +205,7 @@ class Sequence extends VerySimpleModel {
     }
 
     function __create($data) {
-        $instance = parent::create($data);
+        $instance = new static($data);
         $instance->save();
         return $instance;
     }
@@ -213,9 +213,6 @@ class Sequence extends VerySimpleModel {
 
 class RandomSequence extends Sequence {
     var $padding = '0';
-
-    // Override the ORM constructor and do nothing
-    function __construct($ht=false) {}
 
     function __next($digits=6) {
         if ($digits < 6)

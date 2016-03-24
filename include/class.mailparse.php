@@ -32,7 +32,7 @@ class Mail_Parse {
 
     var $tnef = false;      // TNEF encoded mail
 
-    function Mail_parse(&$mimeMessage, $charset=null){
+    function __construct(&$mimeMessage, $charset=null){
 
         $this->mime_message = &$mimeMessage;
 
@@ -581,7 +581,7 @@ class EmailDataParser {
     var $stream;
     var $error;
 
-    function EmailDataParser($stream=null) {
+    function __construct($stream=null) {
         $this->stream = $stream;
     }
 

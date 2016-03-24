@@ -2166,8 +2166,8 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 
 
 class DepartmentField extends ChoiceField {
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Dept)
             $widget->value = $widget->value->getId();
         return $widget;
@@ -2177,7 +2177,7 @@ class DepartmentField extends ChoiceField {
         return true;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         global $cfg;
 
         $choices = array();
@@ -2235,8 +2235,8 @@ class AssigneeField extends ChoiceField {
     var $_choices = null;
     var $_criteria = null;
 
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
         return $widget;
@@ -2261,7 +2261,7 @@ class AssigneeField extends ChoiceField {
         $this->_choices = $choices;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         global $cfg;
 
         if (!isset($this->_choices)) {
@@ -2509,14 +2509,14 @@ class FileUploadField extends FormField {
         static $filetypes;
 
         if (!isset($filetypes)) {
-            if (function_exists('apc_fetch')) {
+            if (function_exists('apcu_fetch')) {
                 $key = md5(SECRET_SALT . GIT_VERSION . 'filetypes');
-                $filetypes = apc_fetch($key);
+                $filetypes = apcu_fetch($key);
             }
             if (!$filetypes)
                 $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
             if ($key)
-                apc_store($key, $filetypes, 7200);
+                apcu_store($key, $filetypes, 7200);
         }
         return $filetypes;
     }
@@ -3071,7 +3071,7 @@ class TextboxWidget extends Widget {
 
 class TextboxSelectionWidget extends TextboxWidget {
     //TODO: Support multi-input e.g comma separated inputs
-    function render($options=array()) {
+    function render($options=array(), $extraConfig=array()) {
 
         if ($this->value && is_array($this->value))
             $this->value = current($this->value);
@@ -4072,9 +4072,9 @@ class AssignmentForm extends Form {
             return $fields[$name];
     }
 
-    function isValid() {
+    function isValid($include=false) {
 
-        if (!parent::isValid() || !($f=$this->getField('assignee')))
+        if (!parent::isValid($include) || !($f=$this->getField('assignee')))
             return false;
 
         // Do additional assignment validation
@@ -4212,9 +4212,9 @@ class TransferForm extends Form {
         return $this->fields;
     }
 
-    function isValid() {
+    function isValid($include=false) {
 
-        if (!parent::isValid())
+        if (!parent::isValid($include))
             return false;
 
         // Do additional validations

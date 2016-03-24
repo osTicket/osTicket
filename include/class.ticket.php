@@ -3294,7 +3294,7 @@ implements RestrictedAccess, Threadable {
 
         //We are ready son...hold on to the rails.
         $number = $topic ? $topic->getNewTicketNumber() : $cfg->getNewTicketNumber();
-        $ticket = parent::create(array(
+        $ticket = new static(array(
             'created' => SqlFunction::NOW(),
             'lastupdate' => SqlFunction::NOW(),
             'number' => $number,
@@ -3504,7 +3504,7 @@ implements RestrictedAccess, Threadable {
         $create_vars['cannedattachments']
             = $tform->getField('message')->getWidget()->getAttachments()->getClean();
 
-        if (!($ticket=Ticket::create($create_vars, $errors, 'staff', false)))
+        if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();

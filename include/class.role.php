@@ -193,7 +193,7 @@ class Role extends RoleModel {
     }
 
     static function create($vars=false) {
-        $role = parent::create($vars);
+        $role = new static($vars);
         $role->created = SqlFunction::NOW();
         return $role;
     }
@@ -383,7 +383,7 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }

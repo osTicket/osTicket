@@ -558,9 +558,8 @@ implements TemplateVariable {
     }
 
     static function create($vars=false, &$errors=array()) {
-        $dept = parent::create($vars);
+        $dept = new static($vars);
         $dept->created = SqlFunction::NOW();
-
         return $dept;
     }
 
@@ -733,7 +732,7 @@ extends Form {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
