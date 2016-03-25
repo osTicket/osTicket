@@ -185,15 +185,16 @@ class Misc {
         else
             $min=0;
 
+        $time = Misc::user2gmtime(mktime(0,0,0));
         ob_start();
         echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
         echo '<option value="" selected>'.__('Time').'</option>';
         for($i=23; $i>=0; $i--) {
-            for($minute=45; $minute>=0; $minute-=15) {
+            for ($minute=45; $minute>=0; $minute-=15) {
                 $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                $disp = Format::time($i*3600 + $minute*60 + 1);
+                $disp = Format::time($time + ($i*3600 + $minute*60 + 1), false);
                 echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }
