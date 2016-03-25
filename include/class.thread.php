@@ -2176,7 +2176,7 @@ class ThreadEntryBody /* extends SplString */ {
 
     static function clean($text, $format=null) {
         global $cfg;
-        $format = $format ?: ($cfg->isHtmlThreadEnabled() ? 'html' : 'text');
+        $format = $format ?: ($cfg->isRichTextEnabled() ? 'html' : 'text');
         $body = static::fromFormattedText($text, $format);
         return $body->getClean();
     }

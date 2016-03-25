@@ -64,7 +64,7 @@ class Installer extends SetupWizard {
         $vars = array_map('trim', $vars);
 
         if(!Validator::process($f,$vars,$this->errors) && !$this->errors['err'])
-            $errors['err'] = sprintf('%s — %s',
+            $this->errors['err'] = sprintf('%s — %s',
                 __('Missing or invalid data'),
                 __('Correct any errors below and try again'));
 

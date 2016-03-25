@@ -38,6 +38,7 @@ class ReflectionClass {
     function getMethods() {}
     function getConstants() {}
     function newInstanceArgs() {}
+    function newInstanceWithoutConstructor() {}
 }
 
 class DomNode {
@@ -140,6 +141,7 @@ class SqlExpression {
 }
 
 class SqlInterval {
+    static function SECOND() {}
     static function MINUTE() {}
     static function DAY() {}
 }

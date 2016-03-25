@@ -737,8 +737,7 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                 $errors['err'] = sprintf(
                         __('You do not have permission %s'),
-                        __('to delete tickets'))
-
+                        __('to delete tickets'));
 
             if ($_POST && !$errors) {
                 foreach ($_POST['tids'] as $tid) {

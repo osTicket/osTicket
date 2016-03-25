@@ -337,7 +337,7 @@ if($_POST && !$errors):
                         unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
                         $errors['err']=sprintf('%s %s',
-                            __('Unable to create the ticket.',
+                            __('Unable to create the ticket.'),
                             __('Correct any errors below and try again.'));
                     }
                 }
