@@ -75,6 +75,11 @@ class Export {
                     ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
             ));
 
+        // Fetch staff information
+        // FIXME: Adjust Staff model so it doesn't do extra queries
+        foreach (Staff::objects() as $S)
+            $S->get('junk');
+
         return self::dumpQuery($tickets,
             array(
                 'number' =>         __('Ticket Number'),
