@@ -86,23 +86,15 @@ class Misc {
 
         $tz = new DateTimeZone($cfg->getTimezone($user));
 
-        if (!$timestamp)
-            $timestamp = 'now';
-
-        if (is_int($timestamp)) {
-            $time = $timestamp;
-        } else {
-            if (!($date = new DateTime($timestamp, $tz))) {
-                // Timestamp might be invalid
+        if ($timestamp && is_int($timestamp)) {
+            if (!($date = DateTime::createFromFormat('U', $timestamp)))
                 return $timestamp;
-            }
-            $time = $date->format('U');
+
+            return $timestamp - $tz->getOffset($date);
         }
 
-        if (!($D = DateTime::createFromFormat('U', $time)))
-            return $time;
-
-        return $time - $tz->getOffset($D);
+        $date = new DateTime($timestamp ?: 'now', $tz);
+        return $date ? $date->getTimestamp() : $timestamp;
     }
 
     //Take user time or gmtime and return db (mysql) time.
@@ -131,10 +123,14 @@ class Misc {
         global $cfg;
 
         $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
-        if (!($time = new DateTime($time ?: 'now'))) {
+
+       if ($time && is_numeric($time))
+          $time = DateTime::createFromFormat('U', $time);
+        elseif (!($time = new DateTime($time ?: 'now'))) {
             // Old standard
             return time() - date('Z');
         }
+
         return $time->getTimestamp() - $tz->getOffset($time);
     }
 
