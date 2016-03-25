@@ -14,6 +14,21 @@
 require_once(INCLUDE_DIR.'class.signal.php');
 require_once(INCLUDE_DIR.'class.error.php');
 
+
+/**
+ * Represents a file stored in a storage backend. It is generally attached
+ * to something; however company logos, login page backdrops, and other
+ * items are also stored in the database for various purposes.
+ *
+ * FileType-Definitions:
+ *    The `ft` field is used to represent the type or purpose of the file
+ *    with respect to the system. These are the defined file types (placed
+ *    here as the definitions are not needed in code).
+ *
+ *    - 'T' => Attachments
+ *    - 'L' => Logo
+ *    - 'B' => Backdrop
+ */
 class AttachmentFile extends VerySimpleModel {
 
     static $meta = array(
@@ -837,15 +852,10 @@ class AttachmentFileChunk extends VerySimpleModel {
         ),
     );
 }
+
 class AttachmentChunkedData extends FileStorageBackend {
     static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
-
-    const FILE_TYPES = array(
-        'T' => 'Attachment',
-        'L' => 'Logo',
-        'B' => 'Backdrop',
-    );
 
     function __construct($file) {
         $this->file = $file;
