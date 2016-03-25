@@ -587,16 +587,22 @@ implements RestrictedAccess, Threadable {
     }
 
     function getUpdateInfo() {
+        global $cfg;
+
         return array(
             'source'    => $this->getSource(),
             'topicId'   => $this->getTopicId(),
             'slaId'     => $this->getSLAId(),
             'user_id'   => $this->getOwnerId(),
             'duedate'   => $this->getDueDate()
-                ? Format::date($this->getDueDate())
+                ? Format::date($this->getDueDate(), true,
+                    $cfg->getDateFormat(true))
                 : '',
-            'time'      => $this->getDueDate()?(Format::date($this->getDueDate(), true, 'HH:mm')):'',
+            'time'      => $this->getDueDate()
+                ? Format::time($this->getDueDate(), true, 'HH:mm')
+                : '',
         );
+
     }
 
     function getLock() {
