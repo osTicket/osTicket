@@ -10,7 +10,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <p><?php echo __("The installer will guide you every step of the way in the installation process. You're minutes away from your awesome customer support system!");?></p>
             </div>
             <h2><?php echo __('Prerequisites');?></h3>
-            <p><?php echo __("Before we begin, we'll check your server configuration to make sure you meet the minimum requirements to install and run osTicket.");?></p>
+            <p><?php echo __("Before we begin, we'll check your server configuration to make sure you meet the minimum requirements to run the latest version of osTicket.");?></p>
             <h3><?php echo __('Required');?>: <font color="red"><?php echo $errors['prereq']; ?></font></h3>
             <?php echo __('These items are necessary in order to install and use osTicket.');?>
             <ul class="progress">
@@ -23,24 +23,24 @@ if(!defined('SETUPINC')) die('Kwaheri!');
             <h3><?php echo __('Recommended');?>:</h3>
             <?php echo __('You can use osTicket without these, but you may not be able to use all features.');?>
             <ul class="progress">
-                <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib <?php echo __('extension');?></li>
-                <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP <?php echo __('extension');?> &mdash; <em><?php
+                <li class="<?php echo extension_loaded('gd')?'yes':'no'; ?>">Gdlib <?php echo __('Extension');?></li>
+                <li class="<?php echo extension_loaded('imap')?'yes':'no'; ?>">PHP IMAP <?php echo __('Extension');?> &mdash; <em><?php
                     echo __('Required for mail fetching');?></em></li>
-                <li class="<?php echo extension_loaded('xml') ?'yes':'no'; ?>">PHP XML <?php echo __('extension');?> <?php
+                <li class="<?php echo extension_loaded('xml') ?'yes':'no'; ?>">PHP XML <?php echo __('Extension');?> <?php
                     echo __('(for XML API)');?></li>
-                <li class="<?php echo extension_loaded('dom') ?'yes':'no'; ?>">PHP XML-DOM <?php echo __('extension');?> <?php
+                <li class="<?php echo extension_loaded('dom') ?'yes':'no'; ?>">PHP XML-DOM <?php echo __('Extension');?> <?php
                     echo __('(for HTML email processing)');?></li>
-                <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON <?php echo __('extension');?> <?php
+                <li class="<?php echo extension_loaded('json')?'yes':'no'; ?>">PHP JSON <?php echo __('Extension');?> <?php
                     echo __('(faster performance)');?></li>
-                <li class="<?php echo extension_loaded('mbstring')?'yes':'no'; ?>">Mbstring <?php echo __('extension');?> &mdash; <?php
+                <li class="<?php echo extension_loaded('mbstring')?'yes':'no'; ?>">Mbstring <?php echo __('Extension');?> &mdash; <?php
                     echo __('recommended for all installations');?></li>
-                <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar <?php echo __('extension');?> &mdash; <?php
+                <li class="<?php echo extension_loaded('phar')?'yes':'no'; ?>">Phar <?php echo __('Extension');?> &mdash; <?php
                     echo __('recommended for plugins and language packs');?></li>
-                <li class="<?php echo extension_loaded('intl')?'yes':'no'; ?>">Intl <?php echo __('extension');?> &mdash; <?php
+                <li class="<?php echo extension_loaded('intl')?'yes':'no'; ?>">Intl <?php echo __('Extension');?> &mdash; <?php
                     echo __('recommended for improved localization');?></li>
-                <li class="<?php echo extension_loaded('apcu')?'yes':'no'; ?>">APCu <?php echo __('extension');?> &mdash; <?php
+                <li class="<?php echo extension_loaded('apcu')?'yes':'no'; ?>">APCu <?php echo __('Extension');?> &mdash; <?php
                     echo __('(faster performance)');?></li>
-                <li class="<?php echo extension_loaded('Zend OPcache')?'yes':'no'; ?>">Zend OPcache <?php echo __('extension');?> &mdash; <?php
+                <li class="<?php echo extension_loaded('Zend OPcache')?'yes':'no'; ?>">Zend OPcache <?php echo __('Extension');?> &mdash; <?php
                     echo __('(faster performance)');?></li>
             </ul>
             <div id="bar">

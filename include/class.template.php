@@ -62,7 +62,7 @@ class EmailTemplateGroup {
         ),
         'ticket.overlimit'=>array(
             'group'=>'a.ticket.user',
-            'name'=>/* @trans */ 'Over Limit Notice',
+            'name'=>/* @trans */ 'Overlimit Notice',
             'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
             'context' => array(
                 'ticket', 'signature',

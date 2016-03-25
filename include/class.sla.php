@@ -100,7 +100,7 @@ implements TemplateVariable {
 
     static function getVarScope() {
         return array(
-            'name' => __('SLA Plan'),
+            'name' => __('Service Level Agreement'),
             'graceperiod' => __("Grace Period (hrs)"),
         );
     }

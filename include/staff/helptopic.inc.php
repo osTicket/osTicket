@@ -99,7 +99,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
         <div style="padding:8px 3px;border-bottom: 2px dotted #ddd;">
             <strong><?php echo __('Internal Notes');?>:</strong>
-            <?php echo __("be liberal, they're internal.");?>
+            <?php echo __("Be liberal, they're internal");?>
         </div>
 
         <textarea class="richtext no-bar" name="notes" cols="21"
@@ -259,7 +259,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Thank-you Page'); ?>:</td>
+            <td width="180"><?php echo __('Thank-You Page'); ?>:</td>
             <td>
                 <select name="page_id">
                     <option value="">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
@@ -320,7 +320,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180">
-                <?php echo __('Auto-response'); ?>:
+                <?php echo __('Auto-Response'); ?>:
             </td>
             <td>
                 <input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >

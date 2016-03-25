@@ -225,7 +225,8 @@ class UsersAjaxAPI extends AjaxController {
             if ($errors['err'])
                 $info['error'] = $errors['err'];
             else
-                $info['error'] = __('Unable to update account - try again!');
+                $info['error'] = __('Unable to update account.')
+                    .' '.__('Correct any errors below and try again.');
         }
 
         $info['_target'] = $target;
@@ -424,14 +425,14 @@ class UsersAjaxAPI extends AjaxController {
                 $form = OrganizationForm::getDefaultForm()->getForm($_POST);
                 if (!($org = Organization::fromForm($form)))
                     $info['error'] = __('Unable to create organization.')
-                        .' '.__('Correct error(s) below and try again.');
+                        .' '.__('Correct any errors below and try again.');
             }
 
             if ($org && $user->setOrganization($org))
                 Http::response(201, $org->to_json());
             elseif (! $info['error'])
                 $info['error'] = __('Unable to add user to organization.')
-                    .' '.__('Correct error(s) below and try again.');
+                    .' '.__('Correct any errors below and try again.');
 
         } elseif ($orgId)
             $org = Organization::lookup($orgId);
@@ -442,7 +443,7 @@ class UsersAjaxAPI extends AjaxController {
         }
 
         if ($org && $user->getOrgId() && $org->getId() != $user->getOrgId())
-            $info['warning'] = __("Are you sure you want to change user's organization?");
+            $info['warning'] = __("Are you sure you want to change the user's organization?");
 
         $tmpl = $tmpl ?: 'org-lookup.tmpl.php';
 

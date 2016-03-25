@@ -38,32 +38,33 @@ if ($_POST) {
         } elseif ($role->update($_POST, $errors)) {
             $msg = __('Role updated successfully');
         } elseif ($errors) {
-            $errors['err'] = $errors['err'] ?:
-                sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this role'));
+            $errors['err'] = $errors['err'] ?: sprintf('%s %s',
+                sprintf(__('Unable to update %s.'), __('this role')),
+                __('Correct any errors below and try again.'));
         } else {
-            $errors['err'] = sprintf(__('Unable to update %s.'), __('this role'))
-                    .' '.__('Internal error occurred');
+            $errors['err'] = sprintf('%s %s',
+                sprintf(__('Unable to update %s.'), __('this role')),
+                    __('Internal error occurred'));
         }
         break;
     case 'add':
         $_role = Role::create();
         if ($_role->update($_POST, $errors)) {
             unset($_REQUEST['a']);
-            $msg = sprintf(__('Successfully added %s'),
+            $msg = sprintf(__('Successfully added %s.'),
                     __('role'));
         } elseif ($errors) {
-            $errors['err'] = $errors['err'] ?:
-                sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('role'));
+            $errors['err'] = sprintf('%s %s',
+                sprintf(__('Unable to add %s.'), __('this role')),
+                __('Correct any errors below and try again.'));
         } else {
-            $errors['err'] = sprintf(__('Unable to add %s.'), __('role'))
-                    .' '.__('Internal error occurred');
+            $errors['err'] = sprintf(__('Unable to add %s.'), __('this role'))
+                    .' — '.__('Internal error occurred');
         }
         break;
     case 'mass_process':
         if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = sprintf(__('You must select at least %s'),
+            $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one role'));
         } else {
             $count = count($_POST['ids']);
@@ -116,13 +117,13 @@ if ($_POST) {
                         $i++;
                 }
                 if ($i && $i==$count)
-                    $msg = sprintf(__('Successfully deleted %s'),
+                    $msg = sprintf(__('Successfully deleted %s.'),
                             _N('selected role', 'selected roles', $count));
                 elseif ($i > 0)
                     $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                             _N('selected role', 'selected roles', $count));
                 elseif (!$errors['err'])
-                    $errors['err'] = sprintf(__('Unable to delete %s — they may be in use.'),
+                    $errors['err'] = sprintf(__('Unable to delete %s. They may be in use.'),
                             _N('selected role', 'selected roles', $count));
                 break;
             default:

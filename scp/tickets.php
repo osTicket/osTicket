@@ -135,7 +135,9 @@ if($_POST && !$errors):
                 $redirect = 'tickets.php';
 
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
+                $errors['err']=sprintf('%s %s',
+                    __('Unable to post the reply.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'postnote': /* Post Internal Note */
@@ -182,7 +184,9 @@ if($_POST && !$errors):
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
 
-                $errors['postnote'] = __('Unable to post the note. Correct the error(s) below and try again!');
+                $errors['postnote'] = sprintf('%s %s',
+                    __('Unable to post the note.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'edit':
@@ -197,7 +201,9 @@ if($_POST && !$errors):
                 if(!$ticket->checkStaffPerm($thisstaff))
                     $ticket=null;
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to update the ticket. Correct the errors below and try again!');
+                $errors['err']=sprintf(
+                    __('Unable to update %s. Correct any errors below and try again.'),
+                    __('ticket'));
             }
             break;
         case 'process':
@@ -310,7 +316,7 @@ if($_POST && !$errors):
                 if (!$thisstaff ||
                         !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
-                             sprintf(__('You do not have permission %s.'),
+                             sprintf(__('You do not have permission %s'),
                                  __('to create tickets')),
                              __('Contact admin for such access'));
                 } else {
@@ -330,7 +336,9 @@ if($_POST && !$errors):
                         $response_form->getField('attachments')->reset();
                         unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
-                        $errors['err']=__('Unable to create the ticket. Correct the error(s) and try again');
+                        $errors['err']=sprintf('%s %s',
+                            __('Unable to create the ticket.',
+                            __('Correct any errors below and try again.'));
                     }
                 }
                 break;

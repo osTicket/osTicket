@@ -149,8 +149,9 @@ class API {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                __('this API key'));
+            $errors['err']=sprintf('%s %s',
+                sprintf(__('Unable to add %s.'), __('this API key')),
+                __('Correct any errors below and try again.'));
         }
 
         return false;

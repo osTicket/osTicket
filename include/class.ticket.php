@@ -1700,7 +1700,7 @@ implements RestrictedAccess, Threadable {
             return false;
 
         $user_comments = (bool) $comments;
-        $comments = $comments ?: _S('Ticket assignment');
+        $comments = $comments ?: _S('Ticket Assignment');
         $assigner = $thisstaff ?: _S('SYSTEM (Auto Assignment)');
 
         //Log an internal note - no alerts on the internal note.
@@ -1883,12 +1883,12 @@ implements RestrictedAccess, Threadable {
 
     static function getVarScope() {
         $base = array(
-            'assigned' => __('Assigned agent and/or team'),
+            'assigned' => __('Assigned Agent / Team'),
             'close_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
             'create_date' => array(
-                'class' => 'FormattedDate', 'desc' => __('Date created'),
+                'class' => 'FormattedDate', 'desc' => __('Date Created'),
             ),
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),
@@ -1900,7 +1900,7 @@ implements RestrictedAccess, Threadable {
             'name' => array(
                 'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
             ),
-            'number' => __('Ticket number'),
+            'number' => __('Ticket Number'),
             'phone' => __('Phone number of ticket owner'),
             'priority' => array(
                 'class' => 'Priority', 'desc' => __('Priority'),
@@ -1923,14 +1923,14 @@ implements RestrictedAccess, Threadable {
                 'class' => 'TicketThread', 'desc' => __('Ticket Thread'),
             ),
             'topic' => array(
-                'class' => 'Topic', 'desc' => __('Help topic'),
+                'class' => 'Topic', 'desc' => __('Help Topic'),
             ),
             // XXX: Isn't lastreponse and lastmessage more useful
             'last_update' => array(
                 'class' => 'FormattedDate', 'desc' => __('Time of last update'),
             ),
             'user' => array(
-                'class' => 'User', 'desc' => __('Ticket owner'),
+                'class' => 'User', 'desc' => __('Ticket Owner'),
             ),
         );
 
@@ -2745,7 +2745,9 @@ implements RestrictedAccess, Threadable {
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if (!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] = __('Missing or invalid data - check the errors and try again');
+            $errors['err'] = sprintf('%s — %s',
+                __('Missing or invalid data'),
+                __('Correct any errors below and try again'));
 
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
@@ -3065,7 +3067,7 @@ implements RestrictedAccess, Threadable {
             $errors = array(
                 'errno' => 403,
                 'err' => __('This help desk is for use by authorized users only'));
-            $ost->logWarning(_S('Ticket Denied'), $message, false);
+            $ost->logWarning(_S('Ticket denied'), $message, false);
             return 0;
         };
 
@@ -3091,7 +3093,7 @@ implements RestrictedAccess, Threadable {
         $fields=array();
         switch (strtolower($origin)) {
             case 'web':
-                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a help topic'));
+                $fields['topicId']  = array('type'=>'int',  'required'=>1, 'error'=>__('Select a Help Topic'));
                 break;
             case 'staff':
                 $fields['deptId']   = array('type'=>'int',  'required'=>0, 'error'=>__('Department selection is required'));
@@ -3109,7 +3111,9 @@ implements RestrictedAccess, Threadable {
         }
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] =__('Missing or invalid data - check the errors and try again');
+            $errors['err'] = sprintf('%s — %s',
+                __('Missing or invalid data'),
+                __('Correct any errors below and try again'));
 
         // Make sure the due date is valid
         if ($vars['duedate']) {

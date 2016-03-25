@@ -87,7 +87,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                 <input type="hidden" name="a" value="filter">
                 <select name="did" id="did">
                     <option value="0">&mdash;
-                        <?php echo __( 'All Department');?> &mdash;</option>
+                        <?php echo __( 'All Departments');?> &mdash;</option>
                     <?php if (($depts=Dept::getDepartments())) { foreach ($depts as $id=> $name) { $sel=($_REQUEST['did'] && $_REQUEST['did']==$id)?'selected="selected"':''; echo sprintf('
                     <option value="%d" %s>%s</option>',$id,$sel,$name); } } ?>
                 </select>

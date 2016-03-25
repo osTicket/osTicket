@@ -381,7 +381,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, __('No such ticket'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_TRANSFER))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
 
@@ -426,7 +426,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                 || !($form = $ticket->getAssignmentForm($_POST,
                         array('target' => $target))))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
         $info = array(
@@ -486,7 +486,7 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->isOpen() // Claim only open
                 || $ticket->getStaff() // cannot claim assigned ticket
                 || !($form = $ticket->getClaimForm($_POST)))
-            Http::response(403, __('Permission Denied'));
+            Http::response(403, __('Permission denied'));
 
         $errors = array();
         $info = array(
@@ -736,9 +736,8 @@ class TicketsAjaxAPI extends AjaxController {
             // Generic permission check.
             if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                 $errors['err'] = sprintf(
-                        __('You do not have permission to %s %s'),
-                        __('delete'),
-                        __('tickets'));
+                        __('You do not have permission %s'),
+                        __('to delete tickets'))
 
 
             if ($_POST && !$errors) {
@@ -768,14 +767,16 @@ class TicketsAjaxAPI extends AjaxController {
             if ($i==$count) {
                 $msg = sprintf(__('Successfully %s %s.'),
                         $actions[$action]['verbed'],
-                        sprintf(__('%1$d %2$s'),
+                        sprintf('%1$d %2$s',
                             $count,
                             _N('selected ticket', 'selected tickets', $count))
                         );
                 $_SESSION['::sysmsgs']['msg'] = $msg;
             } else {
                 $warn = sprintf(
-                        __('%1$d of %2$d %3$s %4$s'), $i, $count,
+                        __('%1$d of %2$d %3$s %4$s'
+                        /* Tokens are <x> of <y> <selected ticket(s)> <actioned> */),
+                        $i, $count,
                         _N('selected ticket', 'selected tickets',
                             $count),
                         $actions[$action]['verbed']);
@@ -784,7 +785,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(201, 'processed');
         } elseif($_POST && !isset($info['error'])) {
             $info['error'] = $errors['err'] ?: sprintf(
-                    __('Unable to %1$s  %2$s'),
+                    __('Unable to %1$s %2$s'),
                     __('process'),
                     _N('selected ticket', 'selected tickets', $count));
         }
@@ -846,8 +847,8 @@ class TicketsAjaxAPI extends AjaxController {
                 break;
             default:
                 $state = $ticket->getStatus()->getState();
-                $info['warn'] = sprintf('%s %s',
-                        __('Unknown or invalid'), __('status'));
+                $info['warn'] = sprintf(__('%s: Unknown or invalid'),
+                        __('status'));
         }
 
         $info['status_id'] = $id ?: $ticket->getStatusId();
@@ -879,17 +880,17 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'open':
                     if (!$role->hasPerm(TicketModel::PERM_CLOSE)
                             && !$role->hasPerm(TicketModel::PERM_CREATE))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
                     if (!$role->hasPerm(TicketModel::PERM_CLOSE))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
                     if (!$role->hasPerm(TicketModel::PERM_DELETE))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;
                 default:
@@ -974,7 +975,7 @@ class TicketsAjaxAPI extends AjaxController {
         $errors = $info = array();
         if (!$thisstaff || !$thisstaff->canManageTickets())
             $errors['err'] = sprintf('%s %s',
-                    sprintf(__('You do not have permission %s.'),
+                    sprintf(__('You do not have permission %s'),
                         __('to mass manage tickets')),
                     __('Contact admin for such access'));
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
@@ -989,17 +990,17 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'open':
                     if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false)
                             && !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
                     if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
                     if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
-                        $errors['err'] = sprintf(__('You do not have permission %s.'),
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;
                 default:
@@ -1229,7 +1230,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['title'] = sprintf(
                 __( 'Ticket #%1$s: %2$s'),
                 $ticket->getNumber(),
-                _('Add New Task')
+                __('Add New Task')
                 );
 
          include STAFFINC_DIR . 'templates/task.tmpl.php';

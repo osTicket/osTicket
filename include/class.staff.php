@@ -628,7 +628,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             $errors['email']=__('Already in-use as system email');
         elseif (($uid=static::getIdByEmail($vars['email']))
                 && (!isset($this->staff_id) || $uid!=$this->getId()))
-            $errors['email']=__('Email already in-use by another agent');
+            $errors['email']=__('Email already in use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']=__('Valid phone number is required');
@@ -894,10 +894,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $imported = 0;
         $fields = array(
             'firstname' => new TextboxField(array(
-                'label' => __('First name'),
+                'label' => __('First Name'),
             )),
             'lastname' => new TextboxField(array(
-                'label' => __('Last name'),
+                'label' => __('Last Name'),
             )),
             'email' => new TextboxField(array(
                 'label' => __('Email Address'),

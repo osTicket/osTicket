@@ -264,12 +264,12 @@ class VariableReplacer {
 
         $contextTypes = array(
             'activity' => array('class' => 'ThreadActivity', 'desc' => __('Type of recent activity')),
-            'assignee' => array('class' => 'Staff', 'desc' => __('Assigned agent/team')),
+            'assignee' => array('class' => 'Staff', 'desc' => __('Assigned Agent / Team')),
             'assigner' => array('class' => 'Staff', 'desc' => __('Agent performing the assignment')),
             'comments' => __('Assign/transfer comments'),
             'link' => __('Access link'),
             'message' => array('class' => 'MessageThreadEntry', 'desc' => 'Message from the EndUser'),
-            'note' => array('class' => 'NoteThreadEntry', 'desc' => __('Internal note')),
+            'note' => array('class' => 'NoteThreadEntry', 'desc' => __('Internal Note')),
             'poster' => array('class' => 'User', 'desc' => 'EndUser or Agent originating the message'),
             // XXX: This could be EndUser -or- Staff object
             'recipient' => array('class' => 'TicketUser', 'desc' => 'Message recipient'),

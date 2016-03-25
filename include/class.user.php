@@ -1096,7 +1096,7 @@ class UserAccount extends VerySimpleModel {
 
 
         if (!$thisstaff) {
-            $errors['err'] = __('Access Denied');
+            $errors['err'] = __('Access denied');
             return false;
         }
 

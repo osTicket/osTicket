@@ -33,14 +33,15 @@ $action=$upgrader->getNextAction();
                     <input type="hidden" name="s" value="upgrade">
                     <input type="hidden" id="mode" name="m" value="<?php echo $upgrader->getMode(); ?>">
                     <input type="hidden" name="sh" value="<?php echo $upgrader->getSchemaSignature(); ?>">
-                    <input class="btn"  type="submit" name="submit" value="<?php echo __('Upgrade Now!');?>">
+                    <input class="btn"  type="submit" name="submit" value="<?php echo __('Upgrade Now');?>">
                 </form>
             </div>
     </div>
     <div class="sidebar">
         <div class="content">
             <h3><?php echo __('Upgrade Tips');?></h3>
-            <p>1. <?php echo __('Be patient the process will take a couple of minutes.');?></p>
+            <p>1. <?php echo __("Be patient. The upgrade process will take a couple of seconds.");?></p>
+
             <p>2. <?php echo __('If you experience any problems, you can always restore your files/database backup.');?></p>
             <p>3. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="http://osticket.com/support" target="_blank">', '</a>');?></p>
         </div>

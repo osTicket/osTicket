@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 if(!($maxfileuploads=ini_get('max_file_uploads')))
     $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 ?>
-<h2><?php echo __('Tasks Settings and Options');?></h2>
+<h2><?php echo __('Task Settings and Options');?></h2>
 <form action="settings.php?t=tasks" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tasks" >
