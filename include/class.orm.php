@@ -1484,6 +1484,50 @@ implements IteratorAggregate, Countable, ArrayAccess {
         $this->asArray();
         return count($this->cache);
     }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
+
+    /**
+     * Reverse the list item in place. Returns this object for chaining
+     */
+    function reverse() {
+        $this->asArray();
+        array_reverse($this->cache);
+        return $this;
+    }
 }
 
 class ModelResultSet
@@ -1878,50 +1922,6 @@ extends ModelResultSet {
             $key[$field] = $value;
         }
         return new static(array($this->model, $key), $this->filter($constraint));
-    }
-
-    /**
-     * Sort the instrumented list in place. This would be useful to change the
-     * sorting order of the items in the list without fetching the list from
-     * the database again.
-     *
-     * Parameters:
-     * $key - (callable|int) A callable function to produce the sort keys
-     *      or one of the SORT_ constants used by the array_multisort
-     *      function
-     * $reverse - (bool) true if the list should be sorted descending
-     *
-     * Returns:
-     * This instrumented list for chaining and inlining.
-     */
-    function sort($key=false, $reverse=false) {
-        // Fetch all records into the cache
-        $this->asArray();
-        if (is_callable($key)) {
-            array_multisort(
-                array_map($key, $this->cache),
-                $reverse ? SORT_DESC : SORT_ASC,
-                $this->cache);
-        }
-        elseif ($key) {
-            array_multisort($this->cache,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->cache);
-        }
-        else
-            sort($this->cache);
-        return $this;
-    }
-
-    /**
-     * Reverse the list item in place. Returns this object for chaining
-     */
-    function reverse() {
-        $this->asArray();
-        array_reverse($this->cache);
-        return $this;
     }
 
     // Save all changes made to any list items
@@ -2908,7 +2908,6 @@ class MySqlPreparedExecutor {
     // queries
     var $map;
 
-    var $conn;
     var $unbuffered = false;
 
     function __construct($sql, $params, $map=null) {
@@ -2923,10 +2922,6 @@ class MySqlPreparedExecutor {
 
     function setBuffered($buffered) {
         $this->unbuffered = !$buffered;
-        if (!$buffered) {
-            // Execute this query in another session
-            $this->conn = Bootstrap::connect();
-        }
     }
 
     function fixupParams() {
@@ -2947,9 +2942,9 @@ class MySqlPreparedExecutor {
 
     function execute() {
         list($sql, $params) = $this->fixupParams();
-        if (!($this->stmt = db_prepare($sql, $this->conn)))
+        if (!($this->stmt = db_prepare($sql)))
             throw new InconsistentModelException(
-                'Unable to prepare query: '.db_error($this->conn).' '.$sql);
+                'Unable to prepare query: '.db_error().' '.$sql);
         if (count($params))
             $this->_bind($params);
         if (!$this->stmt->execute() || !($this->unbuffered || $this->stmt->store_result())) {
@@ -3071,6 +3066,9 @@ class MySqlPreparedExecutor {
             $p = $self->params[$m[1]-1];
             if ($p instanceof DateTime) {
                 $p = $p->format('Y-m-d H:i:s');
+            }
+            elseif ($p === false) {
+                $p = 0;
             }
             return db_real_escape($p, is_string($p));
         }, $this->sql);

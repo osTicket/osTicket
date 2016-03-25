@@ -77,8 +77,6 @@ function db_connect($host, $user, $passwd, $options = array()) {
     ), 'session');
     $__db->set_charset('utf8');
 
-    @db_set_variable('sql_mode', '');
-
     $__db->autocommit(true);
 
     // Use connection timing to seed the random number generator
@@ -140,12 +138,12 @@ function db_set_all($variables, $type='session') {
         if (in_array($k, ['NAMES', 'CHARACTER SET'])) {
             // MySQL doesn't support the session/global flag, and doesn't
             // use an equal sign for these
-            $type = '';
+            $T = '';
         }
         else {
-            $k .= ' = ';
+            $k .= ' =';
         }
-        $set[] = "$type $k ".($__db->real_escape_string($v) ?: "''");
+        $set[] = "$T $k ".($__db->real_escape_string($v) ?: "''");
     }
     $sql = 'SET ' . implode(', ', $set);
     return db_query($sql);
