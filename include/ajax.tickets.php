@@ -568,7 +568,7 @@ class TicketsAjaxAPI extends AjaxController {
         if ($_POST) {
             if (!$_POST['tids'] || !($count=count($_POST['tids'])))
                 $errors['err'] = sprintf(
-                        __('You must select at least %s'),
+                        __('You must select at least %s.'),
                         __('one ticket'));
         } else {
             $count  =  $_REQUEST['count'];
@@ -979,7 +979,7 @@ class TicketsAjaxAPI extends AjaxController {
                         __('to mass manage tickets')),
                     __('Contact admin for such access'));
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
-            $errors['err']=sprintf(__('You must select at least %s'),
+            $errors['err']=sprintf(__('You must select at least %s.'),
                     __('one ticket'));
         elseif (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
@@ -1032,7 +1032,7 @@ class TicketsAjaxAPI extends AjaxController {
                 if ($i==$count) {
 
                     if (!strcasecmp($status->getState(), 'deleted')) {
-                        $msg = sprintf(__( 'Successfully deleted %s'),
+                        $msg = sprintf(__( 'Successfully deleted %s.'),
                                 _N('selected ticket', 'selected tickets',
                                     $count));
                     } else {
@@ -1049,7 +1049,7 @@ class TicketsAjaxAPI extends AjaxController {
                 } else {
 
                     if (!strcasecmp($status->getState(), 'deleted')) {
-                        $warn = sprintf(__('Successfully deleted %s'),
+                        $warn = sprintf(__('Successfully deleted %s.'),
                                 sprintf(__('%1$d of %2$d selected tickets'),
                                     $i, $count)
                                 );

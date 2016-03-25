@@ -1,7 +1,7 @@
 <?php
 
 if (!$info['title'])
-    $info['title'] = sprintf(__('Delete User: %s'), Format::htmlchars($user->getName()));
+    $info['title'] = sprintf('%s: %s', __('Delete User'), Format::htmlchars($user->getName()));
 
 $info['warn'] = __('Deleted users and tickets CANNOT be recovered');
 

@@ -133,11 +133,11 @@ implements TemplateVariable {
             return true;
 
         if (isset($this->id)) {
-            $errors['err']=sprintf(__('Unable to update %s'), __('this SLA plan'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
         } else {
-            $errors['err']=sprintf(__('Unable to add %s'), __('this SLA plan'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to add %s.'), __('this SLA plan'))
+               .' '.__('Internal error occurred');
         }
 
         return false;

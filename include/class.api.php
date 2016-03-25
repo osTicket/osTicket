@@ -137,8 +137,8 @@ class API {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=sprintf(__('Unable to update %s'), __('this API key'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this API key'))
+               .' '.__('Internal error occurred');
 
         } else {
             $sql='INSERT INTO '.API_KEY_TABLE.' SET '.$sql
@@ -149,8 +149,9 @@ class API {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                __('this API key'));
+            $errors['err']=sprintf('%s %s',
+                sprintf(__('Unable to add %s.'), __('this API key')),
+                __('Correct any errors below and try again.'));
         }
 
         return false;

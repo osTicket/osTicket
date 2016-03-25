@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access
 $pageTypes = array(
         'landing' => __('Landing Page'),
         'offline' => __('Offline Page'),
-        'thank-you' => __('Thank-You page'),
+        'thank-you' => __('Thank-You Page'),
         'other' => __('Other'),
         );
 $info = $qs = array();

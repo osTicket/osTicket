@@ -95,11 +95,13 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
                 $attachments->reset();
                 $attachments->getForm()->setSource(array());
             } else {
-                $errors['err']=__('Unable to post the message. Try again');
+                $errors['err'] = sprintf('%s %s',
+                    __('Unable to post the message.'),
+                    __('Correct any errors below and try again.'));
             }
 
         } elseif(!$errors['err']) {
-            $errors['err']=__('Error(s) occurred. Please try again');
+            $errors['err'] = __('Correct any errors below and try again.');
         }
         break;
     default:

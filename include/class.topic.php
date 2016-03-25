@@ -447,13 +447,13 @@ implements TemplateVariable {
                 $this->sort = ($parent->sort ?: 0) + 1;
             }
             if (!($rv = $this->save())) {
-                $errors['err']=sprintf(__('Unable to create %s'), __('this help topic'))
-               .' — '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this help topic'))
+               .' '.__('Internal error occurred');
             }
         }
         elseif (!($rv = $this->save())) {
-            $errors['err']=sprintf(__('Unable to update %s'), __('this help topic'))
-            .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this help topic'))
+            .' '.__('Internal error occurred');
         }
         if ($rv) {
             if (!$cfg || $cfg->getTopicSortMode() == 'a') {

@@ -128,9 +128,9 @@ class TasksAjaxAPI extends AjaxController {
             if ($task->update($forms, $_POST, $errors)) {
                 Http::response(201, 'Task updated successfully');
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(
-                    __('Unable to update %s. Correct any errors below and try again.'),
-                    __('task'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this task')),
+                    __('Correct any errors below and try again.'));
             }
             $info = Format::htmlchars($_POST);
         }
@@ -172,7 +172,7 @@ class TasksAjaxAPI extends AjaxController {
         if ($_POST) {
             if (!$_POST['tids'] || !($count=count($_POST['tids'])))
                 $errors['err'] = sprintf(
-                        __('You must select at least %s'),
+                        __('You must select at least %s.'),
                         __('one task'));
         } else {
             $count  =  $_REQUEST['count'];
@@ -410,7 +410,7 @@ class TasksAjaxAPI extends AjaxController {
 
                 if (!$i) {
                     $info['error'] = sprintf(
-                            __('Unable to delete %s'),
+                            __('Unable to delete %s.'),
                             _N('selected task', 'selected tasks', $count));
                 }
             }

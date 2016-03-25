@@ -26,33 +26,36 @@ if(!$thisstaff ||
 
 $category=null;
 if($_REQUEST['id'] && !($category=Category::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('category'));
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('Category'));
 
 if($_POST){
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$category) {
-                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('category'));
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('Category'));
             } elseif($category->update($_POST,$errors)) {
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this category'));
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'), __('this category'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this category')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this category'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this category')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']=sprintf(__('You must select at least %s'), __('one category'));
+                $errors['err']=sprintf(__('You must select at least %s.'), __('one category'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -98,13 +101,13 @@ if($_POST){
                         ))->delete();
 
                         if ($i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected category', 'selected categories', $count));
                         elseif ($i > 0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected category', 'selected categories', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected category', 'selected categories', $count));
                         break;
                     default:

@@ -77,7 +77,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'), __('one custom form'));
+                $errors['err'] = sprintf(__('You must select at least %s.'), __('one custom form'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -88,13 +88,13 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected custom form', 'selected custom forms', $count));
                         break;
                 }
@@ -137,7 +137,7 @@ if($_POST) {
     if ($errors)
         $errors['err'] = sprintf(__('Unable to commit %s. Check validation errors'), __('this custom form'));
     else
-        $msg = sprintf(__('Successfully updated %s'),
+        $msg = sprintf(__('Successfully updated %s.'),
             __('this custom form'));
 }
 

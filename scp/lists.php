@@ -80,40 +80,43 @@ if($_POST) {
                 }
 
                 if ($errors)
-                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct any errors below and try again.'),
-                        __('custom list items'));
+                    $errors['err'] = sprintf('%s %s',
+                        sprintf(__('Unable to update %s.'), __('custom list items')),
+                        __('Correct any errors below and try again.'));
                 else {
                     $list->_items = null;
-                    $msg = sprintf(__('Successfully updated %s'),
+                    $msg = sprintf(__('Successfully updated %s.'),
                         __('this custom list'));
                 }
 
             } elseif ($errors)
-                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct any errors below and try again.'),
-                    __('this custom list'));
+                $errors['err'] = $errors['err'] ?: sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this custom list')),
+                    __('Correct any errors below and try again.'));
             else
-                $errors['err']=sprintf(__('Unable to update %s'), __('this custom list'))
-                    .' — '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
 
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
                  $form = $list->getForm(true);
-                 Messages::success(sprintf(__('Successfully added %s'), __('this custom list')));
+                 Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
                  // Redirect to list page
                  $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this custom list'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this custom list')),
+                    __('Correct any errors below and try again.'));
             } else {
-                $errors['err']=sprintf(__('Unable to add %s'), __('this custom list'))
-                    .' — '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to add %s.'), __('this custom list'))
+                    .' '.__('Internal error occurred');
             }
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one custom list'));
             } else {
                 $count = count($_POST['ids']);
@@ -125,13 +128,13 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected custom list', 'selected custom lists', $count));
                         elseif ($i > 0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected custom list', 'selected custom lists', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s — they may be in use on a custom form'),
+                            $errors['err'] = sprintf(__('Unable to delete %s. They may be in use.'),
                                 _N('selected custom list', 'selected custom lists', $count));
                         break;
                 }

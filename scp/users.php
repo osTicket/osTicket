@@ -34,21 +34,23 @@ if ($_POST) {
                     && !$acct->update($_POST, $errors)) {
                  $errors['err']=__('Unable to update user account information');
             } elseif($user->updateInfo($_POST, $errors)) {
-                $msg=sprintf(__('Successfully updated %s'), __('this end user'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this end user'));
                 $_REQUEST['a'] = null;
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this end user'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this end user')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form))) {
-                $msg = Format::htmlchars(sprintf(__('Successfully added %s'), $user->getName()));
+                $msg = Format::htmlchars(sprintf(__('Successfully added %s.'), $user->getName()));
                 $_REQUEST['a'] = null;
             } elseif (!$errors['err']) {
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this end user'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this end user')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'confirmlink':
@@ -72,7 +74,7 @@ if ($_POST) {
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one end user'));
             } else {
                 $users = User::objects()->filter(

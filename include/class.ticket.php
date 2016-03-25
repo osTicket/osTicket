@@ -1888,7 +1888,7 @@ implements RestrictedAccess, Threadable {
                 'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
             'create_date' => array(
-                'class' => 'FormattedDate', 'desc' => __('Date created'),
+                'class' => 'FormattedDate', 'desc' => __('Date Created'),
             ),
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),
@@ -1900,7 +1900,7 @@ implements RestrictedAccess, Threadable {
             'name' => array(
                 'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
             ),
-            'number' => __('Ticket number'),
+            'number' => __('Ticket Number'),
             'phone' => __('Phone number of ticket owner'),
             'priority' => array(
                 'class' => 'Priority', 'desc' => __('Priority'),
@@ -2745,7 +2745,9 @@ implements RestrictedAccess, Threadable {
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
         if (!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] = __('Missing or invalid data - correct the errors and try again');
+            $errors['err'] = sprintf('%s — %s',
+                __('Missing or invalid data'),
+                __('Correct any errors below and try again'));
 
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
@@ -3065,7 +3067,7 @@ implements RestrictedAccess, Threadable {
             $errors = array(
                 'errno' => 403,
                 'err' => __('This help desk is for use by authorized users only'));
-            $ost->logWarning(_S('Ticket Denied'), $message, false);
+            $ost->logWarning(_S('Ticket denied'), $message, false);
             return 0;
         };
 
@@ -3109,7 +3111,9 @@ implements RestrictedAccess, Threadable {
         }
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
-            $errors['err'] =__('Missing or invalid data - correct the errors and try again');
+            $errors['err'] = sprintf('%s — %s',
+                __('Missing or invalid data'),
+                __('Correct any errors below and try again'));
 
         // Make sure the due date is valid
         if ($vars['duedate']) {

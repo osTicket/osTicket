@@ -39,7 +39,7 @@ if ($_POST) {
         if (!$org)
             $errors['err'] = __('Trying to remove end users from an unknown organization');
         elseif (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = sprintf(__('You must select at least %s'),
+            $errors['err'] = sprintf(__('You must select at least %s.'),
                 __('one end user'));
         } else {
             $i = 0;
@@ -49,7 +49,7 @@ if ($_POST) {
             }
             $num = count($_POST['ids']);
             if ($i && $i == $num)
-                $msg = sprintf(__('Successfully removed %s'),
+                $msg = sprintf(__('Successfully removed %s.'),
                     _N('selected end user', 'selected end users', $count));
             elseif ($i > 0)
                 $warn = sprintf(__('%1$d of %2$d %3$s removed'), $i, $count,
@@ -62,7 +62,7 @@ if ($_POST) {
 
     case 'mass_process':
         if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = sprintf(__('You must select at least %s'),
+            $errors['err'] = sprintf(__('You must select at least %s.'),
                 __('one organization'));
         }
         else {

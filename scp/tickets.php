@@ -139,7 +139,9 @@ if($_POST && !$errors):
                 $redirect = 'tickets.php';
 
             } elseif(!$errors['err']) {
-                $errors['err']=__('Unable to post the reply. Correct the errors below and try again!');
+                $errors['err']=sprintf('%s %s',
+                    __('Unable to post the reply.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'postnote': /* Post Internal Note */
@@ -190,7 +192,9 @@ if($_POST && !$errors):
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
 
-                $errors['postnote'] = __('Unable to post the note. Correct the error(s) below and try again!');
+                $errors['postnote'] = sprintf('%s %s',
+                    __('Unable to post the note.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'edit':
@@ -340,7 +344,9 @@ if($_POST && !$errors):
                         $response_form->getField('attachments')->reset();
                         unset($_SESSION[':form-data']);
                     } elseif(!$errors['err']) {
-                        $errors['err']=__('Unable to create the ticket. Correct the error(s) and try again');
+                        $errors['err']=sprintf('%s %s',
+                            __('Unable to create the ticket.',
+                            __('Correct any errors below and try again.'));
                     }
                 }
                 break;

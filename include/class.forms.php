@@ -2894,7 +2894,7 @@ class InlineFormField extends FormField {
 
     function validateEntry($value) {
         if (!$this->getInlineForm()->isValid()) {
-            $this->_errors[] = __('Correct errors in the inline form');
+            $this->_errors[] = __('Correct any errors below and try again.');
         }
     }
 

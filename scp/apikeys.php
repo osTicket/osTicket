@@ -26,23 +26,26 @@ if($_POST){
             if(!$api){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('API Key'));
             }elseif($api->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'), __('this API key'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this API key'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this API key'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this API key')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
             if(($id=API::add($_POST,$errors))){
-                $msg=sprintf(__('Successfully added %s'), __('an API key'));
+                $msg=sprintf(__('Successfully added %s.'), __('an API key'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this API key'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this API key')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'), __('one API key'));
+                $errors['err'] = sprintf(__('You must select at least %s.'), __('one API key'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -83,13 +86,13 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected API key', 'selected API keys', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $num, $count,
                                 _N('selected API key', 'selected API keys', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected API key', 'selected API keys', $count));
                         break;
                     default:

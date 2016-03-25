@@ -1061,11 +1061,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         }
 
         if (isset($this->staff_id)) {
-            $errors['err']=sprintf(__('Unable to update %s'), __('this agent'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         } else {
-            $errors['err']=sprintf(__('Unable to create %s'), __('this agent'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to create %s.'), __('this agent'))
+               .' '.__('Internal error occurred');
         }
         return false;
     }

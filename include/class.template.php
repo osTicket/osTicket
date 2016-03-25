@@ -469,8 +469,8 @@ class EmailTemplateGroup {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=sprintf(__('Unable to update %s'), __('this template set'))
-               .' — '.__('Internal error occurred');
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this template set'))
+               .' '.__('Internal error occurred');
 
         } else {
 
@@ -479,8 +479,8 @@ class EmailTemplateGroup {
             $sql='INSERT INTO '.EMAIL_TEMPLATE_GRP_TABLE
                 .' SET created=NOW(), '.$sql;
             if(!db_query($sql) || !($new_id=db_insert_id())) {
-                $errors['err']=sprintf(__('Unable to create %s'), __('this template set'))
-                   .' — '.__('Internal error occurred');
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this template set'))
+                   .' '.__('Internal error occurred');
                 return false;
             }
 

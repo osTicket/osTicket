@@ -25,26 +25,28 @@ if($_POST){
             if(!$team){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('team'));
             }elseif($team->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this team'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to update %s. Correct any errors below and try again.'),
-                    __('this team'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $team = Team::create();
             if (($team->update($_POST, $errors))){
-                $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['team']));
+                $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this team'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']=sprintf(__('You must select at least %s'), __('one team'));
+                $errors['err']=sprintf(__('You must select at least %s.'), __('one team'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -98,13 +100,13 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected team', 'selected teams', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected team', 'selected teams', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected team', 'selected teams', $count));
                         break;
                     default:

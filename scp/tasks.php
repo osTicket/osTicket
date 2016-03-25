@@ -72,7 +72,9 @@ if($_POST && !$errors):
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
 
-                $errors['postnote'] = __('Unable to post the note. Correct the error(s) below and try again!');
+                $errors['postnote'] = sprintf('%s %s',
+                    __('Unable to post the note.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'postreply': /* Post an update */
@@ -100,7 +102,9 @@ if($_POST && !$errors):
                 if (!$errors['err'])
                     $errors['err'] = __('Unable to post the reply - missing or invalid data.');
 
-                $errors['postreply'] = __('Unable to post the reply. Correct the errors below and try again!');
+                $errors['postreply'] = sprintf('%s %s',
+                    __('Unable to post the reply.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         default:

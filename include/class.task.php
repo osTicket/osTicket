@@ -796,7 +796,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $cdept = $this->getDept();
         $dept = $form->getDept();
         if (!$dept || !($dept instanceof Dept))
-            $errors['dept'] = __('Department selection required');
+            $errors['dept'] = __('Department selection is required');
         elseif ($dept->getid() == $this->getDeptId())
             $errors['dept'] = __('Task already in the department');
         else
@@ -1038,7 +1038,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
             'create_date' => array(
-                'class' => 'FormattedDate', 'desc' => __('Date created'),
+                'class' => 'FormattedDate', 'desc' => __('Date Created'),
             ),
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),

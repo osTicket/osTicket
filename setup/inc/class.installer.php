@@ -64,7 +64,9 @@ class Installer extends SetupWizard {
         $vars = array_map('trim', $vars);
 
         if(!Validator::process($f,$vars,$this->errors) && !$this->errors['err'])
-            $this->errors['err']=__('Missing or invalid data - correct the errors and try again.');
+            $errors['err'] = sprintf('%s — %s',
+                __('Missing or invalid data'),
+                __('Correct any errors below and try again'));
 
 
         //Staff's email can't be same as system emails.

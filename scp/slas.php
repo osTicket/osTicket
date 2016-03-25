@@ -26,29 +26,31 @@ if($_POST){
         case 'update':
             if(!$sla){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'),
-                    __('SLA plan'));
+                    __('SLA Plan'));
             }elseif($sla->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this SLA plan'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this SLA plan'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this SLA plan')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
             $_sla = SLA::create();
             if (($_sla->update($_POST, $errors))) {
-                $msg=sprintf(__('Successfully added %s'),
+                $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
                 $_REQUEST['a']=null;
             } elseif (!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this SLA plan'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this SLA plan')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one SLA plan'));
             } else {
                 $count=count($_POST['ids']);
@@ -102,13 +104,13 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         break;
                     default:

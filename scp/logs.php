@@ -19,7 +19,7 @@ if($_POST){
     switch(strtolower($_POST['do'])){
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one log entry'));
             } else {
                 $count=count($_POST['ids']);
@@ -29,13 +29,13 @@ if($_POST){
                         .' WHERE log_id IN ('.implode(',', db_input($_POST['ids'])).')';
                     if(db_query($sql) && ($num=db_affected_rows())){
                         if($num==$count)
-                            $msg=sprintf(__('Successfully deleted %s'),
+                            $msg=sprintf(__('Successfully deleted %s.'),
                                 _N('selected log entry', 'selected log entries', $count));
                         else
                             $warn=sprintf(__('%1$d of %2$d %3$s deleted'), $num, $count,
                                 _N('selected log entry', 'selected log entries', $count));
                     } elseif(!$errors['err'])
-                        $errors['err']=sprintf(__('Unable to delete %s'),
+                        $errors['err']=sprintf(__('Unable to delete %s.'),
                             _N('selected log entry', 'selected log entries', $count));
                 } else {
                     $errors['err']=__('Unknown action - get technical help.');

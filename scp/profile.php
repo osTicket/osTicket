@@ -28,7 +28,9 @@ if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the f
     elseif($staff->updateProfile($_POST,$errors)){
         $msg=__('Profile updated successfully');
     }elseif(!$errors['err'])
-        $errors['err']=__('Profile update error. Try correcting the errors below and try again!');
+        $errors['err'] = sprintf('%s %s',
+            __('Profile update error.'),
+            __('Correct any errors below and try again.'));
 }
 
 //Forced password Change.

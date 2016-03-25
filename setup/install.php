@@ -56,7 +56,9 @@ if($_POST && $_POST['s']) {
                 //TODO: Go to subscribe step.
                 $_SESSION['ost_installer']['s']='done';
             } elseif(!($errors=$installer->getErrors()) || !$errors['err']) {
-                $errors['err']=__('Error installing osTicket - correct the errors below and try again.');
+                $errors['err'] = sprintf('%s %s',
+                    __('Error installing osTicket.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'subscribe':
