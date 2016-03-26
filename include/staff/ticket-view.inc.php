@@ -897,7 +897,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong><?php echo sprintf(
-            __('Are you sure you want to DELETE %s?', __('this ticket')));?></strong></font>
+            __('Are you sure you want to DELETE %s?'), __('this ticket'));?></strong></font>
         <br><br><?php echo __('Deleted data CANNOT be recovered, including any associated attachments.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>

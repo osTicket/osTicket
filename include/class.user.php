@@ -963,13 +963,6 @@ class UserAccount extends VerySimpleModel {
     }
 
     function getUser() {
-        // FIXME: The ORM will expect a ClientAccount instance as the
-        // User.account relationship is defined thusly; however, $this is an
-        // instance of UserAccount. Therefore we will (cast) to a
-        // ClientAccount instance first. This could be better rectified by
-        // collapsing UserAccount into ClientAccount.
-        $acct = new ClientAccount($this->ht);
-        $this->user->set('account', $acct);
         return $this->user;
     }
 

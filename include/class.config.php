@@ -1442,7 +1442,7 @@ class OsticketConfig extends Config {
 
         if (isset($vars['delete-backdrop']))
             foreach ($vars['delete-backdrop'] as $id)
-                if (($vars['selected-logo'] != $id)
+                if (($vars['selected-backdrop'] != $id)
                         && ($f = AttachmentFile::lookup((int) $id)))
                     $f->delete();
 
