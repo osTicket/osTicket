@@ -72,7 +72,7 @@ if ($lang) {
 <?php
         } ?>
         <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
-            hreflang="x-default";
+            hreflang="x-default" />
 <?php
     }
     ?>
