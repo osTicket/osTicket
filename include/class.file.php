@@ -26,6 +26,7 @@ class AttachmentFile extends VerySimpleModel {
         ),
     );
     static $keyCache = array();
+    var $_attrs;
 
     function __onload() {
         // Cache for lookup in the ::lookupByHash method below
@@ -90,8 +91,54 @@ class AttachmentFile extends VerySimpleModel {
         return $this->created;
     }
 
-    function open() {
-        return FileStorageBackend::getInstance($this);
+    function getAttribute($attr=false, $default=null) {
+        if (!isset($this->_attrs) && isset($this->attrs))
+            $this->_attrs = JsonDataParser::decode($this->attrs);
+
+        return $attr
+            ? (isset($this->_attrs[$attr]) ? $this->_attrs[$attr] : $default)
+            : $this->_attrs;
+    }
+
+    function setAttribute($attr, $value, $commit=false) {
+        $this->getAttribute();
+        $this->_attrs[$attr] = $value;
+        $this->attrs = JsonDataEncoder::encode($this->_attrs);
+
+        if ($commit) {
+            $this->save();
+        }
+    }
+
+    /**
+     * Open the file contents for reading or writing. This will retrieve an
+     * instance of the associated FileStorageBackend for this file instance.
+     * This method should only be used for files already saved. For new
+     * files, the static getBackendForFile() should be used instead to allow
+     * for proper election of configured backends and adapters.
+     *
+     * Parameters:
+     * $raw - (bool) if the adapters registered for this file should not be
+     *      configured on the returned backend instance. Default is FALSE.
+     *      Use TRUE to read the file contents without any processing. Such
+     *      might be useful when performing backups or migrating attachment
+     *      data between backends.
+     */
+    function open($raw=false) {
+        $bk = FileStorageBackend::getInstance($this);
+        if (!$raw && ($adapters = $this->getAttribute('stack'))) {
+            $bk = $this->pushAdapters($bk, $adapters);
+        }
+        return $bk;
+    }
+
+    function pushAdapters($bk, array $adapters, $update=false) {
+        foreach ($adapters as $code=>$info) {
+            if ($class = FileStorageBackendAdapter::lookup($code)) {
+                $bk = new $class($bk, $info);
+            }
+        }
+        return $bk;
     }
 
     function sendData($redirect=true, $disposition='inline') {
@@ -124,7 +171,6 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     function delete() {
-
         if (!parent::delete())
             return false;
 
@@ -236,7 +282,7 @@ class AttachmentFile extends VerySimpleModel {
             $type = $_REQUEST['overridetype'];
         Http::download($this->getName(), $type, null, 'inline');
         header('Content-Length: '.$this->getSize());
-        $this->sendData(false);
+        $bk->passthru();
         exit();
     }
 
@@ -465,6 +511,10 @@ class AttachmentFile extends VerySimpleModel {
 
     /**
      * Migrate this file from the current backend to the backend specified.
+     * This is performed with several checkpoints to ensure the integrity of
+     * the migrated file is not comprimised in transit. Once successfully
+     * migrated to the new backend, the contents are removed from the source
+     * backend.
      *
      * Parameters:
      * $bk - (string) type char of the target storage backend. Use
@@ -478,7 +528,7 @@ class AttachmentFile extends VerySimpleModel {
 
         // Copy the file to the new backend and hash the contents
         $target = FileStorageBackend::lookup($bk, $this);
-        $source = $this->open();
+        $source = $this->open(true);
 
         // Initialize hashing algorithm to verify uploaded contents
         $algos = $target->getNativeHashAlgos();
@@ -543,7 +593,7 @@ class AttachmentFile extends VerySimpleModel {
      * Instance<FileStorageBackend> backend selected based on the file
      * received.
      */
-    static function getBackendForFile($file) {
+    static function getBackendForFile(AttachmentFile $file) {
         global $cfg;
 
         $char = null;
@@ -551,11 +601,28 @@ class AttachmentFile extends VerySimpleModel {
             $char = $cfg->getDefaultStorageBackendChar();
         }
         try {
-            return FileStorageBackend::lookup($char ?: 'D', $file);
+            $bk = FileStorageBackend::lookup($char ?: 'D', $file);
         }
         catch (Exception $x) {
-            return new AttachmentChunkedData($file);
+            $bk = new AttachmentChunkedData($file);
         }
+
+        // Consider configuration for default adapters
+        $adapters = array();
+        foreach (FileStorageBackendAdapter::allRegistered() as $code => $class) {
+            if ($class::isSupported()
+                && ($adapter_config = $class::isEnabledForFile($file))
+            ) {
+                $adapters[$code] = $adapter_config;
+            }
+        }
+        // Push the configured adapters on a backend stack with the file
+        // storage backend
+        if ($adapters) {
+            $bk = $file->pushAdapters($bk, $adapters, true); 
+            $file->setAttribute('stack', $adapters);
+        }
+        return $bk;
     }
 
     static function lookupByHash($hash) {
@@ -644,12 +711,20 @@ class AttachmentFile extends VerySimpleModel {
     }
 }
 
-class FileStorageBackend {
-    var $meta;
+/**
+ * Backend storage class which serves as the abstract base to actually store
+ * file contents. Subclasses should override read() and write() at a minimum
+ * to define saving and retrieving the file contents. Subclasses should call
+ * the ::register() method to announce their availability. Backends are
+ * setup for files via the AttachmentFile::getBackendForFile().
+ */
+abstract class FileStorageBackend {
     static $desc = false;
     static $registry;
     static $blocksize = 131072;
     static $private = false;
+
+    var $meta;
 
     /**
      * All storage backends should call this function during the request
@@ -715,6 +790,10 @@ class FileStorageBackend {
      */
     function __construct($meta) {
         $this->meta = $meta;
+    }
+
+    function getMeta() {
+        return $this->meta;
     }
 
     /**
@@ -819,6 +898,425 @@ class FileStorageBackend {
     }
 }
 
+/**
+ * Simple class to facilitate processing in file backend data, such as
+ * inline compression. It mimicks the FileStorageBackend by wrapping one
+ * received in the constructor. All calls to the adapter not implemented are
+ * automatically invoked on the upstream backend. Subclasses must define the
+ * read() and write() methods to process the data and call the upstream
+ * read() and write() methods of the parent backend.
+ */
+abstract class FileStorageBackendAdapter {
+    // Should be at the bottom of the stack
+    static $priority = 10;
+    static $registry = array();
+
+    protected $next;
+
+    function __construct($upstream, $config=null) {
+        $this->next = $upstream;
+        $this->configure($config);
+    }
+
+    static function getPriority() {
+        return static::$priority;
+    }
+
+    function __call($what, $how) {
+        // Delegate anything unimplemented to the next item in the storage
+        // stack
+        return call_user_func_array(array($this->next, $what), $how);
+    }
+
+    static function register($typechar, $class) {
+        self::$registry[$typechar] = $class;
+        // Sort by priority
+        uasort(self::$registry,
+            function($a, $b) { return $a::getPriority() - $b::getPriority(); });
+    }
+
+    static function allRegistered($supported_only=true) {
+        if ($supported_only) {
+            return array_filter(self::$registry,
+                function($x) { return $x::isSupported(); });
+        }
+        return self::$registry;
+    }
+
+    static function lookup($typechar) {
+        if (!isset(self::$registry[$typechar]))
+            throw new InvalidArgumentException($typechar
+                . ': No such adapter registered');
+
+        return self::$registry[$typechar];
+    }
+
+    function getActualBackend() {
+        $bk = $this->next;
+        while ($bk instanceof self)
+            $bk = $bk->next;
+        return $bk;
+    }
+
+    function sendRedirectUrl() {
+        return false;
+    }
+
+    function passthru() {
+        while ($block = $this->read())
+            echo $block;
+    }
+
+    function upload($filepath) {
+        return $this->write(file_get_contents($filepath));
+    }
+
+    /**
+     * Define if the adapter should be used for new files being written to
+     * the system. Before this method is called, the storage backend to
+     * receive the data has already been configured. By default, the adapter
+     * should be used if configured.
+     */
+    static function isEnabledForFile($file) {
+        return true;
+    }
+
+    /**
+     * Allows the adapter to check the PHP or system configuration and
+     * report if the apapter could possibly run with the current
+     * configuration. For instance, after checking if a required PHP
+     * extension is loaded.
+     */
+    static function isSupported() {
+        return true;
+    }
+
+    abstract function read($bytes, $offset=0);
+    abstract function write($block);
+}
+
+/**
+ * An adaptation to the FileStorageBackendAdapter, which allows multiple
+ * adapters to operate on a single stream. This class wraps the read and
+ * write methods and applies them to a temporary file stream. Subclasses
+ * should defined setupReadStream(), setupWriteStream(), and
+ * setupUploadStream() to facilitate operations on the stream when
+ * performing those operations. Generally, stream_filter() functions would
+ * be added to the streams in these handlers.
+ */
+abstract class StreamFilter_FSBA
+extends FileStorageBackendAdapter {
+    protected $stream;
+    protected $is_setup = false;
+
+    function __destruct() {
+        if (isset($this->stream))
+            fclose($this->stream);
+    }
+
+    function getStream($path='php://temp') {
+        if (!isset($this->stream)) {
+            $this->stream = fopen($path, 'wb+');
+        }
+        return $this->stream;
+    }
+
+    function copyStream() {
+        $stream = $this->getStream();
+        // Read RAW data from the backend
+        $bk = $this->getActualBackend();
+        while ($block = $bk->read()) {
+            fwrite($stream, $block);
+        }
+        @rewind($stream);
+    }
+
+    function setStream($stream) {
+        $this->stream = $stream;
+    }
+
+    function read($bytes=8192, $offset=0) {
+        $this->setupRead(true);
+        $stream = $this->getStream();
+
+        if ($offset)
+            fseek($stream, $offset, SEEK_CUR);
+
+        $data = '';
+        while ($bytes) {
+            $start = ftell($stream);
+            if (!($block = fread($stream, $bytes)))
+                break;
+            $next = ftell($stream);
+            $bytes -= $start - $next;
+            $start = $next;
+            $data .= $block;
+        }
+        return $data;
+    }
+
+    function passthru() {
+        $this->getStream('php://output');
+        $this->setupRead(false);
+        $this->copyStream();
+    }
+
+    function write($block) {
+        $this->setupWrite();
+        fwrite($this->getStream(), $block);
+    }
+
+    function flush() {
+        $stream = $this->getStream();
+        rewind($stream);
+
+        // Don't repeat writes to other operators on the same stream
+        $bk = $this->next;
+        while ($bk->next instanceof self)
+            $bk = $bk->next;
+
+        while ($block = fread($stream, $bk->getBlockSize()))
+            $bk->write($block);
+        return $bk->flush();
+    }
+
+    // Similar to deflate, but don't use a temporary file
+    function upload($file) {
+        $this->setStream(fopen($file, 'rb'));
+        $this->setupUpload();
+        return $this->flush();
+    }
+
+    protected function setupStreamStack($func, $reverse=false) {
+        if ($this->is_setup)
+            return;
+        $this->is_setup = true;
+        $stream = $this->getStream();
+        $list = $this->getCollapsedStreamAdapters();
+        if ($reverse)
+            $list = array_reverse($list);
+        foreach ($list as $bk) {
+            call_user_func(array($bk, $func), $stream);
+        }
+    }
+
+    function getCollapsedStreamAdapters() {
+        $list = array();
+        $bk = $this;
+        while ($bk instanceof self) {
+            $list[] = $bk;
+            $bk = $bk->next;
+        }
+        return $list;
+    }
+
+    final function setupRead($copy=true) {
+        if ($copy)
+            $this->copyStream();
+        $this->setupStreamStack('setupReadStream', true);
+    }
+    final function setupWrite() {
+        $this->setupStreamStack('setupWriteStream');
+    }
+    final function setupUpload() {
+        $this->setupStreamStack('setupUploadStream');
+    }
+
+    abstract function setupReadStream($stream);
+    abstract function setupWriteStream($stream);
+    abstract function setupUploadStream($stream);
+}
+
+class CompressionFileAdapter
+extends StreamFilter_FSBA {
+    protected $mode;
+    protected $send_compressed;
+    protected $filter = false;
+
+    // Should be at the bottom of the stack, that is, it should be the
+    // closest to the actual data. Things like encryption should be the
+    // furthest away from the data (after all other operations have been
+    // applied).
+    static $priority = 90;
+
+    function __destruct() {
+        // Ensure memory used from (de)compression is cleaned up. Thanks,
+        // http://php.net/manual/en/function.stream-filter-append.php#84637
+        if ($this->filter)
+            stream_filter_remove($this->filter);
+        parent::__destruct();
+    }
+
+    function configure($mode=null) {
+        switch ($mode) {
+        default:
+        case 'zlib':
+            $this->send_compressed = 'deflate';
+            $this->mode = ['zlib.deflate', 'zlib.inflate'];
+        }
+    }
+
+    function passthru() {
+        if ($this->send_compressed
+            && (false !== strpos($_SERVER['HTTP_ACCEPT_ENCODING'],
+                    $this->send_compressed)
+                || false !== strpos($_SERVER['HTTP_ACCEPT_ENCODING'], '*'))
+        ) {
+            // Send compressed data without decompressing
+            header('Content-Encoding: '.$this->send_compressed);
+            header('Content-Length: '.$this->getActualBackend()->getSize(), true);
+            return $this->next->passthru();
+        }
+        // Compression not supported by client
+        return parent::passthru();
+    }
+
+    function setupReadStream($stream) {
+        // Decompress data for the client
+        $this->filter = stream_filter_prepend($stream, $this->mode[1],
+            STREAM_FILTER_ALL);
+    }
+    function setupWriteStream($stream) {
+        $this->filter = stream_filter_append($stream, $this->mode[0],
+            STREAM_FILTER_WRITE);
+    }
+    function setupUploadStream($stream) {
+        $this->filter = stream_filter_append($stream, $this->mode[0],
+            STREAM_FILTER_READ);
+    }
+
+    static function allModes() {
+        return array(
+            '' =>       __('Disabled'),
+            'some' =>   __('Uncomressed Files'),
+            'all' =>    __('All Files'),
+        );
+    }
+
+    static function isEnabledForFile($file) {
+        global $cfg;
+
+        static $types = array(
+            'image/bmp' => 1,
+            'image/svg+xml' => 1,
+            'application/postscript' => 1,
+            'audio/wav' => 1,
+            'application/pdf' => 1,
+            'application/x-latex' => 1,
+            'application/json' => 1,
+            'application/javascript' => 1,
+        );
+
+        $mode = $cfg->get('compress_files', false);
+        switch ($mode) {
+        case 'all':
+            return 'zlib';
+        case 'some':
+            if (strpos($file->getType(), 'text/') === 0
+                || isset($types[$file->getType()])
+            ) {
+                return 'zlib';
+            }
+        }
+    }
+
+    static function isSupported() {
+        return extension_loaded('zlib');
+    }
+}
+FileStorageBackendAdapter::register('Z', 'CompressionFileAdapter');
+
+class EncryptionFileAdapter
+extends FileStorageBackendAdapter {
+    // Should be at the top of the stack, that is, it should be the
+    // farthest from the original data and closest to the storage backend.
+    // Other things like compression should be done before encryption.
+    static $priority = 10;
+
+    var $crypto;
+    var $iv_size = 32;
+    var $key_size = 32;
+
+    var $extra = '';
+
+    function configure($mode=null) {
+        switch ($mode) {
+        default:
+        case 'aes256':
+        case 'rijndael-256':
+            $algo = 'rijndael-256';
+        }
+
+        $this->crypto = mcrypt_module_open($algo, '', 'cbc', '');
+        $this->iv_size = mcrypt_enc_get_iv_size($this->crypto);
+        $this->key_size = mcrypt_enc_get_key_size($this->crypto);
+        list($iv, $key) = $this->getKeyAndIv();
+        mcrypt_generic_init($this->crypto, $iv, $key);
+    }
+
+    function __destruct() {
+        if (isset($this->crypto))
+            mcrypt_generic_deinit($this->crypto);
+    }
+
+    function getKeyAndIv() {
+        global $cfg;
+
+        $meta = $this->getMeta();
+        $pwd = Crypto::decrypt($cfg->get('file_encrypt_pwd'), SECRET_SALT,
+            'attachments');
+
+        return array(
+            substr(
+                hash('sha256', $meta->getKey(), true),
+                -$this->iv_size
+            ),
+            substr(
+               hash_hmac('sha256',
+                    $meta->getName() . $meta->getKey() . $meta->getSignature(),
+                    $pwd, true
+               ), -$this->key_size
+           ),
+        );
+    }
+
+    function read($bytes=false, $offset=0) {
+        // Round to block size
+        $bytes = $bytes ?: $this->getActualBackend()->getBlocksize();
+        $block = $this->extra . $this->next->read($bytes, $offset);
+        if (!$block)
+            return false;
+
+        $count = (int) strlen($block) / $this->iv_size;
+        list($block, $this->extra) = str_split($block, $count
+            * $this->iv_size);
+
+        return mdecrypt_generic($this->crypto, $block);
+    }
+
+    function write($what) {
+        $block = $this->extra . $what;
+        $count = (int) strlen($block) / $this->iv_size;
+        list($block, $this->extra) = str_split($block, $count
+            * $this->iv_size);
+
+        $block = mcrypt_generic($this->crypto, $what);
+        return $this->next->write($block);
+    }
+
+    static function isEnabledForFile($file) {
+        global $cfg;
+
+        if ($cfg->get('encrypt_files') && $cfg->get('file_encrypt_pwd'))
+            // TODO: Add option for encryption algorithm and mode
+            return 'aes256';
+    }
+
+    static function isSupported() {
+        return extension_loaded('mcrypt');
+    }
+}
+FileStorageBackendAdapter::register('E', 'EncryptionFileAdapter');
 
 /**
  * Attachments stored in the database are cut into 500kB chunks and stored
@@ -848,7 +1346,7 @@ class AttachmentChunkedData extends FileStorageBackend {
     );
 
     function __construct($file) {
-        $this->file = $file;
+        parent::__construct($file);
         $this->_chunk = 0;
         $this->_buffer = false;
         $this->eof = false;
@@ -856,7 +1354,7 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function getSize() {
         $row = AttachmentFileChunk::objects()
-            ->filter(array('file' => $this->file))
+            ->filter(array('file' => $this->meta))
             ->aggregate(array('length' => SqlAggregate::SUM(SqlFunction::LENGTH(new SqlField('filedata')))))
             ->one();
         return $row['length'];
@@ -870,7 +1368,7 @@ class AttachmentChunkedData extends FileStorageBackend {
         while (strlen($this->_buffer) < $amount + $offset) {
             try {
                 list($buf) = AttachmentFileChunk::objects()
-                    ->filter(array('file' => $this->file, 'chunk_id' => $this->_chunk++))
+                    ->filter(array('file' => $this->meta, 'chunk_id' => $this->_chunk++))
                     ->values_flat('filedata')
                     ->one();
             }
@@ -892,7 +1390,7 @@ class AttachmentChunkedData extends FileStorageBackend {
             // forceable remove the contents of a file before write()ing new
             // chunks. Therefore, inserts should be safe.
             $chunk = AttachmentFileChunk::create(array(
-                'file' => $this->file,
+                'file' => $this->meta,
                 'chunk_id' => $this->_chunk++,
                 'filedata' => $block
             ));
@@ -906,7 +1404,7 @@ class AttachmentChunkedData extends FileStorageBackend {
 
     function unlink() {
         return AttachmentFileChunk::objects()
-            ->filter(array('file' => $this->file))
+            ->filter(array('file' => $this->meta))
             ->delete();
     }
 }

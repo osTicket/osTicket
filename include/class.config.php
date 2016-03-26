@@ -1114,6 +1114,12 @@ class OsticketConfig extends Config {
             }
         }
 
+        if (isset($vars['encrypt_files']) && !(
+            strlen($vars['file_encrypt_pwd']) || strlen($this->get('file_encrypt_pwd'))
+        )) {
+            $errors['encrypt_files'] = __('A passphrase is required');
+        }
+
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
@@ -1128,6 +1134,10 @@ class OsticketConfig extends Config {
         if ($storagebk)
             $this->update('default_storage_bk', $storagebk->getBkChar());
 
+        if ($vars['file_encrypt_pwd']) {
+            $this->set('file_encrypt_pwd', Crypto::encrypt($vars['file_encrypt_pwd'],
+                SECRET_SALT, 'attachments'));
+        }
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -1150,6 +1160,8 @@ class OsticketConfig extends Config {
             'autolock_minutes' => $vars['autolock_minutes'],
             'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
+            'compress_files' => $vars['compress_files'] ?: '',
+            'encrypt_files' => isset($vars['encrypt_files']) ?: 0,
         ));
     }
 

@@ -238,7 +238,7 @@ class FileManager extends Module {
                 $header = serialize($info);
                 fwrite($stream, 'AFIL'.pack('VV', strlen($header), $f->getSize()));
                 fwrite($stream, $header);
-                $FS = $f->open();
+                $FS = $f->open(true);
                 while ($block = $FS->read())
                     fwrite($stream, $block);
                 fwrite($stream, "EOF\x1c");
