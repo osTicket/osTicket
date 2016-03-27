@@ -979,8 +979,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     const ASC = 'ASC';
     const DESC = 'DESC';
 
+    const OPT_NOSORT    = 'nosort';
+    const OPT_NOCACHE   = 'nocache';
+
+    const ITER_MODELS   = 1;
+    const ITER_HASH     = 2;
+    const ITER_ROW      = 3;
+
+    var $iter = self::ITER_MODELS;
+
     var $compiler = 'MySqlCompiler';
-    var $iterator = 'ModelInstanceManager';
 
     var $query;
     var $count;
@@ -1103,7 +1111,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function models() {
-        $this->iterator = 'ModelInstanceManager';
+        $this->iter = self::ITER_MODELS;
         $this->values = $this->related = array();
         return $this;
     }
@@ -1111,7 +1119,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function values() {
         foreach (func_get_args() as $A)
             $this->values[$A] = $A;
-        $this->iterator = 'HashArrayIterator';
+        $this->iter = self::ITER_HASH;
         // This disables related models
         $this->related = false;
         return $this;
@@ -1119,7 +1127,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
     function values_flat() {
         $this->values = func_get_args();
-        $this->iterator = 'FlatArrayIterator';
+        $this->iter = self::ITER_ROW;
         // This disables related models
         $this->related = false;
         return $this;
@@ -1130,7 +1138,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function all() {
-        return $this->getIterator()->asArray();
+        return $this->getIterator();
     }
 
     function first() {
@@ -1174,7 +1182,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         }
         $class = $this->compiler;
         $compiler = new $class();
-        return $this->_count = $compiler->compileCount($this);
+        return $this->count = $compiler->compileCount($this);
     }
 
     function toSql($compiler, $model, $alias=false) {
@@ -1241,8 +1249,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function options($options) {
+        // Make an array with $options as the only key
+        if (!is_array($options))
+            $options = array($options => 1);
+
         $this->options = array_merge($this->options, $options);
         return $this;
+    }
+
+    function hasOption($option) {
+        return isset($this->options[$option]);
     }
 
     function countSelectFields() {
@@ -1288,11 +1304,34 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     // IteratorAggregate interface
-    function getIterator() {
-        $class = $this->iterator;
-        if (!isset($this->_iterator))
-            $this->_iterator = new $class($this);
+    function getIterator($iterator=false) {
+        if (!isset($this->_iterator)) {
+            $class = $iterator ?: $this->getIteratorClass();
+            $it = new $class($this);
+            if (!$this->hasOption(self::OPT_NOCACHE)) {
+                if ($this->iter == self::ITER_MODELS)
+                    // Add findFirst() and such
+                    $it = new ModelResultSet($it);
+                else
+                    $it = new CachedResultSet($it);
+            }
+            else {
+                $it = $it->getIterator();
+            }
+            $this->_iterator = $it;
+        }
         return $this->_iterator;
+    }
+
+    function getIteratorClass() {
+        switch ($this->iter) {
+        case self::ITER_MODELS:
+            return 'ModelInstanceManager';
+        case self::ITER_HASH:
+            return 'HashArrayIterator';
+        case self::ITER_ROW:
+            return 'FlatArrayIterator';
+        }
     }
 
     // ArrayAccess interface
@@ -1391,77 +1430,167 @@ EOF;
 class DoesNotExist extends Exception {}
 class ObjectNotUnique extends Exception {}
 
-abstract class ResultSet implements Iterator, ArrayAccess, Countable {
-    var $resource;
-    var $position = 0;
-    var $queryset;
-    var $cache = array();
+class CachedResultSet
+implements IteratorAggregate, Countable, ArrayAccess {
+    protected $inner;
+    protected $eoi = false;
+    protected $cache = array();
 
-    function __construct($queryset=false) {
-        $this->queryset = $queryset;
-        if ($queryset) {
-            $this->model = $queryset->model;
+    function __construct(IteratorAggregate $iterator) {
+        $this->inner = $iterator->getIterator();
+    }
+
+    function fillTo($level) {
+        while (!$this->eoi && count($this->cache) < $level) {
+            if (!$this->inner->valid()) {
+                $this->eoi = true;
+                break;
+            }
+            $this->cache[] = $this->inner->current();
+            $this->inner->next();
         }
     }
 
-    function prime() {
-        if (!isset($this->resource) && $this->queryset)
-            $this->resource = $this->queryset->getQuery();
-    }
-
-    abstract function fillTo($index);
-
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
+        return $this;
+    }
+
+    function getCache() {
         return $this->cache;
     }
 
-    // Iterator interface
-    function rewind() {
-        $this->position = 0;
-    }
-    function current() {
-        $this->fillTo($this->position);
-        return $this->cache[$this->position];
-    }
-    function key() {
-        return $this->position;
-    }
-    function next() {
-        $this->position++;
-    }
-    function valid() {
-        $this->fillTo($this->position);
-        return count($this->cache) > $this->position;
+    function getIterator() {
+        $this->asArray();
+        return new ArrayIterator($this->cache);
     }
 
-    // ArrayAccess interface
     function offsetExists($offset) {
-        $this->fillTo($offset);
-        return $this->position >= $offset;
+        $this->fillTo($offset+1);
+        return count($this->cache) > $offset;
     }
     function offsetGet($offset) {
-        $this->fillTo($offset);
+        $this->fillTo($offset+1);
         return $this->cache[$offset];
     }
     function offsetUnset($a) {
-        throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
+        throw new Exception(__('QuerySet is read-only'));
     }
     function offsetSet($a, $b) {
-        throw new Exception(sprintf(__('%s is read-only'), get_class($this)));
+        throw new Exception(__('QuerySet is read-only'));
     }
 
-    // Countable interface
     function count() {
-        return count($this->asArray());
+        $this->asArray();
+        return count($this->cache);
+    }
+
+    /**
+     * Sort the instrumented list in place. This would be useful to change the
+     * sorting order of the items in the list without fetching the list from
+     * the database again.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     *
+     * Returns:
+     * This instrumented list for chaining and inlining.
+     */
+    function sort($key=false, $reverse=false) {
+        // Fetch all records into the cache
+        $this->asArray();
+        if (is_callable($key)) {
+            array_multisort(
+                array_map($key, $this->cache),
+                $reverse ? SORT_DESC : SORT_ASC,
+                $this->cache);
+        }
+        elseif ($key) {
+            array_multisort($this->cache,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->cache);
+        }
+        else
+            sort($this->cache);
+        return $this;
+    }
+
+    /**
+     * Reverse the list item in place. Returns this object for chaining
+     */
+    function reverse() {
+        $this->asArray();
+        array_reverse($this->cache);
+        return $this;
     }
 }
 
-class ModelInstanceManager extends ResultSet {
+class ModelResultSet
+extends CachedResultSet {
+    /**
+     * Find the first item in the current set which matches the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance.
+     *
+     * Example:
+     * >>> $a = new User();
+     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
+     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
+     * <Role: administrator>
+     */
+    function findFirst($criteria) {
+        $records = $this->findAll($criteria, 1);
+        return @$records[0];
+    }
+
+    /**
+     * Find all the items in the current set which match the given criteria.
+     * This would be used in favor of ::filter() which might trigger another
+     * database query. The criteria is intended to be quite simple and should
+     * not traverse relationships which have not already been fetched.
+     * Otherwise, the ::filter() or ::window() methods would provide better
+     * performance, as they can provide results with one more trip to the
+     * database.
+     */
+    function findAll($criteria, $limit=false) {
+        $records = array();
+        foreach ($this as $record) {
+            $matches = true;
+            foreach ($criteria as $field=>$check) {
+                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches)
+                $records[] = $record;
+            if ($limit && count($records) == $limit)
+                break;
+        }
+        return $records;
+    }
+}
+
+class ModelInstanceManager
+implements IteratorAggregate {
+    var $queryset;
     var $model;
     var $map;
 
     static $objectCache = array();
+
+    function __construct(QuerySet $queryset) {
+        $this->queryset = $queryset;
+        $this->model = $queryset->model;
+    }
 
     function cache($model) {
         $key = sprintf('%s.%s',
@@ -1564,7 +1693,7 @@ class ModelInstanceManager extends ResultSet {
      * describes the relationship between the root model and this model,
      * 'user__account' for instance.
      */
-    function buildModel($row) {
+    function buildModel($row, $cache=true) {
         // TODO: Traverse to foreign keys
         if ($this->map) {
             if ($this->model != $this->map[0][1])
@@ -1577,7 +1706,7 @@ class ModelInstanceManager extends ResultSet {
                 $record = array_combine($fields, $values);
                 if (!$path) {
                     // Build the root model
-                    $model = $this->getOrBuild($this->model, $record);
+                    $model = $this->getOrBuild($this->model, $record, $cache);
                 }
                 elseif ($model) {
                     $i = 0;
@@ -1588,71 +1717,137 @@ class ModelInstanceManager extends ResultSet {
                         if (!($m = $m->get($field)))
                             break;
                     }
-                    if ($m)
-                        $m->set($tail, $this->getOrBuild($model_class, $record));
+                    if ($m) {
+                        // Only apply cache setting to the root model.
+                        // Reference models should use caching
+                        $m->set($tail, $this->getOrBuild($model_class, $record, $cache));
+                    }
                 }
                 $offset += count($fields);
             }
         }
         else {
-            $model = $this->getOrBuild($this->model, $row);
+            $model = $this->getOrBuild($this->model, $row, $cache);
         }
         return $model;
     }
 
-    function fillTo($index) {
-        $this->prime();
+    function getIterator() {
+        $this->resource = $this->queryset->getQuery();
+        $this->map = $this->resource->getMap();
+        $cache = !$this->queryset->hasOption(QuerySet::OPT_NOCACHE);
+        $this->resource->setBuffered($cache);
         $func = ($this->map) ? 'getRow' : 'getArray';
-        while ($this->resource && $index >= count($this->cache)) {
-            if ($row = $this->resource->{$func}()) {
-                $this->cache[] = $this->buildModel($row);
-            } else {
-                $this->resource->close();
-                $this->resource = false;
-                break;
-            }
-        }
+        $func = array($this->resource, $func);
+
+        return new CallbackSimpleIterator(function() use ($func, $cache) {
+            global $StopIteration;
+
+            if ($row = $func())
+                return $this->buildModel($row, $cache);
+
+            $this->resource->close();
+            throw $StopIteration;
+        });
+    }
+}
+
+class CallbackSimpleIterator
+implements Iterator {
+    var $current;
+    var $eoi;
+    var $callback;
+    var $key = -1;
+
+    function __construct($callback) {
+        assert(is_callable($callback));
+        $this->callback = $callback;
     }
 
-    function prime() {
-        parent::prime();
-        if ($this->resource) {
-            $this->map = $this->resource->getMap();
+    function rewind() {
+        $this->eoi = false;
+        $this->next();
+    }
+
+    function key() {
+        return $this->key;
+    }
+
+    function valid() {
+        if (!isset($this->eoi))
+            $this->rewind();
+        return !$this->eoi;
+    }
+
+    function current() {
+        if ($this->eoi) return false;
+        return $this->current;
+    }
+
+    function next() {
+        try {
+            $cbk = $this->callback;
+            $this->current = $cbk();
+            $this->key++;
+        }
+        catch (StopIteration $x) {
+            $this->eoi = true;
         }
     }
 }
 
-class FlatArrayIterator extends ResultSet {
-    function fillTo($index) {
-        $this->prime();
-        while ($this->resource && $index >= count($this->cache)) {
-            if ($row = $this->resource->getRow()) {
-                $this->cache[] = $row;
-            } else {
-                $this->resource->close();
-                $this->resource = false;
-                break;
-            }
-        }
+// Use a global variable, as constructing exceptions is expensive
+class StopIteration extends Exception {}
+$StopIteration = new StopIteration();
+
+class FlatArrayIterator
+implements IteratorAggregate {
+    var $queryset;
+    var $resource;
+
+    function __construct(QuerySet $queryset) {
+        $this->queryset = $queryset;
+    }
+
+    function getIterator() {
+        $this->resource = $this->queryset->getQuery();
+        return new CallbackSimpleIterator(function() {
+            global $StopIteration;
+
+            if ($row = $this->resource->getRow())
+                return $row;
+
+            $this->resource->close();
+            throw $StopIteration;
+        });
     }
 }
 
-class HashArrayIterator extends ResultSet {
-    function fillTo($index) {
-        $this->prime();
-        while ($this->resource && $index >= count($this->cache)) {
-            if ($row = $this->resource->getArray()) {
-                $this->cache[] = $row;
-            } else {
-                $this->resource->close();
-                $this->resource = false;
-                break;
-            }
-        }
+class HashArrayIterator
+implements IteratorAggregate {
+    var $queryset;
+    var $resource;
+
+    function __construct(QuerySet $queryset) {
+        $this->queryset = $queryset;
+    }
+
+    function getIterator() {
+        $this->resource = $this->queryset->getQuery();
+        return new CallbackSimpleIterator(function() {
+            global $StopIteration;
+
+            if ($row = $this->resource->getArray())
+                return $row;
+
+            $this->resource->close();
+            throw $StopIteration;
+        });
     }
 }
 
-class InstrumentedList extends ModelInstanceManager {
+class InstrumentedList
+extends ModelResultSet {
     var $key;
 
     function __construct($fkey, $queryset=false) {
@@ -1662,8 +1857,9 @@ class InstrumentedList extends ModelInstanceManager {
             if ($related = $model::getMeta('select_related'))
                 $queryset->select_related($related);
         }
-        parent::__construct($queryset);
+        parent::__construct(new ModelInstanceManager($queryset));
         $this->model = $model;
+        $this->queryset = $queryset;
     }
 
     function add($object, $at=false) {
@@ -1726,78 +1922,6 @@ class InstrumentedList extends ModelInstanceManager {
             $key[$field] = $value;
         }
         return new static(array($this->model, $key), $this->filter($constraint));
-    }
-
-    /**
-     * Find the first item in the current set which matches the given criteria.
-     * This would be used in favor of ::filter() which might trigger another
-     * database query. The criteria is intended to be quite simple and should
-     * not traverse relationships which have not already been fetched.
-     * Otherwise, the ::filter() or ::window() methods would provide better
-     * performance.
-     *
-     * Example:
-     * >>> $a = new User();
-     * >>> $a->roles->add(Role::lookup(['name' => 'administator']));
-     * >>> $a->roles->findFirst(['roles__name__startswith' => 'admin']);
-     * <Role: administrator>
-     */
-    function findFirst(array $criteria) {
-        foreach ($this as $record) {
-            $matches = true;
-            foreach ($criteria as $field=>$check) {
-                if (!SqlCompiler::evaluate($record, $field, $check)) {
-                    $matches = false;
-                    break;
-                }
-            }
-            if ($matches)
-                return $record;
-        }
-    }
-
-    /**
-     * Sort the instrumented list in place. This would be useful to change the
-     * sorting order of the items in the list without fetching the list from
-     * the database again.
-     *
-     * Parameters:
-     * $key - (callable|int) A callable function to produce the sort keys
-     *      or one of the SORT_ constants used by the array_multisort
-     *      function
-     * $reverse - (bool) true if the list should be sorted descending
-     *
-     * Returns:
-     * This instrumented list for chaining and inlining.
-     */
-    function sort($key=false, $reverse=false) {
-        // Fetch all records into the cache
-        $this->asArray();
-        if (is_callable($key)) {
-            array_multisort(
-                array_map($key, $this->cache),
-                $reverse ? SORT_DESC : SORT_ASC,
-                $this->cache);
-        }
-        elseif ($key) {
-            array_multisort($this->cache,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->cache);
-        }
-        else
-            sort($this->cache);
-        return $this;
-    }
-
-    /**
-     * Reverse the list item in place. Returns this object for chaining
-     */
-    function reverse() {
-        $this->asArray();
-        array_reverse($this->cache);
-        return $this;
     }
 
     // Save all changes made to any list items
@@ -2773,7 +2897,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 }
 
-class MySqlExecutor {
+class MySqlPreparedExecutor {
 
     var $stmt;
     var $fields = array();
@@ -2784,6 +2908,8 @@ class MySqlExecutor {
     // queries
     var $map;
 
+    var $unbuffered = false;
+
     function __construct($sql, $params, $map=null) {
         $this->sql = $sql;
         $this->params = $params;
@@ -2792,6 +2918,10 @@ class MySqlExecutor {
 
     function getMap() {
         return $this->map;
+    }
+
+    function setBuffered($buffered) {
+        $this->unbuffered = !$buffered;
     }
 
     function fixupParams() {
@@ -2817,7 +2947,7 @@ class MySqlExecutor {
                 'Unable to prepare query: '.db_error().' '.$sql);
         if (count($params))
             $this->_bind($params);
-        if (!$this->stmt->execute() || ! $this->stmt->store_result()) {
+        if (!$this->stmt->execute() || !($this->unbuffered || $this->stmt->store_result())) {
             throw new OrmException('Unable to execute query: ' . $this->stmt->error);
         }
         return true;
@@ -2937,8 +3067,95 @@ class MySqlExecutor {
             if ($p instanceof DateTime) {
                 $p = $p->format('Y-m-d H:i:s');
             }
+            elseif ($p === false) {
+                $p = 0;
+            }
             return db_real_escape($p, is_string($p));
         }, $this->sql);
+    }
+}
+
+/**
+ * Simplified executor which uses the mysqli_query() function to process
+ * queries. This method is faster on MySQL as it doesn't require the PREPARE
+ * overhead, nor require two trips to the database per query. All parameters
+ * are escaped and placed directly into the SQL statement. With this style,
+ * it is possible that multiple parameters could compile a statement which
+ * exceeds the MySQL max_allowed_packet setting.
+ */
+class MySqlExecutor
+extends MySqlPreparedExecutor {
+    function execute() {
+        $sql = $this->__toString();
+        if (!($this->stmt = db_query($sql, true, !$this->unbuffered)))
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$sql);
+        // mysqli_query() return TRUE for UPDATE queries and friends
+        if ($this->stmt !== true)
+            $this->_setupCast();
+        return true;
+    }
+
+    function _setupCast() {
+        $fields = $this->stmt->fetch_fields();
+        $this->types = array();
+        foreach ($fields as $F) {
+            $this->types[] = $F->type;
+        }
+    }
+
+    function _cast($record) {
+        $i=0;
+        foreach ($record as &$f) {
+            switch ($this->types[$i++]) {
+            case MYSQLI_TYPE_DECIMAL:
+            case MYSQLI_TYPE_NEWDECIMAL:
+            case MYSQLI_TYPE_LONGLONG:
+            case MYSQLI_TYPE_FLOAT:
+            case MYSQLI_TYPE_DOUBLE:
+                $f = isset($f) ? (double) $f : $f;
+                break;
+
+            case MYSQLI_TYPE_BIT:
+            case MYSQLI_TYPE_TINY:
+            case MYSQLI_TYPE_SHORT:
+            case MYSQLI_TYPE_LONG:
+            case MYSQLI_TYPE_INT24:
+                $f = isset($f) ? (int) $f : $f;
+                break;
+
+            default:
+                // No change (leave as string)
+            }
+        }
+        unset($f);
+        return $record;
+    }
+
+    function getArray() {
+        if (!isset($this->stmt))
+            $this->execute();
+
+        if (null === ($record = $this->stmt->fetch_assoc()))
+            return false;
+        return $this->_cast($record);
+    }
+
+    function getRow() {
+        if (!isset($this->stmt))
+            $this->execute();
+
+        if (null === ($record = $this->stmt->fetch_row()))
+            return false;
+        return $this->_cast($record);
+    }
+
+    function affected_rows() {
+        return db_affected_rows();
+    }
+
+    function insert_id() {
+        return db_insert_id();
     }
 }
 

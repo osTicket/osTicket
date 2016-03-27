@@ -2,7 +2,7 @@
 $events = $events
     ->filter(array('state__in' => array('created', 'closed', 'reopened', 'edited', 'collab')))
     ->order_by('id');
-$events = $events->getIterator();
+$events = new IteratorIterator($events->all());
 $events->rewind();
 $event = $events->current();
 
