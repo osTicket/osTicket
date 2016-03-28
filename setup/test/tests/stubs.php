@@ -24,6 +24,7 @@ class mysqli_stmt {
     function fetch_field() {}
     function fetch_field_direct() {}
     function fetch_row() {}
+    function fetch_assoc() {}
     function result_metadata() {}
     function free() {}
 }

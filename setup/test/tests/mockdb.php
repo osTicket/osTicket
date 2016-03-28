@@ -36,6 +36,7 @@ function db_affected_row() {
     global $__db;
     return $__db->affected_rows;
 }
+
 function db_insert_id() {
     global $__db;
     return $__db->insert_id;
@@ -43,6 +44,10 @@ function db_insert_id() {
 
 function db_num_rows($res) {
     return $res->num_rows();
+}
+
+function db_real_escape($val, $quote=false) {
+    return $quote ? "'$val'" : $val;
 }
 
 class MockDbSource {
@@ -79,6 +84,10 @@ class MockDbCursor {
 
     function __construct($data) {
         $this->data = $data;
+    }
+
+    function fetch_fields() {
+        return array();
     }
 
     function fetch_row() {
