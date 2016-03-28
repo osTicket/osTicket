@@ -1,3 +1,29 @@
+osTicket v1.9.13
+================
+### Enhancements
+  * Help topic can be specified by the ID number in the URL for client new
+    ticket page (#2735)
+
+### Improvements
+  * Fix crash requesting registration email as a guest, thanks @bailey86
+    (#2552)
+  * Fix attachment filename encoding (#2586)
+  * Fix bounce message loop for message alert to a bad agent email address
+    (#2639)
+  * Sort help topic names case insensitively (#2350)
+  * Fix redactor toolbar appearing over the overlay (#2697)
+  * Add help tip for primary role, thanks @colonelpopcorn (#2680)
+  * Add icons to assigned-to column, thanks @antriver (#2695)
+  * Upgrade to htmLawed 1.20 (#2935)
+  * Fix stripping of `src` attribute in `iframe` elements (#2940)
+
+### Performance and Security
+  * Reduce memory usage processing attachments, thanks @ericLemanissier (#2491,
+    #2492)
+  * Protect access to files shown in the FileUpload field (#2618)
+  * Always perform validation server-side for ajax uploads (e3c9e0f)
+  * Decode html entities before scrubbing (#2940)
+
 osTicket v1.9.12
 ================
 ### Improvements
