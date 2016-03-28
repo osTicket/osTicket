@@ -561,6 +561,7 @@ class Mailer {
 
         //No SMTP or it failed....use php's native mail function.
         $mail = mail::factory('mail');
+        $mail->_params = '-f'.$this->getEmail()->getEmail();
         // Ensure the To: header is properly encoded.
         $to = $headers['To'];
         $result = $mail->send($to, $headers, $body);
