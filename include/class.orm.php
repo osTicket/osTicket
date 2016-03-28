@@ -3064,13 +3064,18 @@ class MySqlPreparedExecutor {
         return preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
         function($m) use ($self) {
             $p = $self->params[$m[1]-1];
-            if ($p instanceof DateTime) {
+            switch (true) {
+            case is_bool($p):
+                $p = (int) $p;
+            case is_int($p):
+            case is_float($p):
+                return $p;
+
+            case $p instanceof DateTime:
                 $p = $p->format('Y-m-d H:i:s');
+            default:
+                return db_real_escape($p, true);
             }
-            elseif ($p === false) {
-                $p = 0;
-            }
-            return db_real_escape($p, is_string($p));
         }, $this->sql);
     }
 }
