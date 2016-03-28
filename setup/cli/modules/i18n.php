@@ -188,9 +188,9 @@ class i18n_Compiler extends Module {
         }
         foreach ($langs as $l) {
             list($code, $js) = $this->_http_get(
-                'http://imperavi.com/webdownload/redactor/lang/?lang='
-                .strtolower($l));
-            if ($code == 200 && ($js != 'File not found')) {
+                sprintf('https://imperavi.com/download/redactor/langs/%s/',
+                    strtolower($l)));
+            if ($code == 200 && strlen($js) > 100) {
                 $phar->addFromString('js/redactor.js', $js);
                 break;
             }
