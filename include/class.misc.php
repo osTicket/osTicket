@@ -86,23 +86,15 @@ class Misc {
 
         $tz = new DateTimeZone($cfg->getTimezone($user));
 
-        if (!$timestamp)
-            $timestamp = 'now';
-
-        if (is_int($timestamp)) {
-            $time = $timestamp;
-        } else {
-            if (!($date = new DateTime($timestamp, $tz))) {
-                // Timestamp might be invalid
+        if ($timestamp && is_int($timestamp)) {
+            if (!($date = DateTime::createFromFormat('U', $timestamp)))
                 return $timestamp;
-            }
-            $time = $date->format('U');
+
+            return $timestamp - $tz->getOffset($date);
         }
 
-        if (!($D = DateTime::createFromFormat('U', $time)))
-            return $time;
-
-        return $time - $tz->getOffset($D);
+        $date = new DateTime($timestamp ?: 'now', $tz);
+        return $date ? $date->getTimestamp() : $timestamp;
     }
 
     //Take user time or gmtime and return db (mysql) time.
@@ -131,10 +123,14 @@ class Misc {
         global $cfg;
 
         $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
-        if (!($time = new DateTime($time ?: 'now'))) {
+
+       if ($time && is_numeric($time))
+          $time = DateTime::createFromFormat('U', $time);
+        elseif (!($time = new DateTime($time ?: 'now'))) {
             // Old standard
             return time() - date('Z');
         }
+
         return $time->getTimestamp() - $tz->getOffset($time);
     }
 
@@ -189,15 +185,16 @@ class Misc {
         else
             $min=0;
 
+        $time = Misc::user2gmtime(mktime(0,0,0));
         ob_start();
         echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
         echo '<option value="" selected>'.__('Time').'</option>';
         for($i=23; $i>=0; $i--) {
-            for($minute=45; $minute>=0; $minute-=15) {
+            for ($minute=45; $minute>=0; $minute-=15) {
                 $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                $disp = Format::time($i*3600 + $minute*60 + 1);
+                $disp = Format::time($time + ($i*3600 + $minute*60 + 1), false);
                 echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }
