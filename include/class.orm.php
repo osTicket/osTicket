@@ -2603,7 +2603,7 @@ class MySqlCompiler extends SqlCompiler {
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
         $row = $exec->getRow();
-        return $row ? $row[0] : null;
+        return is_array($row) ? (int) $row[0] : null;
     }
 
     function compileSelect($queryset) {
