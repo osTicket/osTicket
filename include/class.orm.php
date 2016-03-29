@@ -1453,7 +1453,7 @@ implements IteratorAggregate, Countable, ArrayAccess {
 
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
-        return $this;
+        return $this->getCache();
     }
 
     function getCache() {
