@@ -1138,7 +1138,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function all() {
-        return $this->getIterator();
+        return $this->getIterator()->asArray();
     }
 
     function first() {

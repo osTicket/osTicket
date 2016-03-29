@@ -297,23 +297,6 @@ class FAQ extends VerySimpleModel {
         return $att;
     }
 
-    function getAttachmentsLinks($separator=' ',$target='') {
-
-        $str='';
-        if ($attachments = $this->getLocalAttachments()->all()) {
-            foreach($attachments as $attachment ) {
-            /* The h key must match validation in file.php */
-            if($attachment['size'])
-                $size=sprintf('&nbsp;<small>(<i>%s</i>)</small>',Format::file_size($attachment['size']));
-
-            $str.=sprintf('<a class="Icon file no-pjax" href="%s" target="%s">%s</a>%s&nbsp;%s',
-                    $attachment['download_url'], $target, Format::htmlchars($attachment['name']), $size, $separator);
-
-            }
-        }
-        return $str;
-    }
-
     function delete() {
         try {
             parent::delete();

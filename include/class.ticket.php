@@ -1818,8 +1818,8 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONOverdueTicket() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members);
+                foreach ($dept->getMembersForAlerts() as $M)
+                    $recipients[] = $M;
             }
             // Always alert dept manager??
             if ($cfg->alertDeptManagerONOverdueTicket()
@@ -2082,8 +2082,8 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members);
+                foreach ($dept->getMembersForAlerts() as $M)
+                    $recipients[] = $M;
             }
 
             // Always alert dept manager??
