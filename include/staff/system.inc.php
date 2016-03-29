@@ -171,22 +171,24 @@ if (!$lv) { ?>
 <?php
     foreach (Internationalization::availableLanguages() as $info) {
         $p = $info['path'];
-        if ($info['phar']) $p = 'phar://' . $p;
-        if (file_exists($p . '/MANIFEST.php')) {
-            $manifest = (include $p . '/MANIFEST.php'); ?>
+        if ($info['phar'])
+            $p = 'phar://' . $p;
+?>
     <h3><strong><?php echo Internationalization::getLanguageDescription($info['code']); ?></strong>
         &mdash; <?php echo $manifest['Language']; ?>
-<?php       if ($info['phar'])
-                Plugin::showVerificationBadge($info['path']);
-            ?>
+<?php   if ($info['phar'])
+            Plugin::showVerificationBadge($info['path']); ?>
         </h3>
         <div><?php echo sprintf('<code>%s</code> — %s', $info['code'],
                 str_replace(ROOT_DIR, '', $info['path'])); ?>
+<?php   if (file_exists($p . '/MANIFEST.php')) {
+            $manifest = (include $p . '/MANIFEST.php'); ?>
             <br/> <?php echo __('Version'); ?>: <?php echo $manifest['Version'];
                 ?>, <?php echo sprintf(__('for version %s'),
                     'v'.($manifest['Phrases-Version'] ?: '1.9')); ?>
             <br/> <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
+<?php   } ?>
         </div>
-<?php }
+<?php
     } ?>
 </div>
