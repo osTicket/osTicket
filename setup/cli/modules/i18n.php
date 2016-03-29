@@ -41,6 +41,8 @@ class i18n_Compiler extends Module {
             'help' => 'Add a domain to the path/context of PO strings'),
         'dns' => array('-d', '--dns', 'default' => false, 'metavar' => 'zone-id',
             'help' => 'Write signature to DNS (via this AWS HostedZoneId)'),
+        'branch' => array('-b', '--branch', 'help' => 'Use a Crowdin branch
+            (other than the root)'),
     );
 
     var $epilog = "Note: If updating DNS, you will need to set
@@ -101,7 +103,7 @@ class i18n_Compiler extends Module {
                 $this->fail('API key is required');
             if (!$options['lang'])
                 $this->fail('Language code is required. See `list`');
-            $this->_build($options['lang']);
+            $this->_build($options['lang'], $options);
             break;
         case 'make-pot':
             $this->_make_pot($options);
@@ -144,7 +146,7 @@ class i18n_Compiler extends Module {
         }
     }
 
-    function _build($lang) {
+    function _build($lang, $options) {
         list($code, $zip) = $this->_request("download/$lang.zip");
 
         if ($code !== 200)
@@ -165,14 +167,25 @@ class i18n_Compiler extends Module {
 
         $po_file = false;
 
+        $branch = false;
+        if ($options['branch'])
+            $branch = trim($options['branch'], '/') . '/';
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
+            if ($branch && strpos($info['name'], $branch) !== 0) {
+                // Skip files not part of the named branch
+                continue;
+            }
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
             if (strpos($info['name'], '/messages.po') !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
+                continue;
+            }
+            elseif (!$branch && !file_exists(I18N_DIR . 'en_US/' . $info['name'])) {
+                // Skip files in (other) branches
                 continue;
             }
             $phar->addFromString($info['name'], $contents);
@@ -250,6 +263,9 @@ class i18n_Compiler extends Module {
                 $mo = Translation::buildHashFile($mo_input, false, true);
                 $phar->addFromString('LC_MESSAGES/messages.mo.php', $mo);
                 fclose($mo_input);
+            }
+            else {
+                $this->fail("Unable to build MO file");
             }
         }
 
