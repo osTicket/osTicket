@@ -44,6 +44,8 @@ class i18n_Compiler extends Module {
             'action' => 'store_true', 'help' => 'Compress PHAR with zlib'),
         'bzip2' => array('-j', '--bzip2', 'default' => false,
             'action' => 'store_true', 'help' => 'Compress PHAR with bzip2'),
+        'branch' => array('-b', '--branch', 'help' => 'Use a Crowdin branch
+            (other than the root)'),
     );
 
     var $epilog = "Note: If updating DNS, you will need to set
@@ -175,14 +177,25 @@ class i18n_Compiler extends Module {
 
         $po_file = false;
 
+        $branch = false;
+        if ($options['branch'])
+            $branch = trim($options['branch'], '/') . '/';
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
+            if ($branch && strpos($info['name'], $branch) !== 0) {
+                // Skip files not part of the named branch
+                continue;
+            }
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
-            if (strpos($info['name'], '/messages.po') !== false) {
+            if (fnmatch('*/messages*.po', $info['name']) !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
+                continue;
+            }
+            elseif (!$branch && !file_exists(I18N_DIR . 'en_US/' . $info['name'])) {
+                // Skip files in (other) branches
                 continue;
             }
             $phar->addFromString($info['name'], $contents);
