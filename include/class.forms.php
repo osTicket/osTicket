@@ -2689,7 +2689,7 @@ class FileUploadField extends FormField {
         ) {
             $this->attachments = GenericAttachments::forIdAndType(
                 // Combine the field and entry ids to make the key
-                sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
+                sprintf('%u', abs(crc32('E'.$this->get('id').$e->get('id')))),
                 'E');
         }
         return $this->attachments ?: array();
