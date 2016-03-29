@@ -180,8 +180,12 @@ if (!$lv) { ?>
                 Plugin::showVerificationBadge($info['path']);
             ?>
         </h3>
-        <div><?php echo __('Version'); ?>: <?php echo $manifest['Version']; ?>,
-            <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
+        <div><?php echo sprintf('<code>%s</code> — %s', $info['code'],
+                str_replace(ROOT_DIR, '', $info['path'])); ?>
+            <br/> <?php echo __('Version'); ?>: <?php echo $manifest['Version'];
+                ?>, <?php echo sprintf(__('for version %s'),
+                    'v'.($manifest['Phrases-Version'] ?: '1.9')); ?>
+            <br/> <?php echo __('Built'); ?>: <?php echo $manifest['Build-Date']; ?>
         </div>
 <?php }
     } ?>

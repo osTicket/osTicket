@@ -318,6 +318,8 @@ class i18n_Compiler extends Module {
 
         if (!function_exists('openssl_get_privatekey'))
             $this->fail('OpenSSL extension required for signing');
+        if (!$options['pkey'] || !file_exists($options['pkey']))
+            $this->fail('Signing private key (-P) required');
         $private = openssl_get_privatekey(
                 file_get_contents($options['pkey']));
         if (!$private)
