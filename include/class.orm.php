@@ -2603,7 +2603,7 @@ class MySqlCompiler extends SqlCompiler {
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
         $row = $exec->getRow();
-        return $row ? $row[0] : null;
+        return is_array($row) ? (int) $row[0] : null;
     }
 
     function compileSelect($queryset) {
@@ -3064,13 +3064,18 @@ class MySqlPreparedExecutor {
         return preg_replace_callback("/:(\d+)(?=([^']*'[^']*')*[^']*$)/",
         function($m) use ($self) {
             $p = $self->params[$m[1]-1];
-            if ($p instanceof DateTime) {
+            switch (true) {
+            case is_bool($p):
+                $p = (int) $p;
+            case is_int($p):
+            case is_float($p):
+                return $p;
+
+            case $p instanceof DateTime:
                 $p = $p->format('Y-m-d H:i:s');
+            default:
+                return db_real_escape($p, true);
             }
-            elseif ($p === false) {
-                $p = 0;
-            }
-            return db_real_escape($p, is_string($p));
         }, $this->sql);
     }
 }
