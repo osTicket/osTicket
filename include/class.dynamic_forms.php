@@ -1200,7 +1200,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 && $field->hasData()
                 && $field->isStorable()
             ) {
-                $a = DynamicFormEntryAnswer::create(
+                $a = new DynamicFormEntryAnswer(
                     array('field_id'=>$field->get('id'), 'entry'=>$this));
 
                 // Add to list of answers
