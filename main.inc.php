@@ -33,6 +33,26 @@ Bootstrap::croak(__('Unable to load config info from DB. Get tech support.'));
 //Init
 $session = $ost->getSession();
 
+// Enforce FORCE_HTTPS if requested. Do this after the session startup so
+// the old session can be forcefully removed.
+if (constant('FORCE_HTTPS') and !Bootstrap::https()) {
+    $key = md5(SECRET_SALT . '_https_redirect');
+
+    // Stop infinite redirects, if something is rewriting HTTPS requests
+    if (isset($_GET[$key]))
+        Http::response(422, 'HTTPS is required, but cannot be fulfilled');
+
+    // Drop disclosed http session cookie
+    $session->regenerate_id();
+
+    Http::redirect(sprintf('%s://%s%s%s%s',
+        'https', $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'],
+        count($_GET) ? '&' : '?', $key));
+
+    // Session cookie should only be shared across HTTPS, but this is
+    // already enforced by the session engine
+}
+
 //System defaults we might want to make global//
 #pagenation default - user can override it!
 define('DEFAULT_PAGE_LIMIT', $cfg->getPageSize()?$cfg->getPageSize():25);

@@ -107,6 +107,14 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 
 # define('ROOT_PATH', '/support/');
 
+# Option: FORCE_HTTPS (default: false)
+#
+# If your web servers or load balancers have an SSL certificate installed,
+# you can automatically redirect all requests to their corresponding
+# https:// equivalents.
+
+# define('FORCE_HTTPS', false);
+
 #
 # Session Storage Options
 # ---------------------------------------------------
