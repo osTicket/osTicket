@@ -1464,6 +1464,12 @@ extends AbstractForm {
         list($clean['username'],) = preg_split('/[^\w.-]/u', $clean['email'], 2);
         if (mb_strlen($clean['username']) < 3 || Staff::lookup($clean['username']))
             $clean['username'] = mb_strtolower($clean['firstname']);
+
+
+        // Inherit default dept's role as primary role
+        $clean['assign_use_pri_role'] = true;
+
+        // Default permissions
         $clean['perms'] = array(
             User::PERM_CREATE,
             User::PERM_EDIT,

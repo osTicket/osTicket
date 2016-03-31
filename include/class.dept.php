@@ -206,7 +206,7 @@ implements TemplateVariable {
             $members = clone $this->getMembers();
             $members->filter(array('dept_id' =>$this->getId()));
             $members = Staff::nsort($members);
-            $this->_primary_members = $members->all()->asArray();
+            $this->_primary_members = $members->all();
         }
 
         return $this->_primary_members;
@@ -220,10 +220,10 @@ implements TemplateVariable {
             $members->filter(array('dept_id' => $this->getId()));
             $members = Staff::nsort($members, 'staff__');
             $extended = array();
-            foreach($members->all()->asArray() as $member) {
+            foreach($members->all() as $member) {
                 if (!$member->staff) continue;
                 // Annoted the staff model with alerts and role
-                $extended[] = new AnnotatedModel($member->staff, array(
+                $extended[] =  new AnnotatedModel($member->staff, array(
                             'alerts'  => $member->isAlertsEnabled(),
                             'role_id' => $member->role_id,
                             )
@@ -688,11 +688,21 @@ implements TemplateVariable {
           unset($dropped[$staff_id]);
           if (!$role_id || !Role::lookup($role_id))
               $errors['members'][$staff_id] = __('Select a valid role');
-          if (!$staff_id || !Staff::lookup($staff_id))
+          if (!$staff_id || !($staff=Staff::lookup($staff_id)))
               $errors['members'][$staff_id] = __('No such agent');
+
+          if ($staff->dept_id == $this->id) {
+
+              // If primary member then simply update the role.
+              if (($m = $this->members->findFirst(array(
+                                  'staff_id' => $staff_id))))
+                  $m->role_id = $role_id;
+              continue;
+          }
+
           $da = $this->extended->findFirst(array('staff_id' => $staff_id));
           if (!isset($da)) {
-              $da = StaffDeptAccess::create(array(
+              $da = new StaffDeptAccess(array(
                   'staff_id' => $staff_id, 'role_id' => $role_id
               ));
               $this->extended->add($da);
@@ -701,14 +711,24 @@ implements TemplateVariable {
               $da->role_id = $role_id;
           }
           $da->setAlerts($alerts);
+
       }
-      if (!$errors && $dropped) {
+
+      if ($errors)
+          return false;
+
+      if ($dropped) {
+          $this->extended->saveAll();
           $this->extended
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();
           $this->extended->reset();
       }
-      return !$errors;
+
+      // Save any role change.
+      $this->members->saveAll();
+
+      return true;
     }
 }
 
