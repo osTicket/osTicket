@@ -26,6 +26,21 @@ if (!$_GET['key']
     Http::response(404, __('Unknown or invalid file'));
 }
 
+// Enforce security settings
+if ($cfg->isAuthRequiredForFiles() && !$thisclient) {
+    if (!($U = StaffAuthenticationBackend::getUser())) {
+        // Try and determine if a staff is viewing this page
+        if (strpos($_SERVER['HTTP_REFERRER'], ROOT_PATH .  'scp/') !== false) {
+            $_SESSION['_staff']['auth']['dest'] =
+                '/' . ltrim($_SERVER['REQUEST_URI'], '/');
+            Http::redirect(ROOT_PATH.'scp/login.php');
+        }
+        else {
+            require 'secure.inc.php';
+        }
+    }
+}
+
 // Validate session access hash - we want to make sure the link is FRESH!
 // and the user has access to the parent ticket!!
 if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
