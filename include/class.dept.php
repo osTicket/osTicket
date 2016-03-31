@@ -182,16 +182,8 @@ implements TemplateVariable {
                     'onvacation' => 0,
                 ));
             }
-            switch ($cfg->getAgentNameFormat()) {
-            case 'last':
-            case 'lastfirst':
-            case 'legal':
-                $members->order_by('lastname', 'firstname');
-                break;
 
-            default:
-                $members->order_by('firstname', 'lastname');
-            }
+            $members = Staff::nsort($members);
 
             if ($criteria)
                 return $members;
