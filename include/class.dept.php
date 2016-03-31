@@ -305,10 +305,10 @@ implements TemplateVariable {
         if (is_object($staff))
             $staff = $staff->getId();
 
-        // Members are indexed by ID
-        $members = $this->getMembers();
+        $members = $this->getMembers() ?: $this->members;
 
-        return ($members && isset($members[$staff]));
+        return ($members->findFirst(array(
+                        'staff_id' => $staff)));
     }
 
     function isPublic() {
