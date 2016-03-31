@@ -51,6 +51,9 @@ implements TemplateVariable {
     );
 
     var $_members;
+    var $_primary_members;
+    var $_extended_members;
+
     var $_groupids;
     var $config;
 
@@ -195,6 +198,42 @@ implements TemplateVariable {
 
     function getAvailableMembers() {
         return $this->getMembers(array('available'=>1));
+    }
+
+    function getPrimaryMembers() {
+
+        if (!isset($this->_primary_members)) {
+            $members = clone $this->getMembers();
+            $members->filter(array('dept_id' =>$this->getId()));
+            $members = Staff::nsort($members);
+            $this->_primary_members = $members->all()->asArray();
+        }
+
+        return $this->_primary_members;
+    }
+
+    function getExtendedMembers() {
+
+        if (!isset($this->_exended_members)) {
+            // We need a query set so we can sort the names
+            $members = StaffDeptAccess::objects();
+            $members->filter(array('dept_id' => $this->getId()));
+            $members = Staff::nsort($members, 'staff__');
+            $extended = array();
+            foreach($members->all()->asArray() as $member) {
+                if (!$member->staff) continue;
+                // Annoted the staff model with alerts and role
+                $extended[] = new AnnotatedModel($member->staff, array(
+                            'alerts'  => $member->isAlertsEnabled(),
+                            'role_id' => $member->role_id,
+                            )
+                        );
+            }
+
+            $this->_extended_members = $extended;
+        }
+
+        return $this->_extended_members;
     }
 
     // Get members  eligible members only
