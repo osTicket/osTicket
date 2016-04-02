@@ -67,8 +67,8 @@ elseif (isset($_SESSION['advsearch'])
 ) {
     list(,$key) = explode(',', $queue_id, 2);
     // XXX: De-duplicate and simplify this code
-    $queue = SavedSearch::create(array(
-        'title' => __("Advanced Search"),
+    $queue = AdhocSearch::create(array(
+        'id' => $queue_id,
         'root' => 'T',
     ));
     // For queue=queue, use the most recent search
@@ -416,15 +416,7 @@ $nav->addSubMenu(function() use ($queue, $adhoc) {
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
     $child_selected = $queue && !$queue->isAQueue();
-    $searches = SavedSearch::objects()
-        ->filter(Q::any(array(
-            'flags__hasbit' => SavedSearch::FLAG_PUBLIC,
-            'staff_id' => $thisstaff->getId(),
-        )))
-        ->exclude(array(
-            'flags__hasbit' => SavedSearch::FLAG_QUEUE
-        ))
-        ->all();
+    $searches = SavedSearch::forStaff($thisstaff)->all();
 
     if (isset($adhoc)) {
         // TODO: Add "Ad Hoc Search" to the personal children
