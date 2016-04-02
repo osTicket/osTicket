@@ -46,7 +46,7 @@
     </thead>
     <tbody class="sortable-rows" data-sort="qsort">
 <?php
-$all_queues = CustomQueue::queues()->all();
+$all_queues = CustomQueue::queues()->getIterator();
 $emitLevel = function($queues, $level=0) use ($all_queues, &$emitLevel) { 
     $queues->sort(function($a) { return $a->sort; });
     foreach ($queues as $q) { ?>

@@ -118,7 +118,7 @@ foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
   <div class="conditions">
 <?php
 if ($column->getConditions()) {
-  $fields = SavedSearch::getSearchableFields($root);
+  $fields = CustomQueue::getSearchableFields($root);
   foreach ($column->getConditions() as $i=>$condition) {
      $id = QueueColumnCondition::getUid();
      list($label, $field) = $condition->getField();
@@ -131,7 +131,7 @@ if ($column->getConditions()) {
       <select class="add-condition">
         <option>— <?php echo __("Add a condition"); ?> —</option>
 <?php
-      foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
+      foreach (CustomQueue::getSearchableFields('Ticket') as $path=>$f) {
           list($label) = $f;
           echo sprintf('<option value="%s">%s</option>', $path, Format::htmlchars($label));
       }

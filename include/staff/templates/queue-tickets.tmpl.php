@@ -103,7 +103,7 @@ if ($queue->isPrivate()) { ?>
                         <li>
                             <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search/<?php echo
-                              $queue->id; ?>"><i
+                              urlencode($queue->getId()); ?>"><i
                             class="icon-fixed-width icon-save"></i>
                             <?php echo __('Edit'); ?></a>
                         </li>
@@ -192,7 +192,7 @@ foreach ($columns as $C) {
 
     // Sort by this column ?
     if (isset($sort['col']) && $sort['col'] == $C->id) {
-        $col = SavedSearch::getOrmPath($C->primary, $query);
+        $col = CustomQueue::getOrmPath($C->primary, $query);
         if ($sort['dir'])
             $col = '-' . $col;
         $tickets = $tickets->order_by($col);

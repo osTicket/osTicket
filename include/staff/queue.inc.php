@@ -108,7 +108,7 @@ else {
             if ($queue->parent 
                 && ($qf = $queue->parent->getQuickFilterField()))
                 echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
-<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
+<?php foreach (CustomQueue::getSearchableFields('Ticket') as $path=>$f) {
         list($label, $field) = $f;
         if (!$field->supportsQuickFilter())
           continue;
@@ -128,7 +128,20 @@ else {
 
   <div class="hidden tab_content" id="columns">
     <table class="table two-column">
+<?php if ($queue->parent) { ?>
       <tbody>
+        <tr>
+          <td colspan="3">
+            <input type="checkbox" name="inherit-columns" <?php
+              if ($queue->inheritColumns()) echo 'checked="checked"'; ?>
+              onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
+            <?php echo __('Inherit columns from the parent queue'); ?>
+            <br /><br />
+          </td>
+        </tr>
+      </tbody>
+<?php } ?>
+      <tbody class="if-not-inherited <?php if ($queue->inheritColumns()) echo 'hidden'; ?>">
         <tr class="header">
           <th colspan="3">
             <?php echo __("Manage columns in this queue"); ?>
@@ -143,7 +156,7 @@ else {
           <td><small><b><?php echo __('Sortable'); ?></b></small></td>
         </tr>
       </tbody>
-      <tbody class="sortable-rows">
+      <tbody class="sortable-rows if-not-inherited <?php if ($queue->inheritColumns()) echo 'hidden'; ?>">
         <tr id="column-template" class="hidden">
           <td>
             <i class="faded-more icon-sort"></i>
@@ -172,7 +185,7 @@ else {
           </td>
         </tr>
       </tbody>
-      <tbody>
+      <tbody class="if-not-inherited <?php if ($queue->inheritColumns()) echo 'hidden'; ?>">
         <tr class="header">
           <td colspan="3"></td>
         </tr>
