@@ -3696,7 +3696,7 @@ extends VerySimpleModel {
         'pk' => array('ticket_id'),
         'joins' => array(
             'ticket' => array(
-                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
+                'constraint' => array('ticket_id' => 'Ticket.ticket_id'),
             ),
         )
     );
