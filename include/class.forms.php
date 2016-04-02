@@ -1840,10 +1840,6 @@ class DatetimeField extends FormField {
             return (int) strtotime($value);
     }
 
-    function from_query($row, $name=false) {
-        return strtotime(parent::from_query($row, $name));
-    }
-
     function asVar($value, $id=false) {
         if (!$value) return null;
         return new FormattedDate((int) $value, 'UTC', false, false);
@@ -1853,10 +1849,9 @@ class DatetimeField extends FormField {
     }
 
     function toString($value) {
-        global $cfg;
-        $config = $this->getConfiguration();
         // If GMT is set, convert to local time zone. Otherwise, leave
         // unchanged (default TZ is UTC)
+        $config = $this->getConfiguration();
         $fromDb = @$config['fromdb'] ?: false;
 
         if (!$value)
