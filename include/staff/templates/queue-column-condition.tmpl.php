@@ -20,7 +20,7 @@
   <?php echo $label ?: $field->getLabel(); ?>
   <div class="advanced-search">
 <?php
-$parts = SavedSearch::getSearchField(array($label, $field), $field_name);
+$parts = CustomQueue::getSearchField(array($label, $field), $field_name);
 // Drop the search checkbox field
 unset($parts["{$field_name}+search"]);
 list(, $crit_method, $crit_value) = $condition->getCriteria();

@@ -2,8 +2,8 @@
 // Calling conventions
 // $q - <CustomQueue> object for this navigation entry
 $queue = $q;
-$children = $queue instanceof CustomQueue ? $queue->getPublicChildren() : array();
-$subq_searches = $queue instanceof CustomQueue ? $queue->getMyChildren() : array();
+$children = !$queue instanceof SavedSearch ? $queue->getPublicChildren() : array();
+$subq_searches = !$queue instanceof SavedSearch ? $queue->getMyChildren() : array();
 $hasChildren = count($children) + count($subq_searches) > 0;
 $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;
