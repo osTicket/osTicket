@@ -15,6 +15,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.util.php';
 
 class OrmException extends Exception {}
 class OrmConfigurationException extends Exception {}
@@ -723,11 +724,11 @@ class AnnotatedModel {
             $classes[$class] = eval(<<<END_CLASS
 class {$extra}AnnotatedModel___{$class}
 extends {$class} {
-    var \$__overlay__;
+    protected \$__overlay__;
     use {$extra}AnnotatedModelTrait;
 
     function __construct(\$ht, \$annotations) {
-        parent::__construct(\$ht);
+        \$this->ht = \$ht;
         \$this->__overlay__ = \$annotations;
     }
 }
@@ -779,7 +780,8 @@ trait WriteableAnnotatedModelTrait {
     }
 
     function set($what, $to) {
-        if ($this->__overlay__->__isset($what)) {
+        if (isset($this->__overlay__)
+            && $this->__overlay__->__isset($what)) {
             return $this->__overlay__->set($what, $to);
         }
         return parent::set($what, $to);
@@ -1558,31 +1560,24 @@ class DoesNotExist extends Exception {}
 class ObjectNotUnique extends Exception {}
 
 class CachedResultSet
-implements IteratorAggregate, Countable, ArrayAccess {
+extends BaseList
+implements ArrayAccess {
     protected $inner;
     protected $eoi = false;
-    protected $cache = array();
 
     function __construct(IteratorAggregate $iterator) {
         $this->inner = $iterator->getIterator();
     }
 
     function fillTo($level) {
-        while (!$this->eoi && count($this->cache) < $level) {
+        while (!$this->eoi && count($this->storage) < $level) {
             if (!$this->inner->valid()) {
                 $this->eoi = true;
                 break;
             }
-            $this->cache[] = $this->inner->current();
+            $this->storage[] = $this->inner->current();
             $this->inner->next();
         }
-    }
-
-    function reset() {
-        $this->eoi = false;
-        $this->cache = array();
-        // XXX: Should the inner be recreated to refetch?
-        $this->inner->rewind();
     }
 
     function asArray() {
@@ -1591,21 +1586,28 @@ implements IteratorAggregate, Countable, ArrayAccess {
     }
 
     function getCache() {
-        return $this->cache;
+        return $this->storage;
+    }
+
+    function reset() {
+        $this->eoi = false;
+        $this->storage = array();
+        // XXX: Should the inner be recreated to refetch?
+        $this->inner->rewind();
     }
 
     function getIterator() {
         $this->asArray();
-        return new ArrayIterator($this->cache);
+        return new ArrayIterator($this->storage);
     }
 
     function offsetExists($offset) {
         $this->fillTo($offset+1);
-        return count($this->cache) > $offset;
+        return count($this->storage) > $offset;
     }
     function offsetGet($offset) {
         $this->fillTo($offset+1);
-        return $this->cache[$offset];
+        return $this->storage[$offset];
     }
     function offsetUnset($a) {
         throw new Exception(__('QuerySet is read-only'));
@@ -1616,7 +1618,7 @@ implements IteratorAggregate, Countable, ArrayAccess {
 
     function count() {
         $this->asArray();
-        return count($this->cache);
+        return count($this->storage);
     }
 
     /**
@@ -1636,22 +1638,7 @@ implements IteratorAggregate, Countable, ArrayAccess {
     function sort($key=false, $reverse=false) {
         // Fetch all records into the cache
         $this->asArray();
-        if (is_callable($key)) {
-            array_multisort(
-                array_map($key, $this->cache),
-                $reverse ? SORT_DESC : SORT_ASC,
-                $this->cache);
-        }
-        elseif ($key) {
-            array_multisort($this->cache,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->cache);
-        }
-        else
-            sort($this->cache);
-        return $this;
+        return parent::sort($key, $reverse);
     }
 
     /**
@@ -1659,8 +1646,7 @@ implements IteratorAggregate, Countable, ArrayAccess {
      */
     function reverse() {
         $this->asArray();
-        array_reverse($this->cache);
-        return $this;
+        return parent::reverse();
     }
 }
 
@@ -1695,7 +1681,7 @@ extends CachedResultSet {
      * database.
      */
     function findAll($criteria, $limit=false) {
-        $records = array();
+        $records = new ListObject();
         foreach ($this as $record) {
             $matches = true;
             foreach ($criteria as $field=>$check) {
@@ -1984,14 +1970,16 @@ class InstrumentedList
 extends ModelResultSet {
     var $key;
 
-    function __construct($fkey, $queryset=false) {
+    function __construct($fkey, $queryset=false,
+        $iterator='ModelInstanceManager'
+    ) {
         list($model, $this->key) = $fkey;
         if (!$queryset) {
             $queryset = $model::objects()->filter($this->key);
             if ($related = $model::getMeta('select_related'))
                 $queryset->select_related($related);
         }
-        parent::__construct(new ModelInstanceManager($queryset));
+        parent::__construct(new $iterator($queryset));
         $this->model = $model;
         $this->queryset = $queryset;
     }
@@ -2013,9 +2001,9 @@ extends ModelResultSet {
             $object->save();
 
         if ($at !== false)
-            $this->cache[$at] = $object;
+            $this->storage[$at] = $object;
         else
-            $this->cache[] = $object;
+            $this->storage[] = $object;
 
         return $object;
     }
@@ -2072,12 +2060,11 @@ extends ModelResultSet {
      * XXX: Move this to a parent class?
      */
     function setCache(array $cache) {
-        if (count($this->cache) > 0)
+        if (count($this->storage) > 0)
             throw new Exception('Cache must be set before fetching records');
         // Set cache and disable fetching
         $this->reset();
-        $this->cache = $cache;
-        $this->resource = false;
+        $this->storage = $cache;
     }
 
     // Save all changes made to any list items
@@ -2107,11 +2094,11 @@ extends ModelResultSet {
 
     function offsetUnset($a) {
         $this->fillTo($a);
-        $this->cache[$a]->delete();
+        $this->storage[$a]->delete();
     }
     function offsetSet($a, $b) {
         $this->fillTo($a);
-        if ($obj = $this->cache[$a])
+        if ($obj = $this->storage[$a])
             $obj->delete();
         $this->add($b, $a);
     }

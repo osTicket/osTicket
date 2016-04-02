@@ -20,7 +20,7 @@
             'staff_id' => $thisstaff->getId(),
             'parent_id' => 0,
             Q::not(array(
-                'flags__hasbit' => SavedSearch::FLAG_PUBLIC
+                'flags__hasbit' => CustomQueue::FLAG_PUBLIC
             ))
       )) as $q) {
         include 'queue-subnavigation.tmpl.php';
