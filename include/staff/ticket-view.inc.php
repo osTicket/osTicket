@@ -206,7 +206,7 @@ if($ticket->isOverdue())
               </ul>
             </div>
                 <?php
-                if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+                if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
                 <a href="#post-reply" class="post-response action-button"
                 data-placement="bottom" data-toggle="tooltip"
                 title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
