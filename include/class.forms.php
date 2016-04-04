@@ -2689,7 +2689,7 @@ class FileUploadField extends FormField {
         ) {
             $this->attachments = GenericAttachments::forIdAndType(
                 // Combine the field and entry ids to make the key
-                sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
+                sprintf('%u', abs(crc32('E'.$this->get('id').$e->get('id')))),
                 'E');
         }
         return $this->attachments ?: array();
@@ -3675,8 +3675,9 @@ class FileUploadWidget extends Widget {
         // Add in newly added files not yet saved (if redisplaying after an
         // error)
         if ($new) {
-            $F = array_merge($F, AttachmentFile::objects()->filter(array(
-                'id__in' => array_keys($new)))->all());
+            $F = array_merge($F, AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($new)))
+                ->all());
         }
         foreach ($F as $file) {
             $files[] = array(
@@ -3730,33 +3731,18 @@ class FileUploadWidget extends Widget {
             return $ids;
         }
 
+        // Files uploaded here MUST have been uploaded by this user and
+        // identified in the session
+        //
         // If no value was sent, assume an empty list
         if (!($files = parent::getValue()))
             return array();
 
-        // Files uploaded here MUST have been uploaded by this user and
-        // identified in the session
-        if ($files = parent::getValue()) {
-            $allowed = array();
-            // Files already attached to the field are allowed
-            foreach ($this->field->getFiles() as $F) {
-                // FIXME: This will need special porting in v1.10
-                $allowed[$F->id] = 1;
-            }
-            // New files uploaded in this session are allowed
-            if (isset($_SESSION[':uploadedFiles'])) {
-                $allowed += $_SESSION[':uploadedFiles'];
-            }
-
-            // Canned attachments initiated by this session
-            if (isset($_SESSION[':cannedFiles']))
-               $allowed += $_SESSION[':cannedFiles'];
-
-            foreach ($files as $i=>$F) {
-                if (!isset($allowed[$F])) {
-                    unset($files[$i]);
-                }
-            }
+        $allowed = array();
+        // Files already attached to the field are allowed
+        foreach ($this->field->getFiles() as $F) {
+            // FIXME: This will need special porting in v1.10
+            $allowed[$F->id] = 1;
         }
 
         // New files uploaded in this session are allowed
