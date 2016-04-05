@@ -418,7 +418,7 @@ $tcount+= $ticket->getNumNotes();
                     && ($urls = $tentry->getAttachmentUrls())
                     && ($links = $tentry->getAttachmentsLinks())) {?>
             <tr>
-                <td class="info" colspan="4"><?php echo $tentry->getAttachmentsLinks(); ?></td>
+                <td class="info" colspan="4"><?php echo $tentry->getAttachmentsLinks('','_blank'); ?></td>
             </tr> <?php
             }
             if ($urls) { ?>
