@@ -12,32 +12,38 @@ $actions= array(
             'action' => 'reopen'
             ),
         );
+
+$states = array('open');
+if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(TicketModel::PERM_CLOSE)
+        && (!$ticket || !$ticket->getMissingRequiredFields()))
+    $states = array_merge($states, array('closed'));
+
+$statusId = $ticket ? $ticket->getStatusId() : 0;
+$nextStatuses = array();
+foreach (TicketStatusList::getStatuses(
+            array('states' => $states)) as $status) {
+    if (!isset($actions[$status->getState()])
+            || $statusId == $status->getId())
+        continue;
+    $nextStatuses[] = $status;
+}
+
+if (!$nextStatuses)
+    return;
 ?>
 
 <span
-    class="action-button pull-right"
-    data-dropdown="#action-dropdown-statuses">
+    class="action-button"
+    data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>">
     <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action"
         href="#statuses"><i
-        class="icon-flag"></i> <?php
-        echo __('Change Status'); ?></a>
+        class="icon-flag"></i></a>
 </span>
 <div id="action-dropdown-statuses"
     class="action-dropdown anchor-right">
     <ul>
-    <?php
-    $states = array('open');
-    if ($thisstaff->canCloseTickets())
-        $states = array_merge($states, array('closed'));
-
-    $statusId = $ticket ? $ticket->getStatusId() : 0;
-    foreach (TicketStatusList::getStatuses(
-                array('states' => $states))->all() as $status) {
-        if (!isset($actions[$status->getState()])
-                || $statusId == $status->getId())
-            continue;
-        ?>
+<?php foreach ($nextStatuses as $status) { ?>
         <li>
             <a class="no-pjax <?php
                 echo $ticket? 'ticket-action' : 'tickets-action'; ?>"
@@ -48,7 +54,7 @@ $actions= array(
                             $status->getId()); ?>"
                 <?php
                 if (isset($actions[$status->getState()]['href']))
-                    echo sprintf('data-href="%s"',
+                    echo sprintf('data-redirect="%s"',
                             $actions[$status->getState()]['href']);
 
                 ?>

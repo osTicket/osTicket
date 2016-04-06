@@ -23,11 +23,11 @@ TextDomain::configureForUser();
 require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
-$content = Page::lookup(Page::getIdByType('banner-staff'));
+$content = Page::lookupByType('banner-staff');
 
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
-$msg = $msg ?: ($content ? $content->getName() : __('Authentication Required'));
+$msg = $msg ?: ($content ? $content->getLocalName() : __('Authentication Required'));
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
 if($_POST) {
@@ -67,8 +67,11 @@ elseif ($_GET['do']) {
 elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
     if (($user = StaffAuthenticationBackend::processSignOn($errors, false))
             && ($user instanceof StaffSession))
-       @header("Location: $dest");
+       Http::redirect($dest);
 }
+
+// Browsers shouldn't suggest saving that username/password
+Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');

@@ -29,9 +29,6 @@ class TemplateContentLoader extends MigrationTask {
                 .', created=NOW(), updated=NOW(), isactive=1';
             db_query($sql);
         }
-        // Set the content_id for all the new items
-        db_query('UPDATE '.PAGE_TABLE
-            .' SET `content_id` = `id` WHERE `content_id` = 0');
     }
 }
 return 'TemplateContentLoader';

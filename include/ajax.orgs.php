@@ -15,6 +15,7 @@
 
 if(!defined('INCLUDE_DIR')) die('403');
 
+require_once INCLUDE_DIR . 'class.organization.php';
 include_once(INCLUDE_DIR.'class.ticket.php');
 
 class OrgsAjaxAPI extends AjaxController {
@@ -23,28 +24,40 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
-        }
+        } 
+        
+        if (!$_REQUEST['q'])
+            return $this->json_encode(array());
 
+        $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $orgs=array();
 
-        $escaped = db_input(strtolower($_REQUEST['q']), false);
-        $sql='SELECT DISTINCT org.id, org.name '
-            .' FROM '.ORGANIZATION_TABLE.' org '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'O\' AND entry.object_id = org.id)
-               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-            .' WHERE org.name LIKE \'%'.$escaped.'%\' OR value.value LIKE \'%'.$escaped.'%\''
-            .' ORDER BY org.created '
-            .' LIMIT '.$limit;
+        if (strlen($q) < 3)
+            return $this->encode(array());
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id, $name)=db_fetch_row($res)) {
-                $orgs[] = array('name' => Format::htmlchars($name), 'info' => $name,
-                    'id' => $id, '/bin/true' => $_REQUEST['q']);
-            }
+        $orgs = Organization::objects()
+            ->values_flat('id', 'name')
+            ->limit($limit);
+
+        global $ost;
+        $orgs = $ost->searcher->find($q, $orgs);
+        $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+            ->distinct('id');
+
+        if (!count($orgs) && preg_match('`\w$`u', $q)) {
+            // Do wildcard full-text search
+            $_REQUEST['q'] = $q."*";
+            return $this->search($type);
         }
 
-        return $this->json_encode(array_values($orgs));
+        $matched = array();
+        foreach ($orgs as $O) {
+            list($id, $name) = $O;
+            $matched[] = array('name' => Format::htmlchars($name), 'info' => $name,
+                'id' => $id, '/bin/true' => $_REQUEST['q']);
+        }
+
+        return $this->json_encode(array_values($matched));
 
     }
 
@@ -53,6 +66,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -71,6 +86,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -96,6 +113,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_DELETE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -115,6 +134,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -135,7 +156,8 @@ class OrgsAjaxAPI extends AjaxController {
                             Format::htmlchars($user->getName()));
             } else { //Creating new  user
                 $form = UserForm::getUserForm()->getForm($_POST);
-                if (!($user = User::fromForm($form)))
+                $can_create = $thisstaff->hasPerm(User::PERM_CREATE);
+                if (!($user = User::fromForm($form, $can_create)))
                     $info['error'] = __('Error adding user - try again!');
             }
 
@@ -173,6 +195,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, 'No such organization');
 
@@ -196,6 +220,10 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function addOrg() {
+        global $thisstaff;
+
+        if (!$thisstaff->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
 
         $info = array();
 
@@ -258,7 +286,7 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function manageForms($org_id) {
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         $info = array('action' => '#orgs/'.Format::htmlchars($org_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -268,13 +296,15 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required");
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, "No such ticket");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {

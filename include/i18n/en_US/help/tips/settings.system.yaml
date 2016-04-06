@@ -66,25 +66,92 @@ purge_logs:
         Determine how long you would like to keep <span
         class="doc-desc-title">System Logs</span> before they are deleted.
 
-default_name_formatting:
-    title: Default Name Formatting
+enable_richtext:
+    title: Enable Rich Text
     content: >
-        Choose a format for names throughout the system. Email templates
-        will use it for names if no other format is specified in the
-        variable.
+        If enabled, this will permit the use of rich text formatting between
+        Clients and Agents.
 
+enable_avatars:
+    title: Enable Avatars on Thread View
+    content: >
+        Enable this to show <span class="doc-desc-title">Avatars</span> on thread correspondence.
+        <br><br>
+        The <span class="doc-desc-title">Avatar Source</span> can be set in Agents' and Users' settings pages.
     links:
-      - title: Supported Email Template Variables
-        href: http://osticket.com/wiki/Email_templates
+      - title: Agents Settings
+        href: /scp/settings.php?t=agents
+
+      - title: Users Settings
+        href: /scp/settings.php?t=users
+
+collision_avoidance:
+    title: Agent Collision Avoidance
+    content: >
+        Enter the maximum length of time an Agent is allowed to hold a lock
+        on a ticket or task without any activity.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
 # Date and time options
 date_time_options:
     title: Date &amp; Time Options
     content: >
-        The following settings define the Date &amp; Time settings for
-        Clients. You can change how these appear by following the PHP date
-        format characters. The dates shown below simply illustrate the
-        result of their corresponding values.
+        The following settings define the default settings for Date &amp;
+        Time settings for the help desk. You can choose to use the locale
+        defaults for the selected locale or use customize the formats to
+        meet your unique requirements. Refer to the ICU format strings as a
+        reference for customization.  The dates shown below simply
+        illustrate the result of their corresponding values.
     links:
-      - title: See the PHP Date Formatting Table
-        href: http://www.php.net/manual/en/function.date.php
+      - title: See the ICU Date Formatting Table
+        href: http://userguide.icu-project.org/formatparse/datetime
+
+languages:
+    title: System Languages
+    content: >
+        Choose a system primary language and optionally secondary languages
+        to make your interface feel localized for your agents and end-users.
+
+primary_language:
+    title: System Primary Language
+    content: >
+        Content of this language is displayed to agents and end-users if
+        their respective language preference is not currently available.
+        This includes the content of the interface, as well as, custom
+        content such as thank-you pages and email messages.
+        <br/><br/>
+        This is the language in which the untranslated versions of your
+        content should be written.
+
+secondary_language:
+    title: Secondary Languages
+    content: >
+        Select language preference options for your agents and end-users.
+        The interface will be available in these languages, and custom
+        content, such as thank-you pages and help topic names, will be
+        translatable to these languages.
+
+# Attachments
+attachments:
+    title: Attachment Settings and Storage
+    content: >
+        Configure how attachments are stored.
+
+default_storage_bk:
+    title: File Storage Backend
+    content: >
+        Choose how attachments are stored.
+        <br<br>
+        Additional storage backends can be added by installing storage plugins
+
+max_file_size:
+    title: Maximum File Size
+    content: >
+        Choose a maximum file size for attachments uploaded by agents. This
+        includes canned attachments, knowledge base articles, and
+        attachments to ticket and task replies. The upper limit is
+        controlled by PHP's <code>upload_max_filesize</code> setting.
+    links:
+      - title: PHP ini settings
+        href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"

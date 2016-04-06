@@ -18,7 +18,7 @@ require_once INCLUDE_DIR.'class.setup.php';
 require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader {
-    function Upgrader($prefix, $basedir) {
+    function __construct($prefix, $basedir) {
         global $ost;
 
         $this->streams = array();
@@ -72,8 +72,10 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done')
+        if ($state == 'done') {
+            ModelMeta::flushModelCache();
             $this->createUpgradedTicket();
+        }
     }
 
     function createUpgradedTicket() {
@@ -112,44 +114,6 @@ class Upgrader {
             return call_user_func_array($callable, $args);
         }
     }
-
-    function getTask() {
-        if($this->getCurrentStream())
-            return $this->getCurrentStream()->getTask();
-    }
-
-    function doTask() {
-        return $this->getCurrentStream()->doTask();
-    }
-
-    function getErrors() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getErrors();
-    }
-
-    function getUpgradeSummary() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getUpgradeSummary();
-    }
-
-    function getNextAction() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getNextAction();
-    }
-
-    function getNextVersion() {
-        return $this->getCurrentStream()->getNextVersion();
-    }
-
-    function getSchemaSignature() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSchemaSignature();
-    }
-
-    function getSHash() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSHash();
-    }
 }
 
 /**
@@ -183,7 +147,7 @@ class StreamUpgrader extends SetupWizard {
      * sqldir - (string<path>) Path of sql patches
      * upgrader - (Upgrader) Parent coordinator of parallel stream updates
      */
-    function StreamUpgrader($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
+    function __construct($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
 
         $this->signature = $schema_signature;
         $this->target = $target;
@@ -348,7 +312,8 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("Bogus migration task", "{$this->phash}:{$class}") ;
+                return $ost->logError("Bogus migration task",
+                        "{$this->phash}:{$class}"); //FIXME: This can cause crash
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
@@ -368,6 +333,10 @@ class StreamUpgrader extends SetupWizard {
                 );
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 30; //Default to 30 sec batches.
+
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
 
         $task->run($max_time);
         if (!$task->isFinished()) {

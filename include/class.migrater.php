@@ -33,12 +33,10 @@ class DatabaseMigrater {
     var $end;
     var $sqldir;
 
-    function DatabaseMigrater($start, $end, $sqldir) {
-
+    function __construct($start, $end, $sqldir) {
         $this->start = $start;
         $this->end = $end;
         $this->sqldir = $sqldir;
-
     }
 
     function getPatches($stop=null) {

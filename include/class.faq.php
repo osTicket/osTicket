@@ -14,130 +14,215 @@
 **********************************************************************/
 require_once('class.file.php');
 require_once('class.category.php');
+require_once('class.thread.php');
 
-class FAQ {
+class FAQ extends VerySimpleModel {
 
-    var $id;
-    var $ht;
+    static $meta = array(
+        'table' => FAQ_TABLE,
+        'pk' => array('faq_id'),
+        'ordering' => array('question'),
+        'defer' => array('answer'),
+        'select_related'=> array('category'),
+        'joins' => array(
+            'category' => array(
+                'constraint' => array(
+                    'category_id' => 'Category.category_id'
+                ),
+            ),
+            'attachments' => array(
+                'constraint' => array(
+                    "'F'" => 'Attachment.type',
+                    'faq_id' => 'Attachment.object_id',
+                ),
+                'list' => true,
+                'null' => true,
+                'broker' => 'GenericAttachments',
+            ),
+            'topics' => array(
+                'reverse' => 'FaqTopic.faq',
+            ),
+        ),
+    );
 
-    var $category;
-    var $attachments;
+    const PERM_MANAGE  = 'faq.manage';
+    static protected $perms = array(
+            self::PERM_MANAGE => array(
+                'title' =>
+                /* @trans */ 'FAQ',
+                'desc'  =>
+                /* @trans */ 'Ability to add/update/disable/delete knowledgebase categories and FAQs',
+                'primary' => true,
+            ));
 
-    function FAQ($id) {
-        $this->id=0;
-        $this->ht = array();
-        $this->load($id);
-    }
+    var $_local;
+    var $_attachments;
 
-    function load($id) {
-
-        $sql='SELECT faq.*,cat.ispublic, count(attach.file_id) as attachments '
-            .' FROM '.FAQ_TABLE.' faq '
-            .' LEFT JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id) '
-            .' LEFT JOIN '.ATTACHMENT_TABLE.' attach
-                 ON(attach.object_id=faq.faq_id AND attach.`type`=\'F\' AND attach.inline=0) '
-            .' WHERE faq.faq_id='.db_input($id)
-            .' GROUP BY faq.faq_id';
-
-        if (!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht = db_fetch_array($res);
-        $this->ht['id'] = $this->id = $this->ht['faq_id'];
-        $this->category = null;
-        $this->attachments = new GenericAttachments($this->id, 'F');
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load($this->getId());
-    }
+    const VISIBILITY_PRIVATE = 0;
+    const VISIBILITY_PUBLIC = 1;
+    const VISIBILITY_FEATURED = 2;
 
     /* ------------------> Getter methods <--------------------- */
-    function getId() { return $this->id; }
-    function getHashtable() { return $this->ht; }
-    function getKeywords() { return $this->ht['keywords']; }
-    function getQuestion() { return $this->ht['question']; }
-    function getAnswer() { return $this->ht['answer']; }
+    function getId() { return $this->faq_id; }
+    function getHashtable() {
+        $base = $this->ht;
+        unset($base['category']);
+        unset($base['attachments']);
+        return $base;
+    }
+    function getKeywords() { return $this->keywords; }
+    function getQuestion() { return $this->question; }
+    function getAnswer() { return $this->answer; }
     function getAnswerWithImages() {
-        return Format::viewableImages($this->ht['answer']);
+        return Format::viewableImages($this->answer);
+    }
+    function getTeaser() {
+        return Format::truncate(Format::striptags($this->answer), 150);
     }
     function getSearchableAnswer() {
-        return ThreadBody::fromFormattedText($this->ht['answer'], 'html')
+        return ThreadEntryBody::fromFormattedText($this->answer, 'html')
             ->getSearchable();
     }
-    function getNotes() { return $this->ht['notes']; }
-    function getNumAttachments() { return $this->ht['attachments']; }
+    function getNotes() { return $this->notes; }
+    function getNumAttachments() { return $this->attachments->count(); }
 
-    function isPublished() { return (!!$this->ht['ispublished'] && !!$this->ht['ispublic']); }
-
-    function getCreateDate() { return $this->ht['created']; }
-    function getUpdateDate() { return $this->ht['updated']; }
-
-    function getCategoryId() { return $this->ht['category_id']; }
-    function getCategory() {
-        if(!$this->category && $this->getCategoryId())
-            $this->category = Category::lookup($this->getCategoryId());
-
-        return $this->category;
+    function isPublished() {
+        return $this->ispublished != self::VISIBILITY_PRIVATE
+            && $this->category->isPublic();
+    }
+    function getVisibilityDescription() {
+        switch ($this->ispublished) {
+        case self::VISIBILITY_PRIVATE:
+            return __('Internal');
+        case self::VISIBILITY_PUBLIC:
+            return __('Public');
+        case self::VISIBILITY_FEATURED:
+            return __('Featured');
+        }
     }
 
+    function getCreateDate() { return $this->created; }
+    function getUpdateDate() { return $this->updated; }
+
+    function getCategoryId() { return $this->category_id; }
+    function getCategory() { return $this->category; }
+
     function getHelpTopicsIds() {
+        $ids = array();
+        foreach ($this->getHelpTopics() as $T)
+            $ids[] = $T->topic->getId();
+        return $ids;
+    }
 
-        if (!isset($this->ht['topics']) && ($topics=$this->getHelpTopics())) {
-            $this->ht['topics'] = array_keys($topics);
-        }
-
-        return $this->ht['topics'];
+    function getHelpTopicNames() {
+        $names = array();
+        foreach ($this->getHelpTopics() as $T)
+            $names[] = $T->topic->getFullName();
+        return $names;
     }
 
     function getHelpTopics() {
-        //XXX: change it to obj (when needed)!
-
-        if (!isset($this->topics)) {
-            $this->topics = array();
-            $sql='SELECT t.topic_id, CONCAT_WS(" / ", pt.topic, t.topic) as name  FROM '.TOPIC_TABLE.' t '
-                .' INNER JOIN '.FAQ_TOPIC_TABLE.' ft ON(ft.topic_id=t.topic_id AND ft.faq_id='.db_input($this->id).') '
-                .' LEFT JOIN '.TOPIC_TABLE.' pt ON(pt.topic_id=t.topic_pid) '
-                .' ORDER BY t.topic';
-            if (($res=db_query($sql)) && db_num_rows($res)) {
-                while(list($id,$name) = db_fetch_row($res))
-                    $this->topics[$id]=$name;
-            }
-        }
-
         return $this->topics;
     }
 
     /* ------------------> Setter methods <--------------------- */
-    function setPublished($val) { $this->ht['ispublished'] = !!$val; }
-    function setQuestion($question) { $this->ht['question'] = Format::striptags(trim($question)); }
-    function setAnswer($text) { $this->ht['answer'] = $text; }
-    function setKeywords($words) { $this->ht['keywords'] = $words; }
-    function setNotes($text) { $this->ht['notes'] = $text; }
-
-    /* For ->attach() and ->detach(), use $this->attachments() (nolint) */
-    function attach($file) { return $this->_attachments->add($file); }
-    function detach($file) { return $this->_attachments->remove($file); }
+    function setPublished($val) { $this->ispublished = !!$val; }
+    function setQuestion($question) { $this->question = Format::striptags(trim($question)); }
+    function setAnswer($text) { $this->answer = $text; }
+    function setKeywords($words) { $this->keywords = $words; }
+    function setNotes($text) { $this->notes = $text; }
 
     function publish() {
         $this->setPublished(1);
-
-        return $this->apply();
+        return $this->save();
     }
 
     function unpublish() {
         $this->setPublished(0);
-
-        return $this->apply();
+        return $this->save();
     }
 
-    /* Same as update - but mainly called after one or more setters are changed. */
-    function apply() {
-        $errors = array();
-        //XXX: set errors and add ->getErrors() & ->getError()
-        return $this->update($this->ht, $errors);
+    function printPdf() {
+        global $thisstaff;
+        require_once(INCLUDE_DIR.'class.pdf.php');
+
+        $paper = 'Letter';
+        if ($thisstaff)
+            $paper = $thisstaff->getDefaultPaperSize();
+
+        ob_start();
+        $faq = $this;
+        include STAFFINC_DIR . 'templates/faq-print.tmpl.php';
+        $html = ob_get_clean();
+
+        $pdf = new mPDFWithLocalImages('', $paper);
+        // Setup HTML writing and load default thread stylesheet
+        $pdf->WriteHtml(
+            '<style>
+            .bleed { margin: 0; padding: 0; }
+            .faded { color: #666; }
+            .faq-title { font-size: 170%; font-weight: bold; }
+            .thread-body { font-family: serif; }'
+            .file_get_contents(ROOT_DIR.'css/thread.css')
+            .'</style>'
+            .'<div>'.$html.'</div>', 0, true, true);
+
+        $pdf->Output(Format::slugify($faq->getQuestion()) . '.pdf', 'I');
+    }
+
+    // Internationalization of the knowledge base
+
+    function getTranslateTag($subtag) {
+        return _H(sprintf('faq.%s.%s', $subtag, $this->getId()));
+    }
+    function getLocal($subtag) {
+        $tag = $this->getTranslateTag($subtag);
+        $T = CustomDataTranslation::translate($tag);
+        return $T != $tag ? $T : $this->ht[$subtag];
+    }
+    function getAllTranslations() {
+        if (!isset($this->_local)) {
+            $tag = $this->getTranslateTag('q:a');
+            $this->_local = CustomDataTranslation::allTranslations($tag, 'article');
+        }
+        return $this->_local;
+    }
+    function getLocalQuestion($lang=false) {
+        return $this->_getLocal('question', $lang);
+    }
+    function getLocalAnswer($lang=false) {
+        return $this->_getLocal('answer', $lang);
+    }
+    function getLocalAnswerWithImages($lang=false) {
+        return Format::viewableImages($this->getLocalAnswer($lang));
+    }
+    function _getLocal($what, $lang=false) {
+        if (!$lang) {
+            $lang = $this->getDisplayLang();
+        }
+        $translations = $this->getAllTranslations();
+        foreach ($translations as $t) {
+            if (0 === strcasecmp($lang, $t->lang)) {
+                $data = $t->getComplex();
+                if (isset($data[$what]))
+                    return $data[$what];
+            }
+        }
+        return $this->ht[$what];
+    }
+    function getDisplayLang() {
+        if (isset($_REQUEST['kblang']))
+            $lang = $_REQUEST['kblang'];
+        else
+            $lang = Internationalization::getCurrentLanguage();
+        return $lang;
+    }
+
+    function getLocalAttachments($lang=false) {
+        return $this->attachments->getSeparates()->filter(Q::any(array(
+            'lang__isnull' => true,
+            'lang' => $lang ?: $this->getDisplayLang(),
+        )));
     }
 
     function updateTopics($ids){
@@ -153,49 +238,69 @@ class FAQ {
             }
         }
 
-        $sql='DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->getId());
-        if($ids)
-            $sql.=' AND topic_id NOT IN('.implode(',', db_input($ids)).')';
-
-        if (!db_query($sql))
-            return false;
-
-        Signal::send('model.updated', $this);
+        if ($ids)
+            $this->topics->filter(Q::not(array('topic_id__in' => $ids)))->delete();
+        else
+            $this->topics->delete();
     }
 
-    function update($vars, &$errors) {
+    function saveTranslations($vars) {
+        global $thisstaff;
 
-        if(!$this->save($this->getId(), $vars, $errors))
-            return false;
+        foreach ($this->getAllTranslations() as $t) {
+            $trans = @$vars['trans'][$t->lang];
+            if (!$trans || !array_filter($trans))
+                // Not updating translations
+                continue;
 
-        $this->updateTopics($vars['topics']);
+            // Content is not new and shouldn't be added below
+            unset($vars['trans'][$t->lang]);
+            $content = array('question' => $trans['question'],
+                'answer' => Format::sanitize($trans['answer']));
 
-        //Delete removed attachments.
-        $keepers = $vars['files'];
-        if(($attachments = $this->attachments->getSeparates())) {
-            foreach($attachments as $file) {
-                if($file['id'] && !in_array($file['id'], $keepers))
-                    $this->attachments->delete($file['id']);
-            }
+            // Don't update content which wasn't updated
+            if ($content == $t->getComplex())
+                continue;
+
+            $t->text = $content;
+            $t->agent_id = $thisstaff->getId();
+            $t->updated = SqlFunction::NOW();
+            if (!$t->save())
+                return false;
         }
-
-        // Upload new attachments IF any.
-        $this->attachments->upload($keepers);
-
-        // Inline images (attached to the draft)
-        $this->attachments->deleteInlines();
-        $this->attachments->upload(Draft::getAttachmentIds($vars['answer']));
-
-        $this->reload();
-
-        Signal::send('model.updated', $this);
+        // New translations (?)
+        $tag = $this->getTranslateTag('q:a');
+        foreach ($vars['trans'] as $lang=>$parts) {
+            $content = array('question' => @$parts['question'],
+                'answer' => Format::sanitize(@$parts['answer']));
+            if (!array_filter($content))
+                continue;
+            $t = CustomDataTranslation::create(array(
+                'type'      => 'article',
+                'object_hash' => $tag,
+                'lang'      => $lang,
+                'text'      => $content,
+                'revision'  => 1,
+                'agent_id'  => $thisstaff->getId(),
+                'updated'   => SqlFunction::NOW(),
+            ));
+            if (!$t->save())
+                return false;
+        }
         return true;
+    }
+
+    function getAttachments($lang=null) {
+        $att = $this->attachments;
+        if ($lang)
+            $att = $att->window(array('lang' => $lang));
+        return $att;
     }
 
     function getAttachmentsLinks($separator=' ',$target='') {
 
         $str='';
-        if(($attachments=$this->attachments->getSeparates())) {
+        if ($attachments = $this->getLocalAttachments()->all()) {
             foreach($attachments as $attachment ) {
             /* The h key must match validation in file.php */
             if($attachment['size'])
@@ -210,127 +315,186 @@ class FAQ {
     }
 
     function delete() {
-
-        $sql='DELETE FROM '.FAQ_TABLE
-            .' WHERE faq_id='.db_input($this->getId())
-            .' LIMIT 1';
-        if(!db_query($sql) || !db_affected_rows())
+        try {
+            parent::delete();
+            // Cleanup help topics.
+            $this->topics->delete();
+            // Cleanup attachments.
+            $this->attachments->deleteAll();
+        }
+        catch (OrmException $ex) {
             return false;
-
-        //Cleanup help topics.
-        db_query('DELETE FROM '.FAQ_TOPIC_TABLE.' WHERE faq_id='.db_input($this->id));
-        //Cleanup attachments.
-        $this->attachments->deleteAll();
-
+        }
         return true;
     }
 
     /* ------------------> Static methods <--------------------- */
 
-    function add($vars, &$errors) {
-        if(!($id=self::create($vars, $errors)))
+    static function add($vars, &$errors) {
+        if(!($faq = self::create($vars)))
             return false;
-
-        if(($faq=self::lookup($id))) {
-            $faq->updateTopics($vars['topics']);
-
-            if($_FILES['attachments'] && ($files=AttachmentFile::format($_FILES['attachments'])))
-                $faq->attachments->upload($files);
-
-            // Inline images (attached to the draft)
-            if (isset($vars['draft_id']) && $vars['draft_id'])
-                if ($draft = Draft::lookup($vars['draft_id']))
-                    $faq->attachments->upload($draft->getAttachmentIds(), true);
-
-            $faq->reload();
-        }
 
         return $faq;
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars=false) {
+        $faq = new static($vars);
+        $faq->created = SqlFunction::NOW();
+        return $faq;
     }
 
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($obj= new FAQ($id)) && $obj->getId()==$id)? $obj : null;
+    static function allPublic() {
+        return static::objects()->exclude(Q::any(array(
+            'ispublished'=>self::VISIBILITY_PRIVATE,
+            'category__ispublic'=>Category::VISIBILITY_PRIVATE,
+        )));
     }
 
-    function countPublishedFAQs() {
-        $sql='SELECT count(faq.faq_id) '
-            .' FROM '.FAQ_TABLE.' faq '
-            .' INNER JOIN '.FAQ_CATEGORY_TABLE.' cat ON(cat.category_id=faq.category_id AND cat.ispublic=1) '
-            .' WHERE faq.ispublished=1';
-
-        return db_result(db_query($sql));
+    static function countPublishedFAQs() {
+        static $count;
+        if (!isset($count)) {
+            $count = self::allPublic()->count();
+        }
+        return $count;
     }
 
-    function findIdByQuestion($question) {
-        $sql='SELECT faq_id FROM '.FAQ_TABLE
-            .' WHERE question='.db_input($question);
-
-        list($id) =db_fetch_row(db_query($sql));
-
-        return $id;
+    static function getFeatured() {
+        return self::objects()
+            ->filter(array('ispublished__in'=>array(1,2), 'category__ispublic'=>1))
+            ->order_by('-ispublished');
     }
 
-    function findByQuestion($question) {
+    static function findIdByQuestion($question) {
+        $row = self::objects()->filter(array(
+            'question'=>$question
+        ))->values_flat('faq_id')->first();
 
-        if(($id=self::findIdByQuestion($question)))
-            return self::lookup($id);
-
-        return false;
+        return ($row) ? $row[0] : null;
     }
 
-    function save($id, $vars, &$errors, $validation=false) {
+    static function findByQuestion($question) {
+        return self::objects()->filter(array(
+            'question'=>$question
+        ))->one();
+    }
 
-        //Cleanup.
-        $vars['question']=Format::striptags(trim($vars['question']));
+    function update($vars, &$errors) {
+        global $cfg;
 
-        //validate
-        if($id && $id!=$vars['id'])
-            $errors['err'] = __('Internal error. Try again');
+        // Cleanup.
+        $vars['question'] = Format::striptags(trim($vars['question']));
 
-        if(!$vars['question'])
+        // Validate
+        if ($vars['id'] && $this->getId() != $vars['id'])
+            $errors['err'] = __('Internal error occurred');
+        elseif (!$vars['question'])
             $errors['question'] = __('Question required');
-        elseif(($qid=self::findIdByQuestion($vars['question'])) && $qid!=$id)
+        elseif (($qid=self::findIdByQuestion($vars['question'])) && $qid != $vars['id'])
             $errors['question'] = __('Question already exists');
 
-        if(!$vars['category_id'] || !($category=Category::lookup($vars['category_id'])))
+        if (!$vars['category_id'] || !($category=Category::lookup($vars['category_id'])))
             $errors['category_id'] = __('Category is required');
 
-        if(!$vars['answer'])
+        if (!$vars['answer'])
             $errors['answer'] = __('FAQ answer is required');
 
-        if($errors || $validation) return (!$errors);
+        if ($errors)
+            return false;
 
-        //save
-        $sql=' updated=NOW() '
-            .', question='.db_input($vars['question'])
-            .', answer='.db_input(Format::sanitize($vars['answer'], false))
-            .', category_id='.db_input($vars['category_id'])
-            .', ispublished='.db_input(isset($vars['ispublished'])?$vars['ispublished']:0)
-            .', notes='.db_input(Format::sanitize($vars['notes']));
+        $this->question = $vars['question'];
+        $this->answer = Format::sanitize($vars['answer']);
+        $this->category = $category;
+        $this->ispublished = $vars['ispublished'];
+        $this->notes = Format::sanitize($vars['notes']);
+        $this->keywords = ' ';
 
-        if($id) {
-            $sql='UPDATE '.FAQ_TABLE.' SET '.$sql.' WHERE faq_id='.db_input($id);
-            if(db_query($sql))
-                return true;
+        $this->updateTopics($vars['topics']);
 
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this FAQ article'));
+        if (!$this->save())
+            return false;
 
-        } else {
-            $sql='INSERT INTO '.FAQ_TABLE.' SET '.$sql.',created=NOW()';
-            if (db_query($sql) && ($id=db_insert_id())) {
-                Signal::send('model.created', FAQ::lookup($id));
-                return $id;
-            }
-
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this FAQ article'))
-               .' '.__('Internal error occurred');
+        // General attachments (for all languages)
+        // ---------------------
+        // Delete removed attachments.
+        if (isset($vars['files'])) {
+            $this->getAttachments()->keepOnlyFileIds($vars['files'], false);
         }
 
-        return false;
+        $images = Draft::getAttachmentIds($vars['answer']);
+        $images = array_map(function($i) { return $i['id']; }, $images);
+        $this->getAttachments()->keepOnlyFileIds($images, true);
+
+        // Handle language-specific attachments
+        // ----------------------
+        $langs = $cfg ? $cfg->getSecondaryLanguages() : false;
+        if ($langs) {
+            $langs[] = $cfg->getPrimaryLanguage();
+            foreach ($langs as $lang) {
+                if (!isset($vars['files_'.$lang]))
+                    // Not updating the FAQ
+                    continue;
+
+                $keepers = $vars['files_'.$lang];
+
+                // FIXME: Include inline images in translated content
+
+                $this->getAttachments($lang)->keepOnlyFileIds($keepers, false, $lang);
+            }
+        }
+
+        if (isset($vars['trans']) && !$this->saveTranslations($vars))
+            return false;
+
+        return true;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    static function getPermissions() {
+        return self::$perms;
     }
 }
-?>
+
+RolePermission::register( /* @trans */ 'Knowledgebase',
+        FAQ::getPermissions());
+
+class FaqTopic extends VerySimpleModel {
+
+    static $meta = array(
+        'table' => FAQ_TOPIC_TABLE,
+        'pk' => array('faq_id', 'topic_id'),
+        'select_related' => 'topic',
+        'joins' => array(
+            'faq' => array(
+                'constraint' => array(
+                    'faq_id' => 'FAQ.faq_id',
+                ),
+            ),
+            'topic' => array(
+                'constraint' => array(
+                    'topic_id' => 'Topic.topic_id',
+                ),
+            ),
+        ),
+    );
+}
+
+class FaqAccessMgmtForm
+extends AbstractForm {
+    function buildFields() {
+        return array(
+            'ispublished' => new ChoiceField(array(
+                'label' => __('Listing Type'),
+                'choices' => array(
+                    FAQ::VISIBILITY_PRIVATE => __('Internal'),
+                    FAQ::VISIBILITY_PUBLIC => __('Public'),
+                    FAQ::VISIBILITY_FEATURED => __('Featured'),
+                ),
+            )),
+        );
+    }
+}

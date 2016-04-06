@@ -33,15 +33,26 @@ $extensions = array(
             'name' => 'phar',
             'desc' => __('Highly recommended for plugins and language packs')
             ),
+        'intl' => array(
+            'name' => 'intl',
+            'desc' => __('Highly recommended for non western european language content')
+            ),
         'fileinfo' => array(
             'name' => 'fileinfo',
             'desc' => __('Used to detect file types for uploads')
+            ),
+        'apcu' => array(
+            'name' => 'APCu',
+            'desc' => __('Improves overall performance')
+            ),
+        'Zend Opcache' => array(
+            'name' => 'Zend Opcache',
+            'desc' => __('Improves overall performance')
             ),
         );
 
 ?>
 <h2><?php echo __('About this osTicket Installation'); ?></h2>
-<br/>
 <table class="list" width="100%";>
 <thead>
     <tr><th colspan="2"><?php echo __('Server Information'); ?></th></tr>
@@ -129,7 +140,7 @@ if (!$lv) { ?>
 </thead>
 <tbody>
     <tr><td><?php echo __('Schema'); ?></td>
-        <td><?php echo sprintf('<span class="ltr">%s (%s)</span>', DBNAME, DBHOST); ?> </td>
+        <td><?php echo sprintf('<span class="ltr">%s (%s)</span>', DBNAME, DBHOST); ?> </td></tr>
     </tr>
     <tr><td><?php echo __('Schema Signature'); ?></td>
         <td><?php echo $cfg->getSchemaSignature(); ?> </td>
@@ -145,7 +156,13 @@ if (!$lv) { ?>
         <td><?php
         $sql = 'SELECT SUM(LENGTH(filedata)) / 1048576 FROM '.FILE_CHUNK_TABLE;
         $space = db_result(db_query($sql));
-        echo sprintf('%.2f MiB', $space); ?></td>
+        echo sprintf('%.2f MiB', $space); ?></td></tr>
+    <tr><td><?php echo __('Timezone'); ?></td>
+        <td><?php echo $dbtz = db_timezone(); ?>
+          <?php if ($cfg->getDbTimezone() != $dbtz) { ?>
+            (<?php echo sprintf(__('Interpreted as %s'), $cfg->getDbTimezone()); ?>)
+          <?php } ?>
+        </td></tr>
 </tbody>
 </table>
 <br/>

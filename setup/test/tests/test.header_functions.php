@@ -1,7 +1,5 @@
 <?php
 require_once "class.test.php";
-define('INCLUDE_DIR', realpath(dirname(__file__).'/../../../include').'/');
-define('PEAR_DIR', INCLUDE_DIR.'/pear/');
 require_once INCLUDE_DIR."class.mailparse.php";
 
 abstract class Priorities {

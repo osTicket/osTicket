@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 
 $gmtime = Misc::gmtime();
 ?>
-<h2><?php echo __('System Settings and Preferences');?> - <span class="ltr">osTicket (<?php echo $cfg->getVersion(); ?>)</span></h2>
+<h2><?php echo __('System Settings and Preferences');?> <small>— <span class="ltr">osTicket (<?php echo $cfg->getVersion(); ?>)</span></small></h2>
 <form action="settings.php?t=system" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
@@ -11,7 +11,6 @@ $gmtime = Misc::gmtime();
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('System Settings and Preferences'); ?></h4>
                 <em><b><?php echo __('General Settings'); ?></b></em>
             </th>
         </tr>
@@ -47,22 +46,29 @@ $gmtime = Misc::gmtime();
         <tr>
             <td width="220" class="required"><?php echo __('Default Department');?>:</td>
             <td>
-                <select name="default_dept_id">
+                <select name="default_dept_id" data-quick-add="department">
                     <option value="">&mdash; <?php echo __('Select Default Department');?> &mdash;</option>
                     <?php
-                    $sql='SELECT dept_id,dept_name FROM '.DEPT_TABLE.' WHERE ispublic=1';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while (list($id, $name) = db_fetch_row($res)){
+                    if (($depts=Dept::getPublicDepartments())) {
+                        foreach ($depts as $id => $name) {
                             $selected = ($config['default_dept_id']==$id)?'selected="selected"':''; ?>
-                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?> <?php echo __('Dept');?></option>
+                            <option value="<?php echo $id; ?>"<?php echo $selected; ?>><?php echo $name; ?></option>
                         <?php
                         }
                     } ?>
+                    <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
                 </select>&nbsp;<font class="error">*&nbsp;<?php echo $errors['default_dept_id']; ?></font>
                 <i class="help-tip icon-question-sign" href="#default_department"></i>
             </td>
         </tr>
-
+        <tr>
+            <td><?php echo __('Collision Avoidance Duration'); ?>:</td>
+            <td>
+                <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
+                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;<?php echo __('minutes'); ?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#collision_avoidance"></i>
+            </td>
+        </tr>
         <tr><td><?php echo __('Default Page Size');?>:</td>
             <td>
                 <select name="max_page_size">
@@ -108,17 +114,21 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Default Name Formatting'); ?>:</td>
+            <td><?php echo __('Show Avatars'); ?>:</td>
             <td>
-                <select name="name_format">
-<?php foreach (PersonsName::allFormats() as $n=>$f) {
-    list($desc, $func) = $f;
-    $selected = ($config['name_format'] == $n) ? 'selected="selected"' : ''; ?>
-                    <option value="<?php echo $n; ?>" <?php echo $selected;
-                        ?>><?php echo __($desc); ?></option>
-<?php } ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#default_name_formatting"></i>
+                <input type="checkbox" name="enable_avatars" <?php
+                echo $config['enable_avatars'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Show Avatars on thread view.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_avatars"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Enable Rich Text'); ?>:</td>
+            <td>
+                <input type="checkbox" name="enable_richtext" <?php
+                echo $config['enable_richtext'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Enable html in thread entries and email correspondence.'); ?>
+                <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
             </td>
         </tr>
         <tr>
@@ -128,57 +138,250 @@ $gmtime = Misc::gmtime();
                 </em>
             </th>
         </tr>
-        <tr><td width="220" class="required"><?php echo __('Time Format');?>:</td>
+<?php if (extension_loaded('intl')) { ?>
+        <tr><td width="220" class="required"><?php echo __('Default Locale');?>:</td>
             <td>
-                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>">
-                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
-                    <em><?php echo Format::date($config['time_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em></td>
+                <select name="default_locale">
+                    <option value=""><?php echo __('Use Language Preference'); ?></option>
+                    <?php
+                    foreach (Internationalization::allLocales() as $code=>$name) { ?>
+                    <option value="<?php echo $code; ?>" <?php
+                        if ($code == $config['default_locale'])
+                            echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+
+                    <?php
+                    } ?>
+                </select>
+            </td>
         </tr>
-        <tr><td width="220" class="required"><?php echo __('Date Format');?>:</td>
-            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
-                        <em><?php echo Format::date($config['date_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
+<?php } ?>
+        <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
+            <td>
+                <?php
+                $TZ_TIMEZONE = $config['default_timezone'];
+                $TZ_NAME = 'default_timezone';
+                $TZ_ALLOW_DEFAULT = false;
+                include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
+                <div class="error"><?php echo $errors['default_timezone']; ?></div>
             </td>
         </tr>
         <tr><td width="220" class="required"><?php echo __('Date and Time Format');?>:</td>
-            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
-                        <em><?php echo Format::date($config['datetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
-            </td>
-        </tr>
-        <tr><td width="220" class="required"><?php echo __('Day, Date and Time Format');?>:</td>
-            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>">
-                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
-                        <em><?php echo Format::date($config['daydatetime_format'], $gmtime, $config['tz_offset'], $config['enable_daylight_saving']); ?></em>
-            </td>
-        </tr>
-        <tr><td width="220" class="required"><?php echo __('Default Time Zone');?>:</td>
             <td>
-                <select name="default_timezone_id">
-                    <option value="">&mdash; <?php echo __('Select Default Time Zone');?> &mdash;</option>
-                    <?php
-                    $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id, $offset, $tz)=db_fetch_row($res)){
-                            $sel=($config['default_timezone_id']==$id)?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>GMT %s - %s</option>', $id, $sel, $offset, $tz);
-                        }
-                    }
-                    ?>
+                <select name="date_formats" onchange="javascript:
+    $('#advanced-time').toggle($(this).find(':selected').val() == 'custom');
+">
+<?php foreach (array(
+    '' => __('Locale Defaults'),
+    '24' => __('Locale Defaults, 24-hour Time'),
+    'custom' => '— '.__("Advanced").' —',
+) as $v=>$name) { ?>
+                    <option value="<?php echo $v; ?>" <?php
+                    if ($v == $config['date_formats'])
+                        echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
                 </select>
-                &nbsp;<font class="error">*&nbsp;<?php echo $errors['default_timezone_id']; ?></font>
+            </td>
+        </tr>
+
+    </tbody>
+    <tbody id="advanced-time" <?php if ($config['date_formats'] != 'custom')
+        echo 'style="display:none;"'; ?>>
+        <tr>
+            <td width="220" class="indented required"><?php echo __('Time Format');?>:</td>
+            <td>
+                <input type="text" name="time_format" value="<?php echo $config['time_format']; ?>" class="date-format-preview">
+                    &nbsp;<font class="error">*&nbsp;<?php echo $errors['time_format']; ?></font>
+                    <em><?php echo Format::time(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="time_format">
+                    <?php echo Format::time('now'); ?>
+                </span>
+            </td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Date Format');?>:</td>
+            <td><input type="text" name="date_format" value="<?php echo $config['date_format']; ?>" class="date-format-preview">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['date_format']; ?></font>
+                        <em><?php echo Format::date(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="date_format">
+                    <?php echo Format::date('now'); ?>
+                </span>
+            </td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Date and Time Format');?>:</td>
+            <td><input type="text" name="datetime_format" value="<?php echo $config['datetime_format']; ?>" class="date-format-preview">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['datetime_format']; ?></font>
+                        <em><?php echo Format::datetime(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="datetime_format">
+                    <?php echo Format::datetime('now'); ?>
+                </span>
+            </td>
+        </tr>
+        <tr><td width="220" class="indented required"><?php echo __('Day, Date and Time Format');?>:</td>
+            <td><input type="text" name="daydatetime_format" value="<?php echo $config['daydatetime_format']; ?>" class="date-format-preview">
+                        &nbsp;<font class="error">*&nbsp;<?php echo $errors['daydatetime_format']; ?></font>
+                        <em><?php echo Format::daydatetime(null, false); ?></em>
+                <span class="faded date-format-preview" data-for="daydatetime_format">
+                    <?php echo Format::daydatetime('now'); ?>
+                </span>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('System Languages'); ?></b>&nbsp;
+                <i class="help-tip icon-question-sign" href="#languages"></i>
+                </em>
+            </th>
+        </tr>
+        <tr><td><?php echo __('Primary Language'); ?>:</td>
+            <td>
+        <?php
+        $langs = Internationalization::availableLanguages(); ?>
+                <select name="system_language">
+                    <option value="">&mdash; <?php echo __('Select a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['system_language'] == $l['code']) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                        ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+                </select>
+                <span class="error">&nbsp;<?php echo $errors['system_language']; ?></span>
+                <i class="help-tip icon-question-sign" href="#primary_language"></i>
             </td>
         </tr>
         <tr>
-            <td width="220"><?php echo __('Daylight Saving');?>:</td>
+            <td style="vertical-align:top;padding-top:4px;"><?php echo __('Secondary Languages'); ?>:</td>
+            <td><div id="secondary_langs" style="width: 300px"><?php
+            foreach ($cfg->getSecondaryLanguages() as $lang) {
+                $info = Internationalization::getLanguageInfo($lang); ?>
+            <div class="secondary_lang" style="cursor:move">
+            <i class="icon-sort"></i>&nbsp;
+            <span class="flag flag-<?php echo $info['flag']; ?>"></span>&nbsp;
+            <?php echo Internationalization::getLanguageDescription($lang); ?>
+            <input type="hidden" name="secondary_langs[]" value="<?php echo $lang; ?>"/>
+            <div class="pull-right">
+            <a href="#<?php echo $lang; ?>" onclick="javascript:
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $(this).closest('.secondary_lang')
+                        .find('input').remove();
+                    $(this).closest('.secondary_lang').slideUp();
+                }
+                return false;
+                "><i class="icon-trash"></i></a>
+            </div>
+            </div>
+<?php   } ?>
+            <script type="text/javascript">
+            </script>
+            </div>
+            <i class="icon-plus-sign"></i>&nbsp;
+            <select name="add_secondary_language">
+                <option value="">&mdash; <?php echo __('Add a Language'); ?> &mdash;</option>
+<?php foreach($langs as $l) {
+    $selected = ($config['add_secondary_language'] == $l['code']) ? 'selected="selected"' : '';
+    if (!$selected && $l['code'] == $cfg->getPrimaryLanguage())
+        continue;
+    if (!$selected && in_array($l['code'], $cfg->getSecondaryLanguages()))
+        continue; ?>
+                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
+                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
+<?php } ?>
+            </select>
+            <span class="error">&nbsp;<?php echo $errors['add_secondary_language']; ?></span>
+            <i class="help-tip icon-question-sign" href="#secondary_language"></i>
+        </td></tr>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('Attachments Storage and Settings');?></b>:<i
+                class="help-tip icon-question-sign" href="#attachments"></i></em>
+            </th>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Store Attachments'); ?>:</td>
+            <td><select name="default_storage_bk"><?php
+                if (($bks = FileStorageBackend::allRegistered())) {
+                    foreach ($bks as $char=>$class) {
+                        $selected = $config['default_storage_bk'] == $char
+                            ? 'selected="selected"' : '';
+                        ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
+                        ><?php echo $class::$desc; ?></option><?php
+                    }
+                } else {
+                 echo sprintf('<option value="">%s</option>',
+                         __('Select Storage Backend'));
+                }?>
+                </select>
+                &nbsp;<font class="error">*&nbsp;<?php echo
+                $errors['default_storage_bk']; ?></font>
+                <i class="help-tip icon-question-sign"
+                href="#default_storage_bk"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __(
+                // Maximum size for agent-uploaded files (via SCP)
+                'Agent Maximum File Size');?>:</td>
             <td>
-                <input type="checkbox" name="enable_daylight_saving" <?php echo $config['enable_daylight_saving'] ? 'checked="checked"': ''; ?>><?php echo __('Observe daylight savings');?>
+                <select name="max_file_size">
+                    <option value="262144">&mdash; <?php echo __('Small'); ?> &mdash;</option>
+                    <?php $next = 512 << 10;
+                    $max = strtoupper(ini_get('upload_max_filesize'));
+                    $limit = (int) $max;
+                    if (!$limit) $limit = 2 << 20; # 2M default value
+                    elseif (strpos($max, 'K')) $limit <<= 10;
+                    elseif (strpos($max, 'M')) $limit <<= 20;
+                    elseif (strpos($max, 'G')) $limit <<= 30;
+                    while ($next <= $limit) {
+                        // Select the closest, larger value (in case the
+                        // current value is between two)
+                        $diff = $next - $config['max_file_size'];
+                        $selected = ($diff >= 0 && $diff < $next / 2)
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $next; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($next);
+                             ?></option><?php
+                        $next *= 2;
+                    }
+                    // Add extra option if top-limit in php.ini doesn't fall
+                    // at a power of two
+                    if ($next < $limit * 2) {
+                        $selected = ($limit == $config['max_file_size'])
+                            ? 'selected="selected"' : ''; ?>
+                        <option value="<?php echo $limit; ?>" <?php echo $selected;
+                             ?>><?php echo Format::file_size($limit);
+                             ?></option><?php
+                    }
+                    ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#max_file_size"></i>
+                <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    $('#secondary_langs').sortable({
+        cursor: 'move'
+    });
+    var prev = [];
+    $('input.date-format-preview').keyup(function() {
+        var name = $(this).attr('name'),
+            div = $('span.date-format-preview[data-for='+name+']'),
+            current = $(this).val();
+        if (prev[name] && prev[name] == current)
+            return;
+        prev[name] = current;
+        div.text('...');
+        $.get('ajax.php/config/date-format', {format:$(this).val()})
+            .done(function(html) { div.html(html); });
+    });
+});
+</script>

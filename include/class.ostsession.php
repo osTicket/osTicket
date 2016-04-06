@@ -27,7 +27,7 @@ class osTicketSession {
     var $id = '';
     var $backend;
 
-    function osTicketSession($ttl=0){
+    function __construct($ttl=0){
         $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
 
         // Set osTicket specific session name.
@@ -151,66 +151,75 @@ abstract class SessionBackend {
         return $this->ttl;
     }
 
+    function write($id, $data) {
+        // Last chance session update
+        $i = new ArrayObject(array('touched' => false));
+        Signal::send('session.close', null, $i);
+        return $this->update($id, $i['touched'] ? session_encode() : $data);
+    }
+
     abstract function read($id);
-    abstract function write($id, $data);
+    abstract function update($id, $data);
     abstract function destroy($id);
     abstract function gc($maxlife);
 }
 
+class SessionData
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => SESSION_TABLE,
+        'pk' => array('session_id'),
+    );
+}
+
 class DbSessionBackend
 extends SessionBackend {
-
-    function read($id){
-        $this->isnew = false;
-        if (!$this->data || $this->id != $id) {
-            $sql='SELECT session_data FROM '.SESSION_TABLE
-                .' WHERE session_id='.db_input($id)
-                .'  AND session_expire>NOW()';
-            if(!($res=db_query($sql)))
-                return false;
-            elseif (db_num_rows($res))
-                list($this->data)=db_fetch_row($res);
-            else
-                // No session data on record -- new session
-                $this->isnew = true;
+    function read($id) {
+        try {
+            $this->data = SessionData::objects()->filter([
+                'session_id' => $id,
+                'session_expire__gt' => SqlFunction::NOW(),
+            ])->one();
             $this->id = $id;
         }
-        $this->data_hash = md5($id.$this->data);
-        return $this->data;
+        catch (DoesNotExist $e) {
+            $this->data = new SessionData(['session_id' => $id]);
+        }
+        catch (OrmException $e) {
+            return false;
+        }
+        return $this->data->session_data;
     }
 
-    function write($id, $data){
+    function update($id, $data){
         global $thisstaff;
 
-        if (md5($id.$data) == $this->data_hash)
-            return;
+        if (defined('DISABLE_SESSION') && $this->data->__new__)
+            return true;
 
-        elseif (defined('DISABLE_SESSION') && $this->isnew)
-            return;
-
-        $ttl = ($this && get_class($this) == 'osTicketSession')
+        $ttl = $this && method_exists($this, 'getTTL')
             ? $this->getTTL() : SESSION_TTL;
 
-        $sql='REPLACE INTO '.SESSION_TABLE.' SET session_updated=NOW() '.
-             ',session_id='.db_input($id).
-             ',session_data=0x'.bin2hex($data).
-             ',session_expire=(NOW() + INTERVAL '.$ttl.' SECOND)'.
-             ',user_id='.db_input($thisstaff?$thisstaff->getId():0).
-             ',user_ip='.db_input($_SERVER['REMOTE_ADDR']).
-             ',user_agent='.db_input($_SERVER['HTTP_USER_AGENT']);
+        assert($this->data->session_id == $id);
 
-        $this->data = '';
-        return (db_query($sql) && db_affected_rows());
+        $this->data->session_data = $data;
+        $this->data->session_expire =
+            SqlFunction::NOW()->plus(SqlInterval::SECOND($ttl));
+        $this->data->user_id = $thisstaff ? $thisstaff->getId() : 0;
+        $this->data->user_ip = $_SERVER['REMOTE_ADDR'];
+        $this->data->user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+        return $this->data->save();
     }
 
     function destroy($id){
-        $sql='DELETE FROM '.SESSION_TABLE.' WHERE session_id='.db_input($id);
-        return (db_query($sql) && db_affected_rows());
+        return SessionData::objects()->filter(['session_id' => $id])->delete();
     }
 
     function gc($maxlife){
-        $sql='DELETE FROM '.SESSION_TABLE.' WHERE session_expire<NOW()';
-        db_query($sql);
+        SessionData::objects()->filter([
+            'session_expire__lte' => SqlFunction::NOW()
+        ])->delete();
     }
 }
 
@@ -272,7 +281,7 @@ extends SessionBackend {
         return $data;
     }
 
-    function write($id, $data) {
+    function update($id, $data) {
         if (defined('DISABLE_SESSION') && $this->isnew)
             return;
 

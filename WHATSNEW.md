@@ -1,3 +1,190 @@
+osTicket 1.10
+=============
+## Major New Features
+
+### Internationalization, Phase III
+![screen shot 2014-10-18 at 11 40 38 pm](https://cloud.githubusercontent.com/assets/672074/4692086/b16b1474-574a-11e4-89e7-b871ff591802.png)
+
+Phase III of the internationalization project is the next major advancement of
+osTicket language support. The greatest improvement is that all
+administratively customizable content. While this is a great last mile for many
+multilingual support teams, we've also revisited the client interface main
+pages as well as the knowledge base on both the client and staff panels.
+
+  * Elect primary and secondary languages
+    * Any language can be the primary, any number of languages can be secondary
+    * English-US can be disabled
+    * Order of secondary languages is sortable and controls flag order
+  * All content is translatable to secondary languages
+      * Help Topics
+        * Alphabetic sorting happens after translation
+      * SLA Plans
+      * Departments
+      * Custom Forms (and all configurations such as placeholders)
+      * Custom Lists
+        * Items
+        * Properties and configurations
+      * Site Pages
+      * FAQ Categories
+      * FAQ Articles
+        * Common attachments (available for all translations)
+        * Per-language attachments
+      * Content such as welcome emails and password-reset emails
+  * Olson timezones are used instead of GMT offset
+    * Auto-detect support for agent and client timezone
+  * Time and date formats can be automatic by locale preference now.
+    * Locale preference is the default
+    * Locale preference with forced 24-hour time is also an option
+    * Advanced format is also possible using the intl library and `sprintf` as a backup
+    * Formats including the day of the week are localized
+    * Chinese and Arabic formats using alternate day, month, and year digits and separators are now automatic.
+  * Client portal has HTML headers indicate search engine links to pages of other
+    languages, as well as the Content-Header HTTP header to indicate the intended
+    audience
+  * Spell check in text boxes, textareas and rich text editors should respect the
+    language of the content being edited
+
+### Tasks
+![screen shot 2015-05-06 at 12 36 14 pm](https://cloud.githubusercontent.com/assets/672074/7616658/c5147c68-f96b-11e4-85b7-e74a3482bb4f.png)
+
+Tasks are sub-tickets which can be created and attached to tickets as well as
+created separately. Tasks have their own assignees, department routing and
+visibility, due date, and custom data. Tasks have their own threads and can
+have a list of collaborators. All in all, tasks may very well be the greatest
+advancement of osTicket since the advent of the ticket itself.
+
+### New Advanced Search
+![screen shot 2015-05-13 at 12 35 15 pm](https://cloud.githubusercontent.com/assets/672074/7616759/94616a1c-f96c-11e4-8c19-ae1ca26a85c0.png)
+
+The advanced search feature is rewritten to address several  shortcomings of
+the original feature as well as a host of new features including
+  * Search by any field, built-in or custom
+  * Save your searches
+  * Advanced search is shown as a new queue
+  * Current advanced search criteria is maintained between searches
+  * Sorting options are relevant to queue and preference remains after navigation between queues
+
+## Minor New Features
+
+### Thread editing
+![screen shot 2015-03-20 at 6 56 10 pm](https://cloud.githubusercontent.com/assets/672074/6762680/ce4e78a0-cf32-11e4-9316-c0a969e9c70a.png)
+
+Thread items can now be edited. The original entries are preserved and are
+accessible via a thread item's "History". Items can be resent with or without
+editing them, and a signature selection is available when resending.
+
+### Roles, and custom extended access
+![screen shot 2015-05-03 at 9 05 12 pm](https://cloud.githubusercontent.com/assets/672074/7448163/257ce586-f1d8-11e4-8ed8-a11324d13027.png)
+
+The group permissions component has been offloaded to a new component, named
+"Roles". Roles allow for naming a set of permissions. Agents now have a
+"Primary Role" which defines their access to global things like the user
+directory and their access for their primary department. Each department
+granted via "Groups" is allows to be linked to a distinct "Role". This allows
+granting Read-Only access to some departments, for instance.
+
+### Improved knowledge base interface
+![screen shot 2014-10-18 at 11 55 58 pm](https://cloud.githubusercontent.com/assets/672074/4692123/5ec01038-574c-11e4-80a7-7e8a8efe3963.png)
+  * "Featured" articles show on the front page
+  * Knowledge base search on front page
+  * Translatable content
+  * Locale-specific attachments
+
+### Multiple forms and disable individual fields for Help Topics
+Help Topic configuration has a new super feature. Multiple forms can now be
+associated with each help topic, and the order the forms should appear for new
+tickets and editing tickets is configurable. Previously, the custom forms were
+always rendered above the "Ticket Details" form; but now it's completely
+customizable. What's more is that individual fields **including the issue
+details** can be disabled for any help topic.
+
+### Department hierarchy
+Departments are now nestable. All departments can have a parent department, and
+the hierarchy is arbitrarily nestable. Access is cascaded so that access to a
+parent department automatically extends access to all descendent departments.
+
+### Image annotation
+![screen shot 2015-05-04 at 9 07 38 pm](https://cloud.githubusercontent.com/assets/672074/7466027/ac34575c-f2a1-11e4-9335-417960f89334.png)
+
+Images can be annotated to add simple shapes like ovals, boxes, arrows and
+text. Annotates can be committed, and a new image is created from the
+annotations; however, annotations can still be edited before the thread post is
+submitted. Annotations are supported for both clients and agents, and the
+images can be selected from the ticket thread, so images already posted can be
+easily marked up.
+
+### Variable context type-ahead
+![screen shot 2015-04-20 at 4 32 58 pm](https://cloud.githubusercontent.com/assets/672074/7240963/ee930d8c-e77a-11e4-8928-26240274db13.png)
+
+When editing content which uses variables, such as a thank-you page or an email
+template, variable placeholders now use a type-ahead feature. This new pop out
+significantly improves the connection between which variables are available in
+which templates. It also allows for adding significantly to the variable
+library without relying on exhaustive documentation to convey this information.
+Some new variables include
+  * User lists, such as department members, team members, and collaborator lists
+  * Lists can be rendered as names, emails, or both
+  * Dates are format-able to time, short, full, and long
+  * Dates can be humanized to something like *in about an hour*
+  * Dates can be auto localized and formatted to the recipients locale and time
+    zone selection
+  * Attachments to thread items and custom fields can be attached via variable
+    (e.g. `%{message.files}`)
+
+### Redesigned list management
+![Simplified, tabular, paginated view of list items, with mass actions](https://cloud.githubusercontent.com/assets/672074/5881786/3040d162-a309-11e4-9529-8ae51d358f81.png)
+
+The list management feature has a significant overhaul to accommodate larger
+lists. It also provides a heads display of list item properties as well as AJAX
+updates. CSV import and pagination have also been added as well as mass enable,
+disable, and delete.
+
+### Pluggable filter actions
+![screen shot 2015-05-04 at 8 59 32 pm](https://cloud.githubusercontent.com/assets/672074/7465977/801b4cbc-f2a0-11e4-9598-95dd52e79e82.png)
+
+Filter actions are now far more flexible allowing for more elaborate and
+creative filter actions to be created. A new filter action has been added as an
+example of future possibilities: send an email. The new feature allows for
+ticket filter actions to be defined without modification to internal table
+structures, and even allows actions to be created via plugins!
+
+Actions are also sortable and performed in the order specified, which allows
+doing something like sending an email before rejecting the ticket.
+
+### Other Improvements
+#### Custom Data
+* Fields have more granular access configuration. View, edit, and requirement
+  can be enabled individually for both agents and end users
+* Fields can be marked for required for closed. Therefore they can inhibit
+  closure of a ticket without a valid value.
+
+#### Export
+The agent's locale is considered when exporting CSV and semicolon separators
+are used where necessary
+
+#### User Interface
+The subject line and many other text fields around the system are truncated by
+the browser, which fixes early truncation for some language with long Unicode
+byte stream, such as Chinese.
+
+#### Improved lock system
+The ticket lock system uses a code now which is rotated when updates to tickets
+are submitted. This helps prevent unwanted extra posts to tickets. A new
+annoying popup is displayed when viewing the ticket and the lock is about to
+expire.
+
+#### Draft system
+The draft system has been rewritten to reduce the number of requests to the
+backend and to reduce the dreaded "Unable to save draft" popup
+
+#### ORM
+The database query system is being redesigned to use an object relational
+mapper (ORM) instead of SQL queries. This will eventually lead to fewer
+database queries to use the system, cleaner code, and will allow the use of
+database engines other than MySQL. The ORM was originally introduced in
+osTicket v1.8.0, but has seen the greatest boost in capability in this release.
+About 47% of the SQL queries are removed between v1.9.7 and v1.10
+
 osTicket v1.9.12
 ================
 ### Improvements

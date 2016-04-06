@@ -5,6 +5,7 @@ require_once(INCLUDE_DIR.'class.list.php');
 
 $list=null;
 $criteria=array();
+$redirect = false;
 if ($_REQUEST['id'])
     $criteria['id'] = $_REQUEST['id'];
 elseif ($_REQUEST['type'])
@@ -12,7 +13,8 @@ elseif ($_REQUEST['type'])
 
 if ($criteria) {
     $list = DynamicList::lookup($criteria);
-
+    if ($list)
+        $list = CustomListHandler::forList($list);
     if ($list)
          $form = $list->getForm();
     else
@@ -21,54 +23,33 @@ if ($criteria) {
 }
 
 $errors = array();
-$max_isort = 0;
 
 if($_POST) {
-    switch(strtolower($_POST['do'])) {
+    switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$list)
                 $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
                     __('custom list'));
             elseif ($list->update($_POST, $errors)) {
-                // Update items
-                $items = array();
-                foreach ($list->getAllItems() as $item) {
-                    $id = $item->getId();
-                    if ($_POST["delete-item-$id"] == 'on' && $item->isDeletable()) {
-                        $item->delete();
-                        continue;
+                // Update item sorting
+                if ($list->getSortMode() == 'SortCol') {
+                    foreach ($list->getAllItems() as $item) {
+                        $id = $item->getId();
+                        if (isset($_POST["sort-{$id}"])) {
+                            $item->sort = $_POST["sort-$id"];
+                            $item->save();
+                        }
                     }
-
-                    $ht = array(
-                            'value' => $_POST["value-$id"],
-                            'abbrev' => $_POST["abbrev-$id"],
-                            'sort' => $_POST["sort-$id"],
-                            );
-                    $value = mb_strtolower($ht['value']);
-                    if (!$value)
-                        $errors["value-$id"] = __('Value required');
-                    elseif (in_array($value, $items))
-                        $errors["value-$id"] = __('Value already in-use');
-                    elseif ($item->update($ht, $errors)) {
-                        if ($_POST["disable-$id"] == 'on')
-                            $item->disable();
-                        elseif(!$item->isEnabled() && $item->isEnableable())
-                            $item->enable();
-
-                        $item->save();
-                        $items[] = $value;
-                    }
-
-                    $max_isort = max($max_isort, $_POST["sort-$id"]);
                 }
 
                 // Update properties
                 if (!$errors && ($form = $list->getForm())) {
                     $names = array();
-                    foreach ($form->getDynamicFields() as $field) {
+                    $fields = $form->getDynamicFields();
+                    foreach ($fields as $field) {
                         $id = $field->get('id');
                         if ($_POST["delete-prop-$id"] == 'on' && $field->isDeletable()) {
-                            $field->delete();
+                            $fields->remove($field);
                             // Don't bother updating the field
                             continue;
                         }
@@ -99,17 +80,19 @@ if($_POST) {
                 }
 
                 if ($errors)
-                     $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                        __('custom list items'));
+                    $errors['err'] = sprintf('%s %s',
+                        sprintf(__('Unable to update %s.'), __('custom list items')),
+                        __('Correct any errors below and try again.'));
                 else {
                     $list->_items = null;
-                    $msg = sprintf(__('Successfully updated %s'),
+                    $msg = sprintf(__('Successfully updated %s.'),
                         __('this custom list'));
                 }
 
             } elseif ($errors)
-                $errors['err'] = $errors['err'] ?: sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this custom list'));
+                $errors['err'] = $errors['err'] ?: sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this custom list')),
+                    __('Correct any errors below and try again.'));
             else
                 $errors['err']=sprintf(__('Unable to update %s.'), __('this custom list'))
                     .' '.__('Internal error occurred');
@@ -117,12 +100,14 @@ if($_POST) {
             break;
         case 'add':
             if ($list=DynamicList::add($_POST, $errors)) {
-                $form = $list->getForm();
-                 $msg = sprintf(__('Successfully added %s'),
-                    __('this custom list'));
+                 $form = $list->getForm(true);
+                 Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
+                 // Redirect to list page
+                 $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this custom list'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this custom list')),
+                    __('Correct any errors below and try again.'));
             } else {
                 $errors['err']=sprintf(__('Unable to add %s.'), __('this custom list'))
                     .' '.__('Internal error occurred');
@@ -131,7 +116,7 @@ if($_POST) {
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one custom list'));
             } else {
                 $count = count($_POST['ids']);
@@ -143,31 +128,33 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected custom list', 'selected custom lists', $count));
                         elseif ($i > 0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected custom list', 'selected custom lists', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s — they may be in use on a custom form'),
+                            $errors['err'] = sprintf(__('Unable to delete %s. They may be in use.'),
                                 _N('selected custom list', 'selected custom lists', $count));
                         break;
                 }
             }
             break;
-    }
 
-    if ($list && $list->allowAdd()) {
-        for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
-            if (!$_POST["value-new-$i"])
-                continue;
-
-            $list->addItem(array(
-                        'value' => $_POST["value-new-$i"],
-                        'abbrev' =>$_POST["abbrev-new-$i"],
-                        'sort' => $_POST["sort-new-$i"] ?: ++$max_isort,
-                        ), $errors);
-        }
+        case 'import-items':
+            if (!$list) {
+                $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
+                    __('custom list'));
+            }
+            else {
+                $status = $list->importFromPost($_FILES['import'] ?: $_POST['pasted']);
+                if (is_numeric($status))
+                    $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
+                        _N('list item', 'list items', $status));
+                else
+                    $errors['err'] = $status;
+            }
+            break;
     }
 
     if ($form) {
@@ -175,26 +162,35 @@ if($_POST) {
             if (!$_POST["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'form_id' => $form->get('id'),
                 'sort' => $_POST["prop-sort-new-$i"] ?: ++$max_sort,
                 'label' => $_POST["prop-label-new-$i"],
                 'type' => $_POST["type-new-$i"],
                 'name' => $_POST["name-new-$i"],
+                'flags' => DynamicFormField::FLAG_ENABLED
+                    | DynamicFormField::FLAG_AGENT_VIEW
+                    | DynamicFormField::FLAG_AGENT_EDIT,
             ));
             if ($field->isValid()) {
-                $field->form = $form;
+                $form->fields->add($field);
                 $field->save();
             }
             else
                 $errors["new-$i"] = $field->errors();
         }
-        // XXX: Move to an instrumented list that can handle this better
-        if (!$errors)
-            $form->_dfields = $form->_fields = null;
     }
 }
 
+if ($redirect)
+    Http::redirect($redirect);
+
 $page='dynamic-lists.inc.php';
+if($list && !strcasecmp(@$_REQUEST['a'],'items') && isset($_SERVER['HTTP_X_PJAX'])) {
+    $page='templates/list-items.tmpl.php';
+    $pjax_container = @$_SERVER['HTTP_X_PJAX_CONTAINER'];
+    require(STAFFINC_DIR.$page);
+    // Don't emit the header
+    return;
+}
 if($list || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='dynamic-list.inc.php';
     $ost->addExtraHeader('<meta name="tip-namespace" content="manage.custom_list" />',

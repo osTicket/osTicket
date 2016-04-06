@@ -15,6 +15,7 @@
 **********************************************************************/
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.topic.php');
+include_once(INCLUDE_DIR.'class.faq.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 $topic=null;
@@ -27,20 +28,24 @@ if($_POST){
             if(!$topic){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('help topic'));
             }elseif($topic->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this help topic'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this help topic'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this help topic')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
-            if(($id=Topic::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['topic']));
+            $_topic = Topic::create();
+            if ($_topic->update($_POST, $errors)) {
+                $topic = $_topic;
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['topic']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this help topic'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this help topic')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -50,7 +55,7 @@ if($_POST){
                 break;
             default:
                 if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids']))
-                    $errors['err'] = sprintf(__('You must select at least %s'),
+                    $errors['err'] = sprintf(__('You must select at least %s.'),
                         __('one help topic'));
             }
             if (!$errors) {
@@ -58,10 +63,13 @@ if($_POST){
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.TOPIC_TABLE.' SET isactive=1 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Topic::objects()->filter(array(
+                            'topic_id__in' => $_POST['ids'],
+                        ))->update(array(
+                            'isactive' => true,
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected help topic', 'selected help topics', $count));
@@ -69,15 +77,19 @@ if($_POST){
                                 $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
                                     _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
                                 _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.TOPIC_TABLE.' SET isactive=0 '
-                            .' WHERE topic_id IN ('.implode(',', db_input($_POST['ids'])).')'
-                            .' AND topic_id <> '.db_input($cfg->getDefaultTopicId());
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = Topic::objects()->filter(array(
+                            'topic_id__in'=>$_POST['ids'],
+                        ))->exclude(array(
+                            'topic_id'=>$cfg->getDefaultTopicId(),
+                        ))->update(array(
+                            'isactive' => false,
+                        ));
+                        if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected help topic', 'selected help topics', $count));
@@ -90,20 +102,18 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Topic::lookup($v)) && $t->delete())
-                                $i++;
-                        }
+                        $i = Topic::objects()->filter(array(
+                            'topic_id__in'=>$_POST['ids']
+                        ))->delete();
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif(!$errors['err'])
-                            $errors['err']  = sprintf(__('Unable to delete %s'),
+                            $errors['err']  = sprintf(__('Unable to delete %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
 
                         break;

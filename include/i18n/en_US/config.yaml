@@ -4,11 +4,10 @@
 #
 ---
 core:
-    time_format: 'h:i A'
-    date_format: 'm/d/Y'
-    datetime_format: 'm/d/Y g:i a'
-    daydatetime_format: 'D, M j Y g:ia'
-    default_timezone_id: 8
+    time_format: 'hh:mm a'
+    date_format: 'MM/dd/y'
+    datetime_format: 'MM/dd/y h:mm a'
+    daydatetime_format: 'EEE, MMM d y h:mm a'
     default_priority_id: 2
     enable_daylight_saving: 0
 
@@ -74,8 +73,10 @@ core:
     hide_staff_name: 0
     overlimit_notice_active: 0
     email_attachments: 1
-    number_format: '######'
-    sequence_id: 0
+    ticket_number_format: '######'
+    ticket_sequence_id: 0
+    task_number_format: '#'
+    task_sequence_id: 2
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'

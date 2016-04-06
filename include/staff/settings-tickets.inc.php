@@ -7,11 +7,20 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <form action="settings.php?t=tickets" method="post" id="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
+
+<ul class="clean tabs">
+    <li class="active"><a href="#settings"><i class="icon-asterisk"></i>
+        <?php echo __('Settings'); ?></a></li>
+    <li><a href="#autoresp"><i class="icon-mail-reply-all"></i>
+        <?php echo __('Autoresponder'); ?></a></li>
+    <li><a href="#alerts"><i class="icon-bell-alt"></i>
+        <?php echo __('Alerts and Notices'); ?></a></li>
+</ul>
+<div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Global Ticket Settings');?></h4>
                 <em><?php echo __('System-wide default ticket settings and options.'); ?></em>
             </th>
         </tr>
@@ -22,27 +31,28 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <?php echo __('Default Ticket Number Format'); ?>:
             </td>
             <td>
-                <input type="text" name="number_format" value="<?php echo $config['number_format']; ?>"/>
+                <input type="text" name="ticket_number_format" value="<?php
+                echo $config['ticket_number_format']; ?>"/>
                 <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
-                    if ($config['sequence_id'])
-                        $seq = Sequence::lookup($config['sequence_id']);
+                    if ($config['ticket_sequence_id'])
+                        $seq = Sequence::lookup($config['ticket_sequence_id']);
                     if (!isset($seq))
                         $seq = new RandomSequence();
-                    echo $seq->current($config['number_format']);
+                    echo $seq->current($config['ticket_number_format']);
                     ?></span></span>
                 <i class="help-tip icon-question-sign" href="#number_format"></i>
-                <div class="error"><?php echo $errors['number_format']; ?></div>
+                <div class="error"><?php echo $errors['ticket_number_format']; ?></div>
             </td>
         </tr>
         <tr><td width="220"><?php echo __('Default Ticket Number Sequence'); ?>:</td>
 <?php $selected = 'selected="selected"'; ?>
             <td>
-                <select name="sequence_id">
-                <option value="0" <?php if ($config['sequence_id'] == 0) echo $selected;
+                <select name="ticket_sequence_id">
+                <option value="0" <?php if ($config['ticket_sequence_id'] == 0) echo $selected;
                     ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
 <?php foreach (Sequence::objects() as $s) { ?>
                 <option value="<?php echo $s->id; ?>" <?php
-                    if ($config['sequence_id'] == $s->id) echo $selected;
+                    if ($config['ticket_sequence_id'] == $s->id) echo $selected;
                     ?>><?php echo $s->name; ?></option>
 <?php } ?>
                 </select>
@@ -136,17 +146,29 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
+            <td width="180"><?php echo __('Lock Semantics'); ?>:</td>
             <td>
-                <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
-                <?php echo __('per end user'); ?> <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
+                <select name="ticket_lock" <?php if ($cfg->getLockTime() == 0) echo 'disabled="disabled"'; ?>>
+<?php foreach (array(
+    Lock::MODE_DISABLED => __('Disabled'),
+    Lock::MODE_ON_VIEW => __('Lock on view'),
+    Lock::MODE_ON_ACTIVITY => __('Lock on activity'),
+) as $v => $desc) { ?>
+                <option value="<?php echo $v; ?>" <?php
+                    if ($config['ticket_lock'] == $v) echo 'selected="selected"';
+                    ?>><?php echo $desc; ?></option>
+<?php } ?>
+                </select>
+                <div class="error"><?php echo $errors['ticket_lock']; ?></div>
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Agent Collision Avoidance Duration'); ?>:</td>
+            <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
-                <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
-                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>&nbsp;<?php echo __('minutes'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#agent_collision_avoidance"></i>
+                <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
+                <?php echo __('per end user'); ?>
+                <span class="error">*&nbsp;<?php echo $errors['max_open_tickets']; ?></span>
+                <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
         <tr>
@@ -184,37 +206,12 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Agent Identity Masking'); ?>:</td>
-            <td>
-                <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
-                <?php echo __("Hide agent's name on responses."); ?>
-                <i class="help-tip icon-question-sign" href="#staff_identity_masking"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Enable HTML Ticket Thread'); ?>:</td>
-            <td>
-                <input type="checkbox" name="enable_html_thread" <?php
-                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
-                <?php echo __('Enable rich text in ticket thread and autoresponse emails.'); ?>
-                <i class="help-tip icon-question-sign" href="#enable_html_ticket_thread"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Allow Client Updates'); ?>:</td>
-            <td>
-                <input type="checkbox" name="allow_client_updates" <?php
-                echo $config['allow_client_updates']?'checked="checked"':''; ?>>
-                <?php echo __('Allow clients to update ticket details via the web portal'); ?>
-            </td>
-        </tr>
-        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('EndUser Attachment Settings');?>:</td>
+            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
             <td>
 <?php
                 $tform = TicketForm::objects()->one()->getForm();
@@ -230,63 +227,19 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
             </td>
         </tr>
-        <tr>
-            <td width="180"><?php echo __(
-                // Maximum size for agent-uploaded files (via SCP)
-                'Agent Maximum File Size');?>:</td>
-            <td>
-                <select name="max_file_size">
-                    <option value="262144">&mdash; <?php echo __('Small'); ?> &mdash;</option>
-                    <?php $next = 512 << 10;
-                    $max = strtoupper(ini_get('upload_max_filesize'));
-                    $limit = (int) $max;
-                    if (!$limit) $limit = 2 << 20; # 2M default value
-                    elseif (strpos($max, 'K')) $limit <<= 10;
-                    elseif (strpos($max, 'M')) $limit <<= 20;
-                    elseif (strpos($max, 'G')) $limit <<= 30;
-                    while ($next <= $limit) {
-                        // Select the closest, larger value (in case the
-                        // current value is between two)
-                        $diff = $next - $config['max_file_size'];
-                        $selected = ($diff >= 0 && $diff < $next / 2)
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $next; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($next);
-                             ?></option><?php
-                        $next *= 2;
-                    }
-                    // Add extra option if top-limit in php.ini doesn't fall
-                    // at a power of two
-                    if ($next < $limit * 2) {
-                        $selected = ($limit == $config['max_file_size'])
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $limit; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($limit);
-                             ?></option><?php
-                    }
-                    ?>
-                </select>
-                <i class="help-tip icon-question-sign" href="#max_file_size"></i>
-                <div class="error"><?php echo $errors['max_file_size']; ?></div>
-            </td>
-        </tr>
-        <?php if (($bks = FileStorageBackend::allRegistered())
-                && count($bks) > 1) { ?>
-        <tr>
-            <td width="180"><?php echo __('Store Attachments'); ?>:</td>
-            <td><select name="default_storage_bk"><?php
-                foreach ($bks as $char=>$class) {
-                    $selected = $config['default_storage_bk'] == $char
-                        ? 'selected="selected"' : '';
-                    ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
-                    ><?php echo $class::$desc; ?></option><?php
-                } ?>
-            </td>
-        </tr>
-        <?php } ?>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+</div>
+<div class="hidden tab_content" id="autoresp"
+    data-tip-namespace="settings.autoresponder">
+    <?php include STAFFINC_DIR . 'settings-autoresp.inc.php'; ?>
+</div>
+<div class="hidden tab_content" id="alerts"
+    data-tip-namespace="settings.alerts">
+    <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+
+<p style="text-align:center;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
@@ -297,12 +250,12 @@ $(function() {
       update_example = function() {
       request && request.abort();
       request = $.get('ajax.php/sequence/'
-        + $('[name=sequence_id] :selected').val(),
-        {'format': $('[name=number_format]').val()},
+        + $('[name=ticket_sequence_id] :selected').val(),
+        {'format': $('[name=ticket_number_format]').val()},
         function(data) { $('#format-example').text(data); }
       );
     };
-    $('[name=sequence_id]').on('change', update_example);
-    $('[name=number_format]').on('keyup', update_example);
+    $('[name=ticket_sequence_id]').on('change', update_example);
+    $('[name=ticket_number_format]').on('keyup', update_example);
 });
 </script>

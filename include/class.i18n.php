@@ -23,10 +23,10 @@ class Internationalization {
     // fallback
     var $langs = array('en_US');
 
-    function Internationalization($language=false) {
+    function __construct($language=false) {
         global $cfg;
 
-        if ($cfg && ($lang = $cfg->getSystemLanguage()))
+        if ($cfg && ($lang = $cfg->getPrimaryLanguage()))
             array_unshift($this->langs, $language);
 
         // Detect language filesystem path, case insensitively
@@ -49,22 +49,22 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::create',
-            'sla.yaml' =>           'SLA::create',
+            'department.yaml' =>    'Dept::__create',
+            'sla.yaml' =>           'SLA::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
-            'help_topic.yaml' =>    'Topic::create',
+            'help_topic.yaml' =>    'Topic::__create',
             'filter.yaml' =>        'Filter::create',
-            'team.yaml' =>          'Team::create',
+            'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
             // Ticket
-            'ticket_status.yaml' =>  'TicketStatus::__create',
-            // Note that group requires department
-            'group.yaml' =>         'Group::create',
-            'file.yaml' =>          'AttachmentFile::create',
+            'ticket_status.yaml' => 'TicketStatus::__create',
+            // Role
+            'role.yaml' =>          'Role::__create',
+            'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
         );
 
@@ -127,7 +127,6 @@ class Internationalization {
             $sql = 'INSERT INTO '.PAGE_TABLE.' SET type='.db_input($type)
                 .', name='.db_input($page['name'])
                 .', body='.db_input($page['body'])
-                .', lang='.db_input($tpl->getLang())
                 .', notes='.db_input($page['notes'])
                 .', created=NOW(), updated=NOW(), isactive=1';
             if (db_query($sql) && ($id = db_insert_id())
@@ -137,19 +136,14 @@ class Internationalization {
         // Default Language
         $_config->set('system_language', $this->langs[0]);
 
-        // content_id defaults to the `id` field value
-        db_query('UPDATE '.PAGE_TABLE.' SET content_id=id');
-
         // Canned response examples
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
-                if (($id = Canned::create($c, $errors))
-                        && isset($c['attachments'])) {
-                    $premade = Canned::lookup($id);
-                    foreach ($c['attachments'] as $a) {
-                        $premade->attachments->save($a, false);
-                    }
+                if (!($premade = Canned::create($c)) || !$premade->save())
+                    continue;
+                if (isset($c['attachments'])) {
+                    $premade->attachments->upload($c['attachments']);
                 }
             }
         }
@@ -238,11 +232,46 @@ class Internationalization {
                     'phar' => substr($f, -5) == '.phar',
                     'code' => $base,
                 );
+                $installed[strtolower($base)]['flag'] = strtolower(
+                    $langs[$code]['flag'] ?: $locale ?: $code
+                );
             }
         }
-        uasort($installed, function($a, $b) { return strcasecmp($a['code'], $b['code']); });
+        ksort($installed);
 
         return $cache = $installed;
+    }
+
+    static function isLanguageInstalled($code) {
+        $langs = self::availableLanguages();
+        return isset($langs[strtolower($code)]);
+    }
+
+    static function isLanguageEnabled($code) {
+        $langs = self::getConfiguredSystemLanguages();
+        return isset($langs[$code]);
+    }
+
+    static function getConfiguredSystemLanguages() {
+        global $cfg;
+        static $langs;
+
+        if (!$cfg)
+            return self::availableLanguages();
+
+        if (!isset($langs)) {
+            $langs = array();
+            $pri = $cfg->getPrimaryLanguage();
+            if ($info = self::getLanguageInfo($pri))
+                $langs = array($pri => $info);
+
+            // Honor sorting preference of ::availableLanguages()
+            foreach ($cfg->getSecondaryLanguages() as $l) {
+                if ($info = self::getLanguageInfo($l))
+                    $langs[$l] = $info;
+            }
+        }
+        return $langs;
     }
 
     // TODO: Move this to the REQUEST class or some middleware when that
@@ -250,11 +279,15 @@ class Internationalization {
     // Algorithm borrowed from Drupal 7 (locale.inc)
     static function getDefaultLanguage() {
         global $cfg;
+        static $lang;
+
+        if (isset($lang))
+            return $lang;
 
         if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
-            return $cfg->getSystemLanguage();
+            return $cfg ? $cfg->getPrimaryLanguage() : 'en_US';
 
-        $languages = self::availableLanguages();
+        $languages = self::getConfiguredSystemLanguages();
 
         // The Accept-Language header contains information about the
         // language preferences configured in the user's browser / operating
@@ -328,7 +361,9 @@ class Internationalization {
           }
         }
 
-        return $best_match_langcode;
+        return $lang = self::isLanguageInstalled($best_match_langcode)
+            ? $best_match_langcode
+            : $cfg->getPrimaryLanguage();
     }
 
     static function getCurrentLanguage($user=false) {
@@ -336,10 +371,43 @@ class Internationalization {
 
         $user = $user ?: $thisstaff ?: $thisclient;
         if ($user && method_exists($user, 'getLanguage'))
-            return $user->getLanguage();
-        if (isset($_SESSION['client:lang']))
-            return $_SESSION['client:lang'];
+            if (($lang = $user->getLanguage()) && self::isLanguageEnabled($lang))
+                return $lang;
+
+        // Support the flag buttons for guests
+        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+            return $_SESSION['::lang'];
+
         return self::getDefaultLanguage();
+    }
+
+    static function getCurrentLocale($user=false) {
+        global $thisstaff, $cfg;
+
+        if ($user) {
+            return self::getCurrentLanguage($user);
+        }
+        // FIXME: Move this majic elsewhere - see upgrade bug note in
+        // class.staff.php
+        if ($thisstaff) {
+            return $thisstaff->getLocale()
+                ?: self::getCurrentLanguage($thisstaff);
+        }
+
+        if (!($locale = $cfg->getDefaultLocale()))
+            $locale = self::getCurrentLanguage();
+
+        return $locale;
+    }
+
+    static function rfc1766($what) {
+        if (is_array($what))
+            return array_map(array(get_called_class(), 'rfc1766'), $what);
+
+        $lr = explode('_', $what);
+        if (isset($lr[1]))
+            $lr[1] = strtoupper($lr[1]);
+        return implode('-', $lr);
     }
 
     static function getTtfFonts() {
@@ -363,6 +431,55 @@ class Internationalization {
         $rv = array($fonts, $subs);
         Signal::send('config.ttfonts', null, $rv);
         return $rv;
+    }
+
+    static function setCurrentLanguage($lang) {
+        if (!self::isLanguageInstalled($lang))
+            return false;
+
+        $_SESSION['::lang'] = $lang ?: null;
+        return true;
+    }
+
+    static function allLocales() {
+        $locales = array();
+        if (class_exists('ResourceBundle')) {
+            $current_lang = self::getCurrentLanguage();
+            $langs = array();
+            foreach (self::getConfiguredSystemLanguages() as $code=>$info) {
+                list($lang,) = explode('_', $code, 2);
+                $langs[$lang] = true;
+            }
+            foreach (ResourceBundle::getLocales('') as $code) {
+                list($lang,) = explode('_', $code, 2);
+                if (isset($langs[$lang])) {
+                    $locales[$code] = Locale::getDisplayName($code, $current_lang);
+                }
+            }
+        }
+        return $locales;
+    }
+
+    static function sortKeyedList($list, $case=false) {
+        global $cfg;
+
+        if ($cfg && function_exists('collator_create')) {
+            $coll = Collator::create($cfg->getPrimaryLanguage());
+            if (!$case)
+                $coll->setStrength(Collator::TERTIARY);
+            // UASORT is necessary to preserve the keys
+            uasort($list, function($a, $b) use ($coll) {
+                return $coll->compare($a, $b); });
+        }
+        else {
+            if (!$case)
+                uasort($list, function($a, $b) {
+                    return strcmp(mb_strtoupper($a), mb_strtoupper($b)); });
+            else
+                // Really only works on ascii names
+                asort($list);
+        }
+        return $list;
     }
 
     static function bootstrap() {
@@ -423,7 +540,7 @@ class DataTemplate {
      * template itself does not have to keep track of the language for which
      * it is defined.
      */
-    function DataTemplate($path, $langs=array('en_US')) {
+    function __construct($path, $langs=array('en_US')) {
         foreach ($langs as $l) {
             if (file_exists("{$this->base}/$l/$path")) {
                 $this->lang = $l;

@@ -14,6 +14,9 @@
 **********************************************************************/
 require('staff.inc.php');
 
+if (!$thisstaff->hasPerm(User::PERM_DIRECTORY))
+    Http::redirect('index.php');
+
 require_once INCLUDE_DIR.'class.note.php';
 
 $user = null;
@@ -25,25 +28,29 @@ if ($_POST) {
         case 'update':
             if (!$user) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), _N('end user', 'end users', 1));
+            } elseif (!$thisstaff->hasPerm(User::PERM_EDIT)) {
+                $errors['err'] = __('Action denied. Contact admin for access');
             } elseif(($acct = $user->getAccount())
                     && !$acct->update($_POST, $errors)) {
                  $errors['err']=__('Unable to update user account information');
             } elseif($user->updateInfo($_POST, $errors)) {
-                $msg=sprintf(__('Successfully updated %s'), __('this end user'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this end user'));
                 $_REQUEST['a'] = null;
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this end user'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this end user')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $form = UserForm::getUserForm()->getForm($_POST);
             if (($user = User::fromForm($form))) {
-                $msg = Format::htmlchars(sprintf(__('Successfully added %s'), $user->getName()));
+                $msg = Format::htmlchars(sprintf(__('Successfully added %s.'), $user->getName()));
                 $_REQUEST['a'] = null;
             } elseif (!$errors['err']) {
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this end user'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this end user')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'confirmlink':
@@ -88,9 +95,15 @@ if ($_POST) {
                     break;
 
                 case 'delete':
-                    foreach ($users as $U)
+                    foreach ($users as $U) {
+                        if (@$_POST['deletetickets']) {
+                            if (!$U->deleteAllTickets())
+                                // XXX: This message is very unclear
+                                $errors['err'] = __('You do not have permission to delete a user with tickets!');
+                        }
                         if ($U->delete())
                             $count++;
+                    }
                     break;
 
                 case 'reset':
@@ -139,7 +152,7 @@ if ($_POST) {
         case 'import-users':
             $status = User::importFromPost($_FILES['import'] ?: $_POST['pasted']);
             if (is_numeric($status))
-                $msg = sprintf(__('Successfully imported %1$d %2$s.'), $status,
+                $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
                     _N('end user', 'end users', $status));
             else
                 $errors['err'] = $status;
@@ -148,18 +161,34 @@ if ($_POST) {
             $errors['err'] = __('Unknown action');
             break;
     }
-} elseif($_REQUEST['a'] == 'export') {
+} elseif(!$user && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
     $ts = strftime('%Y%m%d');
-    if (!($token=$_REQUEST['qh']))
-        $errors['err'] = __('Query token required');
-    elseif (!($query=$_SESSION['users_qs_'.$token]))
+    if (!($query=$_SESSION[':Q:users']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveUsers($query, __("users")."-$ts.csv", 'csv'))
         $errors['err'] = __('Internal error: Unable to dump query results');
 }
 
-$page = $user? 'user-view.inc.php' : 'users.inc.php';
+$page = 'users.inc.php';
+if ($user ) {
+    $page = 'user-view.inc.php';
+    switch (strtolower($_REQUEST['t'])) {
+    case 'tickets':
+        if (isset($_SERVER['HTTP_X_PJAX'])) {
+            $page='templates/tickets.tmpl.php';
+            $pjax_container = @$_SERVER['HTTP_X_PJAX_CONTAINER'];
+            require(STAFFINC_DIR.$page);
+            return;
+        } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':U:tickets'])) {
+            $filename = sprintf('%s-tickets-%s.csv',
+                    $user->getName(), strftime('%Y%m%d'));
+            if (!Export::saveTickets($query, $filename, 'csv'))
+                $errors['err'] = __('Internal error: Unable to dump query results');
+        }
+        break;
+    }
+}
 
 $nav->setTabActive('users');
 require(STAFFINC_DIR.'header.inc.php');

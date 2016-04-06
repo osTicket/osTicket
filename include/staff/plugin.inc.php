@@ -1,9 +1,9 @@
 <?php
-
-$info=array();
+$info = array();
+$page = null;
 if($plugin && $_REQUEST['a']!='add') {
     $config = $plugin->getConfig();
-    if (!($page = $config->hasCustomConfig())) {
+    if ($config && !($page = $config->hasCustomConfig())) {
         if ($config)
             $form = $config->getForm();
         if ($form && $_POST)
@@ -23,18 +23,14 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
     <h2><?php echo __('Manage Plugin'); ?>
-        <br/><small><?php echo $plugin->getName(); ?></small></h2>
+       — <small><?php echo $plugin->getName(); ?></small></h2>
 
     <h3><?php echo __('Configuration'); ?></h3>
 <?php
 if ($page)
     $config->renderCustomConfig();
-elseif ($form) { ?>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <tbody>
-<?php $form->render(); ?>
-    </tbody></table>
-<?php
+elseif ($form) {
+    include STAFFINC_DIR . 'templates/simple-form.tmpl.php';
 }
 else { ?>
     <tr><th><?php echo __('This plugin has no configurable settings'); ?><br>

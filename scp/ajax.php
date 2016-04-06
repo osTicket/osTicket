@@ -37,10 +37,12 @@ $dispatcher = patterns('',
     url('^/kb/', patterns('ajax.kbase.php:KbaseAjaxAPI',
         # Send ticket-id as a query arg => canned-response/33?ticket=83
         url_get('^canned-response/(?P<id>\d+).(?P<format>json|txt)', 'cannedResp'),
-        url_get('^faq/(?P<id>\d+)', 'faq')
+        url('^faq/(?P<id>\d+)/access', 'manageFaqAccess'),
+        url_get('^faq/(?P<id>\d+)$', 'faq')
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
         url_get('^log/(?P<id>\d+)', 'log'),
+        url_get('^context$', 'context'),
         url_get('^ticket_variables', 'ticket_variables'),
         url_get('^signature/(?P<type>\w+)(?:/(?P<id>\d+))?$', 'getSignature'),
         url_get('^(?P<id>\d+)/(?:(?P<lang>\w+)/)?manage$', 'manageContent'),
@@ -49,7 +51,8 @@ $dispatcher = patterns('',
     )),
     url('^/config/', patterns('ajax.config.php:ConfigAjaxAPI',
         url_get('^scp', 'scp'),
-        url_get('^links', 'templateLinks')
+        url_get('^links', 'templateLinks'),
+        url_get('^date-format', 'dateFormat')
     )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getFormsForHelpTopic'),
@@ -57,11 +60,23 @@ $dispatcher = patterns('',
         url_post('^field-config/(?P<id>\d+)$', 'saveFieldConfiguration'),
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer'),
         url_post('^upload/(\d+)?$', 'upload'),
-        url_post('^upload/(\w+)?$', 'attach')
+        url_post('^upload/(\w+)?$', 'attach'),
+        url_get('^(?P<id>\d+)/fields/view$', 'getAllFields')
+    )),
+    url('^/filter/', patterns('ajax.filter.php:FilterAjaxAPI',
+        url_get('^action/(?P<type>\w+)/config$', 'getFilterActionForm')
     )),
     url('^/list/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
-        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'getListItemProperties'),
-        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/properties$', 'saveListItemProperties')
+        url_get('^(?P<list>\w+)/items$', 'getListItems'),
+        url_get('^(?P<list>\w+)/items/search$', 'searchListItems'),
+        url_get('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'getListItem'),
+        url_post('^(?P<list>\w+)/item/(?P<id>\d+)/update$', 'saveListItem'),
+        url('^(?P<list>\w+)/item/add$', 'addListItem'),
+        url('^(?P<list>\w+)/import$', 'importListItems'),
+        url('^(?P<list>\w+)/manage$', 'massManageListItems'),
+        url_post('^(?P<list>\w+)/delete$', 'deleteItems'),
+        url_post('^(?P<list>\w+)/disable$', 'disableItems'),
+        url_post('^(?P<list>\w+)/enable$', 'undisableItems')
     )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
@@ -122,39 +137,78 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)/forms/manage$', 'manageForms'),
         url_post('^/(?P<id>\d+)/forms/manage$', 'updateForms')
     )),
+    url('^/lock/', patterns('ajax.tickets.php:TicketsAjaxAPI',
+        url_post('^ticket/(?P<tid>\d+)$', 'acquireLock'),
+        url_post('^(?P<id>\d+)/ticket/(?P<tid>\d+)/renew', 'renewLock'),
+        url_post('^(?P<id>\d+)/release', 'releaseLock')
+    )),
     url('^/tickets/', patterns('ajax.tickets.php:TicketsAjaxAPI',
         url_get('^(?P<tid>\d+)/change-user$', 'changeUserForm'),
         url_post('^(?P<tid>\d+)/change-user$', 'changeUser'),
         url_get('^(?P<tid>\d+)/user$', 'viewUser'),
         url_post('^(?P<tid>\d+)/user$', 'updateUser'),
         url_get('^(?P<tid>\d+)/preview', 'previewTicket'),
-        url_post('^(?P<tid>\d+)/lock$', 'acquireLock'),
-        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/renew', 'renewLock'),
-        url_post('^(?P<tid>\d+)/lock/(?P<id>\d+)/release', 'releaseLock'),
+        url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
+        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms'),
+        url_get('^(?P<tid>\d+)/canned-resp/(?P<cid>\w+).(?P<format>json|txt)', 'cannedResponse'),
+        url_get('^(?P<tid>\d+)/status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeTicketStatus'),
+        url_post('^(?P<tid>\d+)/status$', 'setTicketStatus'),
+        url('^(?P<tid>\d+)/thread/(?P<thread_id>\d+)/(?P<action>\w+)$', 'triggerThreadAction'),
+        url_get('^status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeSelectedTicketsStatus'),
+        url_post('^status/(?P<state>\w+)$', 'setSelectedTicketsStatus'),
+        url_get('^(?P<tid>\d+)/tasks$', 'tasks'),
+        url('^(?P<tid>\d+)/add-task$', 'addTask'),
+        url_get('^(?P<tid>\d+)/tasks/(?P<id>\d+)/view$', 'task'),
+        url_post('^(?P<tid>\d+)/tasks/(?P<id>\d+)$', 'task'),
+        url_get('^lookup', 'lookup'),
+        url('^mass/(?P<action>\w+)(?:/(?P<what>\w+))?', 'massProcess'),
+        url('^(?P<tid>\d+)/transfer$', 'transfer'),
+        url('^(?P<tid>\d+)/assign(?:/(?P<to>\w+))?$', 'assign'),
+        url('^(?P<tid>\d+)/claim$', 'claim'),
+        url('^search', patterns('ajax.search.php:SearchAjaxAPI',
+            url_get('^$', 'getAdvancedSearchDialog'),
+            url_post('^$', 'doSearch'),
+            url_get('^quick$', 'doQuickSearch'),
+            url_get('^/(?P<id>\d+)$', 'loadSearch'),
+            url_post('^/(?P<id>\d+)$', 'saveSearch'),
+            url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
+            url_post('^/create$', 'createSearch'),
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
+        ))
+    )),
+    url('^/tasks/', patterns('ajax.tasks.php:TasksAjaxAPI',
+        url_get('^(?P<tid>\d+)/preview$', 'preview'),
+        url_get('^(?P<tid>\d+)/edit', 'edit'),
+        url_post('^(?P<tid>\d+)/edit$', 'edit'),
+        url_get('^(?P<tid>\d+)/transfer', 'transfer'),
+        url_post('^(?P<tid>\d+)/transfer$', 'transfer'),
+        url('^(?P<tid>\d+)/assign(?:/(?P<to>\w+))?$', 'assign'),
+        url('^(?P<tid>\d+)/claim$', 'claim'),
+        url_get('^(?P<tid>\d+)/delete', 'delete'),
+        url_post('^(?P<tid>\d+)/delete$', 'delete'),
+        url('^(?P<tid>\d+)/close', 'close'),
+        url('^(?P<tid>\d+)/reopen', 'reopen'),
+        url_get('^(?P<tid>\d+)/view$', 'task'),
+        url_post('^(?P<tid>\d+)$', 'task'),
+        url('^add$', 'add'),
+        url('^lookup', 'lookup'),
+        url('^mass/(?P<action>\w+)(?:/(?P<what>\w+))?', 'massProcess')
+    )),
+    url('^/thread/', patterns('ajax.thread.php:ThreadAjaxAPI',
         url_get('^(?P<tid>\d+)/collaborators/preview$', 'previewCollaborators'),
         url_get('^(?P<tid>\d+)/collaborators$', 'showCollaborators'),
         url_post('^(?P<tid>\d+)/collaborators$', 'updateCollaborators'),
         url_get('^(?P<tid>\d+)/add-collaborator/(?P<uid>\d+)$', 'addCollaborator'),
         url_get('^(?P<tid>\d+)/add-collaborator/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
         url('^(?P<tid>\d+)/add-collaborator$', 'addCollaborator'),
-        url_get('^(?P<tid>\d+)/forms/manage$', 'manageForms'),
-        url_post('^(?P<tid>\d+)/forms/manage$', 'updateForms'),
-        url_get('^(?P<tid>\d+)/canned-resp/(?P<cid>\w+).(?P<format>json|txt)', 'cannedResponse'),
-        url_get('^(?P<tid>\d+)/status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeTicketStatus'),
-        url_post('^(?P<tid>\d+)/status$', 'setTicketStatus'),
-        url_get('^status/(?P<status>\w+)(?:/(?P<sid>\d+))?$', 'changeSelectedTicketsStatus'),
-        url_post('^status/(?P<state>\w+)$', 'setSelectedTicketsStatus'),
-        url_get('^lookup', 'lookup'),
-        url_get('^search', 'search')
-    )),
-    url('^/collaborators/', patterns('ajax.tickets.php:TicketsAjaxAPI',
-        url_get('^(?P<cid>\d+)/view$', 'viewCollaborator'),
-        url_post('^(?P<cid>\d+)$', 'updateCollaborator')
+        url_get('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)/view$', 'viewCollaborator'),
+        url_post('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)$', 'updateCollaborator')
     )),
     url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
         url_delete('^(?P<id>\d+)$', 'deleteDraft'),
         url_post('^(?P<id>\d+)/attach$', 'uploadInlineImage'),
+        url_post('^(?P<namespace>[\w.]+)/attach$', 'uploadInlineImageEarly'),
         url_get('^(?P<namespace>[\w.]+)$', 'getDraft'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
@@ -175,13 +229,40 @@ $dispatcher = patterns('',
         url_get('^tips/(?P<namespace>[\w_.]+)$', 'getTipsJson'),
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     )),
-    url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
-        url_get('(?P<tag>\w+)$', 'getLanguageFile')
+    url('^/i18n/', patterns('ajax.i18n.php:i18nAjaxAPI',
+        url_get('^langs/all$', 'getConfiguredLanguages'),
+        url_get('^langs$', 'getSecondaryLanguages'),
+        url_get('^translate/(?P<tag>\w+)$', 'getTranslations'),
+        url_post('^translate/(?P<tag>\w+)$', 'updateTranslations'),
+        url_get('^(?P<lang>[\w_]+)/(?P<tag>\w+)$', 'getLanguageFile')
+    )),
+    url('^/admin', patterns('ajax.admin.php:AdminAjaxAPI',
+        url('^/quick-add', patterns('ajax.admin.php:AdminAjaxAPI',
+            url('^/department$', 'addDepartment'),
+            url('^/team$', 'addTeam'),
+            url('^/role$', 'addRole'),
+            url('^/staff$', 'addStaff')
+        )),
+        url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
+    )),
+    url('^/staff', patterns('ajax.staff.php:StaffAjaxAPI',
+        url('^/(?P<id>\d+)/set-password$', 'setPassword'),
+        url('^/(?P<id>\d+)/change-password$', 'changePassword'),
+        url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
+        url('^/reset-permissions', 'resetPermissions'),
+        url('^/change-department', 'changeDepartment'),
+        url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
     ))
 );
 
 Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
-print $dispatcher->resolve($ost->get_path_info());
+$rv = $dispatcher->resolve($ost->get_path_info());
+
+// Indicate JSON response content-type
+if (is_string($rv) && $rv[0] == '{')
+    Http::response(200, $rv, 'application/json');
+
+print $rv;
 ?>
