@@ -133,12 +133,12 @@ class Config {
     }
 
     function items() {
-        static $items;
+        static $items = [];
 
-        if (!isset($items))
-            $items = ConfigItem::items($this->section, $this->section_column);
+        if (!isset($items[$this->section]))
+            $items[$this->section] = ConfigItem::items($this->section, $this->section_column);
 
-        return $items;
+        return $items[$this->section];
     }
 }
 

@@ -18,3 +18,6 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+/.settings/
+/.buildpath
+/.project
