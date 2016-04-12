@@ -336,20 +336,18 @@ class TasksAjaxAPI extends AjaxController {
                 $info[':title'] = sprintf('Reopen %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('REOPEN %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to REOPEN %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             case 'closed':
                 $perm = Task::PERM_CLOSE;
                 $info[':title'] = sprintf('Close %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('CLOSE %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to CLOSE %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             default:
                 Http::response(404, __('Unknown action'));
