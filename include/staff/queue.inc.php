@@ -97,6 +97,7 @@ else {
             ><?php echo $cq->getFullName(); ?></option>
 <?php } ?>
         </select>
+        <div class="error"><?php echo Format::htmlchars($errors['parent_id']); ?></div>
 
         <br/>
         <br/>
