@@ -321,6 +321,16 @@ class VerySimpleModel {
         $this->__new__ = true;
     }
 
+    /**
+     * Creates a new instance of the model without calling the constructor.
+     * If the constructor is required, consider using the PHP `new` keyword.
+     * The instance returned from this method will not be considered *new*
+     * and will now result in an INSERT when sent to the database.
+     */
+    static function __hydrate($row=false) {
+        return static::getMeta()->newInstance($row);
+    }
+
     function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
@@ -727,16 +737,17 @@ extends {$class} {
     protected \$__overlay__;
     use {$extra}AnnotatedModelTrait;
 
-    function __construct(\$ht, \$annotations) {
-        \$this->ht = \$ht;
-        \$this->__overlay__ = \$annotations;
+    static function __hydrate(\$ht=false, \$annotations=false) {
+        \$instance = parent::__hydrate(\$ht);
+        \$instance->__overlay__ = \$annotations;
+        return \$instance;
     }
 }
 return "{$extra}AnnotatedModel___{$class}";
 END_CLASS
             );
         }
-        return new $classes[$class]($model->ht, $extras);
+        return $classes[$class]::__hydrate($model->ht, $extras);
     }
 }
 
@@ -799,7 +810,7 @@ trait WriteableAnnotatedModelTrait {
 
     function save($refetch=false) {
         $this->__overlay__->save($refetch);
-        return parent::save();
+        return parent::save($refetch);
     }
 
     function delete() {
@@ -1781,7 +1792,7 @@ implements IteratorAggregate {
         // Check the cache for the model instance first
         if (!($m = self::checkCache($modelClass, $fields))) {
             // Construct and cache the object
-            $m = $modelClass::$meta->newInstance($fields);
+            $m = $modelClass::__hydrate($fields);
             // XXX: defer may refer to fields not in this model
             $m->__deferred__ = $this->queryset->defer;
             $m->__onload();
