@@ -58,6 +58,12 @@ class CustomQueue extends VerySimpleModel {
         ));
     }
 
+    function __onload() {
+        // Ensure valid state
+        if ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) || !$this->parent_id)
+            $this->clearFlag(self::FLAG_INHERIT_COLUMNS);
+    }
+
     function getId() {
         return $this->id;
     }
@@ -745,7 +751,7 @@ class CustomQueue extends VerySimpleModel {
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
         }
-        else {
+        elseif ($this->parent) {
             // No columns -- imply column inheritance
             $this->setFlag(self::FLAG_INHERIT_COLUMNS);
         }
