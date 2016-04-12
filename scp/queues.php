@@ -35,7 +35,7 @@ if ($_POST) {
             $msg = sprintf(__('Successfully updated %s'), Format::htmlchars($_POST['name']));
         }
         elseif (!$errors['err']) {
-            $errors['err']=sprintf(__('Unable to udpate %s. Correct error(s) below and try again.'),
+            $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
                 __('this queue'));
         }
         break;
