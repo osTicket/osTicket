@@ -460,8 +460,8 @@ class CustomQueue extends VerySimpleModel {
         }
 
         // Last resort — use standard columns
-        return array(
-            new QueueColumn(array(
+        foreach (array(
+            QueueColumn::placeholder(array(
                 "heading" => "Number",
                 "primary" => 'number',
                 "width" => 85,
@@ -469,12 +469,12 @@ class CustomQueue extends VerySimpleModel {
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
             )),
-            new QueueColumn(array(
+            QueueColumn::placeholder(array(
                 "heading" => "Created",
                 "primary" => 'created',
                 "width" => 100,
             )),
-            new QueueColumn(array(
+            QueueColumn::placeholder(array(
                 "heading" => "Subject",
                 "primary" => 'cdata__subject',
                 "width" => 250,
@@ -482,22 +482,25 @@ class CustomQueue extends VerySimpleModel {
                 "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
                 "truncate" => 'ellipsis',
             )),
-            new QueueColumn(array(
+            QueueColumn::placeholder(array(
                 "heading" => "From",
                 "primary" => 'user__name',
                 "width" => 150,
             )),
-            new QueueColumn(array(
+            QueueColumn::placeholder(array(
                 "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
             )),
-            new QueueColumn(array(
+            QueueColumn::placeholder(array(
                 "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
             )),
-        );
+        ) as $col)
+            $this->addColumn($col);
+
+        return $this->getColumns();
     }
 
     function addColumn(QueueColumn $col) {
@@ -698,7 +701,7 @@ class CustomQueue extends VerySimpleModel {
 
         $this->title = $vars['name'];
         $this->parent_id = @$vars['parent_id'] ?: 0;
-        if (!$this->parent)
+        if ($this->parent_id && !$this->parent)
             $errors['parent_id'] = __('Select a valid queue');
 
         // Set basic queue information
@@ -1562,6 +1565,10 @@ extends VerySimpleModel {
         $c = new static($vars);
         $c->save();
         return $c;
+    }
+
+    static function placeholder($vars) {
+        return static::__hydrate($vars);
     }
 
     function update($vars, $root='Ticket') {
