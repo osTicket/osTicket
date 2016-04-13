@@ -824,17 +824,47 @@ class AssigneeChoiceField extends ChoiceField {
     function display($value) {
         return (string) $value;
     }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}staff__firstname",
+            "{$reverse}staff__lastname", "{$reverse}team__name");
+    }
 }
 
 class AgentSelectionField extends ChoiceField {
     function getChoices() {
         return Staff::getStaffMembers();
     }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        global $cfg;
+
+        $reverse = $reverse ? '-' : '';
+        switch ($cfg->getAgentNameFormat()) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $query->order_by("{$reverse}staff__lastname",
+                "{$reverse}staff__firstname");
+            break;
+
+        default:
+            $query->order_by("{$reverse}staff__firstname",
+                "{$reverse}staff__lastname");
+        }
+        return $query;
+    }
 }
 
 class TeamSelectionField extends ChoiceField {
     function getChoices() {
         return Team::getTeams();
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}team__name");
     }
 }
 
