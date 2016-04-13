@@ -270,13 +270,13 @@ class CustomQueue extends VerySimpleModel {
     ) {
         static $cache = array(), $otherFields;
 
-        if (!in_array('Searchable', class_implements($base)))
-            return array();
-
         // Early exit if already cached
         $fields = &$cache[$base];
         if ($fields)
             return $fields;
+
+        if (!in_array('Searchable', class_implements($base)))
+            return array();
 
         $fields = $fields ?: array();
         foreach ($base::getSearchableFields() as $path=>$F) {
@@ -1531,6 +1531,21 @@ extends VerySimpleModel {
             $query = $C->annotate($query);
         }
 
+        return $query;
+    }
+
+    function applySort($query, $reverse=false) {
+        $fields = CustomQueue::getSearchableFields($root ?: $this->getQueue()->getRoot());
+        if ($primary = $fields[$this->primary]) {
+            list(,$field) = $primary;
+            $query = $field->applyOrderBy($query, $reverse,
+                CustomQueue::getOrmPath($this->primary, $query));
+        }
+        if ($secondary = $fields[$this->secondary]) {
+            list(,$field) = $secondary;
+            $query = $field->applyOrderBy($query, $reverse,
+                CustomQueue::getOrmPath($this->secondary, $query));
+        }
         return $query;
     }
 

@@ -1043,6 +1043,13 @@ class FormField {
 
     function getLabel() { return $this->get('label'); }
 
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        if ($reverse)
+            $col = '-' . $col;
+        return $query->order_by($col);
+    }
+
     /**
      * getImpl
      *
@@ -2360,6 +2367,20 @@ class PriorityField extends ChoiceField {
         if (!isset($config['default']))
             $config['default'] = $cfg->getDefaultPriorityId();
         return $config;
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        if ($query->model == 'Ticket' && $name == 'cdata__priority') {
+            // Order by the priority urgency field
+            $col = 'cdata__:priority__priority_urgency';
+            $reverse = !$reverse;
+        }
+        else {
+            $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        }
+        if ($reverse)
+            $col = "-$col";
+        return $query->order_by($col);
     }
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
