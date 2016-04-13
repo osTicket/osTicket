@@ -192,10 +192,7 @@ foreach ($columns as $C) {
 
     // Sort by this column ?
     if (isset($sort['col']) && $sort['col'] == $C->id) {
-        $col = CustomQueue::getOrmPath($C->primary, $query);
-        if ($sort['dir'])
-            $col = '-' . $col;
-        $tickets = $tickets->order_by($col);
+        $tickets = $C->applySort($tickets, $sort['dir']);
     }
 } ?>
     </tr>
