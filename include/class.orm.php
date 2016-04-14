@@ -1995,7 +1995,7 @@ extends ModelResultSet {
         $this->queryset = $queryset;
     }
 
-    function add($object, $at=false) {
+    function add($object, $save=true, $at=false) {
         // NOTE: Attempting to compare $object to $this->model will likely
         // be problematic, and limits creative applications of the ORM
         if (!$object) {
@@ -2008,7 +2008,7 @@ extends ModelResultSet {
         foreach ($this->key as $field=>$value)
             $object->set($field, $value);
 
-        if (!$object->__new__)
+        if (!$object->__new__ && $save)
             $object->save();
 
         if ($at !== false)
@@ -2111,7 +2111,7 @@ extends ModelResultSet {
         $this->fillTo($a);
         if ($obj = $this->storage[$a])
             $obj->delete();
-        $this->add($b, $a);
+        $this->add($b, true, $a);
     }
 
     // QuerySet overriedes
