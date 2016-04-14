@@ -1111,6 +1111,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
     const OPT_NOSORT    = 'nosort';
     const OPT_NOCACHE   = 'nocache';
+    const OPT_MYSQL_FOUND_ROWS = 'found_rows';
 
     const ITER_MODELS   = 1;
     const ITER_HASH     = 2;
@@ -1122,6 +1123,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
     var $query;
     var $count;
+    var $total;
 
     function __construct($model) {
         $this->model = $model;
@@ -1315,6 +1317,42 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->count = $compiler->compileCount($this);
     }
 
+    /**
+     * Similar to count, except that the LIMIT and OFFSET parts are not
+     * considered in the counts. That is, this will return the count of rows
+     * if the query were not windowed with limit() and offset().
+     *
+     * For MySQL, the query will be submitted and fetched and the
+     * SQL_CALC_FOUND_ROWS hint will be sent in the query. Afterwards, the
+     * result of FOUND_ROWS() is fetched and is the result of this function.
+     *
+     * The result of this function is cached. If further changes are made
+     * after this is run, the changes should be made in a clone.
+     */
+    function total() {
+        // Optimize the query with the CALC_FOUND_ROWS if
+        // - the compiler supports it
+        // - the iterator hasn't yet been built, that is, the query for this
+        //   statement has not yet been sent to the database
+        $compiler = $this->compiler;
+        if ($compiler::supportsOption(self::OPT_MYSQL_FOUND_ROWS)
+            && !isset($this->_iterator)
+        ) {
+            // This optimization requires caching
+            $this->options(array(
+                self::OPT_MYSQL_FOUND_ROWS => 1,
+                self::OPT_NOCACHE => null,
+            ));
+            $this->exists(true);
+            $compiler = new $compiler();
+            return $this->total = $compiler->getFoundRows();
+        }
+
+        $query = clone $this;
+        $query->limit(false)->offset(false)->order_by(false);
+        return $this->total = $query->count();
+    }
+
     function toSql($compiler, $model, $alias=false) {
         // FIXME: Force root model of the compiler to $model
         $exec = $this->getQuery(array('compiler' => get_class($compiler),
@@ -1431,6 +1469,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         unset($this->_iterator);
         unset($this->query);
         unset($this->count);
+        unset($this->total);
     }
 
     function __call($name, $args) {
@@ -1556,6 +1595,7 @@ EOF;
         unset($info['offset']);
         unset($info['_iterator']);
         unset($info['count']);
+        unset($info['total']);
         return serialize($info);
     }
 
@@ -2761,6 +2801,10 @@ class MySqlCompiler extends SqlCompiler {
         return sprintf("`%s`", str_replace("`", "``", $what));
     }
 
+    function supportsOption($option) {
+        return true;
+    }
+
     /**
      * getWhereClause
      *
@@ -2799,6 +2843,12 @@ class MySqlCompiler extends SqlCompiler {
         $q->annotations = false;
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
+        $row = $exec->getRow();
+        return is_array($row) ? (int) $row[0] : null;
+    }
+
+    function getFoundRows() {
+        $exec = new MysqlExecutor('SELECT FOUND_ROWS()', array());
         $row = $exec->getRow();
         return is_array($row) ? (int) $row[0] : null;
     }
@@ -2971,7 +3021,10 @@ class MySqlCompiler extends SqlCompiler {
 
         $joins = $this->getJoins($queryset);
 
-        $sql = 'SELECT '.implode(', ', $fields).' FROM '
+        $sql = 'SELECT ';
+        if ($queryset->hasOption(QuerySet::OPT_MYSQL_FOUND_ROWS))
+            $sql .= 'SQL_CALC_FOUND_ROWS ';
+        $sql .= implode(', ', $fields).' FROM '
             .$table.$joins.$where.$group_by.$having.$sort;
         // UNIONS
         if ($queryset->chain) {
