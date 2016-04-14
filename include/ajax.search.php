@@ -277,7 +277,7 @@ class SearchAjaxAPI extends AjaxController {
         // Ensure `name` is preserved
         $field_name = $_GET['field'];
         $id = $_GET['id'];
-        $column = QueueColumn::create(array('id' => $_GET['colid']));
+        $column = new QueueColumn(array('id' => $_GET['colid']));
         $condition = new QueueColumnCondition();
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }
