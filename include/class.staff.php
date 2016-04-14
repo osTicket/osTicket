@@ -1088,7 +1088,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');
             if (!$dept_id || !Dept::lookup($dept_id))
-                $errors['dept_access'][$dept_id] = __('Select a valid departent');
+                $errors['dept_access'][$dept_id] = __('Select a valid department');
             if ($dept_id == $this->getDeptId())
                 $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
