@@ -22,7 +22,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 <li class="<?php echo $upgrader->check_mysql_version()?'yes':'no'; ?>">
                 <?php echo sprintf(__('%s or later'), 'MySQL v5.0'); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
             </ul>
-            <h3><?php echo __('Higly Recommended');?>:</h3>
+            <h3><?php echo __('Highly Recommended');?>:</h3>
             <?php echo __('We highly recommend that you follow the steps below.');?>
             <ul>
                 <li><?php echo __("Back up the current database if you haven't done so already."); ?></li>
