@@ -1704,7 +1704,7 @@ extends InstrumentedList {
         $glue = $glue ?: new QueueColumnGlue();
         $glue->column = $column;
         $anno = AnnotatedModel::wrap($column, $glue);
-        parent::add($anno);
+        parent::add($anno, false);
         return $anno;
     }
 }
