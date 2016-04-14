@@ -971,6 +971,7 @@ implements TemplateVariable {
     }
 
     function createAttachments(array $files) {
+        $attachments = array();
         foreach ($files as $info) {
            if ($A = $this->createAttachment($info, @$info['name'] ?: false))
                $attachments[] = $A;
