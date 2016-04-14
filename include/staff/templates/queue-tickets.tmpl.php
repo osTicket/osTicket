@@ -26,12 +26,6 @@ if (!$view_all_tickets) {
     $tickets->filter($visibility);
 }
 
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$count = count($tickets);
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php', $args);
-$tickets = $pageNav->paginate($tickets);
-
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
 
@@ -199,6 +193,12 @@ foreach ($columns as $C) {
   </thead>
   <tbody>
 <?php
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$count = $tickets->total();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav->setURL('tickets.php', $args);
+$tickets = $pageNav->paginate($tickets);
+
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
