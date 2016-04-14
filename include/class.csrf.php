@@ -38,11 +38,11 @@ Class CSRF {
 
         $this->name = $name;
         $this->timeout = $timeout;
-        $this->csrf = &$_SESSION['csrf'];
+        $this->csrf = $_SESSION['csrf'];
     }
 
     function reset() {
-        $this->csrf = array();
+        $this->csrf = $_SESSION['csrf'] = array();
     }
 
     function isExpired() {
@@ -54,8 +54,10 @@ Class CSRF {
     }
 
     function rotate() {
-        $this->csrf['token'] = sha1(session_id().Crypto::random(16).SECRET_SALT);
-        $this->csrf['time'] = time();
+        $this->csrf = $_SESSION['csrf'] = array(
+            'token' => Misc::randCode(24),
+            'time' => time(),
+        );
     }
 
     function getToken() {
