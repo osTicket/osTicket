@@ -1024,7 +1024,7 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$i) {
                 $errors['err'] = $errors['err']
                     ?: sprintf(__('Unable to change status for %s'),
-                        _N('the selected ticket', 'any of the selected tickets', $count));
+                        _N('selected ticket', 'selected tickets', $count));
             }
             else {
                 // Assume success
