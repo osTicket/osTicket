@@ -933,6 +933,10 @@ implements TemplateVariable {
             if (is_array($file))
                 $F += $file;
 
+            // Key is required for CID rewriting in the body
+            if (!isset($F['key']) && ($AF = AttachmentFile::lookup($F['id'])))
+                $F['key'] = $AF->key;
+
             $ids[] = $F;
         }
         return $ids;
@@ -1382,7 +1386,8 @@ implements TemplateVariable {
                         $files[$i]['inline'] = true;
                 }
                 foreach ($entry->normalizeFileInfo($files) as $F) {
-                    // Deduplicate on the `key` attribute
+                    // Deduplicate on the `key` attribute. The key is
+                    // necessary for the CID rewrite below
                     $attached_files[$F['key']] = $F;
                 }
             }
