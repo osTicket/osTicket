@@ -123,7 +123,7 @@ class OrgsAjaxAPI extends AjaxController {
             if ($org->delete())
                  Http::response(204, 'Organization deleted successfully');
             else
-                $info['error'] = 'Unable to delete organization - try again!';
+                $info['error'] = __('Unable to delete organization - try again!');
         }
 
         include(STAFFINC_DIR . 'templates/org-delete.tmpl.php');
