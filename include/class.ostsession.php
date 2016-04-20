@@ -70,8 +70,10 @@ class osTicketSession {
         if ($this->backend instanceof SessionHandlerInterface)
             session_set_save_handler($this->backend);
 
-        // Start the session.
-        if ($this->backend instanceof SessionBackend) {
+        // Start the session. Custom locking session cannot be supported if
+        // PHP is using session auto start.
+        $auto_start = ini_get('session.auto_start') ?: false;
+        if (!$auto_start && $this->backend instanceof SessionBackend) {
             $new = false;
             $id = $this->backend->start($new);
             $data = $this->backend->read($id);
@@ -90,6 +92,9 @@ class osTicketSession {
             register_shutdown_function(function() use ($id) {
                 $i = new ArrayObject(array('touched' => false));
                 Signal::send('session.close', null, $i);
+                // FIXME: It would be possible to check if the session is
+                //      locked. If not, it might be safe to assume no
+                //      changes were made and no write() is necessary.
                 $_SESSION->releaseLock();
                 $this->backend->write($id, serialize($_SESSION->asArray()));
             });
@@ -185,6 +190,13 @@ implements SessionHandlerInterface {
                 session_id(Misc::randCode(30));
                 $new = true;
             }
+        }
+        // Implement PHP's session garbage collection
+        $probability = ini_get('session.gc_probability') ?: 1;
+        $divisor = ini_get('session.gc_divisor') ?: 100;
+        $likliness = $divisor / $probability;
+        if (rand(0, $likliness) == 1) {
+            $this->gc($this->getTTL());
         }
         return session_id();
     }
@@ -444,9 +456,27 @@ extends BaseLockSystem {
     protected $path;
 
     function acquire($timeout=5, &$waited=false) {
-        $this->path = rtrim(sys_get_temp_dir(), '\\/')
-            . '/sesslock_' . $this->id;
-        $this->fp = fopen($this->path, 'r+');
+        $basepath = rtrim(sys_get_temp_dir(), '\\/') . '/sesslock_';
+        // Consider cleaning up old lock files every so often, in case of
+        // PHP crashes and the file was not cleaned.
+        if (rand(0, 200) == 42) {
+            $now = time();
+            $ttl = ini_get('max_execution_time');
+            foreach (glob("{$basepath}*", GLOB_NOSORT) as $f) {
+                if ($now - filectime($f) > $ttl)
+                    @unlink($f);
+            }
+        }
+        // Don't use the session ID in the filename, as that could allow for
+        // session hijacking
+        $this->path = $basepath . hash_hmac('md5', $this->id, SECRET_SALT);
+        // Use 'c' for the file mode as that is recommended for a following
+        // flock() call in the PHP docs
+        $this->fp = fopen($this->path, 'c');
+        if ($this->fp === false) {
+            // Cannot be supported on this platform
+            return true;
+        }
         $timeout *= 400;
         $blocked = null;
         while (--$timeout) {
@@ -503,7 +533,11 @@ extends ArrayObject {
 
     function acquireLock($timeout=5) {
         if (!isset($this->lock)) {
-            $this->lock = BaseLockSystem::getImpl($this->id);
+            if (!($this->lock = BaseLockSystem::getImpl($this->id))) {
+                // Locking cannot be supported on this platform. Perhaps
+                // emit a NOTICE?
+                return false;
+            }
             $waited = false;
             if (!$this->lock->acquire($timeout, $waited)) {
                 return false;
@@ -543,10 +577,8 @@ extends ArrayObject {
 
     // ArrayAccess delegates
     function offsetSet($offs, $what, $lock=true) {
-        if ($lock && !$this->getRoot()->acquireLock()) {
-            // Failed to acquire lock
-            trigger_error('Failed to acquire session lock', E_USER_WARNING);
-        }
+        if ($lock)
+            $this->getRoot()->acquireLock();
         if (is_array($what))
             $what = new static($what, $this);
         parent::offsetSet($offs, $what);
