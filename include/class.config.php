@@ -30,6 +30,10 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
+
+    # Items
+    var $items = null;
+
     function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
@@ -129,16 +133,18 @@ class Config {
 
     function destroy() {
         unset($this->session);
-        return $this->items()->delete();
+        if ($this->items)
+            $this->items->delete();
+
+        return true;
     }
 
     function items() {
-        static $items;
 
-        if (!isset($items))
-            $items = ConfigItem::items($this->section, $this->section_column);
+        if (!isset($this->items))
+            $this->items = ConfigItem::items($this->section, $this->section_column);
 
-        return $items;
+        return $this->items;
     }
 }
 
