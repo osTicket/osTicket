@@ -38,49 +38,88 @@ if($_REQUEST['id'] || $_REQUEST['number']) {
     }
 }
 
-if ($_REQUEST['uid']) {
-    $user = User::lookup($_REQUEST['uid']);
-}
 if (!$ticket) {
-    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
-    $queue_name = strtolower($_GET['a'] ?: $_GET['status']); //Status is overloaded
-    if (!$queue_name && isset($_SESSION[$queue_key]))
-        $queue_name = $_SESSION[$queue_key];
+    // Display a ticket queue. Decide the contents
+    $queue_id = null;
 
-    // Stash current queue view
-    $_SESSION[$queue_key] = $queue_name;
-
-    // Set queue as status
-    if (@!isset($_REQUEST['advanced'])
-            && @$_REQUEST['a'] != 'search'
-            && !isset($_GET['status'])
-            && $queue_name)
-        $_GET['status'] = $_REQUEST['status'] = $queue_name;
-}
-
-$queue_id = @$_REQUEST['queue'] ?: $cfg->getDefaultTicketQueueId();
-if ((int) $queue_id) {
-    $queue = CustomQueue::lookup($queue_id);
-}
-elseif (isset($_SESSION['advsearch'])
-    && strpos($queue_id, 'adhoc') === 0
-) {
-    list(,$key) = explode(',', $queue_id, 2);
-    // XXX: De-duplicate and simplify this code
-    $queue = AdhocSearch::create(array(
-        'id' => $queue_id,
-        'root' => 'T',
-    ));
-    // For queue=queue, use the most recent search
-    if (!$key) {
-        reset($_SESSION['advsearch']);
-        $key = key($_SESSION['advsearch']);
+    // Search for user
+    if (isset($_GET['uid'])
+        && ($user = User::lookup($_GET['uid']))
+    ) {
+        $criteria = [
+            ['user__name', 'equal', $user->name],
+            ['user_id', 'equal', $user->id],
+        ];
+        if ($S = $_GET['status'])
+            // The actual state is tracked by the key
+            $criteria[] = ['status__state', 'includes', [$S => $S]];
+        $_SESSION['advsearch']['uid'] = $criteria;
+        $queue_id = "adhoc,uid";
     }
-    $queue->config = $_SESSION['advsearch'][$key];
-    // Slight hack here to make the `adhoc` queue be selected
-    $_REQUEST['queue'] = 'adhoc,'.$key;
-}
+    // Search for organization tickets
+    elseif (isset($_GET['orgid'])
+        && ($org = Organization::lookup($_GET['orgid']))
+    ) {
+        $criteria = [
+            ['user__org__name', 'equal', $org->name],
+            ['user__org_id', 'equal', $org->id],
+        ];
+        if ($S = $_GET['status'])
+            $criteria[] = ['status__state', 'includes', [$S => $S]];
+        $_SESSION['advsearch']['orgid'] = $criteria;
+        $queue_id = "adhoc,orgid";
+    }
+    // Basic search (click on 🔍 )
+    elseif (isset($_GET['a']) && $_GET['a'] === 'search'
+        && ($_GET['query'])
+    ) {
+        $key = substr(md5($_GET['query']), -10);
+        if ($_GET['search-type'] == 'typeahead') {
+            // Use a faster index
+            $criteria = ['user__emails__address', 'equal', $_GET['query']];
+        }
+        else {
+            $criteria = [':keywords', null, $_GET['query']];
+        }
+        $_SESSION['advsearch'][$key] = [$criteria];
+        $queue_id = "adhoc,{$key}";
+    }
 
+    $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
+    $queue_id = $queue_id ?: @$_GET['queue'] ?: $_SESSION[$queue_key]
+        ?: $cfg->getDefaultTicketQueueId();
+
+    // Recover advanced search, if requested
+    if (isset($_SESSION['advsearch'])
+        && strpos($queue_id, 'adhoc') === 0
+    ) {
+        list(,$key) = explode(',', $queue_id, 2);
+        // XXX: De-duplicate and simplify this code
+        $queue = new AdhocSearch(array(
+            'id' => $queue_id,
+            'root' => 'T',
+        ));
+        // For queue=queue, use the most recent search
+        if (!$key) {
+            reset($_SESSION['advsearch']);
+            $key = key($_SESSION['advsearch']);
+        }
+        $queue->config = $_SESSION['advsearch'][$key];
+    }
+
+    // Make the current queue sticky
+    $_SESSION[$queue_key] = $queue_id;
+
+    if ((int) $queue_id && !$queue) {
+        $queue = CustomQueue::lookup($queue_id);
+    }
+    if (!$queue) {
+        $queue = CustomQueue::lookup($cfg->getDefaultTicketQueueId());
+    }
+
+    // Set the queue_id for navigation to turn a top-level item bold
+    $_REQUEST['queue'] = $queue->getId();
+}
 
 // Configure form for file uploads
 $response_form = new SimpleForm(array(
@@ -411,16 +450,12 @@ as $q) {
 }
 
 // Add my advanced searches
-$nav->addSubMenu(function() use ($queue, $adhoc) {
+$nav->addSubMenu(function() use ($queue) {
     global $thisstaff;
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
-    $child_selected = $queue && !$queue->isAQueue();
+    $child_selected = $queue instanceof SavedSearch;
     $searches = SavedSearch::forStaff($thisstaff)->all();
-
-    if (isset($adhoc)) {
-        // TODO: Add "Ad Hoc Search" to the personal children
-    }
 
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
 });
