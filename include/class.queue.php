@@ -423,7 +423,7 @@ class CustomQueue extends VerySimpleModel {
     function isolateCriteria($criteria, $root=null) {
         $searchable = static::getSearchableFields($root ?: $this->getRoot());
         $items = array();
-        if (!$criteria)
+        if (!is_array($criteria))
             return null;
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
@@ -446,8 +446,10 @@ class CustomQueue extends VerySimpleModel {
                 $items[] = array($name, $method, $value);
             }
         }
-        if (isset($criteria[':keywords'])) {
-            $items[] = array(':keywords', null, $criteria[':keywords']);
+        if (isset($criteria[':keywords'])
+            && ($kw = $criteria[':keywords'])
+        ) {
+            $items[] = array(':keywords', null, $kw);
         }
         return $items;
     }
@@ -577,9 +579,9 @@ class CustomQueue extends VerySimpleModel {
         if (isset($quick_filter)
             && ($qf = $this->getQuickFilterField($quick_filter))
         ) {
-            $this->filter = @self::getOrmPath($this->filter, $query);
+            $filter = @self::getOrmPath($this->getQuickFilter(), $query);
             $query = $qf->applyQuickFilter($query, $quick_filter,
-                $this->filter); 
+                $filter);
         }
 
         // Apply column, annotations and conditions additions
@@ -587,6 +589,13 @@ class CustomQueue extends VerySimpleModel {
             $query = $C->mangleQuery($query, $this->getRoot());
         }
         return $query;
+    }
+
+    function getQuickFilter() {
+        if ($this->filter == '::' && $this->parent) {
+            return $this->parent->getQuickFilter();
+        }
+        return $this->filter;
     }
 
     function getQuickFilterField($value=null) {
