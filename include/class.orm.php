@@ -2931,7 +2931,7 @@ class MySqlCompiler extends SqlCompiler {
                     }
                 }
                 else {
-                    if (!is_int($alias))
+                    if (!is_int($alias) && $unaliased != $alias)
                         $f .= ' AS '.$this->quote($alias);
                     $fields[$f] = true;
                 }
