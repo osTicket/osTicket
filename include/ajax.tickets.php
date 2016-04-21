@@ -764,7 +764,7 @@ class TicketsAjaxAPI extends AjaxController {
 
             // Assume success
             if ($i==$count) {
-                $msg = sprintf(__('Successfully %s %s.'),
+                $msg = sprintf(__('Successfully %1$s %2$s.' /* Tokens are <actioned> <x selected ticket(s)> */ ),
                         $actions[$action]['verbed'],
                         sprintf('%1$d %2$s',
                             $count,
