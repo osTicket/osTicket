@@ -199,7 +199,7 @@ class AdminAjaxAPI extends AjaxController {
         if (!$thisstaff->isAdmin())
             Http::response(403, 'Access denied');
 
-        $column = QueueColumn::create();
+        $column = new QueueColumn();
         if ($_POST) {
             $data_form = $column->getDataConfigForm($_POST);
             if ($data_form->isValid()) {

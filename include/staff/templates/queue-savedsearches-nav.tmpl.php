@@ -5,7 +5,7 @@
 // $child_selected - <bool> true if the selected queue is a descendent
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
-<li class="primary-only item <?php if ($child_selected) echo ''; ?>">
+<li class="primary-only item <?php if ($child_selected) echo 'active'; ?>">
 <?php
   $href = 'href="tickets.php?queue=adhoc"';
   if (!isset($_SESSION['advsearch']))
