@@ -116,10 +116,14 @@ class CustomQueue extends VerySimpleModel {
         $criteria = $criteria ?: $this->getCriteria(true);
         foreach ($criteria as $C) {
             list($path, $method, $value) = $C;
+            if ($path === ':keywords') {
+                $items[] = Format::htmlchars("\"{$value}\"");
+                continue;
+            }
             if (!isset($all[$path]))
                 continue;
-             list($label, $field) = $all[$path];
-             $items[] = $field->describeSearch($method, $value, $label);
+            list($label, $field) = $all[$path];
+            $items[] = $field->describeSearch($method, $value, $label);
         }
         return implode("\nAND ", $items);
     }
