@@ -1398,8 +1398,21 @@ implements TemplateVariable {
             return false;
 
         /************* ATTACHMENTS *****************/
-
         //Upload/save attachments IF ANY
+        if ($vars['attach:response']) {
+            foreach ($vars['attach:response'] as $a) {
+                $tmp = explode(',',$a);
+                $entry->saveAttachment($tmp[0], $tmp[1]);
+            }
+        }
+
+        if ($vars['attach:note']) {
+            foreach ($vars['attach:response'] as $a) {
+                $tmp = explode(',',$a);
+                $entry->saveAttachment($tmp[0], $tmp[1]);
+            }
+        }
+
         if($vars['files']) //expects well formatted and VALIDATED files array.
             $entry->uploadFiles($vars['files']);
 
