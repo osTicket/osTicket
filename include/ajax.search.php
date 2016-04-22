@@ -28,9 +28,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create(array(
+        $search = new SavedSearch(array(
             'root' => 'T',
+            'parent_id' => @$_GET['parent_id'] ?: 0,
         ));
+        if ($search->parent_id) {
+            $search->flags |= SavedSearch::FLAG_INHERIT_COLUMNS;
+        }
         if (isset($_SESSION[$context])) {
             // Use the most recent search
             if (!$key) {
@@ -60,7 +64,7 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create(array('root'=>'T'));
+        $search = new SavedSearch(array('root'=>'T'));
         $searchable = $search->getSupportedMatches();
         if (!($F = $searchable[$name]))
             Http::response(404, 'No such field: ', print_r($name, true));
@@ -82,7 +86,7 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function doSearch() {
-        $search = SavedSearch::create(array('root' => 'T'));
+        $search = new SavedSearch(array('root' => 'T'));
         $form = $search->getForm($_POST);
         if (false === $this->_setupSearch($search, $form)) {
             return;
@@ -164,7 +168,7 @@ class SearchAjaxAPI extends AjaxController {
     function _saveSearch(SavedSearch $search) {
         $form = $search->getForm($_POST);
         $errors = array();
-        if (!$search->update($_POST, $form, $errors)
+        if (!$search->update($_POST, $errors)
             || !$search->save()
         ) {
             return $this->_tryAgain($search, $form, $errors);

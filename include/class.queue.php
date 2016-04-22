@@ -60,7 +60,7 @@ class CustomQueue extends VerySimpleModel {
 
     function __onload() {
         // Ensure valid state
-        if ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) || !$this->parent_id)
+        if ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) && !$this->parent_id)
             $this->clearFlag(self::FLAG_INHERIT_COLUMNS);
     }
 
@@ -454,7 +454,7 @@ class CustomQueue extends VerySimpleModel {
         return $items;
     }
 
-    function getColumns() {
+    function getColumns($use_template=false) {
         if ($this->columns_id
             && ($q = CustomQueue::lookup($this->columns_id))
         ) {
@@ -470,6 +470,10 @@ class CustomQueue extends VerySimpleModel {
         elseif (count($this->columns)) {
             return $this->columns;
         }
+
+        // Use the columns of the "Open" queue as a default template
+        if ($use_template && ($template = CustomQueue::lookup(1)))
+            return $template->getColumns();
 
         // Last resort — use standard columns
         foreach (array(
@@ -732,7 +736,11 @@ class CustomQueue extends VerySimpleModel {
             $this->parent_id > 0 && isset($vars['inherit-columns']));
 
         // Update queue columns (but without save)
-        if (isset($vars['columns'])) {
+        if (!isset($vars['columns']) && $this->parent) {
+            // No columns -- imply column inheritance
+            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
+        }
+        if (isset($vars['columns']) && !$this->hasFlag(self::FLAG_INHERIT_COLUMNS)) {
             $new = $vars['columns'];
             $order = array_keys($new);
             foreach ($this->columns as $col) {
@@ -763,10 +771,6 @@ class CustomQueue extends VerySimpleModel {
             }
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
-        }
-        elseif ($this->parent) {
-            // No columns -- imply column inheritance
-            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
         }
 
         // TODO: Move this to SavedSearch::update() and adjust
