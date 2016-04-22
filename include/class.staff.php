@@ -1090,7 +1090,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if (!$dept_id || !Dept::lookup($dept_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid department');
             if ($dept_id == $this->getDeptId())
-                $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
+                $errors['dept_access'][$dept_id] = sprintf(__('Agent already has access to %s'), __('this department'));
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
             if (!isset($da)) {
                 $da = new StaffDeptAccess(array(

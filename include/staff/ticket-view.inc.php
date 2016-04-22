@@ -38,7 +38,8 @@ elseif ($ticket->isAssigned()
 if (!$errors['err']) {
 
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
-        $errors['err'] = sprintf(__('This ticket is currently locked by %s'),
+        $errors['err'] = sprintf(__('%s is currently locked by %s'),
+                __('This ticket'),
                 $lock->getStaffName());
     elseif (($emailBanned=Banlist::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
@@ -866,7 +867,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="claim-confirm">
-        <?php echo __('Are you sure you want to <b>claim</b> (self assign) this ticket?');?>
+        <?php echo sprintf(__('Are you sure you want to <b>claim</b> (self assign) %s?'), __('this ticket');?>
     </p>
     <p class="confirm-action" style="display:none;" id="answered-confirm">
         <?php echo __('Are you sure you want to flag the ticket as <b>answered</b>?');?>
