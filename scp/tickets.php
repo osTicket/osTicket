@@ -94,16 +94,16 @@ if (!$ticket) {
         && strpos($queue_id, 'adhoc') === 0
     ) {
         list(,$key) = explode(',', $queue_id, 2);
-        // XXX: De-duplicate and simplify this code
-        $queue = new AdhocSearch(array(
-            'id' => $queue_id,
-            'root' => 'T',
-        ));
         // For queue=queue, use the most recent search
         if (!$key) {
             reset($_SESSION['advsearch']);
             $key = key($_SESSION['advsearch']);
         }
+        // XXX: De-duplicate and simplify this code
+        $queue = new AdhocSearch(array(
+            'id' => "adhoc,$key",
+            'root' => 'T',
+        ));
         $queue->config = $_SESSION['advsearch'][$key];
     }
 
