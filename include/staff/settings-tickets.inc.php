@@ -171,6 +171,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
+        <tr>
             <td width="180">
                 <?php echo __('Ticket Auto-Close Status'); ?>:
             </td>
@@ -210,7 +211,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#autoclose_duration"></i>
             </td>
         </tr>
-        <tr>
         <tr>
             <td><?php echo __('Human Verification');?>:</td>
             <td>
