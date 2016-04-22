@@ -660,7 +660,7 @@ class SavedSearch extends CustomQueue {
         ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
     }
 
-    function update($vars, $form=false, &$errors=array()) {
+    function update($vars, &$errors=array()) {
         if (!parent::update($vars, $errors))
             return false;
 

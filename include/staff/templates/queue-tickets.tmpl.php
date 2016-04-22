@@ -208,8 +208,12 @@ foreach ($tickets as $T) {
     }
     foreach ($columns as $C) {
         list($contents, $styles) = $C->render($T);
-        $style = $styles ? 'style="'.$styles.'"' : '';
-        echo "<td $style><div $style>$contents</div></td>";
+        if ($style = $styles ? 'style="'.$styles.'"' : '') {
+            echo "<td $style><div $style>$contents</div></td>";
+        }
+        else {
+            echo "<td>$contents</td>";
+        }
     }
     echo '</tr>';
 }
