@@ -6,7 +6,7 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 $dept = $ticket->getDept();
 
 if ($ticket->isClosed() && !$ticket->isReopenable())
-    $warn = __('This ticket is marked as closed and cannot be reopened.');
+    $warn = sprintf(__('%s is marked as closed and cannot be reopened.'), __('This ticket'));
 
 //Making sure we don't leak out internal dept names
 if(!$dept || !$dept->isPublic())

@@ -152,7 +152,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <label><input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <?php echo __('<strong>Disable</strong> for this Email Address'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this email')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#auto_response"></i>
             </td>
@@ -313,7 +313,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><?php echo __('Header Spoofing'); ?></td>
             <td>
                 <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                <?php echo __('Allow for this Email Address'); ?></label>
+                <?php echo sprintf(__('Allow for %s'), __('this email')); ?></label>
                 <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>
