@@ -309,7 +309,7 @@ if($ticket->isOverdue())
                         <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
                     </td>
                 </tr>
-<?php   if ($user->getOrgId()) { ?>
+<?php   if ($user->getOrganization()) { ?>
                 <tr>
                     <th><?php echo __('Organization'); ?>:</th>
                     <td><i class="icon-building"></i>
