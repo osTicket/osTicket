@@ -2269,7 +2269,7 @@ class SqlCompiler {
                 elseif (is_callable($op))
                     $filter[] = call_user_func($op, $field, $value, $model);
                 else
-                    $filter[] = sprintf($op, $field, $this->input($value, $slot));
+                    $filter[] = sprintf($op, $field, $this->input($value));
             }
         }
         $glue = $Q->isOred() ? ' OR ' : ' AND ';
@@ -2536,7 +2536,7 @@ class MySqlCompiler extends SqlCompiler {
      * (string) token to be placed into the compiled SQL statement. This
      * is a colon followed by a number
      */
-    function input($what, $slot=false, $model=false) {
+    function input($what, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>!($what->limit || $what->offset)));
             // Rewrite the parameter numbers so they fit the parameter numbers
@@ -2868,7 +2868,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
-            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, false, $model));
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, $model));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
