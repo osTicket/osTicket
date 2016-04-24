@@ -429,11 +429,7 @@ class VerySimpleModel {
                 }
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                if ($value->__new__)
-                    // save() will be performed when saving this object
-                    $value = null;
-                else
-                    $value = $value->get($j['fkey'][1]);
+                $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             // Capture the foreign key id value

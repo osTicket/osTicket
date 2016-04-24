@@ -757,7 +757,8 @@ class MailFetcher {
 
                 // Validate and save immediately
                 try {
-                    $file['id'] = $fileField->uploadAttachment($file);
+                    if ($f = $fileField->uploadAttachment($file))
+                        $file['id'] = $f->getId();
                 }
                 catch (FileUploadError $ex) {
                     $file['error'] = $file['name'] . ': ' . $ex->getMessage();
