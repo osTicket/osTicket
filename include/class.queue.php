@@ -1497,7 +1497,12 @@ extends VerySimpleModel {
         switch ($this->truncate) {
         case 'lclip':
             $linfo = Internationalization::getCurrentLanguageInfo();
-            $class[] = $linfo['direction'] == 'rtl' ? 'ltr' : 'rtl';
+            // Use `rtl` class to cut the beginning of LTR text. But, wrap
+            // the text with an appropriate direction so the ending
+            // punctuation is not rearranged.
+            $dir = $linfo['direction'] ?: 'ltr';
+            $text = sprintf('<span class="%s">%s</span>', $dir, $text);
+            $class[] = $dir == 'rtl' ? 'ltr' : 'rtl';
         case 'clip':
             $class[] = 'bleed';
         case 'ellipsis':
