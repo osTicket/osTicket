@@ -782,16 +782,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             ));
         }
 
-        switch ($cfg->getAgentNameFormat()) {
-        case 'last':
-        case 'lastfirst':
-        case 'legal':
-            $members->order_by('lastname', 'firstname');
-            break;
-
-        default:
-            $members->order_by('firstname', 'lastname');
-        }
+        $members = self::nsort($members);
 
         $users=array();
         foreach ($members as $M) {
@@ -803,6 +794,23 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     static function getAvailableStaffMembers() {
         return self::getStaffMembers(array('available'=>true));
+    }
+
+    static function nsort(QuerySet $qs, $path='', $format=null) {
+        global $cfg;
+
+        $format = $format ?: $cfg->getAgentNameFormat();
+        switch ($format) {
+        case 'last':
+        case 'lastfirst':
+        case 'legal':
+            $qs->order_by("{$path}lastname", "{$path}firstname");
+            break;
+        default:
+            $qs->order_by("${path}firstname", "${path}lastname");
+        }
+
+        return $qs;
     }
 
     static function getIdByUsername($username) {
@@ -1456,6 +1464,12 @@ extends AbstractForm {
         list($clean['username'],) = preg_split('/[^\w.-]/u', $clean['email'], 2);
         if (mb_strlen($clean['username']) < 3 || Staff::lookup($clean['username']))
             $clean['username'] = mb_strtolower($clean['firstname']);
+
+
+        // Inherit default dept's role as primary role
+        $clean['assign_use_pri_role'] = true;
+
+        // Default permissions
         $clean['perms'] = array(
             User::PERM_CREATE,
             User::PERM_EDIT,

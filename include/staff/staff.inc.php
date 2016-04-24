@@ -214,12 +214,13 @@ if (count($bks) > 1) {
       <tbody>
         <tr class="header">
           <th colspan="3">
-            <?php echo __('Primary Department and Role'); ?>
-            <span class="error">*</span>
+            <?php echo __('Access'); ?>
             <div><small><?php echo __(
-            "Select the departments the agent is allowed to access and optionally select an effective role."
+            "Select the departments the agent is allowed to access and the corresponding effective role."
           ); ?>
-            </small></div>
+            </small></div><br>
+            <div><?php echo __('Primary Department'); ?> <span
+            class="error">*</span></div>
           </th>
         </tr>
         <tr>
@@ -256,7 +257,7 @@ if (count($bks) > 1) {
                 if ($staff->usePrimaryRoleOnAssignment())
                     echo 'checked="checked"';
                 ?> />
-                <?php echo __('Fall back to primary role on assigned tickets'); ?>
+                <?php echo __('Fall back to primary role on assignments'); ?>
                 <i class="icon-question-sign help-tip"
                     href="#primary_role_on_assign"></i>
             </label>
