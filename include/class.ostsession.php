@@ -174,6 +174,8 @@ extends VerySimpleModel {
 
 class DbSessionBackend
 extends SessionBackend {
+    var $data = null;
+
     function read($id) {
         try {
             $this->data = SessionData::objects()->filter([
@@ -200,7 +202,9 @@ extends SessionBackend {
         $ttl = $this && method_exists($this, 'getTTL')
             ? $this->getTTL() : SESSION_TTL;
 
-        assert($this->data->session_id == $id);
+        // Create a session data obj if not loaded.
+        if (!isset($this->data))
+            $this->data = new SessionData(['session_id' => $id]);
 
         $this->data->session_data = $data;
         $this->data->session_expire =
