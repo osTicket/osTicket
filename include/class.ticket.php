@@ -3300,7 +3300,9 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
 
-        // Any error above is fatal.
+
+
+        // Any errors above are fatal.
         if ($errors)
             return 0;
 
@@ -3482,47 +3484,38 @@ implements RestrictedAccess, Threadable, Searchable {
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
-        // Assign ticket to staff or team (new ticket by staff)
-        if ($vars['assignId']) {
-            $asnform = $ticket->getAssignmentForm(array(
-                        'assignee' => $vars['assignId'],
-                        'comments' => $vars['note'])
-                    );
-            $e = array();
-            $ticket->assign($asnform, $e);
+        // Set status
+        $status = TicketStatus::lookup($statusId);
+        if (!$status || !$ticket->setStatus($status, false, $errors,
+                    !strcasecmp($origin, 'staff'))) {
+            // Tickets _must_ have a status. Forceably set one here
+            $ticket->setStatusId($cfg->getDefaultTicketStatusId());
         }
-        else {
-            // Auto assign staff or team - auto assignment based on filter
-            // rules. Both team and staff can be assigned
-            if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId'], false);
-				 //$ticket->setStatusId(11);	
-            if ($vars['teamId'])
-                // No team alert if also assigned to an individual agent
-                $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
-				//$ticket->setStatusId(11);
+
+        // Only do assignment if the ticket is in an open state
+        if ($ticket->isOpen()) {
+            // Assign ticket to staff or team (new ticket by staff)
+            if ($vars['assignId']) {
+                $asnform = $ticket->getAssignmentForm(array(
+                            'assignee' => $vars['assignId'],
+                            'comments' => $vars['note'])
+                        );
+                $e = array();
+                $ticket->assign($asnform, $e);
+            }
+            else {
+                // Auto assign staff or team - auto assignment based on filter
+                // rules. Both team and staff can be assigned
+                if ($vars['staffId'])
+                     $ticket->assignToStaff($vars['staffId'], false);
+                if ($vars['teamId'])
+                    // No team alert if also assigned to an individual agent
+                    $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
+            }
         }
 
         // Update the estimated due date in the database
         $ticket->updateEstDueDate();
-
-        // Apply requested status — this should be done AFTER assignment,
-        // because if it is requested to be closed, it should not cause the
-        // ticket to be reopened for assignment.
-        if ($statusId) {
-			if (!$vars['assignId']){
-				if (!$ticket->setStatus($statusId, false, $errors, false)) {
-                  // Tickets _must_ have a status. Forceably set one here
-                  $ticket->setStatusId($cfg->getDefaultTicketStatusId());
-				}
-			}
-			if ($vars['assignId'] && $statusId == 1)
-				$ticket->setStatus(11, false, $errors, false);
-			
-			if ($vars['assignId'] && $statusId !== 1)
-				$ticket->setStatus($statusId, false, $errors, false);
-			
-		}
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
