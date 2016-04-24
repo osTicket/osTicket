@@ -1904,14 +1904,13 @@ extends ModelResultSet {
     }
 
     /**
-     * Slight edit to the standard ::next() iteration method which will skip
-     * deleted items.
+     * Slight edit to the standard iteration method which will skip deleted
+     * items.
      */
-    function next() {
-        do {
-            parent::next();
-        }
-        while ($this->valid() && $this->current()->__deleted__);
+    function getIterator() {
+        return new CallbackFilterIterator(parent::getIterator(),
+            function($i) { return !$i->__deleted__; }
+        );
     }
 
     /**

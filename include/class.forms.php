@@ -3668,17 +3668,19 @@ class FileUploadWidget extends Widget {
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = $F = array();
         $new = array_fill_keys($this->field->getClean(), 1);
-        foreach ($attachments as $f) {
-            $F[] = $f->file;
-            unset($new[$f->id]);
+        foreach ($attachments as $a) {
+            $F[] = $a->file;
+            unset($new[$a->file_id]);
         }
         // Add in newly added files not yet saved (if redisplaying after an
         // error)
         if ($new) {
             $F = array_merge($F, AttachmentFile::objects()
                 ->filter(array('id__in' => array_keys($new)))
-                ->all());
+                ->all()
+            );
         }
+
         foreach ($F as $file) {
             $files[] = array(
                 'id' => $file->getId(),
