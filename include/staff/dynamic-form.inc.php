@@ -114,14 +114,16 @@ if ($form && count($langs) > 1) { ?>
     </tbody>
     </table>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <?php if ($form && $form->get('type') == 'T') { ?>
+    <?php if ($form && $form->get('type') == 'T') {
+    $uform = UserForm::objects()->one();
+    ?>
     <thead>
         <tr>
             <th colspan="7">
                 <em><strong><?php echo __('User Information Fields'); ?></strong>
                 <?php echo sprintf(__('(These fields are requested for new tickets
                 via the %s form)'),
-                UserForm::objects()->one()->get('title')); ?></em>
+                $uform->get('title')); ?></em>
             </th>
         </tr>
         <tr>
@@ -135,9 +137,8 @@ if ($form && count($langs) > 1) { ?>
     </thead>
     <tbody>
     <?php
-        $uform = UserForm::objects()->all();
         $ftypes = FormField::allTypes();
-        foreach ($uform[0]->getFields() as $f) {
+        foreach ($uform->getFields() as $f) {
             if (!$f->isVisibleToUsers()) continue;
         ?>
         <tr>
