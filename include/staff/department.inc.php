@@ -339,7 +339,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         <tr class="header" id="extended-access-members">
             <td colspan="2">
                 <div><small>
-                <?php echo __('Agents who have extended access to this department'); ?>
+                <?php echo sprintf(__('Agents who have extended access to %s'), __('this department')); ?>
                 </small></div>
             </td>
         </tr>
