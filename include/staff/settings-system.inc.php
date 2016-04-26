@@ -359,6 +359,16 @@ $gmtime = Misc::gmtime();
                 <div class="error"><?php echo $errors['max_file_size']; ?></div>
             </td>
         </tr>
+        <tr>
+            <td width="180"><?php echo __('Login required');?>:</td>
+            <td>
+                <input type="checkbox" name="files_req_auth" <?php
+                    if ($config['files_req_auth']) echo 'checked="checked"';
+                    ?> />
+                <?php echo __('Require login to view any attachments'); ?>
+                <i class="help-tip icon-question-sign" href="#files_req_auth"></i>
+            </td>
+        </tr>
     </tbody>
 </table>
 <p style="text-align:center;">

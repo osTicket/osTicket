@@ -881,98 +881,77 @@ implements TemplateVariable {
         return $this->hasFlag(self::FLAG_SYSTEM);
     }
 
-    //Web uploads - caller is expected to format, validate and set any errors.
-    function uploadFiles($files) {
+    protected function normalizeFileInfo($files, $add_error=true) {
+        static $error_descriptions = array(
+            UPLOAD_ERR_INI_SIZE     => /* @trans */ 'File is too large',
+            UPLOAD_ERR_FORM_SIZE    => /* @trans */ 'File is too large',
+            UPLOAD_ERR_PARTIAL      => 'The uploaded file was only partially uploaded.',
+            UPLOAD_ERR_NO_TMP_DIR   => 'Missing a temporary folder.',
+            UPLOAD_ERR_CANT_WRITE   => 'Failed to write file to disk.',
+            UPLOAD_ERR_EXTENSION    => 'A PHP extension stopped the file upload.',
+        );
 
-        if(!$files || !is_array($files))
-            return false;
+        if (!is_array($files))
+            $files = array($files);
 
-        $uploaded=array();
-        foreach($files as $file) {
-            if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE)
+        $ids = array();
+        foreach ($files as $name => $file) {
+            $F = array('inline' => is_array($file) && @$file['inline']);
+
+            if (is_numeric($file))
+                $fileId = $file;
+            elseif ($file instanceof AttachmentFile)
+                $fileId = $file->getId();
+            elseif (is_array($file) && isset($file['id']))
+                $fileId = $file['id'];
+            elseif ($AF = AttachmentFile::create($file))
+                $fileId = $AF->getId();
+            elseif ($add_error) {
+                $error = $file['error']
+                    ?: sprintf(_S('Unable to import attachment - %s'),
+                        $name ?: $file['name']);
+                if (is_numeric($error) && isset($error_descriptions[$error])) {
+                    $error = sprintf(_S('Error #%1$d: %2$s'), $error,
+                        _S($error_descriptions[$error]));
+                }
+                // No need to log the missing-file error number
+                if ($error != UPLOAD_ERR_NO_FILE)
+                    $this->getThread()->getObject()->logNote(
+                        _S('File Import Error'), $error, _S('SYSTEM'), false);
                 continue;
-
-            if(!$file['error']
-                    && ($F=AttachmentFile::upload($file))
-                    && $this->saveAttachment($F))
-                $uploaded[]= $F->getId();
-            else {
-                if(!$file['error'])
-                    $error = sprintf(__('Unable to upload file - %s'),$file['name']);
-                elseif(is_numeric($file['error']))
-                    $error ='Error #'.$file['error']; //TODO: Transplate to string.
-                else
-                    $error = $file['error'];
-                /*
-                 Log the error as an internal note.
-                 XXX: We're doing it here because it will eventually become a thread post comment (hint: comments coming!)
-                 XXX: logNote must watch for possible loops
-               */
-                $this->getThread()->getObject()->logNote(__('File Upload Error'), $error, 'SYSTEM', false);
             }
 
+            $F['id'] = $fileId;
+
+            if (is_string($name))
+                $F['name'] = $name;
+            if (isset($AF))
+                $F['file'] = $AF;
+
+            // Add things like the `key` field, but don't change current
+            // keys of the file array
+            if (is_array($file))
+                $F += $file;
+
+            // Key is required for CID rewriting in the body
+            if (!isset($F['key']) && ($AF = AttachmentFile::lookup($F['id'])))
+                $F['key'] = $AF->key;
+
+            $ids[] = $F;
         }
-
-        return $uploaded;
-    }
-
-    function importAttachments(&$attachments) {
-
-        if(!$attachments || !is_array($attachments))
-            return null;
-
-        $files = array();
-        foreach($attachments as &$attachment)
-            if(($id=$this->importAttachment($attachment)))
-                $files[] = $id;
-
-        return $files;
-    }
-
-    /* Emailed & API attachments handler */
-    function importAttachment(&$attachment) {
-
-        if(!$attachment || !is_array($attachment))
-            return null;
-
-        $A=null;
-        if ($attachment['error'] || !($A=$this->saveAttachment($attachment))) {
-            $error = $attachment['error'];
-            if(!$error)
-                $error = sprintf(_S('Unable to import attachment - %s'),
-                        $attachment['name']);
-            //FIXME: logComment here
-            $this->getThread()->getObject()->logNote(
-                    _S('File Import Error'), $error, _S('SYSTEM'), false);
-        }
-
-        return $A;
+        return $ids;
     }
 
    /*
     Save attachment to the DB.
     @file is a mixed var - can be ID or file hashtable.
     */
-    function saveAttachment(&$file, $name=false) {
-
-        $inline = is_array($file) && @$file['inline'];
-
-        if (is_numeric($file))
-            $fileId = $file;
-        elseif ($file instanceof AttachmentFile)
-            $fileId = $file->getId();
-        elseif ($F = AttachmentFile::create($file))
-            $fileId = $F->getId();
-        elseif (is_array($file) && isset($file['id']))
-            $fileId = $file['id'];
-        else
-            return false;
-
+    function createAttachment($file, $name=false) {
         $att = new Attachment(array(
             'type' => 'H',
             'object_id' => $this->getId(),
-            'file_id' => $fileId,
-            'inline' => $inline ? 1 : 0,
+            'file_id' => $file['id'],
+            'inline' => $file['inline'] ? 1 : 0,
         ));
 
         // Record varying file names in the attachment record
@@ -984,7 +963,7 @@ implements TemplateVariable {
         }
         if ($filename) {
             // This should be a noop since the ORM caches on PK
-            $F = $F ?: AttachmentFile::lookup($fileId);
+            $F = @$file['file'] ?: AttachmentFile::lookup($file['id']);
             // XXX: This is not Unicode safe
             if ($F && 0 !== strcasecmp($F->name, $filename))
                 $att->name = $filename;
@@ -995,13 +974,12 @@ implements TemplateVariable {
         return $att;
     }
 
-    function saveAttachments($files) {
+    function createAttachments(array $files) {
         $attachments = array();
-        foreach ($files as $name=>$file) {
-           if (($A = $this->saveAttachment($file, $name)))
+        foreach ($files as $info) {
+           if ($A = $this->createAttachment($info, @$info['name'] ?: false))
                $attachments[] = $A;
         }
-
         return $attachments;
     }
 
@@ -1326,29 +1304,6 @@ implements TemplateVariable {
                 $vars['body'] = new TextThreadEntryBody($vars['body']);
         }
 
-        // Drop stripped images
-        if ($vars['attachments']) {
-            foreach ($vars['body']->getStrippedImages() as $cid) {
-                foreach ($vars['attachments'] as $i=>$a) {
-                    if (@$a['cid'] && $a['cid'] == $cid) {
-                        // Inline referenced attachment was stripped
-                        unset($vars['attachments'][$i]);
-                    }
-                }
-            }
-        }
-
-        // Handle extracted embedded images (<img src="data:base64,..." />).
-        // The extraction has already been performed in the ThreadEntryBody
-        // class. Here they should simply be added to the attachments list
-        if ($atts = $vars['body']->getEmbeddedHtmlImages()) {
-            if (!is_array($vars['attachments']))
-                $vars['attachments'] = array();
-            foreach ($atts as $info) {
-                $vars['attachments'][] = $info;
-            }
-        }
-
         if (!($body = $vars['body']->getClean()))
             $body = '-'; //Special tag used to signify empty message as stored.
 
@@ -1377,11 +1332,6 @@ implements TemplateVariable {
         if (!($vars['staffId'] || $vars['userId']))
             $entry->flags |= self::FLAG_SYSTEM;
 
-        if (!isset($vars['attachments']) || !$vars['attachments'])
-            // Otherwise, body will be configured in a block below (after
-            // inline attachments are saved and updated in the database)
-            $entry->body = $body;
-
         if (isset($vars['pid']))
             $entry->pid = $vars['pid'];
         // Check if 'reply_to' is in the $vars as the previous ThreadEntry
@@ -1394,50 +1344,79 @@ implements TemplateVariable {
         if ($vars['ip_address'])
             $entry->ip_address = $vars['ip_address'];
 
+        /************* ATTACHMENTS *****************/
+        // Drop stripped email inline images
+        if ($vars['attachments']) {
+            foreach ($vars['body']->getStrippedImages() as $cid) {
+                foreach ($vars['attachments'] as $i=>$a) {
+                    if (@$a['cid'] && $a['cid'] == $cid) {
+                        // Inline referenced attachment was stripped
+                        unset($vars['attachments'][$i]);
+                    }
+                }
+            }
+        }
+
+        // Handle extracted embedded images (<img src="data:base64,..." />).
+        // The extraction has already been performed in the ThreadEntryBody
+        // class. Here they should simply be added to the attachments list
+        if ($atts = $vars['body']->getEmbeddedHtmlImages()) {
+            if (!is_array($vars['attachments']))
+                $vars['attachments'] = array();
+            foreach ($atts as $info) {
+                $vars['attachments'][] = $info;
+            }
+        }
+
+        $attached_files = array();
+        foreach (array(
+            // Web uploads and canned attachments
+            $vars['files'], $vars['cannedattachments'],
+            // Emailed or API attachments
+            $vars['attachments'],
+            // Inline images (attached to the draft)
+            Draft::getAttachmentIds($body),
+        ) as $files
+        ) {
+            if (is_array($files)) {
+                // Detect *inline* email attachments
+                foreach ($files as $i=>$a) {
+                    if (isset($a['cid']) && $a['cid']
+                            && strpos($body, 'cid:'.$a['cid']) !== false)
+                        $files[$i]['inline'] = true;
+                }
+                foreach ($entry->normalizeFileInfo($files) as $F) {
+                    // Deduplicate on the `key` attribute. The key is
+                    // necessary for the CID rewrite below
+                    $attached_files[$F['key']] = $F;
+                }
+            }
+        }
+
+        // Change <img src="cid:"> inside the message to point to a unique
+        // hash-code for the attachment. Since the content-id will be
+        // discarded, only the unique hash-code (key) will be available to
+        // retrieve the image later
+        foreach ($attached_files as $key => $a) {
+            if (isset($a['cid']) && $a['cid']) {
+                $body = preg_replace('/src=("|\'|\b)(?:cid:)?'
+                    . preg_quote($a['cid'], '/').'\1/i',
+                    'src="cid:'.$key.'"', $body);
+            }
+        }
+
+        // Set body here after it was rewritten to capture the stored file
+        // keys (above)
+        $entry->body = $body;
+
         if (!$entry->save())
             return false;
 
-        /************* ATTACHMENTS *****************/
-
-        //Upload/save attachments IF ANY
-        if($vars['files']) //expects well formatted and VALIDATED files array.
-            $entry->uploadFiles($vars['files']);
-
-        //Canned attachments...
-        if($vars['cannedattachments'] && is_array($vars['cannedattachments']))
-            $entry->saveAttachments($vars['cannedattachments']);
-
-        //Emailed or API attachments
-        if (isset($vars['attachments']) && $vars['attachments']) {
-            foreach ($vars['attachments'] as &$a)
-                if (isset($a['cid']) && $a['cid']
-                        && strpos($body, 'cid:'.$a['cid']) !== false)
-                    $a['inline'] = true;
-            unset($a);
-
-            $entry->importAttachments($vars['attachments']);
-            foreach ($vars['attachments'] as $a) {
-                // Change <img src="cid:"> inside the message to point to
-                // a unique hash-code for the attachment. Since the
-                // content-id will be discarded, only the unique hash-code
-                // will be available to retrieve the image later
-                if ($a['cid'] && $a['key']) {
-                    $body = preg_replace('/src=("|\'|\b)(?:cid:)?'
-                        . preg_quote($a['cid'], '/').'\1/i',
-                        'src="cid:'.$a['key'].'"', $body);
-                }
-            }
-
-            $entry->body = $body;
-            if (!$entry->save())
-                return false;
-        }
+        // Associate the attached files with this new entry
+        $entry->createAttachments($attached_files);
 
         // Save mail message id, if available
         $entry->saveEmailInfo($vars);
-
-        // Inline images (attached to the draft)
-        $entry->saveAttachments(Draft::getAttachmentIds($body));
 
         Signal::send('threadentry.created', $entry);
 

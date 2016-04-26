@@ -216,7 +216,10 @@ class Email extends VerySimpleModel {
     /******* Static functions ************/
 
    static function getIdByEmail($email) {
-        $qs = static::objects()->filter(array('email' => $email))
+        $qs = static::objects()->filter(Q::any(array(
+                        'email'  => $email,
+                        'userid' => $email
+                        )))
             ->values_flat('email_id');
 
         $row = $qs->first();

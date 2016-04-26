@@ -1414,7 +1414,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return true;
     }
 
-    function save($refetch) {
+    function save($refetch=false) {
         if ($this->dirty)
             unset($this->_value);
         return parent::save($refetch);

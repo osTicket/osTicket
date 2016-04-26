@@ -100,7 +100,8 @@ $order_by = 'sort';
                 $names[$topic->getId()] = $topic->getFullName();
                 $topics[$topic->getId()] = $topic;
             }
-            $names = Internationalization::sortKeyedList($names);
+            if ($cfg->getTopicSortMode() != 'm')
+                $names = Internationalization::sortKeyedList($names);
 
             $defaultDept = $cfg->getDefaultDept();
             $defaultPriority = $cfg->getDefaultPriority();
