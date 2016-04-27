@@ -560,7 +560,9 @@ class Mailer {
         }
 
         //No SMTP or it failed....use php's native mail function.
-        $args = array('-f '.$this->getEmail()->getEmail());
+        $args = array();
+        if ($this->getEmail())
+            $args = array('-f '.$this->getEmail()->getEmail());
         $mail = mail::factory('mail', $args);
         // Ensure the To: header is properly encoded.
         $to = $headers['To'];
