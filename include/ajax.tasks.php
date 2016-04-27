@@ -529,7 +529,7 @@ class TasksAjaxAPI extends AjaxController {
                     $target ? "/$target" : ''),
                 );
         if ($task->isAssigned()) {
-            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
+            $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
                     __('Task'),
                     $task->getAssigned());
         }
