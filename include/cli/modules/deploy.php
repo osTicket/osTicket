@@ -27,6 +27,9 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Use `git ls-files -s` as files source. Eliminates
                 possibility of deploying untracked files');
+        $this->options['force'] = array('-f', '--force',
+            'action'=>'store_true',
+            'help'=>'Deploy all files, even if they have not changed');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -188,12 +191,13 @@ class Deployment extends Unpacker {
 
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
+        $force = $this->getOption('force');
         while ($line = stream_get_line($pipes[1], 255, "\x00")) {
             list($mode, $hash, , $path) = preg_split('/\s+/', $line);
             $src = $source.$local.$path;
             if ($this->exclude($exclude, $src))
                 continue;
-            if (!$this->isChanged($src, $hash))
+            if (!$force && false === ($flag = $this->isChanged($src, $hash)))
                 continue;
             $dst = $destination.$path;
             if ($verbose)
@@ -256,7 +260,8 @@ class Deployment extends Unpacker {
                 "*/.htaccess"));
         }
 
-        $this->writeManifest($this->destination);
+        if (!$options['dry-run'])
+            $this->writeManifest($this->destination);
     }
 }
 

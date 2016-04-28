@@ -156,6 +156,7 @@ class Unpacker extends Module {
     function unpackage($folder, $destination, $recurse=0, $exclude=false) {
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
+        $force = $this->getOption('force', false);
         if (substr($destination, -1) !== '/')
             $destination .= '/';
         foreach (glob($folder, GLOB_BRACE|GLOB_NOSORT) as $file) {
@@ -164,7 +165,8 @@ class Unpacker extends Module {
             if (is_file($file)) {
                 $target = $destination . basename($file);
                 $hash = $this->hashFile($file);
-                if (is_file($target) && !$this->isChanged($file, $hash))
+                if (!$force && is_file($target)
+                        && false === ($flag = $this->isChanged($file, $hash)))
                     continue;
                 if ($verbose)
                     $this->stdout->write($target."\n");
