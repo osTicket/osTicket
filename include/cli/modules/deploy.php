@@ -126,6 +126,7 @@ class Deployment extends Unpacker {
             return false;
 
         $source = file_get_contents($src);
+        $original = crc32($source);
         $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
             '<script$1 src="$2.js?'.$short.'"></script>',
             $source);
@@ -145,11 +146,20 @@ class Deployment extends Unpacker {
             "$1ini_set('$2', '0'); // Set by installer",
             $source);
 
-        return $source;
+        // return FALSE if the edited contents do not differ from the
+        // original contents
+        return $original != crc32($source) ? $source : false;
     }
 
-    function copyFile($source, $dest, $hash=false, $mode=0644) {
-        $contents = $this->getEditedContents($source);
+    function isChanged($source, $hash=false) {
+        $local = str_replace($this->source.'/', '', $source);
+        $hash = $hash ?: $this->hashFile($source);
+        list($shash, $flag) = explode(':', $this->readManifest($local));
+        return ($flag === 'rewrite') ? $flag : $shash != $hash;
+    }
+
+    function copyFile($source, $dest, $hash=false, $mode=0644, $contents=false) {
+        $contents = $contents ?: $this->getEditedContents($source);
         if ($contents === false)
             // Regular file
             return parent::copyFile($source, $dest, $hash, $mode);
@@ -157,7 +167,7 @@ class Deployment extends Unpacker {
         if (!file_put_contents($dest, $contents))
             $this->fail($dest.": Unable to apply rewrite rules");
 
-        $this->updateManifest($source, $hash);
+        $this->updateManifest($source, "$hash:rewrite");
         return chmod($dest, $mode);
     }
 
@@ -200,8 +210,12 @@ class Deployment extends Unpacker {
             if (!$force && false === ($flag = $this->isChanged($src, $hash)))
                 continue;
             $dst = $destination.$path;
-            if ($verbose)
-                $this->stdout->write($dst."\n");
+            if ($verbose) {
+                $msg = $dst;
+                if (is_string($flag))
+                    $msg = "$msg ({$flag})";
+                $this->stdout->write("$msg\n");
+            }
             if ($dryrun)
                 continue;
             if (!is_dir(dirname($dst)))

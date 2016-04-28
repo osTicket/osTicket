@@ -99,7 +99,7 @@ class Unpacker extends Module {
         if (!is_file($path))
             return null;
 
-        if (!preg_match_all('/^(\w+) (.+)$/mu', file_get_contents($path),
+        if (!preg_match_all('/^([\w:,]+) (.+)$/mu', file_get_contents($path),
             $lines, PREG_PATTERN_ORDER)
         ) {
             return null;
@@ -168,8 +168,12 @@ class Unpacker extends Module {
                 if (!$force && is_file($target)
                         && false === ($flag = $this->isChanged($file, $hash)))
                     continue;
-                if ($verbose)
-                    $this->stdout->write($target."\n");
+                if ($verbose) {
+                    $msg = $target;
+                    if (is_string($flag))
+                        $msg = "$msg ({$flag})";
+                    $this->stdout->write("$msg\n");
+                }
                 if ($dryrun)
                     continue;
                 if (!is_dir($destination))
