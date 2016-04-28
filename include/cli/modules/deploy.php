@@ -48,13 +48,14 @@ class Deployment extends Unpacker {
      * Removes files from the deployment location that no longer exist in
      * the local repository
      */
-    function clean($local, $destination, $recurse=0, $exclude=false) {
+    function clean($local, $destination, $root, $recurse=0, $exclude=false) {
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $dryrun || $this->getOption('verbose');
         $destination = rtrim($destination, '/') . '/';
         $contents = glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT);
         foreach ($contents as $i=>$file) {
-            if ($this->exclude($exclude, $file))
+            $relative = str_replace($root, "", $file);
+            if ($this->exclude($exclude, $relative))
                 continue;
             if (is_file($file)) {
                 $ltarget = $local . '/' . basename($file);
@@ -77,12 +78,13 @@ class Deployment extends Unpacker {
             foreach ($folders as $dir) {
                 if (in_array(basename($dir), array('.','..')))
                     continue;
-                elseif ($this->exclude($exclude, $dir))
+                $relative = str_replace($root, "", $dir);
+                if ($this->exclude($exclude, "$relative/"))
                     continue;
                 $this->clean(
                     $local.'/'.basename($dir),
                     $destination.basename($dir),
-                    $recurse - 1, $exclude);
+                    $root, $recurse - 1, $exclude);
             }
         }
         if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
@@ -259,7 +261,7 @@ class Deployment extends Unpacker {
             $exclusions);
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
-            array("*/include/ost-config.php"));
+            array("*/include/ost-config.php", "*.sw[a-z]"));
         if (!$options['dry-run']) {
             if ($include != "{$this->destination}/include/")
                 $this->change_include_dir($include);
@@ -267,11 +269,12 @@ class Deployment extends Unpacker {
 
         if ($options['clean']) {
             // Clean everything but include folder first
-            $this->clean($root, $this->destination, -1,
-                array($include, "setup/"));
-            $this->clean("$root/include", $include, -1,
+            $local_include = str_replace($this->destination, "", $include);
+            $this->clean($root, $this->destination, $this->destination, -1,
+                array($local_include, "setup/"));
+            $this->clean("$root/include", $include, $include, -1,
                 array("ost-config.php","settings.php","plugins/",
-                "*/.htaccess"));
+                "*/.htaccess", ".MANIFEST"));
         }
 
         if (!$options['dry-run'])
