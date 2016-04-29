@@ -67,6 +67,7 @@ class Internationalization {
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
             'queue_column.yaml' =>  'QueueColumn::__create',
+            'queue_sort.yaml' =>    'QueueSort::__create',
             'queue.yaml' =>         'CustomQueue::__create',
         );
 
