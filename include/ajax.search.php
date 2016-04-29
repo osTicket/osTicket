@@ -239,6 +239,28 @@ class SearchAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/queue-column-edit.tmpl.php';
     }
 
+    function editSort($sort_id) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!($sort = QueueSort::lookup($sort_id))) {
+            Http::response(404, 'No such queue sort');
+        }
+
+        if ($_POST) {
+            $data_form = $sort->getDataConfigForm($_POST);
+            if ($data_form->isValid()) {
+                $sort->update($data_form->getClean() + $_POST);
+                if ($sort->save())
+                    Http::response(201, 'Successfully updated');
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
+    }
+
     function previewQueue($id=false) {
         global $thisstaff;
 

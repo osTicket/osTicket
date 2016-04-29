@@ -4,15 +4,15 @@
  *
  * $column - <QueueColumn> instance for this column
  */
-$colid = $column->getId();
+$sortid = $sort->getId();
 ?>
 <h3 class="drag-handle"><?php echo __('Manage Sort Options'); ?> &mdash;
-    <?php echo $column->get('name') ?></h3>
+    <?php echo $sort->get('name') ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 
-<form method="post" action="#tickets/search/column/edit/<?php
-    echo $colid; ?>">
+<form method="post" action="#tickets/search/sort/edit/<?php
+    echo $sortid; ?>">
 
 <?php
 include 'queue-sorting.tmpl.php';

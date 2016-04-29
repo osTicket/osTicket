@@ -502,6 +502,15 @@ class VerySimpleModel {
 
     function __onload() {}
 
+    function serialize() {
+        return $this->getPk();
+    }
+
+    function unserialize($data) {
+        $this->ht = $data;
+        $this->refetch();
+    }
+
     static function getMeta($key=false) {
         if (!static::$meta instanceof ModelMeta
             || get_called_class() != static::$meta->model
@@ -671,9 +680,7 @@ class VerySimpleModel {
         if ($refetch) {
             // Preserve non database information such as list relationships
             // across the refetch
-            $this->ht =
-                static::objects()->filter($this->getPk())->values()->one()
-                + $this->ht;
+            $this->refetch();
         }
         if ($wasnew) {
             // Attempt to update foreign, unsaved objects with the PK of
@@ -700,6 +707,12 @@ class VerySimpleModel {
         }
         $this->dirty = array();
         return true;
+    }
+
+    private function refetch() {
+        $this->ht =
+            static::objects()->filter($this->getPk())->values()->one()
+            + $this->ht;
     }
 
     private function getPk() {
@@ -752,7 +765,7 @@ END_CLASS
 }
 
 trait AnnotatedModelTrait {
-    function get($what) {
+    function get($what, $default=false) {
         if (isset($this->__overlay__[$what]))
             return $this->__overlay__[$what];
         return parent::get($what);
@@ -784,7 +797,7 @@ trait AnnotatedModelTrait {
  * is, the annotated model will remain).
  */
 trait WriteableAnnotatedModelTrait {
-    function get($what) {
+    function get($what, $default=false) {
         if ($this->__overlay__->__isset($what))
             return $this->__overlay__->get($what);
         return parent::get($what);

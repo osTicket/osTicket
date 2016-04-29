@@ -670,8 +670,8 @@ class SavedSearch extends CustomQueue {
         return count($errors) === 0;
     }
 
-    static function create() {
-        $search = parent::create();
+    static function create($vars=false) {
+        $search = parent::create($vars);
         $search->clearFlag(self::FLAG_QUEUE);
         return $search;
     }
@@ -833,7 +833,7 @@ class AssigneeChoiceField extends ChoiceField {
 }
 
 class AgentSelectionField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return Staff::getStaffMembers();
     }
 
@@ -858,7 +858,7 @@ class AgentSelectionField extends ChoiceField {
 }
 
 class TeamSelectionField extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         return Team::getTeams();
     }
 

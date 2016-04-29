@@ -6,11 +6,11 @@
  */
 $colid = 0;
 ?>
-<h3 class="drag-handle"><?php echo __('Add Sort Options'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Add Sort Option'); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 
-<form method="post" action="#admin/quick-add/queue-column">
+<form method="post" action="#admin/quick-add/queue-sort">
 
 <?php
 include 'queue-sorting.tmpl.php';

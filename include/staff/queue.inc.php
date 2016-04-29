@@ -146,52 +146,126 @@ else {
             <br><?php echo __("Add, edit or remove the sorting criteria for this custom queue using the options below. Sorting is priortized in ascending order."); ?></p>
         </div>
         <table class="queue-sort table">
-            <tbody class="sortable-rows ui-sortable">
-                <tr style="display: table-row;">
-                    <td>
-                        <i class="faded-more icon-sort"></i>
-                         <a class="inline"
-                href="#" onclick="javascript:
-                var colid = $(this).closest('tr').find('[data-name=sorting_id]').val();
-                $.dialog('ajax.php/tickets/search/sorting/edit/' + colid, 201);
-                return false;"><?php echo __('This is sort criteria title 1'); ?></a>
-                    </td>
-                    <td>
-                        <a href="#" class="pull-right drop-column" title="Delete"><i class="icon-trash"></i></a>
-                    </td>
-                </tr>
-                <tr style="display: table-row;">
-                    <td>
-                        <i class="faded-more icon-sort"></i>
-                        <a class="inline"
-                href="#" onclick="javascript:
-                var colid = $(this).closest('tr').find('[data-name=sorting_id]').val();
-                $.dialog('ajax.php/tickets/search/sorting/edit/' + colid, 201);
-                return false;
-                "><?php echo __('This is sort criteria title 2'); ?></a>
-                    </td>
-                    <td>
-                        <a href="#" class="pull-right drop-column" title="Delete"><i class="icon-trash"></i></a>
-                    </td>
-                </tr>
+<?php
+if ($queue->parent) { ?>
+          <tbody>
+            <tr>
+              <td colspan="3">
+                <input type="checkbox" name="inherit-sorting" <?php
+                  if ($queue->inheritSorting()) echo 'checked="checked"'; ?>
+                  onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
+                <?php echo __('Inherit sorting from the parent queue'); ?>
+                <br /><br />
+              </td>
+            </tr>
+          </tbody>
+<?php } ?>
+          <tbody class="if-not-inherited <?php if ($queue->inheritSorting()) echo 'hidden'; ?>">
+            <tr class="header">
+              <td nowrap><small><b><?php echo __('Name'); ?></b></small></td>
+              <td><small><b><?php echo __('Details'); ?></b></small></td>
+              <td/>
+            </tr>
+          </tbody>
+          <tbody class="sortable-rows if-not-inherited <?php
+            if ($queue->inheritSorting()) echo 'hidden'; ?>">
+            <tr id="sort-template" class="hidden">
+              <td nowrap>
+                <i class="faded-more icon-sort"></i>
+                <input type="hidden" data-name="sorts[]" />
+                <span data-name="name"></span>
+              </td>
+              <td>
+                <div>
+                <a class="inline action-button"
+                    href="#" onclick="javascript:
+                    var colid = $(this).closest('tr').find('[data-name^=sorts]').val();
+                    $.dialog('ajax.php/tickets/search/sort/edit/' + colid, 201);
+                    return false;
+                    "><i class="icon-cog"></i> <?php echo __('Config'); ?></a>
+                </div>
+              </td>
+              <td>
+                <a href="#" class="pull-right drop-sort" title="<?php echo __('Delete');
+                  ?>"><i class="icon-trash"></i></a>
+              </td>
+            <tr>
+          </tbody>
+            <tbody class="if-not-inherited <?php
+            if ($queue->inheritSorting()) echo 'hidden'; ?>">
+              <tr class="header">
+                  <td colspan="3"></td>
+              </tr>
+              <tr>
+                  <td colspan="3" id="append-sort">
+                      <i class="icon-plus-sign"></i>
+                      <select id="add-sort" data-quick-add="queue-sort">
+                          <option value="">— <?php
+                            echo __('Add Sort Criteria'); ?> —</option>
+<?php foreach (QueueSort::forQueue($queue) as $QS) { ?>
+                          <option value="<?php echo $QS->id; ?>"><?php
+                            echo Format::htmlchars($QS->name); ?></option>
+<?php } ?>
+                          <option value="0" data-quick-add>&mdash; <?php
+                            echo __('Add New Sort Criteria');?> &mdash;</option>
+                      </select>
+                      <button type="button" class="green button"><?php
+                        echo __('Add'); ?></button>
+                  </td>
+              </tr>
             </tbody>
-            <tbody>
-                <tr class="header">
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" id="append-sort">
-                        <i class="icon-plus-sign"></i>
-                        <select id="add-sort" data-quick-add="queue-column">
-                            <option value="">— Add Sort Criteria —</option>
-                            <option value="">Sort Option 1</option>
-                            <option value="">Sort Option 2</option>
-                            <option value="0" data-quick-add>&mdash; <?php echo __('Add New Sort Criteria');?> &mdash;</option>
-                        </select>
-                        <button type="button" class="green button">Add</button>
-                    </td>
-                </tr>
-            </tbody>
+<script>
++function() {
+var Q = setInterval(function() {
+  if ($('#append-sort').length == 0)
+    return;
+  clearInterval(Q);
+
+  var addSortOption = function(sortid, info) {
+    if (!sortid) return;
+    var copy = $('#sort-template').clone();
+    info['sorts[]'] = sortid;
+    copy.find('input[data-name]').each(function() {
+      var $this = $(this),
+          name = $this.data('name');
+      if (info[name] !== undefined) {
+        $this.val(info[name]);
+      }
+      $this.attr('name', name);
+    });
+    copy.find('span').text(info['name']);
+    copy.attr('id', '').show().insertBefore($('#sort-template'));
+    copy.removeClass('hidden');
+    copy.find('a.drop-sort').click(function() {
+      $('<option>')
+        .attr('value', copy.find('input[data-name^=sorts]').val())
+        .text(info.name)
+        .insertBefore($('#add-sort')
+          .find('[data-quick-add]')
+        );
+      copy.fadeOut(function() { $(this).remove(); });
+      return false;
+    });
+    var selected = $('#add-sort').find('option[value=' + sortid + ']');
+    selected.remove();
+  };
+
+  $('#append-sort').find('button').on('click', function() {
+    var selected = $('#add-sort').find(':selected'),
+        id = parseInt(selected.val());
+    if (!id)
+        return;
+    addSortOption(id, {name: selected.text()});
+    return false;
+  });
+<?php foreach ($queue->getSortOptions() as $C) {
+  echo sprintf('addSortOption(%d, {name: %s});',
+    $C->sort_id, JsonDataEncoder::encode($C->getName())
+  );
+} ?>
+}, 25);
+}();
+</script>
         </table>
     </div>    
     

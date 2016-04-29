@@ -1269,9 +1269,6 @@ a.print {
     padding: 4px;
     background-color:#fff;
 }
-.queue-sort.table td:not(:empty) {
-    padding: 10px;
-}
 .table.two-column tbody tr td:first-child {
     width: 25%;
 }
