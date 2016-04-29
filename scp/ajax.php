@@ -175,6 +175,7 @@ $dispatcher = patterns('',
             url_post('^/create$', 'createSearch'),
             url_get('^/field/(?P<id>[\w_!:]+)$', 'addField'),
             url('^/column/edit/(?P<id>\d+)$', 'editColumn'),
+            url('^/sort/edit/(?P<id>\d+)$', 'editSort'),
             url_post('^(?P<id>\d+)/delete$', 'deleteQueues'),
             url_post('^(?P<id>\d+)/disable$', 'disableQueues'),
             url_post('^(?P<id>\d+)/enable$', 'undisableQueues')
@@ -246,7 +247,8 @@ $dispatcher = patterns('',
             url('^/team$', 'addTeam'),
             url('^/role$', 'addRole'),
             url('^/staff$', 'addStaff'),
-            url('^/queue-column$', 'addQueueColumn')
+            url('^/queue-column$', 'addQueueColumn'),
+            url('^/queue-sort$', 'addQueueSort')
         )),
         url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
     )),
