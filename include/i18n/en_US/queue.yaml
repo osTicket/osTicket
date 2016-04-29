@@ -15,8 +15,8 @@
 #   0x02:   FLAG_QUEUE (should be set for everything here)
 #   0x04:   FLAG_CONTAINER (should be set for top-level queues)
 #   0x08:   FLAG_INHERIT (inherit criteria from parent)
-#   0x10:   FLAG_DEFAULT (default queue for parent container)
-#   0x20:   FLAG_DRAFT
+#   0x10:   FLAG_INHERIT_COLUMNS
+#   0x20:   FLAG_INHERIT_SORTING
 # staff_id: User owner of the queue
 # sort:     Manual sort order
 # title:    Display name of the queue
@@ -58,6 +58,11 @@
       sort: 6
       width: 160
       heading: Assigned To
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
 
 - id: 2
   title: Closed
@@ -93,7 +98,7 @@
 
 - title: Unanswered
   parent_id: 1
-  flags: 0x0b
+  flags: 0x2b
   root: T
   sort: 1
   config: '[["isanswered","nset",null]]'
@@ -125,7 +130,7 @@
 
 - title: Unassigned
   parent_id: 1
-  flags: 0x0b
+  flags: 0x2b
   root: T
   sort: 2
   config: '[["assignee","!assigned",null]]'
@@ -157,7 +162,7 @@
 
 - title: My Tickets
   parent_id: 1
-  flags: 0x0b
+  flags: 0x2b
   root: T
   sort: 4
   config: '[["assignee","includes",{"M":"Me", "T":"One of my teams"}]]'

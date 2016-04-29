@@ -828,6 +828,7 @@ CREATE TABLE `%TABLE_PREFIX%queue` (
   `id` int(11) unsigned not null auto_increment,
   `parent_id` int(11) unsigned not null default 0,
   `columns_id` int(11) unsigned default null,
+  `sort_id` int(11) unsigned default null,
   `flags` int(11) unsigned not null default 0,
   `staff_id` int(11) unsigned not null default 0,
   `sort` int(11) unsigned not null default 0,
@@ -865,6 +866,25 @@ CREATE TABLE `%TABLE_PREFIX%queue_columns` (
   `heading` varchar(64) DEFAULT NULL,
   `width` int(10) unsigned NOT NULL DEFAULT '100',
   PRIMARY KEY (`queue_id`, `column_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_sort`;
+CREATE TABLE `%TABLE_PREFIX%queue_sort` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `root` varchar(32) DEFAULT NULL,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `columns` text,
+  `updated` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_sorts`;
+CREATE TABLE `%TABLE_PREFIX%queue_sorts` (
+  `queue_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `sort_id` int(11) unsigned NOT NULL,
+  `bits` int(11) unsigned NOT NULL DEFAULT '0',
+  `sort` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`queue_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;

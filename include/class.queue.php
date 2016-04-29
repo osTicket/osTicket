@@ -30,6 +30,10 @@ class CustomQueue extends VerySimpleModel {
                 'reverse' => 'QueueColumnGlue.queue',
                 'broker' => 'QueueColumnListBroker',
             ),
+            'sorts' => array(
+                'reverse' => 'QueueSortGlue.queue',
+                'broker' => 'QueueSortListBroker',
+            ),
             'parent' => array(
                 'constraint' => array(
                     'parent_id' => 'CustomQueue.id',
@@ -49,6 +53,7 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_CONTAINER =      0x0004; // Container for other queues ('Open')
     const FLAG_INHERIT_CRITERIA = 0x0008; // Include criteria from parent
     const FLAG_INHERIT_COLUMNS = 0x0010; // Inherit column layout from parent
+    const FLAG_INHERIT_SORTING = 0x0020; // Inherit advanced sorting from parent
 
     var $criteria;
 
@@ -524,6 +529,13 @@ class CustomQueue extends VerySimpleModel {
         $col->queue = $this;
     }
 
+    function getSortOptions() {
+        if ($this->inheritSorting() && $this->parent) {
+            return $this->parent->getSortOptions();
+        }
+        return $this->sorts;
+    }
+
     function getStatus() {
         return 'bogus';
     }
@@ -679,6 +691,10 @@ class CustomQueue extends VerySimpleModel {
         return $this->hasFlag(self::FLAG_INHERIT_COLUMNS);
     }
 
+    function inheritSorting() {
+        return $this->hasFlag(self::FLAG_INHERIT_SORTING);
+    }
+
     function buildPath() {
         if (!$this->id)
             return;
@@ -734,6 +750,8 @@ class CustomQueue extends VerySimpleModel {
             $this->parent_id > 0 && isset($vars['inherit']));
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
             $this->parent_id > 0 && isset($vars['inherit-columns']));
+        $this->setFlag(self::FLAG_INHERIT_SORTING,
+            $this->parent_id > 0 && isset($vars['inherit-sorting']));
 
         // Update queue columns (but without save)
         if (!isset($vars['columns']) && $this->parent) {
@@ -773,6 +791,32 @@ class CustomQueue extends VerySimpleModel {
             $this->columns->sort(function($c) { return $c->sort; });
         }
 
+        // Update advanced sorting options for the queue
+        if (isset($vars['sorts']) && !$this->hasFlag(self::FLAG_INHERIT_SORTING)) {
+            $new = $vars['sorts'];
+            $order = array_keys($new);
+            foreach ($this->sorts as $sort) {
+                $key = $sort->sort_id;
+                if (!in_array($key, $vars['sorts'])) {
+                    $this->sorts->remove($sort);
+                    continue;
+                }
+                $sort->set('sort', array_search($key, $order));
+                unset($new[$key]);
+            }
+            // Add new columns
+            foreach ($new as $id) {
+                $glue = new QueueSortGlue(array(
+                    'sort_id' => $id,
+                    'sort' => array_search($id, $order),
+                ));
+                $glue->queue = $this;
+                $this->sorts->add(QueueSort::lookup($id), $glue);
+            }
+            // Re-sort the in-memory columns array
+            $this->sorts->sort(function($c) { return $c->sort; });
+        }
+
         // TODO: Move this to SavedSearch::update() and adjust
         //       AjaxSearch::_saveSearch()
         $form = $form ?: $this->getForm($vars);
@@ -799,7 +843,8 @@ class CustomQueue extends VerySimpleModel {
             $this->path = $this->buildPath();
             $this->save();
         }
-        return $this->columns->saveAll();
+        return $this->columns->saveAll()
+            && $this->sorts->saveAll();
     }
 
     static function getOrmPath($name, $query=null) {
@@ -850,6 +895,13 @@ class CustomQueue extends VerySimpleModel {
             $glue = new QueueColumnGlue($info);
             $glue->queue_id = $q->getId();
             $glue->save();
+        }
+        if (isset($vars['sorts'])) {
+            foreach ($vars['sorts'] as $info) {
+                $glue = new QueueSortGlue($info);
+                $glue->queue_id = $q->getId();
+                $glue->save();
+            }
         }
         return $q;
     }
@@ -1099,7 +1151,7 @@ extends QueueColumnAnnotation {
 
 class DataSourceField
 extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         $config = $this->getConfiguration();
         $root = $config['root'];
         $fields = array();
@@ -1310,7 +1362,7 @@ extends ChoiceField {
             return new $choices(array('name' => $prop));
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         if (isset($this->property))
             return static::$properties[$this->property];
 
@@ -1722,10 +1774,179 @@ extends InstrumentedList {
         $this->queryset->select_related('column');
     }
 
-    function add($column, $glue=null) {
+    function add($column, $glue=null, $php7_is_annoying=true) {
         $glue = $glue ?: new QueueColumnGlue();
         $glue->column = $column;
         $anno = AnnotatedModel::wrap($column, $glue);
+        parent::add($anno, false);
+        return $anno;
+    }
+}
+
+class QueueSort
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_SORT_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('name'),
+        'joins' => array(
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+    );
+
+    var $_columns;
+
+    function getRoot($hint=false) {
+        switch ($hint ?: $this->root) {
+        case 'T':
+        default:
+            return 'Ticket';
+        }
+    }
+
+    function getName() {
+        return $this->name;
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function applySort(QuerySet $query, $reverse=false, $root=false) {
+        $fields = CustomQueue::getSearchableFields($this->getRoot($root));
+        foreach ($this->getColumnPaths() as $path=>$descending) {
+            $descending = $reverse ? !$descending : $descending;
+            if (isset($fields[$path])) {
+                list(,$field) = $fields[$path];
+                $query = $field->applyOrderBy($query, $descending,
+                    CustomQueue::getOrmPath($path, $query));
+            }
+        }
+        return $query;
+    }
+
+    function getColumnPaths() {
+        if (!isset($this->_columns)) {
+            $columns = array();
+            foreach (JsonDataParser::decode($this->columns) as $path) {
+                if ($descending = $path[0] == '-')
+                    $path = substr($path, 1);
+                $columns[$path] = $descending;
+            }
+            $this->_columns = $columns;
+        }
+        return $this->_columns;
+    }
+
+    function getColumns() {
+        $columns = array();
+        $paths = $this->getColumnPaths();
+        $everything = CustomQueue::getSearchableFields($this->getRoot());
+        foreach ($paths as $p=>$descending) {
+            if (isset($everything[$p])) {
+                $columns[$p] = array($everything[$p], $descending);
+            }
+        }
+        return $columns;
+    }
+
+    function getDataConfigForm($source=false) {
+        return new QueueSortDataConfigForm($source ?: $this->getDbFields(),
+            array('id' => $this->id));
+    }
+
+    static function forQueue(CustomQueue $queue) {
+        return static::objects()->filter([
+            'root' => $queue->getRoot(),
+        ]);
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    function update($vars, &$errors=array()) {
+        if (!isset($vars['name']))
+            $errors['name'] = __('A title is required');
+
+        $this->name = $vars['name'];
+        if (isset($vars['root']))
+            $this->root = $vars['root'];
+        elseif (!isset($this->root))
+            $this->root = 'T';
+
+        $fields = CustomQueue::getSearchableFields($this->getRoot($vars['root']));
+        $columns = array();
+        if (@is_array($vars['columns'])) {
+            foreach ($vars['columns']as $path=>$info) {
+                $descending = (int) @$info['descending'];
+                // TODO: Check if column is valid, stash in $columns
+                if (!isset($fields[$path]))
+                    continue;
+                $columns[] = ($descending ? '-' : '') . $path;
+            }
+            $this->columns = JsonDataEncoder::encode($columns);
+        }
+
+        if (count($errors))
+            return false;
+
+        return $this->save();
+    }
+
+    static function __create($vars) {
+        $c = new static($vars);
+        $c->save();
+        return $c;
+    }
+}
+
+class QueueSortGlue
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_SORTING_TABLE,
+        'pk' => array('sort_id', 'queue_id'),
+        'joins' => array(
+            'ordering' => array(
+                'constraint' => array('sort_id' => 'QueueSort.id'),
+            ),
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+        'select_related' => array('ordering', 'queue'),
+        'ordering' => array('sort'),
+    );
+}
+
+class QueueSortGlueMIM
+extends ModelInstanceManager {
+    function getOrBuild($modelClass, $fields, $cache=true) {
+        $m = parent::getOrBuild($modelClass, $fields, $cache);
+        if ($m && $modelClass === 'QueueSortGlue') {
+            // Instead, yield the QueueColumn instance with the local fields
+            // in the association table as annotations
+            $m = AnnotatedModel::wrap($m->ordering, $m, 'QueueSort');
+        }
+        return $m;
+    }
+}
+
+class QueueSortListBroker
+extends InstrumentedList {
+    function __construct($fkey, $queryset=false) {
+        parent::__construct($fkey, $queryset, 'QueueSortGlueMIM');
+        $this->queryset->select_related('ordering');
+    }
+
+    function add($ordering, $glue=null, $php7_is_annoying=true) {
+        $glue = $glue ?: new QueueSortGlue();
+        $glue->ordering = $ordering;
+        $anno = AnnotatedModel::wrap($ordering, $glue);
         parent::add($anno, false);
         return $anno;
     }
@@ -1903,6 +2124,27 @@ extends AbstractForm {
                 ),
                 'default' => 'wrap',
                 'layout' => new GridFluidCell(4),
+            )),
+        );
+    }
+}
+
+class QueueSortDataConfigForm
+extends AbstractForm {
+    function getInstructions() {
+        return __('Add, and remove the fields in this list using the options below. Sorting is priortized in ascending order.');
+    }
+
+    function buildFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'layout' => new GridFluidCell(12),
+                'translatable' => isset($this->options['id'])
+                    ? _H('queuesort.name.'.$this->options['id']) : false,
+                'configuration' => array(
+                    'placeholder' => __('Sort Criteria Title'),
+                ),
             )),
         );
     }
