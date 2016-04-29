@@ -162,9 +162,21 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php 
 }
-if (isset($_GET['sort'])) {
+if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
     $sort = $_SESSION['sort'][$queue->getId()] = array(
         'col' => (int) $_GET['sort'],
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_GET['sort'])
+    // Drop the leading `qs-`
+    && (strpos($_GET['sort'], 'qs-') === 0)
+    && ($sort_id = substr($_GET['sort'], 3))
+    && is_numeric($sort_id)
+    && ($sort = QueueSort::lookup($sort_id))
+) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $sort,
         'dir' => (int) $_GET['dir'],
     );
 }
@@ -188,7 +200,11 @@ foreach ($columns as $C) {
     if (isset($sort['col']) && $sort['col'] == $C->id) {
         $tickets = $C->applySort($tickets, $sort['dir']);
     }
-} ?>
+}
+if (isset($sort['queuesort'])) {
+    $sort['queuesort']->applySort($tickets, $sort['dir']);
+}
+?>
     </tr>
   </thead>
   <tbody>
