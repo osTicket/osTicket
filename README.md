@@ -1,132 +1,19 @@
 osTicket
 ========
-<a href="http://osticket.com"><img src="http://osticket.com/sites/default/files/osTicket.jpg"
-align="left" hspace="10" vspace="6"></a>
+This repo contains some of the changes I implemented in a production osTicket environment. Let me know if you have any questions.
 
-**osTicket** is a widely-used open source support ticket system. It seamlessly
-integrates inquiries created via email, phone and web-based forms into a
-simple easy-to-use multi-user web interface. Manage, organize and archive
-all your support requests and responses in one place while providing your
-customers with accountability and responsiveness they deserve.
-
-How osTicket works for you
---------------------------
-  1. Users create tickets via your website, email, or phone
-  1. Incoming tickets are saved and assigned to agents
-  1. Agents help your users resolve their issues
-
-osTicket is an attractive alternative to higher-cost and complex customer
-support systems; simple, lightweight, reliable, open source, web-based and
-easy to setup and use. The best part is, it's completely free.
-
-Requirements
-------------
-  * HTTP server running Microsoft® IIS or Apache
-  * PHP version 5.3 or greater
-  * mysqli extension for PHP
-  * MySQL database version 5.0 or greater
-
-### Recommendations
-  * gd, gettext, imap, json, mbstring, and xml extensions for PHP
-  * APC module enabled and configured for PHP
-
-Deployment
-----------
-osTicket now supports bleeding-edge installations. The easiest way to
-install the software and track updates is to clone the public repository.
-Create a folder on you web server (using whatever method makes sense for
-you) and cd into it. Then clone the repository (the folder must be empty!):
-
-    git clone https://github.com/osTicket/osTicket-1.8 .
-
-And deploy the code into somewhere in your server's www root folder, for
-instance
-
-    cd osTicket-1.8
-    php setup/cli/manage.php deploy --setup /var/www/htdocs/osticket/
-
-Then you can configure your server if necessary to serve that folder, and
-visit the page and install osTicket as usual. Go ahead and even delete
-setup/ folder out of the deployment location when you’re finished. Then,
-later, you can fetch updates and deploy them (from the folder where you
-cloned the git repo into)
-
-    git pull
-    php setup/cli/manage.php deploy -v /var/www/htdocs/osticket/
-
-Upgrading
----------
-osTicket supports upgrading from 1.6-rc1 and later versions. As with any
-upgrade, strongly consider a backup of your attachment files, database, and
-osTicket codebase before embarking on an upgrade.
-
-To trigger the update process, fetch the osTicket-1.8 tarball from either
-the osTicket [github](http://github.com/osTicket/osTicket-1.8/releases) page
-or from the [osTicket website](http://osticket.com). Extract the tarball
-into the folder of your osTicket codebase. This can also be accomplished
-with the zip file, and a FTP client can of course be used to upload the new
-source code to your server.
-
-Any way you choose your adventure, when you have your codebase upgraded to
-osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
-be presented and will walk you through the rest of the process. (The couple
-clicks needed to go through the process are pretty boring to describe).
-
-**WARNING**: If you are upgrading from osTicket 1.6, please ensure that all
-    your files in your upload folder are both readable and writable to your
-    http server software. Unreadable files will not be migrated to the
-    database during the upgrade and will be effectively lost.
-
-View the UPGRADING.txt file for other todo items to complete your upgrade.
-
-Help
-----
-Visit the [wiki](http://osticket.com/wiki/Home) or the
-[forum](http://osticket.com/forums/). And if you'd like professional help
-managing your osTicket installation,
-[commercial support](http://osticket.com/support/) is available.
-
-Contributing
-------------
-Create your own fork of the project and use
-[git-flow](https://github.com/nvie/gitflow) to create a new feature. Once
-the feature is published in your fork, send a pull request to begin the
-conversation of integrating your new feature into osTicket.
-
-### Localization
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
-
-The interface for osTicket is now completely translatable. Language packs
-are available on the [download page](http://osticket.com/download). If you
-do not see your language there, join the [Crowdin](http://i18n.osticket.com)
-project and request to have your language added. Languages which reach 100%
-translated are are significantly reviewed will be made available on the
-osTicket download page.
-
-The software can also be translated in place in our [JIPT site]
-(http://jipt.i18n.osticket.com). Once you have a Crowdin account, login and
-translate the software in your browser!
-
-Localizing strings in new code requires usage of a [few rules](setup/doc/i18n.md).
-
-License
--------
-osTicket is released under the GPL2 license. See the included LICENSE.txt
-file for the gory details of the General Public License.
-
-osTicket is supported by several magical open source projects including:
-
-  * [Font-Awesome](http://fortawesome.github.com/Font-Awesome/)
-  * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
-  * [jQuery dropdown](http://labs.abeautifulsite.net/jquery-dropdown/)
-  * [mPDF](http://www.mpdf1.com/)
-  * [PasswordHash](http://www.openwall.com/phpass/)
-  * [PEAR](http://pear.php.net/package/PEAR)
-  * [PEAR/Auth_SASL](http://pear.php.net/package/Auth_SASL)
-  * [PEAR/Mail](http://pear.php.net/package/mail)
-  * [PEAR/Net_SMTP](http://pear.php.net/package/Net_SMTP)
-  * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
-  * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
-  * [php-gettext](https://launchpad.net/php-gettext/)
-  * [phpseclib](http://phpseclib.sourceforge.net/)
-  * [Spyc](http://github.com/mustangostang/spyc)
+* [Add note to email template page to warn about saving issues.](https://github.com/Mike-Nahmias/osTicket/commit/a78eaaa2ebb132317b80308928993a3ae83bf939)
+* [Create a tab that shows every ticket in the agent's departments/teams](https://github.com/Mike-Nahmias/osTicket/commit/7bcae7c18ac943f297cf429c326ab5b4b3748761)
+* [Set resolved tickets to closed after 5 days](https://github.com/Mike-Nahmias/osTicket/commit/9fc8e0580f3d68580a9e8cbc387f6c883c86866f)
+* [Disable auto-claim on ticket reply & give the option of claiming](https://github.com/Mike-Nahmias/osTicket/commit/2d9b76b3113745646a6438a2584548014a470500)
+* [Swap Users and Tickets tabs](https://github.com/Mike-Nahmias/osTicket/commit/e4524f40b2a7de3d4a18b5b9d8fe12a18f8b45fe)
+* [Show assigned agent for tickets on client side](https://github.com/Mike-Nahmias/osTicket/commit/566f3958a874aa3b34e56f219bc937f5258697c1)
+* [Exclude certain status IDs from being overdue (for example if you had statuses for scheduled, on hold, etc.)](https://github.com/Mike-Nahmias/osTicket/commit/960c603b8b1a6f3b5fd544ad38d340479556156f)
+* [Random email survey sent to user upon resolving ticket. Includes note about ticket being resolved.](https://github.com/Mike-Nahmias/osTicket/commit/785fb7d649beabfa6b7dbf64b0c8f705fdfec1d8)
+* [Clear overdue & reset due date on reply](https://github.com/Mike-Nahmias/osTicket/commit/6f8f8879297c720d28470d8d886a571c0e5c406c)
+* [Allow all agents to unassign tickets](https://github.com/Mike-Nahmias/osTicket/commit/2fc6eb33fa5179ec5cae3dfd927b774c7d95947a)
+* [Disable hover effects on ticket list. Useful if you're coloring rows based on status.](https://github.com/Mike-Nahmias/osTicket/commit/d2e58281e73d43e0827f31168561fdce30dc4b13)
+* [Increase replied ticket visibility (ticket # is bold/red if replied to)](https://github.com/Mike-Nahmias/osTicket/commit/449cb44e083931e8072fd72b07ed663caf776da0)
+* [Disable mandatory comment on assignment](https://github.com/Mike-Nahmias/osTicket/commit/8b2fd79e20712af5c2cea6c3d374914f4cb2d2e4)
+* [Disable mandatory internal note on ticket modification](https://github.com/Mike-Nahmias/osTicket/commit/ffe7d07c91116a07a806bdffaee38ab697d97f28)
+* [Ticket Column Changes (Replaces Priority with Help Topic and Department with Status)](https://github.com/Mike-Nahmias/osTicket/commit/3c611fd6fcb824368fe7aedf4f65bf2610ec821b)
