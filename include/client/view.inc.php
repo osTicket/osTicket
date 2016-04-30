@@ -57,6 +57,10 @@ if ($thisclient && $thisclient->isGuest()
                     <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getCreateDate()); ?></td>
                 </tr>
+                <tr>
+                    <th><?php echo __('Assigned To');?>:</th>
+                    <td><?php echo $ticket->getStaff(); ?></td>
+                </tr>
            </table>
        </td>
        <td width="50%">
