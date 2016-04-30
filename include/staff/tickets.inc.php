@@ -466,7 +466,8 @@ if ($results) {
                 ), 40);
                 $threadcount=$row['thread_count'];
                 if(!strcasecmp($row['state'],'open') && !$row['isanswered'] && !$row['lock_id']) {
-                    $tid=sprintf('<b>%s</b>',$tid);
+                    //Makes ticket number bold/red if replied to
+                    $tid=sprintf('<font color=red><b>%s</b></color>',$tid);
                 }
                 ?>
             <tr id="<?php echo $row['ticket_id']; ?>">
