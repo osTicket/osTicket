@@ -448,6 +448,9 @@ if ($results) {
                 elseif($row['isoverdue'])
                     $flag='overdue';
 
+                //Can only extract this once, so must do it up here
+                $STATUS=Format::truncate($row['status'],40);
+
                 $lc='';
                 if($showassigned) {
                     if($row['staff_id'])
@@ -457,7 +460,8 @@ if ($results) {
                     else
                         $lc=' ';
                 }else{
-                    $lc=Format::truncate($row['status'],40);
+                    //$lc=Format::truncate($row['status'],40);
+                    $lc=$STATUS;
                 }
                 $tid=$row['number'];
 
@@ -470,7 +474,28 @@ if ($results) {
                     $tid=sprintf('<font color=red><b>%s</b></color>',$tid);
                 }
                 ?>
-            <tr id="<?php echo $row['ticket_id']; ?>">
+
+                <?php//Begin custom coloring options
+                ?>
+
+                <?php if($STATUS=="Pending") { ?>
+                    <tr style="background-color:#F88" id="<?php echo $row['ticket_id']; ?>">
+                <?php } elseif ($STATUS=="On Hold") { ?>
+                    <tr style="background-color:#EFBA67;" id="<?php echo $row['ticket_id']; ?>">
+                <?php } elseif ($STATUS=="Work In Progress") { ?>
+                    <tr style="background-color:#C8C8FF" id="<?php echo $row['ticket_id']; ?>">
+                <?php } elseif ($STATUS=="Scheduled") { ?>
+                    <tr style="background-color:violet" id="<?php echo $row['ticket_id']; ?>">
+                <?php } elseif ($STATUS=="Vacation") { ?>
+                    <tr style="background-color:grey; color:white;" id="<?php echo $row['ticket_id']; ?>">
+                <?php } elseif ($STATUS=="Resolved" || $STATUS=="Closed") { ?>
+                    <tr style="background-color:#6EE467" id="<?php echo $row['ticket_id']; ?>">
+                <?php } else { ?>
+                    <tr id="<?php echo $row['ticket_id']; ?>">
+                <?php } ?>
+
+                <?php//End custom coloring options?>
+
                 <?php if($thisstaff->canManageTickets()) {
 
                     $sel=false;
