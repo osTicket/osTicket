@@ -1833,8 +1833,9 @@ class Ticket {
                 && $vars['reply_status_id'] != $this->getStatusId())
             $this->setStatus($vars['reply_status_id']);
 
+        //Only claim the ticket if the user chose to do so in the form
         if($thisstaff && $this->isOpen() && !$this->getStaffId()
-                && $cfg->autoClaimTickets())
+                && $cfg->autoClaimTickets() && $vars['claim'] == 'claim')
             $this->setStaffId($thisstaff->getId()); //direct assignment;
 
         $this->onResponse(); //do house cleaning..

@@ -633,6 +633,20 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
+            <!--Only show the claim options if the ticket is not assigned to you-->
+            <?php  if (strcmp($staff, $thisstaff)!= 0) { ?>
+                <tr>
+                    <td width="120">
+                        <label for="claim" class="left"><?php echo __('Claim on Reply?'); ?>:</label>
+                    </td>
+                    <td>
+                        <label><input type="radio" name="claim" value="noclaim"
+                                      checked="checked"> <?php echo __('Don\'t Claim'); ?></label>
+                        <label><input type="radio" name="claim" value="claim"> <?php echo __('Claim'); ?></label>
+
+                    </td>
+                </tr>
+            <?php } ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
