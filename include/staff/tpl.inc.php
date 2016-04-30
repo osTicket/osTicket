@@ -100,6 +100,7 @@ $tpl=$msgtemplates[$selected];
 </div>
 
 <div style="padding-bottom:3px;" class="faded"><strong><?php echo __('Email Subject and Body'); ?>:</strong></div>
+<div style="padding-bottom:3px; padding-top:3px; color:red;">NOTE: If you edit the template in HTML mode, switch back to visual mode before saving!</div>
 <div id="toolbar"></div>
 <div id="save" style="padding-top:5px;">
     <input type="text" name="subject" size="65" value="<?php echo $info['subject']; ?>"
