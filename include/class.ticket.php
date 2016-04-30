@@ -1899,6 +1899,9 @@ class Ticket {
             $this->notifyCollaborators($response,
                     array('signature' => $signature));
 
+        $this->clearOverdueLazy();
+        $this->resetDueDate();
+        
         return $response;
     }
 
@@ -2972,6 +2975,31 @@ class Ticket {
             }
         } else {
             //Do nothing
+        }
+    }
+
+    function clearOverdueLazy () {
+        //Just set isoverdue to 0
+        $sql='UPDATE '.TICKET_TABLE
+            .' SET isoverdue=0 '
+            .' WHERE ticket_id = '.db_input($this->getId());
+
+        db_query($sql);
+    }
+
+    function resetDueDate () {
+        //Only run if the ticket has an SLA assigned
+        if ($sla = $this->getSLA()) {
+            $hours = $sla->getGracePeriod();
+            $now = new DateTime();
+            $dueDate = $now->modify('+'.$hours.' hours');
+
+            //sql command to update due date on ticket
+            $sql='UPDATE '.TICKET_TABLE
+                .' SET duedate = '.db_input($dueDate->format('Y-m-d H:i:s'))
+                .' WHERE ticket_id = '.db_input($this->getId());
+
+            db_query($sql);
         }
     }
 }
