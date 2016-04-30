@@ -162,10 +162,10 @@ if($_POST && !$errors):
                  //Comments are not required on self-assignment (claim)
                  if($claim && !$_POST['assign_comments'])
                      $_POST['assign_comments'] = sprintf(__('Ticket claimed by %s'),$thisstaff->getName());
-                 elseif(!$_POST['assign_comments'])
+                 /*elseif(!$_POST['assign_comments'])
                      $errors['assign_comments'] = __('Assignment comments required');
                  elseif(strlen($_POST['assign_comments'])<5)
-                         $errors['assign_comments'] = __('Comment too short');
+                         $errors['assign_comments'] = __('Comment too short');*/
 
                  if(!$errors && $ticket->assign($_POST['assignId'], $_POST['assign_comments'], !$claim)) {
                      if($claim) {
