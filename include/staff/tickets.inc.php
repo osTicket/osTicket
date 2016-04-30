@@ -185,7 +185,7 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 }
 
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`*1',
-    'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
+    'topic'=>'helptopic','pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'status.name','assignee'=>'assigned','staff'=>'staff',
     'dept'=>'dept.dept_name');
 
@@ -406,8 +406,8 @@ if ($results) {
             <?php
             } else { ?>
                 <th width="60" <?php echo $pri_sort;?>>
-                    <a <?php echo $pri_sort; ?> href="tickets.php?sort=pri&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Priority'), __($negorder)); ?>"><?php echo __('Priority');?></a></th>
+                    <a <?php echo $pri_sort; ?> href="tickets.php?sort=topic&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Help Topic'), __($negorder)); ?>"><?php echo __('Help Topic');?></a></th>
             <?php
             }
 
@@ -426,8 +426,8 @@ if ($results) {
                 }
             } else { ?>
                 <th width="150">
-                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
+                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=status&order=<?php echo $negorder;?><?php echo $qstr; ?>"
+                        title="<?php echo sprintf(__('Sort by %s %s'), __('Status'), __($negorder)); ?>"><?php echo __('Status');?></a></th>
             <?php
             } ?>
         </tr>
@@ -457,7 +457,7 @@ if ($results) {
                     else
                         $lc=' ';
                 }else{
-                    $lc=Format::truncate($row['dept_name'],40);
+                    $lc=Format::truncate($row['status'],40);
                 }
                 $tid=$row['number'];
 
@@ -508,8 +508,8 @@ if ($results) {
                         $displaystatus="<b>$displaystatus</b>";
                     echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
-                    <?php echo $row['priority_desc']; ?></td>
+                    <td width=100 class="nohover" align="center">
+                    <?php echo $row['helptopic']; ?></td>
                 <?php
                 }
                 ?>
