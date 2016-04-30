@@ -26,6 +26,11 @@ $showassigned= true; //show Assigned To column - defaults to true
 //Get status we are actually going to use on the query...making sure it is clean!
 $status=null;
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
+    //Add new case for the 'All Open' tab
+    case 'allopen':
+        $status='allopen';
+        $results_type=__('All Open Tickets');
+        break;
     case 'open':
         $status='open';
 		$results_type=__('Open Tickets');
@@ -64,16 +69,35 @@ $qwhere ='';
 */
 
 $depts=$thisstaff->getDepts();
-$qwhere =' WHERE ( '
+
+//Change SQL query for 'All Open' tab to remove selection of staff's tickets
+if($status == 'allopen') {
+    $qwhere =' WHERE ( '
+        .' status.state="open" ';
+} else {
+    $qwhere =' WHERE ( '
         .'  ( ticket.staff_id='.db_input($thisstaff->getId())
         .' AND status.state="open") ';
+}
 
-if(!$thisstaff->showAssignedOnly())
-    $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
+//Change SQL query for 'All Open' tab. Changes the query so it searches for
+//tickets with a state of open that are in any of the agent's depts./teams
+if($status == 'allopen') {
+    $qwhere.=' AND ( ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
+    if(($teams=$thisstaff->getTeams()) && count(array_filter($teams))) {
+        $qwhere .= ' OR (ticket.team_id IN (' . implode(',', db_input(array_filter($teams)))
+            . ') ) AND status.state="open") ';
+    } else {
+        $qwhere .= ' ) ';
+    }
+} else {
+    if(!$thisstaff->showAssignedOnly())
+        $qwhere.=' OR ticket.dept_id IN ('.($depts?implode(',', db_input($depts)):0).')';
 
-if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
-    $qwhere.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
+    if(($teams=$thisstaff->getTeams()) && count(array_filter($teams)))
+        $qwhere.=' OR (ticket.team_id IN ('.implode(',', db_input(array_filter($teams)))
             .') AND status.state="open") ';
+}
 
 $qwhere .= ' )';
 

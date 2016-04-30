@@ -426,12 +426,17 @@ if($thisstaff->showAssignedOnly() && $stats['closed']) {
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
 } else {
-
     $nav->addSubMenu(array('desc' => __('Closed').' ('.number_format($stats['closed']).')',
                            'title'=>__('Closed Tickets'),
                            'href'=>'tickets.php?status=closed',
                            'iconclass'=>'closedTickets'),
                         ($_REQUEST['status']=='closed'));
+    //Custom submenu to view all tickets that have a state of open
+    $nav->addSubMenu(array('desc' => __('All Open'),
+        'title'=>__('All Open Tickets'),
+        'href'=>'tickets.php?status=allopen',
+        'iconclass'=>'Ticket'),
+        ($_REQUEST['status']=='allopen'));
 }
 
 if($thisstaff->canCreateTickets()) {
