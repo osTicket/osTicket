@@ -112,7 +112,8 @@ if($ticket->isOverdue())
                     echo __('Delete Ticket'); ?></a></li>
                 <?php
                  }
-                if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
+                //Allow unassign if the ticket is open and is currently assigned.
+                if($ticket->isOpen() && $staff ) {
 
                     if($ticket->isAssigned()) { ?>
                         <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> <?php
