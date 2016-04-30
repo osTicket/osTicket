@@ -1869,6 +1869,27 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                     $variables + array('recipient' => $this->getOwner()));
 
+            //Random email survey sent to user upon resolving ticket
+            //Also handles a note about ticket status being changed to resolved
+            //To use this, edit the reply template used and add two lines similar to this:
+            // %%You have been randomly selected for a survey! Please fill it out here.%%
+            // ##Your ticket has been marked as resolved...##
+            //Is the ticket's status resolved?
+            if($this->getStatusId() == 2) {
+                //Select for survey? Returns true about 20% of the time
+                if(!(mt_rand(0,100)<20)) {
+                    //If not selected, remove note about survey
+                    $msg['body'] = preg_replace('/%%.*%%/', '', $msg['body']);
+                }
+                //Remove surrounding ## and %%
+                $msg['body'] = preg_replace('/##/', '', $msg['body']);
+                $msg['body'] = preg_replace('/%%/', '', $msg['body']);
+            } else {
+                //Remove notes completely
+                $msg['body'] = preg_replace('/%%.*%%/', '', $msg['body']);
+                $msg['body'] = preg_replace('/##.*##/', '', $msg['body']);
+            }
+
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
             $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
                 $options);
