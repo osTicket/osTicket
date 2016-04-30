@@ -2929,5 +2929,24 @@ class Ticket {
         }
    }
 
+    //Check resolved tickets and set anything that has been resolved for 5+ days to closed
+    //Resolved is considered a 'soft close' compared to closed
+    function checkResolved() {
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
+                ON (status.id = T1.status_id AND status.id = 2) '
+            .' WHERE DATEDIFF(NOW(),closed) >= 5 ';
+
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id)=db_fetch_row($res)) {
+                if(($ticket=Ticket::lookup($id))) {
+                    $ticket->setStatus(3, 'The ticket was resolved 5+ days ago and has been closed.');
+                    //No need for the log activity statement, as setStatus has logging built in.
+                }
+            }
+        } else {
+            //Do nothing
+        }
+    }
 }
 ?>
