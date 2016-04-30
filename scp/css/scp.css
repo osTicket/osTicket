@@ -477,12 +477,13 @@ table.list tbody td {
 
 table.list tbody td { background: #fff; padding: 1px 3px; vertical-align: top; }
 table.list tbody tr:nth-child(2n+1) td { background-color: #f0faff; }
-table.list tbody tr:hover td { background: #ffe; }
-table.list tbody tr:nth-child(2n+1):hover td { background: #ffd; }
+/*Disable hover effects on ticket list. Useful if you're coloring rows based on status*/
+/*table.list tbody tr:hover td { background: #ffe; }
+table.list tbody tr:nth-child(2n+1):hover td { background: #ffd; }*/
 /* row highlighting on hover + select */
-table.list tbody tr:hover td, table.list tbody tr.highlight td {  background: #FFFFDD; }
+/*table.list tbody tr:hover td, table.list tbody tr.highlight td {  background: #FFFFDD; }*/
 /* disabled highlighting on nohover */
-table.list tbody tr:hover td.nohover, table.list tbody tr.highlight td.nohover {}
+/*table.list tbody tr:hover td.nohover, table.list tbody tr.highlight td.nohover {}*/
 
 
 table.list tfoot td {
