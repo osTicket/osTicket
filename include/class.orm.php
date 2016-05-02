@@ -1310,6 +1310,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         unset($this->count);
     }
 
+    function __call($name, $args) {
+
+        if (!is_callable(array($this->getIterator(), $name)))
+            throw new OrmException('Call to undefined method QuerySet::'.$name);
+
+        return $args
+            ? call_user_func_array(array($this->getIterator(), $name), $args)
+            : call_user_func(array($this->getIterator(), $name));
+    }
+
     // IteratorAggregate interface
     function getIterator($iterator=false) {
         if (!isset($this->_iterator)) {
