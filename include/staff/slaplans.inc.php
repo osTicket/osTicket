@@ -36,7 +36,7 @@ $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('slas.php', $qs);
-$showing = $pageNav->showing().' '._N('SLA plan', 'SLA plans', $count);
+$showing = $pageNav->showing().' '._N('Service Level Agreement', 'Service Level Agreements', $count);
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 ?>
 <form action="slas.php" method="POST" name="slas">

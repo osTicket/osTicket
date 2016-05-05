@@ -5,7 +5,7 @@
 // $child_selected - <bool> true if the selected queue is a descendent
 // $adhoc - not FALSE if an adhoc advanced search exists
 ?>
-<li class="primary-only item <?php if ($child_selected) echo ''; ?>">
+<li class="primary-only item <?php if ($child_selected) echo 'active'; ?>">
 <?php
   $href = 'href="tickets.php?queue=adhoc"';
   if (!isset($_SESSION['advsearch']))
@@ -20,7 +20,7 @@
             'staff_id' => $thisstaff->getId(),
             'parent_id' => 0,
             Q::not(array(
-                'flags__hasbit' => SavedSearch::FLAG_PUBLIC
+                'flags__hasbit' => CustomQueue::FLAG_PUBLIC
             ))
       )) as $q) {
         include 'queue-subnavigation.tmpl.php';

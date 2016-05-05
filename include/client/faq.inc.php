@@ -13,16 +13,17 @@ $category=$faq->getCategory();
     &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
 </div>
 
-<div class="faq-content panel panel-default">
-  <div class="panel-heading">
-    <?php echo $faq->getLocalQuestion() ?>
-  </div>
-  <div class="panel-body">
-    <?php echo $faq->getLocalAnswerWithImages(); ?>
-  </div>
-  <div class="panel-footer text-muted">
-    <?php echo __('Last updated').' '. Format::relativeTime(Misc::db2gmtime($category->getUpdateDate())); ?>
-  </div>
+
+<div class="faq-content">
+<div class="article-title flush-left">
+<?php echo $faq->getLocalQuestion() ?>
+</div>
+<div class="faded"><?php echo sprintf(__('Last Updated %s'),
+    Format::relativeTime(Misc::db2gmtime($category->getUpdateDate()))); ?></div>
+<br/>
+<div class="thread-body bleed">
+<?php echo $faq->getLocalAnswerWithImages(); ?>
+</div>
 </div>
 </div>
 

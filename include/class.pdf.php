@@ -56,7 +56,7 @@ class Ticket2PDF extends mPDFWithLocalImages
 
     var $ticket = null;
 
-	function Ticket2PDF($ticket, $psize='Letter', $notes=false) {
+	function __construct($ticket, $psize='Letter', $notes=false) {
         global $thisstaff;
 
         $this->ticket = $ticket;

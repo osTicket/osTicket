@@ -150,7 +150,7 @@ class Role extends RoleModel {
             $errors['name'] = __('Name required');
         elseif (($r=Role::lookup(array('name'=>$vars['name'])))
                 && $r->getId() != $vars['id'])
-            $errors['name'] = __('Name already in-use');
+            $errors['name'] = __('Name already in use');
         elseif (!$vars['perms'] || !count($vars['perms']))
             $errors['err'] = __('Must check at least one permission for the role');
 
@@ -194,7 +194,7 @@ class Role extends RoleModel {
     }
 
     static function create($vars=false) {
-        $role = parent::create($vars);
+        $role = new static($vars);
         $role->created = SqlFunction::NOW();
         return $role;
     }
@@ -384,7 +384,7 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }

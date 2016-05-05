@@ -25,9 +25,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 
-if(!$user) {
-  $user = User::lookupByemail($thisstaff->getEmail());
- }
+//if(!$user) {
+//  $user = User::lookupByemail($thisstaff->getEmail());
+// }
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" class="ticket_open_content">
  <?php csrf_token(); ?>
@@ -133,9 +133,16 @@ if(!$user) {
             </td>
             <td>
                 <select name="source" class="requiredfield">
-                    <option value="Phone" ><?php echo __('Phone'); ?></option>
-                    <option value="Email" <?php echo ($info['source']=='Email')?'selected="selected"':''; ?>><?php echo __('Email'); ?></option>
-                    <option value="Other" selected="selected"><?php echo __('Other'); ?></option>
+                    <?php
+                    $source = $info['source'] ?: 'Phone';
+                    $sources = Ticket::getSources();
+                    unset($sources['Web'], $sources['API']);
+                    foreach ($sources as $k => $v)
+                        echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,
+                                ($source == $k ) ? 'selected="selected"' : '',
+                                $v);
+                    ?>
                 </select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
@@ -245,6 +252,7 @@ if(!$user) {
 
         <?php
         if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
+
         <tr id="open_ticket_informationdata">
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
@@ -375,10 +383,6 @@ if(!$user) {
                     </select>
                 </td>
             </tr>
-             
-            </tbody>
-			<tbody>
-            
         </tr>
         <?php
         } //end canPostReply

@@ -354,14 +354,6 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(500, 'Unable to lookup files');
 
         $files = array();
-        $folders = array(
-            'C' => __('Canned Responses'),
-            'F' => __('FAQ Articles'),
-            'T' => __('Email Templates'),
-            'L' => __('Logos'),
-            'P' => __('Pages'),
-            'H' => __('This Thread'),
-        );
         while (list($id, $type, $name) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup((int) $id);
             $url = $f->getDownloadUrl();
@@ -371,7 +363,6 @@ class DraftAjaxAPI extends AjaxController {
                 'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
                 'image'=>$url,
                 'title'=>$name ?: $f->getName(),
-                'folder'=>$folders[$type]
             );
         }
         echo JsonDataEncoder::encode($files);

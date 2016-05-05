@@ -72,7 +72,9 @@ if($_POST && !$errors):
                 if(!$errors['err'])
                     $errors['err'] = __('Unable to post internal note - missing or invalid data.');
 
-                $errors['postnote'] = __('Unable to post the note. Correct the error(s) below and try again!');
+                $errors['postnote'] = sprintf('%s %s',
+                    __('Unable to post the note.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'postreply': /* Post an update */
@@ -98,9 +100,11 @@ if($_POST && !$errors):
 
             } else {
                 if (!$errors['err'])
-                    $errors['err'] = __('Unable to post reply - missing or invalid data.');
+                    $errors['err'] = __('Unable to post the reply - missing or invalid data.');
 
-                $errors['postreply'] = __('Unable to post the reply. Correct the error(s) below and try again!');
+                $errors['postreply'] = sprintf('%s %s',
+                    __('Unable to post the reply.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         default:
@@ -221,7 +225,7 @@ if($task) {
         // Auto add new fields to the entries
         foreach ($forms as $f) $f->addMissingFields();
     } elseif($_REQUEST['a'] == 'print' && !$task->pdfExport($_REQUEST['psize']))
-        $errors['err'] = __('Internal error: Unable to export the task to PDF for print.');
+        $errors['err'] = __('Internal error: Unable to print to PDF');
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&

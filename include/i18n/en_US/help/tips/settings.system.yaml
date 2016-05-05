@@ -150,4 +150,8 @@ max_file_size:
     content: >
         Choose a maximum file size for attachments uploaded by agents. This
         includes canned attachments, knowledge base articles, and
-        attachments to ticket and task replies.
+        attachments to ticket and task replies. The upper limit is
+        controlled by PHP's <code>upload_max_filesize</code> setting.
+    links:
+      - title: PHP ini settings
+        href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"

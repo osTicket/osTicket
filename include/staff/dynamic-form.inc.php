@@ -280,7 +280,7 @@ if ($form && count($langs) > 1) { ?>
         <tr>
             <th colspan="7">
                 <em><strong><?php echo __('Internal Notes'); ?>:</strong>
-                <?php echo __("be liberal, they're internal"); ?></em>
+                <?php echo __("Be liberal, they're internal"); ?></em>
             </th>
         </tr>
         <tr>

@@ -115,7 +115,7 @@ class Lock extends VerySimpleModel {
             return null;
 
         // Create the new lock.
-        $lock = parent::create(array(
+        $lock = new static(array(
             'created' => SqlFunction::NOW(),
             'staff_id' => $staffId,
             'expire' => SqlExpression::plus(
@@ -125,11 +125,6 @@ class Lock extends VerySimpleModel {
             'code' => Misc::randCode(10)
         ));
         if ($lock->save(true))
-            return $lock;
-    }
-
-    static function create($staffId, $lockTime) {
-        if ($lock = self::acquire($staffId, $lockTime))
             return $lock;
     }
 

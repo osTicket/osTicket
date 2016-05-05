@@ -26,8 +26,10 @@ if (!$view_all_tickets) {
     $tickets->filter($visibility);
 }
 
-$page = ($_SESSION['pageno'])?$_SESSION['pageno']:1;
-$count = count($tickets);
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
+If (!$page) $page = 1;
+$_SESSION['pageno'] = $page;
+$count = count($tickets); //$tickets->total();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
@@ -57,8 +59,8 @@ $refresh_url = $path . '?' . http_build_query($args);
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-    //require 'queue-quickfilter.tmpl.php';
-   // require 'queue-sort.tmpl.php';
+    require 'queue-quickfilter.tmpl.php';
+    require 'queue-sort.tmpl.php';
     ?>
   </div>
     <form action="tickets.php" method="get" onsubmit="javascript:
@@ -94,9 +96,6 @@ return false;">
                     title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
                     $queue->getName(); ?></a></h2>
             </div>
-
-<?php if ($thisstaff->isAdmin()) { ?>			
-
             <div class="configureQ">
                 <i class="icon-cog"></i>
                 <div class="noclick-dropdown anchor-left">
@@ -106,7 +105,7 @@ if ($queue->isPrivate()) { ?>
                         <li>
                             <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search/<?php echo
-                              $queue->id; ?>"><i
+                              urlencode($queue->getId()); ?>"><i
                             class="icon-fixed-width icon-save"></i>
                             <?php echo __('Edit'); ?></a>
                         </li>
@@ -119,20 +118,17 @@ else {
                             class="icon-fixed-width icon-pencil"></i>
                             <?php echo __('Edit'); ?></a>
                         </li>
-<?php
-
-//Removing until it's fixed i.e stable upstream
+<?php }
 # Anyone has permission to create personal sub-queues
-
-/*                        <li>
-                           <a class="no-pjax" href="#"
+?>
+                        <li>
+                            <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search?parent_id=<?php
                               echo $queue->id; ?>"><i
                             class="icon-fixed-width icon-plus-sign"></i>
                             <?php echo __('Add Personal Queue'); ?></a>
-                        </li> */
-
-}
+                        </li>
+<?php
 }
 if (
     ($thisstaff->isAdmin() && $queue->parent_id)
@@ -143,12 +139,11 @@ if (
                             class="icon-fixed-width icon-trash"></i>
                             <?php echo __('Delete'); ?></a>
                         </li>
-		
 <?php } ?>
                     </ul>
                 </div>
             </div>
-<?php } ?>
+
           <div class="pull-right flush-right">
             <?php
             // TODO: Respect queue root and corresponding actions
@@ -156,9 +151,6 @@ if (
                 Ticket::agentActions($thisstaff, array('status' => $status));
             }?>
             </div>
-			<div class="pull-right flush-right ">
-			<?php require 'queue-quickfilter.tmpl.php';?>
-			</div>
         </div>
     </div>
 </div>
@@ -178,9 +170,21 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php 
 }
-if (isset($_GET['sort'])) {
+if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
     $sort = $_SESSION['sort'][$queue->getId()] = array(
         'col' => (int) $_GET['sort'],
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_GET['sort'])
+    // Drop the leading `qs-`
+    && (strpos($_GET['sort'], 'qs-') === 0)
+    && ($sort_id = substr($_GET['sort'], 3))
+    && is_numeric($sort_id)
+    && ($sort = QueueSort::lookup($sort_id))
+) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $sort,
         'dir' => (int) $_GET['dir'],
     );
 }
@@ -202,16 +206,18 @@ foreach ($columns as $C) {
 
     // Sort by this column ?
     if (isset($sort['col']) && $sort['col'] == $C->id) {
-        $col = SavedSearch::getOrmPath($C->primary, $query);
-        if ($sort['dir'])
-            $col = '-' . $col;
-        $tickets = $tickets->order_by($col);
+        $tickets = $C->applySort($tickets, $sort['dir']);
     }
-} ?>
+}
+if (isset($sort['queuesort'])) {
+    $sort['queuesort']->applySort($tickets, $sort['dir']);
+}
+?>
     </tr>
   </thead>
   <tbody>
 <?php
+
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
@@ -221,8 +227,12 @@ foreach ($tickets as $T) {
     }
     foreach ($columns as $C) {
         list($contents, $styles) = $C->render($T);
-        $style = $styles ? 'style="'.$styles.'"' : '';
-        echo "<td $style><div $style>$contents</div></td>";
+        if ($style = $styles ? 'style="'.$styles.'"' : '') {
+            echo "<td $style><div $style>$contents</div></td>";
+        }
+        else {
+            echo "<td>$contents</td>";
+        }
     }
     echo '</tr>';
 }
@@ -251,13 +261,13 @@ foreach ($tickets as $T) {
 ?>  <div>
       <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
 <?php
-        echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
-				echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+        echo __('Page').':'.$pageNav->getPageLinks(false,false).'&nbsp;';
+        echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'queue' => $_REQUEST['queue'],
                         'status' => $_REQUEST['status'])),
                 __('Export'));
-			        ?>
+        ?>
         <i class="help-tip icon-question-sign" href="#export"></i>
     </div>
 <?php

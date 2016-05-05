@@ -37,7 +37,7 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing().' '.__('API Keys');
 else
-    $showing=__('No API keys found!');
+    $showing=__('No API keys found');
 
 ?>
 <form action="apikeys.php" method="POST" name="keys">

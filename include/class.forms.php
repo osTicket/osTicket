@@ -543,15 +543,19 @@ class FormField {
     static $more_types = array();
     static $uid = null;
 
+    function _uid() {
+        return ++self::$uid;
+    }
+
     function __construct($options=array()) {
         $this->ht = array_merge($this->ht, $options);
         if (!isset($this->ht['id']))
-            $this->ht['id'] = self::$uid++;
+            $this->ht['id'] = self::_uid();
     }
 
     function __clone() {
         $this->_widget = null;
-        $this->ht['id'] = self::$uid++;
+        $this->ht['id'] = self::_uid();
     }
 
     static function addFieldTypes($group, $callable) {
@@ -864,10 +868,10 @@ class FormField {
      */
     function whatChanged($before, $after) {
         if ($before)
-            $desc = __('changed from <strong>%2$s</strong> to <strong>%1$s</strong>');
+            $desc = __('changed from <strong>%1$s</strong> to <strong>%2$s</strong>');
         else
-            $desc = __('set to <strong>%1$s</strong>');
-        return sprintf($desc, $this->display($after), $this->display($before));
+            $desc = __('set to <strong>%2$s</strong>');
+        return sprintf($desc, $this->display($before), $this->display($after));
     }
 
     /**
@@ -1037,6 +1041,13 @@ class FormField {
     }
 
     function getLabel() { return $this->get('label'); }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        if ($reverse)
+            $col = '-' . $col;
+        return $query->order_by($col);
+    }
 
     /**
      * getImpl
@@ -1368,6 +1379,10 @@ class TextboxField extends FormField {
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
+    }
+
+    function parse($value) {
+        return Format::striptags($value);
     }
 }
 
@@ -1844,10 +1859,11 @@ class DatetimeField extends FormField {
     }
 
     function toString($value) {
-        global $cfg;
-        $config = $this->getConfiguration();
         // If GMT is set, convert to local time zone. Otherwise, leave
         // unchanged (default TZ is UTC)
+        $config = $this->getConfiguration();
+        $fromDb = @$config['fromdb'] ?: false;
+
         if (!$value)
             return '';
         if ($config['time'])
@@ -2085,7 +2101,7 @@ class ThreadEntryField extends FormField {
     function getConfiguration() {
         global $cfg;
         $config = parent::getConfiguration();
-        $config['html'] = (bool) $cfg->isRichTextEnabled();
+        $config['html'] = (bool) ($cfg && $cfg->isRichTextEnabled());
         return $config;
     }
 
@@ -2234,6 +2250,20 @@ class PriorityField extends ChoiceField {
             $config['default'] = $cfg->getDefaultPriorityId();
         return $config;
     }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        if ($query->model == 'Ticket' && $name == 'cdata__priority') {
+            // Order by the priority urgency field
+            $col = 'cdata__:priority__priority_urgency';
+            $reverse = !$reverse;
+        }
+        else {
+            $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        }
+        if ($reverse)
+            $col = "-$col";
+        return $query->order_by($col);
+    }
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
@@ -2243,8 +2273,8 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 
 
 class DepartmentField extends ChoiceField {
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Dept)
             $widget->value = $widget->value->getId();
         return $widget;
@@ -2254,7 +2284,7 @@ class DepartmentField extends ChoiceField {
         return true;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         global $cfg;
 
         $choices = array();
@@ -2312,8 +2342,8 @@ class AssigneeField extends ChoiceField {
     var $_choices = null;
     var $_criteria = null;
 
-    function getWidget() {
-        $widget = parent::getWidget();
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
         return $widget;
@@ -2338,7 +2368,7 @@ class AssigneeField extends ChoiceField {
         $this->_choices = $choices;
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         global $cfg;
 
         if (!isset($this->_choices)) {
@@ -2586,14 +2616,14 @@ class FileUploadField extends FormField {
         static $filetypes;
 
         if (!isset($filetypes)) {
-            if (function_exists('apc_fetch')) {
+            if (function_exists('apcu_fetch')) {
                 $key = md5(SECRET_SALT . GIT_VERSION . 'filetypes');
-                $filetypes = apc_fetch($key);
+                $filetypes = apcu_fetch($key);
             }
             if (!$filetypes)
                 $filetypes = YamlDataParser::load(INCLUDE_DIR . '/config/filetype.yaml');
             if ($key)
-                apc_store($key, $filetypes, 7200);
+                apcu_store($key, $filetypes, 7200);
         }
         return $filetypes;
     }
@@ -2754,7 +2784,7 @@ class FileUploadField extends FormField {
         ) {
             $this->attachments = GenericAttachments::forIdAndType(
                 // Combine the field and entry ids to make the key
-                sprintf('%u', crc32('E'.$this->get('id').$e->get('id'))),
+                sprintf('%u', abs(crc32('E'.$this->get('id').$e->get('id')))),
                 'E');
         }
         return $this->attachments ?: array();
@@ -2963,7 +2993,7 @@ class InlineFormField extends FormField {
 
     function validateEntry($value) {
         if (!$this->getInlineForm()->isValid()) {
-            $this->_errors[] = __('Correct errors in the inline form');
+            $this->_errors[] = __('Correct any errors below and try again.');
         }
     }
 
@@ -3150,7 +3180,7 @@ class TextboxWidget extends Widget {
 
 class TextboxSelectionWidget extends TextboxWidget {
     //TODO: Support multi-input e.g comma separated inputs
-    function render($options=array()) {
+    function render($options=array(), $extraConfig=array()) {
 
         if ($this->value && is_array($this->value))
             $this->value = current($this->value);
@@ -3746,8 +3776,9 @@ class FileUploadWidget extends Widget {
         // Add in newly added files not yet saved (if redisplaying after an
         // error)
         if ($new) {
-            $F = array_merge($F, AttachmentFile::objects()->filter(array(
-                'id__in' => array_keys($new)))->all());
+            $F = array_merge($F, AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($new)))
+                ->all());
         }
         foreach ($F as $file) {
             $files[] = array(
@@ -3801,16 +3832,18 @@ class FileUploadWidget extends Widget {
             return $ids;
         }
 
+        // Files uploaded here MUST have been uploaded by this user and
+        // identified in the session
+        //
         // If no value was sent, assume an empty list
         if (!($files = parent::getValue()))
             return array();
 
-        // Files uploaded here MUST have been uploaded by this user and
-        // identified in the session
         $allowed = array();
         // Files already attached to the field are allowed
-        foreach ($this->field->getFiles() as $f) {
-            $allowed[$f->id] = 1;
+        foreach ($this->field->getFiles() as $F) {
+            // FIXME: This will need special porting in v1.10
+            $allowed[$F->id] = 1;
         }
 
         // New files uploaded in this session are allowed
@@ -4176,9 +4209,9 @@ class AssignmentForm extends Form {
             return $fields[$name];
     }
 
-    function isValid() {
+    function isValid($include=false) {
 
-        if (!parent::isValid() || !($f=$this->getField('assignee')))
+        if (!parent::isValid($include) || !($f=$this->getField('assignee')))
             return false;
 
         // Do additional assignment validation
@@ -4294,7 +4327,7 @@ class TransferForm extends Form {
                     'label' => __('Department'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Department selection required'),
+                    'validator-error' => __('Department selection is required'),
                     )
                 ),
             'comments' => new TextareaField(array(
@@ -4316,9 +4349,9 @@ class TransferForm extends Form {
         return $this->fields;
     }
 
-    function isValid() {
+    function isValid($include=false) {
 
-        if (!parent::isValid())
+        if (!parent::isValid($include))
             return false;
 
         // Do additional validations

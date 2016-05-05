@@ -26,26 +26,29 @@ if($_POST){
             if(!$email){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('email'));
             }elseif($email->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this email'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this email'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this email')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $box = Email::create();
             if ($box->update($_POST, $errors)) {
                 $id = $box->getId();
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this email'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this email')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'),
+                $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one email'));
             } else {
                 $count=count($_POST['ids']);
@@ -59,13 +62,13 @@ if($_POST){
                     }
 
                     if($i && $i==$count)
-                        $msg = sprintf(__('Successfully deleted %s'),
+                        $msg = sprintf(__('Successfully deleted %s.'),
                             _N('selected email', 'selected emails', $count));
                     elseif($i>0)
                         $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                             _N('selected email', 'selected emails', $count));
                     elseif(!$errors['err'])
-                        $errors['err'] = sprintf(__('Unable to delete %s'),
+                        $errors['err'] = sprintf(__('Unable to delete %s.'),
                             _N('selected email', 'selected emails', $count));
                     break;
 

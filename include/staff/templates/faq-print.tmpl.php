@@ -1,7 +1,7 @@
 <div class="faq-title flush-left"><?php echo $faq->getLocalQuestion() ?>
 </div>
 
-<div class="faded"><?php echo __('Last updated');?>
+<div class="faded"><?php echo __('Last Updated');?>
     <?php echo Format::daydatetime($faq->getUpdateDate()); ?>
 </div>
 

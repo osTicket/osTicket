@@ -51,7 +51,7 @@ class osTicket {
     var $company;
     var $plugins;
 
-    function osTicket() {
+    function __construct() {
 
         require_once(INCLUDE_DIR.'class.config.php'); //Config helper
         require_once(INCLUDE_DIR.'class.company.php');

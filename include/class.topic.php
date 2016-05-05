@@ -60,7 +60,6 @@ implements TemplateVariable, Searchable {
         ),
     );
 
-    var $page;
     var $_forms;
 
     const DISPLAY_DISABLED = 2;
@@ -290,7 +289,7 @@ implements TemplateVariable, Searchable {
     /*** Static functions ***/
 
     static function create($vars=array()) {
-        $topic = parent::create($vars);
+        $topic = new static($vars);
         $topic->created = SqlFunction::NOW();
         return $topic;
     }
@@ -518,14 +517,15 @@ implements TemplateVariable, Searchable {
                     // Don't add a form more than once
                     continue;
                 }
-                TopicFormModel::create(array(
+                $tf = new TopicFormModel(array(
                     'topic_id' => $this->getId(),
                     'form_id' => $id,
                     'sort' => $sort + 1,
                     'extra' => JsonDataEncoder::encode(
                         array('disable' => $find_disabled($form))
                     )
-                ))->save();
+                ));
+                $tf->save();
             }
         }
         return true;

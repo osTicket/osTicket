@@ -33,7 +33,7 @@ class MailFetcher {
 
     var $tnef = false;
 
-    function MailFetcher($email, $charset='UTF-8') {
+    function __construct($email, $charset='UTF-8') {
 
 
         if($email && is_numeric($email)) //email_id

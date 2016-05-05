@@ -139,7 +139,7 @@ if ($info['error']) {
                     'checked="checked"' : ''; ?>> <?php echo __('Password Reset Required'); ?></div>
                    <div><input type="checkbox" name="forbid-pwchange-flag" value="1" <?php
                     echo !$account->isPasswdResetEnabled() ?
-                    'checked="checked"' : ''; ?>> <?php echo __('User Cannot Change Password'); ?></div>
+                    'checked="checked"' : ''; ?>> <?php echo __('User cannot change password'); ?></div>
                 </td>
             </tr>
         </tbody>

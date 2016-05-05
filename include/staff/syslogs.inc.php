@@ -81,7 +81,7 @@ $res=db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing=$pageNav->showing().' '.$title;
 else
-    $showing=__('No logs found!');
+    $showing=__('No logs found');
 ?>
 
 <div id="basic_search">
@@ -97,8 +97,9 @@ else
                     &nbsp;<?php echo __('Log Level'); ?>:&nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
                     <select name='type'>
                         <option value="" selected><?php echo __('All');?></option>
-                        <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>><?php echo __('Errors');?></option>
-                        <option value="Warning" <?php echo ($type=='Warning')?'selected="selected"':''; ?>><?php echo __('Warnings');?></option>                <option value="Debug" <?php echo ($type=='Debug')?'selected="selected"':''; ?>><?php echo __('Debug');?></option>
+                        <option value="Error" <?php echo ($type=='Error')?'selected="selected"':''; ?>><?php echo __('ERROR');?></option>
+                        <option value="Warning" <?php echo ($type=='Warning')?'selected="selected"':''; ?>><?php echo __('WARN');?></option>
+                        <option value="Debug" <?php echo ($type=='Debug')?'selected="selected"':''; ?>><?php echo __('DEBUG');?></option>
                     </select>
                     &nbsp;&nbsp;
                     <input type="submit" Value="<?php echo __('Go!');?>" />

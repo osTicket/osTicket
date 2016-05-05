@@ -10,8 +10,12 @@ if($thisclient && $thisclient->isValid()) {
 $info=($_POST && $errors)?Format::htmlchars($_POST):$info;
 
 $form = null;
-if (!$info['topicId'])
-    $info['topicId'] = $cfg->getDefaultTopicId();
+if (!$info['topicId']) {
+    if (array_key_exists('topicId',$_GET) && preg_match('/^\d+$/',$_GET['topicId']) && Topic::lookup($_GET['topicId']))
+        $info['topicId'] = intval($_GET['topicId']);
+    else
+        $info['topicId'] = $cfg->getDefaultTopicId();
+}
 
 $forms = array();
 if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
@@ -46,8 +50,10 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
-        <tr class="form-group"><td><?php echo __('Email'); ?>:</td><td><?php echo $thisclient->getEmail(); ?></td></tr>
-        <tr class="form-group"><td><?php echo __('Client'); ?>:</td><td><?php echo $thisclient->getName(); ?></td></tr>
+        <tr class="form-group"><td><?php echo __('Email'); ?>:</td><td><?php
+            echo $thisclient->getEmail(); ?></td></tr>
+        <tr class="form-group"><td><?php echo __('Client'); ?>:</td><td><?php
+            echo Format::htmlchars($thisclient->getName()); ?></td></tr>
         <?php } ?>
     </tbody>
 

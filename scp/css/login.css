@@ -33,7 +33,7 @@ body {
 }
 
 #brickwall {
-    background-image: url(../images/login-headquarters.jpg);
+    background-image: url(../logo.php?backdrop);
     -webkit-background-size: cover;
        -moz-background-size: cover;
          -o-background-size: cover;
@@ -61,7 +61,7 @@ body {
     right: 0;
     bottom: 0;
     z-index: -1;
-    background-image: url(../images/login-headquarters.jpg);
+    background-image: url(../logo.php?backdrop);
     -webkit-background-size: cover;
        -moz-background-size: cover;
          -o-background-size: cover;
@@ -78,9 +78,9 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    -webkit-filter: blur(2px);
-    filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='2'%20/></filter></svg>#blur");
-    filter: blur(2px);
+    -webkit-filter: blur(7px);
+    filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='5'%20/></filter></svg>#blur");
+    filter: blur(7px);
     overflow: hidden;
     z-index: -1;
 }
@@ -91,8 +91,7 @@ body, input {
 }
 
 #loginBox {
-    border:1px solid rgba(0,0,0,0.3);
-    box-shadow:0 0 30px 5px rgba(0,0,0,0.3), 0 0 5px -1px white;
+    box-shadow:0 0 50px 5px rgba(0,0,0,0.3), 0 0 5px -1px white;
     mix-blend-mode: normal;
     isolation: isolate;
     width:400px;
@@ -120,29 +119,13 @@ body, input {
     border-radius: 5px;
     z-index: -1;
     mix-blend-mode: normal;
+    border: 1px solid rgba(0,0,0,0.3);
 }
 /* IE 9-10 */
 @media screen\0 {
     #loginBox:after {
         background-color: white;
     }
-}
-
-.tape {
-    background-image: url(../images/tape.png);
-    -webkit-background-size: 100% 100%;
-       -moz-background-size: 100% 100%;
-         -o-background-size: 100% 100%;
-            background-size: 100% 100%;
-    position: absolute;
-    top: -22px;
-    left: 105px;
-    width: 180px;
-    height: 35px;
-    transform: rotate(-3deg);
-    -webkit-transform: rotate(-3deg);
-    -webkit-filter: drop-shadow(rgba(0,0,0,0.2) 0px -1px 1px);
-    filter: drop-shadow(rgba(0,0,0,0.2) 0px -1px 1px);
 }
 
 h1 {
@@ -319,11 +302,12 @@ input.submit:hover, input.submit:active {
 
 #company .content {
     border-radius: 10px;
-    background-color: rgba(0,0,0,0.4);
-    box-shadow: 0 0 6px black;
+    background-color: rgba(0,0,0,0.3);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
     text-shadow: 0 0 2px black;
     display: inline-block;
     padding: 0 15px;
+    color: white;
 }
 
 .external-auth {

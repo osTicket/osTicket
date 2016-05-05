@@ -203,7 +203,7 @@ implements TemplateVariable {
               $errors['members'][$staff_id] = __('No such agent');
           $member = $this->members->findFirst(array('staff_id' => $staff_id));
           if (!isset($member)) {
-              $member = TeamMember::create(array('staff_id' => $staff_id));
+              $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
           }
           $member->setAlerts($alerts);
@@ -305,7 +305,7 @@ implements TemplateVariable {
     }
 
     static function create($vars=false) {
-        $team = parent::create($vars);
+        $team = new static($vars);
         $team->created = SqlFunction::NOW();
         return $team;
     }
@@ -375,7 +375,7 @@ extends AbstractForm {
         );
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }

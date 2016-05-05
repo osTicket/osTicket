@@ -146,7 +146,7 @@ class Draft extends VerySimpleModel {
 
         $vars['created'] = SqlFunction::NOW();
         $vars['staff_id'] = self::getCurrentUserId();
-        $draft = parent::create($vars);
+        $draft = new static($vars);
 
         // Cloned attachments ...
         if (false && $attachments && is_array($attachments))

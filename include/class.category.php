@@ -244,7 +244,7 @@ class Category extends VerySimpleModel {
     }
 
     static function create($vars=false) {
-        $category = parent::create($vars);
+        $category = new static($vars);
         $category->created = SqlFunction::NOW();
         return $category;
     }

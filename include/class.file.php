@@ -14,6 +14,21 @@
 require_once(INCLUDE_DIR.'class.signal.php');
 require_once(INCLUDE_DIR.'class.error.php');
 
+
+/**
+ * Represents a file stored in a storage backend. It is generally attached
+ * to something; however company logos, login page backdrops, and other
+ * items are also stored in the database for various purposes.
+ *
+ * FileType-Definitions:
+ *    The `ft` field is used to represent the type or purpose of the file
+ *    with respect to the system. These are the defined file types (placed
+ *    here as the definitions are not needed in code).
+ *
+ *    - 'T' => Attachments
+ *    - 'L' => Logo
+ *    - 'B' => Backdrop
+ */
 class AttachmentFile extends VerySimpleModel {
 
     static $meta = array(
@@ -296,35 +311,50 @@ class AttachmentFile extends VerySimpleModel {
         return static::create($info, $ft, $deduplicate);
     }
 
+    static function uploadBackdrop(array $file, &$error) {
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
+
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
+        }
+        return self::upload($file, 'B', false);
+    }
+
     static function uploadLogo($file, &$error, $aspect_ratio=2) {
         /* Borrowed in part from
          * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
          */
-        if (!extension_loaded('gd'))
-            return self::upload($file, 'L');
+        if (extension_loaded('gd')) {
+            $source_path = $file['tmp_name'];
+            list($source_width, $source_height, $source_type) = getimagesize($source_path);
 
-        $source_path = $file['tmp_name'];
+            switch ($source_type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_PNG:
+                    break;
+                default:
+                    $error = __('Invalid image file type');
+                    return false;
+            }
 
-        list($source_width, $source_height, $source_type) = getimagesize($source_path);
+            $source_aspect_ratio = $source_width / $source_height;
 
-        switch ($source_type) {
-            case IMAGETYPE_GIF:
-            case IMAGETYPE_JPEG:
-            case IMAGETYPE_PNG:
-                break;
-            default:
-                // TODO: Return an error
-                $error = __('Invalid image file type');
+            if ($source_aspect_ratio < $aspect_ratio) {
+                $error = __('Image is too square. Upload a wider image');
                 return false;
+            }
         }
-
-        $source_aspect_ratio = $source_width / $source_height;
-
-        if ($source_aspect_ratio >= $aspect_ratio)
-            return self::upload($file, 'L', false);
-
-        $error = __('Image is too square. Upload a wider image');
-        return false;
+        return self::upload($file, 'L', false);
     }
 
     static function create(&$file, $ft='T', $deduplicate=true) {
@@ -380,7 +410,7 @@ class AttachmentFile extends VerySimpleModel {
             $file['type'] = 'application/octet-stream';
 
 
-        $f = parent::create(array(
+        $f = new static(array(
             'type' => strtolower($file['type']),
             'name' => $file['name'],
             'key' => $file['key'],
@@ -616,10 +646,15 @@ class AttachmentFile extends VerySimpleModel {
         return true;
     }
 
-    /* static */
-    function allLogos() {
+    static function allLogos() {
         return static::objects()
             ->filter(array('ft' => 'L'))
+            ->order_by('created');
+    }
+
+    static function allBackdrops() {
+        return static::objects()
+            ->filter(array('ft' => 'B'))
             ->order_by('created');
     }
 }
@@ -817,6 +852,7 @@ class AttachmentFileChunk extends VerySimpleModel {
         ),
     );
 }
+
 class AttachmentChunkedData extends FileStorageBackend {
     static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
@@ -865,7 +901,7 @@ class AttachmentChunkedData extends FileStorageBackend {
             // Chunks are considered immutable. Importing chunks should
             // forceable remove the contents of a file before write()ing new
             // chunks. Therefore, inserts should be safe.
-            $chunk = AttachmentFileChunk::create(array(
+            $chunk = new AttachmentFileChunk(array(
                 'file' => $this->file,
                 'chunk_id' => $this->_chunk++,
                 'filedata' => $block

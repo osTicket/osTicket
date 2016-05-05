@@ -533,14 +533,14 @@ else
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo _('Open'); ?></option>
+                                echo __('Open'); ?></option>
                             <?php
                             if ($task->isClosed() || $canClose) {
                                 ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo _('Closed'); ?></option>
+                                echo __('Closed'); ?></option>
                             <?php
                             } ?>
                         </select>
@@ -593,14 +593,14 @@ else
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo _('Open'); ?></option>
+                                echo __('Open'); ?></option>
                             <?php
                             if ($task->isClosed() || $canClose) {
                                 ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo _('Closed'); ?></option>
+                                echo __('Closed'); ?></option>
                             <?php
                             } ?>
                         </select>

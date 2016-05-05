@@ -28,9 +28,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create(array(
+        $search = new SavedSearch(array(
             'root' => 'T',
+            'parent_id' => @$_GET['parent_id'] ?: 0,
         ));
+        if ($search->parent_id) {
+            $search->flags |= SavedSearch::FLAG_INHERIT_COLUMNS;
+        }
         if (isset($_SESSION[$context])) {
             // Use the most recent search
             if (!$key) {
@@ -60,7 +64,7 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = SavedSearch::create(array('root'=>'T'));
+        $search = new SavedSearch(array('root'=>'T'));
         $searchable = $search->getSupportedMatches();
         if (!($F = $searchable[$name]))
             Http::response(404, 'No such field: ', print_r($name, true));
@@ -82,7 +86,7 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function doSearch() {
-        $search = SavedSearch::create(array('root' => 'T'));
+        $search = new SavedSearch(array('root' => 'T'));
         $form = $search->getForm($_POST);
         if (false === $this->_setupSearch($search, $form)) {
             return;
@@ -164,7 +168,7 @@ class SearchAjaxAPI extends AjaxController {
     function _saveSearch(SavedSearch $search) {
         $form = $search->getForm($_POST);
         $errors = array();
-        if (!$search->update($_POST, $form, $errors)
+        if (!$search->update($_POST, $errors)
             || !$search->save()
         ) {
             return $this->_tryAgain($search, $form, $errors);
@@ -235,6 +239,28 @@ class SearchAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/queue-column-edit.tmpl.php';
     }
 
+    function editSort($sort_id) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        elseif (!($sort = QueueSort::lookup($sort_id))) {
+            Http::response(404, 'No such queue sort');
+        }
+
+        if ($_POST) {
+            $data_form = $sort->getDataConfigForm($_POST);
+            if ($data_form->isValid()) {
+                $sort->update($data_form->getClean() + $_POST);
+                if ($sort->save())
+                    Http::response(201, 'Successfully updated');
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
+    }
+
     function previewQueue($id=false) {
         global $thisstaff;
 
@@ -277,7 +303,7 @@ class SearchAjaxAPI extends AjaxController {
         // Ensure `name` is preserved
         $field_name = $_GET['field'];
         $id = $_GET['id'];
-        $column = QueueColumn::create(array('id' => $_GET['colid']));
+        $column = new QueueColumn(array('id' => $_GET['colid']));
         $condition = new QueueColumnCondition();
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }

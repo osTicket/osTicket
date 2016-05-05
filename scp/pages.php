@@ -27,24 +27,26 @@ if($_POST) {
             if($page->update($_POST, $errors)) {
                 $pageId = $page->getId();
                 $_REQUEST['a'] = null;
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this site page'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this site page')),
+                    __('Correct any errors below and try again.'));
         break;
         case 'update':
             if(!$page)
                 $errors['err'] = sprintf(__('%s: Invalid or unknown'),
                     __('site page'));
             elseif($page->update($_POST, $errors)) {
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this site page'));
                 $_REQUEST['a']=null; //Go back to view
                 Draft::deleteForNamespace('page.'.$page->getId().'%');
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
-                    __('this site page'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this site page')),
+                    __('Correct any errors below and try again.'));
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
@@ -95,13 +97,13 @@ if($_POST) {
                             ->delete();
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected site page', 'selected site pages', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected site page', 'selected site pages', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected site page', 'selected site pages', $count));
                         break;
                     default:

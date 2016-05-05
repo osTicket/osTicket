@@ -249,7 +249,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 		<span>
 			<input type="text" name="mail_fetchmax" size=4 value="<?php echo
             $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>">
-            <?php echo __('emails'); ?>
 			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
 			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
 		</span>
@@ -321,7 +320,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Internal Notes');?></strong>: <?php
-                echo __("be liberal, they're internal.");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
+                echo __("Be liberal, they're internal");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
             </th>
         </tr>
         <tr>

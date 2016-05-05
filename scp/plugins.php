@@ -15,7 +15,7 @@ if($_POST) {
         break;
     case 'mass_process':
         if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-            $errors['err'] = sprintf(__('You must select at least %s'),
+            $errors['err'] = sprintf(__('You must select at least %s.'),
                 __('one plugin'));
         } else {
             $count = count($_POST['ids']);
@@ -25,7 +25,7 @@ if($_POST) {
                     if ($p = Plugin::lookup($id)) {
                         if (!$p->enable())
                             $errors['err'] = sprintf(
-                                __('Unable to enable %s.'),
+                                __('Unable to enable %s'),
                                 $p->getName());
                     }
                 }

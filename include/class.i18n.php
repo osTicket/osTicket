@@ -23,7 +23,7 @@ class Internationalization {
     // fallback
     var $langs = array('en_US');
 
-    function Internationalization($language=false) {
+    function __construct($language=false) {
         global $cfg;
 
         if ($cfg && ($lang = $cfg->getPrimaryLanguage()))
@@ -67,6 +67,7 @@ class Internationalization {
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
             'queue_column.yaml' =>  'QueueColumn::__create',
+            'queue_sort.yaml' =>    'QueueSort::__create',
             'queue.yaml' =>         'CustomQueue::__create',
         );
 
@@ -547,7 +548,7 @@ class DataTemplate {
      * template itself does not have to keep track of the language for which
      * it is defined.
      */
-    function DataTemplate($path, $langs=array('en_US')) {
+    function __construct($path, $langs=array('en_US')) {
         foreach ($langs as $l) {
             if (file_exists("{$this->base}/$l/$path")) {
                 $this->lang = $l;

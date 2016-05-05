@@ -168,7 +168,7 @@ class Page extends VerySimpleModel {
     /* ------------------> Static methods <--------------------- */
 
     static function create($vars=false) {
-        $page = parent::create($vars);
+        $page = new static($vars);
         $page->created = SqlFunction::NOW();
         return $page;
     }

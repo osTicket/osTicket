@@ -48,7 +48,7 @@ class ConfigAjaxAPI extends AjaxController {
               'primary_lang_flag' => strtolower($primary_info['flag'] ?: $primary_locale ?: $primary_sl),
               'primary_language' => Internationalization::rfc1766($primary),
               'secondary_languages' => $cfg->getSecondaryLanguages(),
-              'page_size'       => $thisstaff->getPageLimit(),
+              'page_size'       => $thisstaff->getPageLimit() ?: PAGE_LIMIT,
         );
         return $this->json_encode($config);
     }

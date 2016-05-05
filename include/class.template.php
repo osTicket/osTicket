@@ -62,7 +62,7 @@ class EmailTemplateGroup {
         ),
         'ticket.overlimit'=>array(
             'group'=>'a.ticket.user',
-            'name'=>/* @trans */ 'Over Limit Notice',
+            'name'=>/* @trans */ 'Overlimit Notice',
             'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
             'context' => array(
                 'ticket', 'signature',
@@ -182,7 +182,7 @@ class EmailTemplateGroup {
         ),
     );
 
-    function EmailTemplateGroup($id){
+    function __construct($id){
         $this->id=0;
         $this->load($id);
     }
@@ -508,7 +508,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function EmailTemplate($id, $group=null){
+    function __construct($id, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;

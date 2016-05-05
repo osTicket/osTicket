@@ -30,7 +30,7 @@ else {
   <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
 
   <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
-      // <?php echo $title; ?>
+      <i class="icon-caret-right" style="color:rgba(0,0,0,.3);"></i> <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
       — <?php echo $queue->getFullName(); ?></small>
       <?php } ?>
@@ -41,6 +41,8 @@ else {
       <?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><i class="icon-columns"></i>
       <?php echo __('Columns'); ?></a></li>
+    <li><a href="#sorting-tab"><i class="icon-sort-by-attributes"></i>
+      <?php echo __('Sort'); ?></a></li>
     <li><a href="#preview-tab"><i class="icon-eye-open"></i>
       <?php echo __('Preview'); ?></a></li>
   </ul>
@@ -95,6 +97,7 @@ else {
             ><?php echo $cq->getFullName(); ?></option>
 <?php } ?>
         </select>
+        <div class="error"><?php echo Format::htmlchars($errors['parent_id']); ?></div>
 
         <br/>
         <br/>
@@ -108,7 +111,7 @@ else {
             if ($queue->parent 
                 && ($qf = $queue->parent->getQuickFilterField()))
                 echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
-<?php foreach (SavedSearch::getSearchableFields('Ticket') as $path=>$f) {
+<?php foreach (CustomQueue::getSearchableFields('Ticket') as $path=>$f) {
         list($label, $field) = $f;
         if (!$field->supportsQuickFilter())
           continue;
@@ -127,78 +130,145 @@ else {
   </div>
 
   <div class="hidden tab_content" id="columns">
-    <table class="table two-column">
-      <tbody>
-        <tr class="header">
-          <th colspan="3">
-            <?php echo __("Manage columns in this queue"); ?>
-            <div><small><?php echo __(
-            "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?>
-            </small></div>
-          </th>
-        </tr>
-        <tr class="header">
-          <td style="width:36%"><small><b><?php echo __('Heading and Width'); ?></b></small></td>
-          <td><small><b><?php echo __('Column Details'); ?></b></small></td>
-          <td><small><b><?php echo __('Sortable'); ?></b></small></td>
-        </tr>
-      </tbody>
-      <tbody class="sortable-rows">
-        <tr id="column-template" class="hidden">
-          <td>
-            <i class="faded-more icon-sort"></i>
-            <input type="text" size="25" data-name="heading"
-              data-translate-tag="" />
-            <input type="text" size="5" data-name="width" />
-          </td>
-          <td>
-            <input type="hidden" data-name="queue_id"
-              value="<?php echo $queue->getId(); ?>"/>
-            <input type="hidden" data-name="column_id" />
-            <div>
-            <a class="inline action-button"
-                href="#" onclick="javascript:
-                var colid = $(this).closest('tr').find('[data-name=column_id]').val();
-                $.dialog('ajax.php/tickets/search/column/edit/' + colid, 201);
-                return false;
-                "><i class="icon-cog"></i> <?php echo __('Config'); ?></a>
-            <span></span>
-          </td>
-          <td>
-            <input type="checkbox" data-name="sortable">
-            <a href="#" class="pull-right drop-column" title="<?php echo __('Delete');
-              ?>"><i class="icon-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-      <tbody>
-        <tr class="header">
-          <td colspan="3"></td>
-        </tr>
-        <tr>
-          <td colspan="3" id="append-column">
-            <i class="icon-plus-sign"></i>
-            <select id="add-column" data-quick-add="queue-column">
-              <option value="">— <?php echo __('Add a column'); ?> —</option>
-<?php foreach (QueueColumn::objects() as $C) { ?>
-              <option value="<?php echo $C->id; ?>"><?php echo
-                  Format::htmlchars($C->name); ?></option>
-<?php } ?>
-              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
-            </select>
-            <button type="button" class="green button">
-              <?php echo __('Add'); ?>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
+    <div class="tab-desc">
+        <p><b><?php echo __("Manage columns in this queue"); ?></b>
+        <br><?php echo __(
+        "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?></p>
+    </div>
+    <?php include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
   </div>
+    
+    
+    <div class="hidden tab_content" id="sorting-tab">
+        <div class="tab-desc">
+            <p><b><?php echo __("Manage Queue Sorting"); ?></b>
+            <br><?php echo __("Add, edit or remove the sorting criteria for this custom queue using the options below. Sorting is priortized in ascending order."); ?></p>
+        </div>
+        <table class="queue-sort table">
+<?php
+if ($queue->parent) { ?>
+          <tbody>
+            <tr>
+              <td colspan="3">
+                <input type="checkbox" name="inherit-sorting" <?php
+                  if ($queue->inheritSorting()) echo 'checked="checked"'; ?>
+                  onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
+                <?php echo __('Inherit sorting from the parent queue'); ?>
+                <br /><br />
+              </td>
+            </tr>
+          </tbody>
+<?php } ?>
+          <tbody class="if-not-inherited <?php if ($queue->inheritSorting()) echo 'hidden'; ?>">
+            <tr class="header">
+              <td nowrap><small><b><?php echo __('Name'); ?></b></small></td>
+              <td><small><b><?php echo __('Details'); ?></b></small></td>
+              <td/>
+            </tr>
+          </tbody>
+          <tbody class="sortable-rows if-not-inherited <?php
+            if ($queue->inheritSorting()) echo 'hidden'; ?>">
+            <tr id="sort-template" class="hidden">
+              <td nowrap>
+                <i class="faded-more icon-sort"></i>
+                <input type="hidden" data-name="sorts[]" />
+                <span data-name="name"></span>
+              </td>
+              <td>
+                <div>
+                <a class="inline action-button"
+                    href="#" onclick="javascript:
+                    var colid = $(this).closest('tr').find('[data-name^=sorts]').val();
+                    $.dialog('ajax.php/tickets/search/sort/edit/' + colid, 201);
+                    return false;
+                    "><i class="icon-cog"></i> <?php echo __('Config'); ?></a>
+                </div>
+              </td>
+              <td>
+                <a href="#" class="pull-right drop-sort" title="<?php echo __('Delete');
+                  ?>"><i class="icon-trash"></i></a>
+              </td>
+            <tr>
+          </tbody>
+            <tbody class="if-not-inherited <?php
+            if ($queue->inheritSorting()) echo 'hidden'; ?>">
+              <tr class="header">
+                  <td colspan="3"></td>
+              </tr>
+              <tr>
+                  <td colspan="3" id="append-sort">
+                      <i class="icon-plus-sign"></i>
+                      <select id="add-sort" data-quick-add="queue-sort">
+                          <option value="">— <?php
+                            echo __('Add Sort Criteria'); ?> —</option>
+<?php foreach (QueueSort::forQueue($queue) as $QS) { ?>
+                          <option value="<?php echo $QS->id; ?>"><?php
+                            echo Format::htmlchars($QS->name); ?></option>
+<?php } ?>
+                          <option value="0" data-quick-add>&mdash; <?php
+                            echo __('Add New Sort Criteria');?> &mdash;</option>
+                      </select>
+                      <button type="button" class="green button"><?php
+                        echo __('Add'); ?></button>
+                  </td>
+              </tr>
+            </tbody>
+<script>
++function() {
+var Q = setInterval(function() {
+  if ($('#append-sort').length == 0)
+    return;
+  clearInterval(Q);
 
-  <div class="hidden tab_content" id="preview-tab">
+  var addSortOption = function(sortid, info) {
+    if (!sortid) return;
+    var copy = $('#sort-template').clone();
+    info['sorts[]'] = sortid;
+    copy.find('input[data-name]').each(function() {
+      var $this = $(this),
+          name = $this.data('name');
+      if (info[name] !== undefined) {
+        $this.val(info[name]);
+      }
+      $this.attr('name', name);
+    });
+    copy.find('span').text(info['name']);
+    copy.attr('id', '').show().insertBefore($('#sort-template'));
+    copy.removeClass('hidden');
+    copy.find('a.drop-sort').click(function() {
+      $('<option>')
+        .attr('value', copy.find('input[data-name^=sorts]').val())
+        .text(info.name)
+        .insertBefore($('#add-sort')
+          .find('[data-quick-add]')
+        );
+      copy.fadeOut(function() { $(this).remove(); });
+      return false;
+    });
+    var selected = $('#add-sort').find('option[value=' + sortid + ']');
+    selected.remove();
+  };
 
+  $('#append-sort').find('button').on('click', function() {
+    var selected = $('#add-sort').find(':selected'),
+        id = parseInt(selected.val());
+    if (!id)
+        return;
+    addSortOption(id, {name: selected.text()});
+    return false;
+  });
+<?php foreach ($queue->getSortOptions() as $C) {
+  echo sprintf('addSortOption(%d, {name: %s});',
+    $C->sort_id, JsonDataEncoder::encode($C->getName())
+  );
+} ?>
+}, 25);
+}();
+</script>
+        </table>
+    </div>    
+    
+    <div class="hidden tab_content" id="preview-tab">
     <div id="preview">
     </div>
 
@@ -226,64 +296,3 @@ else {
   </p>
 
 </form>
-
-<script>
-var addColumn = function(colid, info) {
-  if (!colid) return;
-  var copy = $('#column-template').clone(),
-      name_prefix = 'columns[' + colid + ']';
-  info['column_id'] = colid;
-  copy.find('input[data-name]').each(function() {
-    var $this = $(this),
-        name = $this.data('name');
-
-    if (info[name] !== undefined) {
-      if ($this.is(':checkbox'))
-        $this.prop('checked', info[name]);
-      else
-        $this.val(info[name]);
-    }
-    $this.attr('name', name_prefix + '[' + name + ']');
-  });
-  copy.find('span').text(info['name']);
-  copy.attr('id', '').show().insertBefore($('#column-template'));
-  copy.removeClass('hidden');
-  if (info['trans'] !== undefined) {
-    var input = copy.find('input[data-translate-tag]')
-      .attr('data-translate-tag', info['trans']);
-    if ($.fn.translatable)
-      input.translatable();
-    // Else it will be made translatable when the JS library is loaded
-  }
-  copy.find('a.drop-column').click(function() {
-    $('<option>')
-      .attr('value', copy.find('input[data-name=column_id]').val())
-      .text(info.name)
-      .insertBefore($('#add-column')
-        .find('[data-quick-add]')
-      );
-    copy.fadeOut(function() { $(this).remove(); });
-    return false;
-  });
-  var selected = $('#add-column').find('option[value=' + colid + ']');
-  selected.remove();
-};
-
-$('#append-column').find('button').on('click', function() {
-  var selected = $('#add-column').find(':selected'),
-      id = parseInt(selected.val());
-  if (!id)
-      return;
-  addColumn(id, {name: selected.text(), heading: selected.text(), width: 100, sortable: 1});
-  return false;
-});
-
-<?php foreach ($queue->columns as $C) {
-  echo sprintf('addColumn(%d, {name: %s, heading: %s, width: %d, trans: %s,
-  sortable: %s});',
-    $C->column_id, JsonDataEncoder::encode($C->name),
-    JsonDataEncoder::encode($C->heading), $C->width,
-    JsonDataEncoder::encode($C->getTranslateTag('heading')),
-    $C->isSortable() ? 1 : 0);
-} ?>
-</script>

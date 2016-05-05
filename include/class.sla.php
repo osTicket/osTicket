@@ -100,7 +100,7 @@ implements TemplateVariable {
 
     static function getVarScope() {
         return array(
-            'name' => __('SLA Plan'),
+            'name' => __('Service Level Agreement'),
             'graceperiod' => __("Grace Period (hrs)"),
         );
     }
@@ -203,7 +203,7 @@ implements TemplateVariable {
     }
 
     static function create($vars=false, &$errors=array()) {
-        $sla = parent::create($vars);
+        $sla = new static($vars);
         $sla->created = SqlFunction::NOW();
         return $sla;
     }
