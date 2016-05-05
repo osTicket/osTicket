@@ -479,12 +479,14 @@ implements TemplateVariable, Searchable {
             return false;
 
         return ROOT_PATH . sprintf('scp/orgs.php?id=%s', $id);
+
     }
 
     static function fromVars($vars) {
 
-        if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
-            $org = Organization::create(array(
+        $vars['name'] = Format::striptags($vars['name']);
+        if (!($org = static::lookup(array('name' => $vars['name'])))) {
+            $org = static::create(array(
                 'name' => $vars['name'],
                 'updated' => new SqlFunction('NOW'),
             ));
@@ -509,7 +511,7 @@ implements TemplateVariable, Searchable {
         // Make sure the name is not in-use
         if (($field=$form->getField('name'))
                 && $field->getClean()
-                && Organization::lookup(array('name' => $field->getClean()))) {
+                && static::lookup(array('name' => $field->getClean()))) {
             $field->addError(__('Organization with the same name already exists'));
             $valid = false;
         }
@@ -518,7 +520,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function create($vars=false) {
-        $org = parent::create($vars);
+        $org = new static($vars);
 
         $org->created = new SqlFunction('NOW');
         $org->setStatus(self::SHARE_PRIMARY_CONTACT);
@@ -528,7 +530,7 @@ implements TemplateVariable, Searchable {
     // Custom create called by installer/upgrader to load initial data
     static function __create($ht, &$error=false) {
 
-        $org = Organization::create($ht);
+        $org = static::create($ht);
         // Add dynamic data (if any)
         if ($ht['fields']) {
             $org->save(true);

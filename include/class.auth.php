@@ -484,7 +484,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             return false;
 
         //Log debug info.
-        $ost->logDebug(_S('Agent login'),
+        $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
@@ -948,7 +948,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                     _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
                     _S('Attempts').": {$authsession['strikes']}";
             $ost->logError(_S('Excessive login attempts (user)'), $alert, ($cfg->alertONLoginError()));
-            return new AccessDenied(__('Access Denied'));
+            return new AccessDenied(__('Access denied'));
         } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
             $alert=_S('Username').": {$username}\n".
                     _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".

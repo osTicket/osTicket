@@ -14,21 +14,48 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INCLUDE_DIR . 'class.search.php';
 
-class CustomQueue extends SavedSearch {
+class CustomQueue extends VerySimpleModel {
     static $meta = array(
+        'table' => QUEUE_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('sort'),
         'select_related' => array('parent'),
         'joins' => array(
+            'children' => array(
+                'reverse' => 'CustomQueue.parent',
+                'constrain' => ['children__id__gt' => 0],
+            ),
             'columns' => array(
                 'reverse' => 'QueueColumnGlue.queue',
                 'broker' => 'QueueColumnListBroker',
             ),
-            'children' => array(
-                'reverse' => 'CustomQueue.parent',
+            'sorts' => array(
+                'reverse' => 'QueueSortGlue.queue',
+                'broker' => 'QueueSortListBroker',
+            ),
+            'parent' => array(
+                'constraint' => array(
+                    'parent_id' => 'CustomQueue.id',
+                ),
+                'null' => true,
+            ),
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                )
             ),
         )
     );
+
+    const FLAG_PUBLIC =         0x0001; // Shows up in e'eryone's saved searches
+    const FLAG_QUEUE =          0x0002; // Shows up in queue navigation
+    const FLAG_CONTAINER =      0x0004; // Container for other queues ('Open')
+    const FLAG_INHERIT_CRITERIA = 0x0008; // Include criteria from parent
+    const FLAG_INHERIT_COLUMNS = 0x0010; // Inherit column layout from parent
+    const FLAG_INHERIT_SORTING = 0x0020; // Inherit advanced sorting from parent
+
+    var $criteria;
 
     static function queues() {
         return parent::objects()->filter(array(
@@ -36,8 +63,410 @@ class CustomQueue extends SavedSearch {
         ));
     }
 
-    function getColumns() {
-        if ($this->parent_id
+    function __onload() {
+        // Ensure valid state
+        if ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) && !$this->parent_id)
+            $this->clearFlag(self::FLAG_INHERIT_COLUMNS);
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getName() {
+        return $this->title;
+    }
+
+    function getHref() {
+        // TODO: Get base page from getRoot();
+        $root = $this->getRoot();
+        return 'tickets.php?queue='.$this->getId();
+    }
+
+    function getRoot() {
+        switch ($this->root) {
+        case 'T':
+        default:
+            return 'Ticket';
+        }
+    }
+
+    function getPath() {
+        return $this->path ?: $this->buildPath();
+    }
+
+    function getCriteria($include_parent=false) {
+        if (!isset($this->criteria)) {
+            $old = @$this->config[0] === '{';
+            $this->criteria = is_string($this->config)
+                ? JsonDataParser::decode($this->config)
+                : $this->config;
+            // Auto-upgrade criteria to new format
+            if ($old) {
+                // TODO: Upgrade old ORM path names
+                $this->criteria = $this->isolateCriteria($this->criteria);
+            }
+        }
+        $criteria = $this->criteria ?: array();
+        if ($include_parent && $this->parent_id && $this->parent) {
+            $criteria = array_merge($this->parent->getCriteria(true),
+                $criteria);
+        }
+        return $criteria;
+    }
+
+    function describeCriteria($criteria=false){
+        $all = $this->getSupportedMatches($this->getRoot());
+        $items = array();
+        $criteria = $criteria ?: $this->getCriteria(true);
+        foreach ($criteria as $C) {
+            list($path, $method, $value) = $C;
+            if ($path === ':keywords') {
+                $items[] = Format::htmlchars("\"{$value}\"");
+                continue;
+            }
+            if (!isset($all[$path]))
+                continue;
+            list($label, $field) = $all[$path];
+            $items[] = $field->describeSearch($method, $value, $label);
+        }
+        return implode("\nAND ", $items);
+    }
+
+    /**
+     * Fetch an AdvancedSearchForm instance for use in displaying or
+     * configuring this search in the user interface.
+     *
+     * Parameters:
+     * $search - <array> Request parameters ($_POST) used to update the
+     *      search beyond the current configuration of the search criteria
+     */
+    function getForm($source=null) {
+        $searchable = $this->getCurrentSearchFields($source);
+        $fields = array(
+            ':keywords' => new TextboxField(array(
+                'id' => 3001,
+                'configuration' => array(
+                    'size' => 40,
+                    'length' => 400,
+                    'autofocus' => true,
+                    'classes' => 'full-width headline',
+                    'placeholder' => __('Keywords — Optional'),
+                ),
+            )),
+        );
+        foreach ($searchable as $path=>$field) {
+            $fields = array_merge($fields, static::getSearchField($field, $path));
+        }
+
+        $form = new AdvancedSearchForm($fields, $source);
+        $form->addValidator(function($form) {
+            $selected = 0;
+            foreach ($form->getFields() as $F) {
+                if (substr($F->get('name'), -7) == '+search' && $F->getClean())
+                    $selected += 1;
+                // Consider keyword searches
+                elseif ($F->get('name') == ':keywords' && $F->getClean())
+                    $selected += 1;
+            }
+            if (!$selected)
+                $form->addError(__('No fields selected for searching'));
+        });
+
+        // Load state from current configuraiton
+        if (!$source) {
+            foreach ($this->getCriteria() as $I) {
+                list($path, $method, $value) = $I;
+                if ($path == ':keywords' && $method === null) {
+                    if ($F = $form->getField($path))
+                        $F->value = $value;
+                    continue;
+                }
+
+                if (!($F = $form->getField("{$path}+search")))
+                    continue;
+                $F->value = true;
+
+                if (!($F = $form->getField("{$path}+method")))
+                    continue;
+                $F->value = $method;
+
+                if ($value && ($F = $form->getField("{$path}+{$method}")))
+                    $F->value = $value;
+            }
+        }
+        return $form;
+    }
+
+    /**
+     * Fetch a bucket of fields for a custom search. The fields should be
+     * added to a form before display. One searchable field may encompass 10
+     * or more actual fields because fields are expanded to support multiple
+     * search methods along with the fields for each search method. This
+     * method returns all the FormField instances for all the searchable
+     * model fields currently in use.
+     *
+     * Parameters:
+     * $source - <array> data from a request. $source['fields'] is expected
+     *      to contain a list extra fields by ORM path, of newly added
+     *      fields not yet saved in this object's getCriteria().
+     */
+    function getCurrentSearchFields($source=array()) {
+        static $basic = array(
+            'Ticket' => array(
+                'status__state',
+                'dept_id',
+                'assignee',
+                'topic_id',
+                'created',
+                'est_duedate',
+            )
+        );
+
+        $all = $this->getSupportedMatches();
+        $core = array();
+
+        // Include basic fields for new searches
+        if (!isset($this->id))
+            foreach ($basic[$this->getRoot()] as $path)
+                if (isset($all[$path]))
+                    $core[$path] = $all[$path];
+
+        // Add others from current configuration
+        foreach ($this->getCriteria() as $C) {
+            list($path) = $C;
+            if (isset($all[$path]))
+                $core[$path] = $all[$path];
+        }
+
+        if (isset($source['fields']))
+            foreach ($source['fields'] as $path)
+                if (isset($all[$path]))
+                    $core[$path] = $all[$path];
+
+        return $core;
+    }
+
+    /**
+     * Fetch all supported ORM fields searchable by this search object. The
+     * returned list represents searchable fields, keyed by the ORM path.
+     * Use ::getCurrentSearchFields() or ::getSearchField() to retrieve for
+     * use in the user interface.
+     */
+    function getSupportedMatches() {
+        return static::getSearchableFields($this->getRoot());
+    }
+
+    /**
+     * Trace ORM fields from a base object and retrieve a complete list of
+     * fields which can be used in an ORM query based on the base object.
+     * The base object must implement Searchable interface and extend from
+     * VerySimpleModel. Then all joins from the object are also inspected,
+     * and any which implement the Searchable interface are traversed and
+     * automatically added to the list. The resulting list is cached based
+     * on the $base class, so multiple calls for the same $base return
+     * quickly.
+     *
+     * Parameters:
+     * $base - Class, name of a class implementing Searchable
+     * $recurse - int, number of levels to recurse, default is 2
+     * $cache - bool, cache results for future class for the same base
+     * $customData - bool, include all custom data fields for all general
+     *      forms
+     */
+    static function getSearchableFields($base, $recurse=2,
+        $customData=true, $exclude=array()
+    ) {
+        static $cache = array(), $otherFields;
+
+        // Early exit if already cached
+        $fields = &$cache[$base];
+        if ($fields)
+            return $fields;
+
+        if (!in_array('Searchable', class_implements($base)))
+            return array();
+
+        $fields = $fields ?: array();
+        foreach ($base::getSearchableFields() as $path=>$F) {
+            if (is_array($F)) {
+                list($label, $field) = $F;
+            }
+            else {
+                $label = $F->get('label');
+                $field = $F;
+            }
+            $fields[$path] = array($label, $field);
+        }
+
+        if ($customData && $base::supportsCustomData()) {
+            if (!isset($otherFields)) {
+                $otherFields = array();
+                $dfs = DynamicFormField::objects()
+                    ->filter(array('form__type' => 'G'))
+                    ->select_related('form');
+                foreach ($dfs as $field) {
+                    $otherFields[$field->getId()] = array($field->form,
+                        $field->getImpl());
+                }
+            }
+            foreach ($otherFields as $id=>$F) {
+                list($form, $field) = $F;
+                $label = sprintf("%s / %s",
+                    $form->getTitle(), $field->get('label'));
+                $fields["entries__answers!{$id}__value"] = array(
+                    $label, $field);
+            }
+        }
+
+        if ($recurse) {
+            $exclude[$base] = 1;
+            foreach ($base::getMeta('joins') as $path=>$j) {
+                $fc = $j['fkey'][0];
+                if (isset($exclude[$fc]) || $j['list'])
+                    continue;
+                foreach (static::getSearchableFields($fc, $recurse-1,
+                    true, $exclude)
+                as $path2=>$F) {
+                    list($label, $field) = $F;
+                    $fields["{$path}__{$path2}"] = array(
+                        sprintf("%s / %s", $fc, $label),
+                        $field);
+                }
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Fetch the FormField instances used when for configuring a searchable
+     * field in the user interface. This is the glue between a field
+     * representing a searchable model field and the configuration of that
+     * search in the user interface.
+     *
+     * Parameters:
+     * $F - <array<string, FormField>> the label and the FormField instance
+     *      representing the configurable search
+     * $name - <string> ORM path for the search
+     */
+    static function getSearchField($F, $name) {
+        list($label, $field) = $F;
+
+        $pieces = array();
+        $pieces["{$name}+search"] = new BooleanField(array(
+            'id' => sprintf('%u', crc32($name)) >> 1,
+            'configuration' => array(
+                'desc' => $label ?: $field->getLocal('label'),
+                'classes' => 'inline',
+            ),
+        ));
+        $methods = $field->getSearchMethods();
+        $pieces["{$name}+method"] = new ChoiceField(array(
+            'choices' => $methods,
+            'default' => key($methods),
+            'visibility' => new VisibilityConstraint(new Q(array(
+                "{$name}+search__eq" => true,
+            )), VisibilityConstraint::HIDDEN),
+        ));
+        $offs = 0;
+        foreach ($field->getSearchMethodWidgets() as $m=>$w) {
+            if (!$w)
+                continue;
+            list($class, $args) = $w;
+            $args['required'] = true;
+            $args['__searchval__'] = true;
+            $args['visibility'] = new VisibilityConstraint(new Q(array(
+                    "{$name}+method__eq" => $m,
+                )), VisibilityConstraint::HIDDEN);
+            $pieces["{$name}+{$m}"] = new $class($args);
+        }
+        return $pieces;
+    }
+
+    function getField($path) {
+        $searchable = $this->getSupportedMatches();
+        return $searchable[$path];
+    }
+
+    // Remove this and adjust advanced-search-criteria template to use the
+    // getCriteria() list and getField()
+    function getSearchFields($form=false) {
+        $form = $form ?: $this->getForm();
+        $searchable = $this->getCurrentSearchFields();
+        $info = array();
+        foreach ($form->getFields() as $f) {
+            if (substr($f->get('name'), -7) == '+search') {
+                $name = substr($f->get('name'), 0, -7);
+                $value = null;
+                // Determine the search method and fetch the original field
+                if (($M = $form->getField("{$name}+method"))
+                    && ($method = $M->getClean())
+                    && (list(,$field) = $searchable[$name])
+                ) {
+                    // Request the field to generate a search Q for the
+                    // search method and given value
+                    if ($value = $form->getField("{$name}+{$method}"))
+                        $value = $value->getClean();
+                }
+                $info[$name] = array(
+                    'field' => $field,
+                    'method' => $method,
+                    'value' => $value,
+                    'active' =>  $f->getClean(),
+                );
+            }
+        }
+        return $info;
+    }
+
+    /**
+     * Take the criteria from the SavedSearch fields setup and isolate the
+     * field name being search, the method used for searhing, and the method-
+     * specific data entered in the UI.
+     */
+    function isolateCriteria($criteria, $root=null) {
+        $searchable = static::getSearchableFields($root ?: $this->getRoot());
+        $items = array();
+        if (!is_array($criteria))
+            return null;
+        foreach ($criteria as $k=>$v) {
+            if (substr($k, -7) === '+method') {
+                list($name,) = explode('+', $k, 2);
+                if (!isset($searchable[$name]))
+                    continue;
+
+                // Require checkbox to be checked too
+                if (!$criteria["{$name}+search"])
+                    continue;
+
+                // Lookup the field to search this condition
+                list($label, $field) = $searchable[$name];
+
+                // Get the search method and value
+                $method = $v;
+                // Not all search methods require a value
+                $value = $criteria["{$name}+{$method}"];
+
+                $items[] = array($name, $method, $value);
+            }
+        }
+        if (isset($criteria[':keywords'])
+            && ($kw = $criteria[':keywords'])
+        ) {
+            $items[] = array(':keywords', null, $kw);
+        }
+        return $items;
+    }
+
+    function getColumns($use_template=false) {
+        if ($this->columns_id
+            && ($q = CustomQueue::lookup($this->columns_id))
+        ) {
+            // Use columns from cited queue
+            return $q->getColumns();
+        }
+        elseif ($this->parent_id
             && $this->hasFlag(self::FLAG_INHERIT_COLUMNS)
             && $this->parent
         ) {
@@ -46,12 +475,66 @@ class CustomQueue extends SavedSearch {
         elseif (count($this->columns)) {
             return $this->columns;
         }
-        return parent::getColumns();
+
+        // Use the columns of the "Open" queue as a default template
+        //if ($use_template && ($template = CustomQueue::lookup(1)))
+			$template = CustomQueue::lookup(1);
+            return $template->getColumns();
+
+        // Last resort — use standard columns
+        foreach (array(
+            QueueColumn::placeholder(array(
+                "heading" => "Number",
+                "primary" => 'number',
+                "width" => 85,
+                "filter" => "link:ticketP",
+                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
+                "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
+            )),
+            QueueColumn::placeholder(array(
+                "heading" => "Created",
+                "primary" => 'created',
+                "width" => 100,
+            )),
+            QueueColumn::placeholder(array(
+                "heading" => "Subject",
+                "primary" => 'cdata__subject',
+                "width" => 250,
+                "filter" => "link:ticket",
+                "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
+                "truncate" => 'ellipsis',
+            )),
+            QueueColumn::placeholder(array(
+                "heading" => "From",
+                "primary" => 'user__name',
+                "width" => 150,
+            )),
+            QueueColumn::placeholder(array(
+                "heading" => "Priority",
+                "primary" => 'cdata__priority',
+                "width" => 120,
+            )),
+            QueueColumn::placeholder(array(
+                "heading" => "Assignee",
+                "primary" => 'assignee',
+                "width" => 100,
+            )),
+        ) as $col)
+            $this->addColumn($col);
+
+        return $this->getColumns();
     }
 
     function addColumn(QueueColumn $col) {
         $this->columns->add($col);
         $col->queue = $this;
+    }
+
+    function getSortOptions() {
+        if ($this->inheritSorting() && $this->parent) {
+            return $this->parent->getSortOptions();
+        }
+        return $this->sorts;
     }
 
     function getStatus() {
@@ -113,9 +596,9 @@ class CustomQueue extends SavedSearch {
         if (isset($quick_filter)
             && ($qf = $this->getQuickFilterField($quick_filter))
         ) {
-            $this->filter = @SavedSearch::getOrmPath($this->filter, $query);
+            $filter = @self::getOrmPath($this->getQuickFilter(), $query);
             $query = $qf->applyQuickFilter($query, $quick_filter,
-                $this->filter); 
+                $filter);
         }
 
         // Apply column, annotations and conditions additions
@@ -125,6 +608,13 @@ class CustomQueue extends SavedSearch {
         return $query;
     }
 
+    function getQuickFilter() {
+        if ($this->filter == '::' && $this->parent) {
+            return $this->parent->getQuickFilter();
+        }
+        return $this->filter;
+    }
+
     function getQuickFilterField($value=null) {
         if ($this->filter == '::') {
             if ($this->parent) {
@@ -132,7 +622,7 @@ class CustomQueue extends SavedSearch {
             }
         }
         elseif ($this->filter
-            && ($fields = SavedSearch::getSearchableFields($this->getRoot()))
+            && ($fields = self::getSearchableFields($this->getRoot()))
             && (list(,$f) = @$fields[$this->filter])
             && $f->supportsQuickFilter()
         ) {
@@ -141,18 +631,135 @@ class CustomQueue extends SavedSearch {
         }
     }
 
+    /**
+     * Get a description of a field in a search. Expects an entry from the
+     * array retrieved in ::getSearchFields()
+     */
+    function describeField($info, $name=false) {
+        return $info['field']->describeSearch($info['method'], $info['value'], $name);
+    }
+
+    function mangleQuerySet(QuerySet $qs, $form=false) {
+        $qs = clone $qs;
+        $searchable = $this->getSupportedMatches();
+
+        // Figure out fields to search on
+        foreach ($this->getCriteria() as $I) {
+            list($name, $method, $value) = $I;
+
+            // Consider keyword searching
+            if ($name === ':keywords') {
+                global $ost;
+                $qs = $ost->searcher->find($value, $qs, false);
+            }
+            else {
+                // XXX: Move getOrmPath to be more of a utility
+                // Ensure the special join is created to support custom data joins
+                $name = @static::getOrmPath($name, $qs);
+
+                if (preg_match('/__answers!\d+__/', $name)) {
+                    $qs->annotate(array($name2 => SqlAggregate::MAX($name)));
+                }
+
+                // Fetch a criteria Q for the query
+                if (list(,$field) = $searchable[$name])
+                    if ($q = $field->getSearchQ($method, $value, $name))
+                        $qs = $qs->filter($q);
+            }
+        }
+        return $qs;
+    }
+
+    function checkAccess(Staff $agent) {
+        return $agent->getId() == $this->staff_id
+            || $this->hasFlag(self::FLAG_PUBLIC);
+    }
+
+    function ignoreVisibilityConstraints() {
+        global $thisstaff;
+
+        // For saved searches (not queues), staff can have a permission to
+        // see all records
+        return !$this->isAQueue()
+            && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
+    }
+
+    function inheritCriteria() {
+        return $this->flags & self::FLAG_INHERIT_CRITERIA;
+    }
+
+    function inheritColumns() {
+        return $this->hasFlag(self::FLAG_INHERIT_COLUMNS);
+    }
+
+    function inheritSorting() {
+        return $this->hasFlag(self::FLAG_INHERIT_SORTING);
+    }
+
+    function buildPath() {
+        if (!$this->id)
+            return;
+
+        $path = $this->parent ? $this->parent->getPath() : '';
+        return $path . "/{$this->id}";
+    }
+
+    function getFullName() {
+        $base = $this->getName();
+        if ($this->parent)
+            $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
+        return $base;
+    }
+
+    function isAQueue() {
+        return $this->hasFlag(self::FLAG_QUEUE);
+    }
+
+    function isPrivate() {
+        return !$this->isAQueue() && !$this->hasFlag(self::FLAG_PUBLIC);
+    }
+
+    protected function hasFlag($flag) {
+        return ($this->flags & $flag) !== 0;
+    }
+
+    protected function clearFlag($flag) {
+        return $this->flags &= ~$flag;
+    }
+
+    protected function setFlag($flag, $value=true) {
+        return $value
+            ? $this->flags |= $flag
+            : $this->clearFlag($flag);
+    }
+
+
     function update($vars, &$errors=array()) {
-        if (!parent::update($vars, false, $errors))
-            return false;
+        // Set basic search information
+        if (!$vars['name'])
+            $errors['name'] = __('A title is required');
+
+        $this->title = $vars['name'];
+        $this->parent_id = @$vars['parent_id'] ?: 0;
+        if ($this->parent_id && !$this->parent)
+            $errors['parent_id'] = __('Select a valid queue');
 
         // Set basic queue information
         $this->filter = $vars['filter'];
         $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA,
             $this->parent_id > 0 && isset($vars['inherit']));
+        $this->setFlag(self::FLAG_INHERIT_COLUMNS,
+            $this->parent_id > 0 && isset($vars['inherit-columns']));
+        $this->setFlag(self::FLAG_INHERIT_SORTING,
+            $this->parent_id > 0 && isset($vars['inherit-sorting']));
 
         // Update queue columns (but without save)
-        if (isset($vars['columns'])) {
+        if (!isset($vars['columns']) && $this->parent) {
+            // No columns -- imply column inheritance
+            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
+        }
+        if (isset($vars['columns']) && !$this->hasFlag(self::FLAG_INHERIT_COLUMNS)) {
             $new = $vars['columns'];
             $order = array_keys($new);
             foreach ($this->columns as $col) {
@@ -170,7 +777,7 @@ class CustomQueue extends SavedSearch {
             }
             // Add new columns
             foreach ($new as $info) {
-                $glue = QueueColumnGlue::create(array(
+                $glue = new QueueColumnGlue(array(
                     'column_id' => $info['column_id'], 
                     'sort' => array_search($info['column_id'], $order),
                     'heading' => $info['heading'],
@@ -184,30 +791,98 @@ class CustomQueue extends SavedSearch {
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
         }
-        else {
-            // No columns -- imply column inheritance
-            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
+
+        // Update advanced sorting options for the queue
+        if (isset($vars['sorts']) && !$this->hasFlag(self::FLAG_INHERIT_SORTING)) {
+            $new = $vars['sorts'];
+            $order = array_keys($new);
+            foreach ($this->sorts as $sort) {
+                $key = $sort->sort_id;
+                if (!in_array($key, $vars['sorts'])) {
+                    $this->sorts->remove($sort);
+                    continue;
+                }
+                $sort->set('sort', array_search($key, $order));
+                unset($new[$key]);
+            }
+            // Add new columns
+            foreach ($new as $id) {
+                $glue = new QueueSortGlue(array(
+                    'sort_id' => $id,
+                    'sort' => array_search($id, $order),
+                ));
+                $glue->queue = $this;
+                $this->sorts->add(QueueSort::lookup($id), $glue);
+            }
+            // Re-sort the in-memory columns array
+            $this->sorts->sort(function($c) { return $c->sort; });
         }
+
+        // TODO: Move this to SavedSearch::update() and adjust
+        //       AjaxSearch::_saveSearch()
+        $form = $form ?: $this->getForm($vars);
+        if (!$vars || !$form->isValid()) {
+            $errors['criteria'] = __('Validation errors exist on criteria');
+        }
+        else {
+            $this->config = JsonDataEncoder::encode(
+                $this->isolateCriteria($form->getClean()));
+        }
+
         return 0 === count($errors);
     }
 
     function save($refetch=false) {
         $wasnew = !isset($this->id);
-        if (!($rv = parent::save($refetch)))
+
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        if (!($rv = parent::save($refetch || $this->dirty)))
             return $rv;
 
         if ($wasnew) {
             $this->path = $this->buildPath();
             $this->save();
         }
-        return $this->columns->saveAll();
+        return $this->columns->saveAll()
+            && $this->sorts->saveAll();
     }
+
+    static function getOrmPath($name, $query=null) {
+        // Special case for custom data `__answers!id__value`. Only add the
+        // join and constraint on the query the first pass, when the query
+        // being mangled is received.
+        $path = array();
+        if ($query && preg_match('/^(.+?)__(answers!(\d+))/', $name, $path)) {
+            // Add a join to the model of the queryset where the custom data
+            // is forked from — duplicate the 'answers' join and add the
+            // constraint to the query based on the field_id
+            // $path[1] - part before the answers (user__org__entries)
+            // $path[2] - answers!xx join part
+            // $path[3] - the `xx` part of the answers!xx join component
+            $root = $query->model;
+            $meta = $root::getMeta()->getByPath($path[1]);
+            $joins = $meta['joins'];
+            if (!isset($joins[$path[2]])) {
+                $meta->addJoin($path[2], $joins['answers']);
+            }
+            // Ensure that the query join through answers!xx is only for the
+            // records which match field_id=xx
+            $query->constrain(array("{$path[1]}__{$path[2]}" =>
+                array("{$path[1]}__{$path[2]}__field_id" => (int) $path[3])
+            ));
+            // Leave $name unchanged
+        }
+        return $name;
+    }
+
 
     static function create($vars=false) {
         global $thisstaff;
 
-        $queue = parent::create($vars);
-        $queue->setFlag(SavedSearch::FLAG_QUEUE);
+        $queue = new static($vars);
+        $queue->created = SqlFunction::NOW();
+        $queue->setFlag(self::FLAG_QUEUE);
         if ($thisstaff)
             $queue->staff_id = $thisstaff->getId();
 
@@ -218,9 +893,16 @@ class CustomQueue extends SavedSearch {
         $q = static::create($vars);
         $q->save();
         foreach ($vars['columns'] as $info) {
-            $glue = QueueColumnGlue::create($info);
+            $glue = new QueueColumnGlue($info);
             $glue->queue_id = $q->getId();
             $glue->save();
+        }
+        if (isset($vars['sorts'])) {
+            foreach ($vars['sorts'] as $info) {
+                $glue = new QueueSortGlue($info);
+                $glue->queue_id = $q->getId();
+                $glue->save();
+            }
         }
         return $q;
     }
@@ -470,11 +1152,11 @@ extends QueueColumnAnnotation {
 
 class DataSourceField
 extends ChoiceField {
-    function getChoices() {
+    function getChoices($verbose=false) {
         $config = $this->getConfiguration();
         $root = $config['root'];
         $fields = array();
-        foreach (SavedSearch::getSearchableFields($root) as $path=>$f) {
+        foreach (CustomQueue::getSearchableFields($root) as $path=>$f) {
             list($label,) = $f;
             $fields[$path] = $label;
         }
@@ -514,7 +1196,7 @@ class QueueColumnCondition {
         // FIXME
         #$root = $this->getColumn()->getRoot();
         $root = 'Ticket';
-        $searchable = SavedSearch::getSearchableFields($root);
+        $searchable = CustomQueue::getSearchableFields($root);
 
         if (!isset($name))
             list($name) = $this->config['crit'];
@@ -539,7 +1221,7 @@ class QueueColumnCondition {
 
         // XXX: Move getOrmPath to be more of a utility
         // Ensure the special join is created to support custom data joins
-        $name = @SavedSearch::getOrmPath($name, $query);
+        $name = @CustomQueue::getOrmPath($name, $query);
 
         $name2 = null;
         if (preg_match('/__answers!\d+__/', $name)) {
@@ -560,7 +1242,7 @@ class QueueColumnCondition {
      * specific data entered in the UI.
      */
     static function isolateCriteria($criteria, $root='Ticket') {
-        $searchable = SavedSearch::getSearchableFields($root);
+        $searchable = CustomQueue::getSearchableFields($root);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
@@ -681,7 +1363,7 @@ extends ChoiceField {
             return new $choices(array('name' => $prop));
     }
 
-    function getChoices() {
+    function getChoices($verbose=false) {
         if (isset($this->property))
             return static::$properties[$this->property];
 
@@ -836,9 +1518,9 @@ extends VerySimpleModel {
 
     function renderBasicValue($row) {
         $root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
-        $fields = SavedSearch::getSearchableFields($root);
-        $primary = SavedSearch::getOrmPath($this->primary);
-        $secondary = SavedSearch::getOrmPath($this->secondary);
+        $fields = CustomQueue::getSearchableFields($root);
+        $primary = CustomQueue::getOrmPath($this->primary);
+        $secondary = CustomQueue::getOrmPath($this->secondary);
 
         // Return a lazily ::display()ed value so that the value to be
         // rendered by the field could be changed or display()ed when
@@ -868,7 +1550,12 @@ extends VerySimpleModel {
         switch ($this->truncate) {
         case 'lclip':
             $linfo = Internationalization::getCurrentLanguageInfo();
-            $class[] = $linfo['direction'] == 'rtl' ? 'ltr' : 'rtl';
+            // Use `rtl` class to cut the beginning of LTR text. But, wrap
+            // the text with an appropriate direction so the ending
+            // punctuation is not rearranged.
+            $dir = $linfo['direction'] ?: 'ltr';
+            $text = sprintf('<span class="%s">%s</span>', $dir, $text);
+            $class[] = $dir == 'rtl' ? 'ltr' : 'rtl';
         case 'clip':
             $class[] = 'bleed';
         case 'ellipsis':
@@ -894,16 +1581,16 @@ extends VerySimpleModel {
 
     function mangleQuery($query, $root=null) {
         // Basic data
-        $fields = SavedSearch::getSearchableFields($root ?: $this->getQueue()->getRoot());
+        $fields = CustomQueue::getSearchableFields($root ?: $this->getQueue()->getRoot());
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
             $query = $this->addToQuery($query, $field,
-                SavedSearch::getOrmPath($this->primary, $query));
+                CustomQueue::getOrmPath($this->primary, $query));
         }
         if ($secondary = $fields[$this->secondary]) {
             list(,$field) = $secondary;
             $query = $this->addToQuery($query, $field,
-                SavedSearch::getOrmPath($this->secondary, $query));
+                CustomQueue::getOrmPath($this->secondary, $query));
         }
 
         if ($filter = $this->getFilter())
@@ -919,6 +1606,21 @@ extends VerySimpleModel {
             $query = $C->annotate($query);
         }
 
+        return $query;
+    }
+
+    function applySort($query, $reverse=false) {
+        $fields = CustomQueue::getSearchableFields($root ?: $this->getQueue()->getRoot());
+        if ($primary = $fields[$this->primary]) {
+            list(,$field) = $primary;
+            $query = $field->applyOrderBy($query, $reverse,
+                CustomQueue::getOrmPath($this->primary, $query));
+        }
+        if ($secondary = $fields[$this->secondary]) {
+            list(,$field) = $secondary;
+            $query = $field->applyOrderBy($query, $reverse,
+                CustomQueue::getOrmPath($this->secondary, $query));
+        }
         return $query;
     }
 
@@ -956,9 +1658,13 @@ extends VerySimpleModel {
     }
 
     static function __create($vars) {
-        $c = static::create($vars);
+        $c = new static($vars);
         $c->save();
         return $c;
+    }
+
+    static function placeholder($vars) {
+        return static::__hydrate($vars);
     }
 
     function update($vars, $root='Ticket') {
@@ -989,11 +1695,11 @@ extends VerySimpleModel {
                     continue;
                 // Determine the criteria
                 $name = $vars['condition_field'][$i];
-                $fields = SavedSearch::getSearchableFields($root);
+                $fields = CustomQueue::getSearchableFields($root);
                 if (!isset($fields[$name]))
                     // No such field exists for this queue root type
                     continue;
-                $parts = SavedSearch::getSearchField($fields[$name], $name);
+                $parts = CustomQueue::getSearchField($fields[$name], $name);
                 $search_form = new SimpleForm($parts, $vars, array('id' => $id));
                 $search_form->getField("{$name}+search")->value = true;
                 $crit = $search_form->getClean();
@@ -1049,13 +1755,8 @@ extends VerySimpleModel {
     );
 }
 
-class QueueColumnListBroker
-extends InstrumentedList {
-    function __construct($fkey, $queryset=false) {
-        parent::__construct($fkey, $queryset);
-        $this->queryset->select_related('column');
-    }
-
+class QueueColumnGlueMIM
+extends ModelInstanceManager {
     function getOrBuild($modelClass, $fields, $cache=true) {
         $m = parent::getOrBuild($modelClass, $fields, $cache);
         if ($m && $modelClass === 'QueueColumnGlue') {
@@ -1065,12 +1766,189 @@ extends InstrumentedList {
         }
         return $m;
     }
+}
 
-    function add($column, $glue=null) {
-        $glue = $glue ?: QueueColumnGlue::create();
+class QueueColumnListBroker
+extends InstrumentedList {
+    function __construct($fkey, $queryset=false) {
+        parent::__construct($fkey, $queryset, 'QueueColumnGlueMIM');
+        $this->queryset->select_related('column');
+    }
+
+    function add($column, $glue=null, $php7_is_annoying=true) {
+        $glue = $glue ?: new QueueColumnGlue();
         $glue->column = $column;
         $anno = AnnotatedModel::wrap($column, $glue);
-        parent::add($anno);
+        parent::add($anno, false);
+        return $anno;
+    }
+}
+
+class QueueSort
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_SORT_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('name'),
+        'joins' => array(
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+    );
+
+    var $_columns;
+
+    function getRoot($hint=false) {
+        switch ($hint ?: $this->root) {
+        case 'T':
+        default:
+            return 'Ticket';
+        }
+    }
+
+    function getName() {
+        return $this->name;
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function applySort(QuerySet $query, $reverse=false, $root=false) {
+        $fields = CustomQueue::getSearchableFields($this->getRoot($root));
+        foreach ($this->getColumnPaths() as $path=>$descending) {
+            $descending = $reverse ? !$descending : $descending;
+            if (isset($fields[$path])) {
+                list(,$field) = $fields[$path];
+                $query = $field->applyOrderBy($query, $descending,
+                    CustomQueue::getOrmPath($path, $query));
+            }
+        }
+        return $query;
+    }
+
+    function getColumnPaths() {
+        if (!isset($this->_columns)) {
+            $columns = array();
+            foreach (JsonDataParser::decode($this->columns) as $path) {
+                if ($descending = $path[0] == '-')
+                    $path = substr($path, 1);
+                $columns[$path] = $descending;
+            }
+            $this->_columns = $columns;
+        }
+        return $this->_columns;
+    }
+
+    function getColumns() {
+        $columns = array();
+        $paths = $this->getColumnPaths();
+        $everything = CustomQueue::getSearchableFields($this->getRoot());
+        foreach ($paths as $p=>$descending) {
+            if (isset($everything[$p])) {
+                $columns[$p] = array($everything[$p], $descending);
+            }
+        }
+        return $columns;
+    }
+
+    function getDataConfigForm($source=false) {
+        return new QueueSortDataConfigForm($source ?: $this->getDbFields(),
+            array('id' => $this->id));
+    }
+
+    static function forQueue(CustomQueue $queue) {
+        return static::objects()->filter([
+            'root' => $queue->getRoot(),
+        ]);
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    function update($vars, &$errors=array()) {
+        if (!isset($vars['name']))
+            $errors['name'] = __('A title is required');
+
+        $this->name = $vars['name'];
+        if (isset($vars['root']))
+            $this->root = $vars['root'];
+        elseif (!isset($this->root))
+            $this->root = 'T';
+
+        $fields = CustomQueue::getSearchableFields($this->getRoot($vars['root']));
+        $columns = array();
+        if (@is_array($vars['columns'])) {
+            foreach ($vars['columns']as $path=>$info) {
+                $descending = (int) @$info['descending'];
+                // TODO: Check if column is valid, stash in $columns
+                if (!isset($fields[$path]))
+                    continue;
+                $columns[] = ($descending ? '-' : '') . $path;
+            }
+            $this->columns = JsonDataEncoder::encode($columns);
+        }
+
+        if (count($errors))
+            return false;
+
+        return $this->save();
+    }
+
+    static function __create($vars) {
+        $c = new static($vars);
+        $c->save();
+        return $c;
+    }
+}
+
+class QueueSortGlue
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_SORTING_TABLE,
+        'pk' => array('sort_id', 'queue_id'),
+        'joins' => array(
+            'ordering' => array(
+                'constraint' => array('sort_id' => 'QueueSort.id'),
+            ),
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+        'select_related' => array('ordering', 'queue'),
+        'ordering' => array('sort'),
+    );
+}
+
+class QueueSortGlueMIM
+extends ModelInstanceManager {
+    function getOrBuild($modelClass, $fields, $cache=true) {
+        $m = parent::getOrBuild($modelClass, $fields, $cache);
+        if ($m && $modelClass === 'QueueSortGlue') {
+            // Instead, yield the QueueColumn instance with the local fields
+            // in the association table as annotations
+            $m = AnnotatedModel::wrap($m->ordering, $m, 'QueueSort');
+        }
+        return $m;
+    }
+}
+
+class QueueSortListBroker
+extends InstrumentedList {
+    function __construct($fkey, $queryset=false) {
+        parent::__construct($fkey, $queryset, 'QueueSortGlueMIM');
+        $this->queryset->select_related('ordering');
+    }
+
+    function add($ordering, $glue=null, $php7_is_annoying=true) {
+        $glue = $glue ?: new QueueSortGlue();
+        $glue->ordering = $ordering;
+        $anno = AnnotatedModel::wrap($ordering, $glue);
+        parent::add($anno, false);
         return $anno;
     }
 }
@@ -1140,11 +2018,7 @@ extends QueueColumnFilter {
     }
 
     function getLink($row) {
-		if (isset($_REQUEST['queue'])) 
-		$sq = "&queue={$_REQUEST['queue']}";
-		if (isset($_REQUEST['p'])) 
-					$sp =  "&p={$_REQUEST['p']}";
-	    return Ticket::getLink($row['ticket_id']).$sq.$sp;
+        return Ticket::getLink($row['ticket_id']);
     }
 }
 
@@ -1190,8 +2064,7 @@ extends QueueColumnFilter {
     static $desc = /* @trans */ "Date and Time";
 
     function filter($text, $row) {
-		if($text->value !=NULL)
-	        return $text->changeTo(Format::datetime($text->value));
+        return $text->changeTo(Format::datetime($text->value));
     }
 }
 
@@ -1252,6 +2125,27 @@ extends AbstractForm {
                 ),
                 'default' => 'wrap',
                 'layout' => new GridFluidCell(4),
+            )),
+        );
+    }
+}
+
+class QueueSortDataConfigForm
+extends AbstractForm {
+    function getInstructions() {
+        return __('Add, and remove the fields in this list using the options below. Sorting is priortized in ascending order.');
+    }
+
+    function buildFields() {
+        return array(
+            'name' => new TextboxField(array(
+                'required' => true,
+                'layout' => new GridFluidCell(12),
+                'translatable' => isset($this->options['id'])
+                    ? _H('queuesort.name.'.$this->options['id']) : false,
+                'configuration' => array(
+                    'placeholder' => __('Sort Criteria Title'),
+                ),
             )),
         );
     }

@@ -796,7 +796,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $cdept = $this->getDept();
         $dept = $form->getDept();
         if (!$dept || !($dept instanceof Dept))
-            $errors['dept'] = __('Department selection required');
+            $errors['dept'] = __('Department selection is required');
         elseif ($dept->getid() == $this->getDeptId())
             $errors['dept'] = __('Task already in the department');
         else
@@ -1033,12 +1033,12 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
     static function getVarScope() {
         $base = array(
-            'assigned' => __('Assigned agent and/or team'),
+            'assigned' => __('Assigned Agent / Team'),
             'close_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Date Closed'),
             ),
             'create_date' => array(
-                'class' => 'FormattedDate', 'desc' => __('Date created'),
+                'class' => 'FormattedDate', 'desc' => __('Date Created'),
             ),
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),
@@ -1046,7 +1046,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'due_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
-            'number' => __('Task number'),
+            'number' => __('Task Number'),
             'recipients' => array(
                 'class' => 'UserList', 'desc' => __('List of all recipient names'),
             ),
@@ -1269,7 +1269,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 || !$thisstaff->hasPerm(Task::PERM_CREATE, false))
             return null;
 
-        $task = parent::create(array(
+        $task = new static(array(
             'flags' => self::ISOPEN,
             'object_id' => $vars['object_id'],
             'object_type' => $vars['object_type'],
@@ -1546,7 +1546,9 @@ class TaskThread extends ObjectThread {
         return MessageThreadEntry::create($vars, $errors);
     }
 
-    static function create($task) {
+    static function create($task=false) {
+        assert($task !== false);
+
         $id = is_object($task) ? $task->getId() : $task;
         $thread = parent::create(array(
                     'object_id' => $id,

@@ -137,7 +137,7 @@ extends InstrumentedList {
 
             $_inline = isset($file['inline']) ? $file['inline'] : $inline;
 
-            $att = $this->add(Attachment::create(array(
+            $att = $this->add(new Attachment(array(
                 'file_id' => $fileId,
                 'inline' => $_inline ? 1 : 0,
             )));

@@ -17,7 +17,7 @@ require_once("class.file.php");
 
 class Knowledgebase {
 
-    function Knowledgebase($id) {
+    function __construct($id) {
         $res=db_query(
             'SELECT title, isenabled, dept_id, created, updated '
            .'FROM '.CANNED_TABLE.' WHERE canned_id='.db_input($id));

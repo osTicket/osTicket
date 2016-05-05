@@ -262,7 +262,7 @@ class OldOneSixFile extends VerySimpleModel {
     );
 
     static function create($info) {
-        $I = parent::create($info);
+        $I = new static($info);
         $I->save();
         return $I;
     }

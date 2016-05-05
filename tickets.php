@@ -95,11 +95,13 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
                 $attachments->reset();
                 $attachments->getForm()->setSource(array());
             } else {
-                $errors['err']=__('Unable to post the message. Try again');
+                $errors['err'] = sprintf('%s %s',
+                    __('Unable to post the message.'),
+                    __('Correct any errors below and try again.'));
             }
 
         } elseif(!$errors['err']) {
-            $errors['err']=__('Error(s) occurred. Please try again');
+            $errors['err'] = __('Correct any errors below and try again.');
         }
         break;
     default:
@@ -110,7 +112,7 @@ elseif (is_object($ticket) && $ticket->getId()) {
     switch(strtolower($_REQUEST['a'])) {
     case 'print':
         if (!$ticket || !$ticket->pdfExport($_REQUEST['psize']))
-            $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
+            $errors['err'] = __('Internal error: Unable to print to PDF');
         break;
     }
 }

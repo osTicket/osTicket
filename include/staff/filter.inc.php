@@ -269,7 +269,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <i class="icon-plus-sign"></i>
                 <select name="new-action" id="new-action-select"
                         onchange="javascript: $('#new-action-btn').trigger('click');">
-                    <option value=""><?php echo __('— Select an Action —'); ?></option>
+                    <option value="">— <?php echo __('Select an Action'); ?> —</option>
                     <?php
                     $current_group = '';
                     foreach (FilterAction::allRegistered() as $group=>$actions) {
@@ -313,7 +313,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <tr>
                     <th colspan="2">
                         <em><strong><?php echo __('Internal Notes');?></strong>: <?php
-                            echo __("be liberal, they're internal");?></em>
+                            echo __("Be liberal, they're internal");?></em>
                     </th>
                 </tr>
             </thead>

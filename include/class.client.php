@@ -46,8 +46,8 @@ implements EmailContact, ITicketUser, TemplateVariable {
 
     static function getVarScope() {
         return array(
-            'email' => __('Email address'),
-            'name' => array('class' => 'PersonsName', 'desc' => __('Full name')),
+            'email' => __('Email Address'),
+            'name' => array('class' => 'PersonsName', 'desc' => __('Full Name')),
             'ticket_link' => __('Link to view the ticket'),
         );
     }

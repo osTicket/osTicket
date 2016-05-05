@@ -28,7 +28,7 @@ class TaskLoader extends MigrationTask {
         foreach ($sequences as $s) {
             if ($s['id'] != 2) continue;
             unset($s['id']);
-            $sq=Sequence::create($s);
+            $sq=new Sequence($s);
             $sq->save();
             $sql= 'INSERT INTO '.CONFIG_TABLE
                 .' (`namespace`, `key`, `value`) '

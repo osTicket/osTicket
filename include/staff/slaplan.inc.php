@@ -91,7 +91,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("be liberal, they're internal");?>
+                <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("Be liberal, they're internal");?>
                 </em>
             </th>
         </tr>

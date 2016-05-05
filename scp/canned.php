@@ -28,7 +28,7 @@ if(!$thisstaff
 
 $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('canned response'));
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('Canned Response'));
 
 $canned_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -43,7 +43,7 @@ if ($_POST) {
             if(!$canned) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('canned response'));
             } elseif($canned->update($_POST, $errors)) {
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this canned response'));
 
                 //Delete removed attachments.
@@ -68,13 +68,15 @@ if ($_POST) {
                 // Delete drafts for all users for this canned response
                 Draft::deleteForNamespace('canned.'.$canned->getId());
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this canned response'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this canned response')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
             $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['title']));
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['title']));
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
@@ -90,13 +92,14 @@ if ($_POST) {
                 // Delete this user's drafts for new canned-responses
                 Draft::deleteForNamespace('canned', $thisstaff->getId());
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this canned response'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this canned response')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']=sprintf(__('You must select at least %s'), __('one canned response'));
+                $errors['err']=sprintf(__('You must select at least %s.'), __('one canned response'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -108,10 +111,10 @@ if ($_POST) {
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected canned response', 'selected canned responses', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d %s enabled'), $num, $count,
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
                                     _N('selected canned response', 'selected canned responses', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s.'),
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
                                 _N('selected canned response', 'selected canned responses', $count));
                         }
                         break;
@@ -123,7 +126,7 @@ if ($_POST) {
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected canned response', 'selected canned responses', $count));
                             else
-                                $warn = sprintf(__('%1$d of %2$d %s disabled'), $num, $count,
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
                                     _N('selected canned response', 'selected canned responses', $count));
                         } else {
                             $errors['err'] = sprintf(__('Unable to disable %s'),
@@ -139,17 +142,17 @@ if ($_POST) {
                         }
 
                         if($i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected canned response', 'selected canned responses', $count));
                         elseif($i>0)
                             $warn=sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected canned response', 'selected canned responses', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected canned response', 'selected canned responses', $count));
                         break;
                     default:
-                        $errors['err']=__('Unknown command');
+                        $errors['err']=__('Unknown action');
                 }
             }
             break;

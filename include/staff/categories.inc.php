@@ -30,11 +30,6 @@ $pageNav->setURL('categories.php', $qs);
 $qstr = '&amp;order='.($order=='DESC'?'ASC':'DESC');
 $pageNav->paginate($categories);
 
-if ($total)
-    $showing=$pageNav->showing().' '.__('categories');
-else
-    $showing=__('No FAQ categories found!');
-
 ?>
 
 <form action="categories.php" method="POST" id="mass-actions">
@@ -84,7 +79,6 @@ else
     </thead>
     <tbody>
     <?php
-        $total=0;
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         foreach ($categories as $C) {
             $sel=false;
@@ -110,12 +104,12 @@ else
     <tfoot>
      <tr>
         <td colspan="5">
-            <?php if($res && $num){ ?>
+            <?php if ($total) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
             <a id="selectNone" href="#ckb"><?php echo __('None');?></a>&nbsp;&nbsp;
             <a id="selectToggle" href="#ckb"><?php echo __('Toggle');?></a>&nbsp;&nbsp;
-            <?php }else{
+            <?php } else {
                 echo __('No FAQ categories found!');
             } ?>
         </td>
@@ -123,8 +117,8 @@ else
     </tfoot>
 </table>
 <?php
-if($res && $num): //Show options..
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
+if ($total) {
+    echo '<div>&nbsp;'.__('Page').': '.$pageNav->getPageLinks().'</div>';
 ?>
 <p class="centered" id="actions">
     <input class="button" type="submit" name="make_public" value="<?php echo __('Make Public');?>">
@@ -132,7 +126,7 @@ if($res && $num): //Show options..
     <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>" >
 </p>
 <?php
-endif;
+}
 ?>
 </form>
 <div style="display:none;" class="dialog" id="confirm-action">

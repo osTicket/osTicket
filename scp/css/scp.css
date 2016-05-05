@@ -345,6 +345,16 @@ div#msg_warning {
 #sub_nav > ul {
     margin-top: 0;
 }
+#customQ_nav {
+    clear:both;
+    margin:0;
+    padding:0;
+    line-height:26px;
+}
+
+#sub_nav > ul {
+    margin-top: 0;
+}
 
 #sub_nav > li + li > a {
     margin-left: 10px;
@@ -1272,11 +1282,13 @@ a.print {
 .table tr:not(:last-child):not(.header) {
     border-bottom:1px dotted #ddd;
 }
+
 .table tr.header {
     border-bottom: 1px dotted #777;
 }
 .table td:not(:empty) {
-    padding: 5px;
+    padding: 4px;
+    background-color:#fff;
 }
 .table.two-column tbody tr td:first-child {
     width: 25%;
@@ -2589,7 +2601,9 @@ time.faq {
     min-height: 50px;
     overflow-y: auto;
 }
-
+.dialog .table td:not(:empty) {
+    background-color:#f8f8f8!IMPORTANT;
+}
 .dialog#popup {
     width:650px;
 }

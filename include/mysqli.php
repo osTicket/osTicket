@@ -69,12 +69,13 @@ function db_connect($host, $user, $passwd, $options = array()) {
     if(isset($options['db'])) $__db->select_db($options['db']);
 
     //set desired encoding just in case mysql charset is not UTF-8 - Thanks to FreshMedia
-    @$__db->query('SET NAMES "utf8"');
-    @$__db->query('SET CHARACTER SET "utf8"');
-    @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');
+    @db_set_all(array(
+        'NAMES'                 => 'utf8',
+        'CHARACTER SET'         => 'utf8',
+        'COLLATION_CONNECTION'  => 'utf8_general_ci',
+        'SQL_MODE'              => '',
+    ), 'session');
     $__db->set_charset('utf8');
-
-    @db_set_variable('sql_mode', '');
 
     $__db->autocommit(true);
 
@@ -123,10 +124,30 @@ function db_get_variable($variable, $type='session') {
 }
 
 function db_set_variable($variable, $value, $type='session') {
-    $sql =sprintf('SET %s %s=%s',strtoupper($type), $variable, db_input($value));
-    return db_query($sql);
+    return db_set_all(array($variable => $value), $type);
 }
 
+function db_set_all($variables, $type='session') {
+    global $__db;
+
+    $set = array();
+    $type = strtoupper($type);
+    foreach ($variables as $k=>$v) {
+        $k = strtoupper($k);
+        $T = $type;
+        if (in_array($k, ['NAMES', 'CHARACTER SET'])) {
+            // MySQL doesn't support the session/global flag, and doesn't
+            // use an equal sign for these
+            $T = '';
+        }
+        else {
+            $k .= ' =';
+        }
+        $set[] = "$T $k ".($__db->real_escape_string($v) ?: "''");
+    }
+    $sql = 'SET ' . implode(', ', $set);
+    return db_query($sql);
+}
 
 function db_select_database($database) {
     global $__db;
@@ -192,17 +213,6 @@ function db_query($query, $logError=true, $buffered=true) {
 
 function db_query_unbuffered($sql, $logError=false) {
     return db_query($sql, $logError, true);
-}
-
-function db_squery($query) { //smart db query...utilizing args and sprintf
-
-    $args  = func_get_args();
-    $query = array_shift($args);
-    $query = str_replace("?", "%s", $query);
-    $args  = array_map('db_real_escape', $args);
-    array_unshift($args, $query);
-    $query = call_user_func_array('sprintf', $args);
-    return db_query($query);
 }
 
 function db_count($query) {

@@ -28,11 +28,12 @@ if($_POST){
             if(!$staff){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
             }elseif($staff->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this agent'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this agent'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this agent')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
@@ -45,11 +46,12 @@ if($_POST){
             }
             if ($staff->update($_POST,$errors)) {
                 unset($_SESSION['new-agent-passwd']);
-                $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['firstname']));
+                $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['firstname']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this agent'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this agent')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -104,13 +106,13 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected agent', 'selected agents', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         break;
 
@@ -120,13 +122,13 @@ if($_POST){
                                 $i++;
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully updated %s'),
+                            $msg = sprintf(__('Successfully updated %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s updated'), $i, $count,
                                 _N('selected agent', 'selected agents', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to update %s'),
+                            $errors['err'] = sprintf(__('Unable to update %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         break;
 
@@ -145,13 +147,13 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully updated %s'),
+                            $msg = sprintf(__('Successfully updated %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s updated'), $i, $count,
                                 _N('selected agent', 'selected agents', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to update %s'),
+                            $errors['err'] = sprintf(__('Unable to update %s.'),
                                 _N('selected agent', 'selected agents', $count));
                         break;
 

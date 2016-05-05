@@ -85,6 +85,11 @@ primary_role:
     content: >
         Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
 
+primary_role_on_assign:
+    title: Use Primary Role For Assignments
+    content: >
+        Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+
 daylight_saving:
     title: Daylight Saving
     content: >

@@ -640,7 +640,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $errors['email']=__('Already in-use as system email');
         elseif (($uid=static::getIdByEmail($vars['email']))
                 && (!isset($this->staff_id) || $uid!=$this->getId()))
-            $errors['email']=__('Email already in-use by another agent');
+            $errors['email']=__('Email already in use by another agent');
 
         if($vars['phone'] && !Validator::is_phone($vars['phone']))
             $errors['phone']=__('Valid phone number is required');
@@ -714,7 +714,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         while(list(, list($team_id, $alerts)) = each($membership)) {
             $member = $this->teams->findFirst(array('team_id' => $team_id));
             if (!$member) {
-                $this->teams->add($member = TeamMember::create(array(
+                $this->teams->add($member = new TeamMember(array(
                     'team_id' => $team_id,
                 )));
             }
@@ -859,7 +859,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 	}
 
     static function create($vars=false) {
-        $staff = parent::create($vars);
+        $staff = new static($vars);
         $staff->created = SqlFunction::NOW();
         return $staff;
     }
@@ -880,7 +880,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $token = Misc::randCode(48); // 290-bits
 
         if (!$content)
-            return new Error(/* @trans */ 'Unable to retrieve password reset email template');
+            return new BaseError(/* @trans */ 'Unable to retrieve password reset email template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -934,10 +934,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $imported = 0;
         $fields = array(
             'firstname' => new TextboxField(array(
-                'label' => __('First name'),
+                'label' => __('First Name'),
             )),
             'lastname' => new TextboxField(array(
-                'label' => __('Last name'),
+                'label' => __('Last Name'),
             )),
             'email' => new TextboxField(array(
                 'label' => __('Email Address'),
@@ -1133,7 +1133,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
             if (!isset($da)) {
-                $da = StaffDeptAccess::create(array(
+                $da = new StaffDeptAccess(array(
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
@@ -1355,8 +1355,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 
@@ -1406,8 +1406,8 @@ extends AbstractForm {
         return $clean;
     }
 
-    function render($staff=true) {
-        return parent::render($staff, false, array('template' => 'dynamic-form-simple.tmpl.php'));
+    function render($staff=true, $title=false, $options=array()) {
+        return parent::render($staff, $title, $options + array('template' => 'dynamic-form-simple.tmpl.php'));
     }
 }
 

@@ -319,8 +319,10 @@ class FileManager extends Module {
                 }
                 // Create a new file
                 else {
-                    $f = AttachmentFile::create($finfo);
-                    if (!$f->save()) {
+                    // Bypass the AttachmentFile::create() because we do not
+                    // have the data to send yet.
+                    $f = new AttachmentFile($finfo);
+                    if (!$f->save(true)) {
                         $this->fail(sprintf(
                             '%s: Unable to create new file record',
                             $finfo['name']));

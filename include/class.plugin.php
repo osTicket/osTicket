@@ -8,7 +8,7 @@ class PluginConfig extends Config {
     function __construct($name) {
         // Use parent constructor to place configurable information into the
         // central config table in a namespace of "plugin.<id>"
-        parent::Config("plugin.$name");
+        parent::__construct("plugin.$name");
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
                 $this->config[$name]->value = $field->to_php($this->get($name));
@@ -370,7 +370,7 @@ abstract class Plugin {
 
     static $verify_domain = 'updates.osticket.com';
 
-    function Plugin($id) {
+    function __construct($id) {
         $this->id = $id;
         $this->load();
     }

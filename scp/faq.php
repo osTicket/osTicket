@@ -64,25 +64,27 @@ if ($_POST) {
         case 'add':
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($faq->getQuestion()));
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                     __('this FAQ article'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this FAQ article')),
+                    __('Correct any errors below and try again.'));
         break;
         case 'update':
         case 'edit':
             if(!$faq)
                 $errors['err'] = sprintf(__('%s: Invalid or unknown'), __('FAQ article'));
             elseif($faq->update($_POST,$errors)) {
-                $msg=sprintf(__('Successfully updated %s'), __('this FAQ article'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this FAQ article'));
                 $_REQUEST['a']=null; //Go back to view
                 // Delete pending draft updates for this faq (for ALL users)
                 Draft::deleteForNamespace('faq.'.$faq->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
-                    __('this FAQ article'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this FAQ article')),
+                    __('Correct any errors below and try again.'));
             break;
         case 'manage-faq':
             if(!$faq) {
@@ -108,7 +110,7 @@ if ($_POST) {
                     case 'delete':
                         $category = $faq->getCategory();
                         if($faq->delete()) {
-                            $msg=sprintf(__('Successfully deleted %s'), Format::htmlchars($faq->getQuestion()));
+                            $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
                             $faq=null;
                         } else {
                             $errors['err']=sprintf(__('Unable to delete %s.'), __('this FAQ article'));

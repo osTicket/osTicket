@@ -25,7 +25,7 @@ class UserSession {
    var $ip = '';
    var $validated=FALSE;
 
-   function UserSession($userid){
+   function __construct($userid){
 
       $this->browser=(!empty($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : $_ENV['HTTP_USER_AGENT'];
       $this->ip=(!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : getenv('REMOTE_ADDR');

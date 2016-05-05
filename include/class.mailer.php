@@ -30,7 +30,7 @@ class Mailer {
     var $smtp = array();
     var $eol="\n";
 
-    function Mailer($email=null, array $options=array()) {
+    function __construct($email=null, array $options=array()) {
         global $cfg;
 
         if(is_object($email) && $email->isSMTPEnabled() && ($info=$email->getSMTPInfo())) { //is SMTP enabled for the current email?

@@ -120,6 +120,7 @@ extends VerySimpleModel {
                 if (!$html) {
                     $resp['response'] = Format::html2text($resp['response'], 90);
                 }
+
                 return Format::json_encode($resp);
                 break;
             case 'html':
@@ -167,7 +168,7 @@ extends VerySimpleModel {
     }
     /*** Static functions ***/
     static function create($vars=false) {
-        $faq = parent::create($vars);
+        $faq = new static($vars);
         $faq->created = SqlFunction::NOW();
         return $faq;
     }

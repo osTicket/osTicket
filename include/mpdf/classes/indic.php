@@ -2,11 +2,6 @@
 
 class indic {
 
-function indic() {
-
-}
-
-
 function substituteIndic($earr, $lang, $font) {
 	global $voltdata;
 

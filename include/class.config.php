@@ -30,7 +30,7 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-    function Config($section=null, $defaults=array()) {
+    function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
 
@@ -98,7 +98,7 @@ class Config {
     }
 
     function create($key, $value) {
-        $item = ConfigItem::create([
+        $item = new ConfigItem([
             $this->section_column => $this->section,
             'key' => $key,
             'value' => $value,
@@ -211,15 +211,16 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
     );
 
-    function OsticketConfig($section=null) {
-        parent::Config($section);
+    function __construct($section=null) {
+        parent::__construct($section);
 
         if (count($this->config) == 0) {
             // Fallback for osticket < 1.7@852ca89e
             $sql='SELECT * FROM '.$this->table.' WHERE id = 1';
+            $meta = ConfigItem::getMeta();
             if (($res=db_query($sql)) && db_num_rows($res))
                 foreach (db_fetch_array($res) as $key=>$value)
-                    $this->config[$key] = new ConfigItem(array('value'=>$value));
+                    $this->config[$key] = $meta->newInstance(array('value'=>$value));
         }
 
         return true;
@@ -1412,6 +1413,14 @@ class OsticketConfig extends Config {
         return $this->getLogo('staff');
     }
 
+    function getStaffLoginBackdropId() {
+        return $this->get("staff_backdrop_id", false);
+    }
+    function getStaffLoginBackdrop() {
+        $id = $this->getStaffLoginBackdropId();
+        return ($id) ? AttachmentFile::lookup((int) $id) : null;
+    }
+
     function updatePagesSettings($vars, &$errors) {
         global $ost;
 
@@ -1431,6 +1440,17 @@ class OsticketConfig extends Config {
                 $errors['logo'] = sprintf(__('Unable to upload logo image: %s'), $error);
         }
 
+        if ($_FILES['backdrop']) {
+            $error = false;
+            list($backdrop) = AttachmentFile::format($_FILES['backdrop']);
+            if (!$backdrop)
+                ; // Pass
+            elseif ($backdrop['error'])
+                $errors['backdrop'] = $backdrop['error'];
+            elseif (!AttachmentFile::uploadBackdrop($backdrop, $error))
+                $errors['backdrop'] = sprintf(__('Unable to upload backdrop image: %s'), $error);
+        }
+
         $company = $ost->company;
         $company_form = $company->getForm();
         $company_form->setSource($_POST);
@@ -1448,6 +1468,12 @@ class OsticketConfig extends Config {
                         && ($f = AttachmentFile::lookup((int) $id)))
                     $f->delete();
 
+        if (isset($vars['delete-backdrop']))
+            foreach ($vars['delete-backdrop'] as $id)
+                if (($vars['selected-backdrop'] != $id)
+                        && ($f = AttachmentFile::lookup((int) $id)))
+                    $f->delete();
+
         return $this->updateAll(array(
             'landing_page_id' => $vars['landing_page_id'],
             'offline_page_id' => $vars['offline_page_id'],
@@ -1458,6 +1484,9 @@ class OsticketConfig extends Config {
             'staff_logo_id' => (
                 (is_numeric($vars['selected-logo-scp']) && $vars['selected-logo-scp'])
                 ? $vars['selected-logo-scp'] : false),
+            'staff_backdrop_id' => (
+                (is_numeric($vars['selected-backdrop']) && $vars['selected-backdrop'])
+                ? $vars['selected-backdrop'] : false),
            ));
     }
 

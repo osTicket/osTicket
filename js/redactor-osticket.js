@@ -116,7 +116,8 @@ RedactorPlugins.draft = function() {
 
     displayError: function(json) {
         $.sysAlert(json.error,
-            __('Unable to save draft. Refresh the current page to restore and continue your draft.'));
+            __('Unable to save draft.')
+          + __('Refresh the current page to restore and continue your draft.'));
     },
 
     hideDraftSaved: function() {

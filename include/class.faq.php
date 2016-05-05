@@ -338,7 +338,7 @@ class FAQ extends VerySimpleModel {
     }
 
     static function create($vars=false) {
-        $faq = parent::create($vars);
+        $faq = new static($vars);
         $faq->created = SqlFunction::NOW();
         return $faq;
     }

@@ -38,7 +38,7 @@ echo sprintf('<div class="pull-right flush-right">
     <div style="margin-bottom:10px;">
         <div class="faq-title pull-left"><?php echo $category->getName() ?></div>
         <div class="faq-status inline">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</div>
-        <div class="clear"><time class="faq"> <?php echo __('Last updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time></div>
+        <div class="clear"><time class="faq"> <?php echo __('Last Updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time></div>
     </div>
     <div class="cat-desc has_bottom_border">
     <?php echo Format::display($category->getDescription()); ?>
