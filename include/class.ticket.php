@@ -1077,7 +1077,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
-
+		
         if ($thisstaff && !($role = $thisstaff->getRole($this->getDeptId())))
             return false;
 
@@ -2133,13 +2133,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
-    function assignToStaff($staff, $note, $alert=true) {
+    function assignToStaff($staff, $note, $alert=true, $statuschg=true) {
 
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
 
         if (!$this->setStaffId($staff->getId()))
             return false;
+		
+		if ($statuschg == true)
 		$this->setStatusId(11);
         $this->onAssign($staff, $note, $alert);
 		

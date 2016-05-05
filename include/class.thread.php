@@ -357,10 +357,7 @@ implements Searchable {
 		// Email commands #claim #close #note #assign:username
 		// Close if #close in subject
 		if($vars['subject'] && preg_match ('/#close/i', $vars['subject'])) {
-			$status = 'closed';
-			$comments = "Closed by {$staffname} via email.";
-			$object instanceof Ticket;
-			$object->setStatus($status,$comments);
+			$object->assignToStaff($vars['staffId'],null,$alert=false, false);
 			$vars['uid'] = $vars['staffId'];
 			$vars['reply_status_id'] = 3;
 			$vars['thread-type'] = 'R';
