@@ -318,11 +318,28 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 <div id="access" class="hidden tab_content">
   <table class="two-column table" width="100%">
     <tbody>
-        <tr class="header">
+        <tr class="header" id="primary-members">
             <td colspan="2">
                 <?php echo __('Department Members'); ?>
                 <div><small>
                 <?php echo __('Agents who are primary members of this department'); ?>
+                </small></div>
+            </td>
+        </tr>
+        <?php
+        if (!count($dept->members)) { ?>
+        <tr><td colspan=2><em><?php
+            echo __('Department does not have primary members'); ?>
+           </em> </td>
+        </tr>
+        <?php
+        } ?>
+     </tbody>
+     <tbody>
+        <tr class="header" id="extended-access-members">
+            <td colspan="2">
+                <div><small>
+                <?php echo __('Agents who have extended access to this department'); ?>
                 </small></div>
             </td>
         </tr>
@@ -387,26 +404,26 @@ foreach ($dept->getMembers() as $member) {
 
 <script type="text/javascript">
 var addAccess = function(staffid, name, role, alerts, primary, error) {
+
   if (!staffid) return;
   var copy = $('#member_template').clone();
-
+  var target = (primary) ? 'extended-access-members' : 'add_extended_access';
   copy.find('td:first').append(document.createTextNode(name));
   if (primary) {
-    copy.find('td:first').append($('<span class="faded">').text(primary));
-    copy.find('td:last').empty();
+    copy.find('a.drop-membership').remove();
   }
-  else {
     copy.find('[data-name^=member_alerts]')
       .attr('name', 'member_alerts['+staffid+']')
-      .prop('checked', alerts);
+      .prop('disabled', (primary))
+      .prop('checked', primary || alerts);
     copy.find('[data-name^=member_role]')
       .attr('name', 'member_role['+staffid+']')
       .val(role || 0);
     copy.find('[data-name=members\\[\\]]')
       .attr('name', 'members[]')
       .val(staffid);
-  }
-  copy.attr('id', '').show().insertBefore($('#add_extended_access'));
+
+  copy.attr('id', '').show().insertBefore($('#'+target));
   copy.removeClass('hidden')
   if (error)
       $('<div class="error">').text(error).appendTo(copy.find('td:last'));
@@ -433,25 +450,27 @@ $('#add_extended_access').find('button').on('click', function() {
 
 <?php
 if ($dept) {
-    $members = $dept->members->all();
-    foreach ($dept->extended as $x) {
-        if (!$x->staff)
-            continue;
-        $members[] = new AnnotatedModel($x->staff, array(
-            'alerts' => $x->isAlertsEnabled(),
-            'role_id' => $x->role_id,
-        ));
-    }
-    usort($members, function($a, $b) { return strcmp($a->getName(), $b->getName()); });
-
-    foreach ($members as $member) {
+    // Primary members
+    foreach ($dept->getPrimaryMembers() as $member) {
         $primary = $member->dept_id == $info['id'];
-        echo sprintf('addAccess(%d, %s, %d, %d, %s, %s);',
+        echo sprintf('addAccess(%d, %s, %d, %d, %d, %s);',
             $member->getId(),
             JsonDataEncoder::encode((string) $member->getName()),
             $member->role_id,
             $member->get('alerts', 0),
-            JsonDataEncoder::encode($primary ? ' — '.__('Primary') : ''),
+            ($member->dept_id == $info['id']) ? 1 : 0,
+            JsonDataEncoder::encode($errors['members'][$member->staff_id])
+        );
+    }
+
+    // Extended members.
+    foreach ($dept->getExtendedMembers() as $member) {
+        echo sprintf('addAccess(%d, %s, %d, %d, %d, %s);',
+            $member->getId(),
+            JsonDataEncoder::encode((string) $member->getName()),
+            $member->role_id,
+            $member->get('alerts', 0),
+            0,
             JsonDataEncoder::encode($errors['members'][$member->staff_id])
         );
     }

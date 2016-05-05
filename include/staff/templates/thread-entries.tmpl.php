@@ -10,7 +10,7 @@ $cmp = function ($a, $b) use ($sort) {
 };
 
 $events = $events->order_by($sort);
-$events = new IteratorIterator($events->all());
+$events = new IteratorIterator($events->getIterator());
 $events->rewind();
 $event = $events->current();
 $htmlId = $options['html-id'] ?: ('thread-'.$this->getId());

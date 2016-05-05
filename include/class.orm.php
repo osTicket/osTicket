@@ -229,6 +229,17 @@ class ModelMeta implements ArrayAccess {
         return $this->fields;
     }
 
+    function getByPath($path) {
+        if (is_string($path))
+            $path = explode('__', $path);
+        $root = $this;
+        foreach ($path as $P) {
+            list($root, ) = $root['joins'][$P]['fkey'];
+            $root = $root::getMeta();
+        }
+        return $root;
+    }
+
     /**
      * Create a new instance of the model, optionally hydrating it with the
      * given hash table. The constructor is not called, which leaves the
@@ -429,11 +440,7 @@ class VerySimpleModel {
                 }
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                if ($value->__new__)
-                    // save() will be performed when saving this object
-                    $value = null;
-                else
-                    $value = $value->get($j['fkey'][1]);
+                $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             // Capture the foreign key id value
@@ -1138,7 +1145,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function all() {
-        return $this->getIterator();
+        return $this->getIterator()->asArray();
     }
 
     function first() {
@@ -1897,14 +1904,13 @@ extends ModelResultSet {
     }
 
     /**
-     * Slight edit to the standard ::next() iteration method which will skip
-     * deleted items.
+     * Slight edit to the standard iteration method which will skip deleted
+     * items.
      */
-    function next() {
-        do {
-            parent::next();
-        }
-        while ($this->valid() && $this->current()->__deleted__);
+    function getIterator() {
+        return new CallbackFilterIterator(parent::getIterator(),
+            function($i) { return !$i->__deleted__; }
+        );
     }
 
     /**
@@ -2115,13 +2121,20 @@ class SqlCompiler {
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
         $joins = array();
-        $push = function($p, $model) use (&$joins, &$path) {
+        $null = false;
+        $push = function($p, $model) use (&$joins, &$path, &$null) {
             $J = $model::getMeta('joins');
             if (!($info = $J[$p])) {
                 throw new OrmException(sprintf(
                    'Model `%s` does not have a relation called `%s`',
                     $model, $p));
             }
+            // Propogate LEFT joins through other joins. That is, if a
+            // multi-join expression is used, the first LEFT join should
+            // result in further joins also being LEFT
+            if (isset($info['null']))
+                $null = $null || $info['null'];
+            $info['null'] = $null;
             $crumb = $path;
             $path = ($path) ? "{$path}__{$p}" : $p;
             $joins[] = array($crumb, $path, $model, $info);
@@ -2246,9 +2259,22 @@ class SqlCompiler {
             // Handle relationship comparisons with model objects
             elseif ($value instanceof VerySimpleModel) {
                 $criteria = array();
-                foreach ($value->pk as $f=>$v) {
-                    $f = $field . '__' . $f;
-                    $criteria[$f] = $v;
+                // Avoid a join if possible. Use the local side of the
+                // relationship
+                if (count($value->pk) === 1) {
+                    $path = explode('__', $field);
+                    $relationship = array_pop($path);
+                    $lmodel = $model::getMeta()->getByPath($path);
+                    $local = $lmodel['joins'][$relationship]['local'];
+                    $path = $path ? (implode('__', $path) . '__') : '';
+                    foreach ($value->pk as $v) {
+                        $criteria["{$path}{$local}"] = $v;
+                   }
+                }
+                else {
+                    foreach ($value->pk as $f=>$v) {
+                        $criteria["{$field}__{$f}"] = $v;
+                    }
                 }
                 $filter[] = $this->compileQ(new Q($criteria), $model, $slot);
             }
@@ -2269,7 +2295,7 @@ class SqlCompiler {
                 elseif (is_callable($op))
                     $filter[] = call_user_func($op, $field, $value, $model);
                 else
-                    $filter[] = sprintf($op, $field, $this->input($value, $slot));
+                    $filter[] = sprintf($op, $field, $this->input($value));
             }
         }
         $glue = $Q->isOred() ? ' OR ' : ' AND ';
@@ -2536,7 +2562,7 @@ class MySqlCompiler extends SqlCompiler {
      * (string) token to be placed into the compiled SQL statement. This
      * is a colon followed by a number
      */
-    function input($what, $slot=false, $model=false) {
+    function input($what, $model=false) {
         if ($what instanceof QuerySet) {
             $q = $what->getQuery(array('nosort'=>!($what->limit || $what->offset)));
             // Rewrite the parameter numbers so they fit the parameter numbers
@@ -2868,7 +2894,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = $model::getMeta('table');
         $set = array();
         foreach ($what as $field=>$value)
-            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, false, $model));
+            $set[] = sprintf('%s = %s', $this->quote($field), $this->input($value, $model));
         $set = implode(', ', $set);
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);

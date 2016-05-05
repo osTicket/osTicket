@@ -142,7 +142,7 @@ default_storage_bk:
     title: File Storage Backend
     content: >
         Choose how attachments are stored.
-        <br<br>
+        <br><br>
         Additional storage backends can be added by installing storage plugins
 
 max_file_size:
@@ -155,3 +155,14 @@ max_file_size:
     links:
       - title: PHP ini settings
         href: "http://php.net/manual/en/ini.core.php#ini.upload-max-filesize"
+
+files_req_auth:
+    title: Require Login
+    content: >
+        Enable this setting to forbid serving attachments to unauthenticated
+        users. That is, users must sign into the system (both end users and
+        agents), in order to view attachments.
+        <br><br>
+        From a security perspective, be aware that the user's browser may
+        retain previously-viewed files in its cache. Furthermore, all file
+        links on your helpdesk automatically expire after about 24 hours.

@@ -20,7 +20,7 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
 <?php } ?>
         <div class="content"><?php
     $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
-    if (count($faqs)) { ?>
+    if ($faqs->all()) { ?>
             <section><div class="header"><?php echo __('Featured Questions'); ?></div>
 <?php   foreach ($faqs as $F) { ?>
             <div><a href="<?php echo ROOT_PATH; ?>kb/faq.php?id=<?php

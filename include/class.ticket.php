@@ -1818,8 +1818,8 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONOverdueTicket() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members);
+                foreach ($dept->getMembersForAlerts() as $M)
+                    $recipients[] = $M;
             }
             // Always alert dept manager??
             if ($cfg->alertDeptManagerONOverdueTicket()
@@ -2082,8 +2082,8 @@ implements RestrictedAccess, Threadable {
             }
             elseif ($cfg->alertDeptMembersONTransfer() && !$this->isAssigned()) {
                 // Only alerts dept members if the ticket is NOT assigned.
-                if ($members = $dept->getMembersForAlerts()->all())
-                    $recipients = array_merge($recipients, $members);
+                foreach ($dept->getMembersForAlerts() as $M)
+                    $recipients[] = $M;
             }
 
             // Always alert dept manager??
@@ -3245,7 +3245,9 @@ implements RestrictedAccess, Threadable {
             }
         }
 
-        // Any error above is fatal.
+
+
+        // Any errors above are fatal.
         if ($errors)
             return 0;
 
@@ -3427,37 +3429,38 @@ implements RestrictedAccess, Threadable {
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 
-        // Assign ticket to staff or team (new ticket by staff)
-        if ($vars['assignId']) {
-            $asnform = $ticket->getAssignmentForm(array(
-                        'assignee' => $vars['assignId'],
-                        'comments' => $vars['note'])
-                    );
-            $e = array();
-            $ticket->assign($asnform, $e);
+        // Set status
+        $status = TicketStatus::lookup($statusId);
+        if (!$status || !$ticket->setStatus($status, false, $errors,
+                    !strcasecmp($origin, 'staff'))) {
+            // Tickets _must_ have a status. Forceably set one here
+            $ticket->setStatusId($cfg->getDefaultTicketStatusId());
         }
-        else {
-            // Auto assign staff or team - auto assignment based on filter
-            // rules. Both team and staff can be assigned
-            if ($vars['staffId'])
-                 $ticket->assignToStaff($vars['staffId'], false);
-            if ($vars['teamId'])
-                // No team alert if also assigned to an individual agent
-                $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
+
+        // Only do assignment if the ticket is in an open state
+        if ($ticket->isOpen()) {
+            // Assign ticket to staff or team (new ticket by staff)
+            if ($vars['assignId']) {
+                $asnform = $ticket->getAssignmentForm(array(
+                            'assignee' => $vars['assignId'],
+                            'comments' => $vars['note'])
+                        );
+                $e = array();
+                $ticket->assign($asnform, $e);
+            }
+            else {
+                // Auto assign staff or team - auto assignment based on filter
+                // rules. Both team and staff can be assigned
+                if ($vars['staffId'])
+                     $ticket->assignToStaff($vars['staffId'], false);
+                if ($vars['teamId'])
+                    // No team alert if also assigned to an individual agent
+                    $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
+            }
         }
 
         // Update the estimated due date in the database
         $ticket->updateEstDueDate();
-
-        // Apply requested status — this should be done AFTER assignment,
-        // because if it is requested to be closed, it should not cause the
-        // ticket to be reopened for assignment.
-        if ($statusId) {
-            if (!$ticket->setStatus($statusId, false, $errors, false)) {
-                // Tickets _must_ have a status. Forceably set one here
-                $ticket->setStatusId($cfg->getDefaultTicketStatusId());
-            }
-        }
 
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.

@@ -30,6 +30,10 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
+
+    # Items
+    var $items = null;
+
     function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
@@ -129,16 +133,18 @@ class Config {
 
     function destroy() {
         unset($this->session);
-        return $this->items()->delete();
+        if ($this->items)
+            $this->items->delete();
+
+        return true;
     }
 
     function items() {
-        static $items;
 
-        if (!isset($items))
-            $items = ConfigItem::items($this->section, $this->section_column);
+        if (!isset($this->items))
+            $this->items = ConfigItem::items($this->section, $this->section_column);
 
-        return $items;
+        return $this->items;
     }
 }
 
@@ -207,6 +213,7 @@ class OsticketConfig extends Config {
         'agent_avatar' => 'gravatar.mm',
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
+        'files_req_auth' => 1,
     );
 
     function __construct($section=null) {
@@ -1150,6 +1157,7 @@ class OsticketConfig extends Config {
             'autolock_minutes' => $vars['autolock_minutes'],
             'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
+            'files_req_auth' => isset($vars['files_req_auth']) ? 1 : 0,
         ));
     }
 
@@ -1391,6 +1399,10 @@ class OsticketConfig extends Config {
     function getStaffLoginBackdrop() {
         $id = $this->getStaffLoginBackdropId();
         return ($id) ? AttachmentFile::lookup((int) $id) : null;
+    }
+
+    function isAuthRequiredForFiles() {
+        return $this->get('files_req_auth');
     }
 
     function updatePagesSettings($vars, &$errors) {
