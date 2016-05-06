@@ -33,7 +33,7 @@ class Page {
         $sql='SELECT page.*, count(topic.page_id) as topics '
             .' FROM '.PAGE_TABLE.' page '
             .' LEFT JOIN '.TOPIC_TABLE. ' topic ON(topic.page_id=page.id) '
-            . ' WHERE page.content_id='.db_input($id)
+            . ' WHERE page.id='.db_input($id)
             . ($lang ? ' AND lang='.db_input($lang) : '')
             .' GROUP By page.id';
 
