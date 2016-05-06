@@ -837,7 +837,7 @@ class Format {
         $days2 = 2 * 86400;
         if ($absTimeDiff < $days2) {
             // XXX: yesterday / tomorrow?
-          return $absTimeDiff >= 0 ? __('yesterday') : __('tomorrow');
+          return $timeDiff >= 0 ? __('yesterday') : __('tomorrow');
         }
 
         // within 29 days
