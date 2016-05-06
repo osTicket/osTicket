@@ -139,10 +139,12 @@ class osTicket {
     function replaceTemplateVariables($input, $vars=array()) {
 
         $replacer = new VariableReplacer();
-        $replacer->assign(array_merge($vars,
-            array('url' => $this->getConfig()->getBaseUrl(),
-                'company' => $this->company)
-                    ));
+        $vars = array_merge($vars, array(
+            'url' => $this->getConfig()->getBaseUrl(),
+            'company' => $this->company
+        ));
+        Signal::send('replace.variables', $replacer, $vars);
+        $replacer->assign($vars);
 
         return $replacer->replaceVars($input);
     }
