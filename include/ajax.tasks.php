@@ -90,7 +90,7 @@ class TasksAjaxAPI extends AjaxController {
                     Http::response(201, $task->getId());
             }
 
-            $info['error'] = __('Error adding task - try again!');
+            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Try again!'));
         }
 
         include STAFFINC_DIR . 'templates/task.tmpl.php';

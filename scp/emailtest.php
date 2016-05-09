@@ -43,9 +43,9 @@ if($_POST){
             Draft::deleteForNamespace('email.diag');
         }
         else
-            $errors['err']=__('Error sending email - try again.');
+            $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Try again!'));
     }elseif($errors['err']){
-        $errors['err']=__('Error sending email - try again.');
+        $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Try again!'));
     }
 }
 $nav->setTabActive('emails');

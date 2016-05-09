@@ -62,7 +62,7 @@ if ($_POST) {
             elseif ($user->getAccount()->sendConfirmEmail())
                 $msg = sprintf(__('Account activation email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = __('Unable to send account activation email - try again!');
+                $errors['err'] = sprintf('%s - %s', __('Unable to send account activation email'), __('Try again!'));
             break;
         case 'pwreset':
             if (!$user || !$user->getAccount())
@@ -70,7 +70,7 @@ if ($_POST) {
             elseif ($user->getAccount()->sendResetEmail())
                 $msg = sprintf(__('Account password reset email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = __('Unable to send account password reset email - try again!');
+                $errors['err'] = sprintf('%s - %s', __('Unable to send account password reset email'), __('Try again!'));
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
