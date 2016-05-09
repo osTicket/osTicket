@@ -63,7 +63,7 @@ if($_POST && !$errors && $filter){
                 $_REQUEST['a']=null;
                 //Add filter rule here.
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error creating %s. Try again!'), __('ban rule'));
+                $errors['err']=sprintf('%s %s', __('Error creating %s.'), __('ban rule'), __('Try again!'));
             }
             break;
         case 'mass_process':
