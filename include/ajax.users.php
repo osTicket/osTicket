@@ -303,6 +303,7 @@ class UsersAjaxAPI extends AjaxController {
 
     function addRemoteUser($bk, $id) {
         global $thisstaff;
+        $id = str_replace('/','\\',$id);
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
