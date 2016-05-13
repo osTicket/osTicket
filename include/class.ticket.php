@@ -2142,8 +2142,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 		
 		if ($statuschg == true)
-		$this->setStatusId(11);
-        $this->onAssign($staff, $note, $alert);
+		this->onAssign($staff, $note, $alert);
 		
         global $thisstaff;
         $data = array();
@@ -2216,8 +2215,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if ($errors || !$this->save(true))
             return false;
-		$this->setStatusId(11);	
-        $this->logEvent('assigned', $evd);
+		$this->logEvent('assigned', $evd);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
 
@@ -2297,10 +2295,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 	
         $this->setLastMessage($message);
-		// Set Status to Responded
-		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9  && $this->getStatusId() !== 0)
-		$this->setStatusId(7);	
-
+		
         // Add email recipients as collaborators...
 		
         if ($vars['recipients']
@@ -2516,12 +2511,7 @@ implements RestrictedAccess, Threadable, Searchable {
             && $vars['reply_status_id'] != $this->getStatusId()
         ) {
             $this->setStatus($vars['reply_status_id']);
-        } else {
-			
-			if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9 
-				&& $this->getStatusId() !== 3  && $this->getTopicId() !==12)
-			$this->setStatusId(6);			
-		}
+        } 
 		
         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
