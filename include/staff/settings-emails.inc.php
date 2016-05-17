@@ -9,7 +9,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     <thead>
         <tr>
             <th colspan="2">
-                <em><?php echo __('Note that some of the global settings can be overwridden at department/email level.');?></em>
+                <em><?php echo __('Note that some of the global settings can be overridden at department/email level.');?></em>
             </th>
         </tr>
     </thead>
