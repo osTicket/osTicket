@@ -1435,6 +1435,12 @@ h3 {
     padding:5px 0;
     color:#444;
 }
+
+h3.title { color: black; line-height: 1.25em; }
+h3.title > .sub-title {
+    font-weight: normal;
+    font-size: 1.1rem;
+}
 .tixTitle {
    padding:0 5px 0px;
 }
