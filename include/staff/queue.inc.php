@@ -118,34 +118,55 @@ else {
 ?>
           <option value="<?php echo $path; ?>"
             <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>
-            ><?php echo $label; ?></option>
+            ><?php echo Format::htmlchars($label); ?></option>
 <?php } ?>
         </select>
+        <div class="error"><?php
+            echo Format::htmlchars($errors['filter']); ?></div>
         <br/>
-        <br/>
-        <div><strong><?php echo __("Sort Options"); ?></strong></div>
+
+        <div><strong><?php echo __("Defaut Sorting"); ?></strong></div>
         <hr/>
+        <select name="sort_id">
+          <option value="" <?php if ($queue->filter == "")
+              echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
+          <option value="::" <?php if ($queue->isDefaultSortInherited())
+              echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
+            if ($queue->parent 
+                && ($sort = $queue->parent->getDefaultSort()))
+                echo sprintf(' (%s)', $sort->getName()); ?> —</option>
+<?php foreach ($queue->getSortOptions() as $sort) { ?>
+          <option value="<?php echo $sort->id; ?>"
+            <?php if ($sort->id == $queue->sort_id) echo 'selected="selected"'; ?>
+            ><?php echo Format::htmlchars($sort->getName()); ?></option>
+<?php } ?>
+        </select>
+        <div class="error"><?php
+            echo Format::htmlchars($errors['sort_id']); ?></div>
       </td>
     </table>
   </div>
 
   <div class="hidden tab_content" id="columns">
 
-    <div class="tab-desc">
-        <p><b><?php echo __("Manage columns in this queue"); ?></b>
-        <br><?php echo __(
-        "Add, remove, and customize the content of the columns in this queue using the options below. Click a column header to manage or resize it"); ?></p>
+    <div>
+      <h3 class="title"><?php echo __("Manage columns in this queue"); ?>
+        <div class="sub-title"><?php echo __(
+            'Add, and remove the fields in this list using the options below. Drag columns to reorder them.');
+            ?></div>
+      </h3>
     </div>
     <?php include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
   </div>
     
     
-    <div class="hidden tab_content" id="sorting-tab">
-        <div class="tab-desc">
-            <p><b><?php echo __("Manage Queue Sorting"); ?></b>
-            <br><?php echo __("Add, edit or remove the sorting criteria for this custom queue using the options below. Sorting is priortized in ascending order."); ?></p>
-        </div>
-        <table class="queue-sort table">
+  <div class="hidden tab_content" id="sorting-tab">
+    <h3 class="title"><?php echo __("Manage Queue Sorting"); ?>
+      <div class="sub-title"><?php echo __(
+        "Select the sorting options available in the sorting drop-down when viewing the queue. New items can be added via the drop-down below.");
+      ?></div>
+    </h3>
+    <table class="queue-sort table">
 <?php
 if ($queue->parent) { ?>
           <tbody>
@@ -186,8 +207,11 @@ if ($queue->parent) { ?>
                 </div>
               </td>
               <td>
-                <a href="#" class="pull-right drop-sort" title="<?php echo __('Delete');
-                  ?>"><i class="icon-trash"></i></a>
+                <div class="pull-right">
+                  <small class="hidden faded"><?php echo __('Default'); ?></small>
+                  <a href="#" class="drop-sort" title="<?php echo __('Delete');
+                    ?>"><i class="icon-trash"></i></a>
+                </div>
               </td>
             <tr>
           </tbody>
@@ -204,7 +228,7 @@ if ($queue->parent) { ?>
                             echo __('Add Sort Criteria'); ?> —</option>
 <?php foreach (QueueSort::forQueue($queue) as $QS) { ?>
                           <option value="<?php echo $QS->id; ?>"><?php
-                            echo Format::htmlchars($QS->name); ?></option>
+                            echo Format::htmlchars($QS->getName()); ?></option>
 <?php } ?>
                           <option value="0" data-quick-add>&mdash; <?php
                             echo __('Add New Sort Criteria');?> &mdash;</option>
@@ -236,7 +260,7 @@ var Q = setInterval(function() {
     copy.find('span').text(info['name']);
     copy.attr('id', '').show().insertBefore($('#sort-template'));
     copy.removeClass('hidden');
-    copy.find('a.drop-sort').click(function() {
+    var a = copy.find('a.drop-sort').click(function() {
       $('<option>')
         .attr('value', copy.find('input[data-name^=sorts]').val())
         .text(info.name)
@@ -246,6 +270,10 @@ var Q = setInterval(function() {
       copy.fadeOut(function() { $(this).remove(); });
       return false;
     });
+    if (info.default) {
+      a.parent().find('small').show();
+      a.remove();
+    }
     var selected = $('#add-sort').find('option[value=' + sortid + ']');
     selected.remove();
   };
@@ -259,8 +287,9 @@ var Q = setInterval(function() {
     return false;
   });
 <?php foreach ($queue->getSortOptions() as $C) {
-  echo sprintf('addSortOption(%d, {name: %s});',
-    $C->sort_id, JsonDataEncoder::encode($C->getName())
+  echo sprintf('addSortOption(%d, {name: %s, default: %d});',
+    $C->sort_id, JsonDataEncoder::encode($C->getName()),
+    $queue->getDefaultSortId() == $C->sort_id
   );
 } ?>
 }, 25);
