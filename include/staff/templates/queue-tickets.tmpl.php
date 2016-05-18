@@ -44,6 +44,34 @@ if ($args['a'] !== 'search') unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
+// Establish the selected or default sorting mechanism
+if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'col' => (int) $_GET['sort'],
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_GET['sort'])
+    // Drop the leading `qs-`
+    && (strpos($_GET['sort'], 'qs-') === 0)
+    && ($sort_id = substr($_GET['sort'], 3))
+    && is_numeric($sort_id)
+    && ($sort = QueueSort::lookup($sort_id))
+) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $sort,
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_SESSION['sort'][$queue->getId()])) {
+    $sort = $_SESSION['sort'][$queue->getId()];
+}
+elseif ($queue_sort = $queue->getDefaultSort()) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $queue_sort,
+        'dir' => (int) $_GET['dir'] ?: 0,
+    );
+}
 ?>
 
 <!-- SEARCH FORM START -->
@@ -162,27 +190,8 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php 
 }
-if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
-    $sort = $_SESSION['sort'][$queue->getId()] = array(
-        'col' => (int) $_GET['sort'],
-        'dir' => (int) $_GET['dir'],
-    );
-}
-elseif (isset($_GET['sort'])
-    // Drop the leading `qs-`
-    && (strpos($_GET['sort'], 'qs-') === 0)
-    && ($sort_id = substr($_GET['sort'], 3))
-    && is_numeric($sort_id)
-    && ($sort = QueueSort::lookup($sort_id))
-) {
-    $sort = $_SESSION['sort'][$queue->getId()] = array(
-        'queuesort' => $sort,
-        'dir' => (int) $_GET['dir'],
-    );
-}
-else {
-    $sort = $_SESSION['sort'][$queue->getId()];
-}
+
+$sorted = false;
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
     if ($C->isSortable()) {
@@ -199,9 +208,10 @@ foreach ($columns as $C) {
     // Sort by this column ?
     if (isset($sort['col']) && $sort['col'] == $C->id) {
         $tickets = $C->applySort($tickets, $sort['dir']);
+        $sorted = true;
     }
 }
-if (isset($sort['queuesort'])) {
+if (!$sorted && isset($sort['queuesort'])) {
     $sort['queuesort']->applySort($tickets, $sort['dir']);
 }
 ?>
