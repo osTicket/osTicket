@@ -1,3 +1,28 @@
+osTicket v1.9.14
+================
+### Enhancements
+  * alerts: Do not include the manager with the members (#2974)
+
+### Improvements
+  * Only change SLA if target department has an SLA
+  * Unify ticket source and preserve original (e.g Web) source on ticket
+    edit
+  * filedrop: Use jQuery to remove filenode
+  * pjax: Do not assume href attribute is set
+  * Default to system default, if staff does not have page limit set, thanks
+    @antriver (#2951)
+  * plugins: Assume plugins might not have configuration
+  * oops: Make sure __toString returns a string
+  * autoresponse: Do not send out new message auto-response to ticket owner
+    as well as collaborators on new ticket (#2639)
+  * auth: Consider the destination clicked prior to SSO authentication,
+    thanks @jdelhome3578 (#2916)
+  * config: Add error message and default for max_open_tickets setting (#2914)
+  * auth: This issue only impacts SSO auth plugins, @thanks kevinoconnor7
+    (#2641)
+  * i18n: Support language pack compilation with new support for parallel
+    releases with v1.10.x
+
 osTicket v1.9.13
 ================
 ### Enhancements
