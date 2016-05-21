@@ -1,0 +1,89 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main">
+        <h2>{% trans %}Thank You for Choosing osTicket!{% endtrans %}</h2>
+        <div id="intro">
+            <p>{% trans %}We are delighted you have chosen osTicket for your customer support ticketing system!{% endtrans %}</p>
+            <p>{% trans %}he installer will guide you every step of the way in the installation process. You're minutes away from your awesome customer support system!{% endtrans %}</p>
+        </div>
+
+        <h2>{% trans %}Prerequisites{% endtrans %}</h2>
+        <p>{% trans %}Before we begin, we'll check your server configuration to make sure you meet the minimum requirements to run the latest version of osTicket.{% endtrans %}</p>
+        <h3>
+            {% trans %}Required{% endtrans %}:
+            {% if error is defined %}<font class="error">{{ error }}</font>{% endif %}
+        </h3>
+        {% trans %}These items are necessary in order to install and use osTicket.{% endtrans %}
+        <ul class="progress">
+            <li class="{{ requiredExtensions.php }}">
+                {% trans with {'%0$s': '<span class="ltr">PHP v5.4</span>'} %}%s or greater{% endtrans %} &mdash;
+                <small class="ltr">(<b>{{ phpVersion }}</b>)</small>
+            </li>
+            <li class="{{ requiredExtensions.mysql }}">
+                {% trans %}MySQLi extension for PHP{% endtrans %} &mdash;
+                <small>
+                    <b>
+                        {% if requiredExtensions.mysql == 'yes' %}
+                            {% trans %}module loaded{% endtrans %}
+                        {% else %}
+                            {% trans %}missing!{% endtrans %}
+                        {% endif %}
+                    </b>
+                </small>
+            </li>
+        </ul>
+
+
+        <h3>{% trans %}Recommended{% endtrans %}:</h3>
+        {% trans %}You can use osTicket without these, but you may not be able to use all features.{% endtrans %}
+
+        <ul class="progress">
+            <li class="{{ optionalExtensions.gd }}">
+                Gdlib {% trans %}Extension{% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.imap }}">
+                PHP IMAP {% trans %}Extension{% endtrans %} &mdash; <em>{% trans %}Required for mail fetching{% endtrans %}</em>
+            </li>
+            <li class="{{ optionalExtensions.xml }}">
+                PHP XML {% trans %}Extension{% endtrans %} {% trans %}(for XML API){% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.dom }}">
+                PHP XML-DOM {% trans %}Extension{% endtrans %} {% trans %}(for HTML email processing){% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.json }}">
+                PHP JSON {% trans %}Extension{% endtrans %} {% trans %}(faster performance){% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.mbstring }}">
+                Mbstring {% trans %}Extension{% endtrans %} &mdash; {% trans %}recommended for all installations{% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.phar }}">
+                Phar {% trans %}Extension{% endtrans %} &mdash; {% trans %}recommended for plugins and language packs{% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.intl }}">
+                Intl {% trans %}Extension{% endtrans %} &mdash; {% trans %}recommended for improved localization{% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.apcu }}">
+                APCu {% trans %}Extension{% endtrans %} &mdash; {% trans %}(faster performance){% endtrans %}
+            </li>
+            <li class="{{ optionalExtensions.zendOpcache }}">
+                Zend OPcache {% trans %}Extension{% endtrans %} &mdash; {% trans %}(faster performance){% endtrans %}
+            </li>
+        </ul>
+
+        <div id="bar">
+            <form method="post" action="install.php">
+                <input type="hidden" name="s" value="prereq">
+                <input class="btn"  type="submit" name="submit" value="{% trans %}Continue{% endtrans %} &raquo;">
+            </form>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <h3>{% trans %}Need Help?{% endtrans %}</h3>
+        <p>
+            {% trans %}If you are looking for a greater level of support, we provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main">
+        <h1 style="color:#FF7700;">{% trans %}Configuration file is not writable{% endtrans %}</h1>
+        <div id="intro">
+            <p>
+                {% trans with {'%0$s': '<b style="white-space:nowrap">include/ost-config.php</b>'} %}osTicket installer requires ability to write to the configuration file %s{% endtrans %}
+            </p>
+        </div>
+        <h3>{% trans %}Solution{% endtrans %}: <font color="red">{{ error }}</font></h3>
+        {% trans %}Please follow the instructions below to give read and write access to the web server user.{% endtrans %}
+        <ul>
+            <li>
+                <b>{% trans %}CLI{% endtrans %}</b>:<br>
+                <i class="ltr">chmod 0666 include/ost-config.php</i>
+            </li>
+            <li>
+                <b>{% trans %}Windows PowerShell{% endtrans %}</b>:<br>
+                {% trans %}Add "Full Access" permission for the "Everyone" user{% endtrans %}<br>
+                <i class="ltr">icacls include\ost-config.php /grant 'Everyone:F'</i>
+            </li>
+            <li>
+                <b>{% trans %}FTP{% endtrans %}</b>:<br>
+                {% trans %}Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then giving all permissions to the file.{% endtrans %}
+            </li>
+            <li>
+                <b>{% trans %}Cpanel{% endtrans %}</b>:<br>
+                {% trans %}Click on the file, select change permission, and then giving all permissions to the file.{% endtrans %}
+            </li>
+        </ul>
+
+        <p><i>{% trans %}Don't worry! We'll remind you to take away the write access post-install{% endtrans %}</i>.</p>
+        <div id="bar">
+            <form method="post" action="install.php">
+                <input type="hidden" name="s" value="config">
+                <button class="btn"  type="submit" name="submit">{% trans %}Done? Continue{% endtrans %} &raquo;</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <h3>{% trans %}Need Help?{% endtrans %}</h3>
+        <p>
+            {% trans %}If you are looking for a greater level of support, we provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+{% endblock %}

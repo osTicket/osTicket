@@ -1,0 +1,21 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main">
+        <h1 style="color:#FF7700;">{% trans %}osTicket is already installed?{% endtrans %}</h1>
+        <div id="intro">
+            <p>{% trans with {'%0$s': '<a href="../scp/admin.php">', '%1$s': '</a>'} %}Configuration file already changed - which could mean osTicket is already installed or the config file is currupted. If you are trying to upgrade osTicket, then go to %s Admin Panel %s.{% endtrans %}</p>
+
+            <p>{% trans %}If you believe this is in error, please try replacing the config file with a unchanged template copy and try again or get technical help.{% endtrans %}</p>
+            <p>{% trans with {'%0$s': '<a target="_blank" href="http://osticket.com/wiki/Installation">', '%1$s': '</a>'} %}Refer to the %s Installation Guide %s on the wiki for more information.{% endtrans %}</p>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <h3>{% trans %}Need Help?{% endtrans %}</h3>
+        <p>
+            {% trans %}We provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+{% endblock %}

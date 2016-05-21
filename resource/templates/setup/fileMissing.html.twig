@@ -1,0 +1,46 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main">
+        <h1 style="color:#FF7700;">{% trans %}Configuration file missing!{% endtrans %}</h1>
+        <div id="intro">
+            <p>
+                {% trans %}osTicket installer requires ability to write to the configuration file, <b>include/ost-config.php</b>. A template copy is located in the include directory (<b>include/ost-sampleconfig.php</b>).{% endtrans %}
+            </p>
+        </div>
+        <h3>{% trans %}Solution{% endtrans %}: <font color="red">{{ error }}</font></h3>
+        {% trans %}Rename the sample file <b>include/ost-sampleconfig.php</b> to <b>ost-config.php</b> and click continue below.{% endtrans %}
+        <ul>
+            <li>
+                <b>{% trans %}CLI{% endtrans %}:</b><br>
+                <i>cp include/ost-sampleconfig.php include/ost-config.php</i></li>
+            <li>
+                <b>{% trans %}Windows PowerShell{% endtrans %}:</b><br>
+                <i>Copy-Item -Path include\ost-sampleconfig.php -Destination include\ost-config.php</i></li>
+            <li>
+                <b>{% trans %}FTP{% endtrans %}:</b><br>
+            </li>
+            <li>
+                <b>{% trans %}Cpanel{% endtrans %}:</b><br>
+            </li>
+        </ul>
+
+        {% trans with {'%1$s': '<a target="_blank" href="http://osticket.com/wiki/Installation">', '%2$s': '</a>'} %}If sample config file is missing - please make sure you uploaded all files in 'upload' folder or refer to the %1$s Installation Guide %2$s{% endtrans %}
+
+        <div id="bar">
+            <form method="post" action="install.php">
+                <input type="hidden" name="s" value="config">
+                <input class="btn" type="submit" name="submit" value="{% trans %}Continue{% endtrans %} &raquo;">
+            </form>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <h3>{% trans %}Need Help?{% endtrans %}</h3>
+        <p>
+            {% trans %}If you are looking for a greater level of support, we provide <u>professional installation services</u> and commercial support with guaranteed response times, and access to the core development team. We can also help customize osTicket or even add new features to the system to meet your unique needs.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+
+{% endblock %}

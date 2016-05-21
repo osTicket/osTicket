@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN http://www.w3.org/TR/html4/loose.dtd">
+<html {{ htmlTag }}>
+<head>
+    <title>{{ title }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="css/wizard.css">
+    <link type="text/css" rel="stylesheet" href="{{ rootPath }}css/flags.css">
+</head>
+<body>
+<div id="wizard">
+    <div id="header">
+        <img id="logo" src="./images/{% if logo %}{{ logo }}{% else %}logo.png{% endif %}" alt="osTicket">
+        <div class="info">{{ tagLine }}</div>
+        <br/>
+        <ul class="links">
+            <li>
+                {% for label, url in menu %}
+                    <a target="_blank" href="{{ url }}">{{ label }}</a> &mdash;
+                {% endfor %}
+
+                <a target="_blank" href="http://osticket.com/contact-us">
+                    {% trans %}Contact Us{% endtrans %}
+                </a>
+            </li>
+        </ul>
+        <div class="flags">
+            {% for flag in flags %}
+                <a class="flag flag-{{ flag.class }}" href="{{ flag.href }}" title="{{ flag.title }}">&nbsp;</a>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="content">
+
+        {% block content %}{% endblock %}
+
+        <div class="clear"></div>
+    </div> <!-- content -->
+</div> <!-- wizard -->
+
+<div id="footer" class="centered">Copyright &copy; 2013 <a target="_blank" href="http://osticket.com">osTicket.com</a></div>
+
+<script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../js/jstz.min.js"></script>
+<script type="text/javascript" src="js/setup.js"></script>
+<script type="text/javascript" src="js/tips.js"></script>
+</body>
+</html>

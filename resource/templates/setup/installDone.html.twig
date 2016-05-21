@@ -1,0 +1,76 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main">
+        <h1 style="color:green;">{% trans %}Congratulations!{% endtrans %}</h1>
+
+        <div id="intro">
+            <p>{% trans %}Your osTicket installation has been completed successfully. Your next step is to fully configure your new support ticket system for use, but before you get to it please take a minute to cleanup.{% endtrans %}</p>
+
+            <h2>{% trans %}Config file permission{% endtrans %}:</h2>
+            {% trans %}Change permission of ost-config.php to remove write access as shown below.{% endtrans %}
+            <ul>
+                <li>
+                    <b>{% trans %}CLI{% endtrans %}</b>:<br>
+                    <i>chmod 0644  include/ost-config.php</i>
+                </li>
+                <li>
+                    <b>{% trans %}Windows PowerShell{% endtrans %}</b>:<br>
+                    <i>icacls include\ost-config.php /reset</i>
+                </li>
+                <li>
+                    <b>{% trans %}FTP{% endtrans %}</b>:<br>
+                    {% trans %}Using WS_FTP this would be right hand clicking on the file, selecting chmod, and then remove write access{% endtrans %}
+                </li>
+                <li>
+                    <b>{% trans %}Cpanel{% endtrans %}</b>:<br>
+                    {% trans %}Click on the file, select change permission, and then remove write access.{% endtrans %}
+                </li>
+            </ul>
+        </div>
+
+        <p>{% trans %}Below, you'll find some useful links regarding your installation.{% endtrans %}</p>
+        <table border="0" cellspacing="0" cellpadding="5" width="580" id="links">
+            <tr>
+                <td width="50%">
+                    <strong>{% trans %}Your osTicket URL{% endtrans %}:</strong><Br>
+                    <a href="{{ url }}">{{ url }}</a>
+                </td>
+                <td width="50%">
+                    <strong>{% trans %}Your Staff Control Panel{% endtrans %}:</strong><Br>
+                    <a href="../scp/admin.php">{{ url }}scp</a>
+                </td>
+            </tr>
+            <tr>
+                <td width="50%">
+                    <strong>{% trans %}osTicket Forums{% endtrans %}:</strong><Br>
+                    <a href="#">http://osticket.com/forum/</a>
+                </td>
+                <td width="50%">
+                    <strong>{% trans %}osTicket Community Wiki{% endtrans %}:</strong><Br>
+                    <a href="#">http://osticket.com/wiki/</a>
+                </td>
+            </tr>
+        </table>
+
+        <p>
+            <b>PS</b>: {% trans %}Don't just make customers happy, make happy customers!{% endtrans %}
+        </p>
+    </div>
+
+    <div id="sidebar">
+        <h3>{% trans %}What's Next?{% endtrans %}</h3>
+        <p>
+            <b>{% trans %}Post-Install Setup{% endtrans %}</b>:
+            {% trans with {'%1$s': '<a href="../scp/admin.php" target="_blank">', '%2$s': '</a>'} %}You can now log in to %1$s Admin Panel %2$s with the username and password you created during the install process. After a successful log in, you can proceed with post-install setup.{% endtrans %}
+
+            {% trans with {'%1$s': '<a href="http://osticket.com/wiki/Post-Install_Setup_Guide" target="_blank">', '%2$s': '</a>'} %}For complete and upto date guide see %1$s osTicket wiki %2$s{% endtrans %}
+        </p>
+
+        <p>
+            <b>{% trans %}Commercial Support Available{% endtrans %}</b>:
+            {% trans %}Don't let technical problems impact your osTicket implementation. Get guidance and hands-on expertise to address unique challenges and make sure your osTicket runs smoothly, efficiently, and securely.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+{% endblock %}
