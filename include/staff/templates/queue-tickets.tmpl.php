@@ -72,6 +72,29 @@ elseif ($queue_sort = $queue->getDefaultSort()) {
         'dir' => (int) $_GET['dir'] ?: 0,
     );
 }
+
+// Handle current sorting preferences
+
+$sorted = false;
+foreach ($columns as $C) {
+    // Sort by this column ?
+    if (isset($sort['col']) && $sort['col'] == $C->id) {
+        $tickets = $C->applySort($tickets, $sort['dir']);
+        $sorted = true;
+    }
+}
+if (!$sorted && isset($sort['queuesort'])) {
+    // Apply queue sort-dropdown selected preference
+    $sort['queuesort']->applySort($tickets, $sort['dir']);
+}
+
+// Apply pagination
+
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$count = $tickets->total();
+$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav->setURL('tickets.php', $args);
+$tickets = $pageNav->paginate($tickets);
 ?>
 
 <!-- SEARCH FORM START -->
@@ -190,8 +213,6 @@ if ($canManageTickets) { ?>
         <th style="width:12px"></th>
 <?php 
 }
-
-$sorted = false;
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
     if ($C->isSortable()) {
@@ -204,27 +225,12 @@ foreach ($columns as $C) {
     }
     echo sprintf('<th width="%s" data-id="%d">%s</th>',
         $C->getWidth(), $C->id, $heading);
-
-    // Sort by this column ?
-    if (isset($sort['col']) && $sort['col'] == $C->id) {
-        $tickets = $C->applySort($tickets, $sort['dir']);
-        $sorted = true;
-    }
-}
-if (!$sorted && isset($sort['queuesort'])) {
-    $sort['queuesort']->applySort($tickets, $sort['dir']);
 }
 ?>
     </tr>
   </thead>
   <tbody>
 <?php
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$count = $tickets->total();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php', $args);
-$tickets = $pageNav->paginate($tickets);
-
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
