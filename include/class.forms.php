@@ -4197,9 +4197,6 @@ class ColorPickerWidget extends Widget {
     function render($options=array()) {
         ?><input type="color"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $classes
-            ))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/><?php
     }

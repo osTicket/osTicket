@@ -1323,7 +1323,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * If no such model or multiple models exist, an exception is thrown.
      */
     function one() {
-        $list = $this->all()->asArray();
+        $list = $this->all();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)
