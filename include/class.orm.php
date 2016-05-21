@@ -256,17 +256,6 @@ class ModelMeta implements ArrayAccess {
         return $this->fields;
     }
 
-    function getByPath($path) {
-        if (is_string($path))
-            $path = explode('__', $path);
-        $root = $this;
-        foreach ($path as $P) {
-            list($root, ) = $root['joins'][$P]['fkey'];
-            $root = $root::getMeta();
-        }
-        return $root;
-    }
-
     /**
      * Create a new instance of the model, optionally hydrating it with the
      * given hash table. The constructor is not called, which leaves the
@@ -1333,7 +1322,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * If no such model or multiple models exist, an exception is thrown.
      */
     function one() {
-        $list = $this->all()->asArray();
+        $list = $this->all();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)

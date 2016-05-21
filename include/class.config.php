@@ -1253,7 +1253,7 @@ class OsticketConfig extends Config {
             return false;
 
         // Sort ticket queues
-        $queues = CustomQueue::queues()->all();
+        $queues = CustomQueue::queues()->getIterator();
         foreach ($vars['qsort'] as $queue_id => $sort) {
             if ($q = $queues->findFirst(array('id' => $queue_id))) {
                 $q->sort = $sort;

@@ -351,6 +351,7 @@ implements TemplateVariable, Searchable {
 
     static function getSearchableFields() {
         $uform = OrganizationForm::objects()->one();
+        $base = array();
         foreach ($uform->getFields() as $F) {
             $fname = $F->get('name') ?: ('field_'.$F->get('id'));
             if (!$F->hasData() || $F->isPresentationOnly())
