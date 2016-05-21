@@ -163,8 +163,8 @@ var scp_prep = function() {
 
     $('form.save, form:has(table.list)').submit(function() {
         $(window).unbind('beforeunload');
-        $('#overlay, #loading').show();
-        return true;
+        $.toggleOverlay(true);
+        $('#loading').show();
      });
 
     $('select#tpl_options').change(function() {

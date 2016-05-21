@@ -560,7 +560,8 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function getStatus() {
-        return 'bogus';
+        return $this->hasFlag(self::FLAG_DISABLED)
+            ? __('Disabled') : __('Active');
     }
 
     function getChildren() {
@@ -768,6 +769,13 @@ class CustomQueue extends VerySimpleModel {
             : $this->clearFlag($flag);
     }
 
+    function disable() {
+        $this->setFlag(self::FLAG_DISABLED);
+    }
+
+    function enable() {
+        $this->clearFlag(self::FLAG_DISABLED);
+    }
 
     function update($vars, &$errors=array()) {
         // Set basic search information

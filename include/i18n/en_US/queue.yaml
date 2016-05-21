@@ -13,7 +13,7 @@
 # flags:
 #   0x01:   FLAG_PUBLIC
 #   0x02:   FLAG_QUEUE (should be set for everything here)
-#   0x04:   FLAG_CONTAINER (should be set for top-level queues)
+#   0x04:   FLAG_DISABLED
 #   0x08:   FLAG_INHERIT (inherit criteria from parent)
 #   0x10:   FLAG_INHERIT_COLUMNS
 #   0x20:   FLAG_INHERIT_SORTING

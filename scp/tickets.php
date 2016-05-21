@@ -437,6 +437,7 @@ $queues = CustomQueue::queues()
         'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
         'staff_id' => $thisstaff->getId(),
     )))
+    ->exclude(['flags__hasbit' => CustomQueue::FLAG_DISABLED])
     ->getIterator();
 
 // Start with all the top-level (container) queues
