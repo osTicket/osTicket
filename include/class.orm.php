@@ -1237,8 +1237,23 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->limit || $this->offset || (count($this->values) + count($this->annotations) + @count($this->extra['select'])) > 1;
     }
 
+    /**
+     * Fetch related fields with the query. This will result in better
+     * performance as related items are fetched with the root model with
+     * only one trip to the database.
+     *
+     * Either an array of fields can be sent as one argument, or the list of
+     * fields can be sent as the arguments to the function.
+     *
+     * Example:
+     * >>> $q = User::objects()->select_related('role');
+     */
     function select_related() {
-        $this->related = array_merge($this->related, func_get_args());
+        $args = func_get_args();
+        if (is_array($args[0]))
+            $args = $args[0];
+
+        $this->related = array_merge($this->related, $args);
         return $this;
     }
 
@@ -1557,7 +1572,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
             $query->ordering = array();
         elseif (!$query->ordering && $meta['ordering'])
             $query->ordering = $meta['ordering'];
-        if (false !== $query->related && !$query->values && $meta['select_related'])
+        if (false !== $query->related && !$query->related && !$query->values && $meta['select_related'])
             $query->related = $meta['select_related'];
         if (!$query->defer && $meta['defer'])
             $query->defer = $meta['defer'];
