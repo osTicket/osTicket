@@ -1,6 +1,10 @@
 <?php
 
 class Unpacker extends Module {
+    /**
+     * @var bool
+     */
+    protected $dryRun = false;
 
     var $prologue = "Unpacks osTicket into target install path";
 
@@ -95,6 +99,7 @@ class Unpacker extends Module {
             return @$this->manifest[$file] ?: null;
 
         $this->manifest = $lines = array();
+
         $path = $this->get_include_dir() . '/.MANIFEST';
         if (!is_file($path))
             return null;
@@ -203,16 +208,24 @@ class Unpacker extends Module {
         if (isset($location))
             return $location;
 
+
+        if ($this->dryRun) {
+            return '';
+        }
+
         $pipes = array();
         $php = proc_open('php', array(
             0 => array('pipe', 'r'),
             1 => array('pipe', 'w'),
         ), $pipes);
 
-        fwrite($pipes[0], "<?php
-        include '{$this->destination}/bootstrap.php';
-        print INCLUDE_DIR;
-        ");
+        fwrite(
+            $pipes[0],
+            "<?php
+            include '{$this->destination}bootstrap.php';
+            print INCLUDE_DIR;
+            "
+        );
         fclose($pipes[0]);
 
         $INCLUDE_DIR = fread($pipes[1], 8192);
