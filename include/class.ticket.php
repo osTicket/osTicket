@@ -167,10 +167,6 @@ implements RestrictedAccess, Threadable, Searchable {
     var $recipients;
     var $lastrespondent;
 
-    function __onload() {
-        $this->loadDynamicData();
-    }
-
     function loadDynamicData($force=false) {
         if (!isset($this->_answers) || $force) {
             $this->_answers = array();
@@ -186,6 +182,12 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
         return $this->_answers;
+    }
+
+    function getAnswer($field, $form=null) {
+        // TODO: Prefer CDATA ORM relationship if already loaded
+        $this->loadDynamicData();
+        return $this->_answers[$field];
     }
 
     function getId() {
@@ -363,7 +365,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getSubject() {
-        return (string) $this->_answers['subject'];
+        return (string) $this->getAnswer('subject');
     }
 
     /* Help topic title  - NOT object -> $topic */
@@ -464,7 +466,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getPriorityId() {
         global $cfg;
 
-        if (($a = $this->_answers['priority'])
+        if (($a = $this->getAnswer('priority'))
             && ($b = $a->getValue())
         ) {
             return $b->getId();
@@ -473,7 +475,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getPriority() {
-        if (($a = $this->_answers['priority']) && ($b = $a->getValue()))
+        if (($a = $this->getAnswer('priority')) && ($b = $a->getValue()))
             return $b->getDesc();
         return '';
     }
@@ -1790,11 +1792,11 @@ implements RestrictedAccess, Threadable, Searchable {
         case 'user':
             return $this->getOwner();
         default:
-            if (isset($this->_answers[$tag]))
+            if ($a = $this->getAnswer($tag))
                 // The answer object is retrieved here which will
                 // automatically invoke the toString() method when the
                 // answer is coerced into text
-                return $this->_answers[$tag];
+                return $a;
         }
     }
 
