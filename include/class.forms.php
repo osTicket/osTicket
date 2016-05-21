@@ -1864,9 +1864,9 @@ class DatetimeField extends FormField {
         if (!$value)
             return '';
         if ($config['time'])
-            return Format::datetime($value, $fromdb, !$config['gmt'] ? 'UTC' : false);
+            return Format::datetime($value, $fromDb, !$config['gmt'] ? 'UTC' : false);
         else
-            return Format::date($value, $fromdb, false, !$config['gmt'] ? 'UTC' : false);
+            return Format::date($value, $fromDb, false, !$config['gmt'] ? 'UTC' : false);
     }
 
     function getConfigurationOptions() {
@@ -3977,9 +3977,6 @@ class ColorPickerWidget extends Widget {
     function render($options=array()) {
         ?><input type="color"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $classes
-            ))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/><?php
     }
