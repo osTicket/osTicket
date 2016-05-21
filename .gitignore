@@ -7,7 +7,9 @@ setup/cli/modules/importer
 .vagrant
 ._.DS_Store
 Vagrantfile
-
+vendor/
+var/cache/
+!var/cache/.gitkeep
 # Staging directory used for packaging script
 stage
 
