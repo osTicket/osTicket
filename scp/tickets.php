@@ -385,7 +385,9 @@ if($_POST && !$errors):
                              __('Contact admin for such access'));
                 } else {
                     $vars = $_POST;
-                    $vars['uid'] = $user? $user->getId() : 0;
+
+                    if ($vars['uid'] && (!User::lookup($vars['uid'])))
+                        $vars['uid'] = 0;
 
                     $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
 

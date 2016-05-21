@@ -124,8 +124,10 @@ class ModelMeta implements ArrayAccess {
     function extend(ModelMeta $child, $meta) {
         $this->subclasses[$child->model] = $child;
         // Merge 'joins' settings (instead of replacing)
-        if (isset($this->meta['joins']))
-            $meta['joins'] += $this->meta['joins'];
+        if (isset($this->meta['joins'])) {
+            $meta['joins'] = array_merge($meta['joins'] ?: array(),
+                $this->meta['joins']);
+        }
         return $meta + $this->meta + self::$base;
     }
 
@@ -1358,6 +1360,9 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * after this is run, the changes should be made in a clone.
      */
     function total() {
+        if (isset($this->total))
+            return $this->total;
+
         // Optimize the query with the CALC_FOUND_ROWS if
         // - the compiler supports it
         // - the iterator hasn't yet been built, that is, the query for this
