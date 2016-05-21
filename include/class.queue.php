@@ -680,7 +680,7 @@ class CustomQueue extends VerySimpleModel {
                 $name = @static::getOrmPath($name, $qs);
 
                 if (preg_match('/__answers!\d+__/', $name)) {
-                    $qs->annotate(array($name2 => SqlAggregate::MAX($name)));
+                    $qs->annotate(array($name => SqlAggregate::MAX($name)));
                 }
 
                 // Fetch a criteria Q for the query
@@ -1681,7 +1681,7 @@ extends VerySimpleModel {
     }
 
     function applySort($query, $reverse=false) {
-        $fields = CustomQueue::getSearchableFields($root ?: $this->getQueue()->getRoot());
+        $fields = CustomQueue::getSearchableFields($this->getQueue()->getRoot());
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
             $query = $field->applyOrderBy($query, $reverse,

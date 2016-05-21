@@ -14,6 +14,9 @@ $fails = array();
 require_once INCLUDE_DIR . 'class.i18n.php';
 Internationalization::bootstrap();
 
+require_once INCLUDE_DIR . 'class.signal.php';
+require_once INCLUDE_DIR . 'class.search.php';
+
 function show_fails() {
     global $fails, $root;
     if ($fails) {

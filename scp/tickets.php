@@ -437,7 +437,7 @@ $queues = CustomQueue::queues()
         'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
         'staff_id' => $thisstaff->getId(),
     )))
-    ->all();
+    ->getIterator();
 
 // Start with all the top-level (container) queues
 foreach ($queues->findAll(array('parent_id' => 0))
@@ -457,7 +457,7 @@ $nav->addSubMenu(function() use ($queue) {
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
     $child_selected = $queue instanceof SavedSearch;
-    $searches = SavedSearch::forStaff($thisstaff)->all();
+    $searches = SavedSearch::forStaff($thisstaff)->getIterator();
 
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
 });
