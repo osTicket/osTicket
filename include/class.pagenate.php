@@ -25,10 +25,15 @@ class PageNate {
 
 
     function __construct($total,$page,$limit=20,$url='') {
-        $this->total = intval($total);
         $this->limit = max($limit, 1 );
         $this->page  = max($page, 1 );
         $this->start = max((($page-1)*$this->limit),0);
+        $this->setURL($url);
+        $this->setTotal($total);
+    }
+
+    function setTotal($total) {
+        $this->total = intval($total);
         $this->pages = ceil( $this->total / $this->limit );
 
         if (($this->limit > $this->total) || ($this->page>ceil($this->total/$this->limit))) {
@@ -37,7 +42,6 @@ class PageNate {
         if (($this->limit-1)*$this->start > $this->total) {
             $this->start -= $this->start % $this->limit;
         }
-        $this->setURL($url);
     }
 
     function setURL($url='',$vars='') {
@@ -158,6 +162,10 @@ class PageNate {
         $start = $this->getStart();
         $end = min($start + $this->getLimit() + $this->slack + ($start > 0 ? $this->slack : 0), $this->total);
         return $qs->limit($end-$start)->offset($start);
+    }
+
+    function paginateSimple(QuerySet $qs) {
+        return $qs->limit($this->getLimit() + $this->slack)->offset($this->getStart());
     }
 
 }

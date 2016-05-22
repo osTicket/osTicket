@@ -91,10 +91,11 @@ if (!$sorted && isset($sort['queuesort'])) {
 // Apply pagination
 
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
+$tickets = $pageNav->paginateSimple($tickets);
 $count = $tickets->total();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav->setTotal($count);
 $pageNav->setURL('tickets.php', $args);
-$tickets = $pageNav->paginate($tickets);
 ?>
 
 <!-- SEARCH FORM START -->
@@ -211,7 +212,7 @@ if (
 $canManageTickets = $thisstaff->canManageTickets();
 if ($canManageTickets) { ?>
         <th style="width:12px"></th>
-<?php 
+<?php
 }
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
@@ -234,9 +235,9 @@ foreach ($columns as $C) {
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" class="ckb" name="tids[]" 
+        <td><input type="checkbox" class="ckb" name="tids[]"
             value="<?php echo $T['ticket_id']; ?>" /></td>
-<?php 
+<?php
     }
     foreach ($columns as $C) {
         list($contents, $styles) = $C->render($T);
