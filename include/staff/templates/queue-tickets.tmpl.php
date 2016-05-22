@@ -104,7 +104,8 @@ $pageNav->setURL('tickets.php', $args);
     <span class="valign-helper"></span>
     <?php
     require 'queue-quickfilter.tmpl.php';
-    require 'queue-sort.tmpl.php';
+    if (count($queue->sorts))
+        require 'queue-sort.tmpl.php';
     ?>
   </div>
     <form action="tickets.php" method="get" onsubmit="javascript:
