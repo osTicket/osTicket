@@ -298,7 +298,7 @@ class CustomQueue extends VerySimpleModel {
                 list($label, $field) = $F;
             }
             else {
-                $label = $F->get('label');
+                $label = $F->getLocal('label');
                 $field = $F;
             }
             $fields[$path] = array($label, $field);
@@ -318,7 +318,7 @@ class CustomQueue extends VerySimpleModel {
             foreach ($otherFields as $id=>$F) {
                 list($form, $field) = $F;
                 $label = sprintf("%s / %s",
-                    $form->getTitle(), $field->get('label'));
+                    $form->getTitle(), $field->getLocal('label'));
                 $fields["entries__answers!{$id}__value"] = array(
                     $label, $field);
             }
@@ -340,6 +340,19 @@ class CustomQueue extends VerySimpleModel {
                 }
             }
         }
+
+        // Sort the field listing by the (localized) label name
+        if (function_exists('collator_create')) {
+            $coll = Collator::create(Internationalization::getCurrentLanguage());
+            $keys = array_map(function($a) use ($coll) {
+                return $coll->getSortKey($a[0]);
+            }, $fields);
+        }
+        else {
+            // Fall back to 8-bit string sorting
+            $keys = array_map(function($a) { return $a[0]; }, $fields);
+        }
+        array_multisort($keys, $fields);
 
         return $fields;
     }
