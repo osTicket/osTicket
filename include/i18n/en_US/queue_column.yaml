@@ -1,7 +1,7 @@
 # Columns are not necessary and a default list is used if no columns are
 # specified.
 #
-# Fields: 
+# Fields:
 #   id:
 #   flags:      (unused)
 #   name:       Display name of the column
@@ -108,7 +108,7 @@
 
 - id: 11
   name: "Department"
-  primary: "dept"
+  primary: "dept_id"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
@@ -121,7 +121,7 @@
   annotations: "[]"
   conditions: "[]"
 
-- id: 12
+- id: 13
   name: "Last Response"
   primary: "thread__lastresponse"
   filter: "date:human"
