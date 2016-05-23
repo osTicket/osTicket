@@ -425,6 +425,7 @@ class Mailer {
         if ($message instanceof TextWithExtras
             && ($files = $message->getFiles())
         ) {
+						
             foreach ($files as $F) {
                 $file = $F->getFile();
                 $mime->addAttachment($file->getData(),
@@ -561,7 +562,10 @@ class Mailer {
         }
 
         //No SMTP or it failed....use php's native mail function.
-        $mail = mail::factory('mail');
+        $args = array();
+        if ($this->getEmail())
+            $args = array('-f '.$this->getEmail()->getEmail());
+        $mail = mail::factory('mail', $args);
         // Ensure the To: header is properly encoded.
         $to = $headers['To'];
         $result = $mail->send($to, $headers, $body);

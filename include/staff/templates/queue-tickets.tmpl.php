@@ -26,13 +26,13 @@ if (!$view_all_tickets) {
     $tickets->filter($visibility);
 }
 
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
-If (!$page) $page = 1;
-$_SESSION['pageno'] = $page;
-$count = count($tickets); //$tickets->total();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-$pageNav->setURL('tickets.php', $args);
-$tickets = $pageNav->paginate($tickets);
+//$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
+//If (!$page) $page = 1;
+//$_SESSION['pageno'] = $page;
+//$count = count($tickets); //$tickets->total();
+//$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+//$pageNav->setURL('tickets.php', $args);
+//$tickets = $pageNav->paginate($tickets);
 
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
@@ -52,6 +52,59 @@ if ($args['a'] !== 'search') unset($args['a']);
 
 $refresh_url = $path . '?' . http_build_query($args);
 
+// Establish the selected or default sorting mechanism
+if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'col' => (int) $_GET['sort'],
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_GET['sort'])
+    // Drop the leading `qs-`
+    && (strpos($_GET['sort'], 'qs-') === 0)
+    && ($sort_id = substr($_GET['sort'], 3))
+    && is_numeric($sort_id)
+    && ($sort = QueueSort::lookup($sort_id))
+) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $sort,
+        'dir' => (int) $_GET['dir'],
+    );
+}
+elseif (isset($_SESSION['sort'][$queue->getId()])) {
+    $sort = $_SESSION['sort'][$queue->getId()];
+}
+elseif ($queue_sort = $queue->getDefaultSort()) {
+    $sort = $_SESSION['sort'][$queue->getId()] = array(
+        'queuesort' => $queue_sort,
+        'dir' => (int) $_GET['dir'] ?: 0,
+    );
+}
+
+// Handle current sorting preferences
+
+$sorted = false;
+foreach ($columns as $C) {
+    // Sort by this column ?
+    if (isset($sort['col']) && $sort['col'] == $C->id) {
+        $tickets = $C->applySort($tickets, $sort['dir']);
+        $sorted = true;
+    }
+}
+if (!$sorted && isset($sort['queuesort'])) {
+    // Apply queue sort-dropdown selected preference
+    $sort['queuesort']->applySort($tickets, $sort['dir']);
+}
+
+// Apply pagination
+
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
+$tickets = $pageNav->paginateSimple($tickets);
+$count = $tickets->total();
+$pageNav->setTotal($count);
+$pageNav->setURL('tickets.php', $args);
+
 ?>
 
 <!-- SEARCH FORM START -->
@@ -60,7 +113,8 @@ $refresh_url = $path . '?' . http_build_query($args);
     <span class="valign-helper"></span>
     <?php
     require 'queue-quickfilter.tmpl.php';
-    require 'queue-sort.tmpl.php';
+    if (count($queue->sorts))
+        require 'queue-sort.tmpl.php';
     ?>
   </div>
     <form action="tickets.php" method="get" onsubmit="javascript:
@@ -168,28 +222,8 @@ if (
 $canManageTickets = $thisstaff->canManageTickets();
 if ($canManageTickets) { ?>
         <th style="width:12px"></th>
-<?php 
-}
-if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
-    $sort = $_SESSION['sort'][$queue->getId()] = array(
-        'col' => (int) $_GET['sort'],
-        'dir' => (int) $_GET['dir'],
-    );
-}
-elseif (isset($_GET['sort'])
-    // Drop the leading `qs-`
-    && (strpos($_GET['sort'], 'qs-') === 0)
-    && ($sort_id = substr($_GET['sort'], 3))
-    && is_numeric($sort_id)
-    && ($sort = QueueSort::lookup($sort_id))
-) {
-    $sort = $_SESSION['sort'][$queue->getId()] = array(
-        'queuesort' => $sort,
-        'dir' => (int) $_GET['dir'],
-    );
-}
-else {
-    $sort = $_SESSION['sort'][$queue->getId()];
+
+<?php
 }
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
@@ -203,14 +237,6 @@ foreach ($columns as $C) {
     }
     echo sprintf('<th width="%s" data-id="%d">%s</th>',
         $C->getWidth(), $C->id, $heading);
-
-    // Sort by this column ?
-    if (isset($sort['col']) && $sort['col'] == $C->id) {
-        $tickets = $C->applySort($tickets, $sort['dir']);
-    }
-}
-if (isset($sort['queuesort'])) {
-    $sort['queuesort']->applySort($tickets, $sort['dir']);
 }
 ?>
     </tr>
@@ -221,9 +247,9 @@ if (isset($sort['queuesort'])) {
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" class="ckb" name="tids[]" 
+        <td><input type="checkbox" class="ckb" name="tids[]"
             value="<?php echo $T['ticket_id']; ?>" /></td>
-<?php 
+<?php
     }
     foreach ($columns as $C) {
         list($contents, $styles) = $C->render($T);
@@ -261,7 +287,7 @@ foreach ($tickets as $T) {
 ?>  <div>
       <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
 <?php
-        echo __('Page').':'.$pageNav->getPageLinks(false,false).'&nbsp;';
+        echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
                 Http::build_query(array(
                         'a' => 'export', 'queue' => $_REQUEST['queue'],

@@ -351,6 +351,7 @@ implements TemplateVariable, Searchable {
 
     static function getSearchableFields() {
         $uform = OrganizationForm::objects()->one();
+        $base = array();
         foreach ($uform->getFields() as $F) {
             $fname = $F->get('name') ?: ('field_'.$F->get('id'));
             if (!$F->hasData() || $F->isPresentationOnly())
@@ -478,8 +479,7 @@ implements TemplateVariable, Searchable {
         if (!$id || !$thisstaff)
             return false;
 
-        return ROOT_PATH . sprintf('scp/orgs.php?id=%s', $id);
-
+        return ROOT_PATH . sprintf('orgs.php?id=%s', $id);
     }
 
     static function fromVars($vars) {

@@ -54,6 +54,40 @@ if ($_POST) {
                 __('this queue'));
         }
         break;
+
+    case 'mass_process':
+        $updated = 0;
+        foreach (CustomQueue::objects()
+            ->filter(['id__in' => $_POST['ids']]) as $queue
+        ) {
+            switch ($_POST['a']) {
+            case 'enable':
+                $queue->enable();
+                if ($queue->save()) $updated++;
+                break;
+            case 'disable':
+                $queue->disable();
+                if ($queue->save()) $updated++;
+                break;
+            case 'delete':
+                if ($queue->delete()) $updated++;
+            }
+        }
+        if (!$updated) {
+            Messages::error(__(
+                'Unable to manage any of the selected queues'));
+        }
+        elseif ($_POST['count'] && $updated != $_POST['count']) {
+            Messages::warning(__(
+                'Not all selected items were updated'));
+        }
+        elseif ($updated) {
+            Messages::success(__(
+                'Successfully managed selected queues'));
+        }
+
+        // TODO: Consider redirecting based on the queue root
+        Http::redirect('settings.php?t=tickets#queues');
     }
 }
 

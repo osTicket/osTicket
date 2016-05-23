@@ -2,12 +2,16 @@
 if (count($queue->getSortOptions()) === 0)
     return;
 
-if (strpos($_GET['sort'], 'qs-') === 0) {
+if (isset($sort) && isset($sort['queuesort'])) {
+    $queuesort = $sort['queuesort'];
+    $sort_id = $queuesort->id;
+    $sort_dir = $sort['dir'];
+}
+elseif (strpos($_GET['sort'], 'qs-') === 0) {
     $sort_id = substr($_GET['sort'], 3);
     $queuesort = QueueSort::lookup($sort_id);
+    $sort_dir = $_GET['dir'];
 }
-
-$sort_dir = $_GET['dir'];
 ?>
 
 <span class="action-button muted" data-dropdown="#sort-dropdown"

@@ -13,8 +13,13 @@ $tickets = $pageNav->paginate($tickets);
 // Identify columns of output
 $columns = $queue->getColumns();
 
+// Apply default sort option
+if ($queue_sort = $queue->getDefaultSort()) {
+    $tickets = $queue_sort->applySort($tickets);
+}
+
 ?>
-<table class="list queue" border="0" cellspacing="1" cellpadding="2" width="100%">
+<table class="list queue" border="0" cellspacing="1" cellpadding="2" width="940">
   <thead>
     <tr>
       <th width="12px"></th>

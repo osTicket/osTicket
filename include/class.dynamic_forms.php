@@ -1422,6 +1422,12 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         $this->getField()->db_cleanup();
         return true;
     }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            unset($this->_value);
+        return parent::save($refetch);
+    }
 }
 
 class SelectionField extends FormField {

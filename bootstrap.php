@@ -136,7 +136,6 @@ class Bootstrap {
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
-
         define('QUEUE_TABLE', $prefix.'queue');
         define('COLUMN_TABLE', $prefix.'queue_column');
         define('QUEUE_COLUMN_TABLE', $prefix.'queue_columns');

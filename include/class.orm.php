@@ -124,8 +124,10 @@ class ModelMeta implements ArrayAccess {
     function extend(ModelMeta $child, $meta) {
         $this->subclasses[$child->model] = $child;
         // Merge 'joins' settings (instead of replacing)
-        //if (isset($this->meta['joins']))
-        //    $meta['joins'] += $this->meta['joins'];
+        if (isset($this->meta['joins'])) {
+            $meta['joins'] = array_merge($meta['joins'] ?: array(),
+                $this->meta['joins']);
+        }
         return $meta + $this->meta + self::$base;
     }
 
@@ -464,11 +466,7 @@ class VerySimpleModel {
                 }
                 // Capture the object under the object's field name
                 $this->ht[$field] = $value;
-                if ($value->__new__)
-                    // save() will be performed when saving this object
-                    $value = null;
-                else
-                    $value = $value->get($j['fkey'][1]);
+                $value = $value->get($j['fkey'][1]);
                 // Fall through to the standard logic below
             }
             // Capture the foreign key id value
@@ -1240,8 +1238,23 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this->limit || $this->offset || (count($this->values) + count($this->annotations) + @count($this->extra['select'])) > 1;
     }
 
+    /**
+     * Fetch related fields with the query. This will result in better
+     * performance as related items are fetched with the root model with
+     * only one trip to the database.
+     *
+     * Either an array of fields can be sent as one argument, or the list of
+     * fields can be sent as the arguments to the function.
+     *
+     * Example:
+     * >>> $q = User::objects()->select_related('role');
+     */
     function select_related() {
-        $this->related = array_merge($this->related, func_get_args());
+        $args = func_get_args();
+        if (is_array($args[0]))
+            $args = $args[0];
+
+        $this->related = array_merge($this->related, $args);
         return $this;
     }
 
@@ -1286,7 +1299,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function all() {
-        return $this->getIterator();
+        return $this->getIterator()->asArray();
     }
 
     function first() {
@@ -1309,7 +1322,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * If no such model or multiple models exist, an exception is thrown.
      */
     function one() {
-        $list = $this->all()->asArray();
+        $list = $this->all();
         if (count($list) == 0)
             throw new DoesNotExist();
         elseif (count($list) > 1)
@@ -1346,6 +1359,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
      * after this is run, the changes should be made in a clone.
      */
     function total() {
+        if (isset($this->total))
+            return $this->total;
         // Optimize the query with the CALC_FOUND_ROWS if
         // - the compiler supports it
         // - the iterator hasn't yet been built, that is, the query for this
@@ -1550,7 +1565,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
             $query->ordering = array();
         elseif (!$query->ordering && $meta['ordering'])
             $query->ordering = $meta['ordering'];
-        if (false !== $query->related && !$query->values && $meta['select_related'])
+        if (false !== $query->related && !$query->related && !$query->values && $meta['select_related'])
             $query->related = $meta['select_related'];
         if (!$query->defer && $meta['defer'])
             $query->defer = $meta['defer'];
@@ -2330,13 +2345,20 @@ class SqlCompiler {
         // Call pushJoin for each segment in the join path. A new JOIN
         // fragment will need to be emitted and/or cached
         $joins = array();
-        $push = function($p, $model) use (&$joins, &$path) {
+        $null = false;
+        $push = function($p, $model) use (&$joins, &$path, &$null) {
             $J = $model::getMeta('joins');
             if (!($info = $J[$p])) {
                 throw new OrmException(sprintf(
                    'Model `%s` does not have a relation called `%s`',
                     $model, $p));
             }
+            // Propogate LEFT joins through other joins. That is, if a
+            // multi-join expression is used, the first LEFT join should
+            // result in further joins also being LEFT
+            if (isset($info['null']))
+                $null = $null || $info['null'];
+            $info['null'] = $null;
             $crumb = $path;
             $path = ($path) ? "{$path}__{$p}" : $p;
             $joins[] = array($crumb, $path, $model, $info);
@@ -2459,9 +2481,22 @@ class SqlCompiler {
             // Handle relationship comparisons with model objects
             elseif ($value instanceof VerySimpleModel) {
                 $criteria = array();
-                foreach ($value->pk as $f=>$v) {
-                    $f = $field . '__' . $f;
-                    $criteria[$f] = $v;
+                // Avoid a join if possible. Use the local side of the
+                // relationship
+                if (count($value->pk) === 1) {
+                    $path = explode('__', $field);
+                    $relationship = array_pop($path);
+                    $lmodel = $model::getMeta()->getByPath($path);
+                    $local = $lmodel['joins'][$relationship]['local'];
+                    $path = $path ? (implode('__', $path) . '__') : '';
+                    foreach ($value->pk as $v) {
+                        $criteria["{$path}{$local}"] = $v;
+                   }
+                }
+                else {
+                    foreach ($value->pk as $f=>$v) {
+                        $criteria["{$field}__{$f}"] = $v;
+                    }
                 }
                 $filter[] = $this->compileQ(new Q($criteria), $model,
                     $Q->ored || $Q->negated);

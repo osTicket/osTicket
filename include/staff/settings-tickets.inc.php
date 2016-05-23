@@ -231,22 +231,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Human Verification');?>:</td>
-            <td>
-                <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                <?php echo __('Enable CAPTCHA on new web tickets.');?>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
-                &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Claim on Response'); ?>:</td>
-            <td>
-                <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
-            </td>
-        </tr>
-        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
             </th>

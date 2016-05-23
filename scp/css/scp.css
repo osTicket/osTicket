@@ -355,6 +355,16 @@ div#msg_warning {
 #sub_nav > ul {
     margin-top: 0;
 }
+#customQ_nav {
+    clear:both;
+    margin:0;
+    padding:0;
+    line-height:26px;
+}
+
+#sub_nav > ul {
+    margin-top: 0;
+}
 
 #sub_nav > li + li > a {
     margin-left: 10px;
@@ -1755,6 +1765,7 @@ table.ticket_info.custom-data>thead>tr>th{
 	 
 	 background-color:#F4FAFF;
  }
+
 .tixTitle {
     margin-left: auto;
     margin-right: auto;
