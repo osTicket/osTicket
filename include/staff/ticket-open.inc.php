@@ -253,7 +253,6 @@ if(!$user) {
         <?php
         if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
         <tr id="open_ticket_informationdata">
-        <tr>
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
                 <select id="assignId" name="assignId">

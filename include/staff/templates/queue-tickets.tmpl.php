@@ -26,14 +26,6 @@ if (!$view_all_tickets) {
     $tickets->filter($visibility);
 }
 
-//$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
-//If (!$page) $page = 1;
-//$_SESSION['pageno'] = $page;
-//$count = count($tickets); //$tickets->total();
-//$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-//$pageNav->setURL('tickets.php', $args);
-//$tickets = $pageNav->paginate($tickets);
-
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
 
@@ -98,7 +90,9 @@ if (!$sorted && isset($sort['queuesort'])) {
 
 // Apply pagination
 
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
+If (!$page) $page = 1;
+$_SESSION['pageno'] = $page;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
 $count = $tickets->total();

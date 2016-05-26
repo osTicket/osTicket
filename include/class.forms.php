@@ -1846,10 +1846,6 @@ class DatetimeField extends FormField {
             return (int) strtotime($value);
     }
 
-    function from_query($row, $name=false) {
-        return strtotime(parent::from_query($row, $name));
-    }
-
     function asVar($value, $id=false) {
         if (!$value) return null;
         return new FormattedDate((int) $value, 'UTC', false, false);
@@ -3991,9 +3987,6 @@ class ColorPickerWidget extends Widget {
     function render($options=array()) {
         ?><input type="color"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $classes
-            ))); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/><?php
     }

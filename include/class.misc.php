@@ -61,24 +61,18 @@ class Misc {
             return $var;
         return $dbtime - $dbtz->getOffset($D);
     }
-
     // Take user's time and return GMT time.
     function user2gmtime($timestamp=null, $user=null) {
         global $cfg;
-
         $tz = new DateTimeZone($cfg->getTimezone($user));
-
         if ($timestamp && is_int($timestamp)) {
             if (!($date = DateTime::createFromFormat('U', $timestamp)))
                 return $timestamp;
-
             return $timestamp - $tz->getOffset($date);
         }
-
         $date = new DateTime($timestamp ?: 'now', $tz);
         return $date ? $date->getTimestamp() : $timestamp;
     }
-
     //Take user time or gmtime and return db (mysql) time.
     function dbtime($var=null){
         static $dbtz;
@@ -90,34 +84,23 @@ class Misc {
             // User time to UTC
             $time = self::user2gmtime($var);
         }
-
         if (!isset($dbtz)) {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
-            // UTC to db time
-            $D = DateTime::createFromFormat('U', $time);
-            return $time + $dbtz->getOffset($D);
         }
-        elseif (!isset($dbtz) && !is_object($cfg)) {
-            return $time;
-        }
-        else {
-            $D = DateTime::createFromFormat('U', $time);
-            return $time + $dbtz->getOffset($D);
-        }
+        // UTC to db time
+        $D = DateTime::createFromFormat('U', $time);
+        return $time + $dbtz->getOffset($D);
     }
     /*Helper get GM time based on timezone offset*/
     function gmtime($time=false, $user=false) {
         global $cfg;
-
         $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
-
        if ($time && is_numeric($time))
           $time = DateTime::createFromFormat('U', $time);
         elseif (!($time = new DateTime($time ?: 'now'))) {
             // Old standard
             return time() - date('Z');
         }
-
         return $time->getTimestamp() - $tz->getOffset($time);
     }
     /* Needed because of PHP 4 support */
@@ -162,9 +145,7 @@ class Misc {
             $min=15;
         else
             $min=0;
-
         $time = Misc::user2gmtime(mktime(0,0,0));
-
         ob_start();
         echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
         echo '<option value="" selected>'.__('Time').'</option>';

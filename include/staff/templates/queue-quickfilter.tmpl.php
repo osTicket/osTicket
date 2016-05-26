@@ -10,10 +10,8 @@ if (!$queue || !$queue->filter)
 
 $param = $param ?: 'filter';
 
-//$quick_filter = $quick_filter ?: $_SESSION['qfilter'];
-//$_SESSION['qfilter'] = $quick_filter;
-
-$quick_filter = $quick_filter ?: $_REQUEST[$param];
+$quick_filter = $quick_filter ?: $_SESSION['qfilter'];
+$_SESSION['qfilter'] = $quick_filter;
 
 if (!($qf_field = $queue->getQuickFilterField($quick_filter)))
     return;

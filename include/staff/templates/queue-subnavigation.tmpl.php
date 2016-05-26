@@ -16,7 +16,7 @@ global $thisstaff;
     data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
   </span>
 
-  <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
+  <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref()."&p=1";
     ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
       <?php
         echo Format::htmlchars($q->getName()); ?>

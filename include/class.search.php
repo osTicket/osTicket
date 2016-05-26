@@ -967,7 +967,7 @@ class TicketStatusChoiceField extends SelectionField {
         $name = $name ?: $this->get('name');
 		// Hardcode fix for queues to work until it's fixed upstream
  		$name = 'status__id';
-        switch ($method) {
+		switch ($method) {
         case '!includes':
             return Q::not(array("{$name}__in" => array_keys($value)));
         case 'includes':

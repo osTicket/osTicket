@@ -1885,7 +1885,7 @@ implements IteratorAggregate {
      * describes the relationship between the root model and this model,
      * 'user__account' for instance.
      */
-    function buildModel($row, $cache=true) {
+    function buildModel($row, $cache=false) {
         // TODO: Traverse to foreign keys
         if ($this->map) {
             if ($this->model != $this->map[0][1])
@@ -3368,7 +3368,7 @@ class MySqlExecutor
 extends MySqlPreparedExecutor {
     function execute() {
         $sql = $this->__toString();
-        if (!($this->stmt = db_query($sql, true, !$this->unbuffered)))
+		if (!($this->stmt = db_query($sql, true, !$this->unbuffered)))
             throw new InconsistentModelException(
                 'Unable to prepare query: '.db_error().' '.$sql);
         // mysqli_query() return TRUE for UPDATE queries and friends

@@ -2135,7 +2135,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
-    function assignToStaff($staff, $note, $alert=true) {
+    function assignToStaff($staff, $note, $alert=true, $statuschg=true) {
 
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
@@ -2143,6 +2143,10 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$this->setStaffId($staff->getId()))
             return false;
 		
+		if ($statuschg == true)
+		$this->setStatusId(11);
+        $this->onAssign($staff, $note, $alert);
+
         global $thisstaff;
         $data = array();
         if ($thisstaff && $staff->getId() == $thisstaff->getId())
@@ -2214,7 +2218,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if ($errors || !$this->save(true))
             return false;
-		$this->logEvent('assigned', $evd);
+		$this->setStatusId(11);	
+        $this->logEvent('assigned', $evd);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
 
@@ -2294,7 +2299,10 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 	
         $this->setLastMessage($message);
-		
+		// Set Status to Responded
+		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9  && $this->getStatusId() !== 0)
+		$this->setStatusId(7);	
+
         // Add email recipients as collaborators...
 		
         if ($vars['recipients']
@@ -2510,7 +2518,12 @@ implements RestrictedAccess, Threadable, Searchable {
             && $vars['reply_status_id'] != $this->getStatusId()
         ) {
             $this->setStatus($vars['reply_status_id']);
-        } 
+        } else {
+			
+			if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9 
+				&& $this->getStatusId() !== 3  && $this->getTopicId() !==12)
+			$this->setStatusId(6);			
+		}
 		
         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
