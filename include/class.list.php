@@ -70,6 +70,7 @@ interface CustomListItem {
 
     function getConfiguration();
 
+    function hasProperties();
     function isEnabled();
     function isDeletable();
     function isEnableable();
@@ -664,6 +665,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $this->clearStatus(self::ENABLED);
     }
 
+    function hasProperties() {
+        return ($this->getForm() && $this->getForm()->getFields());
+    }
+
     function getId() {
         return $this->get('id');
     }
@@ -733,6 +738,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->getConfigurationForm();
     }
 
+    function getFields() {
+        return $this->getForm()->getFields();
+    }
+
     function getVar($name) {
         $config = $this->getConfiguration();
         $name = mb_strtolower($name);
@@ -766,6 +775,15 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
 
     function __toString() {
         return $this->toString();
+    }
+
+    function display() {
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getValue()
+                );
     }
 
     function update($vars, &$errors=array()) {
@@ -1102,7 +1120,7 @@ implements CustomListItem, TemplateVariable {
         return $this->set($field, $this->get($field) | $flag);
     }
 
-    protected function hasProperties() {
+    function hasProperties() {
         return ($this->get('properties'));
     }
 

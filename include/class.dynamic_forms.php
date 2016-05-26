@@ -1446,6 +1446,28 @@ class SelectionField extends FormField {
         return parent::getWidget($widgetClass);
     }
 
+    function display($value) {
+        global $thisstaff;
+
+        if (!is_array($value)
+                || !$thisstaff // Only agents can preview for now
+                || !($list=$this->getList()))
+            return parent::display($value);
+
+        $display = array();
+        foreach ($value as $k => $v) {
+            if (is_numeric($k)
+                    && ($i=$list->getItem((int) $k))
+                    && $i->hasProperties())
+                $display[] = $i->display();
+            else // Perhaps deleted  entry
+                $display[] = $v;
+        }
+
+        return implode(',', $display);
+
+    }
+
     function parse($value) {
 
         if (!($list=$this->getList()))
