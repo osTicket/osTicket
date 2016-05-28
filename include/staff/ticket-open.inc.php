@@ -154,7 +154,7 @@ if ($_POST)
                         $id = $info['topicId'] ? $info['topicId']:0;
                         if (count($topics) == 1 && !$form) {
                             if (($T = Topic::lookup($id)))
-                                $form =  $T->getForm();
+                                $forms =  $T->getForms();
                         }
                     }
                     ?>
