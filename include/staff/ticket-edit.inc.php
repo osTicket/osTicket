@@ -90,17 +90,7 @@ if ($_POST)
                 <?php echo __('Help Topic');?>:
             </td>
             <td>
-                <select name="topicId">
-                    <option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
-                    <?php
-                    if($topics=Topic::getHelpTopics()) {
-                        foreach($topics as $id =>$name) {
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['topicId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
+                <select id="cc" name="topicId" class="easyui-combotree" style="width:90%;"></select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
@@ -196,4 +186,51 @@ if ($_POST)
     });
   }, 20);
 })();
+//@CHANGED: Added Help Topic Tree from easyUI
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree();?> ;
+    function openItem(item){
+    parent=item.parent('li').parent('ul').prev()
+    if(parent.length){
+        treeHit = $('.tree-hit', parent)
+        if(treeHit.length && treeHit.hasClass('tree-collapsed'))
+        treeHit.trigger( "click" )
+        openItem(parent)
+    }
+    }
+    $('#cc').combotree({ 
+<?php if ($info['topicId']) { ?>
+        onLoadSuccess : function(){
+            $('#cc').combotree('setValue', <?php echo $info['topicId'] ?>);
+            var t = $('#cc').combotree('tree');
+            var n = t.tree('getSelected');
+        openItem( $('#'+n.domId))
+        },
+<?php } ?>
+        onSelect: function (r) { 
+            //Loads the dynamic form on selection
+            if(r.children.length == 0){
+                var data = $(':input[name]', '#dynamic-form').serialize();
+                $.ajax(
+                    'ajax.php/form/help-topic/' + r.id,
+                    {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                            $('#dynamic-form').empty().append(json.html);
+                            $(document.head).append(json.media);
+                        }
+                    }
+                );
+            } else {
+                $('.tree-hit',r.target).trigger( "click" )
+                $('#cc').combotree('clear')
+                $('#dynamic-form').empty()
+                throw true;
+                return false
+            }
+        } 
+    }); 
+    $('#cc').combotree('loadData', val);
+});
 </script>

@@ -127,3 +127,53 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+<script type="text/javascript">
+//@CHANGED: Added Help Topic Tree from easyUI
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree();?> ;
+    function openItem(item){
+        parent=item.parent('li').parent('ul').prev()
+        if(parent.length){
+            treeHit = $('.tree-hit', parent)
+            if(treeHit.length && treeHit.hasClass('tree-collapsed'))
+                treeHit.trigger( "click" )
+            openItem(parent)
+        }
+    }
+    $('#cc').combotree({
+<?php if ($info['topicId']) { ?>
+        onLoadSuccess : function(){
+            $('#cc').combotree('setValue', <?php echo $info['topicId'] ?>);
+            var t = $('#cc').combotree('tree');
+            var n = t.tree('getSelected');
+            openItem( $('#'+n.domId))
+        },
+<?php } ?>
+        onSelect: function (r) {
+            //Loads the dynamic form on selection
+            if(r.children.length == 0){
+                var data = $(':input[name]', '#dynamic-form').serialize();
+                $.ajax(
+                    'ajax.php/form/help-topic/' + r.id,
+                    {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                            $('#dynamic-form').empty().append(json.html);
+                            $(document.head).append(json.media);
+                        }
+                    }
+                );
+            } else {
+                $('.tree-hit',r.target).trigger( "click" )
+                $('#cc').combotree('clear')
+                $('#dynamic-form').empty()
+                throw true;
+                return false
+            }
+        }
+    });
+    $('#cc').combotree('loadData', val);
+});
+ 
+</script>
