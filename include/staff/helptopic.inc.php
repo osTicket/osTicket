@@ -122,8 +122,8 @@ foreach ($topic_organizations as $topic_org_obj) {
                 <?php echo __('Primary Contacts Only');?>:
             </td>
             <td>
-                <input type="radio" name="orgpconly" value="0" <?php echo $info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Enforced'); ?>
-                <input type="radio" name="orgpconly" value="1" <?php echo !$info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
+                <input type="radio" name="orgpconly" value="1" <?php echo $info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Enforced'); ?>
+                <input type="radio" name="orgpconly" value="0" <?php echo !$info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
                 <i class="help-tip icon-question-sign" href="#organization_pc_only"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
