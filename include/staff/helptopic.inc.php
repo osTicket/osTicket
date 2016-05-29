@@ -18,6 +18,7 @@ if($topic && $_REQUEST['a']!='add') {
     $submit_text=__('Add Topic');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
+    $info['orgpconly']=isset($info['orgpconly'])?$info['orgpconly']:1;
     $qs += array('a' => $_REQUEST['a']);
     $forms = TicketForm::objects();
     $topic_organizations = TicketOrganization::objects();

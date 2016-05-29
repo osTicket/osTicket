@@ -216,6 +216,10 @@ implements TemplateVariable {
     function isPublic() {
         return ($this->ispublic);
     }
+    
+    function orgPcOnly() {
+        return ($this->orgpconly);
+    }
 
     function getHashtable() {
         return $this->ht;
@@ -313,7 +317,7 @@ implements TemplateVariable {
         // If localization is specifically requested, then rebuild the list.
         if (!$names || $localize) {
             $objects = self::objects()->values_flat(
-                'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
+                'topic_id', 'topic_pid', 'ispublic', 'isactive', 'orgpconly', 'topic'
             )
             ->order_by('sort');
 
@@ -435,6 +439,7 @@ implements TemplateVariable {
         $this->page_id = $vars['page_id'] ?: 0;
         $this->isactive = !!$vars['isactive'];
         $this->ispublic = !!$vars['ispublic'];
+        $this->orgpconly = !!$vars['orgpconly'];
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
         $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
         $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : 0;
