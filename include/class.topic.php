@@ -554,7 +554,12 @@ implements TemplateVariable {
     function updateOrganizations($vars, &$errors) {
         // Consider all the organizations in the request
         $current = array();
-        if (is_array($organization_ids = $vars['organizations'])) {
+        if (is_array($vars['organizations'])) {
+            $organization_ids = $vars['organizations'];
+        } else {
+            $organization_ids = array();
+        }
+        if (is_array($organization_ids)) {
             $organizations = TopicOrganizationModel::objects()
                 ->select_related('organization')
                 ->filter(array('topic_id' => $this->getId()));
