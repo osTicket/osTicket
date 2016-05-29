@@ -142,6 +142,56 @@ class OrganizationModel extends VerySimpleModel {
     static function getPermissions() {
         return self::$perms;
     }
+    
+    static function getOrganizations($localize=true) {
+        global $cfg;
+        static $organizations, $names = array();
+
+        // If localization is specifically requested, then rebuild the list.
+        if (!$names || $localize) {
+            $objects = self::objects()->values_flat(
+                'id', 'name'
+            )
+            ->order_by('name');
+
+            // Fetch information for all topics, in declared sort order
+            $organizations = array();
+            foreach ($objects as $O) {
+                list($id, $name) = $O;
+                $organizations[$id] = array('name'=>$name);
+            }
+
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("organization.name.{$id}");
+                $O = CustomDataTranslation::translate($tag);
+                return $O != $tag ? $O : $default;
+            };
+            
+            foreach ($organizations as $id=>$info) {
+                $name = $localize_this($id, $info['name']);
+                $loop = array($id=>true);
+                $names[$id] = $name;
+            }
+
+        }
+
+        // Apply requested filters
+        $requested_names = array();
+        foreach ($names as $id=>$n) {
+            $info = $organizations[$id];
+            $requested_names[$id] = $n;
+        }
+        
+        return $requested_names;
+    }
+    
+    static function getAllOrganizations($localize=false) {
+        return self::getOrganizations($localize);
+    }
+    
 }
 include_once INCLUDE_DIR.'class.role.php';
 RolePermission::register(/* @trans */ 'Organizations',

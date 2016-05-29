@@ -163,6 +163,16 @@ implements TemplateVariable {
         }
         return $this->_forms;
     }
+    
+    function getOrganizations() {
+        if (!isset($this->_organizations)) {
+            $this->_organizations = array();
+            foreach ($this->organizations->select_related('organization') as $O) {
+                $this->_organizations[] = $O->organization;
+            }
+        }
+        return $this->_forms;
+    }
 
     function autoRespond() {
         return !$this->noautoresp;
