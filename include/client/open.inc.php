@@ -74,7 +74,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                       });">
                 <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
                 <?php
-                if($topics=Topic::getPublicHelpTopics()) {
+                if($topics=Topic::getPublicHelpTopics($thisclient)) {
                     foreach($topics as $id =>$name) {
                         echo sprintf('<option value="%d" %s>%s</option>',
                                 $id, ($info['topicId']==$id)?'selected="selected"':'', $name);

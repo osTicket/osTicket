@@ -310,7 +310,7 @@ implements TemplateVariable {
         return $topic;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $primaryContactOnly=false, $limitOrganization=false, $client=null) {
         global $cfg;
         static $topics, $names = array();
 
@@ -357,7 +357,7 @@ implements TemplateVariable {
                 $names[$id] = $name;
             }
         }
-
+        
         // Apply requested filters
         $requested_names = array();
         foreach ($names as $id=>$n) {
@@ -365,6 +365,8 @@ implements TemplateVariable {
             if ($publicOnly && !$info['public'])
                 continue;
             if (!$disabled && $info['disabled'])
+                continue;
+            if ($primaryContactOnly && $info['orgpconly'] == 1 && $client && $client->isPrimaryContact() == 0)
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
                 $n .= " - ".__("(disabled)");
@@ -381,8 +383,8 @@ implements TemplateVariable {
         return $requested_names;
     }
 
-    static function getPublicHelpTopics() {
-        return self::getHelpTopics(true);
+    static function getPublicHelpTopics($client) {
+        return self::getHelpTopics(true, false, true, true, true, $client);
     }
 
     static function getAllHelpTopics($localize=false) {
