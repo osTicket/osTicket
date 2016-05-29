@@ -310,7 +310,7 @@ implements TemplateVariable {
         return $topic;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $primaryContactOnly=false, $limitOrganization=false, $client=null) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $primaryContactOnly=false, $limitByOrganization=false, $client=null) {
         global $cfg;
         static $topics, $names = array();
 
@@ -357,16 +357,25 @@ implements TemplateVariable {
                 $names[$id] = $name;
             }
         }
-        
+
         // Apply requested filters
         $requested_names = array();
         foreach ($names as $id=>$n) {
             $info = $topics[$id];
+            $to = TopicOrganizationModel::objects()->filter(array(
+                'topic_id'=>$id
+            ));
+            $to_org_ids=array();
+            foreach ($to as $oid=>$to_obj) {
+                array_push($to_org_ids,$to_obj->organization_id);
+            }
             if ($publicOnly && !$info['public'])
                 continue;
             if (!$disabled && $info['disabled'])
                 continue;
             if ($primaryContactOnly && $info['orgpconly'] == 1 && $client && $client->isPrimaryContact() == 0)
+                continue;
+            if ($limitByOrganization && $client && count($to) > 0 && !in_array($client->getOrganization()->id, $to_org_ids))
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
                 $n .= " - ".__("(disabled)");
