@@ -11,7 +11,7 @@ if($topic && $_REQUEST['a']!='add') {
     $trans['name'] = $topic->getTranslateTag('name');
     $qs += array('id' => $topic->getId());
     $forms = $topic->getForms();
-    $organizations = $topic->getOrganizations();
+    $topic_organizations = $topic->getOrganizations();
 } else {
     $title=__('Add New Help Topic');
     $action='create';
@@ -20,8 +20,13 @@ if($topic && $_REQUEST['a']!='add') {
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
     $qs += array('a' => $_REQUEST['a']);
     $forms = TicketForm::objects();
+    $topic_organizations = TicketOrganization::objects();
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$topic_organization_ids=array();
+foreach ($topic_organizations as $topic_org_obj) {
+    array_push($topic_organization_ids,$topic_org_obj->id);
+}
 ?>
 
 <h2><?php echo $title; ?>
@@ -100,11 +105,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <select name="organization_id" class="multi-select" multiple>
-                    <?php $organizations = Organization::getAllOrganizations();
-                    while (list($id,$name) = each($organizations)) {
+                    <?php $allOrganizations = Organization::getAllOrganizations();
+                    while (list($id,$name) = each($allOrganizations)) {
                         if ($id == $info['id'])
                             continue; ?>
-                        <option value="<?php echo $id; ?>"<?php echo ($info['id']==$id)?'selected':''; ?>><?php echo $name; ?></option>
+                        <option value="<?php echo $id; ?>"<?php echo (in_array($id,$topic_organization_ids))?'selected':''; ?>><?php echo $name; ?></option>
                     <?php
                     } ?>
                 </select> <i class="help-tip icon-question-sign" href="#allowed_organizations"></i>
