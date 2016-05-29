@@ -171,7 +171,7 @@ implements TemplateVariable {
                 $this->_organizations[] = $O->organization;
             }
         }
-        return $this->_forms;
+        return $this->_organizations;
     }
 
     function autoRespond() {
