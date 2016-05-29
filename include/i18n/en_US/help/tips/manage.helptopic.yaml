@@ -44,6 +44,20 @@ parent_topic:
         class="doc-desc-title">Help Topic</span> will belong. The Parent
         Topic will appear first in the listing with this <span
         class="doc-desc-title">Help Topic</span> listed behind the parent.
+        
+allowed_organizations:
+    title: Allowed Organizations
+    content: >
+        Select which organizations can see and submit this <span
+        class="doc-desc-title">Help Topic</span>. The default is to
+        allow all organizations to see the topic.
+        
+organization_pc_only:
+    title: Primary Contacts Only
+    content: >
+        This determines whether or not a <span class="doc-desc-title">
+        Help Topic</span> is available to all users or just the 
+        primary contacts of the organization.
 
 custom_form:
     title: Custom Form
