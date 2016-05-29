@@ -57,10 +57,15 @@ implements TemplateVariable {
                 'reverse' => 'TopicFormModel.topic',
                 'null' => true,
             ),
+            'organizations' => array(
+                'reverse' => 'TopicOrganizationModel.topic',
+                'null' => true,
+            ),
         ),
     );
 
     var $_forms;
+    var $_organizations;
 
     const DISPLAY_DISABLED = 2;
 
@@ -573,6 +578,22 @@ class TopicFormModel extends VerySimpleModel {
             ),
             'form' => array(
                 'constraint' => array('form_id' => 'DynamicForm.id'),
+            ),
+        ),
+    );
+}
+
+// Basic Organization Relationship Model
+class TopicOrganizationModel extends VerySimpleModel {
+    static $meta = array(
+        'table' => TOPIC_ORGANIZATION_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'topic' => array(
+                'constraint' => array('topic_id' => 'Topic.topic_id'),
+            ),
+            'organization' => array(
+                'constraint' => array('organization_id' => 'Organization.id'),
             ),
         ),
     );
