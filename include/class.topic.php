@@ -324,9 +324,9 @@ implements TemplateVariable {
             // Fetch information for all topics, in declared sort order
             $topics = array();
             foreach ($objects as $T) {
-                list($id, $pid, $pub, $act, $topic) = $T;
+                list($id, $pid, $pub, $act, $orgpconly, $topic) = $T;
                 $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                    'disabled'=>!$act, 'topic'=>$topic);
+                    'disabled'=>!$act, 'orgpconly'=>$orgpconly, 'topic'=>$topic);
             }
 
             $localize_this = function($id, $default) use ($localize) {
@@ -480,6 +480,7 @@ implements TemplateVariable {
                 static::updateSortOrder();
             }
             $this->updateForms($vars, $errors);
+            $this->updateOrganizations($vars, $errors);
         }
         return $rv;
     }
@@ -534,6 +535,38 @@ implements TemplateVariable {
                     )
                 ));
                 $tf->save();
+            }
+        }
+        return true;
+    }
+    
+    function updateOrganizations($vars, &$errors) {
+        // Consider all the organizations in the request
+        $current = array();
+        if (is_array($organization_ids = $vars['organizations'])) {
+            $organizations = TopicOrganizationModel::objects()
+                ->select_related('organization')
+                ->filter(array('topic_id' => $this->getId()));
+            foreach ($organizations as $O) {
+                if (false !== ($idx = array_search($O->organization_id, $organization_ids))) {
+                    $current[] = $O->organization_id;
+                    $O->save();
+                    unset($organization_ids[$idx]);
+                }
+                elseif ($O->organization->get('type') != 'T') {
+                    $O->delete();
+                }
+            }
+            foreach ($organization_ids as $id) {
+                if (in_array($id, $current)) {
+                    // Don't add a form more than once
+                    continue;
+                }
+                $to = new TopicOrganizationModel(array(
+                    'topic_id' => $this->getId(),
+                    'organization_id' => $id
+                ));
+                $to->save();
             }
         }
         return true;

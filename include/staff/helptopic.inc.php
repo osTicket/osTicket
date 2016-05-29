@@ -105,7 +105,7 @@ foreach ($topic_organizations as $topic_org_obj) {
                 <?php echo __('Allowed Organizations');?>:
             </td>
             <td>
-                <select name="organization_id" class="multi-select" multiple>
+                <select name="organizations[]" class="multi-select" multiple>
                     <?php $allOrganizations = Organization::getAllOrganizations();
                     while (list($id,$name) = each($allOrganizations)) {
                         if ($id == $info['id'])
