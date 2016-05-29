@@ -11,6 +11,7 @@ if($topic && $_REQUEST['a']!='add') {
     $trans['name'] = $topic->getTranslateTag('name');
     $qs += array('id' => $topic->getId());
     $forms = $topic->getForms();
+    $organizations = $topic->getOrganizations();
 } else {
     $title=__('Add New Help Topic');
     $action='create';
@@ -90,6 +91,34 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <?php
                     } ?>
                 </select> <i class="help-tip icon-question-sign" href="#parent_topic"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Allowed Organizations');?>:
+            </td>
+            <td>
+                <select name="organization_id" class="multi-select" multiple>
+                    <?php $organizations = Organization::getAllOrganizations();
+                    while (list($id,$name) = each($organizations)) {
+                        if ($id == $info['id'])
+                            continue; ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($info['id']==$id)?'selected':''; ?>><?php echo $name; ?></option>
+                    <?php
+                    } ?>
+                </select> <i class="help-tip icon-question-sign" href="#allowed_organizations"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Primary Contacts Only');?>:
+            </td>
+            <td>
+                <input type="radio" name="orgpconly" value="0" <?php echo $info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Enforced'); ?>
+                <input type="radio" name="orgpconly" value="1" <?php echo !$info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
+                <i class="help-tip icon-question-sign" href="#organization_pc_only"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
