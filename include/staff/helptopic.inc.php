@@ -1,6 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = $forms = array();
+$topic_organization_ids=array();
 if($topic && $_REQUEST['a']!='add') {
     $title=__('Update Help Topic');
     $action='update';
@@ -12,6 +13,9 @@ if($topic && $_REQUEST['a']!='add') {
     $qs += array('id' => $topic->getId());
     $forms = $topic->getForms();
     $topic_organizations = $topic->getOrganizations();
+    foreach ($topic_organizations as $topic_org_obj) {
+        array_push($topic_organization_ids,$topic_org_obj->id);
+    }
 } else {
     $title=__('Add New Help Topic');
     $action='create';
@@ -21,13 +25,8 @@ if($topic && $_REQUEST['a']!='add') {
     $info['orgpconly']=isset($info['orgpconly'])?$info['orgpconly']:1;
     $qs += array('a' => $_REQUEST['a']);
     $forms = TicketForm::objects();
-    $topic_organizations = TicketOrganization::objects();
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
-$topic_organization_ids=array();
-foreach ($topic_organizations as $topic_org_obj) {
-    array_push($topic_organization_ids,$topic_org_obj->id);
-}
 ?>
 
 <h2><?php echo $title; ?>
