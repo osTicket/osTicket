@@ -172,10 +172,14 @@ implements TemplateVariable {
     function getOrganizations() {
         if (!isset($this->_organizations)) {
             $this->_organizations = array();
-            foreach ($this->organizations->select_related('organization') as $O) {
-                $this->_organizations[] = $O->organization;
+            if (!is_null($this->organizations)) {
+                foreach ($this->organizations->select_related('organization') as $O) {
+                    $this->_organizations[] = $O->organization;
+                }
             }
         }
+        
+        //if (!is_array($this->_organizations)) { $this->_organizations = array(); }
         return $this->_organizations;
     }
 
