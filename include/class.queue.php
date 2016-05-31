@@ -569,7 +569,7 @@ class CustomQueue extends VerySimpleModel {
         ) {
             return $sort;
         }
-        return $this->default_sort;
+        //return $this->default_sort;
     }
 
     function getStatus() {
