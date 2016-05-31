@@ -284,7 +284,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:
