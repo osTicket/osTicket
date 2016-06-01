@@ -363,15 +363,25 @@ implements TemplateVariable {
     }
 
     //@CHANGED: Added  function to create hierarchy tree
-    static function getHelpTopicsTree($publicOnly=false, $disabled=false) {
+    static function getHelpTopicsTree($publicOnly=false, $disabled=false, $localize=true) {
         global $cfg;
         static $topics, $names = array();
- 
-        if (!$names) {
+        
+        // If localization is specifically requested, then rebuild the list.
+        if (!$names || $localize) {
             $objects = self::objects()->values_flat(
                 'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
             )
             ->order_by('sort');
+
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("topic.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
  
             // Fetch information for all topics, in declared sort order
             $topics = array();
@@ -381,11 +391,12 @@ implements TemplateVariable {
                     continue;
                 if (!$disabled && !$act)
                     continue;
+                $disabled = "";
                 if ($disabled === self::DISPLAY_DISABLED && !$act)
-                    $topic.= " &mdash; ".__("(disabled)");
+                    $disabled.= " &mdash; ".__("(disabled)");
                 
                 
-                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$this->getLocal($topic), 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
+                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$localize_this($pid, $topic).$disabled, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
             }
         }
         return self::generateTree($topics);
