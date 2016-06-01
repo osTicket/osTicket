@@ -396,7 +396,7 @@ implements TemplateVariable {
                     $disabled.= " &mdash; ".__("(disabled)");
                 
                 
-                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$localize_this($pid, $topic).$disabled, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
+                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$localize_this($id, $topic).$disabled, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
             }
         }
         return self::generateTree($topics);
