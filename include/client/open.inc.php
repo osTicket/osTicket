@@ -107,7 +107,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 <script type="text/javascript">
 //@CHANGED: Added Help Topic Tree from easyUI
 $(document).ready(function(){
-    var val = <?php echo Topic::getHelpTopicsTree();?> ;
+    var val = <?php echo Topic::getHelpTopicsTree(true);?> ;
     function openItem(item){
         parent=item.parent('li').parent('ul').prev()
         if(parent.length){
