@@ -368,13 +368,15 @@ implements TemplateVariable {
         static $topics, $names = array();
  
         if (!$names) {
-            $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
-                . ' ORDER BY `sort`';
-            $res = db_query($sql);
+            $objects = self::objects()->values_flat(
+                'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
+            )
+            ->order_by('sort');
  
             // Fetch information for all topics, in declared sort order
             $topics = array();
-            while (list($id, $pid, $pub, $act, $topic) = db_fetch_row($res)){
+            foreach ($objects as $T) {
+                list($id, $pid, $pub, $act, $topic) = $T;
                 if ($publicOnly && !$pub)
                     continue;
                 if (!$disabled && !$act)
@@ -397,7 +399,7 @@ implements TemplateVariable {
             if($datas[$i]['pid'] == $parent){
                 $tree .= '{';
                 $tree .= '"id" : '.$datas[$i]['id'].',';
-                $tree .= '"text" : "'.$datas[$i]['text'].'",';
+                $tree .= '"text" : "'.__($datas[$i]['text']).'",';
                 //Add folder icon
                 $children = self::generateTree($datas, $datas[$i]['id'], $depth+1);
                 $tree .= ($children != "[]") ? '"state" : "closed",' : '';
