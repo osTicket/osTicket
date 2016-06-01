@@ -385,7 +385,7 @@ implements TemplateVariable {
                     $topic.= " &mdash; ".__("(disabled)");
                 
                 
-                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$topic, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
+                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$this->getLocal($topic), 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
             }
         }
         return self::generateTree($topics);
@@ -399,7 +399,7 @@ implements TemplateVariable {
             if($datas[$i]['pid'] == $parent){
                 $tree .= '{';
                 $tree .= '"id" : '.$datas[$i]['id'].',';
-                $tree .= '"text" : "'.__($datas[$i]['text']).'",';
+                $tree .= '"text" : "'.$datas[$i]['text'].'",';
                 //Add folder icon
                 $children = self::generateTree($datas, $datas[$i]['id'], $depth+1);
                 $tree .= ($children != "[]") ? '"state" : "closed",' : '';
