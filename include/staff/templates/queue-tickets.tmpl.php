@@ -141,8 +141,12 @@ return false;">
         <div class="content">
             <div class="pull-left flush-left">
                 <h2><a href="<?php echo $refresh_url; ?>"
-                    title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                    $queue->getName(); ?></a></h2>
+                    title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+					
+<?php if (isset($queue->id)) { ?> 
+<?php echo $queue->getFullName();} ?>
+					
+					</a></h2>
             </div>
             <div class="configureQ">
                 <i class="icon-cog"></i>
@@ -219,6 +223,7 @@ if ($canManageTickets) { ?>
 
 <?php
 }
+
 foreach ($columns as $C) {
     $heading = Format::htmlchars($C->getLocalHeading());
     if ($C->isSortable()) {
