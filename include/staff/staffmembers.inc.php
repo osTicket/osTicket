@@ -167,7 +167,7 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>

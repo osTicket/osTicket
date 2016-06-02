@@ -20,7 +20,7 @@ if ($_POST)
             <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
         </div>
     </div>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
         <tbody>
             <tr>
                 <th colspan="2">
@@ -144,13 +144,13 @@ if ($_POST)
         </tr>
     </tbody>
 </table>
-<table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table dynamic-forms" width="100%" border="0" cellspacing="0" cellpadding="2">
         <?php if ($forms)
             foreach ($forms as $form) {
                 $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
         } ?>
 </table>
-<table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
         <tr>
             <th colspan="2">

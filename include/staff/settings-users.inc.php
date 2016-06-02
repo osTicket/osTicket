@@ -14,7 +14,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 </ul>
 <div id="users-tabs_container">
    <div id="settings" class="tab_content">
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
 
         <tr>
@@ -136,7 +136,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
     </table>
    </div>
    <div id="templates" class="tab_content hidden">
-    <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
 <?php
 $res = db_query('select distinct(`type`), id, notes, name, updated from '

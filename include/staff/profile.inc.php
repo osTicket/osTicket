@@ -14,7 +14,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
   </ul>
 
   <div class="tab_content" id="account">
-    <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="table two-column" width="100%" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr><td colspan="2"><div>
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">

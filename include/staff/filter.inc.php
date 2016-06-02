@@ -33,7 +33,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         — <?php echo $info['name']; ?></small>
         <?php } ?>
     </h2>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
         <thead>
             <tr>
                 <th colspan="2">
@@ -119,7 +119,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </ul>
     <!-- ====================== FILTER RULES ========================== -->
     <div class="tab_content" id="filter_rules">
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr>
                     <th colspan="2" style="text-align:left;">
@@ -221,7 +221,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </div>
     <!-- ======================= FILTER ACTIONS ========================= -->
     <div class="tab_content hidden" id="filter_actions">
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr>
                     <th colspan="2">
@@ -308,7 +308,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     </div>
     <!-- ======================== INTERNAL NOTES ======================== -->
     <div class="tab_content hidden" id="internal_notes">
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
             <thead>
                 <tr>
                     <th colspan="2">

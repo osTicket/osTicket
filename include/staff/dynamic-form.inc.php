@@ -42,7 +42,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     — <?php echo $info['title']; ?></small>
         <?php } ?>
     </h2>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -113,7 +113,7 @@ if ($form && count($langs) > 1) { ?>
       </tr>
     </tbody>
     </table>
-    <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+    <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <?php if ($form && $form->get('type') == 'T') {
     $uform = UserForm::objects()->one();
     ?>

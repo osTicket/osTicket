@@ -108,7 +108,7 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
     else
         $showing=__('No agents found!');
     ?>
-<table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+<table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <thead>
         <tr>
             <th width="20%"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
