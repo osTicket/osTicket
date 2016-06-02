@@ -1,4 +1,4 @@
-<?php`
+<?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $info=$qs = array();
