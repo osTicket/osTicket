@@ -290,6 +290,10 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        // Set the default locale to UTF-8. It will be changed by
+        // ::setLocaleForUser() later for web requests. See #2910
+        Translation::setLocale(LC_ALL, 'en_US.UTF-8');
     }
 
     function croak($message) {
