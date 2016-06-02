@@ -126,6 +126,7 @@ a time {
 
 #container {
     width:90%;
+    min-width: 940px;
     margin:0 auto 20px auto;
 }
 
