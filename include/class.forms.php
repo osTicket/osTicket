@@ -2046,15 +2046,39 @@ class DatetimeField extends FormField {
             'between' =>    __('between'),
             'ndaysago' =>   __('in the last n days'),
             'ndays' =>      __('in the next n days'),
+            'future' =>     __('in the future'),
+            'past' =>       __('in the past'),
+            'distfut' =>    __('more than n days from now'),
+            'distpast' =>   __('more than n days ago'),
         );
     }
 
     function getSearchMethodWidgets() {
         $config_notime = $config = $this->getConfiguration();
         $config_notime['time'] = false;
+        $nday_form = function() {
+            $intervals = array(
+                'i' => _N('minute', 'minutes', 5),
+                'h' => _N('hour', 'hours', 5),
+                'd' => _N('day','days', 5),
+                'w' => _N('week', 'weeks', 5),
+                'm' => _N('month', 'months', 5),
+            );
+            return array(
+                'until' => new TextboxField(array(
+                    'configuration' => array('validator'=>'number', 'size'=>4))
+                ),
+                'int' => new ChoiceField(array(
+                    'default' => 'd',
+                    'choices' => $intervals,
+                )),
+            );
+        };
         return array(
             'set' => null,
             'nset' => null,
+            'past' => null,
+            'future' => null,
             'equal' => array('DatetimeField', array(
                 'configuration' => $config_notime,
             )),
@@ -2076,31 +2100,23 @@ class DatetimeField extends FormField {
                     'right' => new DatetimeField(),
                 ),
             )),
-            'ndaysago' => array('InlineformField', array(
-                'form' => array(
-                    'until' => new TextboxField(array(
-                        'configuration' => array('validator'=>'number', 'size'=>4))
-                    ),
-                    'text' => new FreeTextField(array(
-                        'configuration' => array('content' => 'days'))
-                    ),
-                ),
-            )),
-            'ndays' => array('InlineformField', array(
-                'form' => array(
-                    'until' => new TextboxField(array(
-                        'configuration' => array('validator'=>'number', 'size'=>4))
-                    ),
-                    'text' => new FreeTextField(array(
-                        'configuration' => array('content' => 'days'))
-                    ),
-                ),
-            )),
+            'ndaysago' => array('InlineformField', array('form'=>$nday_form())),
+            'ndays' => array('InlineformField', array('form'=>$nday_form())),
+            'distfut' => array('InlineformField', array('form'=>$nday_form())),
+            'distpast' => array('InlineformField', array('form'=>$nday_form())),
         );
     }
 
     function getSearchQ($method, $value, $name=false) {
+        static $intervals = array(
+            'm' => 'MONTH',
+            'w' => 'WEEK',
+            'd' => 'DAY',
+            'h' => 'HOUR',
+            'i' => 'MINUTE',
+        );
         $name = $name ?: $this->get('name');
+        $now = SqlFunction::NOW();
         $config = $this->getConfiguration();
         $value = is_int($value)
             ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value
@@ -2120,8 +2136,12 @@ class DatetimeField extends FormField {
                 "{$name}__lt" => $l,
                 "{$name}__gte" => $r,
             ));
+        case 'future':
+            $value = $now;
         case 'after':
             return new Q(array("{$name}__gte" => $value));
+        case 'past':
+            $value = $now;
         case 'before':
             return new Q(array("{$name}__lt" => $value));
         case 'between':
@@ -2136,16 +2156,31 @@ class DatetimeField extends FormField {
                 "{$name}__lte" => $value['right'],
             ));
         case 'ndaysago':
-            $now = Misc::gmtime();
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__lt" => $now,
-                "{$name}__gte" => SqlExpression::minus($now, SqlInterval::DAY($value['until'])),
+                "{$name}__gte" => $now->minus($interval),
             ));
         case 'ndays':
-            $now = Misc::gmtime();
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
                 "{$name}__gt" => $now,
-                "{$name}__lte" => SqlExpression::plus($now, SqlInterval::DAY($value['until'])),
+                "{$name}__gte" => $now->plus($interval),
+            ));
+        // Distant past and future ranges
+        case 'distpast':
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
+            return new Q(array(
+                "{$name}__lte" => $now->minus($interval),
+            ));
+        case 'distfut':
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
+            return new Q(array(
+                "{$name}__gte" => $now->plus($interval),
             ));
         default:
             return parent::getSearchQ($method, $value, $name);
@@ -2162,8 +2197,16 @@ class DatetimeField extends FormField {
             return __('%1$s in the next %2$s' /* occurs within a window (like 3 days) */);
         case 'ndaysago':
             return __('%1$s in the last %2$s' /* occurs within a recent window (like 3 days) */);
+        case 'distfut':
+            return __('%1$s after %2$s from now' /* occurs after a window (like 3 days) */);
+        case 'distpast':
+            return __('%1$s before %2$s ago' /* occurs previous to a window (like 3 days) */);
         case 'between':
             return __('%1$s between %2$s and %3$s');
+        case 'future':
+            return __('%1$s is in the future');
+        case 'past':
+            return __('%1$s is in the past');
         default:
             return parent::describeSearchMethod($method);
         }
