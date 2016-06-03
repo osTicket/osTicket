@@ -368,6 +368,9 @@ implements TemplateVariable, Searchable {
         $base = array();
         foreach ($uform->getFields() as $F) {
             $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            # XXX: email in the model corresponds to `emails__address` ORM path
+            if ($fname == 'email')
+                $fname = 'emails__address';
             if (!$F->hasData() || $F->isPresentationOnly())
                 continue;
             if (!$F->isStorable())
