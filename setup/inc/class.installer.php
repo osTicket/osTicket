@@ -146,7 +146,7 @@ class Installer extends SetupWizard {
                 $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
                 if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
                     $this->errors['err'] = sprintf(
-                        __('%s: Internal Error - please make sure your download is the latest (#1)'),
+                        __('%s: Internal error occurred - please make sure your download is the latest (#1)'),
                         $stream);
                 elseif (
                         // TODO: Make the hash algo configurable in the streams

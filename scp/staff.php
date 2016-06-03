@@ -137,7 +137,7 @@ if($_POST){
                             || !Dept::lookup($_POST['dept_id'])
                             || !Role::lookup($_POST['role_id'])
                         ) {
-                            $errors['err'] = 'Internal error.';
+                            $errors['err'] = __('Internal error occurred');
                             break;
                         }
                         foreach ($members as $s) {
