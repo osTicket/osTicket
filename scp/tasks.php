@@ -225,7 +225,8 @@ if($task) {
         // Auto add new fields to the entries
         foreach ($forms as $f) $f->addMissingFields();
     } elseif($_REQUEST['a'] == 'print' && !$task->pdfExport($_REQUEST['psize']))
-        $errors['err'] = __('Internal error: Unable to print to PDF');
+        $errors['err'] = __('Unable to print to PDF.')
+            .' '.__('Internal error occurred');
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&
@@ -236,7 +237,8 @@ if($task) {
         if (!($query=$_SESSION[':Q:tasks']))
             $errors['err'] = __('Query token not found');
         elseif (!Export::saveTasks($query, "tasks-$ts.csv", 'csv'))
-            $errors['err'] = __('Internal error: Unable to dump query results');
+            $errors['err'] = __('Unable to dump query results.')
+                .' '.__('Internal error occurred');
     }
 
     //Clear active submenu on search with no status

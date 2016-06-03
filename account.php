@@ -88,7 +88,8 @@ elseif ($_POST) {
         $errors['err'] = __('Unable to register account. See messages below');
     else {
         if (!($acct = ClientAccount::createForUser($user)))
-            $errors['err'] = __('Internal error. Unable to create new account');
+            $errors['err'] = __('Unable to create new account.')
+                .' '.__('Internal error occurred');
         elseif (!$acct->update($_POST, $errors))
             $errors['err'] = __('Errors configuring your profile. See messages below');
     }

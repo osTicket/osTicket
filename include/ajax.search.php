@@ -140,7 +140,7 @@ class SearchAjaxAPI extends AjaxController {
         elseif ($search->__new__)
             Http::response(400, 'A name is required');
         if (!$search->save()) {
-            Http::response(500, 'Internal error. Unable to update search');
+            Http::response(500, 'Unable to update search. Internal error occurred');
         }
         Http::response(201, $this->encode(array(
             'id' => $search->id,

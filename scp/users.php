@@ -167,7 +167,8 @@ if ($_POST) {
     if (!($query=$_SESSION[':Q:users']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveUsers($query, __("users")."-$ts.csv", 'csv'))
-        $errors['err'] = __('Internal error: Unable to dump query results');
+        $errors['err'] = __('Unable to dump query results.')
+            .' '.__('Internal error occurred');
 }
 
 $page = 'users.inc.php';
@@ -184,7 +185,8 @@ if ($user ) {
             $filename = sprintf('%s-tickets-%s.csv',
                     $user->getName(), strftime('%Y%m%d'));
             if (!Export::saveTickets($query, $filename, 'csv'))
-                $errors['err'] = __('Internal error: Unable to dump query results');
+                $errors['err'] = __('Unable to dump query results.')
+                    .' '.__('Internal error occurred');
         }
         break;
     }

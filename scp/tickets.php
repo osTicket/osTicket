@@ -463,7 +463,8 @@ if($ticket) {
             $f->addMissingFields();
         }
     } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
-        $errors['err'] = __('Internal error: Unable to export the ticket to PDF for print.');
+        $errors['err'] = __('Unable to export the ticket to PDF for print.')
+            .' '.__('Internal error occurred');
 } else {
 	$inc = 'tickets.inc.php';
     if ($_REQUEST['a']=='open' &&
@@ -474,7 +475,8 @@ if($ticket) {
         if (!($query=$_SESSION[':Q:tickets']))
             $errors['err'] = __('Query token not found');
         elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
-            $errors['err'] = __('Internal error: Unable to dump query results');
+            $errors['err'] = __('Unable to dump query results.')
+                .' '.__('Internal error occurred');
     }
 
     //Clear active submenu on search with no status
