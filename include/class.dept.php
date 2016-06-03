@@ -613,7 +613,8 @@ implements TemplateVariable {
 
         $id = $this->id;
         if ($id && $id != $vars['id'])
-            $errors['err']=__('Missing or invalid Dept ID (internal error).');
+            $errors['err']=__('Missing or invalid Dept ID.')
+                .' '.__('Internal error occurred');
 
         if (!$vars['name']) {
             $errors['name']=__('Name required');
