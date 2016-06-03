@@ -918,9 +918,9 @@ class FormField {
         return array(
             'set' => null,
             'nset' => null,
-            'equal' => array('TextboxField', array()),
-            'nequal' => array('TextboxField', array()),
-            'contains' => array('TextboxField', array()),
+            'equal' => array('TextboxField', array('configuration' => array('size' => 40))),
+            'nequal' => array('TextboxField', array('configuration' => array('size' => 40))),
+            'contains' => array('TextboxField', array('configuration' => array('size' => 40))),
             'match' => array('TextboxField', array(
                 'placeholder' => __('Valid regular expression'),
                 'configuration' => array('size'=>30),
