@@ -202,9 +202,9 @@ if($_POST && !$errors):
                     $ticket=null;
             } elseif(!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
-                    __('Unable to update %s.'),
-                    __('ticket'),
-                    __('Correct any errors below and try again.'));
+                    sprintf(__('Unable to update %s.'), __('this ticket')),
+                    __('Correct any errors below and try again.')
+                );
             }
             break;
         case 'process':
