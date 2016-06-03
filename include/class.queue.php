@@ -749,8 +749,8 @@ class CustomQueue extends VerySimpleModel {
         if (!$this->id)
             return;
 
-        $path = $this->parent ? $this->parent->getPath() : '';
-        return $path . "/{$this->id}";
+        $path = $this->parent ? $this->parent->buildPath() : '';
+        return rtrim($path, "/") . "/{$this->id}/";
     }
 
     function getFullName() {
@@ -799,6 +799,14 @@ class CustomQueue extends VerySimpleModel {
         $this->parent_id = @$vars['parent_id'] ?: 0;
         if ($this->parent_id && !$this->parent)
             $errors['parent_id'] = __('Select a valid queue');
+
+        // Try to avoid infinite recursion determining ancestry
+        if ($this->parent_id && isset($this->id)) {
+            $P = $this;
+            while ($P = $P->parent)
+                if ($P->parent_id == $this->id)
+                    $errors['parent_id'] = __('Cannot be a descendent of itself');
+        }
 
         // Configure quick filter options
         $this->filter = $vars['filter'];
@@ -925,16 +933,28 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function save($refetch=false) {
-        $wasnew = !isset($this->id);
+        $nopath = !isset($this->path);
+        $path_changed = isset($this->dirty['parent_id']);
 
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
         if (!($rv = parent::save($refetch || $this->dirty)))
             return $rv;
 
-        if ($wasnew) {
+        if ($nopath) {
             $this->path = $this->buildPath();
             $this->save();
+        }
+        if ($path_changed) {
+            $this->children->reset();
+            $move_children = function($q) use (&$move_children) {
+                foreach ($q->children as $qq) {
+                    $qq->path = $qq->buildPath();
+                    $qq->save();
+                    $move_children($qq);
+                }
+            };
+            $move_children($this);
         }
         return $this->columns->saveAll()
             && $this->sorts->saveAll();
