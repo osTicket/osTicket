@@ -260,7 +260,7 @@ extends VerySimpleModel {
 
         $id = isset($this->canned_id) ? $this->canned_id : null;
         if ($id && $id != $vars['id'])
-            $errors['err']=sprintf('%s - %s', __('Internal error'), __('Try again!'));
+            $errors['err']=sprintf('%s - %s', __('Internal error occurred'), __('Try again!'));
 
         if (!$vars['title'])
             $errors['title'] = __('Title required');
