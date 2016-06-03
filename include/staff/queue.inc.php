@@ -89,8 +89,11 @@ else {
           == <?php echo $queue->parent_id ?: 0; ?>);">
           <option value="0">— <?php echo __('Top-Level Queue'); ?> —</option>
 <?php foreach (CustomQueue::queues() as $cq) {
-        if ($cq->getId() == $queue->getId())
-          continue;
+        // Queue cannot be a descendent of itself
+        if ($cq->id == $queue->id)
+            continue;
+        if (strpos($cq->path, "/{$queue->id}/") !== false)
+            continue;
 ?>
           <option value="<?php echo $cq->id; ?>"
             <?php if ($cq->getId() == $queue->parent_id) echo 'selected="selected"'; ?>
