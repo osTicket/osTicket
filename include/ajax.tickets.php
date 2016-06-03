@@ -46,7 +46,9 @@ class TicketsAjaxAPI extends AjaxController {
             ->values('user__default_email__address')
             ->annotate(array(
                 'number' => new SqlCode('null'),
-                'tickets' => SqlAggregate::COUNT('ticket_id', true)))
+                'tickets' => SqlAggregate::COUNT('ticket_id', true),
+            ))
+            ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
 
         $q = $_REQUEST['q'];
@@ -55,18 +57,17 @@ class TicketsAjaxAPI extends AjaxController {
             return $this->encode(array());
 
         global $ost;
-        $hits = $ost->searcher->find($q, $hits)
-            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+        $hits = $ost->searcher->find($q, $hits, false);
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
             $hits = Ticket::objects()
                 ->values('user__default_email__address', 'number')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
-                    '__relevance__' => new SqlCode(1)
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
+                ->order_by('number')
                 ->limit($limit)
                 ->union($hits);
         }
