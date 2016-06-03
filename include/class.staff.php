@@ -969,7 +969,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $vars['lastname']=Format::striptags($vars['lastname']);
 
         if (isset($this->staff_id) && $this->getId() != $vars['id'])
-            $errors['err']=__('Internal Error');
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['firstname'])
             $errors['firstname']=__('First name required');
