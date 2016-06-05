@@ -29,7 +29,7 @@ echo sprintf(__(
     <form method="post" class="user"
         action="#users/<?php echo $user->getId(); ?>/register">
         <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
-        <table width="100%">
+        <table class="full-width">
         <tbody>
             <tr>
                 <th colspan="2">

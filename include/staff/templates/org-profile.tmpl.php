@@ -29,7 +29,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     $action = '#tickets/'.$ticket->getId().'/user';
 ?>
     <input type="hidden" name="id" value="<?php echo $org->getId(); ?>" />
-    <table width="100%">
+    <table class="full-width">
     <?php
         if (!$forms) $forms = $org->getForms();
         foreach ($forms as $form)
@@ -39,7 +39,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
 </div>
 
 <div class="hidden tab_content" id="contact-settings" style="margin:5px;">
-    <table style="width:100%">
+    <table class="full-width">
         <tbody>
             <tr>
                 <td width="180">

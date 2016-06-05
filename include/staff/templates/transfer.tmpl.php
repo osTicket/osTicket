@@ -25,7 +25,7 @@ $action = $info[':action'] ?: ('#');
 <form method="post" name="transfer" id="transfer"
     class="mass-action"
     action="<?php echo $action; ?>">
-    <table width="100%">
+    <table class="full-width">
         <?php
         if ($info[':extra']) {
             ?>

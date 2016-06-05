@@ -81,7 +81,7 @@ if ($user) { ?>
 <div id="new-user-form" style="display:<?php echo $user ? 'none' :'block'; ?>;">
 <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
 <form method="post" class="user" action="<?php echo $info['action'] ?: '#users/lookup/form'; ?>">
-    <table width="100%" class="fixed">
+    <table class="fixed full-width">
     <?php
         if(!$form) $form = UserForm::getInstance();
         $form->render(true, __('Create New User')); ?>

@@ -29,7 +29,7 @@ if ($info['error']) {
  <div class="tab_content"  id="user-account" style="display:<?php echo $access? 'none' : 'block'; ?>; margin:5px;">
     <form method="post" class="user" action="#users/<?php echo $user->getId(); ?>/manage" >
         <input type="hidden" name="id" value="<?php echo $user->getId(); ?>" />
-        <table width="100%">
+        <table class="full-width">
         <tbody>
             <tr>
                 <th colspan="2">
@@ -78,7 +78,7 @@ if ($info['error']) {
         </table>
  </div>
  <div class="tab_content"  id="user-access" style="display:<?php echo $access? 'block' : 'none'; ?>; margin:5px;">
-        <table width="100%">
+        <table class="full-width">
         <tbody>
             <tr>
                 <th colspan="2"><em><strong><?php echo __('Account Access'); ?></strong></em></th>

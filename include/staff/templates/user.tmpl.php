@@ -60,7 +60,7 @@ if ($info['error']) {
         echo __('Manage User'); ?>" class="action"><i class="icon-share"></i></a>
 <?php } ?>
 </div>
-    <table class="custom-info" width="100%">
+    <table class="custom-info full-width">
 <?php foreach ($user->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
@@ -84,7 +84,7 @@ if ($info['error']) {
     echo __('Manage Organization'); ?>" class="action"><i class="icon-share"></i></a>
 </div>
 <?php } ?>
-    <table class="custom-info" width="100%">
+    <table class="custom-info full-width">
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
@@ -130,7 +130,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
 ?>
 <form method="post" class="user" action="<?php echo $action; ?>">
     <input type="hidden" name="uid" value="<?php echo $user->getId(); ?>" />
-    <table width="100%">
+    <table class="full-width">
     <?php
         if (!$forms) $forms = $user->getForms();
         foreach ($forms as $form)

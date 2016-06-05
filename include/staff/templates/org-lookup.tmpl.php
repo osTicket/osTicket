@@ -67,7 +67,7 @@ if ($info['error']) {
 </div>
 <div id="new-org-form" style="display:<?php echo $org ? 'none' :'block'; ?>;">
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#orgs/add'; ?>">
-    <table width="100%" class="fixed">
+    <table class="fixed full-width">
     <?php
         if (!$form) $form = OrganizationForm::getInstance();
         $form->render(true, __('Create New Organization')); ?>

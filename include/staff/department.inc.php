@@ -43,7 +43,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
       <i class="icon-user"></i> <?php echo __('Access'); ?></a></li>
 </ul>
 <div id="settings" class="tab_content">
- <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table full-width" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -316,7 +316,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 </div>
 
 <div id="access" class="hidden tab_content">
-  <table class="two-column table" width="100%">
+  <table class="two-column table full-width">
     <tbody>
         <tr class="header" id="primary-members">
             <td colspan="2">

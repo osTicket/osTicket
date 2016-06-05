@@ -14,7 +14,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
   </ul>
 
   <div class="tab_content" id="account">
-    <table class="table two-column" width="100%" border="0" cellspacing="0" cellpadding="2">
+    <table class="table two-column full-width" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr><td colspan="2"><div>
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
@@ -152,7 +152,7 @@ if ($avatar->isChangeable()) { ?>
   <!-- =================== PREFERENCES ======================== -->
 
   <div class="hidden tab_content" id="preferences">
-    <table class="table two-column" width="100%">
+    <table class="table two-column full-width">
       <tbody>
         <tr class="header">
           <th colspan="2">
@@ -357,7 +357,7 @@ if ($avatar->isChangeable()) { ?>
   <!-- ==================== SIGNATURES ======================== -->
 
   <div id="signature" class="hidden">
-    <table class="table two-column" width="100%">
+    <table class="table two-column full-width">
       <tbody>
         <tr class="header">
           <th colspan="2">

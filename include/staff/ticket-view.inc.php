@@ -233,10 +233,10 @@ if($ticket->isOverdue())
         echo $subject_field->display($ticket->getSubject()); ?>
     </h3>
 </div>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
+<table class="ticket_info full-width" cellspacing="0" cellpadding="0" border="0">
     <tr>
         <td width="50%">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="" cellpadding="4" class="full-width">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
@@ -256,7 +256,7 @@ if($ticket->isOverdue())
             </table>
         </td>
         <td width="50%" style="vertical-align:top">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="" cellpadding="4" class="full-width">
                 <tr>
                     <th width="100"><?php echo __('User'); ?>:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
@@ -364,10 +364,10 @@ if($ticket->isOverdue())
     </tr>
 </table>
 <br>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
+<table class="ticket_info full-width" cellspacing="0" cellpadding="0" border="0">
     <tr>
         <td width="50%">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
+            <table cellspacing="0" cellpadding="4" class="full-width" border="0">
                 <?php
                 if($ticket->isOpen()) { ?>
                 <tr>
@@ -418,7 +418,7 @@ if($ticket->isOverdue())
             </table>
         </td>
         <td width="50%">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
+            <table cellspacing="0" cellpadding="4" class="full-width" border="0">
                 <tr>
                     <th width="100"><?php echo __('Help Topic');?>:</th>
                     <td><?php echo Format::htmlchars($ticket->getHelpTopic()); ?></td>
@@ -455,7 +455,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     if (count($displayed) == 0)
         continue;
     ?>
-    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="100%" border="0">
+    <table class="ticket_info custom-data full-width" cellspacing="0" cellpadding="0" border="0">
     <thead>
         <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
     </thead>
@@ -546,7 +546,7 @@ if ($errors['err'] && isset($_POST['a'])) {
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
-        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+        <table class="full-width" border="0" cellspacing="0" cellpadding="3">
             <?php
             if ($errors['reply']) {?>
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['reply']; ?>&nbsp;</td></tr>
@@ -742,7 +742,7 @@ if ($errors['err'] && isset($_POST['a'])) {
         <input type="hidden" name="locktime" value="<?php echo $cfg->getLockTime() * 60; ?>">
         <input type="hidden" name="a" value="postnote">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
-        <table width="100%" border="0" cellspacing="0" cellpadding="3">
+        <table class="full-width" border="0" cellspacing="0" cellpadding="3">
             <?php
             if($errors['postnote']) {?>
             <tr>

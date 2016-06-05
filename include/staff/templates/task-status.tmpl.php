@@ -28,7 +28,7 @@ $action = $info[':action'] ?: ('#tasks/mass/'. $action);
         action="<?php echo $action; ?>"
         class="mass-action">
         <input type="hidden" name="status" value="<?php echo $info['status']; ?>" >
-        <table width="100%">
+        <table class="full-width">
             <?php
             if ($info[':extra']) {
                 ?>

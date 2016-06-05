@@ -52,7 +52,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
 ?>
 <form method="post" class="org" action="<?php echo $action; ?>">
     <input type="hidden" name="id" value="<?php echo $org->getId(); ?>" />
-    <table width="100%">
+    <table class="full-width">
     <?php
         if (!$forms) $forms = $org->getForms();
         foreach ($forms as $form)
