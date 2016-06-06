@@ -508,8 +508,13 @@ class CustomQueue extends VerySimpleModel {
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
             )),
+			QueueColumn::placeholder(array(
+                "heading" => "Plant",
+                "primary" => 'user__org__name',
+                "width" => 100,
+            )),
             QueueColumn::placeholder(array(
-                "heading" => "Created",
+                "heading" => "Opened",
                 "primary" => 'created',
                 "width" => 100,
             )),
@@ -526,13 +531,23 @@ class CustomQueue extends VerySimpleModel {
                 "primary" => 'user__name',
                 "width" => 150,
             )),
+			QueueColumn::placeholder(array(
+                "heading" => "Help Topic",
+                "primary" => 'topic_id',
+                "width" => 100,
+            )),
+			QueueColumn::placeholder(array(
+                "heading" => "Status",
+                "primary" => 'status__name',
+                "width" => 100,
+            )),
             QueueColumn::placeholder(array(
                 "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
             )),
             QueueColumn::placeholder(array(
-                "heading" => "Assignee",
+                "heading" => "Assigned To",
                 "primary" => 'assignee',
                 "width" => 100,
             )),
