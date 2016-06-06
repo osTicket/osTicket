@@ -68,6 +68,9 @@ interface CustomListItem {
     function getAbbrev();
     function getSortOrder();
 
+    function getList();
+    function getListId();
+
     function getConfiguration();
 
     function hasProperties();
@@ -673,6 +676,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->get('id');
     }
 
+    function getList() {
+        return $this->list;
+    }
+
     function getListId() {
         return $this->get('list_id');
     }
@@ -1272,6 +1279,11 @@ implements CustomListItem, TemplateVariable {
         return $this->_list;
     }
 
+    function getListId() {
+        if (($list = $this->getList()))
+            return $list->getId();
+    }
+
     function getConfigurationForm($source=null) {
         if (!$this->_form) {
             $config = $this->getConfiguration();
@@ -1299,6 +1311,10 @@ implements CustomListItem, TemplateVariable {
         }
 
         return $this->_form;
+    }
+
+    function getFields() {
+        return $this->getConfigurationForm()->getFields();
     }
 
     function getConfiguration() {
@@ -1383,6 +1399,15 @@ implements CustomListItem, TemplateVariable {
         }
 
         return count($errors) === 0;
+    }
+
+    function display() {
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getLocalName()
+                );
     }
 
     function update($vars, &$errors) {

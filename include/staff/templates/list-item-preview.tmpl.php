@@ -13,6 +13,7 @@ if ($item->hasProperties()) { ?>
     <table class="custom-info" width="100%">
         <?php
         foreach ($item->getFields() as $f) {
+            if (!$f->isVisible()) continue;
         ?>
             <tr><td style="width:30%;"><?php echo
                 Format::htmlchars($f->get('label')); ?>:</td>
