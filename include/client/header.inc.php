@@ -52,6 +52,9 @@ if ($lang) {
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
+    <!--//@CHANGED: Added css and js for easyui -->
+    <link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>css/easyui.css">
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.easyui.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
