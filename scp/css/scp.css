@@ -402,11 +402,17 @@ div#msg_warning {
     color:#E65524;
     text-decoration: none;
 }
-
+#new-ticket{
+	color:black !important;
+	
+}	
 #sub_nav a.active, #sub_nav li.active > a,
 #customQ_nav .jb-overflowmenu-menu li.active.item > a {
     font-weight:bold;
+	color:#184E81;
 }
+
+	
 
 #sub_nav li.child.active > a {
     font-weight: 500;
