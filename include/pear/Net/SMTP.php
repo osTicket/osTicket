@@ -166,7 +166,13 @@ class Net_SMTP
 
         $this->pipelining      = $pipelining;
         $this->socket         = new Net_Socket();
-        $this->socket_options = $socket_options;
+        $this->socket_options = array(
+	        'ssl' => array(
+        	    'verify_peer' => false,
+        	    'verify_peer_name' => false,
+        	    'allow_self_signed' => true
+        	)
+    	);
         $this->timeout        = $timeout;
 
         /* Include the Auth_SASL package.  If the package is available, we 
