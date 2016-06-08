@@ -490,6 +490,10 @@ class Internationalization {
         TextDomain::setDefaultDomain($domain);
         TextDomain::lookup()->setPath(I18N_DIR);
 
+        // Set the default locale to UTF-8. It will be changed by
+        // ::setLocaleForUser() later for web requests. See #2910
+        TextDomain::setLocale(LC_ALL, 'en_US.UTF-8');
+
         // User-specific translations
         function _N($msgid, $plural, $n) {
             return TextDomain::lookup()->getTranslation()
