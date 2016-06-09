@@ -54,7 +54,7 @@ $qstr.='&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 //echo $query;
 $_SESSION[':Q:users'] = $users;
 
-$users->values('id', 'name', 'default_email__address', 'account__id',
+$users->values('id', 'name', 'org__name', 'default_email__address', 'account__id',
     'account__status', 'created', 'updated');
 $users->order_by($order . $order_column);
 ?>
@@ -154,11 +154,12 @@ else
             <th nowrap width="4%">&nbsp;</th>
             <th><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="22%"><a  <?php echo $status_sort; ?> href="users.php?<?php
+            <th width="25%"><?php echo __('Organization'); ?></th>
+            <th width="15%"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
-            <th width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
+            <th width="15%"><a <?php echo $create_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="20%"><a <?php echo $update_sort; ?> href="users.php?<?php
+            <th width="15%"><a <?php echo $update_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
         </tr>
     </thead>
@@ -198,6 +199,7 @@ else
                              <small>(%d)</small>', $U['ticket_count']);
                     ?>
                 </td>
+                <td><?php echo $U['org__name']; ?> </td>
                 <td><?php echo $status; ?></td>
                 <td><?php echo Format::date($U['created']); ?></td>
                 <td><?php echo Format::datetime($U['updated']); ?>&nbsp;</td>
