@@ -2322,7 +2322,9 @@ tr.disabled th {
 }
 
 .label {
-    float: right;
+    display: inline-block;
+    position: relative;
+    bottom: 1px;
     margin-bottom: 4px;
     font-size: 11px;
     padding: 0px 7px;
