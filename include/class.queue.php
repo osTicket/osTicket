@@ -1245,10 +1245,10 @@ extends QueueColumnAnnotation {
 
         return $query
             ->annotate(array(
-                '_locked' => new SqlExpr(array(new Q(array(
+                '_locked' => new SqlExpr(new Q(array(
                     'lock__expire__gt' => SqlFunction::NOW(),
                     Q::not(array('lock__staff_id' => $thisstaff->getId())),
-                ))))
+                )))
             ));
     }
 
@@ -1259,6 +1259,65 @@ extends QueueColumnAnnotation {
 
     function isVisible($row) {
         return $row['_locked'];
+    }
+}
+
+class AssigneeAvatarDecoration
+extends QueueColumnAnnotation {
+    static $icon = "user";
+    static $desc = /* @trans */ 'Assignee Avatar';
+
+    function annotate($query) {
+        return $query->values('staff_id', 'team_id');
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['staff_id'] && ($staff = Staff::lookup($row['staff_id'])))
+            return sprintf('<span class="avatar">%s</span>',
+                $staff->getAvatar(16));
+        elseif ($row['team_id'] && ($team = Team::lookup($row['team_id']))) {
+            $avatars = [];
+            foreach ($team->getMembers() as $T)
+                $avatars[] = $T->getAvatar(16);
+            return sprintf('<span class="avatar group %s">%s</span>',
+                count($avatars), implode('', $avatars));
+        }
+    }
+
+    function isVisible($row) {
+        return $row['staff_id'] + $row['team_id'] > 0;
+    }
+
+    function getWidth($row) {
+        if (!$this->isVisible($row))
+            return 0;
+
+        // If assigned to a team with no members, return 0 width
+        $width = 10;
+        if ($row['team_id'] && ($team = Team::lookup($row['team_id'])))
+            $width += (count($team->getMembers()) - 1) * 10;
+
+        return $width ? $width + 10 : $width;
+    }
+}
+
+class UserAvatarDecoration
+extends QueueColumnAnnotation {
+    static $icon = "user";
+    static $desc = /* @trans */ 'User Avatar';
+
+    function annotate($query) {
+        return $query->values('user_id');
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['user_id'] && ($user = User::lookup($row['user_id'])))
+            return sprintf('<span class="avatar">%s</span>',
+                $user->getAvatar(16));
+    }
+
+    function isVisible($row) {
+        return $row['user_id'] > 0;
     }
 }
 
@@ -1548,8 +1607,9 @@ extends VerySimpleModel {
     }
 
     function getFilter() {
-         if ($this->filter)
-             return QueueColumnFilter::getInstance($this->filter);
+         if ($this->filter
+                && ($F = QueueColumnFilter::getInstance($this->filter)))
+            return $F;
      }
 
     function getName() {
@@ -2095,8 +2155,9 @@ abstract class QueueColumnFilter {
 
     static function getInstance($id) {
         if (isset(static::$registry[$id])) {
-            list(, $class) = static::$registry[$id];
-            return new $class();
+            list(, $class) = @static::$registry[$id];
+            if ($class && class_exists($class))
+                return new $class();
         }
     }
 
