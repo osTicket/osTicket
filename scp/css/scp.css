@@ -1532,6 +1532,7 @@ a#post-note:hover {
     margin-left: -60px;
     display:inline-block;
     width:48px;
+    max-height:48px;
     height:auto;
 }
 .avatar {
@@ -1547,7 +1548,9 @@ img.avatar {
     margin-right: 5px;
 }
 .avatar > img.avatar {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
     height: auto;
 }
 .thread-entry .header {
@@ -3598,6 +3601,28 @@ a.attachment {
 .conditions .condition + .condition {
     margin-top: 10px;
 }
+img.avatar + img.avatar {
+    margin-left: -14px;
+    z-index: 1;
+    transition: margin-left 0.1s linear;
+}
+.avatar.group:hover > img.avatar + img.avatar {
+    margin-left: -4px;
+}
+.avatar.group {
+    position: relative;
+    z-index: 1;
+    transition: margin-right 0.1s linear;
+}
+
+.avatar.group.\32:hover { margin-right: -10px; }
+.avatar.group.\33:hover { margin-right: -20px; }
+.avatar.group.\34:hover { margin-right: -30px; }
+.avatar.group.\35:hover { margin-right: -40px; }
+.avatar.group.\36:hover { margin-right: -50px; }
+.avatar.group.\37:hover { margin-right: -60px; }
+.avatar.group.\38:hover { margin-right: -70px; }
+.avatar.group.\39:hover { margin-right: -80px; }
 
 /* FIXME: Drop this with select2 4.0.1
  * Fixes a rendering issue on Safari

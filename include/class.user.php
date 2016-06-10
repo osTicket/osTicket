@@ -269,10 +269,13 @@ implements TemplateVariable, Searchable {
         return new EmailAddress($this->default_email->address);
     }
 
-    function getAvatar() {
+    function getAvatar($size=null) {
         global $cfg;
         $source = $cfg->getClientAvatarSource();
-        return $source->getAvatar($this);
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getFullName() {
