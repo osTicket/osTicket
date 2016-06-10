@@ -197,15 +197,13 @@ class Thread extends VerySimpleModel {
             ));
         }
 
-        if ($cids) {
-            $this->collaborators->filter(array(
-                'thread_id' => $this->getId(),
-                Q::not(array('id__in' => $cids))
-            ))->update(array(
-                'updated' => SqlFunction::NOW(),
-                'isactive' => 0,
-            ));
-        }
+        $this->collaborators->filter(array(
+            'thread_id' => $this->getId(),
+            Q::not(array('id__in' => $cids ?: array(0)))
+        ))->update(array(
+            'updated' => SqlFunction::NOW(),
+            'isactive' => 0,
+        ));
 
         unset($this->ht['active_collaborators']);
         $this->_collaborators = null;

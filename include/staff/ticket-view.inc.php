@@ -583,7 +583,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
                 </td>
                 <td>
-                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                    <input type='checkbox' value='1' name="emailcollab"
+                    id="t<?php echo $ticket->getThreadId(); ?>-emailcollab"
                         <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
                         style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >

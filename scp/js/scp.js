@@ -987,8 +987,9 @@ $(document).on('click', 'a.collaborator, a.collaborators', function(e) {
     e.preventDefault();
     var url = 'ajax.php/'+$(this).attr('href').substr(1);
     $.dialog(url, 201, function (xhr) {
-       $('input#emailcollab').show();
-       $('#recipients').text(xhr.responseText);
+       var resp = $.parseJSON(xhr.responseText);
+       $('input#t'+resp.id+'-emailcollab').show();
+       $('#t'+resp.id+'-recipients').text(resp.text);
        $('.tip_box').remove();
     }, {
         onshow: function() { $('#user-search').focus(); }
