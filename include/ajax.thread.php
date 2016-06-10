@@ -230,9 +230,13 @@ class ThreadAjaxAPI extends AjaxController {
 
         $errors = $info = array();
         if ($thread->updateCollaborators($_POST, $errors))
-            Http::response(201, sprintf('Recipients (%d of %d)',
-                        $thread->getNumActiveCollaborators(),
-                        $thread->getNumCollaborators()));
+            Http::response(201, $this->json_encode(array(
+                            'id' => $thread->getId(),
+                            'text' => sprintf('Recipients (%d of %d)',
+                                $thread->getNumActiveCollaborators(),
+                                $thread->getNumCollaborators())
+                            )
+                        ));
 
         if($errors && $errors['err'])
             $info +=array('error' => $errors['err']);
