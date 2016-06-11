@@ -239,7 +239,7 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
