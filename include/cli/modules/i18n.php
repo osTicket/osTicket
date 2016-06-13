@@ -79,10 +79,9 @@ class i18n_Compiler extends Module {
             self::$crowdin_api_url);
 
         $args += array('key' => $this->key);
-        foreach ($args as &$a)
-            $a = urlencode($a);
-        unset($a);
-        $url .= '?' . Format::array_implode('=', '&', $args);
+        if ($branch = $this->getOption('branch', false))
+            $args += array('branch' => $branch);
+        $url .= '?' . Http::build_query($args);
 
         return $this->_http_get($url);
     }
@@ -189,7 +188,7 @@ class i18n_Compiler extends Module {
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
-            if (fnmatch('*/messages*.po', $info['name']) !== false) {
+            if (strpos($info['name'], '/messages.po') !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
                 continue;
@@ -673,7 +672,7 @@ class i18n_Compiler extends Module {
                     $this->stdout->write(sprintf(
                         "'%s' (%s) and '%s' (%s)\n",
                        $orig, $usage, $other_orig, $other_usage
-                    )); 
+                    ));
                 }
             }
         }
