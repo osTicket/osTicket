@@ -1,3 +1,5 @@
+
+
 body {
   font-family: "Lato", "Helvetica Neue", arial, helvetica, sans-serif;
   font-weight: 400;
@@ -1794,6 +1796,20 @@ table.ticket_info.custom-data>thead>tr>th{
 .has_bottom_border {
     border-bottom:1px solid #ddd;
 }
+
+table.ticket_info>tbody>tr>td>table#dynamic>tbody>tr>th {
+	display: none;	
+	
+}
+table.ticket_info>tbody>tr>td>table#dynamic>tbody>tr {
+	background-color: #F4FAFF !important;
+}
+table#dynamic>tbody>tr#open_ticket_dynamicformdata>td>div#requiredfield>select {
+
+	background-color: #ffffcc;
+	
+}
+
 .ticket_info{
 	margin-left: auto;
 	margin-right: auto;
@@ -3658,14 +3674,14 @@ td.indented {
 .scroll-up {
   display:none;
 }
-@media screen and (min-width: 1040px) {
+@media screen and (min-width: 1130px) {
   .scroll-up {
     display: inline;
     background-color: #eee;
     background-color: rgba(0,0,0,0.1);
     position: absolute;
     top: 0px;
-    right: 20px;
+	right: 20px;
     padding: 8px 8px 5px;
     border-radius: 0 0 5px 5px;
     border: 1px dotted #888;
