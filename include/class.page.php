@@ -254,7 +254,7 @@ class Page extends VerySimpleModel {
         }
 
         if (isset($this->id) && $this->getId() != $vars['id'])
-            $errors['err'] = sprintf('%s - %s', __('Internal error occurred'), __('Try again!'));
+            $errors['err'] = sprintf('%s - %s', __('Internal error occurred'), __('Please try again!'));
 
         if(!$vars['type'])
             $errors['type'] = __('Type is required');
