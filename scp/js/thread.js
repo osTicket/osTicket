@@ -151,12 +151,12 @@ var thread = {
         this.prepImages();
 
         // Auto scroll to the last entry if autoScroll is enabled.
-        if (this.options.autoScroll === true) {
-            // Find the last entry to scroll to.
-            var e = $('.thread-entry', $container).filter(':visible').last();
-            if (e.length)
-                this.scrollTo(e);
-        }
+        // if (this.options.autoScroll === true) {
+            //Find the last entry to scroll to.
+            // var e = $('.thread-entry', $container).filter(':visible').last();
+            // if (e.length)
+                // this.scrollTo(e);
+        // }
 
         // Open thread body links in a new tab/window
         $('div.thread-body a', $container).each(function() {

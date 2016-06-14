@@ -61,8 +61,28 @@ if($ticket->isOverdue())
             
 			<a class="action-button pull-right" data-placement="bottom"  data-toggle="tooltip" title="<?php echo __('Tickets'); ?>"
 				href="tickets.php<?php 
-				
+		
 			 ?>"><i class="icon-list-alt"></i></a>
+			<span class="action-button pull-right only sticky">
+				<a href="#" data-stop="top" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Scroll Top'); ?>">
+				<i class="icon-chevron-up"></i></a>
+			</span> 
+				<span class="action-button pull-right">
+					<a href="#post-note" id="post-note" class="post-response" data-placement="bottom" data-toggle="tooltip"title="<?php echo __('Post Internal Note'); ?>">
+					<i class="icon-edit"></i></a>
+                </span>
+			<?php	
+				if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+				<span class="action-button pull-right">
+					<a href="#post-reply" class="post-response" id="post-reply" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Post Reply'); ?>">
+					<i class="icon-mail-reply"></i></a>
+				</span>
+			 
+            <?php } 
+			// Status change options
+                echo TicketStatus::status_options();
+                ?>
+			
 			<?php
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(Ticket::PERM_EDIT)
@@ -73,11 +93,8 @@ if($ticket->isOverdue())
             </span>
             <?php
             }
-
-            if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
-                <span class="action-button pull-right"><a data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a></span>
-            <?php
-            } ?>
+			?>
+           
             <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
                 <i class="icon-caret-down pull-right"></i>
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
@@ -211,19 +228,7 @@ if($ticket->isOverdue())
                 ?>
               </ul>
 			</div>
-                <?php
-                if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
-                <a href="#post-reply" class="post-response action-button"
-                data-placement="bottom" data-toggle="tooltip"
-                title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
-                <?php
-                } ?>
-                <a href="#post-note" id="post-note" class="post-response action-button"
-                data-placement="bottom" data-toggle="tooltip"
-                title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
-                <?php // Status change options
-                echo TicketStatus::status_options();
-                ?>
+                
            </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
@@ -261,6 +266,34 @@ if($ticket->isOverdue())
                     <th><?php echo __('Create Date');?>:</th>
                     <td><?php echo Format::datetime($ticket->getCreateDate()); ?></td>
                 </tr>
+				<?php
+                if($ticket->isOpen()) { ?>
+                <tr>
+                    <th width="180"><?php echo __('Assigned To');?>:</th>
+                    <td>
+                        <?php
+                        if($ticket->isAssigned())
+                            echo Format::htmlchars(implode('/', $ticket->getAssignees()));
+                        else
+                            echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
+                        ?>
+                    </td>
+                </tr>
+                <?php
+                } else { ?>
+                <tr>
+                    <th width="100"><?php echo __('Closed By');?>:</th>
+                    <td>
+                        <?php
+                        if(($staff = $ticket->getStaff()))
+                            echo Format::htmlchars($staff->getName());
+                        else
+                            echo '<span class="faded">&mdash; '.__('Unknown').' &mdash;</span>';
+                        ?>
+                    </td>
+                </tr>
+                <?php
+                } ?>
             </table>
         </td>
         <td width="50%" style="vertical-align:top">
@@ -357,81 +390,8 @@ if($ticket->isOverdue())
                         </td>
                     </tr>
 <?php   } # end if (user->org) ?>
-                <tr>
-                    <th><?php echo __('Source'); ?>:</th>
-                    <td><?php
-                        echo Format::htmlchars($ticket->getSource());
-
-                        if (!strcasecmp($ticket->getSource(), 'Web') && $ticket->getIP())
-                            echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
-                        ?>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
-    <tr>
-        <td width="50%">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
-                <?php
-                if($ticket->isOpen()) { ?>
-                <tr>
-                    <th width="180"><?php echo __('Assigned To');?>:</th>
-                    <td>
-                        <?php
-                        if($ticket->isAssigned())
-                            echo Format::htmlchars(implode('/', $ticket->getAssignees()));
-                        else
-                            echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
-                        ?>
-                    </td>
-                </tr>
-                <?php
-                } else { ?>
-                <tr>
-                    <th width="100"><?php echo __('Closed By');?>:</th>
-                    <td>
-                        <?php
-                        if(($staff = $ticket->getStaff()))
-                            echo Format::htmlchars($staff->getName());
-                        else
-                            echo '<span class="faded">&mdash; '.__('Unknown').' &mdash;</span>';
-                        ?>
-                    </td>
-                </tr>
-                <?php
-                } ?>
-                <tr>
-                    <th><?php echo __('SLA Plan');?>:</th>
-                    <td><?php echo $sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
-                </tr>
-                <?php
-                if($ticket->isOpen()){ ?>
-                <tr>
-                    <th><?php echo __('Due Date');?>:</th>
-                    <td><?php echo Format::datetime($ticket->getEstDueDate()); ?></td>
-                </tr>
-                <?php
-                }else { ?>
-                <tr>
-                    <th><?php echo __('Close Date');?>:</th>
-                    <td><?php echo Format::datetime($ticket->getCloseDate()); ?></td>
-                </tr>
-                <?php
-                }
-                ?>
-            </table>
-        </td>
-        <td width="50%">
-            <table cellspacing="0" cellpadding="4" width="100%" border="0">
-                <tr>
-                    <th style="width:180px"><?php echo __('Help Topic');?>:</th>
-                    <td><?php echo Format::htmlchars($ticket->getHelpTopic()); ?></td>
-                </tr>
-                <tr>
+               <tr><td></td></tr>
+			                   <tr>
                     <th nowrap><?php echo __('Last Message');?>:</th>
                     <td><?php echo Format::datetime($ticket->getLastMsgDate()); ?></td>
                 </tr>
@@ -444,46 +404,131 @@ if($ticket->isOverdue())
     </tr>
 </table>
 
-<?php
-foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
-    // Skip core fields shown earlier in the ticket view
-    // TODO: Rewrite getAnswers() so that one could write
-    //       ->getAnswers()->filter(not(array('field__name__in'=>
-    //           array('email', ...))));
-    $answers = $form->getAnswers()->exclude(Q::any(array(
-        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
-        'field__name__in' => array('subject', 'priority')
-    )));
-    $displayed = array();
-    foreach($answers as $a) {
-        if (!($v = $a->display()))
-            continue;
-        $displayed[] = array($a->getLocal('label'), $v);
-    }
-    if (count($displayed) == 0)
-        continue;
-    ?>
-    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="100%" border="0">
-    <div style="display:none;">
-        <th colspan="2" style="display:none;"><?php echo Format::htmlchars($form->getTitle()); ?></th>
-    </div>
-    <tbody>
-<?php
-    foreach ($displayed as $stuff) {
-        list($label, $v) = $stuff;
-?>
-        <tr>
-            <th width="180"><strong><?php
-echo Format::htmlchars($label);
-            ?>:</strong></th>
-            <td><?php
-echo $v;
-            ?></td>
-        </tr>
-<?php } ?>
-    </tbody>
-    </table>
-<?php } ?>
+<form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" id="save"  enctype="multipart/form-data" >
+				<?php csrf_token(); ?>
+				<input type="hidden" name="do" value="update">
+				<input type="hidden" name="a" value="edit">
+				<input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">					
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" style="border-top:1px solid #dddddd;">
+	<tr>
+		<td width="50%" style="vertical-align:top">
+            <table border="0" cellspacing="" cellpadding="4" width="100%"> 	
+				<tr>
+					<th width="180">
+						<?php echo __('Ticket Source');?>:
+					</th>
+					<td >
+						<select name="source" class="requiredfield">
+							<option value="" selected >&mdash; <?php
+								echo __('Select Source');?> &mdash;</option>
+							<?php
+							$source = Format::htmlchars($ticket->getSource()) ?: 'Phone';
+							foreach (Ticket::getSources() as $k => $v) {
+								echo sprintf('<option value="%s" %s>%s</option>',
+										$k,
+										($source == $k ) ? 'selected="selected"' : '',
+										$v);
+							}
+							?>
+						</select>
+						&nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
+					</td>
+				</tr> 
+                <tr>
+					<th width="180">
+						<?php echo __('SLA Plan');?>:
+					</th>
+					<td>
+					<?php $id = $ticket->getSLAId() ?>
+						<select name="slaId">
+							<option value="0" selected="selected" >&mdash; <?php echo __('None');?> &mdash;</option>
+							<?php
+							if($slas=SLA::getSLAs()) {
+								foreach($slas as $id =>$name) {
+									echo sprintf('<option value="%d" %s>%s</option>',
+											$id, ($ticket->getSLAId()==$id)?'selected="selected"':'',$name);
+								}
+							}
+							//$sla?Format::htmlchars($sla->getName()):'<span class="faded">&mdash; '.__('None').' &mdash;</span>' ?>
+						</select>
+						&nbsp;<font class="error">&nbsp;<?php echo $errors['slaId']; ?></font>
+					</td>
+				</tr>
+	            				
+				<?php
+                if($ticket->isOpen()){ ?>
+                <tr>
+                    <th width="180"><?php echo __('Due Date');?>:</th>
+                    <td>
+						<input class="dp" id="duedate" name="duedate" value="<?php echo Format::date($ticket->getEstDueDate()); ?>" size="12" autocomplete=OFF>
+						&nbsp;&nbsp;
+						<?php
+						$min=$hr=null;
+						if(Format::time($ticket->getEstDueDate()))
+							list($hr, $min)=explode(':', Format::time($ticket->getEstDueDate()));
+
+						echo Misc::timeDropdown($hr, $min, 'time');
+						?>
+						&nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
+						<em><?php echo __('Time is based on your time zone');?>
+							(<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
+					</td>
+                </tr>
+                <?php
+                }else { ?>
+                <tr>
+                    <th width="180"><?php echo __('Close Date');?>:</th>
+                    <td><?php echo Format::datetime($ticket->getCloseDate()); ?></td>
+                </tr>
+                <?php
+                }
+                ?>
+				<tr>
+        			<th width="180">
+						<?php echo __('Help Topic');?>:
+					</th>
+					<td>
+						<?php $id = $ticket->getHelpTopicId(); ?>
+							<select name="topicId"  class="requiredfield">
+								<option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
+								<?php
+								if($topics=Topic::getHelpTopics()) {
+									foreach($topics as $id =>$name) {
+										echo sprintf('<option value="%d" %s>%s</option>',
+												$id, ($ticket->getHelpTopicId()==$id)?'selected="selected"':'',$name);
+									}
+								}
+								?>
+							</select> &nbsp;<font class="error"><b>*</b>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td  style="vertical-align:top">
+            <table border="0" cellspacing="" cellpadding="0" width="100%" id="dynamic"> 
+				<tr>
+              		<td>
+						<?php 
+							foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+								$form->render(true, false, array('mode'=>'edit','width'=>140,'entry'=>$form));
+						} ?>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	</table>
+	<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" style="border-top:1px solid #dddddd;">
+	<tr>
+		<td align="center" colspan="2">
+		
+			<input type="submit" name="submit" value="<?php echo __('Save');?>">
+			<input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>"'>
+		</td>
+	</tr>
+</table>
+</form>
 
 
 <?php

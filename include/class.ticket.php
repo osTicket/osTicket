@@ -373,6 +373,11 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($this->topic)
             return $this->topic->getFullName();
     }
+	    /* Help topic title  - NOT object -> $topic */
+    function getHelpTopicId() {
+        if ($this->topic)
+            return $this->topic->getId();
+    }
 
     function getCreateDate() {
         return $this->created;
