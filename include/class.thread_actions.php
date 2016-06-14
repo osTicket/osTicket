@@ -164,6 +164,11 @@ JS
             $old = $original;
         }
 
+        // Move the attachments to the new entry
+        $old->attachments->update(array(
+            'object_id' => $entry->id
+        ));
+
         // Mark the new entry as edited (but not hidden nor guarded)
         $entry->flags = ($old->flags & ~(ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))
             | ThreadEntry::FLAG_EDITED;
