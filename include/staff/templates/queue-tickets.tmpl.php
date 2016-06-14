@@ -89,9 +89,9 @@ if (!$sorted && isset($sort['queuesort'])) {
 }
 
 // Apply pagination
-
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];
-If (!$page) $page = 1;
+if (isset($_REQUEST['query']) and  !isset($_REQUEST['p'])) $page = 1;
+If (!$page){
+$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:$_SESSION['pageno'];};
 $_SESSION['pageno'] = $page;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
@@ -128,7 +128,7 @@ return false;">
       </button>
     </div>
     <a href="#" onclick="javascript:
-        $.dialog('ajax.php/tickets/search', 201);"
+        $.dialog('ajax.php/tickets/search', 201); "
         >[<?php echo __('advanced'); ?>]</a>
         <i class="help-tip icon-question-sign" href="#advanced"></i>
     </form>
