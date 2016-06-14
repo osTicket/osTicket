@@ -37,6 +37,10 @@ $dispatcher = patterns('',
         url_get('^(?P<namespace>[\w.]+)$', 'getDraftClient'),
         url_post('^(?P<namespace>[\w.]+)$', 'createDraftClient')
     )),
+    url('^/topics/', patterns('ajax.topic.php:TopicAjaxAPI',
+       url_get('^help_topics/(?P<dept>\d+)', 'help_topics'),
+       url_get('^getAssignment/(?P<topic>\d+)', 'getAssignment')
+    )),
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic'),
         url_post('^upload/(\d+)?$', 'upload'),

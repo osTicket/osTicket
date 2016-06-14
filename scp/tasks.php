@@ -229,8 +229,8 @@ if($task) {
 } else {
 	$inc = 'tasks.inc.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Task::PERM_CREATE, false))
-        $inc = 'task-open.inc.php';
+	$thisstaff->hasPerm(Task::PERM_CREATE, false))
+      $inc = 'task-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
         $ts = strftime('%Y%m%d');
         if (!($query=$_SESSION[':Q:tasks']))

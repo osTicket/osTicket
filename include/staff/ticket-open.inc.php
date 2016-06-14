@@ -24,6 +24,10 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
+
+if(!$user) {
+  $user = User::lookupByemail($thisstaff->getEmail());
+}
 ?>
 <form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
@@ -145,10 +149,51 @@ if ($_POST)
         </tr>
         <tr>
             <td width="160" class="required">
+                <?php echo __('Department'); ?>:
+            </td>
+            <td>
+                <select name="deptId" onchange="javascript:
+						dept = this.options[selectedIndex].value;
+						var url = 'ajax.php/topics/help_topics/'+dept;
+						if(dept.length > 0) {
+						  $.get(url, dept, function(data) {
+						    var options = '<option value selected>&mdash; Select Help Topic &mdash;</options>\n';
+						    $.each(data, function(index, value) {
+						      options += '<option value=\''+index+'\'>'+value+'</option>\n';
+						    });
+						    $('#topicId').html(options);
+						    $('#topicId').prop('disabled', false);
+						  }, 'json');
+						}
+						else {
+						  $('#topicId').prop('disabled', true);
+						}
+						">
+                    <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
+                    <?php
+                    if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
+                        foreach($depts as $id =>$name) {
+                            if (!($role = $thisstaff->getRole($id))
+                                || !$role->hasPerm(Ticket::PERM_CREATE)
+                            ) {
+                                // No access to create tickets in this dept
+                                continue;
+                            }
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['deptId']; ?></font>
+            </td>
+        </tr>
+        <tr>
+            <td width="160" class="required">
                 <?php echo __('Help Topic'); ?>:
             </td>
             <td>
-                <select name="topicId" onchange="javascript:
+	    <select name="topicId" id="topicId" <?php echo $info['deptId']?'':'disabled'?> onchange="javascript:
                         var data = $(':input[name]', '#dynamic-form').serialize();
                         $.ajax(
                           'ajax.php/form/help-topic/' + this.value,
@@ -159,9 +204,28 @@ if ($_POST)
                               $('#dynamic-form').empty().append(json.html);
                               $(document.head).append(json.media);
                             }
-                          });">
+                          });
+			  var url = 'ajax.php/topics/getAssignment/'+this.value;
+			  if(this.value.length > 0) {
+			    $.get(url, this.value, function(data) {
+			      if(data) {
+			        $('#assignId').val(data);
+			      }
+			      else {
+			        $('#assignId').val(0);
+			      }
+			    });
+			  }
+			  else {
+			    $('#assignId').val(0);
+			  }
+			  ">
+<?php /*
+
+
+*/ ?>
                     <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
+		       if ($topics=Topic::getHelpTopics(false, false, true, $info['deptId'])) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -180,31 +244,6 @@ if ($_POST)
                     ?>
                 </select>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="160">
-                <?php echo __('Department'); ?>:
-            </td>
-            <td>
-                <select name="deptId">
-                    <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
-                    <?php
-                    if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
-                        foreach($depts as $id =>$name) {
-                            if (!($role = $thisstaff->getRole($id))
-                                || !$role->hasPerm(Ticket::PERM_CREATE)
-                            ) {
-                                // No access to create tickets in this dept
-                                continue;
-                            }
-                            echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['deptId']==$id)?'selected="selected"':'',$name);
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
             </td>
         </tr>
 
