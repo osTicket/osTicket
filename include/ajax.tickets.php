@@ -1222,7 +1222,7 @@ class TicketsAjaxAPI extends AjaxController {
                     Http::response(201, $task->getId());
             }
 
-            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Try again!'));
+            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
         }
 
         $info['action'] = sprintf('#tickets/%d/add-task', $ticket->getId());

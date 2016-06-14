@@ -219,7 +219,7 @@ if($_POST && !$errors):
                             $assigned, $thisstaff->getName());
                         $ticket->logActivity(__('Ticket unassigned'),$msg);
                     } else {
-                        $errors['err'] = sprintf('%s %s', __('Problems releasing the ticket.'), __('Try again!'));
+                        $errors['err'] = sprintf('%s %s', __('Problems releasing the ticket.'), __('Please try again!'));
                     }
                     break;
                 case 'claim':
@@ -232,7 +232,7 @@ if($_POST && !$errors):
                     } elseif ($ticket->claim()) {
                         $msg = __('Ticket is now assigned to you!');
                     } else {
-                        $errors['err'] = sprintf('%s %s', __('Problems assigning the ticket.'), __('Try again!'));
+                        $errors['err'] = sprintf('%s %s', __('Problems assigning the ticket.'), __('Please try again!'));
                     }
                     break;
                 case 'overdue':
@@ -243,7 +243,7 @@ if($_POST && !$errors):
                         $msg=sprintf(__('Ticket flagged as overdue by %s'),$thisstaff->getName());
                         $ticket->logActivity(__('Ticket Marked Overdue'),$msg);
                     } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the the ticket overdue.'), __('Try again!'));
+                        $errors['err']=sprintf('%s %s', __('Problems marking the the ticket overdue.'), __('Please try again!'));
                     }
                     break;
                 case 'answered':
@@ -254,7 +254,7 @@ if($_POST && !$errors):
                         $msg=sprintf(__('Ticket flagged as answered by %s'),$thisstaff->getName());
                         $ticket->logActivity(__('Ticket Marked Answered'),$msg);
                     } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket answered.'), __('Try again!'));
+                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket answered.'), __('Please try again!'));
                     }
                     break;
                 case 'unanswered':
@@ -265,7 +265,7 @@ if($_POST && !$errors):
                         $msg=sprintf(__('Ticket flagged as unanswered by %s'),$thisstaff->getName());
                         $ticket->logActivity(__('Ticket Marked Unanswered'),$msg);
                     } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket unanswered.'), __('Try again!'));
+                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket unanswered.'), __('Please try again!'));
                     }
                     break;
                 case 'banemail':
@@ -287,7 +287,7 @@ if($_POST && !$errors):
                     } elseif(!BanList::includes($ticket->getEmail())) {
                         $warn = __('Email is not in the banlist');
                     } else {
-                        $errors['err']=sprintf('%s %s', __('Unable to remove the email from banlist.'), __('Try again!'));
+                        $errors['err']=sprintf('%s %s', __('Unable to remove the email from banlist.'), __('Please try again!'));
                     }
                     break;
                 case 'changeuser':
@@ -299,7 +299,7 @@ if($_POST && !$errors):
                         $msg = sprintf(__('Ticket ownership changed to %s'),
                             Format::htmlchars($user->getName()));
                     } else {
-                        $errors['err'] = sprintf('%s %s', __('Unable to change ticket ownership.'), __('Try again!'));
+                        $errors['err'] = sprintf('%s %s', __('Unable to change ticket ownership.'), __('Please try again!'));
                     }
                     break;
                 default:
