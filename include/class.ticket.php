@@ -3459,6 +3459,12 @@ implements RestrictedAccess, Threadable {
             }
         }
 
+        // Log internal system note (if any)
+        if (($note=@$vars['_note']) && is_array($note)) {
+            $ticket->logNote($note['title'], $note['body'], $note['poster'],
+                    $note['alert']);
+        }
+
         // Update the estimated due date in the database
         $ticket->updateEstDueDate();
 

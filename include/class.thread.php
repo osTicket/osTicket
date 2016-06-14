@@ -1108,8 +1108,14 @@ implements TemplateVariable {
      *      positively found, indicating that the message-id has been
      *      previously seen. This is useful if no thread-id is associated
      *      with the email (if it was rejected for instance).
+     *
+     *  strict (by-ref:bool)  indicates if message-id matching is strict.
+     *   - true  - matching is system-wide
+     *   - false - Departments are considered separate queues
+     *
+     *
      */
-    function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
+    function lookupByEmailHeaders(&$mailinfo, &$seen=false, $strict=true) {
         // Search for messages using the References header, then the
         // in-reply-to header
         if ($entry = ThreadEntry::objects()
@@ -1118,6 +1124,35 @@ implements TemplateVariable {
             ->first()
         ) {
             $seen = true;
+            $ticket = $entry->getThread()->getObject();
+            if (!$strict
+                && ($ticket instanceof Ticket)
+                && $ticket->getEmailId() != $mailinfo['emailId']) {
+
+                // unsee the entry
+                $seen = false;
+                $entry = null;
+
+                // Add a system note to about to be created ticket
+                $mailinfo['_note'] = array(
+                        'title' => _S('Duplicate Ticket'),
+                        'body' => new TextThreadEntryBody(sprintf(
+                                _S('Duplicate ticket #%s already exists in %s department'),
+                                $ticket->getNumber(),
+                                $ticket->getDept())),
+                        'poster' => 'SYSTEM',
+                        'alert' => false);
+
+                // Log a note to existing ticket
+                $e = Email::lookup($mailinfo['emailId']);
+                $ticket->logNote(
+                        _S('Duplicate Email'),
+                        sprintf(_S('This email was also delivered to %s mailbox'),
+                            $e ? $e->getEmail() : _S('another')),
+                        'SYSTEM',
+                        false);
+            }
+
             return $entry;
         }
 
@@ -1148,7 +1183,7 @@ implements TemplateVariable {
             $possibles[] = $match[1];
         }
 
-        $thread = null;
+        $entry = null;
         foreach ($possibles as $mid) {
             // Attempt to detect the ticket and user ids from the
             // message-id header. If the message originated from
@@ -1160,8 +1195,8 @@ implements TemplateVariable {
                 continue;
             if (isset($mid_info['uid'])
                 && @$mid_info['entryId']
-                && ($t = ThreadEntry::lookup($mid_info['entryId']))
-                && ($t->thread_id == $mid_info['threadId'])
+                && ($e = ThreadEntry::lookup($mid_info['entryId']))
+                && ($e->thread_id == $mid_info['threadId'])
             ) {
                 if (@$mid_info['userId']) {
                     $mailinfo['userId'] = $mid_info['userId'];
@@ -1176,7 +1211,7 @@ implements TemplateVariable {
 
 
                 // ThreadEntry was positively identified
-                return $t;
+                return $e;
             }
 
             // Try to determine if it's a reply to a tagged email.
@@ -1190,13 +1225,13 @@ implements TemplateVariable {
             $entries = ThreadEntry::objects()
                 ->filter(array('email_info__mid' => $mid))
                 ->order_by(false);
-            foreach ($entries as $t) {
+            foreach ($entries as $e) {
                 // Capture the first match thread item
-                if (!$thread)
-                    $thread = $t;
+                if (!$entry)
+                    $entry = $e;
                 // We found a match  - see if we can ID the user.
                 // XXX: Check access of ref is enough?
-                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
+                if ($ref && ($uid = $e->getUIDFromEmailReference($ref))) {
                     if ($ref[0] =='s') //staff
                         $mailinfo['staffId'] = $uid;
                     else // user or collaborator.
@@ -1204,14 +1239,14 @@ implements TemplateVariable {
 
                     // Best possible case — found the thread and the
                     // user
-                    return $t;
+                    return $e;
                 }
             }
         }
         // Second best case — found a thread but couldn't identify the
         // user from the header. Return the first thread entry matched
-        if ($thread)
-            return $thread;
+        if ($entry)
+            return $entry;
 
         // Search for ticket by the [#123456] in the subject line
         // This is the last resort -  emails must match to avoid message
