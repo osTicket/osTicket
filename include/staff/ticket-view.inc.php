@@ -499,7 +499,9 @@ if($ticket->isOverdue())
 									}
 								}
 								?>
-							</select> &nbsp;<font class="error"><b>*</b>
+							</select> 
+							
+							&nbsp;<font class="error">* <br>&nbsp;<?php echo $errors['topicId']; ?></font>
 					</td>
 				</tr>
 			</table>
