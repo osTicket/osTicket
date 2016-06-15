@@ -163,6 +163,13 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, __('No such ticket'));
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
     }
+	    function previewThread ($tid) {
+        global $thisstaff;
+        if(!$thisstaff || !($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, __('No such ticket'));
+        include STAFFINC_DIR . 'templates/thread-preview.tmpl.php';
+    }
     function viewUser($tid) {
         global $thisstaff;
         if(!$thisstaff

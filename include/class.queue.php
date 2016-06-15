@@ -2137,6 +2137,7 @@ extends QueueColumnFilter {
         static $fields = array(
             'link:ticket'   => 'ticket_id',
             'link:ticketP'  => 'ticket_id',
+			'link:ticketTP'  => 'ticket_id',
             'link:user'     => 'user_id',
             'link:org'      => 'user__org_id',
         );
@@ -2187,6 +2188,19 @@ extends TicketLinkFilter {
     }
 }
 QueueColumnFilter::register('TicketLinkWithPreviewFilter', __('Link'));
+
+class TicketLinkWithThreadPreviewFilter
+extends TicketLinkFilter {
+    static $id = 'link:ticketTP';
+    static $desc = /* @trans */ "Ticket Link with Thread Preview";
+
+    function filter($text, $row) {
+        $link = $this->getLink($row);
+        return sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/threadpreview" href="%s">%s</a>',
+            $row['ticket_id'], $link, $text);
+    }
+}
+QueueColumnFilter::register('TicketLinkWithThreadPreviewFilter', __('Link'));
 
 class DateTimeFilter
 extends QueueColumnFilter {
