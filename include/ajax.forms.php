@@ -128,6 +128,20 @@ class DynamicFormsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/list-items.tmpl.php');
     }
 
+    function previewListItem($list_id, $item_id) {
+
+        $list = DynamicList::lookup($list_id);
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
+        if (!($item = $list->getItem( (int) $item_id)))
+            Http::response(404, 'No such list item');
+
+        $form = $list->getListItemBasicForm($item->ht, $item);
+        include(STAFFINC_DIR . 'templates/list-item-preview.tmpl.php');
+    }
+
     function saveListItem($list_id, $item_id) {
         global $thisstaff;
 

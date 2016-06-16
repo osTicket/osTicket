@@ -1184,12 +1184,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return $this->_field;
     }
     function getValue() {
+
         if (!isset($this->_value)) {
             //XXX: We're settting the value here to avoid infinite loop
             $this->_value = false;
-			if (isset($this->value))
-                 $this->_value = $this->getField()->to_php(
-                         $this->get('value'), $this->get('value_id'));
+            if (isset($this->value))
+                $this->_value = $this->getField()->to_php(
+                        $this->get('value'), $this->get('value_id'));
         }
         return $this->_value;
     }
@@ -1263,6 +1264,29 @@ class SelectionField extends FormField {
             $widgetClass = 'TextboxSelectionWidget';
         return parent::getWidget($widgetClass);
     }
+
+    function display($value) {
+        global $thisstaff;
+
+        if (!is_array($value)
+                || !$thisstaff // Only agents can preview for now
+                || !($list=$this->getList()))
+            return parent::display($value);
+
+        $display = array();
+        foreach ($value as $k => $v) {
+            if (is_numeric($k)
+                    && ($i=$list->getItem((int) $k))
+                    && $i->hasProperties())
+                $display[] = $i->display();
+            else // Perhaps deleted  entry
+                $display[] = $v;
+        }
+
+        return implode(',', $display);
+
+    }
+
     function parse($value) {
         if (!($list=$this->getList()))
             return null;
