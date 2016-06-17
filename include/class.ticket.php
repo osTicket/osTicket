@@ -3373,11 +3373,9 @@ implements RestrictedAccess, Threadable {
         // Save the (common) dynamic form
         // Ensure we have a subject
         $subject = $form->getAnswer('subject');
-        if ($subject && !$subject->getValue()) {
-            if ($topic) {
-                $form->setAnswer('subject', $topic->getFullName());
-            }
-        }
+        if ($subject && !$subject->getValue() && $topic)
+            $subject->setValue($topic->getFullName());
+
         $form->setTicketId($ticket->getId());
         $form->save();
 
