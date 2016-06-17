@@ -1468,6 +1468,13 @@ implements IteratorAggregate, Countable, ArrayAccess {
         }
     }
 
+    function reset() {
+        $this->eoi = false;
+        $this->cache = array();
+        // XXX: Should the inner be recreated to refetch?
+        $this->inner->rewind();
+    }
+
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
         return $this->getCache();
@@ -1906,11 +1913,6 @@ extends ModelResultSet {
         else
             foreach ($this->key as $field=>$value)
                 $object->set($field, null);
-    }
-
-    function reset() {
-        $this->cache = array();
-        unset($this->resource);
     }
 
     /**
