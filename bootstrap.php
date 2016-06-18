@@ -1,5 +1,7 @@
 <?php
 
+include_once 'vendor/autoload.php';
+
 class Bootstrap {
 
     static function init() {
@@ -49,6 +51,28 @@ class Bootstrap {
             $_SERVER['REMOTE_ADDR'] = '';
     }
 
+    static function twig() {
+        // Load twig
+        $loader = new \Twig_Loader_Filesystem(realpath(__DIR__ . '/resource/templates'));
+        $twig = new \Twig_Environment(
+            $loader,
+            [
+//                'cache' => __DIR__ . '/../var/cache/twig',
+                'strict_variables' => true,
+            ]
+        );
+
+        $trans = new \osTicket\Twig\TokenParser\TransTokenParser();
+        $transChoice = new \osTicket\Twig\TokenParser\TransChoiceTokenParser();
+
+        $twig->addExtension(new \osTicket\Twig\Extension\TranslateExtension());
+
+        $twig->addTokenParser($trans);
+        $twig->addTokenParser($transChoice);
+        
+        return $twig;
+    }
+    
     function https() {
        return
             (isset($_SERVER['HTTPS'])

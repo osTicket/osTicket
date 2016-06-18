@@ -95,7 +95,11 @@ class Deployment extends Unpacker {
         }
     }
 
-    function writeManifest($root) {
+    private function writeManifest() {
+        if ($this->dryRun) {
+            return;
+        }
+        
         $lines = array();
         foreach ($this->manifest as $F=>$H)
             $lines[] = "$H $F";
@@ -103,13 +107,7 @@ class Deployment extends Unpacker {
         return file_put_contents($this->include_path.'/.MANIFEST', implode("\n", $lines));
     }
 
-    function hashContents($file) {
-        $md5 = md5($file);
-        $sha1 = sha1($file);
-        return substr($md5, -20) . substr($sha1, -20);
-    }
-
-    function getEditedContents($src) {
+    private function getEditedContents($src) {
         static $short = false;
         static $version = false;
 
@@ -201,7 +199,7 @@ class Deployment extends Unpacker {
             return parent::unpackage($folder, $destination, $recurse, $exclude);
         }
 
-        $dryrun = $this->getOption('dry-run', false);
+        $dryrun = $this->dryRun;
         $verbose = $this->getOption('verbose') || $dryrun;
         $force = $this->getOption('force');
         while ($line = stream_get_line($pipes[1], 255, "\x00")) {
@@ -227,6 +225,8 @@ class Deployment extends Unpacker {
     }
 
     function run($args, $options) {
+        $this->dryRun = $this->getOption('dry-run', false);
+
         $this->destination = $args['install-path'];
         if (!is_dir($this->destination))
             if (!@mkdir($this->destination, 0751, true))
@@ -257,8 +257,7 @@ class Deployment extends Unpacker {
             $exclusions[] = "$rootPattern/setup/*";
 
         # Unpack everything but the include/ folder
-        $this->unpackage("$root/{,.}*", $this->destination, -1,
-            $exclusions);
+        $this->unpackage("$root/{,.}*", $this->destination, -1, $exclusions);
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
             array("*/include/ost-config.php", "*.sw[a-z]"));
@@ -277,8 +276,12 @@ class Deployment extends Unpacker {
                 "*/.htaccess", ".MANIFEST"));
         }
 
-        if (!$options['dry-run'])
-            $this->writeManifest($this->destination);
+        if (!$options['dry-run']) {
+            $this->writeManifest();
+
+            $this->clean($root, $this->destination, -1, array($include, "setup/"));
+            $this->clean("$root/include", $include, -1, array("ost-config.php","settings.php","plugins/", "*/.htaccess"));
+        }
     }
 }
 

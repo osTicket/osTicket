@@ -50,7 +50,7 @@ session_start();
 define('URL',rtrim((Bootstrap::https()?'https':'http').'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']),'setup'));
 
 #define paths
-define('INC_DIR',dirname(__file__).'/inc/'); //local include dir!
+define('SETUP_INC_DIR' , dirname(__file__) . '/inc/'); //local include dir!
 
 #required files
 require_once(INCLUDE_DIR.'class.setup.php');

@@ -143,7 +143,7 @@ class Installer extends SetupWizard {
         else {
             $streams = DatabaseMigrater::getUpgradeStreams(INCLUDE_DIR.'upgrader/streams/');
             foreach ($streams as $stream=>$signature) {
-                $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
+                $schemaFile = SETUP_INC_DIR."streams/$stream/install-mysql.sql";
                 if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
                     $this->errors['err'] = sprintf(
                         __('%s: Internal Error - please make sure your download is the latest (#1)'),

@@ -1,0 +1,160 @@
+{% extends 'setup/layout.html.twig' %}
+
+{% block content %}
+    <div id="main" class="step2">
+        <h1>{% trans %}osTicket Basic Installation{% endtrans %}</h1>
+        <p>{% trans %}Please fill out the information below to continue your osTicket installation. All fields are required.{% endtrans %}</p>
+
+        <font class="error"><strong>{{ error }}</strong></font>
+
+        <form action="install.php" method="post" id="install">
+            <input type="hidden" name="s" value="install">
+
+            <h4 class="head system">{% trans %}System Settings{% endtrans %}</h4>
+            <span class="subhead">{% trans %}The URL of your helpdesk, its name, and the default system email address{% endtrans %}</span>
+
+            <div class="row">
+                <label>{% trans %}Helpdesk URL{% endtrans %}:</label>
+                <span class="ltr"><strong>{{ url }}</strong></span>
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Helpdesk Name{% endtrans %}:</label>
+                <input type="text" name="name" size="45" tabindex="1" value="{% if info.name is defined %}{{ info.name }}{% endif %}">
+                <a class="tip" href="#helpdesk_name"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.name is defined %}<font class="error">{{ errors.name }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Default Email{% endtrans %}:</label>
+                <input type="text" name="email" size="45" tabindex="2" value="{% if info.email is defined %}{{ info.email }}{% endif %}">
+                <a class="tip" href="#system_email"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.email is defined %}<font class="error">{{ errors.email }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Primary Language{% endtrans %}:</label>
+                <select name="lang_id">
+                    {% for code, language in availableLanguages %}
+                        <option value="{{ code }}" {% if info.lang_id == code %}selected="selected"{% endif %}>
+                            {{ language }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <a class="tip" href="#default_lang"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.lang_id is defined %}<font class="error">{{ errors.lang_ud }}</font>{% endif %}
+            </div>
+
+
+            <h4 class="head admin">{% trans %}Admin User{% endtrans %}</h4>
+            <span class="subhead">{% trans %}Your primary administrator account - you can add more users later.{% endtrans %}</span>
+
+            <div class="row">
+                <label>{% trans %}First Name{% endtrans %}:</label>
+                <input type="text" name="fname" size="45" tabindex="3" value="{% if info.fname is defined %}{{ info.fname }}{% endif %}">
+                <a class="tip" href="#first_name"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.fname is defined %}<font class="error">{{ errors.fname }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Last Name{% endtrans %}:</label>
+                <input type="text" name="lname" size="45" tabindex="4" value="{% if info.lname is defined %}{{ info.lname }}{% endif %}">
+                <a class="tip" href="#last_name"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.lname is defined %}<font class="error">{{ errors.lname }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Email Address{% endtrans %}:</label>
+                <input type="text" name="admin_email" size="45" tabindex="5" value="{% if info.admin_email is defined %}{{ info.admin_email }}{% endif %}">
+                <a class="tip" href="#email"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.admin_email is defined %}<font class="error">{{ errors.admin_email }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Username{% endtrans %}:</label>
+                <input type="text" name="username" size="45" tabindex="6" value="{% if info.username is defined %}{{ info.username }}{% endif %}" autocomplete="off">
+                <a class="tip" href="#username"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.username is defined %}<font class="error">{{ errors.username }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Password{% endtrans %}:</label>
+                <input type="password" name="passwd" size="45" tabindex="7" value="{% if info.passwd is defined %}{{ info.passwd }}{% endif %}" autocomplete="off">
+                <a class="tip" href="#password"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.passwd is defined %}<font class="error">{{ errors.passwd }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}Retype Password{% endtrans %}:</label>
+                <input type="password" name="passwd2" size="45" tabindex="8" value="{% if info.passwd2 is defined %}{{ info.passwd2 }}{% endif %}">
+                <a class="tip" href="#password2"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.passwd2 is defined %}<font class="error">{{ errors.passwd2 }}</font>{% endif %}
+            </div>
+
+
+            <h4 class="head database">{% trans %}Database Settings{% endtrans %}</h4>
+            <span class="subhead">
+                {% trans %}Database connection information{% endtrans %}
+                {% if errors.db is defined %}<font class="error">{{ errors.db }}</font>{% endif %}
+            </span>
+
+            <div class="row">
+                <label>{% trans %}MySQL Table Prefix{% endtrans %}:</label>
+                <input type="text" name="prefix" size="45" tabindex="9" value="{% if info.prefix is defined %}{{ info.prefix }}{% endif %}">
+                <a class="tip" href="#db_prefix"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.prefix is defined %}<font class="error">{{ errors.prefix }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}MySQL Hostname{% endtrans %}:</label>
+                <input type="text" name="dbhost" size="45" tabindex="10" value="{% if info.dbhost is defined %}{{ info.dbhost }}{% endif %}">
+                <a class="tip" href="#db_host"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.dbhost is defined %}<font class="error">{{ errors.dbhost }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}MySQL Database{% endtrans %}:</label>
+                <input type="text" name="dbname" size="45" tabindex="11" value="{% if info.dbname is defined %}{{ info.dbname }}{% endif %}">
+                <a class="tip" href="#db_schema"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.dbname is defined %}<font class="error">{{ errors.dbname }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}MySQL Username{% endtrans %}:</label>
+                <input type="text" name="dbuser" size="45" tabindex="12" value="{% if info.dbuser is defined %}{{ info.dbuser }}{% endif %}">
+                <a class="tip" href="#db_user"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.dbuser is defined %}<font class="error">{{ errors.dbuser }}</font>{% endif %}
+            </div>
+
+            <div class="row">
+                <label>{% trans %}MySQL Password{% endtrans %}:</label>
+                <input type="password" name="dbpass" size="45" tabindex="13" value="{% if info.dbpass is defined %}{{ info.dbpass }}{% endif %}">
+                <a class="tip" href="#db_password"><i class="icon-question-sign help-tip"></i></a>
+                {% if errors.dbpass is defined %}<font class="error">{{ errors.dbpass }}</font>{% endif %}
+            </div>
+
+            <br>
+
+            <div id="bar">
+                <input class="btn" type="submit" value="{% trans %}Install Now{% endtrans %}" tabindex="14">
+            </div>
+
+            <input type="hidden" name="timezone" id="timezone"/>
+        </form>
+    </div>
+
+    <div>
+        <p>
+            <strong>{% trans %}Need Help?{% endtrans %}</strong>
+            {% trans %}We provide <u>professional installation services</u> and commercial support.{% endtrans %}
+            <a target="_blank" href="http://osticket.com/support">{% trans %}Learn More!{% endtrans %}</a>
+        </p>
+    </div>
+
+    <div id="overlay"></div>
+
+    <div id="loading">
+        <h4>{% trans %}Doing stuff!{% endtrans %}</h4>
+        {% trans %}Please wait... while we install your new support ticket system!{% endtrans %}
+    </div>
+{% endblock %}
