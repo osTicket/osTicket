@@ -239,7 +239,7 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
@@ -583,7 +583,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
                 </td>
                 <td>
-                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                    <input type='checkbox' value='1' name="emailcollab"
+                    id="t<?php echo $ticket->getThreadId(); ?>-emailcollab"
                         <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
                         style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >

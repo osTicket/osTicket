@@ -40,6 +40,12 @@ class i18n_Compiler extends Module {
             'help' => 'Add a domain to the path/context of PO strings'),
         'dns' => array('-d', '--dns', 'default' => false, 'metavar' => 'zone-id',
             'help' => 'Write signature to DNS (via this AWS HostedZoneId)'),
+        'zlib' => array('-z', '--zlib', 'default' => false,
+            'action' => 'store_true', 'help' => 'Compress PHAR with zlib'),
+        'bzip2' => array('-j', '--bzip2', 'default' => false,
+            'action' => 'store_true', 'help' => 'Compress PHAR with bzip2'),
+        'branch' => array('-b', '--branch', 'help' => 'Use a Crowdin branch
+            (other than the root)'),
     );
 
     var $epilog = "Note: If updating DNS, you will need to set
@@ -100,7 +106,7 @@ class i18n_Compiler extends Module {
                 $this->fail('API key is required');
             if (!$options['lang'])
                 $this->fail('Language code is required. See `list`');
-            $this->_build($options['lang']);
+            $this->_build($options['lang'], $options);
             break;
         case 'similar':
             $this->find_similar($options);
@@ -146,7 +152,7 @@ class i18n_Compiler extends Module {
         }
     }
 
-    function _build($lang) {
+    function _build($lang, $options) {
         list($code, $zip) = $this->_request("download/$lang.zip");
 
         if ($code !== 200)
@@ -164,17 +170,32 @@ class i18n_Compiler extends Module {
         @unlink(I18N_DIR."$lang.phar");
         $phar = new Phar(I18N_DIR."$lang.phar");
         $phar->startBuffering();
+        if ($options['zlib'])
+            $phar->compress(Phar::GZ, 'phar');
+        if ($options['bzip2'])
+            $phar->compress(Phar::BZ2, 'phar');
 
         $po_file = false;
 
+        $branch = false;
+        if ($options['branch'])
+            $branch = trim($options['branch'], '/') . '/';
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
+            if ($branch && strpos($info['name'], $branch) !== 0) {
+                // Skip files not part of the named branch
+                continue;
+            }
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
-            if (strpos($info['name'], '/messages.po') !== false) {
+            if (fnmatch('*/messages*.po', $info['name']) !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
+                continue;
+            }
+            elseif (!$branch && !file_exists(I18N_DIR . 'en_US/' . $info['name'])) {
+                // Skip files in (other) branches
                 continue;
             }
             $phar->addFromString($info['name'], $contents);
@@ -190,9 +211,9 @@ class i18n_Compiler extends Module {
         }
         foreach ($langs as $l) {
             list($code, $js) = $this->_http_get(
-                'http://imperavi.com/webdownload/redactor/lang/?lang='
-                .strtolower($l));
-            if ($code == 200 && ($js != 'File not found')) {
+                sprintf('https://imperavi.com/download/redactor/langs/%s/',
+                    strtolower($l)));
+            if ($code == 200 && strlen($js) > 100) {
                 $phar->addFromString('js/redactor.js', $js);
                 break;
             }
@@ -277,7 +298,9 @@ class i18n_Compiler extends Module {
         $po_header = Mail_Parse::splitHeaders($mo['']);
         $info = array(
             'Build-Date' => date(DATE_RFC822),
+            'Phrases-Version' => $po_header['X-Osticket-Major-Version'],
             'Build-Version' => trim(`git describe`),
+            'Build-Major-Version' => MAJOR_VERSION,
             'Language' => $po_header['Language'],
             #'Phrases' =>
             #'Translated' =>
@@ -308,6 +331,8 @@ class i18n_Compiler extends Module {
 
         if (!function_exists('openssl_get_privatekey'))
             $this->fail('OpenSSL extension required for signing');
+        if (!$options['pkey'] || !file_exists($options['pkey']))
+            $this->fail('Signing private key (-P) required');
         $private = openssl_get_privatekey(
                 file_get_contents($options['pkey']));
         if (!$private)
