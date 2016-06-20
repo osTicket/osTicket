@@ -1,5 +1,166 @@
+osTicket v1.10-rc.3
+===================
+### Enhancements
+  * Compatibility with PHP7 (#2828)
+  * Share tickets among organization members (#2405)
+  * Add lock semantics compatible with v1.9 (lock on view) (f826189)
+  * Staff login backdrop is customizable (#2468)
+  * Add advanced search for closed date, thread last message, thread last
+    response (#2444)
+  * Disable auto-claim by department (#2591)
+  * Properly flag SYSTEM thread postings (#2702)
+  * Add option to use dept/agent name on replies (#2700)
+  * Add a preference option to set the sort order of the thread entries in DESC
+    or ASC order (#2700)
+  * Thread dates can be shown as relative or absolute timestamps (#2700)
+  * Make Avatars optional on thread view (#2701)
+  * Make Authentication Tokens Optional (auto-login links in emails) (#2714)
+  * Use icons for ticket and task actions (#2760)
+  * role: Add option to use primary role on assignment (#2832)
+
+### Improvements
+  * All improvements cited in v1.9.12 and v1.9.13
+  * Fix deleting of custom logos (#2433)
+  * Fix assignment setting on new tasks (#2452)
+  * Fix subject display of non-short-answer fields on ticket view and ticket
+    queue (#2463)
+  * Fix advanced search of ticket source (#2479)
+  * Forbid adding deleted forms via "Manage Forms" (#2483)
+  * Use horizontal tabs for translatable article content rather than the left
+    tabs in a table (#2484)
+  * Fix lock expiration time if PHP and database have different time zones
+    (#2533)
+  * Fix user class and ID matching from email headers (#2549)
+  * Fix emission of `Content-Language` header in client portal for multiple
+    system languages, thanks @t-oster (#2555)
+  * Fix deployment of fresh git repo or download on PHP 5.6 (#2571)
+  * Fix handling of abbreviated database timezones like `CDT` (#2570)
+  * Fix incorrect height display of avatars (#2580, #2609)
+  * Sort help topic names case insensitively, thanks @jdelhome3578 (#2530)
+  * Fix detection of looped emails (f2cac64)
+  * Fix crash in ticket preview (popout) if ticket has no thread (bd9e9c5)
+  * Fix javascript crash adding new ticket filter (d2af0eb)
+  * Fix crash if the `name` field of a user is a drop-down (ec0b2c5)
+  * Fix incorrect SQL query removing departments (cf6cd81)
+  * Properly fallback to database file storage if system is misconfigured (1580136)
+  * Fix crash handling fields with `__` in the name in the VisibilityConstraint
+    class (b3d09b6)
+  * Remove staff-dept records when removing an agent (ecf6931)
+  * Avoid crashing processing ORM records with NULL select_related models (#2589)
+  * Fix several full-text search related issues (#2588, #2603)
+  * Fix crash sending registration link for a guest user (#2552)
+  * Avoid showing lock icon for expired locks on ticket listing (#2617)
+  * Fix incorrect redirect from SSO authentication, thanks @kevinoconnor7
+    (#2641)
+  * Fix vertical overflow of uploaded image preview (#2616)
+  * Fix unnecessary dropping of CDATA table on MySQL 5.6 (#2638)
+  * Fix several issues on user directory ticket listing (#2626)
+  * Fix encoding of attachment filenames in emails (#2586)
+  * Fix warning rendering advanced search dialog, thanks @t-oster (#2594)
+  * Fix bounce message loop for message alert to a bad agent email address
+    (#2639)
+  * Make fulltext search optional on user lookup (#2657)
+  * Add the [claim] feature again (#2681)
+  * Fix agent's Signature & Timezone dropped on update (#2720)
+  * Fix crash in user CSV import (#2708)
+  * Fix crash in user ajax lookup (#2600)
+  * Send Reference and In-Reply-To headers only for thread items pertinent to
+    the receiving user (#2723)
+  * Properly clean HTML custom fields (#2736)
+  * Fix changing/saving properties on internal ticket statuses, with the
+    exception of the state (#2767)
+  * Fix CSV list import (#2738)
+  * Fix late redirect header for single ticket typeahead result (#2830)
+  * Add sortable column headers in the ticket and task queues (#2761)
+  * Fix several issues with the file CLI app (#2808)
+  * Fix config crash on install (#2827, #2844)
+  * Set due date based on user's timezone (#2812, #2981)
+  * Fix crash rendering some email addresses to string (#2844)
+  * Fix crash rendering thread with invalid timestamps (#2844)
+  * Log assignment note (comments), if any, when staff created ticket is
+    assigned (#2944)
+  * Change transient SLA, on transfer,  if target department has a valid SLA
+    (#2944)
+  * Fix typo on task transfer modal dialog (#2944)
+  * Fix ticket source on ticket edit (#2944)
+  * Convert user time to database time when querying stats (#2944)
+  * Fix date picker clearing input on invalid date format (#2944)
+  * Show topic-specific thank-you page (#2915)
+  * Department manager can be excluded from the new ticket alert (#2974)
+  * Do not scrub iframe `@src` attribute (#2940)
+
+### Performance and Security
+  * Use full-text search for quick-search typeahead boxes (#2479)
+  * Speed up a few slow and noisy queries (5c68eb3, 340fee7, 208fcc3)
+  * Lower memory requirements processing attachments (#2491, #2492)
+  * Ensure agent still has access when reopening a ticket (#2768)
+  * Always perform validation server-side for ajax uploads (#2844)
+  * Protect access to files shown in the FileUpload field (#2618)
+  * Decode entities prior to HTML scrubbing (#2940)
+
+### Known Issues
+  * Uploading multiple files simultaneous (via drag and drop) will cause some
+    files to be dropped
+
+osTicket v1.10-rc.2
+===================
+### Enhancements
+  * Lazy locking system for ticket locking (#2325, #2351, 37cdf25, de92ec5,
+    37a0676)
+  * Add settings for avatars and local "Oscar's A-Team" avatars (#2334)
+  * Several UI tweaks (7436195, #2426)
+  * Add transfer and assign mass actions to tickets (#2375)
+  * Import agents from the command line (#2323)
+  * User select dialog can be opened after closing in new ticket by staff
+    (605c313)
+  * Deadband new message alert and autoresponse to once per five minutes per
+    user per thread (598dedc)
+  * [Add Rule] button to add many new rules at one to a ticket filter (c03279d)
+
+### Improvements
+  * Fix several install and upgrade-related issues (fc10dcb, e1ca975, b709139,
+    abc8619, #2411, 832ea94, abb9a08, e3bb6c2, 8e373d4)
+  * Fix database timezone detection on Windows (#2297)
+  * Fix several tasks related issues (#2311, #2344, #2376, #2400, #2421, c3d48a9)
+  * Fix hiding of department-specific canned responses (#2315)
+  * Fix add and edit of ticket status list items (#2314)
+  * Fix incorrect definition of some ORM tables (#2324, 69839af)
+  * Fix crash rendering a closed ticket (#2328)
+  * Fix case-insensitive sorting of help topics (#2357)
+  * Fix several advanced search related issues (#2317, 3d4313f, ce3ceae,
+    b5e6d4e, 5a935ca)
+  * Fix incorrect SQL deleting a department (#2359)
+  * Fix incorrect array usage of department members for alerts (#2356)
+  * Add missing perm for view all agents' stats (#2358)
+  * Fix missing thread inline images from redactor image manager (be77da4)
+  * Fix updating configuration for file upload fields (2f4f9c1)
+  * Fix crash creating tickets with canned attachments (a156bba)
+  * Fix missing inline images in mailouts (84c9b54)
+  * Prefer submitted text over last-saved draft (46ab79b)
+  * Fix incorrect FAQ link in front-page sidebar (ea9dd5f)
+  * Fix missing assignee selection on new ticket by staff (7865eee)
+  * Fix issue details showing up on ticket edit (a183a98, 7fbd0f6)
+  * Fix inability to change SLA on some tickets (#2392)
+  * Fix auto-claim on new ticket by staff if a filter added a canned reply (c2ce2e9)
+  * Fix Dept::getMembersForAlerts() missing primary members (abc93efd)
+  * Fix inability to create tickets if missing the ASSIGN permission on all
+    depts (0c49e62)
+  * Fix inability as staff to reset a user's password (0006dd8)
+  * Render fields marked !visible and !editable, but required on the client
+    portal (7f55a0b)
+  * Fix sorting of help topics (a7cc49f, 08a32a4)
+  * Fix new message alert to a random staff member (d3685a9)
+  * Fix saving abbreviations on new list items (538087b)
+  * Fix parsing of some multi-part MIME messages (c57c22a)
+  * Fix numerous crashes
+
+### Performance and Security
+  * Improve performance loading the ticket view (6bba226, 4b12d54)
+  * Improve performance loading queue statistics (0a89510, 6b76402)
+  * Dramatically improve full-text search performance (167287d)
+
 osTicket 1.10
-=============
+==================
 ## Major New Features
 
 ### Internationalization, Phase III
