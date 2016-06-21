@@ -305,9 +305,8 @@ class Format {
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
-				  ':<html[^>]+:i',              # drop html attributes
             ),
-            array('', '', '', '', '<html'),
+            array('', '', '', ''),
             $html);
 
         // HtmLawed specific config only
