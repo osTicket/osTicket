@@ -68,8 +68,12 @@ interface CustomListItem {
     function getAbbrev();
     function getSortOrder();
 
+    function getList();
+    function getListId();
+
     function getConfiguration();
 
+    function hasProperties();
     function isEnabled();
     function isDeletable();
     function isEnableable();
@@ -664,8 +668,16 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         $this->clearStatus(self::ENABLED);
     }
 
+    function hasProperties() {
+        return ($this->getForm() && $this->getForm()->getFields());
+    }
+
     function getId() {
         return $this->get('id');
+    }
+
+    function getList() {
+        return $this->list;
     }
 
     function getListId() {
@@ -733,6 +745,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->getConfigurationForm();
     }
 
+    function getFields() {
+        return $this->getForm()->getFields();
+    }
+
     function getVar($name) {
         $config = $this->getConfiguration();
         $name = mb_strtolower($name);
@@ -766,6 +782,15 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
 
     function __toString() {
         return $this->toString();
+    }
+
+    function display() {
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getValue()
+                );
     }
 
     function update($vars, &$errors=array()) {
@@ -1102,7 +1127,7 @@ implements CustomListItem, TemplateVariable {
         return $this->set($field, $this->get($field) | $flag);
     }
 
-    protected function hasProperties() {
+    function hasProperties() {
         return ($this->get('properties'));
     }
 
@@ -1254,6 +1279,11 @@ implements CustomListItem, TemplateVariable {
         return $this->_list;
     }
 
+    function getListId() {
+        if (($list = $this->getList()))
+            return $list->getId();
+    }
+
     function getConfigurationForm($source=null) {
         if (!$this->_form) {
             $config = $this->getConfiguration();
@@ -1281,6 +1311,10 @@ implements CustomListItem, TemplateVariable {
         }
 
         return $this->_form;
+    }
+
+    function getFields() {
+        return $this->getConfigurationForm()->getFields();
     }
 
     function getConfiguration() {
@@ -1365,6 +1399,15 @@ implements CustomListItem, TemplateVariable {
         }
 
         return count($errors) === 0;
+    }
+
+    function display() {
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
+                $this->getListId(),
+                $this->getId(),
+                $this->getLocalName()
+                );
     }
 
     function update($vars, &$errors) {
