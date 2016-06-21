@@ -45,7 +45,7 @@
         <input type="hidden" name="a" value="search"/>
         <select name="topicId"  style="width:100%;max-width:100%"
             onchange="javascript:this.form.submit();">
-            <option value="">— Browse by Topic —</option>
+            <option value="">—<?php echo __("Browse by Topic"); ?>—</option>
 <?php
 $topics = Topic::objects()
     ->annotate(array('has_faqs'=>SqlAggregate::COUNT('faqs')))

@@ -247,7 +247,7 @@
     files: [],
     deletable: true,
     shim: !window.FileReader,
-    queuefiles: 4
+    queuefiles: 1
   };
 
   $.fn.filedropbox.messages = {
