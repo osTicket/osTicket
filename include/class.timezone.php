@@ -166,12 +166,20 @@ class DbTimezone {
         // Attempt to fetch timezone direct from the database
         $TZ = db_timezone();
 
+        // Translate ambiguous 'GMT' timezone
+        if ($TZ === 'GMT') {
+            // PHP assumes GMT == UTC, MySQL assumes GMT == Europe/London.
+            // To shore up the difference, assuming use of MySQL, use the
+            // timezone in PHP which honors BST (British Summer Time)
+            return 'Europe/London';
+        }
         // Forbid timezone abbreviations like 'CDT'
-        if (!in_array($TZ, array('UTC', 'GMT')) && strpos($TZ, '/') === false)
+        elseif ($TZ !== 'UTC' && strpos($TZ, '/') === false) {
             // Attempt to lookup based on the abbreviation
             if (!($TZ = timezone_name_from_abbr($TZ)))
                 // Abbreviation doesn't point to anything valid
                 return false;
+        }
 
         // SYSTEM does not describe a time zone, ensure we have a valid zone
         // by attempting to create an instance of DateTimeZone()
