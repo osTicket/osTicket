@@ -918,11 +918,16 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
+        if (!($form = $this->getForm())
+            // The form for this entry was removed. No missing fields to
+            // consider
+            return;
+
         // Track deletions
         foreach ($this->getAnswers() as $answer)
             $answer->deleted = true;
 
-        foreach ($this->getForm()->getDynamicFields() as $field) {
+        foreach ($form->getDynamicFields() as $field) {
             $found = false;
             foreach ($this->getAnswers() as $answer) {
                 if ($answer->get('field_id') == $field->get('id')) {
