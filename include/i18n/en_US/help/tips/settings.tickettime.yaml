@@ -1,0 +1,37 @@
+#
+# This is popup help messages for the Admin Panel -> Settings -> Time
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+client_time:
+    title: Enable Client Time View
+    content: >
+        Enabling this option configures the clients
+        view of the ticket to display the total time
+        spent on a ticket.
+		
+thread_time:
+    title: Enable Adding Time to Thread
+    content: >
+        Enabling this option allows you to add time and type
+        of time to a response / internal note of the ticket.<br />
+        This option also updates the total time spent giving
+        you a quick overview in the summary.
+		
+thread_timer:
+    title: Enable Timer for Threads
+    content: >
+        This option enables an auto timer for threads within a ticket.<br />
+        Once a ticket is displayed on screen the timer starts, but has
+        controls like pause, reset, play and of course the ability to
+        manually override the time.
