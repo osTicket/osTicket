@@ -18,8 +18,9 @@ elseif($ticket->isOverdue())
 
 echo sprintf(
         '<div style="width:968px; padding: 2px 2px 0 5px;" id="t%s">
-         <h2>'.__('Ticket #%s').': %s</h2>',
+         <h2>'.__('<a href="%s">Ticket #%s').': %s</a></h2>',
          $ticket->getNumber(),
+         Ticket::getLink( $ticket->getId()),
          $ticket->getNumber(),
          Format::htmlchars($ticket->getSubject()));
 
@@ -33,7 +34,7 @@ elseif($warn)
 echo '<ul class="tabs" id="thread-preview">';
 
 
-echo '<li class="active"><a id="thread_tab" href="#threadPreview"
+echo '<li ><a id="thread_preview_tab" href="#threadPreview"
             ><i class="icon-fixed-width icon-list
             faded"></i>&nbsp;'.__('Thread Preview').'</a></li>';
 
@@ -41,7 +42,6 @@ echo '</ul>';
 echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
 ?>
-
         <?php
         include STAFFINC_DIR.'templates/thread-entries-preview.tmpl.php';
         ?>
