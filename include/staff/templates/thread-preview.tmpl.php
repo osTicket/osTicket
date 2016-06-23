@@ -17,7 +17,7 @@ elseif($ticket->isOverdue())
     $warn.='&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 echo sprintf(
-        '<div style="width:968px; padding: 2px 2px 0 5px;" id="t%s">
+        '<div style="min-width:400px; padding: 2px 2px 0 5px;" id="t%s"> 
          <h2>'.__('<a href="%s">Ticket #%s').': %s</a></h2>',
          $ticket->getNumber(),
          Ticket::getLink( $ticket->getId()),
