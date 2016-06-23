@@ -17,7 +17,7 @@ elseif($ticket->isOverdue())
     $warn.='&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 echo sprintf(
-        '<div style="width:968px; padding: 2px 2px 0 5px;" id="t%s">
+        '<div style="min-width:450px; padding: 2px 2px 0 5px;" id="t%s">
          <h2>'.__('Ticket #%s').': %s</h2>',
          $ticket->getNumber(),
          $ticket->getNumber(),
@@ -42,9 +42,6 @@ echo sprintf('
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
             $thread->getNumCollaborators());
 }
-echo '<li><a id="thread_tab" href="#threadPreview"
-            ><i class="icon-fixed-width icon-list
-            faded"></i>&nbsp;'.__('Thread Preview').'</a></li>';
 
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
@@ -154,17 +151,6 @@ echo '</div>'; // ticket preview content.
                                 );
     ?>
 </div>
-<!-- Thread Preview Start -->
-<div class="hidden tab_content thread-preview" id="threadPreview">
-    <div id="ticketThread">
-        <div id="thread-items">
-        <?php
-        include STAFFINC_DIR.'templates/thread-entries-preview.tmpl.php';
-        ?>
-        </div>
-    </div>
-</div>
-<!-- End Thread Preview -->
 <?php
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
