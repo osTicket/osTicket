@@ -73,6 +73,7 @@ if(!$errors) {
 			<th>Time Spent</th>
 			<th>Time Type</th>
 			<th>Billable</th>
+            <th>Invoiced</th>
 		</tr>
 		<?php
         foreach ($ticket->getThread()->getEntries()
@@ -97,6 +98,13 @@ if(!$errors) {
                 echo "<td>" . $time_types[$entry->time_type] . "</td>";
                 echo "<td>";
                     if ($entry->time_bill == 1) {
+                        echo "YES";
+                    } else {
+                        echo "NO";
+                    }
+                echo "</td>";
+                echo "<td>";
+                    if ($entry->time_invoice == 1) {
                         echo "YES";
                     } else {
                         echo "NO";
