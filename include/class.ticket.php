@@ -2854,9 +2854,9 @@ class Ticket {
             //TODO: Can collaborators add others?
             if ($collabs) {
                 //TODO: Change EndUser to name of  user.
-                $ticket->logNote(sprintf(_S('Collaborators for %s organization added'),
-                        $org->getName()),
-                    implode("<br>", $collabs), $org->getName(), false);
+                $ticket->logNote(
+                    sprintf(_S('Collaborators for %s organization added'), $org->getName()),
+                    new HtmlThreadBody(implode("<br>", $collabs)), $org->getName(), false);
             }
         }
 
