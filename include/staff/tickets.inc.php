@@ -62,7 +62,7 @@ $queue_columns = array(
         'priority' => array(
             'width' => '8.4%',
             'heading' => __('Priority'),
-            'sort_col' => 'cdata__priority__priority_urgency',
+            'sort_col' => 'cdata__:priority__priority_urgency',
             ),
         'assignee' => array(
             'width' => '16%',
