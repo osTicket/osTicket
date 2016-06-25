@@ -616,16 +616,16 @@ class EmailTemplate {
 
     function save($id, $vars, &$errors) {
         if(!$vars['subject'])
-            $errors['subject']='Message subject is required';
+            $errors['subject'] = __('Message subject is required');
 
         if(!$vars['body'])
-            $errors['body']='Message body is required';
+            $errors['body'] = __('Message body is required');
 
         if (!$id) {
             if (!$vars['tpl_id'])
-                $errors['tpl_id']='Template set is required';
+                $errors['tpl_id'] = __('Template set is required');
             if (!$vars['code_name'])
-                $errors['code_name']='Code name is required';
+                $errors['code_name'] = __('Code name is required');
         }
 
         if ($errors)
