@@ -2921,6 +2921,11 @@ a.attachment {
     margin-bottom: 0.3em;
 }
 
+.thread-body .emoji.emoji.emoji {
+    width: 1.2em;
+    height: 1.2em;
+}
+
 /* FIXME: Drop this with select2 4.0.1
  * Fixes a rendering issue on Safari
  */
