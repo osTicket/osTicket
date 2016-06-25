@@ -1314,11 +1314,7 @@ class TextboxField extends FormField {
                 }, __('Value does not match required pattern')
             ),
         );
-        // Support configuration forms, as well as GUI-based form fields
-        $valid = $this->get('validator');
-        if (!$valid) {
-            $valid = $config['validator'];
-        }
+        $valid = $this->getValidatorName();
         if (!$value || !isset($validators[$valid]))
             return;
         $func = $validators[$valid];
@@ -1330,7 +1326,29 @@ class TextboxField extends FormField {
                 $this->_errors[] = $error;
     }
 
+    function getValidatorName() {
+        // Support configuration forms, as well as GUI-based form fields
+        $valid = $this->get('validator');
+        if (!$valid) {
+            $config = $this->getConfiguration();
+            $valid = $config['validator'];
+        }
+        return $valid;
+    }
+
     function parse($value) {
+        if ($this->getValidatorName() === 'email') {
+            // Strip everything but the core email address. It's already
+            // been through the validator, so this is just repeating some of
+            // the work. No need to be as cautious.
+            $rfc822 = new Mail_RFC822();
+            if (($mails = $rfc822->parseAddressList($value))
+                && !PEAR::isError($mails)
+            ) {
+                $addr = $mails[0];
+                $value = "{$addr->mailbox}@{$addr->host}";
+            }
+        }
         return Format::striptags($value);
     }
 }
