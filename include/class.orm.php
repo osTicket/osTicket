@@ -293,7 +293,7 @@ class VerySimpleModel {
         'pk' => false
     );
 
-    var $ht;
+    var $ht = array();
     var $dirty = array();
     var $__new__ = false;
     var $__deleted__ = false;
