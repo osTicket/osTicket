@@ -1011,7 +1011,11 @@ $(function() {
                 c.combotree('setValue','<?php echo $ticket->getHelpTopicId(); ?>');
                 var t = c.combotree('tree');  // get tree object
                 var node = t.tree('find', '<?php echo $ticket->getHelpTopicId(); ?>');  // find the specify node
+                if (node){
                 t.tree('expandTo', node.target);
+                } else {
+                $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');   
+                };
             }
         }); 
          $('#cc').combotree({ 
