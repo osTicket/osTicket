@@ -2,6 +2,19 @@
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
+
+if ( isset( $_POST['Submit1'] ) ) {
+    //actions to take on updating ticket box
+    
+    foreach ($_POST['invoiced'] as $key => $value) {
+        //ticked or not
+        // $key = Thread ID
+        // $value = 0 or 1 (Not checked or checked)
+    }
+}
+
+
+
 $time_types = array();
 foreach (DynamicList::lookup(['type' => 'time-type'])->getItems() as $I) {
     $time_types[$I->id] = $I->getValue();
@@ -65,6 +78,8 @@ if(!$errors) {
 	<p>&nbsp;</p>
 	
 	<h2>Time History / Detail</h2>
+    <form action="tickets_bill.php" method="post" id="save">
+    <?php csrf_token(); ?>
 	<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
 		<tr>
 			<th>Date / Time</th>
@@ -72,6 +87,7 @@ if(!$errors) {
 			<th>Poster</th>
 			<th>Time Spent</th>
 			<th>Time Type</th>
+            <th>Invoiced</th>
 		</tr>
 <?php   foreach ($ticket->getThread()->getEntries()
             ->exclude([
@@ -81,6 +97,7 @@ if(!$errors) {
             ->filter([
                 'time_bill' => 1,
                 'type__in' => ['R', 'N'],
+                //'time_invoice' => 0,
             ])
         as $entry) {
             echo '<tr>';
@@ -94,11 +111,23 @@ if(!$errors) {
                 echo "<td>" . Format::htmlchars($entry->poster) . "</td>";
                 echo "<td>" . Ticket::formatTime($entry->time_spent) . "</td>";
                 echo "<td>" . $time_types[$entry->time_type] . "</td>";
+                ?>
+                <td>
+                    <input type="hidden" name="invoiced[<?php echo $entry->id; ?>]" value="0" />
+                    <input type="checkbox" name="invoiced[<?php echo $entry->id; ?>]" value="1" <?php echo $entry->time_invoice?'checked="checked"':''; ?>>
+                </td>
+                <?php
             echo '</tr>';
         }
 		?>
 	</table>
-	
+    
+    <p style="padding-left:210px;">
+        <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
+        <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
+    </p>
+	</form>
+    
 <?php
 } else {
 ?>
