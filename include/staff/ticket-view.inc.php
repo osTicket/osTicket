@@ -1,13 +1,10 @@
 <?php
 //Note that ticket obj is initiated in tickets.php.
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getId()) die('Invalid path');
-
 //Make sure the staff is allowed to access the page.
 if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access Denied');
-
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
-
 					
 //Get the goodies.
 $dept  = $ticket->getDept();  //Dept
@@ -21,7 +18,6 @@ if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
-
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
@@ -35,9 +31,7 @@ elseif ($ticket->isAssigned()
             sprintf(__('Ticket is assigned to %s'),
                 implode('/', $ticket->getAssignees())
                 ));
-
 if (!$errors['err']) {
-
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
         $errors['err'] = sprintf(__('This ticket is currently locked by %s'),
                 $lock->getStaffName());
@@ -46,12 +40,9 @@ if (!$errors['err']) {
     elseif (!Validator::is_valid_email($ticket->getEmail()))
         $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
 }
-
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
-
 if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
-
 ?>
 <div>
     <div class="sticky bar">
@@ -167,21 +158,17 @@ if($ticket->isOverdue())
                     echo __('Change Owner'); ?></a></li>
                 <?php
                  }
-
                  if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
-
                     if($ticket->isAssigned()) { ?>
                         <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> <?php
                             echo __('Release (unassign) Ticket'); ?></a></li>
                     <?php
                     }
-
                     if(!$ticket->isOverdue()) { ?>
                         <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> <?php
                             echo __('Mark as Overdue'); ?></a></li>
                     <?php
                     }
-
                     if($ticket->isAnswered()) { ?>
                     <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> <?php
                             echo __('Mark as Unanswered'); ?></a></li>
@@ -327,7 +314,6 @@ if($ticket->isOverdue())
                                     if(($open=$user->getNumOpenTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %s</a></li>',
                                                 $user->getId(), sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open));
-
                                     if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i
                                                 class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
@@ -466,7 +452,6 @@ if($ticket->isOverdue())
 						$min=$hr=null;
 						if(Format::time($ticket->getEstDueDate()))
 							list($hr, $min)=explode(':', Format::time($ticket->getEstDueDate()));
-
 						echo Misc::timeDropdown($hr, $min, 'time');
 						?>
 						&nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?>&nbsp;<?php echo $errors['time']; ?></font>
@@ -488,20 +473,8 @@ if($ticket->isOverdue())
 						<?php echo __('Help Topic');?>:
 					</th>
 					<td>
-						<?php $id = $ticket->getHelpTopicId(); ?>
-							<select name="topicId"  class="requiredfield">
-								<option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
-								<?php
-								if($topics=Topic::getHelpTopics()) {
-									foreach($topics as $id =>$name) {
-										echo sprintf('<option value="%d" %s>%s</option>',
-												$id, ($ticket->getHelpTopicId()==$id)?'selected="selected"':'',$name);
-									}
-								}
-								?>
-							</select> 
-							
-							&nbsp;<font class="error">* <br>&nbsp;<?php echo $errors['topicId']; ?></font>
+						<input id="cc" name="topicId" class="easyui-combotree" style="width:95%;"></input>
+						&nbsp;<font class="error">* <br>&nbsp;<?php echo $errors['topicId']; ?></font>
 					</td>
 				</tr>
 			</table>
@@ -536,7 +509,7 @@ if($ticket->isOverdue())
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
-<ul  class="tabs clean threads" id="ticket_tabs" >
+<ul class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
         echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
     <li><a id="ticket-tasks-tab" href="#tasks"
@@ -649,7 +622,6 @@ if ($errors['err'] && isset($_POST['a'])) {
                         $recipients = sprintf(__('Recipients (%d of %d)'),
                                 $ticket->getThread()->getNumActiveCollaborators(),
                                 $ticket->getThread()->getNumCollaborators());
-
                     echo sprintf('<span><a class="collaborators preview"
                             href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
                             $ticket->getThreadId(),
@@ -761,7 +733,6 @@ if ($errors['err'] && isset($_POST['a'])) {
                     $states = array('open');
                     if ($role->hasPerm(Ticket::PERM_CLOSE) && !$outstanding)
                         $states = array_merge($states, array('closed'));
-
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
                         if (!$s->isEnabled()) continue;
@@ -1004,7 +975,6 @@ $(function() {
             }
         });
     });
-
     // Post Reply or Note action buttons.
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
@@ -1016,18 +986,74 @@ $(function() {
             // Make the target response tab active.
             if (!$r.hasClass('active'))
                 $r.trigger('click');
-
             // Scroll to the response section.
             var $stop = $(document).height();
             var $s = $('div#response_options');
             if ($s.length)
                 $stop = $s.offset().top-125
-
             $('html, body').animate({scrollTop: $stop}, 'fast');
         }
-
         return false;
     });
-
+    
+    $.extend($.fn.tree.methods,{
+    getLevel: function(jq, target){
+        return $(target).find('span.tree-indent,span.tree-hit').length;
+    }
 });
+
+    $(document).ready(function(){
+        var val = <?php echo Topic::getHelpTopicsTree();?> ;
+        $('#cc').combotree({ 
+            onLoadSuccess : function(){
+                
+                var c = $('#cc');
+                c.combotree('setValue','<?php echo $ticket->getHelpTopicId(); ?>');
+                var t = c.combotree('tree');  // get tree object
+                var node = t.tree('find', '<?php echo $ticket->getHelpTopicId(); ?>');  // find the specify node
+                t.tree('expandTo', node.target);
+            }
+        }); 
+         $('#cc').combotree({ 
+            onChange : function(){
+                
+                var c = $('#cc');
+                var t = c.combotree('tree');  // get tree object
+                var node = t.tree('getSelected');
+                var nodeLevel = t.tree('getLevel',node.target);
+                parentArry = new Array();
+                var parentArry = new Array();
+                var parents = getParentArry(t,node,nodeLevel,parentArry);
+                var parentStr = "";
+                if(parents.length > 0){
+                    var parentStr = "";
+                    for(var i = 0; i < parents.length; i++){
+                        parentStr += parents[i].text + " / ";
+                    }
+                }
+             $('#cc').combotree('setText', parentStr + node.text);
+                
+            }
+        }); 
+        $('#cc').combotree('loadData', val);
+        
+        function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+            //end condition: level of selected node equals 1, means it's root
+           if(nodeLevel == 1){
+              return parentArry;
+           }else{//if selected node isn't root
+              nodeLevel -= 1;
+              //the parent of the node
+              var parent = $(tree).tree('getParent',selectedNode.target);
+              //record the parent of selected to a array
+              parentArry.unshift(parent);
+              //recursive, to judge whether parent of selected node has more parent
+              return getParentArry(tree,parent,nodeLevel,parentArry);
+            }
+        }
+      
+    });
+});
+
+
 </script>
