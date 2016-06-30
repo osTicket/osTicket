@@ -32,8 +32,7 @@ if ($lang) {
     <meta name="description" content="customer support platform">
     <meta name="keywords" content="osTicket, Customer support system, support ticket system">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!--Bootstrap loading via CDN until we can load assets during packaging-->
-	
+	<!--Bootstrap loading via CDN until we can load assets during packaging-->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" media="screen">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
 	<link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/bootstrap-theme.css" media="screen">
@@ -60,6 +59,9 @@ if ($lang) {
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/helptopic.css"/>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.easyui.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";

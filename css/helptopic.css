@@ -1,3 +1,25 @@
+div#client-helptopic>span.textbox.combo{
+    height: 34px !important;
+    width: 90%  !important;
+    
+}
+
+div#client-helptopic input:hover, select:hover, textarea:hover
+{
+  border-top-color: #ffffcc;
+  border-right-color: #ffffcc;
+  border-bottom-color: #ffffcc;
+  border-left-color: #ffffcc;
+  outline-width: 0px;
+  outline-style: none;
+  box-shadow: 0px 1px 1px #ffffcc inset, 0px 0px 8px #ffffcc;
+}
+
+div#client-helptopic .textbox .textbox-text
+{
+  font-size: 14px !important;
+}
+
 .panel {
   overflow: hidden;
   text-align: left;
@@ -496,5 +518,4 @@
 .tree-node-hidden {
   display: none;
 }
-
 
