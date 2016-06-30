@@ -111,12 +111,26 @@ $.extend($.fn.tree.methods,{
 
 $(document).ready(function(){
     var val = <?php echo Topic::getHelpTopicsTree(true);?> ;
-    
+    $('#cc').combotree({
+        onLoadSuccess : function(){
+            var c = $('#cc');
+            var c = $('#cc');
+            c.combotree('setValue','<?php echo $info['topicId']; ?>');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('find', '<?php echo $info['topicId']; ?>');  // find the specify node
+            if (node){
+            t.tree('expandTo', node.target);
+            } else {
+            $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');   
+            };
+        }
+    });
     $('#cc').combotree({ 
         onChange: function (r) { 
             var c = $('#cc');
             var t = c.combotree('tree');  // get tree object
             var node = t.tree('getSelected');
+            if (node){
             var nodeLevel = t.tree('getLevel',node.target);
             parentArry = new Array();
             var parentArry = new Array();
@@ -128,8 +142,9 @@ $(document).ready(function(){
                         parentStr += parents[i].text + " / ";
                     }
                 }
+                
              $('#cc').combotree('setText', parentStr + node.text);            
-              
+            }
         } 
 
     });
@@ -170,7 +185,7 @@ $(document).ready(function(){
               return getParentArry(tree,parent,nodeLevel,parentArry);
             }
         }
-    $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+    
      
        
 });
