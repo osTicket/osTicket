@@ -66,7 +66,7 @@ if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enab
 }
 
 $data = array('autocron'=>true);
-Signal::send('cron', $data);
+Signal::send('cron', null, $data);
 
 ob_end_clean();
 ?>

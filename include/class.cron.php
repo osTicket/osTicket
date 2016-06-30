@@ -107,7 +107,7 @@ class Cron {
         self::MaybeOptimizeTables();
 
         $data = array('autocron'=>false);
-        Signal::send('cron', $data);
+        Signal::send('cron', null, $data);
     }
 }
 ?>
