@@ -148,38 +148,8 @@ if ($_POST)
                 <?php echo __('Help Topic'); ?>:
             </td>
             <td>
-                <select name="topicId" onchange="javascript:
-                        var data = $(':input[name]', '#dynamic-form').serialize();
-                        $.ajax(
-                          'ajax.php/form/help-topic/' + this.value,
-                          {
-                            data: data,
-                            dataType: 'json',
-                            success: function(json) {
-                              $('#dynamic-form').empty().append(json.html);
-                              $(document.head).append(json.media);
-                            }
-                          });">
-                    <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
-                        if (count($topics) == 1)
-                            $selected = 'selected="selected"';
-                        else { ?>
-                        <option value="" selected >&mdash; <?php echo __('Select Help Topic'); ?> &mdash;</option>
-<?php                   }
-                        foreach($topics as $id =>$name) {
-                            echo sprintf('<option value="%d" %s %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'',
-                                $selected, $name);
-                        }
-                        if (count($topics) == 1 && !$forms) {
-                            if (($T = Topic::lookup($id)))
-                                $forms =  $T->getForms();
-                        }
-                    }
-                    ?>
-                </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
+                <input id="cc" name="topicId" class="easyui-combotree " style="width:250px; height:24px;"></input> 
+                &nbsp; <font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
         <tr>
@@ -436,7 +406,78 @@ $(function() {
         },
         property: "/bin/true"
     });
+   
+  $.extend($.fn.tree.methods,{
+    getLevel: function(jq, target){
+        return $(target).find('span.tree-indent,span.tree-hit').length;
+    }
+});
 
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree();?> ;
+    
+    $('#cc').combotree({ 
+        onChange: function (r) { 
+            var c = $('#cc');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('getSelected');
+            var nodeLevel = t.tree('getLevel',node.target);
+            parentArry = new Array();
+            var parentArry = new Array();
+                var parents = getParentArry(t,node,nodeLevel,parentArry);
+                var parentStr = "";
+                if(parents.length > 0){
+                    var parentStr = "";
+                    for(var i = 0; i < parents.length; i++){
+                        parentStr += parents[i].text + " / ";
+                    }
+                }
+             $('#cc').combotree('setText', parentStr + node.text);            
+              
+        } 
+
+    });
+    $('#cc').combotree({ 
+        onSelect: function (r) { 
+        
+            //Loads the dynamic form on selection
+            var data = $(':input[name]', '#dynamic-form').serialize();
+            $.ajax(
+              'ajax.php/form/help-topic/' + r.id,
+              {
+                data: data,
+                dataType: 'json',
+                success: function(json) {
+                  $('#dynamic-form').empty().append(json.html);
+                  $(document.head).append(json.media);
+                }
+              });
+              
+              
+        } 
+
+    });
+
+    $('#cc').combotree('loadData', val);
+    
+    function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+            //end condition: level of selected node equals 1, means it's root
+           if(nodeLevel == 1){
+              return parentArry;
+           }else{//if selected node isn't root
+              nodeLevel -= 1;
+              //the parent of the node
+              var parent = $(tree).tree('getParent',selectedNode.target);
+              //record the parent of selected to a array
+              parentArry.unshift(parent);
+              //recursive, to judge whether parent of selected node has more parent
+              return getParentArry(tree,parent,nodeLevel,parentArry);
+            }
+        }
+    $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+     
+       
+});
    <?php
     // Popup user lookup on the initial page load (not post) if we don't have a
     // user selected

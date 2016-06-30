@@ -1101,7 +1101,9 @@ ul.tabs {
     margin:0;
     text-align:left;
     height:29px;
+    width: auto;
     border-bottom:1px solid #aaa;
+    border-color: #aaa;
     background:#eef3f8;
     position: relative;
     box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.3);
