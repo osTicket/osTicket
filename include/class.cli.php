@@ -26,7 +26,8 @@ class Option {
 
     function hasArg() {
         return $this->action != 'store_true'
-            && $this->action != 'store_false';
+            && $this->action != 'store_false'
+            && $this->action != 'store_const';
     }
 
     function handleValue(&$destination, $args) {
