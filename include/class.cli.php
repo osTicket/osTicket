@@ -4,13 +4,14 @@ class Option {
 
     var $default = false;
 
-    function __construct($options=false) {
+    function __construct($options=false, $name='') {
         list($this->short, $this->long) = array_slice($options, 0, 2);
+        $this->name = $name ?: $this->long;
         $this->help = (isset($options['help'])) ? $options['help'] : "";
         $this->action = (isset($options['action'])) ? $options['action']
             : "store";
         $this->dest = (isset($options['dest'])) ? $options['dest']
-            : substr($this->long, 2);
+            : ($this->name ?: substr($this->long, 2));
         $this->type = (isset($options['type'])) ? $options['type']
             : 'string';
         $this->const = (isset($options['const'])) ? $options['const']
@@ -125,8 +126,8 @@ class Module {
         $this->options['help'] = array("-h","--help",
             'action'=>'store_true',
             'help'=>"Display this help message");
-        foreach ($this->options as &$opt)
-            $opt = new Option($opt);
+        foreach ($this->options as $name=>&$opt)
+            $opt = new Option($opt, $name);
         $this->stdout = new OutputStream('php://output');
         $this->stderr = new OutputStream('php://stderr');
     }
