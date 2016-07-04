@@ -112,7 +112,7 @@ class Module {
     var $arguments = array();
     var $prologue = "";
     var $epilog = "";
-    var $usage = '$script [options] $args [arguments]';
+    var $usage = '$script [options] $args [arguments ...]';
     var $autohelp = true;
     var $module_name;
 
@@ -139,10 +139,17 @@ class Module {
         global $argv;
         $manager = @$argv[0];
 
+        $args = array();
+        foreach ($this->arguments as $name=>$info) {
+            if (isset($info['required']) && !$info['required'])
+                $name = "[$name]";
+            $args[] = $name;
+        }
+
         echo "Usage:\n";
         echo "    " . str_replace(
                 array('$script', '$args'),
-                array($manager ." ". $this->module_name, implode(' ', array_keys($this->arguments))),
+                array($manager ." ". $this->module_name, implode(' ', $args)),
             $this->usage) . "\n";
 
         ksort($this->options);
