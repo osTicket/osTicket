@@ -45,7 +45,13 @@ if ($lang) {
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
+
+    if($ost->getConfig()->getCustomCSS()) {
+		$customcss = '    <link type="text/css" rel="stylesheet" href="%s"/>';
+        echo sprintf($customcss,$ost->getConfig()->getCustomCSS());
+    }
     ?>
+
 </head>
 <body>
 <div id="container">
