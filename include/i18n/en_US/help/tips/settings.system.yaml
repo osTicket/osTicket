@@ -33,6 +33,13 @@ helpdesk_name_title:
         This is the title that appears in the browser tab. If your help desk
         page is bookmarked, this will be the title/name of the site page.
 
+custom_css_file:
+    title: Custom CSS File
+    content: >
+        This is an optional css file that can be specified to override or to supplement existing css settings.
+        <br/><br/>
+        i.e. /include/plugin/PLUGINFOLDER/custom.css
+
 default_department:
     title: Default Department
     content: >
