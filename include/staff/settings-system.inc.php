@@ -44,6 +44,13 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td width="220"><?php echo __('Custom CSS File');?>:</td>
+            <td><input type="text" size="40" name="custom_css" value="<?php echo $config['custom_css']; ?>">
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['custom_css']; ?></font>
+                <i class="help-tip icon-question-sign" href="#custom_css_file"></i>
+            </td>
+        </tr>
+        <tr>
             <td width="220" class="required"><?php echo __('Default Department');?>:</td>
             <td>
                 <select name="default_dept_id" data-quick-add="department">
