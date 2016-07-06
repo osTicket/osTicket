@@ -57,6 +57,11 @@ if ($lang) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
 
+    if($ost->getConfig()->getCustomCSS()) {
+	$customcss = '    <link type="text/css" rel="stylesheet" href="%s"/>';
+        echo sprintf($customcss,$ost->getConfig()->getCustomCSS());
+    }
+
     // Offer alternate links for search engines
     // @see https://support.google.com/webmasters/answer/189077?hl=en
     if (($all_langs = Internationalization::getConfiguredSystemLanguages())
