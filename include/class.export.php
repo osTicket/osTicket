@@ -278,6 +278,8 @@ class ResultSetExporter {
             $this->keys[] = $field;
         }
         $this->_res = $sql->getIterator();
+        if ($this->_res instanceof IteratorAggregate)
+            $this->_res = $this->_res->getIterator();
         $this->_res->rewind();
     }
 
