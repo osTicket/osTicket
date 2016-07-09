@@ -2281,7 +2281,7 @@ class AssigneeField extends ChoiceField {
             $criteria = $this->getCriteria();
             $agents = array();
             if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
-                if (($members = $dept->getMembers($criteria)))
+                if (($members = $dept->getAvailableMembers()))
                     foreach ($members as $member)
                         $agents[$member->getId()] = $member;
             } else {
