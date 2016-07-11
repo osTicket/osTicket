@@ -1,6 +1,6 @@
 <?php
 if (!defined('OSTSCPINC') || !$thisstaff
-        || !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+        || !$thisstaff->hasPerm(Ticket::PERM_CREATE, false))
         die('Access Denied');
 
 $info=array();
@@ -24,17 +24,21 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
+
+//if(!$user) {
+//  $user = User::lookupByemail($thisstaff->getEmail());
+ //}
 ?>
-<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data">
+<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" class="ticket_open_content">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="pull-left flush-left">
+
+    <div class="ticket_open_title">
         <h2><?php echo __('Open a New Ticket');?></h2>
     </div>
-</div>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+
+ <table class="ticket_open" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to
@@ -42,16 +46,16 @@ if ($_POST)
          first row needs to have two cells -->
         <tr><td style="padding:0;"></td><td style="padding:0;"></td></tr>
     </thead>
-    <tbody>
-        <tr>
-            <th colspan="2">
+    <tbody class="open_ticket_userinformation">
+        <tr id="open_ticket_userinformation">
+            <th colspan="2" style="min-width:120px;" width="160">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
                 <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
         <?php
         if ($user) { ?>
-        <tr><td><?php echo __('User'); ?>:</td><td>
+        <tr id="open_ticket_userdata"><td><strong><?php echo __('User'); ?>:</strong></td><td>
             <div id="user-info">
                 <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
             <a href="#" onclick="javascript:
@@ -80,24 +84,24 @@ if ($_POST)
         <?php
         } else { //Fallback: Just ask for email and name
             ?>
-        <tr>
-            <td width="160" class="required"> <?php echo __('Email Address'); ?>: </td>
+        <tr id="open_ticket_userdata">
+            <td style="min-width:120px;" width="160" class="required"> <br><?php echo __('Email Address'); ?>: </td>
             <td>
                 <div class="attached input">
-                    <input type="text" size=45 name="email" id="user-email" class="attached"
+                   <input type="text" size=45 name="email" id="user-email" class="attached requiredfield""
                         autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
                 <a href="?a=open&amp;uid={id}" data-dialog="ajax.php/users/lookup/form"
-                    class="attached button"><i class="icon-search"></i></a>
+                    class="attached button requiredfield"><i class="icon-search requiredfield"></i></a>
                 </div>
                 <span class="error">*</span>
                 <div class="error"><?php echo $errors['email']; ?></div>
             </td>
         </tr>
-        <tr>
-            <td width="160" class="required"> <?php echo __('Full Name'); ?>: </td>
+        <tr id="open_ticket_userdata">
+            <td style="min-width:120px;" width="160" class="required"> <?php echo __('Full Name'); ?>: </td>
             <td>
                 <span style="display:inline-block;">
-                    <input type="text" size=45 name="name" id="user-name" value="<?php echo $info['name']; ?>" /> </span>
+                    <input type="text" size=45 name="name" id="user-name" class="requiredfield" style="height: 15px;" value="<?php echo $info['name']; ?>" /> </span>
                 <span class="error">*</span>
                 <div class="error"><?php echo $errors['name']; ?></div>
             </td>
@@ -107,8 +111,8 @@ if ($_POST)
 
         <?php
         if($cfg->notifyONNewStaffTicket()) {  ?>
-        <tr>
-            <td width="160"><?php echo __('Ticket Notice'); ?>:</td>
+        <tr  id="open_ticket_userdata">
+            <td width="160"><strong><?php echo __('Ticket Notice'); ?>:</strong></td>
             <td>
             <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>><?php
                 echo __('Send alert to user.'); ?>
@@ -117,18 +121,18 @@ if ($_POST)
         <?php
         } ?>
     </tbody>
-    <tbody>
-        <tr>
+    <tbody class="open_ticket_informationdata">
+        <tr id="open_ticket_informationoptions">
             <th colspan="2">
-                <em><strong><?php echo __('Ticket Information and Options');?></strong>:</em>
+                <em><strong><?php echo __('Ticket Information');?></strong>:</em>
             </th>
         </tr>
-        <tr>
+        <tr id="open_ticket_informationdata">
             <td width="160" class="required">
                 <?php echo __('Ticket Source');?>:
             </td>
             <td>
-                <select name="source">
+                <select name="source" class="requiredfield">
                     <?php
                     $source = $info['source'] ?: 'Phone';
                     $sources = Ticket::getSources();
@@ -143,46 +147,16 @@ if ($_POST)
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
             </td>
         </tr>
-        <tr>
+        <tr id="open_ticket_informationdata">
             <td width="160" class="required">
                 <?php echo __('Help Topic'); ?>:
             </td>
-            <td>
-                <select name="topicId" onchange="javascript:
-                        var data = $(':input[name]', '#dynamic-form').serialize();
-                        $.ajax(
-                          'ajax.php/form/help-topic/' + this.value,
-                          {
-                            data: data,
-                            dataType: 'json',
-                            success: function(json) {
-                              $('#dynamic-form').empty().append(json.html);
-                              $(document.head).append(json.media);
-                            }
-                          });">
-                    <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
-                        if (count($topics) == 1)
-                            $selected = 'selected="selected"';
-                        else { ?>
-                        <option value="" selected >&mdash; <?php echo __('Select Help Topic'); ?> &mdash;</option>
-<?php                   }
-                        foreach($topics as $id =>$name) {
-                            echo sprintf('<option value="%d" %s %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'',
-                                $selected, $name);
-                        }
-                        if (count($topics) == 1 && !$forms) {
-                            if (($T = Topic::lookup($id)))
-                                $forms =  $T->getForms();
-                        }
-                    }
-                    ?>
-                </select>
+            <td >
+                    <input id="cc" name="topicId" class="easyui-combotree " style="width:250px; height:24px; background:#ffffcc"></input>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
-        <tr>
+        <tr id="open_ticket_informationdata" style="display:none;">
             <td width="160">
                 <?php echo __('Department'); ?>:
             </td>
@@ -207,8 +181,7 @@ if ($_POST)
                 &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
             </td>
         </tr>
-
-         <tr>
+         <tr  id="open_ticket_informationdata">
             <td width="160">
                 <?php echo __('SLA Plan');?>:
             </td>
@@ -228,7 +201,7 @@ if ($_POST)
             </td>
          </tr>
 
-         <tr>
+         <tr id="open_ticket_informationdata">
             <td width="160">
                 <?php echo __('Due Date');?>:
             </td>
@@ -248,8 +221,8 @@ if ($_POST)
         </tr>
 
         <?php
-        if($thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)) { ?>
-        <tr>
+        if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
+        <tr id="open_ticket_informationdata">
             <td width="160"><?php echo __('Assign To');?>:</td>
             <td>
                 <select id="assignId" name="assignId">
@@ -291,19 +264,20 @@ if ($_POST)
         <tbody>
         <?php
         //is the user allowed to post replies??
-        if ($thisstaff->getRole()->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <tr>
+        if ($thisstaff->getRole()->hasPerm(Ticket::PERM_REPLY)) { ?>
+        <tr id="open_ticket_response">
             <th colspan="2">
                 <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
             </th>
         </tr>
-        <tr>
-            <td colspan=2>
+        <tr ><td style="padding-left:16px;padding-top: 10px">
+           
             <?php
             if(($cannedResponses=Canned::getCannedResponses())) {
                 ?>
-                <div style="margin-top:0.3em;margin-bottom:0.5em">
-                    <?php echo __('Canned Response');?>:&nbsp;
+                
+                    <strong><?php echo __('Response');?>:</strong>
+				</td><td style="padding-top: 10px;">
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected">&mdash; <?php echo __('Select a canned response');?> &mdash;</option>
                         <?php
@@ -312,9 +286,10 @@ if ($_POST)
                         }
                         ?>
                     </select>
-                    &nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                     <label class="checkbox inline"><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
-                </div>
+            </td> </tr> <tr>
+		<td></td><td style="padding-right:16px;">
             <?php
             }
                 $signature = '';
@@ -328,24 +303,40 @@ if ($_POST)
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+					list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
+					echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
                 ?></textarea>
                     <div class="attachments">
-<?php
-print $response_form->getField('attachments')->render();
+					<?php
+					print $response_form->getField('attachments')->render();
 ?>
                     </div>
-
-                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+				</td>
+				<tr>
+                <td style="min-width:120px;padding-left:16px"><?php echo __('Signature');?>:</td>
+                <td>
+                    <?php
+                    $info['signature']=$info['signature']?$info['signature']:$thisstaff->getDefaultSignatureType();
+                    ?>
+                    <label><input type="radio" name="signature" value="none" checked="checked"> <?php echo __('None');?></label>
+                    <?php
+                    if($thisstaff->getSignature()) { ?>
+                        <label><input type="radio" name="signature" value="mine"
+                            <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My signature');?></label>
+                    <?php
+                    } ?>
+                    <label><input type="radio" name="signature" value="dept"
+                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> <?php echo sprintf(__('Department Signature (%s)'), __('if set')); ?></label>
+                </td>
+             </tr>
             <tr>
-                <td width="100"><?php echo __('Ticket Status');?>:</td>
+                <td style="min-width:120px;padding-left:16px" ><strong><?php echo __('Ticket Status');?>:</strong></td>
                 <td>
                     <select name="statusId">
                     <?php
                     $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
                     $states = array('open');
-                    if ($thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                    if ($thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                         $states = array_merge($states, array('closed'));
                     foreach (TicketStatusList::getStatuses(
                                 array('states' => $states)) as $s) {
@@ -361,37 +352,19 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-             <tr>
-                <td width="100"><?php echo __('Signature');?>:</td>
-                <td>
-                    <?php
-                    $info['signature']=$info['signature']?$info['signature']:$thisstaff->getDefaultSignatureType();
-                    ?>
-                    <label><input type="radio" name="signature" value="none" checked="checked"> <?php echo __('None');?></label>
-                    <?php
-                    if($thisstaff->getSignature()) { ?>
-                        <label><input type="radio" name="signature" value="mine"
-                            <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My Signature');?></label>
-                    <?php
-                    } ?>
-                    <label><input type="radio" name="signature" value="dept"
-                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> <?php echo sprintf(__('Department Signature (%s)'), __('if set')); ?></label>
-                </td>
-             </tr>
-            </table>
-            </td>
         </tr>
         <?php
         } //end canPostReply
         ?>
-        <tr>
+        <tr id="open_ticket_note">
             <th colspan="2">
-                <em><strong><?php echo __('Internal Note');?></strong>
+                <em><strong><?php echo __('Note');?>: <?php echo __('Optional note to the above issue.');?></strong>
                 <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
             </th>
         </tr>
         <tr>
-            <td colspan=2>
+            <td style="padding-left: 16px;vertical-align: top;padding-top: 10px;"><strong><?php echo __('Internal Note');?>:</strong></td>
+			<td  style="padding-top: 10px;padding-right:16px;">
                 <textarea
                     class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                         ?> draft draft-delete"
@@ -405,7 +378,7 @@ print $response_form->getField('attachments')->render();
     </tbody>
 </table>
 <p style="text-align:center;">
-    <input type="submit" name="submit" value="<?php echo _P('action-button', 'Open');?>">
+    <input type="submit" name="submit" class="save pending" value="<?php echo _P('action-button', 'Submit');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
         $('.richtext').each(function() {
@@ -436,7 +409,78 @@ $(function() {
         },
         property: "/bin/true"
     });
+    
+  $.extend($.fn.tree.methods,{
+    getLevel: function(jq, target){
+        return $(target).find('span.tree-indent,span.tree-hit').length;
+    }
+});
 
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree();?> ;
+    
+    $('#cc').combotree({ 
+        onChange: function (r) { 
+            var c = $('#cc');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('getSelected');
+            var nodeLevel = t.tree('getLevel',node.target);
+            parentArry = new Array();
+            var parentArry = new Array();
+                var parents = getParentArry(t,node,nodeLevel,parentArry);
+                var parentStr = "";
+                if(parents.length > 0){
+                    var parentStr = "";
+                    for(var i = 0; i < parents.length; i++){
+                        parentStr += parents[i].text + " / ";
+                    }
+                }
+             $('#cc').combotree('setText', parentStr + node.text);            
+              
+        } 
+
+    });
+    $('#cc').combotree({ 
+        onSelect: function (r) { 
+        
+            //Loads the dynamic form on selection
+            var data = $(':input[name]', '#dynamic-form').serialize();
+            $.ajax(
+              'ajax.php/form/help-topic/' + r.id,
+              {
+                data: data,
+                dataType: 'json',
+                success: function(json) {
+                  $('#dynamic-form').empty().append(json.html);
+                  $(document.head).append(json.media);
+                }
+              });
+              
+              
+        } 
+
+    });
+
+    $('#cc').combotree('loadData', val);
+    
+    function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+            //end condition: level of selected node equals 1, means it's root
+           if(nodeLevel == 1){
+              return parentArry;
+           }else{//if selected node isn't root
+              nodeLevel -= 1;
+              //the parent of the node
+              var parent = $(tree).tree('getParent',selectedNode.target);
+              //record the parent of selected to a array
+              parentArry.unshift(parent);
+              //recursive, to judge whether parent of selected node has more parent
+              return getParentArry(tree,parent,nodeLevel,parentArry);
+            }
+        }
+    $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+     
+       
+});
    <?php
     // Popup user lookup on the initial page load (not post) if we don't have a
     // user selected

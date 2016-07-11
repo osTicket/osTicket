@@ -13,12 +13,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 require_once INCLUDE_DIR . 'class.sequence.php';
 require_once INCLUDE_DIR . 'class.filter.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 class Topic extends VerySimpleModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => TOPIC_TABLE,
@@ -89,6 +89,18 @@ implements TemplateVariable {
                 'class' => 'SLA', 'desc' => __('Service Level Agreement'),
             ),
         );
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'topic' => new TextboxField(array(
+                'label' => __('Name'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
     }
 
     function getId() {
@@ -361,7 +373,57 @@ implements TemplateVariable {
 
         return $requested_names;
     }
+    // Function to create hierarchy tree
+    static function getHelpTopicsTree($publicOnly=false, $disabled=false) {
+        global $cfg;
+        static $topics, $names = array();
 
+        if (!$names) {
+            $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
+                . ' ORDER BY `sort`';
+            $res = db_query($sql);
+
+            // Fetch information for all topics, in declared sort order
+            $topics = array();
+            while (list($id, $pid, $pub, $act, $topic) = db_fetch_row($res)){
+                if ($publicOnly && !$pub)
+                    continue;
+                if (!$disabled && !$act)
+                    continue;
+                if ($disabled === self::DISPLAY_DISABLED && !$act)
+                    $topic.= " &mdash; ".__("(disabled)");
+                
+                
+                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$topic, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
+            }
+        }
+        return self::generateTree($topics);
+    }
+    
+    
+    // Recursive function for Help Topics tree
+    static function generateTree($datas, $parent = 0, $depth=0){
+        if($depth > 1000) return ''; // Make sure not to have an endless recursion
+        $tree = '[';
+        for($i=0, $ni=count($datas); $i < $ni; $i++){
+            if($datas[$i]['pid'] == $parent){
+                $tree .= '{';
+                $tree .= '"id" : '.$datas[$i]['id'].',';
+                $tree .= '"text" : "'.$datas[$i]['text'].'",';
+                //Add folder icon
+                $children = self::generateTree($datas, $datas[$i]['id'], $depth+1);
+                $tree .= ($children != "[]") ? '"state" : "closed",' : '';
+                $tree .= '"children" : '.$children;
+                $tree .= '},';
+            }
+        }
+        //remove trailing comma
+        $tree = rtrim($tree, ',');
+        $tree .= ']';
+        return $tree;
+        
+    }
+    
     static function getPublicHelpTopics() {
         return self::getHelpTopics(true);
     }
@@ -395,7 +457,7 @@ implements TemplateVariable {
 
         if (!$vars['topic'])
             $errors['topic']=__('Help topic name is required');
-        elseif (strlen($vars['topic'])<5)
+        elseif (strlen($vars['topic'])<3)
             $errors['topic']=__('Topic is too short. Five characters minimum');
         elseif (($tid=self::getIdByName($vars['topic'], $vars['topic_pid']))
                 && (!isset($this->topic_id) || $tid!=$this->getId()))

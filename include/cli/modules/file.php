@@ -91,7 +91,8 @@ class FileManager extends Module {
                 $this->fail('Criteria must select exactly 1 file');
             }
 
-            if ($bk = $f->open())
+            if (($f = $files[0])
+                    && ($bk = $f->open()))
                 $bk->passthru();
             break;
 
@@ -109,6 +110,7 @@ class FileManager extends Module {
                 $this->fail('Criteria must select exactly 1 file');
             }
 
+            $f = $files[0];
             try {
                 if ($bk = $f->open())
                     $bk->unlink();
@@ -295,7 +297,8 @@ class FileManager extends Module {
 
                 // Find or create the file record
                 $finfo = $header['file'];
-                // TODO: Consider the $version code
+                // TODO: Consider the $version code, drop columns which do
+                // not exist in this database schema
                 $f = AttachmentFile::lookup($finfo['id']);
                 if ($f) {
                     // Verify file information
@@ -319,7 +322,6 @@ class FileManager extends Module {
                     // Bypass the AttachmentFile::create() because we do not
                     // have the data to send yet.
                     $f = new AttachmentFile($finfo);
-                    $f->__new__ = true;
                     if (!$f->save(true)) {
                         $this->fail(sprintf(
                             '%s: Unable to create new file record',
@@ -447,10 +449,9 @@ class FileManager extends Module {
             $files = AttachmentFile::objects();
             $this->_applyCriteria($options, $files);
 
-            foreach ($files as $m) {
+            foreach ($files as $f) {
                 // Drop associated attachment links
-                $m->tickets->expunge();
-                $f = AttachmentFile::lookup($m->id);
+                $f->attachments->expunge();
 
                 // Drop file contents
                 if ($bk = $f->open())

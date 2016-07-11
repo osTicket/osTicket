@@ -20,6 +20,7 @@ class StaffNav {
     var $activetab;
     var $activeMenu;
     var $panel;
+    var $subnavinfo;
 
     var $staff;
 
@@ -109,6 +110,17 @@ class StaffNav {
             $this->activeMenu=sizeof($this->submenus[$this->getPanel().'.'.$this->activetab]);
     }
 
+    function addSubNavInfo($classes=null, $id=null) {
+        $T = $this->subnavinfo;
+        $this->subnavinfo = array(
+            'classes' => (@$T['classes'] ?: '') . ($classes ? " $classes" : ''),
+            'id' => $id ?: @$T['id'],
+        );
+    }
+
+    function getSubNavInfo() {
+        return $this->subnavinfo;
+    }
 
     function getTabs(){
         global $thisstaff;
@@ -154,7 +166,7 @@ class StaffNav {
                                             'iconclass'=>'assignedTickets',
                                             'droponly'=>true);
 
-                        if ($staff->hasPerm(TicketModel::PERM_CREATE, false))
+                        if ($staff->hasPerm(Ticket::PERM_CREATE, false))
                             $subnav[]=array('desc'=>__('New Ticket'),
                                             'title' => __('Open a New Ticket'),
                                             'href'=>'tickets.php?a=open',
@@ -331,9 +343,9 @@ class UserNav {
 
             $navs = array();
             $user = $this->user;
-            $navs['home']=array('desc'=>__('Support Center Home'),'href'=>'index.php','title'=>'');
+           // $navs['home']=array('desc'=>__('Support Center Home'),'href'=>'index.php','title'=>'');
             if($cfg && $cfg->isKnowledgebaseEnabled())
-                $navs['kb']=array('desc'=>__('Knowledgebase'),'href'=>'kb/index.php','title'=>'');
+                $navs['kb']=array('desc'=>__('<span class="glyphicon glyphicon-book"></span> Knowledgebase'),'href'=>'kb/index.php','title'=>'');
 
             // Show the "Open New Ticket" link unless BOTH client
             // registration is disabled and client login is required for new
@@ -341,10 +353,10 @@ class UserNav {
             // possible for web clients.
             if ($cfg->getClientRegistrationMode() != 'disabled'
                     || !$cfg->isClientLoginRequired())
-                $navs['new']=array('desc'=>__('Open a New Ticket'),'href'=>'open.php','title'=>'');
+                $navs['new']=array('desc'=>__('<span class="glyphicon glyphicon-tag"></span> Open a New Ticket'),'href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
                 if(!$user->isGuest()) {
-                    $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets($user->canSeeOrgTickets())),
+                    $navs['tickets']=array('desc'=>sprintf(__('<span class="glyphicon glyphicon-tags"></span> Tickets <span class="badge">(%d)</span>'),$user->getNumTickets()),
                                            'href'=>'tickets.php',
                                             'title'=>__('Show all tickets'));
                 } else {
@@ -353,7 +365,7 @@ class UserNav {
                                            'title'=>__('View ticket status'));
                 }
             } else {
-                $navs['status']=array('desc'=>__('Check Ticket Status'),'href'=>'view.php','title'=>'');
+                 $navs['status']=array('desc'=>__('<span class="glyphicon glyphicon-ok"></span> Check Ticket Status'),'href'=>'view.php','title'=>'');
             }
             $this->navs=$navs;
         }

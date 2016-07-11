@@ -25,7 +25,7 @@
   overflow: auto;
   outline: none;
   border: none;
-  background-color: #111;
+  background-color: #ffffcc;
   box-shadow: none;
   color: #ccc;
   font-size: 13px;
@@ -46,7 +46,7 @@
 .redactor-box,
 .redactor-box textarea {
   z-index: auto;
-}
+  }
 .redactor-box-fullscreen {
   z-index: 99;
 }
@@ -769,9 +769,7 @@ body .redactor-box-fullscreen {
 }
 /*
 	##############################################
-
 	DROPDOWN FORMATTING
-
 	##############################################
 */
 .redactor-dropdown .redactor-formatting-blockquote {
@@ -808,9 +806,7 @@ body .redactor-box-fullscreen {
 }
 /*
 	##############################################
-
 	 CONTENT STYLES
-
 	##############################################
 */
 .redactor-editor code,

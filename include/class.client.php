@@ -53,7 +53,7 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getVar($tag) {
-        global $cfg;
+		global $cfg;
 
         switch (strtolower($tag)) {
         case 'ticket_link':
@@ -315,7 +315,7 @@ class  EndUser extends BaseAuthenticatedUser {
             'user_id' => $this->getId(),
         ));
 
-        // Also add collaborator tickets to the list. This may seem ugly;
+        // Also add collaborator tickets to the list. This may seem ugly
         // but the general rule for SQL is that a single query can only use
         // one index. Therefore, to scan two indexes (by user_id and
         // thread.collaborators.user_id), we need two queries. A union will

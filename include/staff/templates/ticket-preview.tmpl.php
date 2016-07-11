@@ -17,7 +17,7 @@ elseif($ticket->isOverdue())
     $warn.='&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 echo sprintf(
-        '<div style="width:600px; padding: 2px 2px 0 5px;" id="t%s">
+        '<div style="min-width:450px; padding: 2px 2px 0 5px;" id="t%s">
          <h2>'.__('Ticket #%s').': %s</h2>',
          $ticket->getNumber(),
          $ticket->getNumber(),
@@ -42,6 +42,7 @@ echo sprintf('
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
             $thread->getNumCollaborators());
 }
+
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
@@ -118,6 +119,7 @@ echo '
     </table>';
 echo '</div>'; // ticket preview content.
 ?>
+
 <div class="hidden tab_content" id="collab">
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
@@ -149,7 +151,6 @@ echo '</div>'; // ticket preview content.
                                 );
     ?>
 </div>
-</div>
 <?php
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
@@ -159,15 +160,15 @@ if($ticket->getNumNotes())
 if($ticket->isOpen())
     $options[]=array('action'=>__('Reply'),'url'=>"tickets.php?id=$tid#reply");
 
-if ($role->hasPerm(TicketModel::PERM_ASSIGN))
+if ($role->hasPerm(Ticket::PERM_ASSIGN))
     $options[]=array('action'=>($ticket->isAssigned()?__('Reassign'):__('Assign')),'url'=>"tickets.php?id=$tid#assign");
 
-if ($role->hasPerm(TicketModel::PERM_TRANSFER))
+if ($role->hasPerm(Ticket::PERM_TRANSFER))
     $options[]=array('action'=>__('Transfer'),'url'=>"tickets.php?id=$tid#transfer");
 
 $options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
-if ($role->hasPerm(TicketModel::PERM_EDIT))
+if ($role->hasPerm(Ticket::PERM_EDIT))
     $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
@@ -179,3 +180,18 @@ if($options) {
 
 echo '</div>';
 ?>
+<script type="text/javascript">
+    $('.thread-preview-entry').on('click', function(){
+        if($(this).hasClass('collapsed')) {
+            $(this).removeClass('collapsed', 500);
+        }
+    });
+
+    $('.header').on('click', function(){
+        if(!$(this).closest('.thread-preview-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-preview-entry').addClass('collapsed', 500);
+        }
+    });
+
+
+ </script>

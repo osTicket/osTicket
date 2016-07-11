@@ -47,8 +47,43 @@ else
 }?>
     </div>
 </div>
+<form class="form-group" action="login.php" method="post" id="clientLogin" class="form-horizontal">
+    <?php csrf_token(); ?>
+	<div class="row">
+	<div class="login-box col-md-6">
+		<div><strong><?php echo Format::htmlchars($errors['login']); ?></strong></div>
+		<div>
+			<label for="email"><?php echo __('E-Mail Address'); ?>:
+			<input class="form-control" id="email" placeholder="<?php echo __('e.g. john.doe@osticket.com'); ?>" type="text"
+				name="lemail" size="30" value="<?php echo $email; ?>" class="nowarn"></label>
+		</div>
+		<div>
+			<label for="ticketno"><?php echo __('Ticket Number'); ?>:
+			<input class="form-control" id="ticketno" type="text" name="lticket" placeholder="<?php echo __('e.g. 051243'); ?>"
+				size="30" value="<?php echo $ticketid; ?>" class="nowarn"></label>
+		</div>
+		<div><p>
+			<input class="btn btn-success" type="submit" value="<?php echo $button; ?>">
+		</p>
+		</div>
+	</div>	
+
+	<div class="col-md-6">
+		<div class="instructions">
+	<?php if ($cfg && $cfg->getClientRegistrationMode() !== 'disabled') { ?>
+			<h3> <?php echo __('Have an account with us?'); ?></h3
+			<a href="login.php"><?php echo __('Sign In'); ?></a> <?php
+		if ($cfg->isClientRegistrationEnabled()) { ?>
+	<?php echo sprintf(__('or %s register for an account %s to access all your tickets.'),
+		'<a href="account.php?do=create">','</a>');
+		}
+	}?>
+		</div>
+	</div>
+
+	</div>
 </form>
-<br>
+
 <p>
 <?php
 if ($cfg->getClientRegistrationMode() != 'disabled'
@@ -58,3 +93,4 @@ if ($cfg->getClientRegistrationMode() != 'disabled'
         '<a href="open.php">','</a>');
 } ?>
 </p>
+

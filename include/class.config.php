@@ -212,6 +212,8 @@ class OsticketConfig extends Config {
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
         'ticket_lock' => 2, // Lock on activity
+        'autoclose_duration' => 72,
+        'autoclose_status_id' => 0,
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
     );
@@ -502,6 +504,14 @@ class OsticketConfig extends Config {
 
         return $this->defaultEmail;
     }
+
+    function getAutoCloseDuration() {
+         return $this->get('autoclose_duration');
+     }
+
+    function getAutoCloseStatusId() {
+        return $this->get('autoclose_status_id');
+     }
 
     function getDefaultEmailAddress() {
         return ($email=$this->getDefaultEmail()) ? $email->getAddress() : null;
@@ -914,12 +924,15 @@ class OsticketConfig extends Config {
         return $this->get('auto_claim_tickets');
     }
 
+    // XXX: Drop these!!
     function showAssignedTickets() {
         return ($this->get('show_assigned_tickets'));
     }
-
     function showAnsweredTickets() {
         return ($this->get('show_answered_tickets'));
+    }
+    function getDefaultTicketQueueId() {
+        return $this->get('default_ticket_queue');
     }
 
     function hideStaffName() {
@@ -1238,11 +1251,25 @@ class OsticketConfig extends Config {
         if (!preg_match('`(?!<\\\)#`', $vars['ticket_number_format']))
             $errors['ticket_number_format'] = 'Ticket number format requires at least one hash character (#)';
 
+        if (!isset($vars['default_ticket_queue']))
+            $errors['default_ticket_queue'] = __("Select a default ticket queue");
+        elseif (!CustomQueue::lookup($vars['default_ticket_queue']))
+            $errors['default_ticket_queue'] = __("Select a default ticket queue");
+
         $this->updateAutoresponderSettings($vars, $errors);
         $this->updateAlertsSettings($vars, $errors);
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
+
+        // Sort ticket queues
+        $queues = CustomQueue::queues()->getIterator();
+        foreach ($vars['qsort'] as $queue_id => $sort) {
+            if ($q = $queues->findFirst(array('id' => $queue_id))) {
+                $q->sort = $sort;
+                $q->save();
+            }
+        }
 
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
@@ -1254,11 +1281,12 @@ class OsticketConfig extends Config {
             'max_open_tickets'=>$vars['max_open_tickets'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
-            'show_assigned_tickets'=>isset($vars['show_assigned_tickets'])?0:1,
-            'show_answered_tickets'=>isset($vars['show_answered_tickets'])?0:1,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
+            'default_ticket_queue'=>$vars['default_ticket_queue'],
+            'autoclose_duration'=>$vars['autoclose_duration'],
+            'autoclose_status_id'=>$vars['autoclose_status_id'],
         ));
     }
 

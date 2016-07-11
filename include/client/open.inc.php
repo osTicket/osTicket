@@ -31,12 +31,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 }
 
 ?>
-<h1><?php echo __('Open a New Ticket');?></h1>
-<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+<div class="row">
+<div class="page-title">
+	<h1><?php echo __('Open a New Ticket');?></h1>
+	<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+</div>
+</div>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
-  <table width="800" cellpadding="1" cellspacing="0" border="0">
+  <table width="100%"" cellpadding="1" cellspacing="0" border="0">
     <tbody>
 <?php
         if (!$thisclient) {
@@ -46,53 +50,23 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
-        <tr><td><?php echo __('Email'); ?>:</td><td><?php
+        <tr class="form-group"><td><?php echo __('Email'); ?>:</td><td><?php
             echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php
+        <tr class="form-group"><td><?php echo __('Client'); ?>:</td><td><?php
             echo Format::htmlchars($thisclient->getName()); ?></td></tr>
         <?php } ?>
     </tbody>
-    <tbody>
-    <tr><td colspan="2"><hr />
-        <div class="form-header" style="margin-bottom:0.5em">
-        <b><?php echo __('Help Topic'); ?></b>
+
+        <div id="client-helptopic">
+            <label class="required" for="topicId"><?php echo __('Help Topic'); ?></label> 
+                <input input id="cc" name="topicId" class="easyui-combotree client-helptopic" style="width:250px; height:24px;"></input>  
+            <font class="error">*</font><?php echo $errors['topicId']; ?></font>
         </div>
-    </td></tr>
-    <tr>
-        <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
-                    var data = $(':input[name]', '#dynamic-form').serialize();
-                    $.ajax(
-                      'ajax.php/form/help-topic/' + this.value,
-                      {
-                        data: data,
-                        dataType: 'json',
-                        success: function(json) {
-                          $('#dynamic-form').empty().append(json.html);
-                          $(document.head).append(json.media);
-                        }
-                      });">
-                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
-                <?php
-                if($topics=Topic::getPublicHelpTopics()) {
-                    foreach($topics as $id =>$name) {
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
-                    }
-                } else { ?>
-                    <option value="0" ><?php echo __('General Inquiry');?></option>
-                <?php
-                } ?>
-            </select>
-            <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
-        </td>
-    </tr>
-    </tbody>
-    <tbody id="dynamic-form">
+    <table id="dynamic-form">
         <?php foreach ($forms as $form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
-    </tbody>
+    </table>
     <tbody>
     <?php
     if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
@@ -111,14 +85,13 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tr>
     <?php
     } ?>
-    <tr><td colspan=2>&nbsp;</td></tr>
+   
     </tbody>
   </table>
-<hr/>
-  <p class="buttons" style="text-align:center;">
-        <input type="submit" value="<?php echo __('Create Ticket');?>">
-        <input type="reset" name="reset" value="<?php echo __('Reset');?>">
-        <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
+  <p class="buttons" >
+        <input class="btn btn-success" type="submit" value="<?php echo __('Create Ticket');?>">
+        <input class="btn btn-warning" type="reset" name="reset" value="<?php echo __('Reset');?>">
+        <input class="btn btn-default" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
@@ -127,3 +100,93 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+<div class="clearfix"></div>
+
+<script type="text/javascript">
+$.extend($.fn.tree.methods,{
+    getLevel: function(jq, target){
+        return $(target).find('span.tree-indent,span.tree-hit').length;
+    }
+});
+
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree(true);?> ;
+    $('#cc').combotree({
+        onLoadSuccess : function(){
+            var c = $('#cc');
+            var c = $('#cc');
+            c.combotree('setValue','<?php echo $info['topicId']; ?>');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('find', '<?php echo $info['topicId']; ?>');  // find the specify node
+            if (node){
+            t.tree('expandTo', node.target);
+            } else {
+            $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');   
+            };
+        }
+    });
+    $('#cc').combotree({ 
+        onChange: function (r) { 
+            var c = $('#cc');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('getSelected');
+            if (node){
+            var nodeLevel = t.tree('getLevel',node.target);
+            parentArry = new Array();
+            var parentArry = new Array();
+                var parents = getParentArry(t,node,nodeLevel,parentArry);
+                var parentStr = "";
+                if(parents.length > 0){
+                    var parentStr = "";
+                    for(var i = 0; i < parents.length; i++){
+                        parentStr += parents[i].text + " / ";
+                    }
+                }
+                
+             $('#cc').combotree('setText', parentStr + node.text);            
+            }
+        } 
+
+    });
+    $('#cc').combotree({ 
+        onSelect: function (r) { 
+        
+            //Loads the dynamic form on selection
+            var data = $(':input[name]', '#dynamic-form').serialize();
+            $.ajax(
+              'ajax.php/form/help-topic/' + r.id,
+              {
+                data: data,
+                dataType: 'json',
+                success: function(json) {
+                  $('#dynamic-form').empty().append(json.html);
+                  $(document.head).append(json.media);
+                }
+              });
+              
+              
+        } 
+
+    });
+
+    $('#cc').combotree('loadData', val);
+    
+    function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+            //end condition: level of selected node equals 1, means it's root
+           if(nodeLevel == 1){
+              return parentArry;
+           }else{//if selected node isn't root
+              nodeLevel -= 1;
+              //the parent of the node
+              var parent = $(tree).tree('getParent',selectedNode.target);
+              //record the parent of selected to a array
+              parentArry.unshift(parent);
+              //recursive, to judge whether parent of selected node has more parent
+              return getParentArry(tree,parent,nodeLevel,parentArry);
+            }
+        }
+    
+     
+       
+});
+</script> 

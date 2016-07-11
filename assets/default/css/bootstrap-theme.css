@@ -1,0 +1,798 @@
+html, body {
+height: 100%;
+}
+#email.form-control, #username.form-control {
+    display: inline;
+   
+	}
+#ticketno.form-control,#passwd.form-control {
+    display: inline;
+	width: 100%;
+   
+}
+	
+nav.navbar.navbar-inverse{
+    border-radius: 0px;
+	max-width: 1290px;
+	min-width: 320px;
+
+}
+
+.navbar-fixed-top {
+  top: 70px; /* you'll have to figure out the exact number here */
+  min-height:75px;
+}
+
+.navbar-fixed-top, .navbar-fixed-bottom {
+  position: static; /* this can also be static */
+}
+div.navbar-header>a.navbar-left>img.img-responsive{
+max-height: 65px;
+  max-width: 380px;
+  width: auto;
+  height: auto;
+  vertical-align: middle;	
+	
+}
+
+.navbar-left
+{
+  float: left;
+  min-height: 75px;
+  padding-top: 7px;
+ /* padding-right: 15px;
+  padding-bottom: 0px;
+  padding-left: 15px;
+  font-size: 18px;
+  line-height: 20px;*/
+}
+
+.white, .white a {
+  color: #fff;
+}
+
+.navbar-toggle span {
+    border: solid #ffffff 1px;
+}
+.wrapper {
+	left:0;
+    right:0;
+ 	max-width: 1290px;
+    background: #F5F5F5;
+	min-height: 100%;
+	height: auto !important; 
+	height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	margin: 0 auto -80px;
+
+	
+}
+.footer, .push {
+	height: 80px; /* .push must be the same height as .footer */
+		
+	}
+body {
+  /* Margin bottom by footer height */
+     font-size: 16px;
+  line-height: 1.42857;
+  color: #333333;
+ background: #3d3d3d;
+}
+
+.footer {
+margin-left: auto;
+	margin-right: auto;
+  bottom: 0;
+  width: 1290px;
+  /* Set the fixed height of the footer here */
+  height: 80px;
+  background-color: #3d3d3d;
+padding-top: 8px;
+
+}
+
+.welcome{
+color: black;
+padding-right: 40px;
+}
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.footer .company
+{
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 0px 6px black;
+  text-shadow: 0px 0px 2px black;
+  display: inline-block;
+  padding-top: 0px;
+  padding-right: 15px;
+  padding-bottom: 0px;
+  padding-left: 15px;
+  color: #ffffff;
+  text-align: right;
+}
+
+.footer .poweredBy {
+font-size: 0.8em;
+  color: #cccccc;
+  padding-top: 5px;
+  padding-right: 15px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+  text-align: center;
+  box-shadow: 0px 0px 3px white inset, 0px 0px 2px black, 0px 0px 4px black inset;
+  text-shadow: 0px 0px 2px black;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+
+	}
+.footer .poweredBy .osticket-logo
+{
+  height: auto;
+  width: 55px;
+  vertical-align: baseline;
+  border-top-width: medium;
+  border-right-width: medium;
+  border-bottom-width: medium;
+  border-left-width: medium;
+  border-top-style: none;
+  border-right-style: none;
+  border-bottom-style: none;
+  border-left-style: none;
+  border-image-source: none;
+  border-image-slice: 100% 100% 100% 100%;
+  border-image-width: 1 1 1 1;
+  border-image-outset: 0 0 0 0;
+  border-image-repeat: stretch stretch;
+  filter: drop-shadow(0px 0px 4px black);
+}
+
+
+#content {
+
+ padding-right: 10px;
+	padding-left: 10px;
+padding-top: 15px;
+background-color: #D8D8D8;
+}
+
+h1 {
+  color: #ff9016;
+}
+h2 {
+  color: #ff9016;
+}
+h3 {  
+  color: #ff9016;
+}
+
+
+
+#kb {
+  margin: 2px 0;
+  padding: 5px;
+  overflow: hidden;
+}
+#kb > li {
+  padding: 10px;
+  height: auto !important;
+  overflow: hidden;
+  margin: 0;
+  background: url(../images/kb_category_bg.png) bottom left repeat-x;
+  border-bottom: 1px solid #ddd;
+}
+#kb > li h4 {
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+}
+#kb > li h4 span {
+  color: #666;
+}
+#kb > li h4 a {
+  font-size: 14px;
+}
+#kb li i {
+  display: block;
+  width: 32px;
+  height: 32px;
+  float: left;
+  margin-right: 6px;
+  background: url(../images/kb_large_folder.png) top left no-repeat;
+}
+#kb-search {
+  padding: 10px 0;
+  overflow: hidden;
+}
+#kb-search div {
+  clear: both;
+  overflow: hidden;
+  padding-top: 5px;
+}
+#kb-search #query {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 200px;
+  margin-right: 5px;
+}
+#kb-search #cid {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 200px;
+  margin-right: 5px;
+  position: relative;
+  top: 2px;
+}
+#kb-search #topic-id {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  width: 410px;
+}
+#kb-search #searchSubmit {
+  margin: 0;
+  display: inline-block;
+  float: left;
+  position: relative;
+  top: 2px;
+}
+#kb-search #breadcrumbs {
+  color: #333;
+  margin-bottom: 15px;
+}
+#kb-search #breadcrumbs #breadcrumbs a {
+  color: #555;
+}
+
+div.dynamic-field {
+display:inline-block;
+padding-top:1px;
+
+}
+
+div.dynamic-field>input{
+display:inline-block;
+  height: 34px;
+  padding-top: 6px;
+  padding-right: 12px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #555555;
+  background-color: #ffffff;
+  background-image: none;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+  border-top-style: solid;
+  border-right-style: solid;
+  border-bottom-style: solid;
+  border-left-style: solid;
+  border-top-color: #cccccc;
+  border-right-color: #cccccc;
+  border-bottom-color: #cccccc;
+  border-left-color: #cccccc;
+  border-image-source: none;
+  border-image-slice: 100% 100% 100% 100%;
+  border-image-width: 1 1 1 1;
+  border-image-outset: 0 0 0 0;
+  border-image-repeat: stretch stretch;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+  transition-property: border-color, box-shadow;
+  transition-duration: 0.15s, 0.15s;
+  transition-timing-function: ease-in-out, ease-in-out;
+  transition-delay: 0s, 0s;	
+	
+	
+}
+
+div.dynamic-field>input:focus{
+  border-top-color: #66afe9;
+  border-right-color: #66afe9;
+  border-bottom-color: #66afe9;
+  border-left-color: #66afe9;
+  outline-width: 0px;
+  outline-style: none;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(102, 175, 233, 0.6);
+}
+
+div.dynamic-field-hint {
+
+color: gray;
+display:inline-block;
+  margin-left: 5px;
+
+
+}
+label.checkbox {
+position: static;
+ display:inline-block;
+  margin-left: 21px;
+
+
+ }
+ 
+ .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+    position: static;
+    margin-top: 4px \9;
+    margin-left: -20px;
+}
+  
+#ticketForm table,
+#clientLogin table {
+  width: 100%;
+}
+#ticketForm input[type=file],
+#clientLogin input[type=file] {
+  border: 0;
+}
+#ticketForm div.captchaRow,
+#clientLogin div.captchaRow {
+  line-height: 31px;
+}
+#ticketForm div.captchaRow input,
+#clientLogin div.captchaRow input {
+  position: relative;
+  top: 6px;
+}
+#ticketForm div textarea,
+#clientLogin div textarea {
+  width: 600px;
+}
+#ticketForm div .captcha,
+#clientLogin div .captcha {
+  width: 88px;
+  height: 31px;
+  background: #000;
+  display: block;
+  float: left;
+  margin-right: 20px;
+}
+#ticketForm div label.inline,
+#clientLogin div label.inline {
+  width: auto;
+  padding: 0 10px;
+}
+#clientLogin {
+  /*background: url('../images/lock.png?1319655200') 1% 10% no-repeat #f6f6f6;*/
+}
+#reply {
+  /*background: #f9f9f9;*/
+  border: 0px solid #ccc;
+}
+#reply h2 {
+  margin-bottom: 10px;
+}
+#reply textarea {
+  width: 628px !important;
+}
+#reply input[type=text],
+#reply #response_options textarea {
+  border: 1px solid #aaa;
+  background: #fff;
+}
+#reply .attachments .uploads div {
+  display: inline-block;
+  padding-right: 20px;
+}
+#reply .file {
+  display: inline-block;
+  padding-left: 20px;
+  margin-right: 20px;
+  background: url('../images/icons/file.gif') 0 50% no-repeat;
+}
+.uploads {
+  display: inline-block;
+  padding-right: 20px;
+}
+.uploads label {
+  padding: 3px;
+  padding-right: 10px;
+  width: auto !important;
+}
+
+a.action-button.btn-lg.active{
+  color: #23527c;
+  text-decoration: underline;
+ 	
+}
+/* Ticket icons */
+.Icon {
+  width: auto;
+  padding-left: 20px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  color: #006699;
+  text-decoration: none;
+}
+.Icon.Ticket {
+  background-image: url('../images/icons/ticket.gif');
+}
+.Icon.webTicket {
+  background-image: url('../images/icons/ticket_source_web.gif');
+}
+.Icon.emailTicket {
+  background-image: url('../images/icons/ticket_source_email.gif');
+}
+.Icon.phoneTicket {
+  background-image: url('../images/icons/ticket_source_phone.gif');
+}
+.Icon.otherTicket {
+  background-image: url('../images/icons/ticket_source_other.gif');
+}
+.Icon.attachment {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.file {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.refresh {
+  background-image: url('../images/icons/refresh.gif');
+}
+.Icon.thread {
+  font-weight: bold;
+  font-size: 1em;
+  background-image: url('../images/icons/thread.gif?1319556657');
+}
+.Icon:hover {
+  text-decoration: underline;
+}
+#ticketThread img {
+  max-width: 100%;
+  height: auto;
+}
+#ticketInfo {
+  width: 100%;
+}
+#ticketInfo th {
+  width: 125px;
+}
+
+.page-title
+{
+  margin-top: 50px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  margin-left: 15px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #dddddd;
+  padding-bottom: 10px;
+}
+
+input:hover, select:hover, textarea:hover
+{
+ /*
+  outline-width: 0px;
+  outline-style: none;
+ /* border-top-color: #66afe9;
+  border-right-color: #66afe9;
+  border-bottom-color: #66afe9;
+  border-bottom-color: #66afe9;
+  border-left-color: #66afe9;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);*/
+  
+   border-top-color: #66afe9;
+  border-right-color: #66afe9;
+  border-bottom-color: #66afe9;
+  border-left-color: #66afe9;
+  outline-width: 0px;
+  outline-style: none;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(102, 175, 233, 0.6);
+}
+form#ticketSearchForm>div.col-md-4>h4.text-right{
+    color: #337ab7;
+}
+
+.error
+{
+  color: #ff0000;
+}
+
+/* Ticket icons */
+.Icon {
+  width: auto;
+  padding-left: 20px;
+  background-position: top left;
+  background-repeat: no-repeat;
+  color: #006699;
+  text-decoration: none;
+}
+.Icon.Ticket {
+  background-image: url('../images/icons/ticket.gif');
+}
+.Icon.webTicket {
+  background-image: url('../images/icons/ticket_source_web.gif');
+}
+.Icon.emailTicket {
+  background-image: url('../images/icons/ticket_source_email.gif');
+}
+.Icon.phoneTicket {
+  background-image: url('../images/icons/ticket_source_phone.gif');
+}
+.Icon.otherTicket, .Icon.apiTicket  {
+  background-image: url('../images/icons/ticket_source_other.gif');
+}
+
+.Icon.attachment {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.file {
+  background-image: url('../images/icons/attachment.gif');
+}
+.Icon.refresh {
+  background-image: url('../images/icons/refresh.gif');
+}
+.Icon.thread {
+  font-weight: bold;
+  font-size: 1em;
+  background-image: url('../images/icons/thread.gif?1319556657');
+}
+.thread-entry {
+    margin-bottom: 15px;
+}
+.thread-entry.avatar {
+    margin-left: 60px;
+}
+.thread-entry.response.avatar {
+    margin-right: 60px;
+    margin-left: 0;
+}
+.thread-entry > .avatar {
+    margin-left: -60px;
+    display:inline-block;
+    width:48px;
+    height:auto;
+    border-radius: 5px;
+}
+.thread-entry.response > .avatar {
+    margin-left: initial;
+    margin-right: -60px;
+}
+img.avatar {
+    border-radius: inherit;
+}
+.thread-entry .header {
+    padding: 8px 0.9em;
+    border: 1px solid #ccc;
+    border-color: rgba(0,0,0,0.2);
+    border-radius: 5px 5px 0 0;
+}
+.thread-entry.avatar .header:before {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #b0b0b0;
+  display: inline-block;
+}
+.thread-entry.avatar .header:after {
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  content: '';
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.thread-entry.avatar .header {
+    position: relative;
+}
+
+.thread-entry.response .header {
+    background:#dddddd;
+}
+.thread-entry.avatar.response .header:after {
+    border-left: 7px solid #dddddd;
+    margin-right: 1px;
+}
+
+.thread-entry.message .header {
+    background:#4787be;
+	color: #fff;
+}
+.thread-entry.avatar.message .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+.thread-entry.avatar.message .header:before {
+    border-right-color: #4787be;
+}
+.thread-entry.avatar.message .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #4787be;
+    margin-left: 1px;
+}
+
+.thread-entry .header .title {
+    max-width: 500px;
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.thread-entry .thread-body {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom:2px solid #aaa;
+    border-radius: 0 0 5px 5px;
+}
+.thread-body .attachments {
+  background-color: #f4faff;
+  margin: 0 -0.9em;
+  position: relative;
+  top: 0.9em;
+  padding: 0.3em 0.9em;
+  border-top: 1px dotted #ccc;
+  border-top-color: rgba(0,0,0,0.2);
+  border-radius: 0 0 6px 6px;
+}
+.thread-body .attachments .filesize {
+  margin-left: 0.5em;
+}
+.thread-body .attachments a,
+.thread-body .attachments a:hover {
+  text-decoration: none;
+}
+.thread-body .attachment-info {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+}
+.thread-body .attachment-info .filename {
+  max-width: 80%;
+  max-width: calc(100% - 70px);
+}
+.label {
+  font-size: 11px;
+  padding: 1px 4px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-weight: bold;
+  line-height: 14px;
+  color: #ffffff;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999999;
+}
+.label-bare {
+  background-color: transparent;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #999999;
+  color: #999999;
+  text-shadow: none;
+}
+.thread-event {
+    padding: 0px 2px 15px;
+    margin-left: 60px;
+}
+.type-icon {
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    padding: 4px 6px;
+    margin-right: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 1.1em;
+    border: 1px solid #f5f5f5;
+    vertical-align: top;
+}
+.type-icon.dark {
+    border-color: #666;
+    background-color: #f5f5f5;
+}
+.thread-event img.avatar {
+    vertical-align: middle;
+    border-radius: 3px;
+    width: auto;
+    max-height: 24px;
+    margin: -3px 3px 0;
+}
+.thread-event .description {
+    margin-left: -30px;
+    padding-top: 6px;
+    padding-left: 30px;
+    display: inline-block;
+    width: 642px;
+    width: calc(100% - 95px);
+    line-height: 1.4em;
+}
+.thread-event .type-icon {
+  position:relative;
+}
+.thread-event .type-icon::after {
+  content: "";
+  border: 16px solid #f5f5f5;
+  position: absolute;
+  top: -3px;
+  bottom: 0;
+  left: -3px;
+  right: 0;
+  z-index: -1;
+}
+.thread-entry::after {
+  content: "";
+  border-bottom: 2px solid #f5f5f5;;
+  display: block;
+}
+.thread-entry::before {
+  content: "";
+  display: block;
+  border-top: 2px solid #f5f5f5;;
+}
+#ticketThread::before {
+  border-left: 2px dotted #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+  position: absolute;
+  margin-left: 74px;
+  z-index: -1;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+#ticketThread {
+  z-index: 0;
+  position: relative;
+  border-bottom: 2px solid #ddd;
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+
+.freetext-files {
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px dotted #ddd;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+}
+.freetext-files .file {
+    margin-right: 10px;
+    display: inline-block;
+    width: 48%;
+    padding-top: 0.2em;
+}
+.freetext-files .title {
+    font-weight: bold;
+    margin-bottom: 0.3em;
+    font-size: 1.1em;
+}

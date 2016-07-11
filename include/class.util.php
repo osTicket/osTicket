@@ -1,4 +1,54 @@
 <?php
+
+abstract class BaseList
+implements IteratorAggregate, Countable {
+    protected $storage = array();
+
+    /**
+     * Sort the list in place.
+     *
+     * Parameters:
+     * $key - (callable|int) A callable function to produce the sort keys
+     *      or one of the SORT_ constants used by the array_multisort
+     *      function
+     * $reverse - (bool) true if the list should be sorted descending
+     */
+    function sort($key=false, $reverse=false) {
+        if (is_callable($key)) {
+            $keys = array_map($key, $this->storage);
+            array_multisort($keys, $this->storage,
+                $reverse ? SORT_DESC : SORT_ASC);
+        }
+        elseif ($key) {
+            array_multisort($this->storage,
+                $reverse ? SORT_DESC : SORT_ASC, $key);
+        }
+        elseif ($reverse) {
+            rsort($this->storage);
+        }
+        else
+            sort($this->storage);
+    }
+
+    function reverse() {
+        return array_reverse($this->storage);
+    }
+
+    // IteratorAggregate
+    function getIterator() {
+        return new ArrayIterator($this->storage);
+    }
+
+    // Countable
+    function count($mode=COUNT_NORMAL) {
+        return count($this->storage, $mode);
+    }
+
+    function __toString() {
+        return '['.implode(', ', $this->storage).']';
+    }
+}
+
 /**
  * Jared Hancock <jared@osticket.com>
  * Copyright (c)  2014
@@ -11,9 +61,9 @@
  * Negative indexes are supported which reference from the end of the list.
  * Therefore $queue[-1] will refer to the last item in the list.
  */
-class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Countable {
-
-    protected $storage = array();
+class ListObject
+extends BaseList
+implements ArrayAccess, Serializable {
 
     function __construct($array=array()) {
         if (!is_array($array) && !$array instanceof Traversable)
@@ -73,52 +123,12 @@ class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Counta
         return array_search($this->storage, $value);
     }
 
-    /**
-     * Sort the list in place.
-     *
-     * Parameters:
-     * $key - (callable|int) A callable function to produce the sort keys
-     *      or one of the SORT_ constants used by the array_multisort
-     *      function
-     * $reverse - (bool) true if the list should be sorted descending
-     */
-    function sort($key=false, $reverse=false) {
-        if (is_callable($key)) {
-            $keys = array_map($key, $this->storage);
-            array_multisort($keys, $this->storage,
-                $reverse ? SORT_DESC : SORT_ASC);
-        }
-        elseif ($key) {
-            array_multisort($this->storage,
-                $reverse ? SORT_DESC : SORT_ASC, $key);
-        }
-        elseif ($reverse) {
-            rsort($this->storage);
-        }
-        else
-            sort($this->storage);
-    }
-
-    function reverse() {
-        return array_reverse($this->storage);
-    }
-
     function filter($callable) {
         $new = new static();
         foreach ($this->storage as $i=>$v)
             if ($callable($v, $i))
                 $new[] = $v;
         return $new;
-    }
-
-    // IteratorAggregate
-    function getIterator() {
-        return new ArrayIterator($this->storage);
-    }
-
-    // Countable
-    function count($mode=COUNT_NORMAL) {
-        return count($this->storage, $mode);
     }
 
     // ArrayAccess
@@ -165,9 +175,5 @@ class ListObject implements IteratorAggregate, ArrayAccess, Serializable, Counta
     }
     function unserialize($what) {
         $this->storage = unserialize($what);
-    }
-
-    function __toString() {
-        return '['.implode(', ', $this->storage).']';
     }
 }

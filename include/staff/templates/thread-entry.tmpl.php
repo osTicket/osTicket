@@ -44,6 +44,20 @@ if ($user && $cfg->isAvatarsEnabled())
         </div>
 <?php   } ?>
         <span class="textra light">
+
+<?php if (!$user) { ?>
+		<span class="label label-bare"><?php echo __('System Note'); ?></span>
+<?php } ?>
+
+<?php if ($entry->type == 'N' && $user) { ?>
+		<span class="label label-bare"><?php echo __('Internal Note'); ?></span>
+<?php } ?>		
+<?php if ($entry->type == 'M') { ?>
+		<span class="label label-bare"><?php echo __('Message'); ?></span>
+<?php } ?>	
+<?php if ($entry->type == 'R') { ?>
+		<span class="label label-bare"><?php echo __('Response'); ?></span>
+<?php } ?>	
 <?php   if ($entry->flags & ThreadEntry::FLAG_EDITED) { ?>
             <span class="label label-bare" title="<?php
             echo sprintf(__('Edited on %s by %s'), Format::datetime($entry->updated),
@@ -54,7 +68,7 @@ if ($user && $cfg->isAvatarsEnabled())
             <span class="label label-bare"><?php echo __('Resent'); ?></span>
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR) { ?>
-            <span class="label label-bare"><?php echo __('Collaborator'); ?></span>
+            <span class="label label-bare"><?php echo __('Collaborator'); ?> </span>
 <?php   } ?>
         </span>
         </div>

@@ -462,7 +462,6 @@ if ($dept) {
             JsonDataEncoder::encode($errors['members'][$member->staff_id])
         );
     }
-
     // Extended members.
     foreach ($dept->getExtendedMembers() as $member) {
         echo sprintf('addAccess(%d, %s, %d, %d, %d, %s);',

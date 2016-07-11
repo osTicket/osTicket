@@ -301,7 +301,7 @@ if ($task->isOverdue())
 </div>
 <?php
 if (!$ticket) { ?>
-    <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+    <table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
         <tr>
             <td width="50%">
                 <table border="0" cellspacing="" cellpadding="4" width="100%">
@@ -392,7 +392,7 @@ if (!$ticket) { ?>
     </table>
     <br>
     <br>
-    <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+    <table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <?php
     $idx = 0;
     foreach (DynamicFormEntry::forObject($task->getId(),

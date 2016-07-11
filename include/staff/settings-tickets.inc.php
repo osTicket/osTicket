@@ -15,6 +15,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <?php echo __('Autoresponder'); ?></a></li>
     <li><a href="#alerts"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
+    <li><a href="#queues"><i class="icon-table"></i>
+        <?php echo __('Queues'); ?></a></li>
 </ul>
 <div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -163,6 +165,23 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td>
+                <?php echo __('Default Ticket Queue'); ?>:
+            </td>
+            <td>
+                <select name="default_ticket_queue">
+<?php foreach (CustomQueue::queues() as $cq) {
+?>
+                  <option value="<?php echo $cq->id; ?>"
+            <?php if ($cq->getId() == $config['default_ticket_queue']) echo 'selected="selected"'; ?>
+            ><?php echo $cq->getFullName(); ?></option>
+<?php } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_ticket_queue"></i>
+                <div class="error"><?php echo $errors['default_ticket_queue']; ?></div>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
@@ -172,37 +191,43 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Human Verification');?>:</td>
+            <td width="180">
+                <?php echo __('Ticket Auto-Close Status'); ?>:
+            </td>
             <td>
-                <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                <?php echo __('Enable CAPTCHA on new web tickets.');?>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
-                &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
+                <span>
+                <select name="autoclose_status_id">
+		<option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
+                <?php
+                $criteria = array('states' => array('open'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' '.__('(disabled)');
+
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['autoclose_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['autoclose_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#autoclose_status"></i>
+                </span>
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Claim on Response'); ?>:</td>
+            <td><?php echo __('Ticket Auto-Close Duration'); ?>:</td>
             <td>
-                <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Assigned Tickets');?>:</td>
-            <td>
-                <input type="checkbox" name="show_assigned_tickets" <?php
-                echo !$config['show_assigned_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Exclude assigned tickets from open queue.'); ?>
-                <i class="help-tip icon-question-sign" href="#assigned_tickets"></i>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Answered Tickets');?>:</td>
-            <td>
-                <input type="checkbox" name="show_answered_tickets" <?php
-                echo !$config['show_answered_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Exclude answered tickets from open queue.'); ?>
-                <i class="help-tip icon-question-sign" href="#answered_tickets"></i>
+                <input type="text" name="autoclose_duration" size=4 value="<?php echo $config['autoclose_duration']; ?>">&nbsp;Hour(s)&nbsp;
+                <font class="error"><?php echo $errors['autoclose_duration']; ?></font>
+                <i class="help-tip icon-question-sign" href="#autoclose_duration"></i>
             </td>
         </tr>
         <tr>
@@ -237,6 +262,10 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <div class="hidden tab_content" id="alerts"
     data-tip-namespace="settings.alerts">
     <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+
+<div class="hidden tab_content" id="queues">
+    <?php include STAFFINC_DIR . 'queues-ticket.inc.php'; ?>
 </div>
 
 <p style="text-align:center;">

@@ -41,9 +41,8 @@
       this.$footer = $('<div class="add-translation"></div>');
       this.$select = $('<select name="locale"></select>');
       this.$menu = $(this.options.menu).appendTo('body');
-      this.$container = $('<div class="translatable"></div>')
-          .prependTo(this.$element.parent())
-          .append(this.$element);
+      this.$element.wrap('<div class="translatable"></div>');
+      this.$container = this.$element.parent();
       if (this.$element.width() > 100)
           this.$element.width(this.$element.width()-35);
       this.$container.wrap('<div style="display:inline-block;position:relative;width:auto;white-space:nowrap;"></div>');

@@ -21,6 +21,7 @@ if ($_REQUEST['query']) {
 
 $sortOptions = array('name' => 'name',
                      'email' => 'emails__address',
+					 'org' => 'org__name',
                      'status' => 'account__status',
                      'create' => 'created',
                      'update' => 'updated');
@@ -55,7 +56,7 @@ $qstr.='&amp;order='.($order=='-' ? 'ASC' : 'DESC');
 $_SESSION[':Q:users'] = $users;
 
 $users->values('id', 'name', 'default_email__address', 'account__id',
-    'account__status', 'created', 'updated');
+    'account__status', 'created', 'updated', 'org__name');
 $users->order_by($order . $order_column);
 ?>
 <div id="basic_search">
@@ -148,12 +149,14 @@ else
  <input type="hidden" id="action" name="a" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
  <input type="hidden" id="org_id" name="org_id" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="940" style="margin-left:auto;margin-right:auto;">
     <thead>
         <tr>
             <th nowrap width="4%">&nbsp;</th>
             <th><a <?php echo $name_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
+			<th><a <?php echo $org_sort; ?> href="users.php?<?php
+                echo $qstr; ?>&sort=org"><?php echo __('Organization'); ?></a></th>
             <th width="22%"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
             <th width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
@@ -166,12 +169,13 @@ else
     <?php
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         foreach ($users as $U) {
-                // Default to email address mailbox if no name specified
+			                // Default to email address mailbox if no name specified
                 if (!$U['name'])
                     list($name) = explode('@', $U['default_email__address']);
                 else
                     $name = new UsersName($U['name']);
 
+				$organization = new UsersName($U['org__name']);
                 // Account status
                 if ($U['account__id'])
                     $status = new UserAccountStatus($U['account__status']);
@@ -198,6 +202,7 @@ else
                              <small>(%d)</small>', $U['ticket_count']);
                     ?>
                 </td>
+				<td><?php echo $organization; ?></td>
                 <td><?php echo $status; ?></td>
                 <td><?php echo Format::date($U['created']); ?></td>
                 <td><?php echo Format::datetime($U['updated']); ?>&nbsp;</td>
@@ -206,7 +211,7 @@ else
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="6">
             <?php if ($total) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
@@ -219,8 +224,7 @@ else
             } ?>
         </td>
      </tr>
-    </tfoot>
-</table>
+<tr><td colspan="6">
 <?php
 if ($total) {
     echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
@@ -228,7 +232,9 @@ if ($total) {
             $pageNav->getPageLinks(),
             $qhash);
 }
-?>
+?>  </td></tr>
+  </tfoot>
+</table>
 </form>
 
 <script type="text/javascript">

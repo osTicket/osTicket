@@ -66,6 +66,9 @@ class Internationalization {
             'role.yaml' =>          'Role::__create',
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
+            'queue_column.yaml' =>  'QueueColumn::__create',
+            'queue_sort.yaml' =>    'QueueSort::__create',
+            'queue.yaml' =>         'CustomQueue::__create',
         );
 
         $errors = array();
@@ -381,6 +384,10 @@ class Internationalization {
         return self::getDefaultLanguage();
     }
 
+    static function getCurrentLanguageInfo($user=false) {
+        return static::getLanguageInfo(static::getCurrentLanguage($user));
+    }
+
     static function getCurrentLocale($user=false) {
         global $thisstaff, $cfg;
 
@@ -463,6 +470,7 @@ class Internationalization {
     static function sortKeyedList($list, $case=false) {
         global $cfg;
 
+        // XXX: Use current language
         if ($cfg && function_exists('collator_create')) {
             $coll = Collator::create($cfg->getPrimaryLanguage());
             if (!$case)

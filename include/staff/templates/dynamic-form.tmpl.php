@@ -10,7 +10,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit'
 if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <tbody>
 <?php } ?>
-    <tr><td style="width:<?php echo $options['width'] ?: 150;?>px;"></td><td></td></tr>
+    <tr id="df"><td style="width:<?php echo $options['width'] ?: 150;?>px;"></td><td></td></tr>
 <?php
 // Keep up with the entry id in a hidden field to decide what to add and
 // delete when the parent form is submitted
@@ -21,7 +21,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
         <em>
-<?php if ($options['mode'] == 'edit') { ?>
+<?php if ($options['mode'] == 'edit') { ?> 
         <div class="pull-right">
     <?php if ($options['entry']
                 && $options['entry']->getDynamicForm()->get('type') == 'G') { ?>
@@ -40,7 +40,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     }
     foreach ($form->getFields() as $field) {
         try {
-            if (!$field->isEnabled())
+			if (!$field->isEnabled())
                 continue;
             if ($options['mode'] == 'edit' && !$field->isEditableToStaff())
                 continue;
@@ -48,21 +48,32 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
         catch (Exception $e) {
             // Not connected to a DynamicFormField
         }
-        ?>
-        <tr><?php if ($field->isBlockLevel()) { ?>
-                <td colspan="2">
+       
+		?>
+		
+        <tr  id="open_ticket_dynamicformdata">
+		
+			<?php if ($field->ForceFullWidth()) {?>
+		<td colspan=2>
+			<?php } else if ($field->isBlockLevel()) { ?>
+                <td <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
+                ?> > <td style="padding-right:16px;" <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
+                ?>> &nbsp
                 <?php
             }
-            else { ?>
-                <td class="multi-line <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
+            
+			else { ?>
+                <td class="multi-line dynamicformdatamulti <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
-                <td><div style="position:relative"><?php
+                <td><div style="position:relative" <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
+                ?>><?php
             }
+			
             $field->render($options); ?>
             <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
-                <span class="error">*</span>
+                <span class="error ">*</span>
             <?php
             }
             if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
@@ -88,7 +99,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 /></i><?php
             }
             if ($field->get('hint') && !$field->isBlockLevel()) { ?>
-                <br /><em style="color:gray;display:inline-block"><?php
+                <em style="color:gray;display:inline-block"><?php
                     echo Format::viewableImages($field->getLocal('hint')); ?></em>
             <?php
             }
