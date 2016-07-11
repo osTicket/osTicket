@@ -518,6 +518,7 @@ $('#join_team').find('button').on('click', function() {
 
 <?php
 foreach ($staff->dept_access as $dept_access) {
+  if (!$dept_access->dept_id) continue;
   echo sprintf('addAccess(%d, %s, %d, %d, %s);', $dept_access->dept_id,
     JsonDataEncoder::encode($dept_access->dept->getName()),
     $dept_access->role_id,
