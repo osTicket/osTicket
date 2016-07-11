@@ -176,10 +176,8 @@ implements TemplateVariable, Searchable {
         return count($this->getMembers());
     }
 
-    function getMembers($criteria=null) {
-        global $cfg;
-
-        if (!$this->_members || $criteria) {
+    function getMembers() {
+        if (!isset($this->_members)) {
             $members = Staff::objects()
                 ->distinct('staff_id')
                 ->constrain(array(
@@ -194,34 +192,23 @@ implements TemplateVariable, Searchable {
                     'dept_access__dept_id' => $this->getId(),
                 )));
 
-            // TODO: Consider moving this into ::getAvailableMembers
-            if ($criteria && $criteria['available']) {
-                $members->filter(array(
-                    'isactive' => 1,
-                    'onvacation' => 0,
-                ));
-            }
-
-            $members = Staff::nsort($members);
-
-            if ($criteria)
-                return $members;
-
-            $this->_members = $members;
+            $this->_members = Staff::nsort($members);
         }
         return $this->_members;
     }
 
     function getAvailableMembers() {
-        return $this->getMembers(array('available'=>1));
+        $members = clone $this->getMembers();
+        return $members->filter(array(
+            'isactive' => 1,
+            'onvacation' => 0,
+        ));
     }
 
     function getPrimaryMembers() {
-
         if (!isset($this->_primary_members)) {
             $members = clone $this->getMembers();
             $members->filter(array('dept_id' =>$this->getId()));
-            $members = Staff::nsort($members);
             $this->_primary_members = $members->all();
         }
 
@@ -229,21 +216,20 @@ implements TemplateVariable, Searchable {
     }
 
     function getExtendedMembers() {
-
         if (!isset($this->_exended_members)) {
             // We need a query set so we can sort the names
             $members = StaffDeptAccess::objects();
             $members->filter(array('dept_id' => $this->getId()));
             $members = Staff::nsort($members, 'staff__');
             $extended = array();
-            foreach($members->all() as $member) {
-                if (!$member->staff) continue;
+            foreach($members as $member) {
+                if (!$member->staff)
+                    continue;
                 // Annoted the staff model with alerts and role
-                $extended[] =  new AnnotatedModel($member->staff, array(
-                            'alerts'  => $member->isAlertsEnabled(),
-                            'role_id' => $member->role_id,
-                            )
-                        );
+                $extended[] = new AnnotatedModel($member->staff, array(
+                    'alerts'  => $member->isAlertsEnabled(),
+                    'role_id' => $member->role_id,
+                ));
             }
 
             $this->_extended_members = $extended;
@@ -254,7 +240,6 @@ implements TemplateVariable, Searchable {
 
     // Get members  eligible members only
     function getAssignees() {
-
         $members = clone $this->getAvailableMembers();
         // If restricted then filter to primary members ONLY!
         if ($this->assignMembersOnly())
@@ -341,21 +326,19 @@ implements TemplateVariable, Searchable {
     }
 
     function isManager($staff) {
-
-        if(is_object($staff)) $staff=$staff->getId();
+        if (is_object($staff))
+            $staff = $staff->getId();
 
         return ($this->getManagerId() && $this->getManagerId()==$staff);
     }
 
     function isMember($staff) {
-
         if (is_object($staff))
             $staff = $staff->getId();
 
-        $members = $this->getMembers() ?: $this->members;
-
-        return ($members->findFirst(array(
-                        'staff_id' => $staff)));
+        return $members->getIterator()->findFirst(array(
+            'staff_id' => $staff
+        ));
     }
 
     function isPublic() {
