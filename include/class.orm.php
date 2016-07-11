@@ -396,9 +396,10 @@ class VerySimpleModel {
     }
 
     function __isset($field) {
-        return array_key_exists($field, $this->ht)
+        return ($this->ht && array_key_exists($field, $this->ht))
             || isset(static::$meta['joins'][$field]);
     }
+
     function __unset($field) {
         if ($this->__isset($field))
             unset($this->ht[$field]);

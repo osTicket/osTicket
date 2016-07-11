@@ -51,7 +51,7 @@ if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
         // Download the file..
         $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
     }
-    catch (Exception $x) {
+    catch (Exception $ex) {
         Http::response(500, 'Unable to find that file: '.$ex->getMessage());
     }
 }
