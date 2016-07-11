@@ -319,7 +319,7 @@ class Page extends VerySimpleModel {
                 return false;
         }
         // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
+        foreach ($vars['trans'] ?: array() as $lang=>$parts) {
             $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
             if (!array_filter($content))
                 continue;
