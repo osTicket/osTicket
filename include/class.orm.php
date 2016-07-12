@@ -293,7 +293,7 @@ class VerySimpleModel {
         'pk' => false
     );
 
-    var $ht;
+    var $ht = array();
     var $dirty = array();
     var $__new__ = false;
     var $__deleted__ = false;
@@ -1308,6 +1308,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         unset($this->_iterator);
         unset($this->query);
         unset($this->count);
+    }
+
+    function __call($name, $args) {
+
+        if (!is_callable(array($this->getIterator(), $name)))
+            throw new OrmException('Call to undefined method QuerySet::'.$name);
+
+        return $args
+            ? call_user_func_array(array($this->getIterator(), $name), $args)
+            : call_user_func(array($this->getIterator(), $name));
     }
 
     // IteratorAggregate interface
