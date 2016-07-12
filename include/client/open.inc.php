@@ -60,30 +60,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </td></tr>
     <tr>
         <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
-                    var data = $(':input[name]', '#dynamic-form').serialize();
-                    $.ajax(
-                      'ajax.php/form/help-topic/' + this.value,
-                      {
-                        data: data,
-                        dataType: 'json',
-                        success: function(json) {
-                          $('#dynamic-form').empty().append(json.html);
-                          $(document.head).append(json.media);
-                        }
-                      });">
-                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
-                <?php
-                if($topics=Topic::getPublicHelpTopics()) {
-                    foreach($topics as $id =>$name) {
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
-                    }
-                } else { ?>
-                    <option value="0" ><?php echo __('General Inquiry');?></option>
-                <?php
-                } ?>
-            </select>
+            <select id="cc" name="topicId" class="easyui-combotree" style="width:90%;"></select>
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
@@ -127,3 +104,53 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+<script type="text/javascript">
+//@CHANGED: Added Help Topic Tree from easyUI
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree(true);?> ;
+    function openItem(item){
+        parent=item.parent('li').parent('ul').prev()
+        if(parent.length){
+            treeHit = $('.tree-hit', parent)
+            if(treeHit.length && treeHit.hasClass('tree-collapsed'))
+                treeHit.trigger( "click" )
+            openItem(parent)
+        }
+    }
+    $('#cc').combotree({
+<?php if ($info['topicId']) { ?>
+        onLoadSuccess : function(){
+            $('#cc').combotree('setValue', <?php echo $info['topicId'] ?>);
+            var t = $('#cc').combotree('tree');
+            var n = t.tree('getSelected');
+            openItem( $('#'+n.domId))
+        },
+<?php } ?>
+        onSelect: function (r) {
+            //Loads the dynamic form on selection
+            if(r.children.length == 0){
+                var data = $(':input[name]', '#dynamic-form').serialize();
+                $.ajax(
+                    'ajax.php/form/help-topic/' + r.id,
+                    {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                            $('#dynamic-form').empty().append(json.html);
+                            $(document.head).append(json.media);
+                        }
+                    }
+                );
+            } else {
+                $('.tree-hit',r.target).trigger( "click" )
+                $('#cc').combotree('clear')
+                $('#dynamic-form').empty()
+                throw true;
+                return false
+            }
+        }
+    });
+    $('#cc').combotree('loadData', val);
+});
+ 
+</script>
