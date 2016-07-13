@@ -1042,9 +1042,12 @@ implements TemplateVariable {
                         _S($error_descriptions[$error]));
                 }
                 // No need to log the missing-file error number
+                
                 if ($error != UPLOAD_ERR_NO_FILE)
+                    if (!is_null($this->getThread()->getObject())) {
                     $this->getThread()->getObject()->logNote(
                         _S('File Import Error'), $error, _S('SYSTEM'), false);
+                        };
                 continue;
             }
 
