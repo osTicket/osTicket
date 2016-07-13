@@ -320,7 +320,7 @@ implements TemplateVariable {
         if (is_object($staff))
             $staff = $staff->getId();
 
-        return $members->getIterator()->findFirst(array(
+        return $this->getMembers()->findFirst(array(
             'staff_id' => $staff
         ));
     }
