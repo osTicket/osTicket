@@ -14,6 +14,8 @@ $user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
+$topic = $ticket->getHelpTopicId();
+
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
@@ -58,6 +60,7 @@ if($ticket->isOverdue())
 				<a href="#" data-stop="top" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Scroll Top'); ?>">
 				<i class="icon-chevron-up"></i></a>
 			</span> 
+            <?php If  ($topic) { ?>
 				<span class="action-button pull-right">
 					<a href="#post-note" id="post-note" class="post-response" data-placement="bottom" data-toggle="tooltip"title="<?php echo __('Post Internal Note'); ?>">
 					<i class="icon-edit"></i></a>
@@ -69,12 +72,13 @@ if($ticket->isOverdue())
 					<i class="icon-mail-reply"></i></a>
 				</span>
 			 
-            <?php } 
+            <?php } }
+            
+             if ($topic){
 			// Status change options
                 echo TicketStatus::status_options();
-                ?>
-			
-			<?php
+             }
+             
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(Ticket::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
@@ -101,7 +105,7 @@ if($ticket->isOverdue())
             <?php
             // Transfer
             if ($role->hasPerm(Ticket::PERM_TRANSFER)) {?>
-            <span class="action-button pull-right">
+            <span class="action-button pull-right hidden">
             <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
                 data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
@@ -233,6 +237,11 @@ if($ticket->isOverdue())
     </h3>
 </div>
 <div id="threaddata">
+
+<?php If  (!$topic) { ?>
+            <div class="help-topic-error"><?php echo "Please set the Help Topic."; ?></div>
+            <?php
+            }?>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
     <tr>
         <td width="50%">
@@ -549,6 +558,9 @@ if ($errors['err'] && isset($_POST['a'])) {
 } ?>
 
 <div class="sticky bar stop actions" id="response_options">
+
+<?php
+    if ($topic) {?>
     <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
@@ -563,6 +575,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </ul>
     <?php
     if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+     
     <form id="reply" class="tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
@@ -575,6 +588,9 @@ if ($errors['err'] && isset($_POST['a'])) {
         <input type="hidden" name="a" value="reply">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+            
+             
+           
             <?php
             if ($errors['reply']) {?>
             <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['reply']; ?>&nbsp;</td></tr>
@@ -583,7 +599,7 @@ if ($errors['err'] && isset($_POST['a'])) {
            <tbody id="to_sec">
             <tr>
                 <td width="120">
-                    <label><strong><?php echo __('To'); ?>:</strong></label>
+                    <label><strong><?php echo __('To'); ?>:</strong></label> 
                 </td>
                 <td>
                     <?php
@@ -716,6 +732,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                 </td>
             </tr>
             <tr>
+            
                 <td width="120" style="vertical-align:top">
                     <label><strong><?php echo __('Ticket Status');?>:</strong></label>
                 </td>
@@ -749,14 +766,14 @@ if ($errors['err'] && isset($_POST['a'])) {
                     ?>
                     </select>
                 </td>
-            </tr>
+            </tr> 
          </tbody>
         </table>
         <p  style="text-align:center;">
             <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
-    </form>
+    </form><?php } ?>
     <?php
     } ?>
     <form id="note" class="hidden tab_content spellcheck exclusive"
