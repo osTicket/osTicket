@@ -2336,6 +2336,8 @@ implements RestrictedAccess, Threadable {
                 : true;
         if ($autorespond && $message->isBounceOrAutoReply())
             $autorespond = false;
+        elseif ($autorespond && isset($vars['autorespond']))
+            $autorespond = $vars['autorespond'];
 
         $this->onMessage($message, ($autorespond && $alerts)); //must be called b4 sending alerts to staff.
 

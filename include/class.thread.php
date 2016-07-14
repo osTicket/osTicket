@@ -312,6 +312,7 @@ class Thread extends VerySimpleModel {
             'reply_to' => $entry,
             'recipients' => $mailinfo['recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
+            'autorespond' => !isset($mailinfo['passive']),
         );
 
         // XXX: Is this necessary?
@@ -1178,40 +1179,19 @@ implements TemplateVariable {
                 // ThreadEntry was positively identified
                 return $t;
             }
-
-            // Try to determine if it's a reply to a tagged email.
-            // (Deprecated)
-            $ref = null;
-            if (strpos($mid, '+')) {
-                list($left, $right) = explode('@',$mid);
-                list($left, $ref) = explode('+', $left);
-                $mid = "$left@$right";
-            }
-            $entries = ThreadEntry::objects()
-                ->filter(array('email_info__mid' => $mid))
-                ->order_by(false);
-            foreach ($entries as $t) {
-                // Capture the first match thread item
-                if (!$thread)
-                    $thread = $t;
-                // We found a match  - see if we can ID the user.
-                // XXX: Check access of ref is enough?
-                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
-                    if ($ref[0] =='s') //staff
-                        $mailinfo['staffId'] = $uid;
-                    else // user or collaborator.
-                        $mailinfo['userId'] = $uid;
-
-                    // Best possible case — found the thread and the
-                    // user
-                    return $t;
-                }
-            }
         }
-        // Second best case — found a thread but couldn't identify the
-        // user from the header. Return the first thread entry matched
-        if ($thread)
-            return $thread;
+
+        // Passive threading - listen mode
+        $entry = ThreadEntry::objects()
+            ->filter(array(
+                'email_info__mid__in' => array_map(
+                    function ($a) { return "<$a>"; },
+                $possibles)))
+            ->first();
+        if ($entry) {
+            $mailinfo['passive'] = true;
+            return $entry;
+        }
 
         // Search for ticket by the [#123456] in the subject line
         // This is the last resort -  emails must match to avoid message
