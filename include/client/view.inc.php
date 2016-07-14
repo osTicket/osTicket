@@ -108,11 +108,11 @@ foreach ($sections as $i=>$answers) {
     ?>
         <div class="col-md-4 row">
         <div><h3><?php echo $form->getTitle(); ?></h3></div>
-        <?php foreach($answers as $a) {
-            if (!($v = $a->display())) continue; ?>
+        <?php foreach($answers as $A) {
+            list($v, $a) = $A; ?>
             <div>
                 <label><?php
-    echo $a->getField()->get('label');
+    echo $a->getField()->get('label')
                 ?>:</label>
                <?php
     echo $v;
