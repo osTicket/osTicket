@@ -556,6 +556,9 @@ class TicketsAjaxAPI extends AjaxController {
                 'close' => array(
                     'verbed' => __('closed'),
                     ),
+                'priority' => array(
+                    'verbed' => __('changed priority'),
+                    ),
                 );
 
         if (!isset($actions[$action]))
@@ -756,6 +759,50 @@ class TicketsAjaxAPI extends AjaxController {
                 }
             }
             break;
+    
+            case 'priority':
+                $inc = 'delete.tmpl.php';
+                $info[':action'] = "#tickets/mass/priority/{$w}";
+                $verb = __('Update');
+                $info[':title'] = sprintf('Change Priority On %s',
+                        _N('selected ticket', 'selected tickets', $count));
+    
+                $info[':placeholder'] = sprintf(__(
+                            'Optional reason for changing priority on %s'),
+                        _N('selected ticket', 'selected tickets', $count));
+    
+                if (!($P = Priority::lookup($w)))
+                    Http::response(422, 'No such priority');
+    
+                // Generic permission check.
+                if (!$thisstaff->hasPerm(Ticket::PERM_EDIT, false))
+                    $errors['err'] = sprintf(
+                            __('You do not have permission %s'),
+                            __('to edit tickets'));
+    
+                if ($_POST && !$errors) {
+                    foreach (Ticket::objects()
+                        ->filter(['ticket_id__in' => $_POST['tids']])
+                    as $ticket) {
+                        if (!$thisstaff->getRole($ticket->dept_id)->hasPerm(Ticket::PERM_EDIT))
+                            continue;
+    
+                        if ($_POST['comments'])
+                            $ticket->logNote(null, $_POST['comments'],
+                                $thisstaff);
+    
+                        $entries = DynamicFormEntry::forTicket($ticket->getId());
+                        foreach ($entries as $E) {
+                            if ($E->form->type !== 'T')
+                                continue;
+                            $E->setAnswer('priority', null, $P->priority_id);
+                            if ($E->save())
+                                $i++;
+                        }
+                    }
+                }
+                break;
+                
         default:
             Http::response(404, __('Unknown action'));
         }
