@@ -576,7 +576,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         return $this->dept ?: $cfg->getDefaultDept();
     }
-
+    
     function getUserId() {
         return $this->getOwnerId();
     }
@@ -2255,6 +2255,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function release() {
         return $this->unassign();
     }
+    
 
     //Change ownership
     function changeOwner($user) {
@@ -2288,7 +2289,38 @@ implements RestrictedAccess, Threadable, Searchable {
 
         return true;
     }
+   
+    function topic(TopicForm $form, &$errors, $alert=true) {
+        global $thisstaff, $cfg;
 
+        $ctopic = $this->getTopic(); // Current department
+        $ptopic = $this->getTopicId(); // Current department Id
+        $topic = $form->getTopic(); // Target Topic
+        
+        $this->topic_id = $topic; 
+        
+        // Post internal note if any
+        $note = null;
+        $comments = $form->getField('comments')->getClean();
+        if ($comments) {
+            $title = sprintf(__('%1$s changed from %2$s to %3$s'),
+                    __('Help Topic'),
+                   $ctopic->getName(),
+                   Topic::getLocalNameById($topic));
+
+            $_errors = array();
+            $note = $this->postNote(
+                    array('note' => $comments, 'title' => $title),
+                    $_errors, $thisstaff, false);
+        }
+        $change = '{"topic_id":['.$ptopic.','.$form->getTopic().']}';
+        $this->logEvent('edited',$change);
+        
+        if ($errors || !$this->save(true))
+            return false;
+     
+         return true;
+    }
     // Insert message from client
     function postMessage($vars, $origin='', $alerts='1') {
         global $cfg;
