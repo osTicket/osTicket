@@ -232,7 +232,7 @@ $(document).on('click', 'a.drop-membership', function() {
 
 <?php
 if ($team) {
-    foreach ($team->members->sort(function($a) { return $a->staff->getName(); }) as $member) {
+    foreach ($team->members as $member) {
         echo sprintf('addMember(%d, %s, %d, %s);',
             $member->staff_id,
             JsonDataEncoder::encode((string) $member->staff->getName()),
