@@ -5,7 +5,17 @@
 if ($agent->canManageTickets())
     echo TicketStatus::status_options();
 
+// Mass Topic Change
+if ($agent->hasPerm(Ticket::PERM_EDIT, false)) {?>
+<span class="red button action-button">
+ <a class="tickets-action" id="tickets-helptopic" data-placement="bottom"
+    data-toggle="tooltip" title="<?php echo __('Change Help Topic'); ?>"
+   href="#tickets/mass/topic"><i class="icon-bookmark"></i></a>
+</span>
 
+<?php } ?>
+
+<?php
 // Mass Claim/Assignment
 if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
 <span
@@ -79,4 +89,5 @@ $(function() {
         return false;
     });
 });
+
 </script>

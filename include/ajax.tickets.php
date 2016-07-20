@@ -416,7 +416,6 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/transfer.tmpl.php';
     }
 
-
     function assign($tid, $target=null) {
         global $thisstaff;
 
@@ -555,6 +554,9 @@ class TicketsAjaxAPI extends AjaxController {
                     ),
                 'close' => array(
                     'verbed' => __('closed'),
+                    ),
+                'topic' => array(
+                    'verbed' => __('changed topic'),
                     ),
                 );
 
@@ -756,6 +758,33 @@ class TicketsAjaxAPI extends AjaxController {
                 }
             }
             break;
+        case 'topic':
+            $inc = 'topic.tmpl.php';
+            $info[':action'] = '#tickets/mass/topic';
+            $info[':title'] = sprintf('Change Help Topic On %s',
+                _N('selected ticket', 'selected tickets', $count));
+            $form = TopicForm::instantiate($_POST);
+            
+            if ($_POST && $form->isValid()) {
+                foreach ($_POST['tids'] as $tid) {
+                    if (($t=Ticket::lookup($tid))
+                            // Make sure the agent is allowed to
+                            // access and set the help topic.
+                            && $t->checkStaffPerm($thisstaff, Ticket::PERM_EDIT)
+                            // Set the help topic
+                            && $t->topic($form, $e)
+                            )
+                        $i++; 
+                }
+                if (!$i) {
+                    $info['error'] = sprintf(
+                            __('Unable to %1$s %2$s'),
+                            __('topic'),
+                            _N('selected ticket', 'selected tickets', $count));
+                }
+            }
+            break;
+
         default:
             Http::response(404, __('Unknown action'));
         }

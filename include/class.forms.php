@@ -2172,6 +2172,60 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     );
 });
 
+class TopicField extends ChoiceField {
+   static $widget = 'TopicChoicesWidget';
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        global $cfg;
+
+        $choices = array();
+        if (($topics = Topic::getHelpTopics()))
+            foreach ($topics as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        return $id;
+    }
+
+    function to_database($topic) {
+        return ($topic instanceof Topic)
+            ? array($topic->getName(), $topic->getId())
+            : $topic;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
 
 class DepartmentField extends ChoiceField {
     function getWidget($widgetClass=false) {
@@ -2232,6 +2286,8 @@ class DepartmentField extends ChoiceField {
         );
     }
 }
+
+
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
         'department' => array(__('Department'), DepartmentField),
@@ -3348,6 +3404,212 @@ class ChoicesWidget extends Widget {
     }
 }
 
+class TopicChoicesWidget extends Widget {
+    function render($options=array()) {
+
+        $mode = null;
+        if (isset($options['mode']))
+            $mode = $options['mode'];
+        elseif (isset($this->field->options['render_mode']))
+            $mode = $this->field->options['render_mode'];
+
+        if ($mode == 'view') {
+            if (!($val = (string) $this->field))
+                $val = sprintf('<span class="faded">%s</span>', __('None'));
+
+            echo $val;
+            return;
+        }
+
+        $config = $this->field->getConfiguration();
+        if ($mode == 'search') {
+            $config['multiselect'] = true;
+        }
+
+        // Determine the value for the default (the one listed if nothing is
+        // selected)
+        $choices = $this->field->getChoices(true);
+        $prompt = ($config['prompt'])
+            ? $this->field->getLocal('prompt', $config['prompt'])
+            : __('Select'
+            /* Used as a default prompt for a custom drop-down list */);
+
+        $have_def = false;
+        // We don't consider the 'default' when rendering in 'search' mode
+        if (!strcasecmp($mode, 'search')) {
+            $def_val = $prompt;
+        } else {
+            $def_key = $this->field->get('default');
+            if (!$def_key && $config['default'])
+                $def_key = $config['default'];
+            if (is_array($def_key))
+                $def_key = key($def_key);
+            $have_def = isset($choices[$def_key]);
+            $def_val = $have_def ? $choices[$def_key] : $prompt;
+        }
+
+        $values = $this->value;
+        if (!is_array($values) && isset($values)) {
+            $values = array($values => $this->field->getChoice($values));
+        }
+
+        if (!is_array($values))
+            $values = $have_def ? array($def_key => $choices[$def_key]) : array();
+
+        if (isset($config['classes']))
+            $classes = 'class="'.$config['classes'].'"';
+        ?>
+        <input id="cc" name="<?php echo $this->name; ?>[]" class="easyui-combotree " style="width:250px; height:24px;"></input>
+        <?php
+        
+         ?>
+        <script type="text/javascript">
+            $(function() {
+                $.extend($.fn.tree.methods,{
+                getLevel: function(jq, target){
+                    return $(target).find('span.tree-indent,span.tree-hit').length;
+                }
+            });
+            $(document).ready(function(){
+                var val = <?php echo Topic::getHelpTopicsTree();?> ;
+                
+                $('#cc').combotree({ 
+                    onChange: function (r) { 
+                        var c = $('#cc');
+                        var t = c.combotree('tree');  // get tree object
+                        var node = t.tree('getSelected');
+                        var nodeLevel = t.tree('getLevel',node.target);
+                        parentArry = new Array();
+                        var parentArry = new Array();
+                            var parents = getParentArry(t,node,nodeLevel,parentArry);
+                            var parentStr = "";
+                            if(parents.length > 0){
+                                var parentStr = "";
+                                for(var i = 0; i < parents.length; i++){
+                                    parentStr += parents[i].text + " / ";
+                                }
+                            }
+                         $('#cc').combotree('setText', parentStr + node.text);            
+                          
+                    } 
+
+                });
+                $('#cc').combotree({ 
+                    onSelect: function (r) { 
+                    
+                        //Loads the dynamic form on selection
+                        var data = $(':input[name]', '#dynamic-form').serialize();
+                        $.ajax(
+                          'ajax.php/form/help-topic/' + r.id,
+                          {
+                            data: data,
+                            dataType: 'json',
+                            success: function(json) {
+                              $('#dynamic-form').empty().append(json.html);
+                              $(document.head).append(json.media);
+                            }
+                          });
+                          
+                          
+                    } 
+
+                });
+
+                $('#cc').combotree('loadData', val);
+                
+                function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+                        //end condition: level of selected node equals 1, means it's root
+                       if(nodeLevel == 1){
+                          return parentArry;
+                       }else{//if selected node isn't root
+                          nodeLevel -= 1;
+                          //the parent of the node
+                          var parent = $(tree).tree('getParent',selectedNode.target);
+                          //record the parent of selected to a array
+                          parentArry.unshift(parent);
+                          //recursive, to judge whether parent of selected node has more parent
+                          return getParentArry(tree,parent,nodeLevel,parentArry);
+                        }
+                    }
+                $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+                 
+                   
+            });
+            });
+        </script>
+       <?php
+        
+    }
+
+    function emitChoices($choices, $values=array(), $have_def=false, $def_key=null) {
+        reset($choices);
+        if (is_array(current($choices)) || current($choices) instanceof Traversable)
+            return $this->emitComplexChoices($choices, $values, $have_def, $def_key);
+
+        foreach ($choices as $key => $name) {
+            if (!$have_def && $key == $def_key)
+                continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo Format::htmlchars($name); ?></option>
+        <?php
+        }
+    }
+
+    function emitComplexChoices($choices, $values=array(), $have_def=false, $def_key=null) {
+        foreach ($choices as $label => $group) {
+            if (!count($group)) continue;
+            ?>
+            <optgroup label="<?php echo $label; ?>"><?php
+            foreach ($group as $key => $name) {
+                if (!$have_def && $key == $def_key)
+                    continue; ?>
+            <option value="<?php echo $key; ?>" <?php
+                if (isset($values[$key])) echo 'selected="selected"';
+            ?>><?php echo Format::htmlchars($name); ?></option>
+<?php       } ?>
+            </optgroup><?php
+        }
+    }
+
+    function getValue() {
+
+        if (!($value = parent::getValue()))
+            return null;
+
+        if ($value && !is_array($value))
+            $value = array($value);
+
+        // Assume multiselect
+        $values = array();
+        $choices = $this->field->getChoices();
+
+        if ($choices && is_array($value)) {
+            // Complex choices
+            if (is_array(current($choices))
+                    || current($choices) instanceof Traversable) {
+                foreach ($choices as $label => $group) {
+                     foreach ($group as $k => $v)
+                        if (in_array($k, $value))
+                            $values[$k] = $v;
+                }
+            } else {
+                foreach($value as $k => $v) {
+                    if (isset($choices[$v]))
+                        $values[$v] = $choices[$v];
+                    elseif (($i=$this->field->lookupChoice($v)))
+                        $values += $i;
+                }
+            }
+        }
+
+        return $values;
+    }
+
+    function getJsValueGetter() {
+        return '%s.find(":selected").val()';
+    }
+}
 /**
  * A widget for the ChoiceField which will render a list of radio boxes or
  * checkboxes depending on the value of $config['multiple']. Complex choices
@@ -4265,6 +4527,80 @@ class TransferForm extends Form {
     }
 }
 
+class TopicForm extends Form {
+
+    static $id = 'topic';
+    var $_topic = null;
+
+    function __construct($source=null, $options=array()) {
+        parent::__construct($source, $options);
+    }
+
+    function getFields() {
+
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'topic' => new TopicField(array(
+                    'id'=>1,
+                    'label' => __('Help Topic'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Help Topic selection is required.'),
+                    )
+                ),
+            'comments' => new TextareaField(array(
+                    'id' => 2,
+                    'label'=> '',
+                    'required'=>false,
+                    'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason changing the Help Topic'),
+                        ),
+                    )
+                ),
+            );
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function isValid($include=false) {
+
+        if (!parent::isValid($include))
+            return false;
+
+        // Do additional validations
+      
+        return !$this->errors();
+    }
+
+    function render($options) {
+
+        switch(strtolower($options['template'])) {
+        case 'simple':
+            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+            break;
+        default:
+            throw new Exception(sprintf(__('%s: Unknown template style %s'),
+                        get_class(), $options['template']));
+        }
+
+        $form = $this;
+        include $inc;
+
+    }
+     function getTopic() {
+        if (!isset($this->_topic))
+            $this->_topic = $this->getField('topic')->getClean();
+        return $this->_topic;
+    }
+
+}
 /**
  * FieldUnchanged
  *
