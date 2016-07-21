@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 7e42c51edc41f06653a856329d0d638a9ab035cd
 <span class="action-button muted" data-dropdown="#sort-dropdown" data-toggle="tooltip" title="<?php echo $sort_options[$sort_cols]; ?>">
   <i class="icon-caret-down pull-right"></i>
   <span><i class="icon-sort-by-attributes-alt <?php if ($sort_dir) echo 'icon-flip-vertical'; ?>"></i> <?php echo __('Sort');?></span>
@@ -33,7 +29,3 @@ $.pjax({
     <?php } ?>
  </ul>
 </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 7e42c51edc41f06653a856329d0d638a9ab035cd
