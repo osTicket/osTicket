@@ -292,7 +292,7 @@ class Format {
                     'balance' => 1,
                     // Decoding special html char like &lt; and &gt; which
                     // can be used to skip cleaning
-                    'decode' => true
+                    'decode' => false
                     ),
                 $options);
 
