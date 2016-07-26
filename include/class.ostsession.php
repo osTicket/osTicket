@@ -90,6 +90,7 @@ class osTicketSession {
         $oldId = session_id();
         session_regenerate_id();
         $this->backend->destroy($oldId);
+        self::destroyCookie();
     }
 
     static function destroyCookie() {

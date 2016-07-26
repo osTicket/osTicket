@@ -49,7 +49,7 @@ class Bootstrap {
             $_SERVER['REMOTE_ADDR'] = '';
     }
 
-    function https() {
+    static function https() {
        return
             (isset($_SERVER['HTTPS'])
                 && strtolower($_SERVER['HTTPS']) == 'on')
