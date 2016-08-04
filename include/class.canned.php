@@ -147,6 +147,9 @@ extends VerySimpleModel {
                     $resp['response'] = Format::html2text($resp['response'], 90);
                 }
 
+                foreach ($resp['files'] as $f)
+                    $_SESSION[':cannedFiles'][$f['file_id']] = 1;
+
                 return Format::json_encode($resp);
                 break;
             case 'html':
