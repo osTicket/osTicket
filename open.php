@@ -75,6 +75,7 @@ require(CLIENTINC_DIR.'header.inc.php');
 if ($ticket
     && (
         (($topic = $ticket->getTopic()) && ($page = $topic->getPage()))
+        || ($page = Page::lookup($topic->getPageId()))
         || ($page = $cfg->getThankYouPage())
     )
 ) {
