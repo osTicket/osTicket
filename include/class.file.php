@@ -293,7 +293,7 @@ class AttachmentFile {
     }
 
     /* Function assumes the files types have been validated */
-    function upload($file, $ft='T') {
+    function upload($file, $ft='T', $deduplicate=true) {
 
         if(!$file['name'] || $file['error'] || !is_uploaded_file($file['tmp_name']))
             return false;
@@ -309,10 +309,10 @@ class AttachmentFile {
                     'tmp_name'=>$file['tmp_name'],
                     );
 
-        return AttachmentFile::save($info, $ft);
+        return AttachmentFile::save($info, $ft, $deduplicate);
     }
 
-    function uploadLogo($file, &$error, $aspect_ratio=3) {
+    function uploadLogo($file, &$error, $aspect_ratio=2) {
         /* Borrowed in part from
          * http://salman-w.blogspot.com/2009/04/crop-to-fit-image-using-aspphp.html
          */
@@ -337,13 +337,13 @@ class AttachmentFile {
         $source_aspect_ratio = $source_width / $source_height;
 
         if ($source_aspect_ratio >= $aspect_ratio)
-            return self::upload($file, 'L');
+            return self::upload($file, 'L', false);
 
         $error = __('Image is too square. Upload a wider image');
         return false;
     }
 
-    function save(&$file, $ft='T') {
+    function save(&$file, $ft='T', $deduplicate=true) {
 
         if (isset($file['data'])) {
             // Allow a callback function to delay or avoid reading or
@@ -365,7 +365,7 @@ class AttachmentFile {
 
             // If the record exists in the database already, a file with the
             // same hash and size is already on file -- just return its ID
-            if (list($id, $key) = db_fetch_row(db_query($sql, false))) {
+            if ($deduplicate && (list($id, $key) = db_fetch_row(db_query($sql, false)))) {
                 $file['key'] = $key;
                 return $id;
             }

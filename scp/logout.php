@@ -31,6 +31,8 @@ TicketLock::removeStaffLocks($thisstaff->getId());
 session_unset();
 session_destroy();
 
+osTicketSession::destroyCookie();
+
 @header('Location: login.php');
 require('login.php');
 ?>

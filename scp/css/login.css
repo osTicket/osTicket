@@ -69,12 +69,21 @@ h1 {
 
 #logo a {
     display:block;
-    width:180px;
-    height:72px;
     text-decoration:none;
-    text-indent:-9999px;
-    background:url(../images/login-logo.png);
-    margin:0 auto 1em auto;
+    height: 100px;
+}
+
+#logo a img {
+    max-height:66px;
+    max-width: 300px;
+    height: auto;
+    width: auto;
+    vertical-align: middle;
+}
+.valign-helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 h3 {

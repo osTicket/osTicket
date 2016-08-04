@@ -206,7 +206,7 @@ class MailFetcher {
 
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner
-        return Format::encode($text, $charset, $encoding);
+        return Charset::transcode($text, $charset, $encoding);
     }
 
     function mailbox_encode($mailbox) {
@@ -240,7 +240,7 @@ class MailFetcher {
         if (function_exists('mb_detect_encoding'))
             if (($src_enc = mb_detect_encoding($text))
                     && (strcasecmp($src_enc, 'ASCII') !== 0))
-                return Format::encode($text, $src_enc, $encoding);
+                return Charset::transcode($text, $src_enc, $encoding);
 
         // Handle ASCII text and RFC-2047 encoding
         $str = '';

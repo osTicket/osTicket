@@ -15,7 +15,8 @@
 **********************************************************************/
 require_once INCLUDE_DIR.'class.user.php';
 
-abstract class TicketUser {
+abstract class TicketUser
+implements EmailContact {
 
     static private $token_regex = '/^(?P<type>\w{1})(?P<algo>\d+)x(?P<hash>.*)$/i';
 
@@ -53,6 +54,9 @@ abstract class TicketUser {
         return false;
 
     }
+
+    function getId() { return ($this->user) ? $this->user->getId() : null; }
+    function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
 
     function sendAccessLink() {
         global $ost;
@@ -421,4 +425,7 @@ class ClientAccount extends UserAccount {
     }
 }
 
+// Used by the email system
+interface EmailContact {
+}
 ?>

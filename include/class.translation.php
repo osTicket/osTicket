@@ -576,7 +576,7 @@ class Translation extends gettext_reader implements Serializable {
         if (!$this->encode)
             return $string;
 
-        return Format::encode($string, 'utf-8', $this->charset);
+        return Charset::transcode($string, 'utf-8', $this->charset);
     }
 
     static function buildHashFile($mofile, $outfile=false, $return=false) {
@@ -626,9 +626,8 @@ class Translation extends gettext_reader implements Serializable {
         }
         if ($charset && strcasecmp($charset, 'utf-8') !== 0) {
             foreach ($table as $orig=>$trans) {
-                // Format::encode defaults to UTF-8 output
-                $table[Format::encode($orig, $charset)] =
-                    Format::encode($trans, $charset);
+                $table[Charset::utf8($orig, $charset)] =
+                    Charset::utf8($trans, $charset);
                 unset($table[$orig]);
             }
         }
