@@ -3139,8 +3139,7 @@ implements RestrictedAccess, Threadable, Searchable {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    static function create($vars, &$errors, $origin, $autorespond=true,
-            $alertstaff=true) {
+    static function create($vars, &$errors, $origin, $autorespond=true,$alertstaff=true) {
         global $ost, $cfg, $thisclient, $thisstaff;
 
         // Don't enforce form validation for email
@@ -3560,7 +3559,7 @@ implements RestrictedAccess, Threadable, Searchable {
         //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
             $autorespond=false;
-
+ 
         # Messages that are clearly auto-responses from email systems should
         # not have a return 'ping' message
         if (isset($vars['mailflags']) && $vars['mailflags']['bounce'])
@@ -3584,6 +3583,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // this is necessary to avoid possible loop (especially on new ticket)
         if ($alertstaff && $message instanceof ThreadEntry && $message->isBounce())
             $alertstaff = false;
+            $autorespond=false;
 
         /***** See if we need to send some alerts ****/
         $ticket->onNewTicket($message, $autorespond, $alertstaff);
@@ -3655,7 +3655,10 @@ implements RestrictedAccess, Threadable, Searchable {
         $create_vars['cannedattachments']
             = $tform->getField('message')->getWidget()->getAttachments()->getClean();
 
-        if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
+        
+    if ($vars['response']) {$alertstaff = false; } else {$alertstaff = true;}
+           
+        if (!($ticket=self::create($create_vars, $errors, 'staff', false, $alertstaff)))
             return false;
 
         $vars['msgId']=$ticket->getLastMsgId();
