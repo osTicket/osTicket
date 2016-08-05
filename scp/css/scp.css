@@ -2392,6 +2392,7 @@ ul#thread-preview.tabs>li {
     top:0;
     left:-1px;
     min-width:400px;
+    max-width:455px;
     line-height: 1.45rem;
 }
 
