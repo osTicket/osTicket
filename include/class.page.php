@@ -319,21 +319,25 @@ class Page extends VerySimpleModel {
                 return false;
         }
         // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
-            $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
-            if (!array_filter($content))
-                continue;
-            $t = CustomDataTranslation::create(array(
-                'type'      => 'article',
-                'object_hash' => $tag,
-                'lang'      => $lang,
-                'text'      => $content,
-                'revision'  => 1,
-                'agent_id'  => $thisstaff->getId(),
-                'updated'   => SqlFunction::NOW(),
-            ));
-            if (!$t->save())
-                return false;
+        if ($vars['trans']) {
+
+            foreach ($vars['trans'] as $lang=>$parts) {
+                $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
+                if (!array_filter($content))
+                    continue;
+                $t = CustomDataTranslation::create(array(
+                    'type'      => 'article',
+                    'object_hash' => $tag,
+                    'lang'      => $lang,
+                    'text'      => $content,
+                    'revision'  => 1,
+                    'agent_id'  => $thisstaff->getId(),
+                    'updated'   => SqlFunction::NOW(),
+                ));
+                if (!$t->save())
+                    return false;
+            }
+
         }
         return true;
     }
