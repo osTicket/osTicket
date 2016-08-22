@@ -1542,7 +1542,7 @@ class TaskThread extends ObjectThread {
         $vars['message'] = $vars['description'];
         unset($vars['description']);
 
-        return MessageThreadEntry::create($vars, $errors);
+        return MessageThreadEntry::add($vars, $errors);
     }
 
     static function create($task=false) {
