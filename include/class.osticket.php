@@ -370,7 +370,15 @@ class osTicket {
         if(isset($_SERVER['ORIG_PATH_INFO']))
             return $_SERVER['ORIG_PATH_INFO'];
 
-        //TODO: conruct possible path info.
+        if (preg_match("/^(.+\/.*\.php)(\?)?(\/.+)$/", $_SERVER['REQUEST_URI'], $URI_PATH_INFO)) {
+            $constPathInfo = $URI_PATH_INFO[3];
+
+            if (preg_match("/(.*)\?(.*)/", $constPathInfo)) {
+                $constPathInfo = substr($constPathInfo, 0, strripos($constPathInfo, "?"));
+            }
+
+            return $constPathInfo;
+        }
 
         return null;
     }
