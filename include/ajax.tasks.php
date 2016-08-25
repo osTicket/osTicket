@@ -963,7 +963,7 @@ class TasksAjaxAPI extends AjaxController {
 
         $form = new TaskTemplateGroupForm($_POST);
         if ($_POST && $form->isValid()) {
-            $set = TaskTemplateGroup::create($form->getClean(Form::FORMAT_PHP));
+            $set = new TaskTemplateGroup($form->getClean(Form::FORMAT_PHP));
             if ($set->save())
                 Http::response(201);
         }

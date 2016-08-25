@@ -15,7 +15,7 @@ if ($_POST) {
         if (!$set instanceof TaskTemplateGroup)
             break;
 
-        $template = TaskTemplate::create(array(
+        $template = new TaskTemplate(array(
             'group_id' => $_POST['group_id'],
         ));
 
