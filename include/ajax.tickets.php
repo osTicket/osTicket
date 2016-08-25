@@ -1684,7 +1684,7 @@ extends AbstractForm {
             'group' => new ChoiceField(array(
                 'label' => __('Task Template Set'),
                 'required' => true,
-                'choices' => TaskTemplateGroup::forTicket($ticket)->all()->hash_by('id'),
+                'choices' => TaskTemplateGroup::forTicket($ticket)->getIterator()->hash_by('id'),
                 'configuration' => array(
                     'prompt' => __('Select a Template Group'),
                 ),

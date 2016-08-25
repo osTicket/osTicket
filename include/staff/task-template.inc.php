@@ -5,7 +5,7 @@ $info = $qs = array();
 
 if ($_REQUEST['a'] == 'add-tpl') {
     if (!$template) {
-        $template = TaskTemplate::create(array(
+        $template = new TaskTemplate(array(
             'flags' => TaskTemplate::FLAG_ENABLED,
             'group_id' => $set->getId(),
         ));

@@ -557,7 +557,7 @@ class VerySimpleModel {
      */
     function getDbFields() {
         $info = array();
-        foreach (static::getMeta('fields') as $f) {
+        foreach (static::getMeta()->getFieldNames() as $f) {
             $info[$f] = $this->ht[$f];
         }
         return $info;
@@ -1785,15 +1785,39 @@ implements ArrayAccess {
         return parent::reverse();
     }
 
+    /**
+     * Convenience method to return a simple hashed array based on the
+     * values of a single attribute.
+     *
+     * Returns:
+     * An array, hashed by the values of the given attribute.
+     */
     function hash_by($attr) {
-        return $this->getKeyedList($attr);
+        return $this->getKeyedList($attr)->asArray();
     }
 
-    // Fetch a keyed listing of the items in this list
+    /**
+     * Change the list to be a simple key=>value pair list using one
+     * property of the items in the list. One case might be to change the
+     * list to be keyed by the primary key of the records. Normally, the
+     * list is only indexed by the position of the rows within the list.
+     *
+     * Parameters:
+     * $key - field to use as the source for the keys of the new array
+     * $attr - (optional) if specified, a field to use to fetch the values
+     *      of the new array. If unspecified, the entire record will remain
+     *      the value.
+     *
+     * Returns:
+     * A new list of the same type as this one (a deriviative of
+     * CachedResultSet), with the items keyed as described.
+     */
     function getKeyedList($key, $attr=false) {
         $list = array();
         foreach ($this as $item)
-            $list[$item->get($key)] = $attr ? $item->get($attr) : $item;
+            $list[$item->get($key)] = $attr !== false ? (
+                $item instanceof VerySimpleModel ? $item->get($attr) : $item[$attr]
+            ) : $item;
         $copy = clone $this;
         $copy->storage = $list;
         return $copy;
