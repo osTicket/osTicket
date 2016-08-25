@@ -2167,7 +2167,7 @@ class TaskTemplate extends VerySimpleModel {
                 // TODO: Do something
                 return array();
 
-            if (count($chain) + 1 > count($longest)) {
+            if (count($chain) + 1 > count($this->depchain)) {
                 $chain[] = $tpl;
                 $this->depchain = $chain;
             }
