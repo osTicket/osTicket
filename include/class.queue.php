@@ -1766,7 +1766,7 @@ extends QueueColumnAnnotation {
 
         return $query
             ->annotate(array(
-                '_locked' => new SqlExpr(new Q(array(
+                '_locked' => new SqlExpression(new Q(array(
                     'lock__expire__gt' => SqlFunction::NOW(),
                     Q::not(array('lock__staff_id' => $thisstaff->getId())),
                 )))
@@ -1881,7 +1881,7 @@ class QueueColumnCondition {
 
         // Add an annotation to the query
         return $query->annotate(array(
-            $this->getAnnotationName() => new SqlExpr(array($Q))
+            $this->getAnnotationName() => new SqlExpression(array($Q))
         ));
     }
 
