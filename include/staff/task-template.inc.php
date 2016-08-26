@@ -13,6 +13,8 @@ if ($_REQUEST['a'] == 'add-tpl') {
     $title=__('Add New Task Template');
     $action='add-template';
     $submit_text=__('Create');
+    $info['group_id'] = $set->getId();
+    $qs += array('group_id' => $set->getId());
 }
 else {
     $title=__('Manage Task Template');
