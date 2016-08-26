@@ -1116,7 +1116,7 @@ class CustomQueue extends VerySimpleModel {
 
         $query = Ticket::objects();
         $Q = $this->getBasicQuery();
-        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+        $expr = SqlCase::N()->when(new SqlExpression(new Q($Q->constraints)),
             new SqlField('ticket_id'));
         $query = $query->aggregate(array(
             "ticket_count" => SqlAggregate::COUNT($expr)
@@ -1148,7 +1148,7 @@ class CustomQueue extends VerySimpleModel {
 
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
-            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+            $expr = SqlCase::N()->when(new SqlExpression(new Q($Q->constraints)),
                 new SqlField('ticket_id'));
             $query = $query->aggregate(array(
                 "q{$queue->id}" => SqlAggregate::COUNT($expr)
@@ -1866,7 +1866,7 @@ extends QueueColumnAnnotation {
 
         return $query
             ->annotate(array(
-                '_locked' => new SqlExpr(new Q(array(
+                '_locked' => new SqlExpression(new Q(array(
                     'lock__expire__gt' => SqlFunction::NOW(),
                     Q::not(array('lock__staff_id' => $thisstaff->getId())),
                 )))
@@ -1981,7 +1981,7 @@ class QueueColumnCondition {
 
         // Add an annotation to the query
         return $query->annotate(array(
-            $this->getAnnotationName() => new SqlExpr(array($Q))
+            $this->getAnnotationName() => new SqlExpression(array($Q))
         ));
     }
 

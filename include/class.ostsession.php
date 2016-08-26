@@ -185,7 +185,7 @@ extends SessionBackend {
             $this->data = SessionData::objects()
               ->filter(['session_id' => $id])
               ->annotate(array('is_expired' =>
-                new SqlExpr(new Q(array('session_expire__lt' => SqlFunction::NOW())))))
+                new SqlExpression(new Q(array('session_expire__lt' => SqlFunction::NOW())))))
               ->one();
 
             if ($this->data->is_expired > 0) {
