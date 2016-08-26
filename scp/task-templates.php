@@ -36,6 +36,10 @@ if ($_POST) {
         else {
             Messages::success(__('FIXME Successfully created ...'));
         }
+
+        // Redirect to the group page for additions
+        if ($_POST['do'] == 'add-template')
+            unset($template);
         break;
 
     // Called from the set-list page to update sort order
@@ -52,12 +56,55 @@ if ($_POST) {
         break;
 
     case 'enable':
+        $flags = new SqlField('flags');
+        $count = TaskTemplate::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->update(['flags' => $flags->bitor(TaskTemplate::FLAG_ENABLED)]);
+
+        if ($count)
+            Messages::success(sprintf(__('Successfully enabled %s'),
+                sprintf(_N('one task template', '%d task templates', $count), $count)));
+        break;
+
     case 'disable':
+        $flags = new SqlField('flags');
+        $count = TaskTemplate::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->update(['flags' => $flags->bitand(~TaskTemplate::FLAG_ENABLED)]);
+        if ($count)
+            Messages::success(sprintf(__('Successfully disabled %s'),
+                sprintf(_N('one task template', '%d task templates', $count), $count)));
+        break;
+
+    case 'delete':
+        // Deleting is a bit different. If there are no tasks which are
+        // based on this template, then the template can be safely removed.
+        // Otherwise, it should be marked as deleted.
+        $count = 0;
+        foreach (TaskTemplate::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->annotate(['inuse' => SqlAggregate::COUNT('instances')])
+        as $template) {
+            if ($template->inuse) {
+                $template->setFlag(TaskTemplate::FLAG_DELETED);
+                if ($template->save())
+                    $count++;
+            }
+            else {
+                if ($template->delete())
+                    $count++;
+            }
+        }
+        if ($count)
+            Messages::success(sprintf(__('Successfully deleted %s.'),
+                sprintf(_N('one task template', '%d task templates', $count), $count)));
+        unset($template);
+        break;
     }
 }
 
 $page='task-template-sets.inc.php';
-if ($template || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'], 'add-tpl')))
+if ($template)
     $page='task-template.inc.php';
 elseif ($set)
     $page='task-template-set.inc.php';
