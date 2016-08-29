@@ -100,6 +100,54 @@ if ($_POST) {
                 sprintf(_N('one task template', '%d task templates', $count), $count)));
         unset($template);
         break;
+
+    // ---- Group operations --------------------------------------------
+
+    case 'disable-group':
+        $flags = new SqlField('flags');
+        $count = TaskTemplateGroup::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->update(['flags' => $flags->bitand(~TaskTemplateGroup::FLAG_ENABLED)]);
+
+        if ($count)
+            Messages::success(sprintf(__('Successfully disabled %s'),
+                sprintf(_N('one task template group', '%d task template groups', $count), $count)));
+        break;
+
+    case 'enable-group':
+        $flags = new SqlField('flags');
+        $count = TaskTemplateGroup::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->update(['flags' => $flags->bitor(TaskTemplateGroup::FLAG_ENABLED)]);
+
+        if ($count)
+            Messages::success(sprintf(__('Successfully enabled %s'),
+                sprintf(_N('one task template group', '%d task template groups', $count), $count)));
+        break;
+
+    case 'delete-group':
+        // Deleting is a bit different. If there are no tasks which are
+        // based on this template group, then the template group can be
+        // safely removed.  Otherwise, it should be marked as deleted.
+        $count = 0;
+        foreach (TaskTemplateGroup::objects()
+            ->filter(['id__in' => $_POST['ids']])
+            ->annotate(['inuse' => SqlAggregate::COUNT('instances')])
+        as $group) {
+            if ($group->inuse) {
+                $group->setFlag(TaskTemplate::FLAG_DELETED);
+                if ($group->save())
+                    $count++;
+            }
+            else {
+                if ($group->delete())
+                    $count++;
+            }
+        }
+        if ($count)
+            Messages::success(sprintf(__('Successfully deleted %s.'),
+                sprintf(_N('one task template group', '%d task template groups', $count), $count)));
+        break;
     }
 }
 
