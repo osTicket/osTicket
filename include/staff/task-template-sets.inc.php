@@ -1,4 +1,3 @@
-<form action="task-templates.php" method="POST" name="forms">
 
 <div class="sticky bar opaque">
   <div class="content">
@@ -16,19 +15,20 @@
       <div id="action-dropdown-more" class="action-dropdown anchor-right">
         <ul id="actions">
           <li>
-            <a data-name="enable" href="task-templates.php?a=enable">
+            <a class="confirm" data-name="enable-group" data-form-id="save" href="task-templates.php?a=enable-group">
               <i class="icon-ok-sign icon-fixed-width"></i>
               <?php echo __('Enable'); ?>
             </a>
           </li>
           <li>
-            <a data-name="disable" href="task-templates.php?a=disable">
+            <a class="confirm" data-name="disable-group" data-form-id="save" href="task-templates.php?a=disable-group">
               <i class="icon-ban-circle icon-fixed-width"></i>
               <?php echo __('Disable'); ?>
             </a>
           </li>
           <li class="danger">
-            <a class="confirm" data-name="delete" href="forms.php?a=delete">
+            <a class="confirm" data-name="delete-group" data-form-id="save"
+                href="task-templates.php?a=delete-group">
               <i class="icon-trash icon-fixed-width"></i>
               <?php echo __( 'Delete'); ?>
             </a>
@@ -52,9 +52,10 @@ $pageNav->setURL('task-templates.php');
 $showing=$pageNav->showing().' '._N('template set','template sets',$count);
 ?>
 
+<form action="task-templates.php" method="POST" name="forms" id="save">
 <?php csrf_token(); ?>
 
-<input type="hidden" name="do" value="mass_process" >
+<input type="hidden" name="do" id="action" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
   <tbody>
@@ -109,28 +110,36 @@ if ($count) //Show options..
   echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
 
+<input type="submit" class="hidden" style="display:none" value="" />
+
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
-  <h3><?php echo __('Please Confirm'); ?></h3>
-  <a class="close" href=""><i class="icon-remove-circle"></i></a>
-  <hr/>
-  <p class="confirm-action" style="display:none;" id="delete-confirm">
-    <font color="red"><strong><?php echo sprintf(__(
-    'Are you sure you want to DELETE %s?'),
-    _N('selected template set', 'selected template sets', 2));?></strong></font>
-    <br><br><?php echo __('Deleted data CANNOT be recovered.'); ?>
-  </p>
-  <div><?php echo __('Please confirm to continue.'); ?></div>
-  <hr style="margin-top:1em"/>
-  <p class="full-width">
-    <span class="buttons pull-left">
-      <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
-    </span>
-    <span class="buttons pull-right">
-      <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="confirm">
-    </span>
-   </p>
-  <div class="clear"></div>
+    <h3><?php echo __('Please Confirm');?></h3>
+    <a class="close" href=""><i class="icon-remove-circle"></i></a>
+    <hr/>
+    <p class="confirm-action" style="display:none;" id="enable-group-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>enable</b> %s?'),
+            _N('selected template group', 'selected templatei groups', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="disable-group-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>disable</b> %s?'),
+            _N('selected template group', 'selected template groups', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="delete-group-confirm">
+        <font color="red"><strong><?php echo sprintf(__('Are you sure you want to DELETE %s?'),
+            _N('selected template group', 'selected template groups', 2));?></strong></font>
+        <br><br><?php echo __('Deleted data CANNOT be recovered.');?>
+    </p>
+    <div><?php echo __('Please confirm to continue.');?></div>
+    <hr style="margin-top:1em"/>
+    <p class="full-width">
+        <span class="buttons pull-left">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
+        </span>
+        <span class="buttons pull-right">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
+        </span>
+     </p>
+    <div class="clear"></div>
 </div>
-
