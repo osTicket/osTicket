@@ -70,7 +70,6 @@ $qs += array('group_id' => $set->getId());
 <form action="task-templates.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
   <?php csrf_token(); ?>
   <input type="hidden" name="do" id="action" value="<?php echo $action; ?>" />
-  <input type="hidden" name="action" value="<?php echo Format::htmlchars($_REQUEST['action']); ?>" />
   <input type="hidden" name="group_id" value="<?php echo $set->id; ?>" />
 
   <table class="list full-width" cellspacing="1">

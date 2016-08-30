@@ -28,7 +28,6 @@ else {
 <form action="task-templates.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
   <?php csrf_token(); ?>
   <input type="hidden" name="do" value="<?php echo $action; ?>">
-  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
   <input type="hidden" name="group_id" value="<?php echo Format::htmlchars($_REQUEST['group_id']); ?>">
   <input type="hidden" name="tpl_id" value="<?php echo $info['id']; ?>">
 
