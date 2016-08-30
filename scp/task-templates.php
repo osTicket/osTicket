@@ -34,12 +34,8 @@ if ($_POST) {
             Messages::warning(__('Unable to update associated forms'));
         }
         else {
-            Messages::success(__('FIXME Successfully created ...'));
+            Messages::success(__('Task templated created successfully'));
         }
-
-        // Redirect to the group page for additions
-        if ($_POST['do'] == 'add-template')
-            unset($template);
         break;
 
     // Called from the set-list page to update sort order
@@ -152,7 +148,7 @@ if ($_POST) {
 }
 
 $page='task-template-sets.inc.php';
-if ($template)
+if ($template || 0 === strcmp($_REQUEST['a'], 'add-tpl'))
     $page='task-template.inc.php';
 elseif ($set)
     $page='task-template-set.inc.php';

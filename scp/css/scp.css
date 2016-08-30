@@ -3509,6 +3509,7 @@ table.grid.form div.section-break,
 table.grid.form caption {
   font-size: 1.3em;
   font-weight: bold;
+  text-align: left;
   text-align: start;
   padding: 0 9px;
   border: none;
