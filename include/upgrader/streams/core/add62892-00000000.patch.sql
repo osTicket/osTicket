@@ -70,7 +70,7 @@ CREATE TABLE `%TABLE_PREFIX%task_template_group` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) DEFAULT CHARSET=utf8
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
