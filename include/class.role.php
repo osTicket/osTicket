@@ -387,8 +387,8 @@ extends AbstractForm {
         );
     }
 
-    function getClean($validate = true) {
-        $clean = parent::getClean();
+    function getClean($format=self::FORMAT_DEFAULT, $validate=true) {
+        $clean = parent::getClean($format, $validate);
         // Index permissions as ['ticket.edit' => 1]
         $clean['perms'] = array_keys($clean['perms']);
         return $clean;
