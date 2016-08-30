@@ -140,14 +140,13 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 } else { //Category Listing.
     $categories = Category::objects()
-        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
-        ->all();
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')));
 
-    if (count($categories)) {
+    if ($categories->count()) {
         $categories->sort(function($a) { return $a->getLocalName(); });
         echo '<div>'.__('Click on the category to browse FAQs or manage its existing FAQs.').'</div>
                 <ul id="kb">';
-        foreach ($categories as $C) {
+        foreach ($categories->all() as $C) {
             echo sprintf('
                 <li>
                     <h4><a class="truncate" style="max-width:600px" href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></h4>
