@@ -77,8 +77,7 @@ class FilterAction extends VerySimpleModel {
             //TODO: Figure out why $this->type gives an id
             $existing = is_numeric($this->type) ? (self::lookup($this->type)) : $this;
             if (!($I = self::lookupByType($existing->type, $existing)))
-                throw new Exception(sprintf(
-                    '%s: No such filter action registered', $this->type));
+                return new DefunktTriggerAction($this);
             $this->_impl = $I;
         }
         return $this->_impl;
@@ -189,6 +188,25 @@ abstract class TriggerAction {
 
     abstract function apply(&$ticket, array $info);
     abstract function getConfigurationOptions();
+}
+
+/**
+ * TriggerAction which is used in a case where a trigger action registered
+ * in the database is not available. This might occur for a plugin which is
+ * no longer available, a rollback from a future osTicket version, or from
+ * experimental features.
+ *
+ * It does nothing more than prevent crashes and errors.
+ */
+class DefunktTriggerAction extends TriggerAction {
+    function apply(&$ticket, array $info) {
+        global $ost;
+
+        // Log an error to the database
+        $ost->logError('Missing plugin?',
+            sprintf(_S('%s: No such filter action registered'), $this->type));
+    }
+    function getConfigurationOptions() { return array(); }
 }
 
 class FA_RejectTicket extends TriggerAction {
@@ -629,3 +647,38 @@ class FA_SendEmail_TicketInfo {
         );
     }
 }
+
+class FA_AttachCannedTasks extends TriggerAction {
+    static $type = 'canned_tasks';
+    static $name = /* @trans */ 'Attach Canned Tasks';
+    static $flags = TriggerAction::FLAG_MULTI_USE;
+
+    function apply(&$ticket, array $info) {
+        $config = $this->getConfiguration();
+        if (!$config['template_group_id'])
+            return;
+
+        // The ticket info is not infleuenced here. Instead, attach the
+        // tasks after the ticket is successfully created.
+        Signal::connect('ticket.created',
+        function($ticket) use ($config) {
+            if (!($group = TaskTemplateGroup::lookup($config['template_group_id'])))
+                return;
+            $set = $group->instanciate($ticket, null);
+            // Attempt to start immediately
+            if ($set)
+                $set->start();
+        });
+    }
+
+    function getConfigurationOptions() {
+        $choices = TaskTemplateGroup::allActive()->getIterator()->hash_by('id');
+        return array(
+            'template_group_id' => new ChoiceField(array(
+                'required' => true,
+                'choices' => $choices,
+            )),
+        );
+    }
+}
+FilterAction::register('FA_AttachCannedTasks', /* @trans */ 'Communication');

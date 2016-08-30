@@ -2544,10 +2544,7 @@ class TaskTemplateGroup extends VerySimpleModel {
      * every template in the group should be accounted for.
      */
     function getTreeOrganizedTemplates() {
-        $templates = array();
-        foreach ($this->templates->order_by('sort') as $tpl) {
-            $templates[$tpl->id] = $tpl;
-        }
+        $templates = $this->templates->order_by('sort')->getIterator()->hash_by('id');
 
         // Now, go back through the list and arrange the templates by
         // dependents
