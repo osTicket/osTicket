@@ -2247,6 +2247,13 @@ extends ModelResultSet {
         $this->storage = $cache;
     }
 
+    function reset() {
+        $this->cache = array();
+        $this->eoi = false;
+        // Re-fetch the queryset
+        parent::__construct(new ModelInstanceManager($this->queryset));
+    }
+
     // Save all changes made to any list items
     function saveAll() {
         foreach ($this as $I)

@@ -2279,14 +2279,15 @@ class TaskTemplate extends VerySimpleModel {
                 // Don't add a form more than once
                 continue;
             }
-            TaskTemplateForm::create(array(
-                'template_id' => $this->getId(),
-                'form_id' => $id,
+            $tf = new TaskTemplateForm(array(
+                'template' => $this,
+                'form' => $form,
                 'sort' => $sort + 1,
                 'extra' => JsonDataEncoder::encode(
                     array('disable' => $find_disabled($form))
                 )
-            ))->save();
+            ));
+            $tf->save();
         }
         $this->forms->reset();
         return true;
