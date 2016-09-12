@@ -776,7 +776,6 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
-        static $filtered;
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
             && ($message = $entry->postEmail($vars))
         ) {
@@ -821,7 +820,7 @@ class MailFetcher {
             // Indicate failure of mail processing
             return null;
         }
-        if(!$filtered && $ticket instanceof Ticket){
+        if($ticket instanceof Ticket && !$ticket->filtered){
             foreach($ticket->getRecipients()->getEmailsAsArray() as $email)
             {
                 $vars['recipients'][] = array(
@@ -832,7 +831,7 @@ class MailFetcher {
             }
             $ticketFilter = new TicketFilter('Email', $vars);
             $ticketFilter->apply($vars);
-            $filtered = true;
+            $ticket->filtered = true;
         }
         return $ticket;
     }

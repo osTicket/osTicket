@@ -262,6 +262,7 @@ implements RestrictedAccess, Threadable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
+    var $filtered = false;
 
     function __onload() {
         $this->loadDynamicData();
@@ -2039,6 +2040,9 @@ implements RestrictedAccess, Threadable {
             if (($slaId=$this->getDept()->getSLAId()))
                 $this->selectSLAId($slaId);
 
+        if($form->getField('unassign')->getClean()){
+            $this->release();
+        }
         // Log transfer event
         $this->logEvent('transferred');
 
@@ -2225,7 +2229,7 @@ implements RestrictedAccess, Threadable {
     }
 
     // Unassign primary assignee
-    function unassign() {
+    function unassign() {  //801288 and 841972
         // We can't release what is not assigned buddy!
         if (!$this->isAssigned())
             return true;
