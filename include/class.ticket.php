@@ -262,7 +262,6 @@ implements RestrictedAccess, Threadable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
-    var $filtered = false;
 
     function __onload() {
         $this->loadDynamicData();
