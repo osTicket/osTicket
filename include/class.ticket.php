@@ -2208,6 +2208,7 @@ implements RestrictedAccess, Threadable {
                         );
             } else {
                 $this->team_id = $assignee->getId();
+                $this->staff_id = 0;
                 $evd = array('team' => $assignee->getId());
             }
         } else {
