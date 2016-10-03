@@ -20,28 +20,23 @@
 	"source": {
 		"type": "git",
 		"url": "https://github.com/BristolPound/osTicket.git",
-		"reference": "tree/develop"
+		"reference": "dev-develop"
 	},
 	"require": {
 		"php": ">=5.4",
-		"pear1/Auth_SASL": "1.0.6",
-		"pear1/Mail": "1.2.0",
-		"pear1/Mail_Mime": "1.10.0",
-		"pear1/Mail_mimeDecode": "1.5.6",
-		"pear1/Net_SMTP": "1.7.1",
-		"pear1/Net_Socket": "1.0.10",
-		"pear1/PEAR": "1.9.4",
-		"pear1/Serivces_JSON": "1.0.3"
+		"pear-pear.php.net/Auth_SASL": "1.0.6",
+		"pear-pear.php.net/Mail": "1.2.0",
+		"pear-pear.php.net/Mail_Mime": "1.10.0",
+		"pear-pear.php.net/Mail_mimeDecode": "1.5.6",
+		"pear-pear.php.net/Net_SMTP": "1.7.1",
+		"pear-pear.php.net/Net_Socket": "1.0.10",
+		"pear-pear.php.net/PEAR": "1.9.4",
+		"pear-pear.php.net/Services_JSON": "1.0.3"
 	},
 	"repositories": [
 		{
-			"type": "vcs",
-			"url": "https://github.com/BristolPound/osTicket"
-		},
-		{
 			"type": "pear",
-			"url": "https://pear.php.net",
-			"vendor-alias": "pear1"
+			"url": "https://pear.php.net"
 		}
 	]
 }
