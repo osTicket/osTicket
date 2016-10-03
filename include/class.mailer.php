@@ -297,10 +297,6 @@ class Mailer {
     function send($recipient, $subject, $message, $options=null) {
         global $ost, $cfg;
 
-        //Get the goodies
-        require_once (PEAR_DIR.'Mail.php'); // PEAR Mail package
-        require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
-
         $messageId = $this->getMessageId($recipient, $options);
 
         if (is_object($recipient) && is_callable(array($recipient, 'getEmail'))) {

@@ -479,9 +479,6 @@ class FA_SendEmail extends TriggerAction {
         ));
         $to = $replacer->replaceVars($config['recipients']);
 
-        require_once PEAR_DIR . 'Mail/RFC822.php';
-        require_once PEAR_DIR . 'PEAR.php';
-
         if (!($mails = Mail_RFC822::parseAddressList($to)) || PEAR::isError($mails))
             return false;
 

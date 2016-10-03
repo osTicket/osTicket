@@ -614,8 +614,6 @@ implements TemplateVariable {
     }
 
     function getVar($what) {
-        require_once PEAR_DIR . 'Mail/RFC822.php';
-        require_once PEAR_DIR . 'PEAR.php';
         if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
             return '';
 
