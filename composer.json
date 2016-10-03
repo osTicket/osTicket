@@ -20,7 +20,7 @@
 	"source": {
 		"type": "git",
 		"url": "https://github.com/BristolPound/osTicket.git",
-		"reference": "origin/master"
+		"reference": "tree/develop"
 	},
 	"require": {
 		"php": ">=5.4",
