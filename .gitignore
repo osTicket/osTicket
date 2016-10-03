@@ -14,6 +14,10 @@ stage
 # Ignore packaged plugins and language packs
 *.phar
 
+# Ignore composer files
+composer.lock
+vendor/
+
 # Ignore mPDF temp files
 include/mpdf/ttfontdata
 include/mpdf/tmp
