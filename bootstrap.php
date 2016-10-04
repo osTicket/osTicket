@@ -308,7 +308,6 @@ define('ROOT_DIR',str_replace('\\', '/', $here.'/'));
 unset($here); unset($h);
 
 define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
-define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
@@ -330,7 +329,9 @@ if(!defined('PATH_SEPARATOR')){
 }
 
 //Set include paths. Overwrite the default paths.
-ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
+ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR);
+
+require ROOT_DIR . '/vendor/autoload.php';
 
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
