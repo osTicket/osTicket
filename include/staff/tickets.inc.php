@@ -549,9 +549,9 @@ return false;">
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td><div style="max-width: <?php
-                    $base = 279;
+                    $base = 271;
                     // Make room for the paperclip and some extra
-                    if ($T['attachment_count']) $base -= 18;
+                    if ($T['attachment_count']) $base -= 15;
                     // Assume about 8px per digit character
                     if ($threadcount > 1) $base -= 20 + ((int) log($threadcount, 10) + 1) * 8;
                     // Make room for overdue flag and friends
