@@ -244,12 +244,12 @@ if ($closedTickets) {?>
                 <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td>&nbsp;<?php echo Format::date($T['created']); ?></td>
-                <td>&nbsp;<?php echo $status; ?></td>
+                <td><?php echo Format::date($T['created']); ?></td>
+                <td><?php echo $status; ?></td>
                 <td>
                     <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
                 </td>
-                <td>&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
+                <td><span class="truncate"><?php echo $dept; ?></span></td>
             </tr>
         <?php
         }
