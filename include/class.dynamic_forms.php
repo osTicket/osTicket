@@ -1265,7 +1265,7 @@ class DynamicFormEntry extends VerySimpleModel {
             }
             if ($a->dirty)
                 $dirty++;
-            $a->save();
+            $a->save($refetch);
         }
         return $dirty;
     }
@@ -1625,8 +1625,10 @@ class SelectionField extends FormField {
                 }
             } elseif ($config['typeahead']
                     && ($entered = $this->getWidget()->getEnteredValue())
-                    && !in_array($entered, $entry))
+                    && !in_array($entered, $entry)
+                    && $entered != $entry) {
                 $this->_errors[] = __('Select a value from the list');
+           }
         }
     }
 
