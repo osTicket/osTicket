@@ -954,8 +954,8 @@ class DynamicFormEntry extends VerySimpleModel {
         foreach ($this->getAnswers() as $ans) {
             $f = $ans->getField();
             if ($f->isStorable() && $f->get('name') == $name) {
-                $f->reset();
                 $ans->set('value', $value);
+                $f->setValue($value);
                 if ($id !== false)
                     $ans->set('value_id', $id);
                 break;
