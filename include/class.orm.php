@@ -3109,12 +3109,11 @@ class MySqlPreparedExecutor {
             case is_int($p):
             case is_float($p):
                 return $p;
-
             case $p instanceof DateTime:
                 $p = $p->format('Y-m-d H:i:s');
             default:
-                return db_real_escape($p, true);
-            }
+                return db_real_escape((string) $p, true);
+           }
         }, $this->sql);
     }
 }
