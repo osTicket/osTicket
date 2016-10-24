@@ -1457,7 +1457,7 @@ class TaskForm extends DynamicForm {
     static $cdata = array(
             'table' => TASK_CDATA_TABLE,
             'object_id' => 'task_id',
-            'object_type' => 'A',
+            'object_type' => ObjectModel::OBJECT_TYPE_TASK,
         );
 
     static function objects() {
@@ -1545,8 +1545,7 @@ class TaskThread extends ObjectThread {
         $vars['threadId'] = $this->getId();
         $vars['message'] = $vars['description'];
         unset($vars['description']);
-
-        return MessageThreadEntry::create($vars, $errors);
+        return MessageThreadEntry::add($vars, $errors);
     }
 
     static function create($task=false) {
