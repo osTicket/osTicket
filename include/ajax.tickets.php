@@ -404,9 +404,11 @@ class TicketsAjaxAPI extends AjaxController {
                         Format::htmlchars($user->getName()));
             elseif (($c=$ticket->addCollaborator($user,
                             array('isactive'=>1), $errors))) {
-                $note = Format::htmlchars(sprintf(__('%s <%s> added as a collaborator'),
-                            Format::htmlchars($c->getName()), $c->getEmail()));
-                $ticket->logNote(__('New Collaborator Added'), $note,
+                $note = new TextThreadBody(
+                        sprintf(_S('%s <%s> added as a collaborator'),
+                            $c->getName(), $c->getEmail()
+                ));
+                $ticket->logNote(_S('New Collaborator Added'), $note,
                     $thisstaff, false);
                 $info = array('msg' => sprintf(__('%s added as a collaborator'),
                             Format::htmlchars($c->getName())));
