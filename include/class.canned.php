@@ -21,6 +21,10 @@ extends VerySimpleModel {
         'table' => CANNED_TABLE,
         'pk' => array('canned_id'),
         'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+                'null' => true,
+            ),
             'attachments' => array(
                 'constraint' => array(
                     "'C'" => 'Attachment.type',
