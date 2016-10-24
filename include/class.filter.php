@@ -383,6 +383,10 @@ class Filter {
     }
 
     function lookup($id) {
+
+        if ($id && !is_numeric($id))
+            $id = self::getIdByName($id);
+
         return ($id && is_numeric($id) && ($f= new Filter($id)) && $f->getId()==$id)?$f:null;
     }
 
