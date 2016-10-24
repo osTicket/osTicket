@@ -1004,13 +1004,15 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         case 'phone':
         case 'phone_number':
             return $this->getPhoneNumber();
-            break;
+        case 'ticket_link':
+            if ($ticket = $this->ticket) {
+                return sprintf('%s/scp/tickets.php?id=%d#tasks',
+                    $cfg->getBaseUrl(), $ticket->getId());
+            }
         case 'staff_link':
             return sprintf('%s/scp/tasks.php?id=%d', $cfg->getBaseUrl(), $this->getId());
-            break;
         case 'create_date':
             return new FormattedDate($this->getCreateDate());
-            break;
          case 'due_date':
             if ($due = $this->getEstDueDate())
                 return new FormattedDate($due);
@@ -1061,6 +1063,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'thread' => array(
                 'class' => 'TaskThread', 'desc' => __('Task Thread'),
             ),
+            'staff_link' => __('Link to view the task'),
+            'ticket_link' => __('Link to view the task inside the ticket'),
             'last_update' => array(
                 'class' => 'FormattedDate', 'desc' => __('Time of last update'),
             ),
