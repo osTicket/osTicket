@@ -86,7 +86,7 @@ elseif ($_POST && isset($_POST['lticket'])) {
             Http::redirect('tickets.php');
 
         // This will succeed as it is checked in the authentication backend
-        $ticket = Ticket::lookupByNumber($_POST['lticket']);
+        $ticket = Ticket::lookupByNumber($_POST['lticket'], $_POST['lemail']);
 
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)

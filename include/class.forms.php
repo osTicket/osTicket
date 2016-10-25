@@ -1582,15 +1582,19 @@ class ChoiceField extends FormField {
             $value = JsonDataParser::parse($value) ?: $value;
 
         // CDATA table may be built with comma-separated key,value,key,value
-        if (is_string($value)) {
+        if (is_string($value) && strpos($value, ',')) {
             $values = array();
             $choices = $this->getChoices();
-            foreach (explode(',', $value) as $V) {
+            $vals = explode(',', $value);
+            foreach ($vals as $V) {
                 if (isset($choices[$V]))
                     $values[$V] = $choices[$V];
             }
             if (array_filter($values))
                 $value = $values;
+            elseif($vals)
+                list($value) = $vals;
+
         }
         $config = $this->getConfiguration();
         if (!$config['multiselect'] && is_array($value) && count($value) < 2) {

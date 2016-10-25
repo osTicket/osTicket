@@ -396,9 +396,10 @@ class VerySimpleModel {
     }
 
     function __isset($field) {
-        return array_key_exists($field, $this->ht)
+        return ($this->ht && array_key_exists($field, $this->ht))
             || isset(static::$meta['joins'][$field]);
     }
+
     function __unset($field) {
         if ($this->__isset($field))
             unset($this->ht[$field]);
@@ -1468,6 +1469,13 @@ implements IteratorAggregate, Countable, ArrayAccess {
         }
     }
 
+    function reset() {
+        $this->eoi = false;
+        $this->cache = array();
+        // XXX: Should the inner be recreated to refetch?
+        $this->inner->rewind();
+    }
+
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
         return $this->getCache();
@@ -1906,11 +1914,6 @@ extends ModelResultSet {
         else
             foreach ($this->key as $field=>$value)
                 $object->set($field, null);
-    }
-
-    function reset() {
-        $this->cache = array();
-        unset($this->resource);
     }
 
     /**
@@ -3106,12 +3109,11 @@ class MySqlPreparedExecutor {
             case is_int($p):
             case is_float($p):
                 return $p;
-
             case $p instanceof DateTime:
                 $p = $p->format('Y-m-d H:i:s');
             default:
-                return db_real_escape($p, true);
-            }
+                return db_real_escape((string) $p, true);
+           }
         }, $this->sql);
     }
 }

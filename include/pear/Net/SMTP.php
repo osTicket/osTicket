@@ -166,6 +166,13 @@ class Net_SMTP
 
         $this->pipelining      = $pipelining;
         $this->socket         = new Net_Socket();
+
+        // Turn off peer name verification by default
+        if (!$socket_options)
+            $socket_options = array(
+                    'ssl' => array('verify_peer_name' => false)
+                    );
+
         $this->socket_options = $socket_options;
         $this->timeout        = $timeout;
 
