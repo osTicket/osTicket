@@ -1122,11 +1122,13 @@ implements TemplateVariable {
     function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        if ($entry = ThreadEntry::objects()
-            ->filter(array('email_info__mid' => $mailinfo['mid']))
-            ->order_by(false)
-            ->first()
-        ) {
+        if ($mailinfo['mid'] &&
+                ($entry = ThreadEntry::objects()
+                 ->filter(array('email_info__mid' => $mailinfo['mid']))
+                 ->order_by(false)
+                 ->first()
+                 )
+         ) {
             $seen = true;
             return $entry;
         }
@@ -1189,15 +1191,15 @@ implements TemplateVariable {
                 return $t;
             }
         }
-
         // Passive threading - listen mode
-        $entry = ThreadEntry::objects()
-            ->filter(array(
-                'email_info__mid__in' => array_map(
-                    function ($a) { return "<$a>"; },
-                $possibles)))
-            ->first();
-        if ($entry) {
+        if (count($possibles)
+                && ($entry = ThreadEntry::objects()
+                    ->filter(array('email_info__mid__in' => array_map(
+                        function ($a) { return "<$a>"; },
+                    $possibles)))
+                    ->first()
+                )
+         ) {
             $mailinfo['passive'] = true;
             return $entry;
         }
