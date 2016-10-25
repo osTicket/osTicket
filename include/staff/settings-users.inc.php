@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 
 ?>
 <h2><?php echo __('Users Settings'); ?></h2>
-<form action="settings.php?t=users" method="post" id="save">
+<form action="settings.php?t=users" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="users" >
 <ul class="tabs" id="users-tabs">
