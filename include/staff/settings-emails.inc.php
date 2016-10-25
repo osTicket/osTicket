@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 ?>
 <h2><?php echo __('Email Settings and Options');?></h2>
-<form action="emailsettings.php" method="post" id="save">
+<form action="emailsettings.php" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="emails" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">

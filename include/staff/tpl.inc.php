@@ -76,7 +76,7 @@ $tpl=$msgtemplates[$selected];
     <input type="hidden" name="tpl_id" value="<?php echo $tpl_id; ?>">
 </form>
 <hr/>
-<form action="templates.php?id=<?php echo $id; ?>&amp;a=manage" method="post" id="save">
+<form action="templates.php?id=<?php echo $id; ?>&amp;a=manage" method="post" class="save">
 <?php csrf_token(); ?>
 <?php foreach ($extras as $k=>$v) { ?>
     <input type="hidden" name="<?php echo $k; ?>" value="<?php echo Format::htmlchars($v); ?>" />

@@ -146,11 +146,11 @@ var scp_prep = function() {
         }
     };
 
-    $("form#save").on('change', ':input[name], :button[name]', function() {
+    $("form.save").on('change', ':input[name], :button[name]', function() {
         if (!$(this).is('.nowarn')) warnOnLeave($(this));
     });
 
-    $("form#save").on('click', ':input[type=reset], :button[type=reset]', function() {
+    $("form.save").on('click', ':input[type=reset], :button[type=reset]', function() {
         var fObj = $(this).closest('form');
         if(fObj.data('changed')){
             $('input[type=submit], button[type=submit]', fObj).removeClass('save pending');
@@ -161,7 +161,7 @@ var scp_prep = function() {
         }
     });
 
-    $('form#save, form:has(table.list)').submit(function() {
+    $('form.save, form:has(table.list)').submit(function() {
         $(window).unbind('beforeunload');
         $('#overlay, #loading').show();
         return true;

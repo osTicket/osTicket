@@ -35,7 +35,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <li><a href="#forms"><i class="icon-paste"></i> <?php echo __('Forms'); ?></a></li>
 </ul>
 
-<form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="helptopics.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

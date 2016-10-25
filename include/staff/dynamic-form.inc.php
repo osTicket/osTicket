@@ -31,7 +31,7 @@ if($form && $_REQUEST['a']!='add') {
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form class="manage-form" action="<?php echo $url ?>" method="post" id="save">
+<form class="manage-form" action="<?php echo $url ?>" method="post" class="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo $action; ?>">
