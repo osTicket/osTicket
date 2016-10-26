@@ -1,5 +1,9 @@
 <?php
 header("Content-Type: text/html; charset=UTF-8");
+
+$title = ($ost && ($title=$ost->getPageTitle()))
+    ? $title : ('osTicket :: '.__('Staff Control Panel'));
+
 if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html<?php
@@ -17,7 +21,7 @@ if ($lang) {
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="x-pjax-version" content="<?php echo GIT_VERSION; ?>">
-    <title><?php echo ($ost && ($title=$ost->getPageTitle()))?$title:'osTicket :: '.__('Staff Control Panel'); ?></title>
+    <title><?php echo Format::htmlchars($title); ?></title>
     <!--[if IE]>
     <style type="text/css">
         .tip_shadow { display:block !important; }
