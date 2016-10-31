@@ -50,11 +50,7 @@ class Bootstrap {
     }
 
     function https() {
-       return
-            (isset($_SERVER['HTTPS'])
-                && strtolower($_SERVER['HTTPS']) == 'on')
-            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+       return osTicket::is_https();
     }
 
     static function defineTables($prefix) {
@@ -335,6 +331,7 @@ ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR)
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
 require(INCLUDE_DIR.'class.http.php');
+require(INCLUDE_DIR.'class.validator.php');
 
 // Determine the path in the URI used as the base of the osTicket
 // installation
@@ -346,12 +343,7 @@ Bootstrap::init();
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
 
-define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
-define('DEFAULT_PRIORITY_ID',1);
+define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
+define('DEFAULT_PRIORITY_ID', 1);
 
-#Global override
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-    // Take the left-most item for X-Forwarded-For
-    $_SERVER['REMOTE_ADDR'] = trim(array_pop(
-        explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])));
 ?>

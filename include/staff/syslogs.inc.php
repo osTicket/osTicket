@@ -156,7 +156,7 @@ else
                 <td>&nbsp;<a class="tip" href="#log/<?php echo $row['log_id']; ?>"><?php echo Format::htmlchars($row['title']); ?></a></td>
                 <td><?php echo $row['log_type']; ?></td>
                 <td>&nbsp;<?php echo Format::daydatetime($row['created']); ?></td>
-                <td><?php echo $row['ip_address']; ?></td>
+                <td><?php echo Format::htmlchars($row['ip_address']); ?></td>
             </tr>
             <?php
             } //end of while.

@@ -185,23 +185,7 @@ class Validator {
     }
 
     static function is_ip($ip) {
-
-        if(!$ip or empty($ip))
-            return false;
-
-        $ip=trim($ip);
-        # Thanks to http://stackoverflow.com/a/1934546
-        if (function_exists('inet_pton')) { # PHP 5.1.0
-            # Let the built-in library parse the IP address
-            return @inet_pton($ip) !== false;
-        } else if (preg_match(
-            '/^(?>(?>([a-f0-9]{1,4})(?>:(?1)){7}|(?!(?:.*[a-f0-9](?>:|$)){7,})'
-            .'((?1)(?>:(?1)){0,5})?::(?2)?)|(?>(?>(?1)(?>:(?1)){5}:|(?!(?:.*[a-f0-9]:){5,})'
-            .'(?3)?::(?>((?1)(?>:(?1)){0,3}):)?)?(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])'
-            .'(?>\.(?4)){3}))$/iD', $ip)) {
-            return true;
-        }
-        return false;
+        return filter_var(trim($ip), FILTER_VALIDATE_IP) !== false;
     }
 
     static function is_username($username, &$error='') {
@@ -210,6 +194,100 @@ class Validator {
         elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
             $error = __('Username contains invalid characters');
         return $error == '';
+    }
+
+
+    /*
+     * check_ip
+     * Checks if an IP (IPv4 or IPv6) address is contained in the list of given IPs or subnets.
+     *
+     * @credit - borrowed from Symfony project
+     *
+     */
+    public static function check_ip($ip, $ips) {
+
+        if (!Validator::is_ip($ip))
+            return false;
+
+        $method = substr_count($ip, ':') > 1 ? 'check_ipv6' : 'check_ipv4';
+        $ips = is_array($ips) ? $ips : array($ips);
+        foreach ($ips as $_ip) {
+            if (self::$method($ip, $_ip)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * check_ipv4
+     * Compares two IPv4 addresses.
+     * In case a subnet is given, it checks if it contains the request IP.
+     *
+     * @credit - borrowed from Symfony project
+     */
+    public static function check_ipv4($ip, $cidr) {
+
+        if (false !== strpos($cidr, '/')) {
+            list($address, $netmask) = explode('/', $cidr, 2);
+
+            if ($netmask === '0')
+                return filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+
+            if ($netmask < 0 || $netmask > 32)
+                return false;
+
+        } else {
+            $address = $cidr;
+            $netmask = 32;
+        }
+
+        return 0 === substr_compare(
+                sprintf('%032b', ip2long($ip)),
+                sprintf('%032b', ip2long($address)),
+                0, $netmask);
+    }
+
+    /**
+     * Compares two IPv6 addresses.
+     * In case a subnet is given, it checks if it contains the request IP.
+     *
+     * @credit - borrowed from Symfony project
+     * @author David Soria Parra <dsp at php dot net>
+     *
+     * @see https://github.com/dsp/v6tools
+     *
+     */
+    public static function check_ipv6($ip, $cidr) {
+
+        if (!((extension_loaded('sockets') && defined('AF_INET6')) || @inet_pton('::1')))
+            return false;
+
+        if (false !== strpos($cidr, '/')) {
+            list($address, $netmask) = explode('/', $cidr, 2);
+            if ($netmask < 1 || $netmask > 128)
+                return false;
+        } else {
+            $address = $cidr;
+            $netmask = 128;
+        }
+
+        $bytesAddr = unpack('n*', @inet_pton($address));
+        $bytesTest = unpack('n*', @inet_pton($ip));
+        if (!$bytesAddr || !$bytesTest)
+            return false;
+
+        for ($i = 1, $ceil = ceil($netmask / 16); $i <= $ceil; ++$i) {
+            $left = $netmask - 16 * ($i - 1);
+            $left = ($left <= 16) ? $left : 16;
+            $mask = ~(0xffff >> $left) & 0xffff;
+            if (($bytesAddr[$i] & $mask) != ($bytesTest[$i] & $mask)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     function process($fields,$vars,&$errors){

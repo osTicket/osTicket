@@ -444,6 +444,37 @@ class osTicket {
         }
     }
 
+   /*
+    * getTrustedProxies
+    *
+    * Get defined trusted proxies
+    */
+
+    static function getTrustedProxies() {
+        static $proxies = null;
+        // Parse trusted proxies from config file
+        if (!isset($proxies) && defined('TRUSTED_PROXIES'))
+            $proxies = array_filter(
+                    array_map('trim', explode(',', TRUSTED_PROXIES)));
+
+        return $proxies ?: array();
+    }
+
+    /*
+     * getLocalNetworkAddresses
+     *
+     * Get defined local network addresses
+     */
+    static function getLocalNetworkAddresses() {
+        static $ips = null;
+        // Parse local addreses from config file
+        if (!isset($ips) && defined('LOCAL_NETWORKS'))
+            $ips = array_filter(
+                    array_map('trim', explode(',', LOCAL_NETWORKS)));
+
+        return $ips ?: array();
+    }
+
     static function get_root_path($dir) {
 
         /* If run from the commandline, DOCUMENT_ROOT will not be set. It is
@@ -488,14 +519,96 @@ class osTicket {
         return null;
     }
 
+    /*
+     * get_client_ip
+     *
+     * Get client IP address from "Http_X-Forwarded-For" header by following a
+     * chain of trusted proxies.
+     *
+     * "Http_X-Forwarded-For" header value is a comma+space separated list of IP
+     * addresses, the left-most being the original client, and each successive
+     * proxy that passed the request all the way to the originating IP address.
+     *
+     */
+    static function get_client_ip($header='HTTP_X_FORWARDED_FOR') {
+
+        // Request IP
+        $ip = $_SERVER['REMOTE_ADDR'];
+        // Trusted proxies.
+        $proxies = self::getTrustedProxies();
+        // Return current IP address if header is not set and
+        // request is not from a trusted proxy.
+        if (!isset($_SERVER[$header])
+                || !$proxies
+                || !self::is_trusted_proxy($ip, $proxies))
+            return $ip;
+
+        // Get chain of proxied ip addresses
+        $ips = array_map('trim', explode(',', $_SERVER[$header]));
+        // Add request IP to the chain
+        $ips[] = $ip;
+        // Walk the chain in reverse - remove invalid IPs
+        $ips = array_reverse($ips);
+        foreach ($ips as $k => $ip) {
+            // Make sure the IP is valid and not a trusted proxy
+            if ($k && !Validator::is_ip($ip))
+                unset($ips[$k]);
+            elseif ($k && !self::is_trusted_proxy($ip, $proxies))
+                return $ip;
+        }
+
+        // We trust the 400 lb hacker... return left most valid IP
+        return array_pop($ips);
+    }
+
+    /*
+     * Checks if the IP is that of a trusted proxy
+     *
+     */
+    static function is_trusted_proxy($ip, $proxies=array()) {
+        $proxies = $proxies ?: self::getTrustedProxies();
+        // We don't have any proxies set.
+        if (!$proxies)
+            return false;
+        // Wildcard set - trust all proxies
+        else if ($proxies == '*')
+            return true;
+
+        return ($proxies && Validator::check_ip($ip, $proxies));
+    }
+
+    /**
+     * is_local_ip
+     *
+     * Check if a given IP is part of defined local address blocks
+     *
+     */
+    static function is_local_ip($ip, $ips=array()) {
+        $ips = $ips
+            ?: self::getLocalNetworkAddresses()
+            ?: array();
+
+        foreach ($ips as $addr) {
+            if (Validator::check_ip($ip, $addr))
+                return true;
+        }
+
+        return false;
+    }
+
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
     function is_https() {
-        return (isset($_SERVER['HTTPS'])
+
+        // Local server flags
+        if (isset($_SERVER['HTTPS'])
                 && strtolower($_SERVER['HTTPS']) == 'on')
-            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+            return true;
+
+        // Check if SSL was terminated by a loadbalancer
+        return (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+                && !strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https'));
     }
 
     /* returns true if script is being executed via commandline */
