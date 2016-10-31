@@ -21,7 +21,6 @@ if(isset($_SERVER['SCRIPT_NAME'])
     die('kwaheri rafiki!');
 
 require('bootstrap.php');
-Bootstrap::loadConfig();
 Bootstrap::defineTables(TABLE_PREFIX);
 Bootstrap::i18n_prep();
 Bootstrap::loadCode();
