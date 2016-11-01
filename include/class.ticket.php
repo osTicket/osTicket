@@ -3001,8 +3001,8 @@ implements RestrictedAccess, Threadable {
             $user_form = UserForm::getUserForm()->getForm($vars);
             // Add all the user-entered info for filtering
             foreach ($interesting as $F) {
-                $field = $user_form->getField($F);
-                $vars[$F] = $field->toString($field->getClean());
+                if ($field = $user_form->getField($F))
+                    $vars[$F] = $field->toString($field->getClean());
             }
             // Attempt to lookup the user and associated data
             $user = User::lookupByEmail($vars['email']);

@@ -188,17 +188,18 @@ class FA_UseReplyTo extends TriggerAction {
     static $name = /* @trans */ 'Use Reply-To Email';
 
     function apply(&$ticket, array $info) {
-        if (!$info['reply-to'])
+        if (!$info['reply-to']
+            || !$ticket['email']
+            || !strcasecmp($info['reply-to'], $ticket['email']))
             // Nothing to do
             return;
-        $changed = $info['reply-to'] != $ticket['email']
-            || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
-        if ($changed) {
-            $ticket['email'] = $info['reply-to'];
-            if ($info['reply-to-name'])
-                $ticket['name'] = $info['reply-to-name'];
-            throw new FilterDataChanged($ticket);
-        }
+
+        // Change email and  throw data changed exception
+        $ticket['email'] = $info['reply-to'];
+        if ($info['reply-to-name'])
+            $ticket['name'] = $info['reply-to-name'];
+
+        throw new FilterDataChanged($ticket);
     }
 
     function getConfigurationOptions() {
