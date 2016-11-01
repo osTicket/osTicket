@@ -1,3 +1,28 @@
+osTicket v1.10
+==============
+### Enhancements
+ * Support Passive Email Threading (#3276)
+ * Account for agents name format setting when sorting agents (#3274, 5c548c7)
+ * Ticket Filters: Support Lookup By Name (#3274, ef9b743)
+ * Enable preloaded canned responses by default (#3274, 7267531)
+
+### Improvements
+ * Task: Missing Description on create (#3274, 865db9)
+ * Save task due date on create (#3438)
+ * Show overlay on forms submit (#3426, #3391)
+ * upgrader: Fix crash on SequenceLoader (#3421)
+ * upgrader: Fix undefined js function when upgrading due to stale JS file (#3424)
+ * Use help topic as the subject line when issue summary is disabled (#3274, 74bdc02)
+ * PEAR: Turn off peer name verification by default (SMTP) (#3274, 4f68aeb)
+ * Cast orm objects to string when doing db_real_escape (#3274, e63ba58)
+ * Save department on __create (#3274, c664c93)
+ * Limit records to be indexed per cron run to 500 (#3274, 9174bab)
+
+### Performance and Security
+ * Fix memory leak when applying 'Use Reply-To Email' ticket filter action (#3437, 84f085d)
+ * XSS: Sanitize and validate HTTP_X_FORWARDED_FOR header (#3439, b794c599)
+ * XSS: Encode html chars on help desk title/name (#3439, a57de770)
+
 osTicket v1.10-rc.3
 ===================
 ### Enhancements
