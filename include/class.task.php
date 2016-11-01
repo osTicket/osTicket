@@ -1285,7 +1285,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($vars['internal_formdata']['dept_id'])
             $task->dept_id = $vars['internal_formdata']['dept_id'];
         if ($vars['internal_formdata']['duedate'])
-            $task->duedate = $vars['internal_formdata']['duedate'];
+	    $task->duedate = date('Y-m-d G:i', Misc::dbtime($vars['internal_formdata']['duedate']));
 
         if (!$task->save(true))
             return false;
@@ -1520,7 +1520,7 @@ extends AbstractForm {
                     'configuration' => array(
                         'min' => Misc::gmtime(),
                         'time' => true,
-                        'gmt' => true,
+                        'gmt' => false,
                         'future' => true,
                         ),
                     )),
