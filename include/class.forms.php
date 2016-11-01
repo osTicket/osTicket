@@ -1766,7 +1766,7 @@ class DatetimeField extends FormField {
 
     function to_database($value) {
         // Store time in gmt time, unix epoch format
-        return date('Y-m-d H:i:s', $value);
+        return $value ? date('Y-m-d H:i:s', $value) : $value;
     }
 
     function to_php($value) {
