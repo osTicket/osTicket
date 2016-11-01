@@ -315,15 +315,15 @@ class Filter {
         elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
         #       Override name with reply-to information from the TicketFilter
         #       match
-        if ($this->useReplyToEmail() && $info['reply-to']) {
-            $changed = $info['reply-to'] != $ticket['email']
-                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
+        if ($this->useReplyToEmail()
+                && $info['reply-to']
+                && strcasecmp($info['reply-to'], $ticket['email'])) {
+
             $ticket['email'] = $info['reply-to'];
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
-            if ($changed)
-                throw new FilterDataChanged($ticket);
 
+            throw new FilterDataChanged($ticket);
         }
 
         # Use canned response.
