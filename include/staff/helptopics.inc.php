@@ -147,7 +147,7 @@ $order_by = 'sort';
                 <td><?php echo $priority; ?></td>
                 <td><a href="departments.php?id=<?php echo $deptId;
                 ?>"><?php echo $dept; ?></a></td>
-                <td>&nbsp;<?php echo Format::datetime($team->updated); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($topic->updated); ?></td>
             </tr>
             <?php
             } //end of foreach.

@@ -3,7 +3,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 $pages = Page::getPages();
 ?>
 <h2><?php echo __('Company Profile'); ?></h2>
-<form action="settings.php?t=pages" method="post" id="save"
+<form action="settings.php?t=pages" method="post" class="save"
     enctype="multipart/form-data">
 <?php csrf_token(); ?>
 

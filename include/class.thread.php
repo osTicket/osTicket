@@ -335,7 +335,9 @@ implements Searchable {
 			'uid'=> '',
 			'assignToStaffId' => '',
 			'role' => 'M',
-			);
+	        'autorespond' => !isset($mailinfo['passive']),
+            );
+
 
         // XXX: Is this necessary?
         if ($object instanceof Ticket)
@@ -1042,7 +1044,6 @@ implements TemplateVariable {
                         _S($error_descriptions[$error]));
                 }
                 // No need to log the missing-file error number
-                
                 if ($error != UPLOAD_ERR_NO_FILE
                     && ($thread = $this->getThread())
                 ) {
@@ -1251,11 +1252,13 @@ implements TemplateVariable {
     function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
-        if ($entry = ThreadEntry::objects()
-            ->filter(array('email_info__mid' => $mailinfo['mid']))
-            ->order_by(false)
-            ->first()
-        ) {
+        if ($mailinfo['mid'] &&
+                ($entry = ThreadEntry::objects()
+                 ->filter(array('email_info__mid' => $mailinfo['mid']))
+                 ->order_by(false)
+                 ->first()
+                 )
+         ) {
             $seen = true;
             return $entry;
         }
@@ -1317,66 +1320,20 @@ implements TemplateVariable {
                 // ThreadEntry was positively identified
                 return $t;
             }
-
-            // Try to determine if it's a reply to a tagged email.
-            // (Deprecated)
-            $ref = null;
-            if (strpos($mid, '+')) {
-                list($left, $right) = explode('@',$mid);
-                list($left, $ref) = explode('+', $left);
-                $mid = "$left@$right";
-            }
-            $entries = ThreadEntry::objects()
-                ->filter(array('email_info__mid' => $mid))
-                ->order_by(false);
-            foreach ($entries as $t) {
-                // Capture the first match thread item
-                if (!$thread)
-                    $thread = $t;
-                // We found a match  - see if we can ID the user.
-                // XXX: Check access of ref is enough?
-                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
-                    if ($ref[0] =='s') //staff
-                        $mailinfo['staffId'] = $uid;
-                    else // user or collaborator.
-                        $mailinfo['userId'] = $uid;
-
-                    // Best possible case — found the thread and the
-                    // user
-                    return $t;
-                }
-            }
         }
-		
-		// Attempt to match on in-reply-to
-		If ($mailinfo['in-reply-to']){
-			$mid = $mailinfo['in-reply-to'];
-		$entries = ThreadEntry::objects()
-                ->filter(array('email_info__mid' => $mid))
-                ->order_by(false);
-            foreach ($entries as $t) {
-                // Capture the first match thread item
-                if (!$thread)
-                    $thread = $t;
-                // We found a match  - see if we can ID the user.
-                // XXX: Check access of ref is enough?
-                if ($ref && ($uid = $t->getUIDFromEmailReference($ref))) {
-                    if ($ref[0] =='s') //staff
-                        $mailinfo['staffId'] = $uid;
-                    else // user or collaborator.
-                        $mailinfo['userId'] = $uid;
 
-                    // Best possible case — found the thread and the
-                    // user
-                    return $t;
-                }		
-			} 
-		}
-		
-        // Second best case — found a thread but couldn't identify the
-        // user from the header. Return the first thread entry matched
-        if ($thread)
-            return $thread;
+        // Passive threading - listen mode
+        if (count($possibles)
+                && ($entry = ThreadEntry::objects()
+                    ->filter(array('email_info__mid__in' => array_map(
+                        function ($a) { return "<$a>"; },
+                    $possibles)))
+                    ->first()
+                )
+         ) {
+            $mailinfo['passive'] = true;
+            return $entry;
+        }
 
         // Search for ticket by the [#123456] in the subject line
         // This is the last resort -  emails must match to avoid message

@@ -469,7 +469,7 @@ else
     </ul>
     <?php
     if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
-    <form id="task_reply" class="tab_content spellcheck"
+    <form id="task_reply" class="tab_content spellcheck save"
         action="<?php echo $action; ?>"
         name="task_reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -559,7 +559,7 @@ else
     } ?>
     <form id="task_note"
         action="<?php echo $action; ?>"
-        class="tab_content spellcheck <?php
+        class="tab_content spellcheck save <?php
             echo $role->hasPerm(TaskModel::PERM_REPLY) ? 'hidden' : ''; ?>"
         name="task_note"
         method="post" enctype="multipart/form-data">

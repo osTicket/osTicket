@@ -29,7 +29,7 @@ if ($_POST)
 //  $user = User::lookupByemail($thisstaff->getEmail());
  //}
 ?>
-<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" class="ticket_open_content">
+<form action="tickets.php?a=open" method="post" class="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
