@@ -1520,7 +1520,7 @@ extends AbstractForm {
                     'configuration' => array(
                         'min' => Misc::gmtime(),
                         'time' => true,
-                        'gmt' => true,
+                        'gmt' => false,
                         'future' => true,
                         ),
                     )),
