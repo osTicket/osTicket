@@ -1,3 +1,15 @@
+osTicket v1.9.15
+================
+### Enhancements
+ * Introduce the concept of Trusted Proxies and Local Networks (8ca6bc30)
+
+### Performance and Security
+ * Fix memory leak when applying `Use Reply-To Email` ticket filter
+ * action (8ca6bc30)
+ * XSS: Sanitize and validate HTTP_X_FORWARDED_FOR header (#3439,
+        * b794c599)
+ * XSS: Encode html chars on help desk title/name (#3439, a57de770)
+
 osTicket v1.9.14
 ================
 ### Enhancements
