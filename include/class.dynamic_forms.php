@@ -918,7 +918,7 @@ class DynamicFormEntry extends VerySimpleModel {
      * entry.
      */
     function addMissingFields() {
-        if (!($form = $this->getForm())
+        if (!($form = $this->getForm()))
             // The form for this entry was removed. No missing fields to
             // consider
             return;
