@@ -1014,7 +1014,7 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
   } else {
     // Anchor the beginning of the pattern with a lookahead
     // to avoid crazy backtracking when words are longer than $width
-    $pattern = '/(?=[\s\p{Ps}])(.{1,'.$width.'})(?:\s|$|(\p{Ps}))/uS';
+    $search = '/(?=[\s\p{Ps}])(.{1,'.$width.'})(?:\s|$|(\p{Ps}))/uS';
     $replace = '$1'.$break.'$2';
   }
   return rtrim(preg_replace($search, $replace, $string), $break);
