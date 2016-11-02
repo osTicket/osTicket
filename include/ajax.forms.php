@@ -172,7 +172,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
                 $item->update([
                     'name' =>   $basic['name'],
                     'value' =>  $basic['value'],
-                    'extra' =>  $basic['extra'],
+                    'abbrev' =>  $basic['extra'],
                 ]);
             }
         }
