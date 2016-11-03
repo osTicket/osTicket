@@ -68,7 +68,7 @@ if($ticket->isOverdue())
             }
 
             if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
-                <span class="action-button pull-right"><a data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a></span>
+                <a class="action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Edit'); ?>" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit"><i class="icon-edit"></i></a>
             <?php
             } ?>
             <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-print" data-toggle="tooltip" title="<?php echo __('Print'); ?>">
@@ -86,11 +86,9 @@ if($ticket->isOverdue())
             <?php
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
-            <span class="action-button pull-right">
-            <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
+            <a class="action-button pull-right ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
                 data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
-            </span>
             <?php
             } ?>
 
