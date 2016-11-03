@@ -391,8 +391,14 @@ if($ticket->isOverdue())
                     <td><?php echo Format::datetime($ticket->getLastMsgDate()); ?></td>
                 </tr>
                 <tr>
-                    <th nowrap><?php echo __('Last Response');?>:</th>
-                    <td><?php echo Format::datetime($ticket->getLastRespDate()); ?></td>
+                    <th><?php echo __('Source'); ?>:</th>
+                    <td><?php
+                        echo Format::htmlchars($ticket->getSource());
+
+                        if (!strcasecmp($ticket->getSource(), 'Web') && $ticket->getIP())
+                            echo '&nbsp;&nbsp; <span class="faded">('.Format::htmlchars($ticket->getIP()).')</span>';
+                        ?>
+                    </td>
                 </tr>
             </table>
         </td>
@@ -574,9 +580,8 @@ if ($errors['err'] && isset($_POST['a'])) {
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
-    if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
-     
-    <form id="reply" class="tab_content spellcheck exclusive"
+    if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+    <form id="reply" class="tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?<?php echo$qurl.$purl.$qfurl
@@ -776,7 +781,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </form><?php } ?>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content spellcheck exclusive"
+    <form id="note" class="hidden tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?<?php echo$qurl.$purl.$qfurl
