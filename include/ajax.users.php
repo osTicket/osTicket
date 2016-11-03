@@ -83,8 +83,7 @@ class UsersAjaxAPI extends AjaxController {
             // Omit already-imported remote users
             if ($emails = array_filter($emails)) {
                 $users->union(User::objects()
-                    ->values_flat('id', 'name', 'default_email__address')
-                    ->annotate(array('__relevance__' => new SqlCode(1)))
+                    ->values_flat('id', 'name', 'default_email__address')                    
                     ->filter(array(
                         'emails__address__in' => $emails
                 )));
