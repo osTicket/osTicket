@@ -34,22 +34,18 @@ if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
 
 // Mass Transfer
 if ($agent->hasPerm(Ticket::PERM_TRANSFER, false)) {?>
-<span class="action-button">
- <a class="tickets-action" id="tickets-transfer" data-placement="bottom"
+ <a class="action-button tickets-action" id="tickets-transfer" data-placement="bottom"
     data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
     href="#tickets/mass/transfer"><i class="icon-share"></i></a>
-</span>
 <?php
 }
 
 
 // Mass Delete
 if ($agent->hasPerm(Ticket::PERM_DELETE, false)) {?>
-<span class="red button action-button">
- <a class="tickets-action" id="tickets-delete" data-placement="bottom"
+ <a class="red button action-button tickets-action" id="tickets-delete" data-placement="bottom"
     data-toggle="tooltip" title="<?php echo __('Delete'); ?>"
     href="#tickets/mass/delete"><i class="icon-trash"></i></a>
-</span>
 <?php
 }
 
