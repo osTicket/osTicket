@@ -658,6 +658,7 @@ implements TemplateVariable {
         'short' => array(     /*@trans*/ "First L.", 'getShort'),
         'shortformal' => array(/*@trans*/ "F. Last", 'getShortFormal'),
         'complete' => array(  /*@trans*/ "Mr. First M. Last Sr.", 'getComplete'),
+        'hungarian' => array( /*@trans*/ "Last First", 'getLastFirstHungarian'),
         'original' => array(  /*@trans*/ '-- As Entered --', 'getOriginal'),
     );
 
@@ -729,6 +730,14 @@ implements TemplateVariable {
         $name = $this->parts['last'].', '.$this->parts['first'];
         if ($this->parts['suffix'])
             $name .= ', '.$this->parts['suffix'];
+        return $name;
+    }
+
+    function getLastFirstHungarian() {
+        $name = '';
+        if ($this->parts['suffix'])
+                $name = $this->parts['suffix'].' ';
+        $name .= $this->parts['last'].' '.$this->parts['first'];
         return $name;
     }
 
