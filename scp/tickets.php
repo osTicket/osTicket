@@ -163,7 +163,12 @@ if($_POST && !$errors):
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
-                $msg=__('Internal note posted successfully');
+                $msg = sprintf(__('%s: Internal note posted successfully'),
+                        sprintf(__('Ticket #%s'),
+                            sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                $ticket->getId(), $ticket->getNumber()))
+                        );
+
                 // Clear attachment list
                 $note_form->setSource(array());
                 $note_form->getField('attachments')->reset();
