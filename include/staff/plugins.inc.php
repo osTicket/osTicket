@@ -70,15 +70,14 @@ foreach ($ost->plugins->allInstalled() as $p) {
 		$info = include 'phar://'.INCLUDE_DIR.'/'.$ppath.'/plugin.php';
 	} else {
 		$info = include($ppath.'/plugin.php');
-	}
-	?>
+	} ?>
     <tr>
         <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
                 <?php echo $sel?'checked="checked"':''; ?>></td>
         <td><a href="plugins.php?id=<?php echo $p->getId(); ?>"
             >
-			<?php echo $p->getName(); ?></a></td>
-			<td><?php echo $info['version']; ?></a></td>
+	<?php echo $p->getName(); ?></a></td>
+	<td><?php echo $info['version']; ?></a></td>
         <td><?php echo ($p->isActive())
             ? 'Enabled' : '<strong>Disabled</strong>'; ?></td>
         <td><?php echo Format::datetime($p->getInstallDate()); ?></td>
@@ -88,7 +87,7 @@ foreach ($ost->plugins->allInstalled() as $p) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="4">
+        <td colspan="5">
             <?php if($count){ ?>
             <?php echo __('Select'); ?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
