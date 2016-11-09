@@ -56,7 +56,7 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
         <tr>
             <th width="4%">&nbsp;</th>
             <th width="56%"><?php echo __('Plugin Name'); ?></th>
-			<th width="10%"><?php echo __('Version'); ?></th>
+	    <th width="10%"><?php echo __('Version'); ?></th>
             <th width="10%"><?php echo __('Status'); ?></th>
             <th width="20%"><?php echo __('Date Installed'); ?></th>
         </tr>
@@ -65,12 +65,12 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
 <?php
 foreach ($ost->plugins->allInstalled() as $p) {
     if ($p instanceof Plugin) {
-			$ppath = $p->getInstallPath();
-			if($p->isPhar()) {
-				$info = include 'phar://'.INCLUDE_DIR.'/'.$ppath.'/plugin.php';
-			} else {
-				$info = include($ppath.'/plugin.php');
-			}
+	$ppath = $p->getInstallPath();
+	if($p->isPhar()) {
+		$info = include 'phar://'.INCLUDE_DIR.'/'.$ppath.'/plugin.php';
+	} else {
+		$info = include($ppath.'/plugin.php');
+	}
 	?>
     <tr>
         <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
