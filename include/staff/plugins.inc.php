@@ -55,7 +55,8 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
-            <th width="66%"><?php echo __('Plugin Name'); ?></th>
+            <th width="56%"><?php echo __('Plugin Name'); ?></th>
+            <th width="10%"><?php echo __('Version'); ?></th>
             <th width="10%"><?php echo __('Status'); ?></th>
             <th width="20%"><?php echo __('Date Installed'); ?></th>
         </tr>
@@ -63,12 +64,20 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
     <tbody>
 <?php
 foreach ($ost->plugins->allInstalled() as $p) {
-    if ($p instanceof Plugin) { ?>
+    if ($p instanceof Plugin) {
+        $ppath = $p->getInstallPath();
+        if($p->isPhar()) {
+                $info = include 'phar://'.INCLUDE_DIR.'/'.$ppath.'/plugin.php';
+        } else {
+                $info = include($ppath.'/plugin.php');
+        }
+        ?>
     <tr>
         <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
                 <?php echo $sel?'checked="checked"':''; ?>></td>
         <td><a href="plugins.php?id=<?php echo $p->getId(); ?>"
             ><?php echo $p->getName(); ?></a></td>
+        <td><?php echo $info['version']; ?></td>
         <td><?php echo ($p->isActive())
             ? 'Enabled' : '<strong>Disabled</strong>'; ?></td>
         <td><?php echo Format::datetime($p->getInstallDate()); ?></td>
@@ -78,7 +87,7 @@ foreach ($ost->plugins->allInstalled() as $p) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="4">
+        <td colspan="5">
             <?php if($count){ ?>
             <?php echo __('Select'); ?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All'); ?></a>&nbsp;&nbsp;
