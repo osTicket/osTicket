@@ -239,7 +239,7 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
+                    <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
@@ -355,7 +355,7 @@ if($ticket->isOverdue())
                         echo Format::htmlchars($ticket->getSource());
 
                         if (!strcasecmp($ticket->getSource(), 'Web') && $ticket->getIP())
-                            echo '&nbsp;&nbsp; <span class="faded">('.$ticket->getIP().')</span>';
+                            echo '&nbsp;&nbsp; <span class="faded">('.Format::htmlchars($ticket->getIP()).')</span>';
                         ?>
                     </td>
                 </tr>
@@ -536,7 +536,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content spellcheck exclusive"
+    <form id="reply" class="tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php
@@ -583,7 +583,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
                 </td>
                 <td>
-                    <input type='checkbox' value='1' name="emailcollab" id="emailcollab"
+                    <input type='checkbox' value='1' name="emailcollab"
+                    id="t<?php echo $ticket->getThreadId(); ?>-emailcollab"
                         <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
                         style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
@@ -732,7 +733,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </form>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content spellcheck exclusive"
+    <form id="note" class="hidden tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php echo $ticket->getId(); ?>#note"

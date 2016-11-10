@@ -550,7 +550,10 @@ abstract class Plugin {
         $P = new Phar($phar);
         $sig = $P->getSignature();
         $info = array();
-        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain, DNS_TXT)) {
+        $ignored = null;
+        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain.'.',
+            DNS_TXT, $ignored, $ignored, true)
+        ) {
             foreach ($r as $rec) {
                 foreach (explode(';', $rec['txt']) as $kv) {
                     list($k, $v) = explode('=', trim($kv));

@@ -128,6 +128,20 @@ class DynamicFormsAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/list-items.tmpl.php');
     }
 
+    function previewListItem($list_id, $item_id) {
+
+        $list = DynamicList::lookup($list_id);
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
+        if (!($item = $list->getItem( (int) $item_id)))
+            Http::response(404, 'No such list item');
+
+        $form = $list->getListItemBasicForm($item->ht, $item);
+        include(STAFFINC_DIR . 'templates/list-item-preview.tmpl.php');
+    }
+
     function saveListItem($list_id, $item_id) {
         global $thisstaff;
 
@@ -135,22 +149,32 @@ class DynamicFormsAjaxAPI extends AjaxController {
             Http::response(403, 'Login required');
 
         $list = DynamicList::lookup($list_id);
+        if (!$list)
+            Http::response(404, 'No such list item');
+
+        $list = CustomListHandler::forList($list);
         if (!$list || !($item = $list->getItem( (int) $item_id)))
             Http::response(404, 'No such list item');
 
         $item_form = $list->getListItemBasicForm($_POST, $item);
 
         if ($valid = $item_form->isValid()) {
-            // Update basic information
-            $basic = $item_form->getClean();
-            $item->extra = $basic['extra'];
-            $item->value = $basic['value'];
-
             if ($_item = DynamicListItem::lookup(array(
-                            'list_id' => $list->getId(), 'value'=>$item->value)))
+                'list_id' => $list->getId(), 'value'=>$item->getValue()))
+            ) {
                 if ($_item && $_item->id != $item->id)
                     $item_form->getField('value')->addError(
                         __('Value already in use'));
+            }
+            if ($item_form->isValid()) {
+                // Update basic information
+                $basic = $item_form->getClean();
+                $item->update([
+                    'name' =>   $basic['name'],
+                    'value' =>  $basic['value'],
+                    'abbrev' =>  $basic['extra'],
+                ]);
+            }
         }
 
         // Context

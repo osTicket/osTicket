@@ -3,7 +3,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
 
 ?>
 <h2><?php echo __('Agents Settings'); ?></h2>
-<form action="settings.php?t=agents" method="post" id="save">
+<form action="settings.php?t=agents" method="post" class="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="t" value="agents" >
     <ul class="tabs" id="agents-tabs">
