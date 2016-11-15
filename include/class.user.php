@@ -207,13 +207,14 @@ implements TemplateVariable {
                 list($name) = explode('@', $vars['email'], 2);
 
             $user = new User(array(
-                'name' => Format::htmldecode(Format::sanitize($name, false)),
+                'name' => $name,
                 'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
                 //XXX: Do plain create once the cause
                 // of the detached emails is fixed.
                 'default_email' => UserEmail::ensure($vars['email'])
             ));
+            //file_put_contents('php://stderr', print_r($user, TRUE));
             // Is there an organization registered for this domain
             list($mailbox, $domain) = explode('@', $vars['email'], 2);
             if (isset($vars['org_id']))
