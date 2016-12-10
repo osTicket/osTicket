@@ -457,6 +457,11 @@ var scp_prep = function() {
            }, 1);
          }
        }
+       if($("div.sticky.bar").hasClass('fixed')){
+         $(".nav-status").show().css("display","inline");
+       } else {
+         $(".nav-status").hide();
+       }
     });
   });
 
