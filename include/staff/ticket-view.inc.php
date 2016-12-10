@@ -223,6 +223,7 @@ if($ticket->isOverdue())
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
              <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
             </h2>
+            <h2 class="nav_status"><?php echo sprintf(__(' - %s'), $ticket->getStatus()); ?></h2>
         </div>
     </div>
   </div>
