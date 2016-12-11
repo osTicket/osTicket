@@ -50,7 +50,7 @@ else {
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
-    <li><a href="#permissions"><?php echo __('Permisions'); ?></a></li>
+    <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
   </ul>
 
