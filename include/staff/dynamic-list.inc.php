@@ -19,7 +19,7 @@ if ($list) {
 $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info);
 
 ?>
-<form action="" method="post" id="save">
+<form action="" method="post" class="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -257,7 +257,7 @@ $(function() {
     $('#items').on('click', 'a.items-action', function(e) {
         e.preventDefault();
         var ids = [];
-        $('form#save :checkbox.mass:checked').each(function() {
+        $('form.save :checkbox.mass:checked').each(function() {
             ids.push($(this).val());
         });
         if (ids.length && confirm(__('You sure?'))) {

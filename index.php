@@ -28,8 +28,8 @@ if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
 <div class="search-form">
     <form method="get" action="kb/faq.php">
     <input type="hidden" name="a" value="search"/>
-    <input type="text" name="q" class="search" placeholder="Search our knowledge base"/>
-    <button type="submit" class="green button">Search</button>
+    <input type="text" name="q" class="search" placeholder="<?php echo __('Search our knowledge base'); ?>"/>
+    <button type="submit" class="green button"><?php echo __('Search'); ?></button>
     </form>
 </div>
     <div class="thread-body">
@@ -53,7 +53,7 @@ if($cfg && $cfg->isKnowledgebaseEnabled()){
 <?php
 $cats = Category::getFeatured();
 if ($cats->all()) { ?>
-<h1>Featured Knowledge Base Articles</h1>
+<h1><?php echo __('Featured Knowledge Base Articles'); ?></h1>
 <?php
 }
 

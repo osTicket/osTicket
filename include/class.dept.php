@@ -320,7 +320,7 @@ implements TemplateVariable {
         if (is_object($staff))
             $staff = $staff->getId();
 
-        return $members->getIterator()->findFirst(array(
+        return $this->getMembers()->findFirst(array(
             'staff_id' => $staff
         ));
     }
@@ -469,7 +469,7 @@ implements TemplateVariable {
     }
 
     /*----Static functions-------*/
-	static function getIdByName($name, $pid=null) {
+    static function getIdByName($name, $pid=null) {
         $row = static::objects()
             ->filter(array(
                         'name' => $name,
@@ -579,9 +579,12 @@ implements TemplateVariable {
 
     static function __create($vars, &$errors) {
         $dept = self::create($vars);
-        $dept->update($vars, $errors);
+        if (!$dept->update($vars, $errors))
+          return false;
 
-        return isset($dept->id) ? $dept : null;
+       $dept->save();
+
+       return $dept;
     }
 
     function save($refetch=false) {

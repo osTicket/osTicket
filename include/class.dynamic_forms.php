@@ -951,15 +951,11 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function setAnswer($name, $value, $id=false) {
-        foreach ($this->getAnswers() as $ans) {
+
+        if ($ans=$this->getAnswer($name)) {
             $f = $ans->getField();
-            if ($f->isStorable() && $f->get('name') == $name) {
-                $f->reset();
-                $ans->set('value', $value);
-                if ($id !== false)
-                    $ans->set('value_id', $id);
-                break;
-            }
+            if ($f->isStorable())
+                $ans->setValue($value, $id);
         }
     }
 
@@ -1269,7 +1265,7 @@ class DynamicFormEntry extends VerySimpleModel {
             }
             if ($a->dirty)
                 $dirty++;
-            $a->save();
+            $a->save($refetch);
         }
         return $dirty;
     }
@@ -1357,6 +1353,14 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         }
 
         return $this->_value;
+    }
+
+    function setValue($value, $id=false) {
+        $this->getField()->reset();
+        $this->_value = null;
+        $this->set('value', $value);
+        if ($id !== false)
+            $this->set('value_id', $id);
     }
 
     function getLocal($tag) {
@@ -1621,8 +1625,10 @@ class SelectionField extends FormField {
                 }
             } elseif ($config['typeahead']
                     && ($entered = $this->getWidget()->getEnteredValue())
-                    && !in_array($entered, $entry))
+                    && !in_array($entered, $entry)
+                    && $entered != $entry) {
                 $this->_errors[] = __('Select a value from the list');
+           }
         }
     }
 

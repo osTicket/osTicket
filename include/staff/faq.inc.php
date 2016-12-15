@@ -41,7 +41,7 @@ if($faq){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $qstr = Http::build_query($qs);
 ?>
-<form action="faq.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+<form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

@@ -26,7 +26,7 @@ if($dept && $_REQUEST['a']!='add') {
 
 $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
-<form action="departments.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="departments.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">

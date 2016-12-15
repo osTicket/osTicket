@@ -27,6 +27,9 @@ Bootstrap::i18n_prep();
 Bootstrap::loadCode();
 Bootstrap::connect();
 
+#Global override
+$_SERVER['REMOTE_ADDR'] = osTicket::get_client_ip();
+
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
 Bootstrap::croak(__('Unable to load config info from DB. Get tech support.'));
 

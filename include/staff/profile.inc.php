@@ -2,7 +2,7 @@
 if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
 ?>
 
-<form action="profile.php" method="post" id="save" autocomplete="off">
+<form action="profile.php" method="post" class="save" autocomplete="off">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $staff->getId(); ?>">

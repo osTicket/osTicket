@@ -55,7 +55,7 @@ require(STAFFINC_DIR.'header.inc.php');
 
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="emailtest.php" method="post" id="save">
+<form action="emailtest.php" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <h2><?php echo __('Test Outgoing Email');?></h2>
