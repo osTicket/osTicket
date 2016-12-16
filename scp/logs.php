@@ -38,7 +38,7 @@ if($_POST){
                         $errors['err']=sprintf(__('Unable to delete %s.'),
                             _N('selected log entry', 'selected log entries', $count));
                 } else {
-                    $errors['err']=__('Unknown action - get technical help.');
+                    $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;

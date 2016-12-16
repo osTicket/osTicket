@@ -17,7 +17,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 echo sprintf('<li>%s</li>',$error);
             echo '</ul>';
         } else {
-            echo '<b><font color="red">'.__('Internal error occurred - get technical help.').'</font></b>';
+            echo '<b><font color="red">'.__('Internal error occurred').' - '.__('Get technical help!').'</font></b>';
         }
         ?>
         <p><b><?php echo sprintf(__('For details - please view %s or check your email.'),

@@ -1089,7 +1089,7 @@ class OsticketConfig extends Config {
                 return $this->updateKBSettings($vars, $errors);
                 break;
             default:
-                $errors['err']=__('Unknown setting option. Get technical support.');
+                $errors['err']=sprintf('%s - %s', __('Unknown setting option'), __('Get technical help!'));
         }
 
         return false;
