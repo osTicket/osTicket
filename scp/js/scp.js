@@ -458,9 +458,9 @@ var scp_prep = function() {
          }
        }
        if($("div.sticky.bar").hasClass('fixed')){
-         $(".nav-status").show().css("display","inline");
+         $(".nav_status").show().css("display","inline");
        } else {
-         $(".nav-status").hide();
+         $(".nav_status").hide();
        }
     });
   });
