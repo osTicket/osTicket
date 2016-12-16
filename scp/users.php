@@ -126,7 +126,7 @@ if ($_POST) {
 
                 case 'setorg':
                     if (!($org = Organization::lookup($_POST['org_id'])))
-                        $errors['err'] = __('Unknown action - get technical help.');
+                        $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                     foreach ($users as $U) {
                         if ($U->setOrganization($org))
                             $count++;
@@ -134,7 +134,7 @@ if ($_POST) {
                     break;
 
                 default:
-                    $errors['err']=__('Unknown action - get technical help.');
+                    $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
                 if (!$errors['err'] && !$count) {
                     $errors['err'] = __('Unable to manage any of the selected end users');
