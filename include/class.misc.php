@@ -167,31 +167,32 @@ class Misc {
     function timeDropdown($hr=null, $min =null,$name='time') {
         global $cfg;
 
-        $hr =is_null($hr)?0:$hr;
-        $min =is_null($min)?0:$min;
-
         //normalize;
-        if($hr>=24)
-            $hr=$hr%24;
-        elseif($hr<0)
-            $hr=0;
+        if ($hr >= 24)
+            $hr = $hr%24;
+        elseif ($hr < 0)
+            $hr = 0;
+        elseif ($hr)
+            $hr = (int) $hr;
+        else  // Default to 5pm
+            $hr = 17;
 
-        if($min>=45)
-            $min=45;
-        elseif($min>=30)
-            $min=30;
-        elseif($min>=15)
-            $min=15;
+        if ($min >= 45)
+            $min = 45;
+        elseif ($min >= 30)
+            $min = 30;
+        elseif ($min >= 15)
+            $min = 15;
         else
-            $min=0;
+            $min = 0;
 
         $time = Misc::user2gmtime(mktime(0,0,0));
         ob_start();
         echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
-        echo '<option value="" selected>'.__('Time').'</option>';
+        echo '<option value="" selected="selected">&mdash;'.__('Time').'&mdash;</option>';
         for($i=23; $i>=0; $i--) {
             for ($minute=45; $minute>=0; $minute-=15) {
-                $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
+                $sel=($hr===$i && $min===$minute) ? 'selected="selected"' : '';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
                 $disp = Format::time($time + ($i*3600 + $minute*60 + 1), false);
