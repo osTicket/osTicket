@@ -173,23 +173,8 @@ class DbTimezone {
             // timezone in PHP which honors BST (British Summer Time)
             return 'Europe/London';
         }
-        // Forbid timezone abbreviations like 'CDT'
-        elseif ($TZ !== 'UTC' && strpos($TZ, '/') === false) {
-            // Attempt to lookup based on the abbreviation
-            if (!($TZ = timezone_name_from_abbr($TZ)))
-                // Abbreviation doesn't point to anything valid
-                return false;
-        }
 
-        // SYSTEM does not describe a time zone, ensure we have a valid zone
-        // by attempting to create an instance of DateTimeZone()
-        try {
-            new DateTimeZone($TZ);
-            return $TZ;
-        }
-        catch (Exception $ex) {
-            return false;
-        }
+        return Format::timezone($TZ);
     }
 
     function dst_dates($year) {
