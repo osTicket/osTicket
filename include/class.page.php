@@ -57,7 +57,7 @@ class Page extends VerySimpleModel {
         return $this->name;
     }
     function getLocalName($lang=false) {
-        return $this->getLocal('name', $lang);
+        return $this->_getLocal('name', $lang);
     }
     function getNameAsSlug() {
         return urlencode(Format::slugify($this->name));
