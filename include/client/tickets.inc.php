@@ -47,7 +47,7 @@ if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 
 $order_by=$order_by ?: $sortOptions['date'];
-if ($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
+if ($_REQUEST['order'] && ($_REQUEST['order'] == 'ASC' || $orderWays[strtoupper($_REQUEST['order'])]))
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 else
     $order = $orderWays['DESC'];
@@ -201,19 +201,19 @@ if ($closedTickets) {?>
     <thead>
         <tr>
             <th nowrap>
-                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
+                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf(__('Sort by %s %s'), __('Ticket #'), __($negorder)); ?>"><?php echo __('Ticket #');?></a>
             </th>
             <th width="120">
-                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
+                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf(__('Sort by %s %s'), __('Create Date'), __($negorder)); ?>"><?php echo __('Create Date');?></a>
             </th>
             <th width="100">
-                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
+                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf(__('Sort by %s %s'), __('Status'), __($negorder)); ?>"><?php echo __('Status');?></a>
             </th>
             <th width="320">
-                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
+                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject');?></a>
             </th>
             <th width="120">
-                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
+                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a>
             </th>
         </tr>
     </thead>
