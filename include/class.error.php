@@ -17,7 +17,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Error extends Exception {
+class ErrorOs extends Exception {
     static $title = '';
     static $sendAlert = true;
 

@@ -51,7 +51,7 @@ class TicketModel extends VerySimpleModel {
         return $this->ticket_id;
     }
 
-    function delete() {
+    function delete($pk = null) {
 
         if (($ticket=Ticket::lookup($this->getId())) && @$ticket->delete())
             return true;
@@ -575,7 +575,7 @@ class User extends UserModel {
         return parent::save($refetch);
     }
 
-    function delete() {
+    function delete($pk = null) {
 
         // Refuse to delete a user with tickets
         if ($this->tickets->count())
