@@ -343,7 +343,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return parent::save($refetch);
     }
 
-    function delete() {
+    function delete($pk = null) {
         $fields = DynamicFormField::objects()->filter(array(
             'type'=>'list-'.$this->id))->count();
         if ($fields == 0)
@@ -622,7 +622,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->save();
     }
 
-    function delete() {
+    function delete($pk = null) {
         # Don't really delete, just unset the list_id to un-associate it with
         # the list
         $this->set('list_id', null);
@@ -1110,7 +1110,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return $this->save(true);
     }
 
-    function delete() {
+    function delete($pk = null) {
 
         // Statuses with tickets are not deletable
         if (!$this->isDeletable())
@@ -1123,7 +1123,7 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
         return __($this->getName());
     }
 
-    static function create($ht) {
+    static function create($ht = null) {
 
         if (!isset($ht['mode']))
             $ht['mode'] = 1;

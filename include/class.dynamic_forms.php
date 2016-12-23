@@ -156,7 +156,7 @@ class DynamicForm extends VerySimpleModel {
         return parent::save($refetch);
     }
 
-    function delete() {
+    function delete($pk = null) {
         if (!$this->isDeletable())
             return false;
         else
@@ -625,7 +625,7 @@ class DynamicFormField extends VerySimpleModel {
         return count($this->errors()) == 0;
     }
 
-    function delete() {
+    function delete($pk = null) {
         // Don't really delete form fields as that will screw up the data
         // model. Instead, just drop the association with the form which
         // will give the appearance of deletion. Not deleting means that
@@ -636,7 +636,7 @@ class DynamicFormField extends VerySimpleModel {
         $this->save();
     }
 
-    function save() {
+    function save($refetch = null) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         return parent::save();
@@ -1026,7 +1026,7 @@ class DynamicFormEntry extends VerySimpleModel {
         return $dirty;
     }
 
-    function delete() {
+    function delete($pk = null) {
         foreach ($this->getAnswers() as $a)
             $a->delete();
         return parent::delete();
@@ -1158,7 +1158,7 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
         return is_string($v) ? $v : (string) $this->getValue();
     }
 
-    function delete() {
+    function delete($pk = null) {
         if (!parent::delete())
             return false;
 
@@ -1183,7 +1183,7 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
-    function getWidget() {
+    function getWidget($widgetClass = null) {
         $config = $this->getConfiguration();
         $widgetClass = false;
         if ($config['widget'] == 'typeahead')
@@ -1384,7 +1384,8 @@ class SelectionField extends FormField {
 }
 
 class TypeaheadSelectionWidget extends ChoicesWidget {
-    function render($how) {
+    function render($mode = null) {
+        $how = $mode;
         if ($how == 'search')
             return parent::render($how);
 
