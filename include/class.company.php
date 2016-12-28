@@ -78,8 +78,6 @@ implements TemplateVariable {
      * it wan't in the yaml file for installation or upgrade.
      */
     function __loadDefaultForm() {
-        require_once(INCLUDE_DIR.'class.i18n.php');
-
         $i18n = new Internationalization();
         $tpl = $i18n->getTemplate('form.yaml');
         foreach ($tpl->getData() as $f) {

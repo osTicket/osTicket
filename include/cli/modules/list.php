@@ -1,6 +1,4 @@
 <?php
-include_once INCLUDE_DIR .'class.translation.php';
-
 
 class ListManager extends Module {
     var $prologue = 'CLI list manager';

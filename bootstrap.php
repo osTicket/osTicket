@@ -190,7 +190,15 @@ class Bootstrap {
     }
 
     function loadCode() {
-        require INCLUDE_DIR . 'mysqli.php';
+        require_once INCLUDE_DIR . 'mysqli.php';
+        self::installAutoloader();
+    }
+
+    function installAutoloader() {
+        static $installed = false;
+        if ($installed)
+            return;
+
         if (!($classes = (@include INCLUDE_DIR . '.autoload.php')))
             return;
 
@@ -200,6 +208,8 @@ class Bootstrap {
                 return;
             require ROOT_DIR . $classes[$class];
         });
+
+        $installed = true;
     }
 
     function i18n_prep() {

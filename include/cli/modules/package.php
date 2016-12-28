@@ -38,6 +38,19 @@ class Packager extends Deployment {
     }
 
     function run($args, $options) {
+        # Apply forced (implied) options and arguments
+        $options['setup'] = true;
+        $options['git'] = true;
+        $options['autoload'] = true;
+
+        $options['clean'] = false;
+        $options['dry-run'] = false;
+        $options['verbose'] = true;
+        $options['include'] = false;
+
+        $this->_args = $args;
+        $this->_options = $options;
+
         if ($options['dns'])
             return $this->print_dns();
         if ($options['autoload'])
@@ -62,18 +75,6 @@ class Packager extends Deployment {
             };
             return $delTree($stage_path);
         });
-
-        $options['setup'] = true;
-        $options['git'] = true;
-        $options['verbose'] = true;
-        $options['autoload'] = true;
-
-        $options['clean'] = false;
-        $options['dry-run'] = false;
-        $options['include'] = false;
-
-        $this->_args = $args;
-        $this->_options = $options;
 
         // TODO: Run the testing applet first
         $root = $this->find_root_folder();

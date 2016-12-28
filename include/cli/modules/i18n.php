@@ -1,7 +1,5 @@
 <?php
 
-require_once INCLUDE_DIR . 'class.format.php';
-
 class i18n_Compiler extends Module {
 
     var $prologue = "Manages translation files from Crowdin";
