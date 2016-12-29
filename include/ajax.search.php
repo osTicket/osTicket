@@ -171,7 +171,8 @@ class SearchAjaxAPI extends AjaxController {
         if (!$search->update($_POST, $errors)
             || !$search->save()
         ) {
-            return $this->_tryAgain($search, $form, $errors);
+            $this->_tryAgain($search, $form, $errors);
+            return false;
         }
 
         if (false === $this->_setupSearch($search, $form)) {
