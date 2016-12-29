@@ -60,6 +60,8 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_INHERIT_SORTING =  0x0020; // Inherit advanced sorting from parent
     const FLAG_INHERIT_DEF_SORT = 0x0040; // Inherit default selected sort
 
+    const FLAG_INHERIT_EVERYTHING = 0x78; // Maskf or all INHERIT flags
+
     var $criteria;
 
     static function queues() {

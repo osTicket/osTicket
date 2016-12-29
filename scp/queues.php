@@ -90,6 +90,25 @@ if ($_POST) {
         Http::redirect('settings.php?t=tickets#queues');
     }
 }
+elseif (isset($_GET['a'])
+    && isset($queue) && $queue instanceof CustomQueue
+) {
+    switch (strtolower($_GET['a'])) {
+    case 'clone':
+        $queue = $queue->copy();
+        // Require a new name for the queue
+        unset($queue->title);
+        break;
+    case 'sub':
+        $q = new CustomQueue([
+            'parent' => $queue,
+            'flags' => CustomQueue::FLAG_QUEUE
+                     | CustomQueue::FLAG_INHERIT_EVERYTHING,
+        ]);
+        $queue = $q;
+        break;
+    }
+}
 
 require_once(STAFFINC_DIR.'header.inc.php');
 include_once(STAFFINC_DIR."queue.inc.php");

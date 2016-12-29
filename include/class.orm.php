@@ -727,6 +727,21 @@ class VerySimpleModel {
     function getDbFields() {
         return $this->ht;
     }
+
+    /**
+     * Create a new clone of this model. The primary key will be unset and the
+     * object will be set as __new__. The __clone() magic method is reserved
+     * by the buildModel() system, because it clone's a single instance when
+     * hydrating objects from the database.
+     */
+    function copy() {
+        // Drop the PK and set as unsaved
+        $dup = clone $this;
+        foreach ($dup::getMeta('pk') as $f)
+            $dup->__unset($f);
+        $dup->__new__ = true;
+        return $dup;
+    }
 }
 
 /**
@@ -814,7 +829,7 @@ trait WriteableAnnotatedModelTrait {
     }
 
     function __isset($what) {
-        if ($this->__overlay__->__isset($what))
+        if (isset($this->__overlay__) && $this->__overlay__->__isset($what))
             return true;
         return parent::__isset($what);
     }
