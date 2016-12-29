@@ -92,11 +92,13 @@ class osTicketSession {
             register_shutdown_function(function() use ($id) {
                 $i = new ArrayObject(array('touched' => false));
                 Signal::send('session.close', null, $i);
-                // FIXME: It would be possible to check if the session is
-                //      locked. If not, it might be safe to assume no
-                //      changes were made and no write() is necessary.
-                $_SESSION->releaseLock();
-                $this->backend->write($id, serialize($_SESSION->asArray()));
+                // It would be possible to check if the session is
+                // locked. If not, it might be safe to assume no changes
+                // were made and no write() is necessary.
+                if ($_SESSION->isLocked()) {
+                    $_SESSION->releaseLock();
+                    $this->backend->write($id, serialize($_SESSION->asArray()));
+                }
             });
         }
         else {
@@ -259,8 +261,7 @@ extends SessionBackend {
         if (defined('DISABLE_SESSION') && $this->data->__new__)
             return true;
 
-        $ttl = $this && method_exists($this, 'getTTL')
-            ? $this->getTTL() : SESSION_TTL;
+        $ttl = $this->getTTL() ?: SESSION_TTL;
 
         $this->data->session_data = $data;
         $this->data->session_expire =
@@ -288,6 +289,7 @@ extends SessionBackend {
             // XXX: Only accurate to one second
             return $this->data->session_updated != $lastupdate;
         }
+
         return false;
     }
 
