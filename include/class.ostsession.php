@@ -273,6 +273,24 @@ extends SessionBackend {
         return $this->data->save();
     }
 
+    function checkTouched() {
+        list($lastupdate) = SessionData::objects()
+            ->filter(['session_id' => $id])
+            ->values_flat('session_updated')
+            ->first();
+
+        if (isset($lastupdate)) {
+            // If we think the data is new, then it must have been touched.
+            // This case should never happen for existing sessions.
+            if ($this->data->__new__)
+                return true;
+
+            // XXX: Only accurate to one second
+            return $this->data->session_updated != $lastupdate;
+        }
+        return false;
+    }
+
     function destroy($id){
         return SessionData::objects()->filter(['session_id' => $id])->delete();
     }
@@ -350,9 +368,23 @@ extends SessionBackend {
         foreach ($this->servers as $S) {
             list($host, $port) = $S;
             $this->memcache->pconnect($host, $port);
-            if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
+            if (!$this->memcache->replace($key, $data, 0, $this->getTTL())) {
                 $this->memcache->set($key, $data, 0, $this->getTTL());
+                $this->memcache->set("$key.time", Misc::gmtime(), 0, $this->getTTL());
+            }
         }
+    }
+
+    function checkTouched() {
+        // Just check if the timestamp occurred after the start of this
+        // session, assuming the session was fetched very shortly thereafter
+        $key = $this->getKey($id);
+        if ($timestamp = $this->memcache->get("$key.time")) {
+            // XXX: Only accurate to 1 second
+            return $timestamp > gmdate('U', $_SERVER['REQUEST_TIME_FLOAT']);
+        }
+        // Else it hasn't yet been saved
+        return false;
     }
 
     function destroy($id) {
@@ -542,7 +574,10 @@ extends ArrayObject {
             if (!$this->lock->acquire($timeout, $waited)) {
                 return false;
             }
-            if ($waited) {
+            // Check and see if we waited for a lock or if the backend
+            // indicates session has been touched since it was loaded in
+            // this session
+            if ($waited || $this->backend->checkTouched()) {
                 // Reload the session from the backend. (If we waited, then
                 // it is likely that another request updated the session
                 // while we were waiting).
