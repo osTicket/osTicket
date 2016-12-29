@@ -9,6 +9,8 @@ if (!$queue) {
     $queue = CustomQueue::create(array(
         'flags' => CustomQueue::FLAG_QUEUE,
     ));
+}
+if ($queue->__new__) {
     $title=__('Add New Queue');
     $action='create';
     $submit_text=__('Create');
