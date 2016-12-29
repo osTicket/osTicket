@@ -325,15 +325,14 @@ class Deployment extends Unpacker {
                     }
                     else {
                         $contents = file_get_contents($file);
-                        // Copy out referenced files to compressed stage
-                        preg_replace_callback(':url\([\'"]?((?!data)[^)"\']+)[\'"]?\):',
+                        // Add the relative path to the included file to the url
+                        $contents = preg_replace_callback(':url\(([\'"])?((?!data)[^)\'"]+)\1?\):',
                         function ($m) use ($self, $file) {
                             $base = dirname($file);
-                            @list($include, $query) = explode('?', rtrim($m[1],'/'));
+                            @list($include, $query) = explode('?', rtrim($m[2],'/'));
                             @list($include, $hash) = explode('#', $include, 2);
-                            // Add the relative path to the included file to the url
-                            $prefix = str_replace($self->destination, '', $base);
-                            return "url({$prefix}/${m[1]})";
+                            $prefix = str_replace(ROOT_DIR, '', $base);
+                            return "url(/{$prefix}/{$include})";
                         },
                         $contents);
                     }
@@ -391,7 +390,7 @@ class Deployment extends Unpacker {
             unset($attrs[0]);
             if (isset($attrs['data-group'])) {
                 $compressed[$attrs['data-group']][] = $attrs['src'];
-                return '<!-- script @src='.$attrs['src'].' -->';
+                return '<!-- script @src='.str_replace(ROOT_DIR, '/', $attrs['src']).' -->';
             }
             else if (isset($attrs['src']) && strpos($attrs['src'], '//') === 0) {
                 if ($path)
