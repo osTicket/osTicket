@@ -426,7 +426,8 @@ class Deployment extends Unpacker {
                         $contents = file_get_contents($file);
                     }
                     if (strpos($file, '.min.') === false)
-                        $contents = $this->minify_js($contents) ?: $contents;
+                        $contents = $this->minify_js($contents)
+                            ?: $this->minify_js2($contents);
                     $compacted[] = trim($contents, "\n");
                 }
                 $basename = 'js/'.md5('javascript::'.$group).'.js';
@@ -604,23 +605,68 @@ class Deployment extends Unpacker {
         return $source;
     }
 
+    function minify_js2($str){
+        /* This works similar to the minify_css() routine except. It doesn't
+         * shorten the method or variable names, though.
+         */
+        # remove comments first (simplifies the other regex)
+        $re1 = <<<'EOS'
+(?sx)
+      # quotes
+        (
+          "(?:[^"\\\n]++|\\.)*+"
+        | '(?:[^'\\\n]++|\\.)*+'
+        )
+      |
+        # comments
+        (?:
+          /\* (?> .*? \*/ )
+        | //[^\n]++
+        )
+EOS;
+
+        $re2 = <<<'EOS'
+(?six)
+      # quotes
+      (
+        "(?:[^"\\\n]++|\\.)*+"
+      | '(?:[^'\\\n]++|\\.)*+'
+      )
+    |
+      # ; before }
+      \s*+ ; \s*+ ( } )
+    |
+      # all spaces around meta chars/operators
+      \s*+ ( [[({;,<>=!:.]+ ) \s*+
+    |
+      # spaces at beginning/end of string (ending with ;)
+      ^ \s++ | (?=;)\s++ \z
+    |
+      # double spaces to single
+      (\s)\s+
+EOS;
+
+        $str = preg_replace("%$re1%", '$1', $str);
+        return preg_replace("%$re2%", '$1$2$3$4', $str);
+    }
+
     // Thanks, http://stackoverflow.com/a/15195752
     function minify_css($str){
         # remove comments first (simplifies the other regex)
         $re1 = <<<'EOS'
-    (?sx)
+(?sx)
       # quotes
-      (
-        "(?:[^"\\]++|\\.)*+"
-      | '(?:[^'\\]++|\\.)*+'
-      )
-    |
-      # comments
-      /\* (?> .*? \*/ )
+        (
+          "(?:[^"\\]++|\\.)*+"
+        | '(?:[^'\\]++|\\.)*+'
+        )
+      |
+        # comments
+        /\* (?> .*? \*/ )
 EOS;
 
         $re2 = <<<'EOS'
-    (?six)
+(?six)
       # quotes
       (
         "(?:[^"\\]++|\\.)*+"
