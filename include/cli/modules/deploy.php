@@ -274,7 +274,7 @@ class Deployment extends Unpacker {
     function _rewrite_css($source) {
         $compressed_css = array();
         $self = $this;
-        $source = preg_replace_callback(':<link(.*)((?!/>).)*/?>:',
+        $source = preg_replace_callback(':<link(.*)((?!/>).)*/?>:', #<?php
         function ($m) use ($self, &$compressed_css) {
             $attrs = array();
             $link = str_replace(
@@ -331,10 +331,9 @@ class Deployment extends Unpacker {
                             $base = dirname($file);
                             @list($include, $query) = explode('?', rtrim($m[1],'/'));
                             @list($include, $hash) = explode('#', $include, 2);
-                            $url = $base . '/' . $include;
-                            if (is_file($url))
-                                $self->copyFile($url, $self->destination.'css/'.$include);
-                            return $m[0];
+                            // Add the relative path to the included file to the url
+                            $prefix = str_replace($self->destination, '', $base);
+                            return "url({$prefix}/${m[1]})";
                         },
                         $contents);
                     }
