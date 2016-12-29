@@ -346,7 +346,7 @@ class Deployment extends Unpacker {
                 file_put_contents($filename, $compressed);
             }
             $source = preg_replace('/'.preg_quote('<!-- {#} CSS -->').'/',
-                '\0<link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>/css/'
+                '\0<link rel="stylesheet" type="text/css" href="<?php echo ROOT_PATH; ?>css/'
                     .md5('css::'.$group).'.css"/>',
                 $source);
         }
@@ -413,7 +413,7 @@ class Deployment extends Unpacker {
         },
         $source);
         if ($compressed) {
-            $compacted = '';
+            $compacted = array();
             foreach ($compressed as $group=>$items) {
                 foreach ($items as $file) {
                     if (strpos($file, '//') === 0) {
@@ -426,12 +426,12 @@ class Deployment extends Unpacker {
                         $contents = file_get_contents($file);
                     }
                     if (strpos($file, '.min.') === false)
-                        $contents = $this->minify_js($contents);
-                    $compacted .= $contents."\n";
+                        $contents = $this->minify_js($contents) ?: $contents;
+                    $compacted[] = trim($contents, "\n");
                 }
                 $basename = 'js/'.md5('javascript::'.$group).'.js';
                 $filename = $this->destination.$basename;
-                file_put_contents($filename, $compacted);
+                file_put_contents($filename, implode("\n\n", $compacted));
             }
             $source = preg_replace('/'.preg_quote('<!-- {#} JS -->', '/').'/',
                 '\0<script type="text/javascript" src="<?php echo ROOT_PATH; ?>'.$basename.'"></script>',
@@ -630,8 +630,11 @@ EOS;
       # ; before } (and the spaces after it while we're here)
       \s*+ ; \s*+ ( } ) \s*+
     |
+      # calc() and its contents
+      ( calc\([^)]+\) )
+    |
       # all spaces around meta chars/operators
-      \s*+ ( [*$~^|]?+= | [{};,>~+-] | !important\b ) \s*+
+      \s*+ ( [*$~^|]?+= | [{};,>~+] | !important\b ) \s*+
     |
       # spaces right of ( [ :
       ( [[(:] ) \s++
@@ -659,7 +662,7 @@ EOS;
 EOS;
 
         $str = preg_replace("%$re1%", '$1', $str);
-        return preg_replace("%$re2%", '$1$2$3$4$5$6$7', $str);
+        return preg_replace("%$re2%", '$1$2$3$4$5$6$7$8', $str);
     }
 
 }
