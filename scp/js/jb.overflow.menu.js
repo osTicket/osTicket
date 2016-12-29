@@ -156,6 +156,7 @@ $.widget( "jb.overflowmenu", {
         if( this.secondaryMenu.find( this.options.items ).length == 0){
             return;
         }
+        this.primaryMenu.css( 'right',  this.primaryMenu.data( 'right' ) )
         this.secondaryMenu.show();
         this._trigger( 'open', {}, this._uiHash() );
         return this;
@@ -207,7 +208,7 @@ $.widget( "jb.overflowmenu", {
             var width = this.secondaryMenuContainer.find('.jb-overflowmenu-menu-secondary-handle')
                         .html( value )
                         .outerWidth();
-            this.primaryMenu.css( 'right',  width )
+            this.primaryMenu.data( 'right',  width )
 
         }
 
